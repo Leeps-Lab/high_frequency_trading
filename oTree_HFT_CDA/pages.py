@@ -7,6 +7,10 @@ class MyPage(Page):
     pass
 
 
+class PreWaitPage(WaitPage):
+    def after_all_players_arrive(self):
+        self.group.wake_investor_up()
+
 class ResultsWaitPage(WaitPage):
     pass
 
@@ -22,5 +26,6 @@ class MessageSend(Page):
                    'replaced_order_token', 'replace_computer_num', 'replace_buy_or_sell', 'replace_price']
 
 page_sequence = [
+    PreWaitPage,
     start,
 ]
