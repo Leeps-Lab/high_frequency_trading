@@ -1,0 +1,84 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+
+{% block title %}
+    Choose messages to send to the exchange server
+{% endblock %}
+
+{% block content %}
+	<p><b>Format your OUCH Message!</b></p>
+    <div>
+            <div class="row">
+                <div class="col-xs-4">
+                    <b>SubjectID [A-F]:</b><input name="buy_computer_num" type="text" maxlength="1" value="A">
+                </div>
+                <div class="col-xs-4">
+                    <b>Price:</b><input name="buy_price" type="number" value="100">
+                </div>
+                <div class="col-xs-4">
+                    <b>Immediate:</b><input name="buy_immediate" type="checkbox">
+                </div>
+            </div>
+
+            <button name="msg" value="buy" class="btn btn-primary btn-large btn-success">Buy</button>
+            </br>
+
+        <div class="row">
+                <div class="col-xs-4">
+                    <b>SubjectID [A-F]:</b><input name="sell_computer_num" type="text" maxlength="1" value="A">
+                </div>
+                <div class="col-xs-4">
+                    <b>Price:</b><input name="sell_price" type="number" value="100">
+                </div>
+                <div class="col-xs-4">
+                    <b>Immediate:</b><input name="sell_immediate" type="checkbox">
+                </div>
+            </div>
+
+            <button name="msg" value="sell" class="btn btn-primary btn-large btn-success">Sell</button>
+            </br>
+        <div class="row">
+                <div class="col-xs-4">
+                    <b>SubjectID [A-F]:</b><input name="maker_computer_num" type="text" maxlength="1" value="A">
+                </div>
+                <div class="col-xs-4">
+                    <b>Price:</b><input name="maker_price" type="number" value="100">
+                </div>
+                <div class="col-xs-4">
+                    <b>Price Spread +/-:</b><input name="maker_spread" type="number" value="2.00" step="1">
+                </div>
+            </div>
+
+            <button name="msg" value="maker" class="btn btn-primary btn-large btn-success">Become A Maker</button>
+        </br>
+        <div class="row">
+                <div>
+                    <b>Order Token:</b><input name="cancel_order_num" type="text" value="SUBAB000000001">
+                </div>
+        </div>
+
+        <button name="msg" value="cancel" class="btn btn-primary btn-large btn-danger">Cancel</button>
+        </br>
+       <div class="row">
+                <div class="col-xs-3">
+                    <b>Order Token you wish to replace:</b><input name="replaced_order_token" type="text" value="SUBAB000000001">
+                </div>
+                <div class="col-xs-3">
+                    <b>SubjectID [A-F]:</b><input name="replace_computer_num" type="text" maxlength="1" value="A">
+                </div>
+                <div class="col-xs-3">
+                    <b>buy or sell:</b><input name="replace_buy_or_sell" type="text" maxlength="4" value="buy">
+                </div>
+                <div class="col-xs-3">
+                    <b>buy or sell:</b><input name="replace_price" type="number" value="100">
+                </div>
+        </div>
+
+        <button name="msg" value="replace" class="btn btn-primary btn-large btn-warning">Replace</button>
+    </br>
+
+    </div>
+
+    {% next_button %}
+
+{% endblock %}
