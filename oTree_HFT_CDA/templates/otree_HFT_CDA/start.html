@@ -3,7 +3,6 @@
 {% load staticfiles %}
 
 {% block styles %}
-    <!-- <link href="{% static "otree_HFT_CDA/Graph.css" %}"> -->
 {% endblock %}
 {% block content %}
 <div ng-controller="HFTStartController">
@@ -86,4 +85,64 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src="{% static "oTree_HFT_CDA/graph.js"%}"></script>
+    <script>
+
+        window.onload = function () {
+            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+            var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/otree_HFT_CDA/group{{group.id}}");
+            // Handle any errors that occur.
+            socket.onerror = function (error) {
+                console.log('WebSocket Error: ' + error);
+            };
+
+            $('#player_id').html({{player.id_in_group}})
+            $('#player_role').html('Out');
+            $('#curr_speed_cost').html(0);
+
+            var speed = false;
+            updatespeed = function () {
+                speed = !speed;
+                if(speed){
+                    $('#curr_speed_cost').html({{Constants.speed_cost}});
+                }else {
+                    $('#curr_speed_cost').html(0);
+                }
+                var msg = {
+                    type: 'speed_change',
+                    id: {{player.id}},
+                    id_in_group: {{player.id_in_group}},
+                    speed: speed
+                };
+                if (socket.readyState === socket.OPEN) {
+                    socket.send(JSON.stringify(msg));
+                }
+            }
+            updatestate = function (rolestate) {
+                var msg = {
+                    type: 'role_change',
+                    id: {{player.id}},
+                    id_in_group: {{player.id_in_group}},
+                    state: rolestate
+                };
+                if (socket.readyState === socket.OPEN) {
+                    socket.send(JSON.stringify(msg));
+                }
+            }
+            // Show a connected message when the WebSocket is opened.
+            socket.onopen = function (event) {
+                console.log('connected to oTree');
+            };
+            // Handle messages sent by the server.
+            socket.onmessage = function (event) {
+                var obj = jQuery.parseJSON(event.data);
+                role = obj.role_state;
+                console.log(role);
+                $('#player_role').html(role);
+            };
+            // Show a disconnected message when the WebSocket is closed.
+            socket.onclose = function (event) {
+                console.log('disconnected from oTree');
+            };
+    }
+    </script>
 {% endblock %}
