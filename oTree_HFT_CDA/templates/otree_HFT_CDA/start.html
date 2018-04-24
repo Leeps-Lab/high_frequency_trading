@@ -1,16 +1,15 @@
 {% extends "global/Page.html" %}
 {% load staticfiles otree %}
+{% load staticfiles %}
 
-{% block title %}
-    High Frequency Trading CDA
-{% endblock %}
-{% block scripts %}
+{% block styles %}
+    <!-- <link href="{% static "otree_HFT_CDA/Graph.css" %}"> -->
 {% endblock %}
 {% block content %}
 <div ng-controller="HFTStartController">
     <!--Top Data Banner-->
-    <div class="top-banner">
-        <table class="table" style="width:100%">
+    <div class="top-banner" style="border:solid black 2px; background-color: lightgrey;">
+        <table class="table" style="width:100%" >
             <tr>
                 <td class="status-display">Group # GROUP NUMBER</td>
                 <td class="status-display">Number of Traders: NUMBER TRADERS</td>
@@ -27,63 +26,64 @@
                 <td class="status-display">Speed Cost: SPEED COST / Second</td>
                 <td class="status-display">Number of Snipers: NUMBER SNIPERS / FAST</td>
                 <td class="status-display">Your Profit: RUNNING PROFIT</td>
-                 <td class="status-display">Current Sell Offer: CURRENT SEL OFFER</td>
+                 <td class="status-display">Current Sell Offer: CURRENT SELL OFFER</td>
             </tr>
         </table>
     </div>
 
     <!-- bottom of the ui -->
-    <div class="row">
+    <div class="row" style="border:solid black 5px;">
         <!-- graph the profit -->
-        <div class="col-xs-8 profit-graph-container" style="padding: 5px">
-            <svg id="profit_graph">
-                <span class="zoom-in" id="profit-zoom-in" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">+</span>
-                <span class="zoom-out" id="profit-zoom-out" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">-</span>
-            </svg>
+        <div class="col-xs-1 profit-graph-container" style=" border:solid yellow 5px;">
+             <svg id="profit-graph" width="460" height="400" style="margin-left:10px; margin-top:60px;"></svg>
         </div>
 
         <!-- graph the experiment -->
-        <div class="col-xs-2 user-graph-container" style="padding: 5px">
-            <svg  id="market_graph"></svg>
+        <div class="col-xs-1 user-graph-container" style="border:solid green 5px;">
+            <svg id="market_graph"></svg>
         </div>
 
         <!-- user buttons -->
-        <div class="col-xs-2 control-container" style="padding: 5px">
+        <div class="col-xs-2 control-container" style="padding: 5px; border:solid blue 5px;">
             <!-- roles -->
             <div class="button-container-state">
-                <div class="row" style="padding-bottom:3em">
+
                     <button id="state_out" ng-disabled="state=='state_out'" class="btn" type="button" style="width:75px">
-                        Out
+                        Out   
                     </button>
-                </div>
-                <div class="row" style="padding-bottom:3em">
+
+
                     <button id="state_snipe" ng-disabled="state=='state_snipe'" class="btn" type="button" style="width:75px">
                         Sniper
-                    </button>
-                </div>
-                <div class="row">
+                    </button> 
+
+
                     <button id="state_maker" ng-disabled="state=='state_maker'" class="btn" type="button" style="width:75px">
                         Maker
                     </button>
-                </div>
+
             </div>
             <!-- speed button -->
             <div class="button-container-speed">
-                <div class="speed-label"  style="font-size:15px">Speed</div>
+                <div class="speed-label" p style="font-size:15px">Speed</div>
                 <div class="material-switch">
                     <input id="speed-switch" type="checkbox" ng-disabled="state=='state_out'"/>
                     <label for="speed-switch"></label>
                 </div>
-            </div>
+            </div> 
             <div class="batch-line-container">
-                <svg width="100%" height="100%" id="timer_graph"></svg>
+                <svg id="timer_graph"></svg>
             </div>
             <div id="timer"></div>
         </div>
-        <!-- end user buttons -->
+
 
     </div>
  </div>
-<br>
+{% endblock %}
 
+{% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="{% static "oTree_HFT_CDA/graph.js"%}"></script>
 {% endblock %}
