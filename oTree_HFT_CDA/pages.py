@@ -10,6 +10,10 @@ class InitialWaitPage(WaitPage):
 		self.group.connect_to_exchange()
 
 
+class PreWaitPage(WaitPage):
+    def after_all_players_arrive(self):
+        self.group.wake_investor_up()
+
 class ResultsWaitPage(WaitPage):
 
 	def after_all_players_arrive(self):
@@ -29,8 +33,6 @@ class MessageSend(Page):
 
 
 page_sequence = [
-    InitialWaitPage,
-    MessageSend,
-    ResultsWaitPage,
-    Results,
+    PreWaitPage,
+    start,
 ]
