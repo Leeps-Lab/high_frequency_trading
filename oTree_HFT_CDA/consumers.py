@@ -4,14 +4,14 @@ from .models import Player, Investor
 import json
 import logging
 
-logger = logging.getLogger(__name__)
+logging.getLogger(__name__)
 
 class SubjectConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id, player_id):
         Group(group_id).add(message.reply_channel)
         log = 'Player %s is connected to Group %s.' % (player_id, group_id)
-        logger.info(log)
+        logging.info(log)
         self.connect(message, player_id)
 
     def connect(self, message, player_id):
@@ -24,7 +24,7 @@ class SubjectConsumer(JsonWebsocketConsumer):
         player.receive_from_client(msg)
 
     def raw_disconnect(self, message, group_id, player_id):
-        log = 'Player %s is connected to Group %s.' % (player_id, group_id)
+        log = 'Player %s  disconnected from Group %s.' % (player_id, group_id)
         logging.info(log)
         Group(group_id).discard(message.reply_channel)
 
@@ -37,7 +37,7 @@ class InvestorConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id):
         log = 'Investor is connected to Group %s.' % group_id
-        logger.info(log)
+        logging.info(log)
         self.connect(group_id)
 
     def connect(self, group_id):
@@ -50,5 +50,5 @@ class InvestorConsumer(JsonWebsocketConsumer):
         investor.receive_from_consumer(msg)
 
     def raw_disconnect(self, message, group_id):
-        log = 'Investor is disconnected from Group %s.' % group_id
+        log = 'Investor disconnected from Group %s.' % group_id
         logging.info(log)
