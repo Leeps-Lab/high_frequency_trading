@@ -4,7 +4,7 @@
 var n = 10;
 var data = d3.range(n).map(function(d) { return {"y": 0}});
 Draw_Graph(data);
-alert("hi danb");
+//alert("hi danb");
 
 /*Starting Button Logic*/
 document.getElementById("maker").onclick = function () {
@@ -86,7 +86,7 @@ function Make_Profit_Graph(n,data){
       .domain([-1, 1]) // Fundamental Price +-Spread  
       .range([height, 0]); // output
 
-  console.log(data[data.length - 1]);
+  //console.log(data[data.length - 1]);
   var class_flag
   if (data[data.length - 1] > data[data.length -2]){
 

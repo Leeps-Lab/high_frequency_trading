@@ -31,8 +31,12 @@ class MessageSend(Page):
     def before_next_page(self):
         self.group.send_message(random.choice(['U', 'O', 'X']))
 
+class Start(Page):
+    pass
+        
+
 
 page_sequence = [
     PreWaitPage,
-    start,
+    Start,
 ]
