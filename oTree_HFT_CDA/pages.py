@@ -14,6 +14,9 @@ class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
         self.group.wake_investor_up()
 
+class Start(Page):
+    pass
+
 class ResultsWaitPage(WaitPage):
 
 	def after_all_players_arrive(self):
@@ -31,9 +34,7 @@ class MessageSend(Page):
     def before_next_page(self):
         self.group.send_message(random.choice(['U', 'O', 'X']))
 
-class Start(Page):
-    pass
-        
+
 
 
 page_sequence = [

@@ -6,7 +6,7 @@ import dj_database_url
 
 import otree.settings
 
-
+CHANNEL_ROUTING = 'oTree_HFT_CDA.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # the environment variable OTREE_PRODUCTION controls whether Django runs in
@@ -22,7 +22,14 @@ INTERNAL_IPS = (
 )
 
 # don't share this with anybody.
-SECRET_KEY = '{{ secret_key }}'
+# SECRET_KEY = '{{ secret_key }}'
+ADMIN_USERNAME = 'admin'
+
+# for security, best to set admin password in an environment variable
+ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD')
+
+# don't share this with anybody.
+SECRET_KEY = '7n786ty33t%4n-91z!*(n^y928_@4%o-vbw@ads29^-*t+2txj'
 
 DATABASES = {
     'default': dj_database_url.config(

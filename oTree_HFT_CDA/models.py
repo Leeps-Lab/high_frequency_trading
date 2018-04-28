@@ -22,6 +22,9 @@ from jsonfield import JSONField
 
 import subprocess
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 author = 'LEEPS Lab UCSC'
 
@@ -47,10 +50,10 @@ class Subsession(BaseSubsession):
 class Group(BaseGroup):
     # Fires & forgets the investor process
     def wake_investor_up(self):
-        print('GROUP {0}: Initializing Investor...'.format(self.id))
-        cmd = [ 'python', Constants.inv_py, str(self.id), Constants.inv_csv ]
+        log = 'Group %d: Initializing investor..' % self.id
+        logger.info(log)
+        cmd = ['python', Constants.inv_py, str(self.id), Constants.inv_csv ]
         subprocess.Popen(cmd)
-        print('GROUP {0}: Investor connected.'.format(self.id))
 
     def send_to_exchange(self, message, wait_time):
         # james, this is called by the players
@@ -89,34 +92,30 @@ class Player(BasePlayer):
                                           o_type='O',
                                           time_in_force=99999)
             order.stage()
-
-
-
             message = Enter_Order_Msg(order)
             # THEN TRANSLATE AND SEND EXCHANGE / group?
-            print('{0} STAGED a {1} order:'.format(self.id_in_group, side))
-            print ('\t' + str(order))
+            log = 'Player %d: Stage enter %s order.' % (self.id_in_group, order.side) 
+            logging.info(log)
+            logging.info(order)
 
         # Stages a replace order.
         def stage_replace(self, order, spread):
             if order.side == 'B': spread = - spread
             price = self.fpc + spread / 2
             order.stage_update('R', price)
+            log = 'Player %d: Stage replace order %s.' % (self.id_in_group, order.token)
+            logging.info(log)
             new_order = self.order_set.create(side=order.side, price=price)
 #            new_order.save()   # DOES THIS HAPPEN AUTOMATICALLY ? CHECK
             # THEN TRANSLATE AND SEND EXCHANGE / group ?
-            print('{0} requested a REPLACE for the order {1}:'.format(
-                self.id_in_group, order.id
-                ))
-            print ('\t' + str(order))
+            logging.info(order)   
 
         def stage_cancel(self, order):
             order.stage_update('C')
             # THEN TRANSLATE AND SEND EXCHANGE ?
-            print('{0} requested a CANCEL for the order {1}:'.format(
-                self.id_in_group, order.id
-            ))
-            print ('\t' + str(order))
+            log = 'Player %d: Stage cancel for the order %s.' % (self.id_in_group, order.token)
+            logging.info(log)
+            logging.info(order)
 
         def leave_market(self):
             ords = self.order_set.filter(status__in=['A'])
@@ -124,7 +123,8 @@ class Player(BasePlayer):
                 for o in ords:
                     self.stage_cancel(o)
             else:
-                print('{0} has no active orders to cancel.'.format(self.id_in_group))
+                log = 'Player %d: No active orders.' % self.id_in_group
+                logging.info(log)
 
         def update_state(self, new_state):
             if new_state == 'OUT':
@@ -135,9 +135,11 @@ class Player(BasePlayer):
                 self.stage_enter(side='B', spread=self.spread)
                 self.stage_enter(side='S', spread=self.spread)
             else:
-                print('Got a weird state.')
+                log = 'Player %d: Invalid state update.' % self.id_in_group
+                logging.warning(log)
             self.state = new_state
-            print('{0} is a {1} now.'.format(self.id_in_group, self.state))
+            log = 'Player %d is %s.' % (self.id_in_group, self.state)
+            logging.info(log)
 
         def update_spread(self, spread):
             ords = player.order_set.filter(status__in=['A'])
@@ -145,7 +147,8 @@ class Player(BasePlayer):
                 for o in ords:
                     self.stage_replace(o, spread)
             else:
-                print('{0} has no active orders to replace.'.format(self.id_in_group))
+                log = 'Player %d: No active orders.' % self.id_in_group
+                logging.info(log)
 
         def update_speed(self):
             self.speed = not self.speed
@@ -176,6 +179,8 @@ class Player(BasePlayer):
         def confirm_enter(self,message):
             order = self.order_set.get(token=message['order_token'])
             order.activate(message['timestamp'])
+            log = 'Player %d: Confirmed %s, %s.' % (self.id_in_group, order.token)
+            logging.info(log)
 
         def confirm_replace(self, message):
             previous_ord_token = message['existing_order_token']
@@ -184,16 +189,44 @@ class Player(BasePlayer):
             new_order = self.order_set.get(token=replacement_ord_token)
             old_order.cancel(message['timestamp'])
             new_order.activate(message['timestamp'])
+            log = 'Player %d: Confirmed replace %s, %s.' % (self.id_in_group, order.token)
+            logging.info(log)
 
         def confirm_cancel(self, message):
             ord_token = message['order_token']
             order = self.order_set.get(token=previous_ord_token)
             order.cancel(message['timestamp'])
+            log = ( 'Player %d: Confirmed cancel %s, was a %s.' 
+                % (self.id_in_group, order.token, order.side))
+            logging.info(log)
 
         def confirm_exec(self,message):
             order_token = message['order_token']
             order = self.order_set.get(token=order_token)
             order.execute(message['timestamp'])
+            log = ('Player %d: Confirmed transaction %s, %s is a %s.' 
+                % (self.id_in_group, order.token, order.side))
+            logging.info(log)
+
+
+class Investor(Model):
+
+    group = ForeignKey(Group)
+
+    def receive_from_consumer(self, side):
+        now = str(Get_Time(granularity="milliseconds"))
+        logging.info('Investor arrives. : ' + now)
+
+    def _investor_stuff(self, side):
+        """
+        This should send an OUCH message to exchange
+        Not planning to create order objects for investor events
+        """
+        if side == 'B':
+            """send buy OUCH messages"""
+        elif side == 'S':
+            """send sell OUCH messages"""
+        pass
 
 
 class Order(Model):
@@ -276,26 +309,26 @@ class Order(Model):
     #     self.last_replaced = time
 
 
-class Investor(Model):
+# class Investor(Model):
 
-    time = models.StringField()
-    side = models.StringField()
-    group = ForeignKey(Group)
+#     time = models.StringField()
+#     side = models.StringField()
+#     group = ForeignKey(Group)
 
-    def receive_from_consumer(self, message):
-        print(message.content)
-        pass
-#        self.time = Get_Time(granularity="milliseconds")
-#        self.side = message['side']
-#        _investor_stuff()
+#     def receive_from_consumer(self, message):
+#         print(message.content)
+#         pass
+# #        self.time = Get_Time(granularity="milliseconds")
+# #        self.side = message['side']
+# #        _investor_stuff()
 
-    def _investor_stuff():
-        """
-        This should send an OUCH message to exchange
-        Not planning to create order objects for investor events
-        """
-        if self.side == 'B':
-            """send buy OUCH messages"""
-        elif self.side == 'S':
-            """send sell OUCH messages"""
-        pass
+#     def _investor_stuff():
+#         """
+#         This should send an OUCH message to exchange
+#         Not planning to create order objects for investor events
+#         """
+#         if self.side == 'B':
+#             """send buy OUCH messages"""
+#         elif self.side == 'S':
+#             """send sell OUCH messages"""
+#         pass

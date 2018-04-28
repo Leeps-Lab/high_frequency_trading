@@ -91,7 +91,8 @@
 
         window.onload = function () {
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-            var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/otree_HFT_CDA/group{{group.id}}");
+            var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
+            console.log(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
             // Handle any errors that occur.
             socket.onerror = function (error) {
                 console.log('WebSocket Error: ' + error);
