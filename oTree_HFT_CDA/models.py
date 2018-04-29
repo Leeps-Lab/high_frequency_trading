@@ -37,10 +37,16 @@ class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
     players_per_group = 2
     num_rounds = 5
-    inv_py = './oTree_HFT_CDA/investor.py'
-    inv_csv = './oTree_HFT_CDA/investor_test.csv'
 
     # exchange_soc = Exchange_Socket()
+
+    inv_py = './oTree_HFT_CDA/investor.py'
+    inv_url = 'ws://127.0.0.1:8000/hft_investor/'   
+    inv_csv = './oTree_HFT_CDA/investor_test.csv'
+
+    jump_py = './oTree_HFT_CDA/jump.py'
+    jump_url = 'ws://127.0.0.1:8000/hft_jump/'
+    jump_csv = './oTree_HFT_CDA/jump_test.csv'
 
 
 class Subsession(BaseSubsession):
@@ -48,12 +54,33 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
-    # Fires & forgets the investor process
-    def wake_investor_up(self):
-        log = 'Group %d: Initializing investor..' % self.id
-        logger.info(log)
-        cmd = ['python', Constants.inv_py, str(self.id), Constants.inv_csv ]
+
+    def spawn(self, name, url, data):
+        log = 'Group %d: Initialize %s..' % (self.id, name)
+        logging.info(log)
+        cmd = ['python', name, str(self.id), url, data]
         subprocess.Popen(cmd)
+
+    def jump_event(self, new_price):
+        log = 'Jump to %d!' % new_price
+        logging.info(log)
+        """
+        # commented out for testing connections
+        self.old_fp = self.fpc
+        self.fpc = new_price
+
+        postive_jump = (self.fpc - self.old_fp) > 0
+
+        if self.state == 'OUT':
+            return
+        elif self.state == 'SNIPER':
+            if postive_jump:
+                self.stage_enter(side='B', price=2147483647)  # Special value for a market order
+            else:
+                self.stage_enter(side='s', price=2147483647)  # Special value for a market order
+        else:
+            self.update_spread(self.spread)
+        """
 
     def send_to_exchange(self, message, wait_time):
         # james, this is called by the players
@@ -74,13 +101,14 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
+
         # basic state variables
         state = models.StringField(initial='OUT')
         speed = models.BooleanField(initial=0)  # 0 or 1
         spread = models.IntegerField(initial=2)
         channel = models.StringField()
         # fundamental price change
-        fpc = models.IntegerField(initial=0)
+        fpc = models.IntegerField(initial=10)
         order_count = models.IntegerField(initial=1)
 
 
@@ -207,6 +235,7 @@ class Player(BasePlayer):
             log = ('Player %d: Confirmed transaction %s, %s is a %s.' 
                 % (self.id_in_group, order.token, order.side))
             logging.info(log)
+            self.en
 
 
 class Investor(Model):
