@@ -12,7 +12,8 @@ class InitialWaitPage(WaitPage):
 
 class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
-        self.group.wake_investor_up()
+        self.group.spawn(Constants.inv_py, Constants.inv_url, Constants.inv_csv)
+        self.group.spawn(Constants.jump_py, Constants.jump_url, Constants.jump_csv)
 
 class Start(Page):
     pass
