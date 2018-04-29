@@ -1,6 +1,6 @@
 from channels import Group, Channel
 from channels.generic.websockets import JsonWebsocketConsumer
-from .models import Player, Investor
+from .models import Player, Investor, Group as OGroup
 import json
 import logging
 
@@ -32,7 +32,6 @@ class SubjectConsumer(JsonWebsocketConsumer):
         Channel(chnl).send(msg)
 
 
-
 class InvestorConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id):
@@ -47,8 +46,24 @@ class InvestorConsumer(JsonWebsocketConsumer):
     def raw_receive(self, message, group_id):
         msg = json.loads(message.content['text'])
         investor = Investor.objects.get(group_id=group_id)
-        investor.receive_from_consumer(msg)
+        investor.receive_from_consumer(msg['side'])
 
     def raw_disconnect(self, message, group_id):
         log = 'Investor disconnected from Group %s.' % group_id
+        logging.info(log)
+
+
+class JumpConsumer(JsonWebsocketConsumer):
+
+    def raw_connect(self, message, group_id):
+        log = 'Jump is connected to Group %s.' % group_id
+        logging.info(log)
+
+    def raw_receive(self, message, group_id):
+        msg = json.loads(message.content['text'])
+        group = OGroup.objects.get(id=group_id)
+        group.jump_event(msg['price'])
+
+    def raw_disconnect(self, message, group_id):
+        log = 'Jump disconnected from Group %s.' % group_id
         logging.info(log)
