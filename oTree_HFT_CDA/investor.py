@@ -1,7 +1,8 @@
 import sys
 import logging
-from event import Event, custom_time
+from event import Event
 from time import sleep
+from utility import Get_Time
 import json
 
 file = 'inv-log.txt'
@@ -32,20 +33,20 @@ class Investor(Event):
         Implements investor behaviour
         """
         for t, side in self.data:
-            logging.info('Start wait: ' + custom_time())
+            logging.info('Start wait: ' + str(Get_Time()))
             logging.info('Sleep %d seconds.' % t)
             sleep(t)
-            logging.info('End wait: ' + custom_time())
+            logging.info('End wait: ' + str(Get_Time()))
             self.ws.send(json.dumps({'side': side}))
         self.ws.close()
 
 
 def main():
-    logging.info('Investor active: ' + custom_time())
+    logging.info('Investor active: ' + str(Get_Time()))
     investor = Investor(sys.argv[1], sys.argv[2], sys.argv[3])
     investor.read()
     investor.add_ws()
-    logging.info('Websocket added: ' + custom_time())
+    logging.info('Websocket added: ' + str(Get_Time()))
     investor.ws.run_forever()
 
 

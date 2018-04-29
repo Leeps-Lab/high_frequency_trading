@@ -1,6 +1,7 @@
 import sys
 import logging
-from event import Event, custom_time
+from event import Event
+from utility import Get_Time
 from time import sleep
 import json
 
@@ -30,20 +31,20 @@ class Jump(Event):
         Implements jump
         """
         for t, price in self.data:
-            logging.info('Start wait: ' + custom_time())
+            logging.info('Start wait: ' + str(Get_Time()))
             logging.info('Sleep %d seconds.' % t)
             sleep(t)
-            logging.info('End wait: ' + custom_time())
+            logging.info('End wait: ' + str(Get_Time()))
             self.ws.send(json.dumps({'price': price}))
         self.ws.close()
 
 
 def main():
-    logging.info('Jump active: ' + custom_time())
+    logging.info('Jump active: ' + str(Get_Time()))
     jumping = Jump(sys.argv[1], sys.argv[2], sys.argv[3])
     jumping.read()
     jumping.add_ws()
-    logging.info('Websocket added: ' + custom_time())
+    logging.info('Websocket added: ' + str(Get_Time()))
     jumping.ws.run_forever()
 
 

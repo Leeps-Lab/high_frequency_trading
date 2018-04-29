@@ -59,8 +59,3 @@ class Event(object):
         ws.on_open = on_open
         self.ws = ws
 
- 
-
-def custom_time():
-    return datetime.datetime.now().strftime('%e %b %y-%H:%M:%S.%f')
-   
