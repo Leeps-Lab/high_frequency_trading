@@ -9,17 +9,12 @@ try:
     import thread
 except ImportError:
     import _thread as thread
-
-
 from otree.api import (
     models, widgets, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
     Currency as c, currency_range
 )
 from jsonfield import JSONField
-
 #from . import exchange_server
-
-
 import subprocess
 import os
 import logging
@@ -64,23 +59,7 @@ class Group(BaseGroup):
     def jump_event(self, new_price):
         log = 'Jump to %d!' % new_price
         logging.info(log)
-        """
-        # commented out for testing connections
-        self.old_fp = self.fpc
-        self.fpc = new_price
 
-        postive_jump = (self.fpc - self.old_fp) > 0
-
-        if self.state == 'OUT':
-            return
-        elif self.state == 'SNIPER':
-            if postive_jump:
-                self.stage_enter(side='B', price=2147483647)  # Special value for a market order
-            else:
-                self.stage_enter(side='s', price=2147483647)  # Special value for a market order
-        else:
-            self.update_spread(self.spread)
-        """
 
     def send_to_exchange(self, message, wait_time):
         # james, this is called by the players
@@ -144,6 +123,22 @@ class Player(BasePlayer):
             log = 'Player %d: Stage cancel for the order %s.' % (self.id_in_group, order.token)
             logging.info(log)
             logging.info(order)
+
+        def jump_event(self, new_price):
+            self.old_fp = self.fpc
+            self.fpc = new_price
+
+            postive_jump = (self.fpc - self.old_fp) > 0
+
+            if self.state == 'OUT':
+                return
+            elif self.state == 'SNIPER':
+                if postive_jump:
+                    self.stage_enter(side='B', price=2147483647)  # Special value for a market order
+                else:
+                    self.stage_enter(side='s', price=2147483647)  # Special value for a market order
+            else:
+                self.update_spread(self.spread)
 
         def leave_market(self):
             ords = self.order_set.filter(status__in=['A'])
