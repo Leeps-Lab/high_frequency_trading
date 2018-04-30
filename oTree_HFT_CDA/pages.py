@@ -8,7 +8,7 @@ import random
 class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
         self.group.connect_to_exchange()
-        self.group.send_message(System_Start_Msg('S'))
+        self.group.send_message_nondelay(System_Start_Msg('S'))
         
 
 class Start(Page):

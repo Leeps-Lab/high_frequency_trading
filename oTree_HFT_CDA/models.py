@@ -69,12 +69,22 @@ class Group(BaseGroup):
     def disconnect_from_exchange(self):
         exchange.disconnect(self, '127.0.0.1', self.port)
 
-    def send_message(self, msg):
+    def send_message_delay(self, msgs, speed):
+        if speed is True:
+            time.sleep(0.1)
+        elif speed is False:
+            time.sleep(0.5)
+        conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
+        for m in msgs:
+            conn.sendMessage(m)
+
+    def send_message_nondelay(self, msg):
         conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
         conn.sendMessage(msg)
 
+
+
     def recv_message(self, msg):
-        print("Holy shi i made it this fa")
         ouch_msg = {}
         if(msg[0] == ord('S') and len(msg) == 10):
             ouch_msg = System_Event_Message(msg)
@@ -99,17 +109,6 @@ class Group(BaseGroup):
 
         player = self.get_player_by_id(ord(ouch_msg['order_token'][3]) - 64)
         player.receive_from_group(ouch_msg)
-        # try:
-
-
-            
-        #     player = self.get_player_by_id(ord(ouch_msg['order_token'][3]) - 64)
-        #     player.receive_from_group(ouch_msg)
-        # except:
-        #     print("no such player")
-
-
-
 
 
         self.json['messages'].append(ouch_msg)
@@ -148,6 +147,7 @@ class Group(BaseGroup):
 
 
 
+
 class Player(BasePlayer):
 
     # basic state variables
@@ -168,13 +168,16 @@ class Player(BasePlayer):
                                       price=self.fp + spread / 2,
                                       o_type='O',
                                       time_in_force=99999)
+        
+
         order.stage()
         ouch = Enter_Order_Msg(order)
-        self.group.send_message(ouch)
-        # send_to_exchange(ouch)
+
+
         log = 'Player %d: Stage enter %s order.' % (self.id_in_group, order.side) 
         logging.info(log)
         logging.info(order)
+        return list(ouch)
 
     def stage_replace(self, order):
         spread = self.spread
@@ -185,38 +188,51 @@ class Player(BasePlayer):
         new_order = self.order_set.create(side=order.side, price=price)
         new_order.save()
         ouch = Replace_Order_Msg(order, new_order)
-        # send_to_exchange(ouch)
+    
         log = 'Player %d: Stage replace order %s.' % (self.id_in_group, order.token)
         logging.info(log)
         logging.info(order)   
 
+        return ouch
+
     def stage_cancel(self, order):
         order.stage_update('C')
         ouch = Cancel_Order_Msg(order.token)
-        # send_to_exchange(ouch)
+        
+        # self.group.send_message_delay(ouch, self.speed)
+
         log = 'Player %d: Stage cancel for the order %s.' % (self.id_in_group, order.token)
         logging.info(log)
         logging.info(order)
+
+        return ouch
 
     # Player actions
 
     def leave_market(self):
         ords = self.order_set.filter(status=['A'])
+        print(ords)
         if len(ords) > 0:
+            msgs = []
             for o in ords:
-                self.stage_cancel(o)
+                msgs.append(self.stage_cancel(o))
+            return msgs
         else:
             log = 'Player %d has no active orders.' % self.id_in_group
             logging.info(log)
 
     def update_state(self, new_state):
         if new_state == 'OUT':
-            self.leave_market()
+            m = self.leave_market()
+            self.group.send_message_delay(m, self.speed)
         elif new_state == 'SNIPER':
-            self.leave_market()
+            m = self.leave_market()
+            self.group.send_message_delay(m, self.speed)
+            # is there supposed to be action here?
         elif new_state == 'MAKER':  # Player enters as a maker
-            self.stage_enter(side='B')   # Spread ? default or most recent ?
-            self.stage_enter(side='S')
+            m = self.stage_enter(side='B') + self.stage_enter(side='S')
+            self.group.send_message_delay(m, self.speed)
+
         else:
             log = 'Player %d: Invalid state update.' % self.id_in_group
             logging.warning(log)
@@ -229,8 +245,10 @@ class Player(BasePlayer):
             self.spread = new_spread
         ords = player.order_set.filter(status__in=['A'])
         if len(ords) > 0:
+            msgs = []
             for o in ords:
-                self.stage_replace(o)
+                msgs.append(self.stage_replace(o))
+            self.group.send_message_delay(msgs, self.speed)
         else:
             log = 'Player %d: No active orders.' % self.id_in_group
             logging.info(log)
@@ -271,7 +289,7 @@ class Player(BasePlayer):
     def confirm_enter(self,message):
         order = self.order_set.get(token=message['order_token'])
         order.activate(message['timestamp'])
-        log = 'Player %d: Confirmed %s, %s.' % (self.id_in_group, order.token)
+        log = 'Player %d: Confirmed %s.' % (self.id_in_group, order.token)
         logging.info(log)
 
     def confirm_replace(self, message):

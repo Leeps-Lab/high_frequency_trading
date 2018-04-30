@@ -16,7 +16,8 @@ class OUCH(Protocol):
 
     def connectionMade(self):
         logging.info("Connection made")
-# 
+
+        
     def dataReceived(self, data):
         if data[0] == ord('S'):
             self.bytes_needed.append(10)
@@ -30,10 +31,6 @@ class OUCH(Protocol):
             self.bytes_needed.append(66)
         else:
             raise ValueError('Invalid message header {}: {}'.format(data[0], data))
-
-
-
-
 
         if len(data) >= self.bytes_needed[0]:
             remainder = self.bytes_needed.pop(0)
