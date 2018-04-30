@@ -167,8 +167,12 @@ class Player(BasePlayer):
             log = 'Player %d: No active orders.' % self.id_in_group
             logging.info(log)
 
-    def update_speed(self):
-        self.speed = not self.speed
+
+    def update_speed(self):  
+        self.speed = not self.speed      # Front end button doesnt work 0429
+        speed = 'fast' if self.speed else 'slow'
+        log = 'Player %d is %s.' % (self.id_in_group, speed)
+        logging.info(log)
 
     # Receive methods
 
@@ -176,7 +180,7 @@ class Player(BasePlayer):
         if message['type'] == 'role_change':
             self.update_state(message['state'])
         elif message['type'] == 'spread_change':
-            self.update_spread(message['spread'])
+            self.update_price(message['spread'])
         elif message['type'] == 'speed_change':
             self.update_speed()
         else:
