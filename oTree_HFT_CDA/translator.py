@@ -13,13 +13,13 @@ except ImportError as e:
 
 # Create a system event message with supplied event
 # code ['S' | 'E'] and given timestamp
-def System_Event_Msg(event_code, timestamp=None):
+def System_Start_Msg(event_code, timestamp=None):
     if timestamp is None:
         timestamp = Integer_To_Unit8(Get_Time("nanoseconds"),4)
 
     message = np.empty(10, dtype=np.uint8)
 
-    message[0] = np.uint8(ord('S'))          # set the System message code 
+    message[0] = np.uint8(ord('H'))          # set the System message code 
     message[9] = np.uint8(ord(event_code))   # set the system event code ['S'|'E']
 
     # splice in timestamp
