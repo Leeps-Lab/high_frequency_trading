@@ -106,9 +106,11 @@ class Group(BaseGroup):
         else:
             logging.info("Received Message from with msg type {} and length {}".format(chr(msg[0]), len(msg)))
         
-
-        player = self.get_player_by_id(ord(ouch_msg['order_token'][3]) - 64)
-        player.receive_from_group(ouch_msg)
+        if ouch_msg['order_token'][3] == '@':
+            pass
+        else:
+            player = self.get_player_by_id(ord(ouch_msg['order_token'][3]) - 64)
+            player.receive_from_group(ouch_msg)
 
 
         self.json['messages'].append(ouch_msg)
@@ -203,14 +205,14 @@ class Player(BasePlayer):
 
         log = 'Player %d: Stage cancel for the order %s.' % (self.id_in_group, order.token)
         logging.info(log)
-        logging.info(order)
+        # logging.info(order)
 
         return ouch
 
     # Player actions
 
     def leave_market(self):
-        ords = self.order_set.filter(status=['A'])
+        ords = self.order_set.filter(status='A')
         print(ords)
         if len(ords) > 0:
             msgs = []
