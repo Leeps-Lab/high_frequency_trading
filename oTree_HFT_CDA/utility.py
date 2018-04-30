@@ -42,7 +42,8 @@ def String_To_Unit8(string, num_of_bytes=4):
             spliced[i] = np.uint8(ord(string[i]))
         except IndexError:
             spliced[i] = np.uint8(ord("0"))
-    return np.flip(spliced,0)
+    return spliced
+    # return np.flip(spliced,0)
 
 # take a souce array and splice it into destination array
 # at index=start.

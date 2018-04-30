@@ -1,5 +1,8 @@
 from .translator import *
 from .utility import Get_Time
+
+from . import exchange
+
 import numpy as np
 from otree.db.models import Model, ForeignKey
 from django.core import serializers
@@ -45,10 +48,90 @@ class Constants(BaseConstants):
 
 
 class Subsession(BaseSubsession):
-    pass
+    def creating_session(self):
+        for i, group in enumerate(self.get_groups()):
+            group.port = 9000 + i + 1
+            group.json = {
+                "messages": [],
+            }
+            group.save()
 
 
 class Group(BaseGroup):
+    port = models.IntegerField()
+    json = JSONField()
+
+    def connect_to_exchange(self):
+        print("Connecting to exchange on port %d", self.port)
+        exchange.connect(self, '127.0.0.1', self.port)
+        print("Connected to exchange on port %d", self.port)
+
+    def disconnect_from_exchange(self):
+        exchange.disconnect(self, '127.0.0.1', self.port)
+
+    def send_message(self, msg):
+        conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
+        conn.sendMessage(msg)
+
+    def recv_message(self, msg):
+        print("Holy shi i made it this fa")
+        ouch_msg = {}
+        if(msg[0] == ord('S') and len(msg) == 10):
+            ouch_msg = System_Event_Message(msg)
+            print(ouch_msg)
+            # send broadcast to start playing
+            return
+        elif(msg[0] == ord('E') and len(msg) == 49):
+            ouch_msg = Executed_Message(msg)
+            print(ouch_msg)
+        elif(msg[0] == ord('C') and len(msg) == 28):
+            ouch_msg = Canceled_Message(msg)
+            print(ouch_msg)
+        elif(msg[0] == ord('U') and len(msg) == 80):
+            ouch_msg = Replaced_Message(msg)
+            print(ouch_msg)
+        elif(msg[0] == ord('A') and len(msg) == 66):
+            ouch_msg = Accepted_Message(msg)
+            print(ouch_msg)
+        else:
+            logging.info("Received Message from with msg type {} and length {}".format(chr(msg[0]), len(msg)))
+        
+
+        player = self.get_player_by_id(ord(ouch_msg['order_token'][3]) - 64)
+        player.receive_from_group(ouch_msg)
+        # try:
+
+
+            
+        #     player = self.get_player_by_id(ord(ouch_msg['order_token'][3]) - 64)
+        #     player.receive_from_group(ouch_msg)
+        # except:
+        #     print("no such player")
+
+
+
+
+
+        self.json['messages'].append(ouch_msg)
+        self.save()
+
+    def save(self, *args, **kwargs):
+        """
+        BUG: Django save-the-change, which all oTree models inherit from,
+        doesn't recognize changes to JSONField properties. So saving the model
+        won't trigger a database save. This is a hack, but fixes it so any
+        JSONFields get updated every save. oTree uses a forked version of
+        save-the-change so a good alternative might be to fix that to recognize
+        JSONFields (diff them at save time, maybe?).
+        """
+        super().save(*args, **kwargs)
+        if self.pk is not None:
+            json_fields = {}
+            for field in self._meta.get_fields():
+                if isinstance(field, JSONField):
+                    json_fields[field.attname] = getattr(self, field.attname)
+            self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
+
 
     def spawn(self, name, url, data):
         log = 'Group %d: Initialize %s..' % (self.id, name)
@@ -63,22 +146,6 @@ class Group(BaseGroup):
         delay and jump players here
         """
 
-    def send_to_exchange(self, message, wait_time):
-        # james, this is called by the players
-        # a probability model is applied, then a wait logic
-        # is executed.
-
-        # Then we need to call some function to send the message
-        # to the exchange
-        pass
-
-    def receive_from_exchange(self, message, wait_time):
-        # this function is called by the twisted threads to
-        # decode the binary and send to the correct player
-
-        decoded = chr(exchange_msg[0])
-
-        #call correct translator method and pass to player
 
 
 class Player(BasePlayer):
@@ -103,6 +170,7 @@ class Player(BasePlayer):
                                       time_in_force=99999)
         order.stage()
         ouch = Enter_Order_Msg(order)
+        self.group.send_message(ouch)
         # send_to_exchange(ouch)
         log = 'Player %d: Stage enter %s order.' % (self.id_in_group, order.side) 
         logging.info(log)
@@ -188,13 +256,13 @@ class Player(BasePlayer):
 
     def receive_from_group(self, message):
         if message['type'] == 'A':
-            confirm_enter(message)
+            self.confirm_enter(message)
         elif message['type'] == 'U':
-            confirm_replace(message)
+            self.confirm_replace(message)
         elif message['type'] == 'C':
-            confirm_cancel(message)
+            self.confirm_cancel(message)
         elif message['type'] == 'E':
-            confirm_enter(message)
+            self.confirm_exec(message)
         else:
             raise Exception('Bad message type received from exchange.')
 

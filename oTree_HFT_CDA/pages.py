@@ -1,22 +1,20 @@
 from otree.api import Currency as c, currency_range
 from ._builtin import Page, WaitPage
+from .translator import System_Start_Msg
 from .models import Constants
 import random
 
 
-class InitialWaitPage(WaitPage):
-
-	def after_all_players_arrive(self):
-		self.group.connect_to_exchange()
-
-
 class PreWaitPage(WaitPage):
+    def after_all_players_arrive(self):
+        self.group.connect_to_exchange()
+        self.group.send_message(System_Start_Msg('S'))
+        
+
+class Start(Page):
     def after_all_players_arrive(self):
         self.group.spawn(Constants.inv_py, Constants.inv_url, Constants.inv_csv)
         self.group.spawn(Constants.jump_py, Constants.jump_url, Constants.jump_csv)
-
-class Start(Page):
-    pass
 
 class ResultsWaitPage(WaitPage):
 
@@ -28,17 +26,9 @@ class Results(Page):
     pass
 
 
-class MessageSend(Page):
-    form_model = 'player'
-    form_fields = ['msg']
-
-    def before_next_page(self):
-        self.group.send_message(random.choice(['U', 'O', 'X']))
-
-
-
 
 page_sequence = [
     PreWaitPage,
     Start,
+    ResultsWaitPage,
 ]
