@@ -40,8 +40,10 @@ class OUCH(Protocol):
             self.factory.group.recv_message(bytes(buf))
 
         if len(data):
-            self.bytes_needed[0] -= len(data)
-            self.buffers[0].push(data)
+            self.buffers.append([])
+            self.dataReceived(data)
+            # self.bytes_needed[0] -= len(data)
+            # self.buffers[0].push(data)
 
     def sendMessage(self, msg):
         
