@@ -92,12 +92,12 @@ def Enter_Order_Msg(order):
 # =========================================
 # existing_order_token : order going to be replaced [14 byte alphanumeric token]
 # =========================================
-def Cancel_Order_Msg(existing_order_token, shares=1):
+def Cancel_Order_Msg(existing_order_token, shares=0):
     message = np.empty(19, dtype=np.uint8)
 
     message[0] = np.uint8(ord('X'))  # set the System message code
 
-    Splice_Into_Array(message, String_To_Unit8(existing_order_token[::-1], 14), 1, 14)  # Splices existing_order_token into messages[]
+    Splice_Into_Array(message, String_To_Unit8(existing_order_token, 14), 1, 14)  # Splices existing_order_token into messages[]
 
     # Shares; default to 1 for leeps experiment
     Splice_Into_Array(message, Integer_To_Unit8(shares), 15, 4)
