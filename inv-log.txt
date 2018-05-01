@@ -1,0 +1,24 @@
+05-01 11:22:08 root   INFO: Investor active: 1525198928314
+05-01 11:22:08 root   INFO: Read data.
+05-01 11:22:08 root   INFO: Websocket added: 1525198928316
+05-01 11:22:08 root   INFO: Start wait: 1525198928319
+05-01 11:22:08 root   INFO: Sleep 2 seconds.
+05-01 11:22:10 root   INFO: End wait: 1525198930321
+05-01 11:22:10 root   INFO: Start wait: 1525198930322
+05-01 11:22:10 root   INFO: Sleep 7 seconds.
+05-01 11:22:17 root   INFO: End wait: 1525198937325
+05-01 11:22:17 root   INFO: Start wait: 1525198937325
+05-01 11:22:17 root   INFO: Sleep 3 seconds.
+05-01 11:22:20 root   INFO: End wait: 1525198940326
+05-01 11:22:20 root   INFO: Start wait: 1525198940327
+05-01 11:22:20 root   INFO: Sleep 1 seconds.
+05-01 11:22:21 root   INFO: End wait: 1525198941328
+05-01 11:22:21 root   INFO: Start wait: 1525198941328
+05-01 11:22:21 root   INFO: Sleep 4 seconds.
+05-01 11:22:25 root   INFO: End wait: 1525198945332
+05-01 11:22:25 root   INFO: Start wait: 1525198945333
+05-01 11:22:25 root   INFO: Sleep 4 seconds.
+05-01 11:22:29 root   INFO: End wait: 1525198949337
+05-01 11:22:29 root   INFO: Start wait: 1525198949337
+05-01 11:22:29 root   INFO: Sleep 1 seconds.
+05-01 11:22:30 root   INFO: End wait: 1525198950339

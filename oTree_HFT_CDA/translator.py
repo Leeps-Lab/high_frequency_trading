@@ -32,7 +32,7 @@ def System_Start_Msg(event_code, timestamp=None):
 def Replace_Order_Msg(replace_order, order):
     message = np.empty(47, dtype=np.uint8)
 
-    message[0] = np.uint8(ord(order.o_type))  # set the System message code
+    message[0] = np.uint8(ord('U'))  # set the System message code
 
     Splice_Into_Array(message, String_To_Unit8(replace_order.token, 14), 1,
                       14)  # Splices existing_order_token into messages[]
@@ -58,7 +58,7 @@ def Replace_Order_Msg(replace_order, order):
 def Enter_Order_Msg(order):
     message = np.empty(49, dtype=np.uint8)
 
-    message[0] = np.uint8(ord(order.o_type))  # Set the System message code
+    message[0] = np.uint8(ord('O'))  # Set the System message code
 
     Splice_Into_Array(message, String_To_Unit8(order.token, 14), 1, 14)
 
@@ -152,7 +152,9 @@ def Replaced_Message(exchange_msg):
     replace_message["intermarket_sweep_eligibility"] = chr(exchange_msg[58])
     replace_message["minimum_quantity"] = Byte_Array_To_Int(exchange_msg, 59)
     replace_message["cross_type"] = chr(exchange_msg[63])
-
+    replace_message["order_state"] = chr(exchange_msg[64])
+    replace_message["previous_order_token"] = Byte_Array_To_String(exchange_msg,65,14)
+    replace_message["bbo"] = chr(exchange_msg[79])
     return replace_message
 
 

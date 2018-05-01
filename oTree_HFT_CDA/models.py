@@ -21,6 +21,8 @@ from jsonfield import JSONField
 import subprocess
 import os
 import logging
+import random
+
 
 logger = logging.getLogger(__name__)
 
@@ -84,9 +86,10 @@ class Group(BaseGroup):
         for m in msgs:
             conn.sendMessage(m)
 
-    def send_message_nondelay(self, msg):
+    def send_message_nondelay(self, msgs):
         conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
-        conn.sendMessage(msg)
+        for m in msgs:
+            conn.sendMessage(m)
 
     def recv_message(self, msg):
         ouch_msg = {}
@@ -94,6 +97,7 @@ class Group(BaseGroup):
             ouch_msg = System_Event_Message(msg)
             print(ouch_msg)
             # send broadcast to start playing
+
             return
         elif(msg[0] == ord('E') and len(msg) == 49):
             ouch_msg = Executed_Message(msg)
@@ -147,6 +151,46 @@ class Group(BaseGroup):
     def jump_event(self, new_price):
         log = 'JUMP: New price is %d!' % new_price
         logging.info(log)
+
+        players = self.get_players()
+        player_responses = []
+        fast_players = []
+        slow_players = [] 
+
+
+        for i, player in enumerate(players):
+            response = player.jump_event(new_price)
+            if response[0] is not None:
+                player_responses.append(response[0])
+                if response[1]:
+                    fast_players.append(i)
+                else:
+                    slow_players.append(i)
+
+        print()
+        print(player_responses)
+        print()
+
+
+        random.shuffle(fast_players)
+        random.shuffle(slow_players)
+
+        time.sleep(0.1)
+
+        for i in fast_players:
+            self.send_message_nondelay(player_responses[i-1])
+
+        time.sleep(0.4)
+
+        for i in slow_players:
+            self.send_message_nondelay(player_responses[i-1])
+
+
+                
+
+
+
+
         """
         delay and jump players here
         """
@@ -185,9 +229,12 @@ class Player(BasePlayer):
         spread = self.spread
         if order.side == 'B': spread = - spread
         price = self.fp + spread / 2
-        order.stage_update('R', price)
+        order.stage_update('R')
         # create the new order
-        new_order = self.order_set.create(side=order.side, price=price)
+        price = int(price)*1000
+        new_order = self.order_set.create(side=order.side, price=price, time_in_force=99999)
+        new_order.stage()
+        # print()
         new_order.save()
         ouch = Replace_Order_Msg(order, new_order)
     
@@ -238,25 +285,40 @@ class Player(BasePlayer):
             log = 'PLAYER %d: Invalid state update.' % self.id_in_group
             logging.warning(log)
         self.state = new_state
+        self.save()
         log = 'PLAYER %d: New state is %s.' % (self.id_in_group, self.state)
         logging.info(log)
 
-    def update_price(self, new_spread=None):
-        if new_spread:
-            self.spread = new_spread
-        ords = player.order_set.filter(status__in=['A'])
+
+    def adjust_price(self, postive_jump):
+        if postive_jump:
+            ords = self.order_set.filter(status='A').order_by('-price')
+        else:
+            ords = self.order_set.filter(status='A').order_by('price')
         if len(ords) > 0:
             msgs = []
             for o in ords:
                 msgs.append(self.stage_replace(o))
-            self.group.send_message_delay(msgs, self.speed)
+            return msgs
         else:
             log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
             logging.info(log)
 
+    def update_spread(self, new_spread=None):
+        self.spread = new_spread
+        ords = self.order_set.filter(status='A')
+        if len(ords) > 0:
+            msgs = []
+            for o in ords:
+                msgs.append(self.stage_replace(o))
+            self.group.send_message_delay(m, self.speed)
+        else:
+            log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
+            logging.info(log)
 
     def update_speed(self):  
         self.speed = not self.speed      # Front end button doesnt work 0429
+        self.save()
         speed = 'fast' if self.speed else 'slow'
         log = 'PLAYER %d: Speed is %s.' % (self.id_in_group, speed)
         logging.info(log)
@@ -267,7 +329,7 @@ class Player(BasePlayer):
         if message['type'] == 'role_change':
             self.update_state(message['state'])
         elif message['type'] == 'spread_change':
-            self.update_price(message['spread'])
+            self.update_spread(message['spread'])
         elif message['type'] == 'speed_change':
             self.update_speed()
         else:
@@ -288,19 +350,21 @@ class Player(BasePlayer):
     # Confirm when receive from exchange        
     # These methods should send response to clients ! 
     def confirm_enter(self,message):
+        print(message['order_token'])
         order = self.order_set.get(token=message['order_token'])
+        print(order.token)
         order.activate(message['timestamp'])
         log = 'PLAYER %d: Confirmed %s.' % (self.id_in_group, order.token)
         logging.info(log)
 
     def confirm_replace(self, message):
-        previous_ord_token = message['existing_order_token']
+        previous_ord_token = message['previous_order_token']
         replacement_ord_token = message['order_token']
         old_order = self.order_set.get(token=previous_ord_token)
         new_order = self.order_set.get(token=replacement_ord_token)
         old_order.cancel(message['timestamp'])
         new_order.activate(message['timestamp'])
-        log = 'PLAYER %d: Confirmed replace %s, %s.' % (self.id_in_group, order.token)
+        log = 'PLAYER %d: Confirmed replaced %s with %s.' % (self.id_in_group, previous_ord_token, replacement_ord_token)
         logging.info(log)
 
     def confirm_cancel(self, message):
@@ -321,20 +385,27 @@ class Player(BasePlayer):
         self.stage_enter(order.side)
 
     def jump_event(self, new_price):   # ! delays to be handled at group level
+        print("\n %s" % self.state)
         old_fp = self.fp              # ! snipes itself ?  
         self.fp = new_price
-
+        self.save()
         postive_jump = (self.fp - old_fp) > 0
 
         if self.state == 'OUT':
-            return
+            return [None, self.speed]
         elif self.state == 'SNIPER':
+            orders = []
             if postive_jump:
-                self.stage_enter(side='B', price=2147483647)  # Special value for a market order
+                orders = self.stage_enter(side='B', price=2147483647)  # Special value for a market order
             else:
-                self.stage_enter(side='S', price=2147483647)  # Special value for a market order
+                orders = self.stage_enter(side='S', price=2147483647)  # Special value for a market order
+            return [orders, self.speed]
         else:
-            self.update_price()
+            if postive_jump:
+                orders = self.adjust_price(True)
+            else:
+                orders = self.adjust_price(False)
+            return [orders, self.speed]
 
 
 class Investor(Model):
@@ -384,6 +455,11 @@ class Order(Model):
     player = ForeignKey(Player)
 #   last_replaced = models.StringField(initial=None)   # Also maybe redundant
 
+    # def __init__(self, *args, **kwargs):
+    #     super(Order, self).__init__(*args, **kwargs)
+
+    #     # self.save()
+
     def stage(self):
         time = Get_Time(granularity="nanoseconds")
         self.time_stage = time
@@ -396,6 +472,7 @@ class Order(Model):
         self.status = 'A'
         self.timestamp = time
         self.save()
+
 
     def cancel(self, time):
         self.status = 'C'

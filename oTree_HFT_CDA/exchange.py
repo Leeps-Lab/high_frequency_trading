@@ -46,7 +46,6 @@ class OUCH(Protocol):
             # self.buffers[0].push(data)
 
     def sendMessage(self, msg):
-        
         msg = msg.tobytes()
         self.buffers.append([])
         self.transport.write(msg)
