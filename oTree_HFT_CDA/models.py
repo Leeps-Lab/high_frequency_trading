@@ -17,7 +17,7 @@ from otree.api import (
 )
 from jsonfield import JSONField
 
-from . import exchange
+#from . import exchange
 
 
 import subprocess

@@ -1,4 +1,4 @@
-import websocket
+#import websocket
 
 try:
     import thread

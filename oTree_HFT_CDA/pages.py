@@ -23,6 +23,10 @@ class ResultsWaitPage(WaitPage):
 class Results(Page):
     pass
 
+class start(Page):
+    pass
+
+
 
 class MessageSend(Page):
     form_model = 'player'
