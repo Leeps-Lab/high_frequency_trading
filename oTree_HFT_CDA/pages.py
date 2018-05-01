@@ -14,9 +14,7 @@ class PreWaitPage(WaitPage):
         
 
 class Start(Page):
-    def after_all_players_arrive(self):
-        pass
-        
+    pass
 
 class ResultsWaitPage(WaitPage):
 

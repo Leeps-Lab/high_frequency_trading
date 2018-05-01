@@ -38,6 +38,7 @@ class Investor(Event):
             sleep(t)
             logging.info('End wait: ' + str(Get_Time()))
             self.ws.send(json.dumps({'side': side}))
+        sleep(0.5)
         self.ws.close()
 
 
