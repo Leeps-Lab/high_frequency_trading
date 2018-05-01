@@ -36,6 +36,7 @@ class Jump(Event):
             sleep(t)
             logging.info('End wait: ' + str(Get_Time()))
             self.ws.send(json.dumps({'price': price}))
+        sleep(0.5)
         self.ws.close()
 
 

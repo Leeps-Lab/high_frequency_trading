@@ -24,6 +24,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+logging.basicConfig(filename = 'all-log.txt',
+    filemode = 'a',
+    format = '%(asctime)s - %(levelname)s: %(message)s',\
+    datefmt = '%m/%d/%Y %I:%M:%S %p')
+
+
 author = 'LEEPS Lab UCSC'
 
 doc = """
@@ -62,9 +68,9 @@ class Group(BaseGroup):
     json = JSONField()
 
     def connect_to_exchange(self):
-        print("Connecting to exchange on port %d", self.port)
+        logging.info("GROUP: Connecting to exchange on port %d" % self.port)
         exchange.connect(self, '127.0.0.1', self.port)
-        print("Connected to exchange on port %d", self.port)
+        logging.info("GROUP: Connected to exchange on port %d" % self.port)
 
     def disconnect_from_exchange(self):
         exchange.disconnect(self, '127.0.0.1', self.port)
@@ -81,8 +87,6 @@ class Group(BaseGroup):
     def send_message_nondelay(self, msg):
         conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
         conn.sendMessage(msg)
-
-
 
     def recv_message(self, msg):
         ouch_msg = {}
@@ -104,7 +108,7 @@ class Group(BaseGroup):
             ouch_msg = Accepted_Message(msg)
             print(ouch_msg)
         else:
-            logging.info("Received Message from with msg type {} and length {}".format(chr(msg[0]), len(msg)))
+            logging.info("GROUP: Received Message from with msg type {} and length {}".format(chr(msg[0]), len(msg)))
         
         if ouch_msg['order_token'][3] == '@':
             pass
@@ -141,7 +145,7 @@ class Group(BaseGroup):
         subprocess.Popen(cmd)
 
     def jump_event(self, new_price):
-        log = 'Jump to %d!' % new_price
+        log = 'JUMP: New price is %d!' % new_price
         logging.info(log)
         """
         delay and jump players here
@@ -170,13 +174,9 @@ class Player(BasePlayer):
                                       price=self.fp + spread / 2,
                                       o_type='O',
                                       time_in_force=99999)
-        
-
         order.stage()
         ouch = Enter_Order_Msg(order)
-
-
-        log = 'Player %d: Stage enter %s order.' % (self.id_in_group, order.side) 
+        log = 'PLAYER %d: Stage enter %s order %s' % (self.id_in_group, order.side, order.token) 
         logging.info(log)
         logging.info(order)
         return list(ouch)
@@ -191,10 +191,9 @@ class Player(BasePlayer):
         new_order.save()
         ouch = Replace_Order_Msg(order, new_order)
     
-        log = 'Player %d: Stage replace order %s.' % (self.id_in_group, order.token)
+        log = 'PLAYER %d: Stage replace order %s.' % (self.id_in_group, order.token)
         logging.info(log)
         logging.info(order)   
-
         return ouch
 
     def stage_cancel(self, order):
@@ -203,9 +202,9 @@ class Player(BasePlayer):
         
         # self.group.send_message_delay(ouch, self.speed)
 
-        log = 'Player %d: Stage cancel for the order %s.' % (self.id_in_group, order.token)
+        log = 'PLAYER %d: Stage cancel for the order %s.' % (self.id_in_group, order.token)
         logging.info(log)
-        # logging.info(order)
+        logging.info(order)
 
         return ouch
 
@@ -220,7 +219,7 @@ class Player(BasePlayer):
                 msgs.append(self.stage_cancel(o))
             return msgs
         else:
-            log = 'Player %d has no active orders.' % self.id_in_group
+            log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
             logging.info(log)
 
     def update_state(self, new_state):
@@ -236,10 +235,10 @@ class Player(BasePlayer):
             self.group.send_message_delay(m, self.speed)
 
         else:
-            log = 'Player %d: Invalid state update.' % self.id_in_group
+            log = 'PLAYER %d: Invalid state update.' % self.id_in_group
             logging.warning(log)
         self.state = new_state
-        log = 'Player %d is %s.' % (self.id_in_group, self.state)
+        log = 'PLAYER %d: New state is %s.' % (self.id_in_group, self.state)
         logging.info(log)
 
     def update_price(self, new_spread=None):
@@ -252,14 +251,14 @@ class Player(BasePlayer):
                 msgs.append(self.stage_replace(o))
             self.group.send_message_delay(msgs, self.speed)
         else:
-            log = 'Player %d: No active orders.' % self.id_in_group
+            log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
             logging.info(log)
 
 
     def update_speed(self):  
         self.speed = not self.speed      # Front end button doesnt work 0429
         speed = 'fast' if self.speed else 'slow'
-        log = 'Player %d is %s.' % (self.id_in_group, speed)
+        log = 'PLAYER %d: Speed is %s.' % (self.id_in_group, speed)
         logging.info(log)
 
     # Receive methods
@@ -291,7 +290,7 @@ class Player(BasePlayer):
     def confirm_enter(self,message):
         order = self.order_set.get(token=message['order_token'])
         order.activate(message['timestamp'])
-        log = 'Player %d: Confirmed %s.' % (self.id_in_group, order.token)
+        log = 'PLAYER %d: Confirmed %s.' % (self.id_in_group, order.token)
         logging.info(log)
 
     def confirm_replace(self, message):
@@ -301,14 +300,14 @@ class Player(BasePlayer):
         new_order = self.order_set.get(token=replacement_ord_token)
         old_order.cancel(message['timestamp'])
         new_order.activate(message['timestamp'])
-        log = 'Player %d: Confirmed replace %s, %s.' % (self.id_in_group, order.token)
+        log = 'PLAYER %d: Confirmed replace %s, %s.' % (self.id_in_group, order.token)
         logging.info(log)
 
     def confirm_cancel(self, message):
         ord_token = message['order_token']
         order = self.order_set.get(token=ord_token)
         order.cancel(message['timestamp'])
-        log = ( 'Player %d: Confirmed cancel %s, was a %s.' 
+        log = ( 'PLAYER %d: Confirmed cancel %s, was a %s.' 
             % (self.id_in_group, order.token, order.side))
         logging.info(log)
 
@@ -316,7 +315,7 @@ class Player(BasePlayer):
         order_token = message['order_token']
         order = self.order_set.get(token=order_token)
         order.execute(message['timestamp'])
-        log = ('Player %d: Confirmed transaction %s, %s is a %s.' 
+        log = ('PLAYER %d: Confirmed transaction %s, %s is a %s.' 
             % (self.id_in_group, order.token, order.side))
         logging.info(log)
         self.stage_enter(order.side)
@@ -344,7 +343,7 @@ class Investor(Model):
 
     def receive_from_consumer(self, side):
         now = str(Get_Time())
-        logging.info('Investor arrives. : ' + side + ' ' + now)
+        logging.info('INVESTOR arrives. : ' + side + ' ')
         self.go_market(side)
 
 
@@ -377,11 +376,11 @@ class Order(Model):
     customer_type = models.StringField(initial='R')
 
     # otree fields
-    time_stage = models.IntegerField()
-    timestamp = models.IntegerField(initial=None)
+    time_stage = models.IntegerField(initial=0)
+    timestamp = models.IntegerField(initial=0)
     status = models.StringField(initial='S')
     update_staged = models.StringField(initial=None)
-    time_canceled = models.IntegerField(initial=None)
+    time_canceled = models.IntegerField(initial=0)
     player = ForeignKey(Player)
 #   last_replaced = models.StringField(initial=None)   # Also maybe redundant
 
@@ -408,24 +407,16 @@ class Order(Model):
         self.timestamp = time
         self.save()
 
-    def stage_update(self, type, price=None):
+    def stage_update(self, typ):
         time = Get_Time(granularity="nanoseconds")
-        update = str(time) + ' ' + type
-        if price:
-            update.join(' ' + str(price))
+        update = str(time) + ' ' + typ
         self.update_staged = update
         self.save()
 
     def __str__(self):
-        time_to_print = self.timestamp if self.timestamp else self.time_stage
-        out =  (
-                str(time_to_print) + ' ' + self.side + ' ' +
-                str(self.price) + ' ' +  self.status + '\n'
-                )
-        if self.update_staged:
-            rest = '\t'  + 'UPDATE: ' +  update_staged
-            out = out.join(rest)
-        return out
+        str_ord = 'ORDER: %s Time Staged: %d, Timestamp: %d, Status: %s, Update Staged: %s' % (
+            self.token, self.time_stage, self.timestamp, self.status, self.update_staged) 
+        return str_ord
 
     def order_export(self):
         data = serializers.serialize("json", Order.objects.all())
