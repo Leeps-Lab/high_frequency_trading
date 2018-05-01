@@ -22,7 +22,7 @@ class Jump(Event):
         super(Jump, self).__init__(group_id, url, filename)
 
     def read(self):
-        times = super().read()
+        times = super(Jump, self).read()
         self.data = list(times.values)
         logging.info('Read data.')
 
