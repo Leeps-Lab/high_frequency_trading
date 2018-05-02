@@ -205,6 +205,7 @@ class Player(BasePlayer):
     speed = models.BooleanField(initial=0)  # 0 or 1
     spread = models.IntegerField(initial=2)
     channel = models.StringField()
+    profit = models.IntegerField(initial=0)
     # fundamental price
     fp = models.IntegerField(initial=10)
     order_count = models.IntegerField(initial=1)
@@ -382,7 +383,28 @@ class Player(BasePlayer):
         log = ('PLAYER %d: Confirmed transaction %s, %s is a %s.' 
             % (self.id_in_group, order.token, order.side))
         logging.info(log)
+        calc_profit(order.price, order.side)
         self.stage_enter(order.side)
+
+    def calc_profit(self, exec_price, side):
+        profit = 0
+
+        if side == 'B':
+            if exec_price < self.fp:
+                profit += (self.fp - exec_price)   #   Buy low, increase is positive difference in values
+            else:
+                profit += (self.fp - exec_price)   #   Buy high, decrease is negative difference in values 
+        else:
+            if exec_price < self.fp:
+                profit = (exec_price - self.fp)    #   Sell low, decrease is negative difference in values 
+            else:
+                profit = (exec_price - self.fp)    #   Sell high, increase is positive difference in values 
+        self.profit += profit
+
+        #########################
+        # SEND profit to client #
+        #########################
+
 
     def jump_event(self, new_price):   # ! delays to be handled at group level
         print("\n %s" % self.state)
