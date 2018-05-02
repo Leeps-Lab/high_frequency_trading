@@ -29,8 +29,10 @@ class OUCH(Protocol):
             self.bytes_needed.append(80)
         elif data[0] == ord('A'):
             self.bytes_needed.append(66)
+        elif data[0] == ord('0'):
+            self.bytes_needed.append(24)
         else:
-            raise ValueError('Invalid message header {}: {}'.format(data[0], data))
+            raise ValueError('Invalid message header {}: {}'.format(chr(data[0]), data))
 
         if len(data) >= self.bytes_needed[0]:
             remainder = self.bytes_needed.pop(0)

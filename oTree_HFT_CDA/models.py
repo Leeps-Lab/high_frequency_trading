@@ -111,6 +111,8 @@ class Group(BaseGroup):
         elif(msg[0] == ord('A') and len(msg) == 66):
             ouch_msg = Accepted_Message(msg)
             print(ouch_msg)
+        elif(msg[0] == ord('0')):
+            print("Rejected message")
         else:
             logging.info("GROUP: Received Message from with msg type {} and length {}".format(chr(msg[0]), len(msg)))
         
@@ -163,17 +165,15 @@ class Group(BaseGroup):
             if response[0] is not None:
                 player_responses.append(response[0])
                 if response[1]:
-                    fast_players.append(i)
+                    fast_players.append(i+1)
                 else:
-                    slow_players.append(i)
-
-        print()
-        print(player_responses)
-        print()
-
+                    slow_players.append(i+1)
 
         random.shuffle(fast_players)
         random.shuffle(slow_players)
+
+        print("Sending order: ", end='')
+        print(slow_players)
 
         time.sleep(0.1)
 
@@ -212,13 +212,14 @@ class Player(BasePlayer):
 
     # Staging orders
 
-    def stage_enter(self, side):
+    def stage_enter(self, side, time_in_force=99999):
         spread = self.spread
         if side == 'B': spread = - spread
+
         order = self.order_set.create(side=side,
                                       price=self.fp + spread / 2,
                                       o_type='O',
-                                      time_in_force=99999)
+                                      time_in_force=time_in_force)
         order.stage()
         ouch = Enter_Order_Msg(order)
         log = 'PLAYER %d: Stage enter %s order %s' % (self.id_in_group, order.side, order.token) 
@@ -235,7 +236,6 @@ class Player(BasePlayer):
         price = int(price)*1000
         new_order = self.order_set.create(side=order.side, price=price, time_in_force=99999)
         new_order.stage()
-        # print()
         new_order.save()
         ouch = Replace_Order_Msg(order, new_order)
     
@@ -260,7 +260,6 @@ class Player(BasePlayer):
 
     def leave_market(self):
         ords = self.order_set.filter(status='A')
-        print(ords)
         if len(ords) > 0:
             msgs = []
             for o in ords:
@@ -273,15 +272,16 @@ class Player(BasePlayer):
     def update_state(self, new_state):
         if new_state == 'OUT':
             m = self.leave_market()
-            self.group.send_message_delay(m, self.speed)
+            if m:
+                self.group.send_message_delay(m, self.speed)
         elif new_state == 'SNIPER':
             m = self.leave_market()
-            self.group.send_message_delay(m, self.speed)
+            if m:
+                self.group.send_message_delay(m, self.speed)
             # is there supposed to be action here?
         elif new_state == 'MAKER':  # Player enters as a maker
             m = self.stage_enter(side='B') + self.stage_enter(side='S')
             self.group.send_message_delay(m, self.speed)
-
         else:
             log = 'PLAYER %d: Invalid state update.' % self.id_in_group
             logging.warning(log)
@@ -351,9 +351,7 @@ class Player(BasePlayer):
     # Confirm when receive from exchange        
     # These methods should send response to clients ! 
     def confirm_enter(self,message):
-        print(message['order_token'])
         order = self.order_set.get(token=message['order_token'])
-        print(order.token)
         order.activate(message['timestamp'])
         log = 'PLAYER %d: Confirmed %s.' % (self.id_in_group, order.token)
         logging.info(log)
@@ -380,11 +378,12 @@ class Player(BasePlayer):
         order_token = message['order_token']
         order = self.order_set.get(token=order_token)
         order.execute(message['timestamp'])
-        log = ('PLAYER %d: Confirmed transaction %s, %s is a %s.' 
-            % (self.id_in_group, order.token, order.side))
-        logging.info(log)
-        calc_profit(order.price, order.side)
-        self.stage_enter(order.side)
+        # log = ('PLAYER %d: Confirmed transaction %s, %s is a %s.' 
+        #     % (self.id_in_group, order.token, order.side))
+        # logging.info(log)
+        # calc_profit(order.price, order.side)
+        if self.state == 'MAKER':
+            self.stage_enter(order.side)
 
     def calc_profit(self, exec_price, side):
         profit = 0
@@ -418,9 +417,9 @@ class Player(BasePlayer):
         elif self.state == 'SNIPER':
             orders = []
             if postive_jump:
-                orders = self.stage_enter(side='B', price=2147483647)  # Special value for a market order
+                orders = self.stage_enter(side='B', time_in_force=0)  # Special value for a market order
             else:
-                orders = self.stage_enter(side='S', price=2147483647)  # Special value for a market order
+                orders = self.stage_enter(side='S', time_in_force=0)  # Special value for a market order
             return [orders, self.speed]
         else:
             if postive_jump:
@@ -488,6 +487,7 @@ class Order(Model):
         self.token = "SUB" + str(chr(self.player.id_in_group + 64)) + str(self.side) + str(format(self.player.order_count, '09d'))
         self.firm = "SUB" + str(chr(self.player.id_in_group + 64))
         self.player.order_count += 1
+        self.player.save()
         self.save()
 
     def activate(self, time):
