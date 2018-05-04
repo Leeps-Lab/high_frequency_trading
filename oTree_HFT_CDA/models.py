@@ -95,24 +95,22 @@ class Group(BaseGroup):
         ouch_msg = {}
         if(msg[0] == ord('S') and len(msg) == 10):
             ouch_msg = System_Event_Message(msg)
-            print(ouch_msg)
+        #    print(ouch_msg)
             # send broadcast to start playing
 
             return
         elif(msg[0] == ord('E') and len(msg) == 49):
             ouch_msg = Executed_Message(msg)
-            print(ouch_msg)
+     #       print(ouch_msg)
         elif(msg[0] == ord('C') and len(msg) == 28):
             ouch_msg = Canceled_Message(msg)
-            print(ouch_msg)
+   #         print(ouch_msg)
         elif(msg[0] == ord('U') and len(msg) == 80):
             ouch_msg = Replaced_Message(msg)
-            print(ouch_msg)
+  #          print(ouch_msg)
         elif(msg[0] == ord('A') and len(msg) == 66):
             ouch_msg = Accepted_Message(msg)
-            print(ouch_msg)
-        elif(msg[0] == ord('0')):
-            print("Rejected message")
+#            print(ouch_msg)
         else:
             logging.info("GROUP: Received Message from with msg type {} and length {}".format(chr(msg[0]), len(msg)))
         
@@ -163,27 +161,36 @@ class Group(BaseGroup):
         for i, player in enumerate(players):
             response = player.jump_event(new_price)
             if response[0] is not None:
+                print(i, player.id)
                 player_responses.append(response[0])
                 if response[1]:
-                    fast_players.append(i+1)
+                    print('if')
+                    fast_players.append(i)
                 else:
-                    slow_players.append(i+1)
+                    print('else')
+                    slow_players.append(i)
+                    print(slow_players)
+
+        # print()
+        # print(player_responses)
+        # print()
+
 
         random.shuffle(fast_players)
         random.shuffle(slow_players)
-
-        print("Sending order: ", end='')
         print(slow_players)
 
         time.sleep(0.1)
 
-        for i in fast_players:
-            self.send_message_nondelay(player_responses[i-1])
+        # for i in fast_players:
+        #     self.send_message_nondelay(player_responses[i])
 
         time.sleep(0.4)
 
         for i in slow_players:
-            self.send_message_nondelay(player_responses[i-1])
+            print(i)
+            self.send_message_nondelay(player_responses[i])
+            print(player_responses[i])
 
 
                 
@@ -203,116 +210,92 @@ class Player(BasePlayer):
     # basic state variables
     state = models.StringField(initial='OUT')
     speed = models.BooleanField(initial=0)  # 0 or 1
-    spread = models.IntegerField(initial=2)
+    spread = models.IntegerField(initial=2000)
     channel = models.StringField()
-    profit = models.IntegerField(initial=0)
     # fundamental price
-    fp = models.IntegerField(initial=10)
+    fp = models.IntegerField(initial=10000)
     order_count = models.IntegerField(initial=1)
 
     # Staging orders
 
-    def stage_enter(self, side, time_in_force=99999):
-        spread = self.spread
-        if side == 'B': spread = - spread
-
-        order = self.order_set.create(side=side,
-                                      price=self.fp + spread / 2,
-                                      o_type='O',
-                                      time_in_force=time_in_force)
-        order.stage()
+    def stage_enter(self, side, price=None, time_in_force=99999):
+        """
+        defaults to maker enter order
+        returns relevant ouch message
+        """
+        spread = (self.spread if side == 'S' else - self.spread)
+        price = (self.fp + spread / 2 if not price else price)
+        order = self._create_order(side=side, price=price, o_type='O', time_in_force=time_in_force)
+        print('Enter staged: ', order)
         ouch = Enter_Order_Msg(order)
-        log = 'PLAYER %d: Stage enter %s order %s' % (self.id_in_group, order.side, order.token) 
+        log = 'PLAYER %d: STAGE: Enter %s order %s.' % (self.id_in_group, order.side, order.token) 
         logging.info(log)
         logging.info(order)
-        return list(ouch)
+        return ouch
 
     def stage_replace(self, order):
-        spread = self.spread
-        if order.side == 'B': spread = - spread
-        price = self.fp + spread / 2
+        spread = (self.spread if order.side == 'S' else - self.spread)
+        price = int(self.fp + spread / 2)
         order.stage_update('R')
-        # create the new order
-        price = int(price)*1000
-        new_order = self.order_set.create(side=order.side, price=price, time_in_force=99999)
-        new_order.stage()
-        new_order.save()
-        ouch = Replace_Order_Msg(order, new_order)
-    
-        log = 'PLAYER %d: Stage replace order %s.' % (self.id_in_group, order.token)
+        new_order = self._create_order(side=order.side, price=price, time_in_force=99999)
+        ouch = Replace_Order_Msg(order, new_order)   
+        log = 'PLAYER %d: STAGE: Replace order %s.' % (self.id_in_group, order.token)
         logging.info(log)
-        logging.info(order)   
         return ouch
 
     def stage_cancel(self, order):
         order.stage_update('C')
         ouch = Cancel_Order_Msg(order.token)
-        
-        # self.group.send_message_delay(ouch, self.speed)
-
-        log = 'PLAYER %d: Stage cancel for the order %s.' % (self.id_in_group, order.token)
+        log = 'PLAYER %d: STAGE: Cancel for the order %s.' % (self.id_in_group, order.token)
         logging.info(log)
         logging.info(order)
-
         return ouch
+
+    def _create_order(self, **kwargs):
+        order = self.order_set.create(**kwargs)
+        order.stage()
+        return order
 
     # Player actions
 
-    def leave_market(self):
-        ords = self.order_set.filter(status='A')
-        if len(ords) > 0:
-            msgs = []
-            for o in ords:
-                msgs.append(self.stage_cancel(o))
-            return msgs
-        else:
-            log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
-            logging.info(log)
-
     def update_state(self, new_state):
-        if new_state == 'OUT':
-            m = self.leave_market()
-            if m:
-                self.group.send_message_delay(m, self.speed)
-        elif new_state == 'SNIPER':
-            m = self.leave_market()
-            if m:
-                self.group.send_message_delay(m, self.speed)
-            # is there supposed to be action here?
+        if (new_state == 'OUT' or new_state == 'SNIPER'):
+            ords = self.order_set.filter(status='A')
+            if len(ords) > 0:
+                msgs = [self.stage_cancel(o) for o in ords]
+                self.group.send_message_delay(msgs, self.speed)       
+            else:
+                log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
+                logging.info(log)
+                
         elif new_state == 'MAKER':  # Player enters as a maker
-            m = self.stage_enter(side='B') + self.stage_enter(side='S')
-            self.group.send_message_delay(m, self.speed)
+            msgs = [self.stage_enter('B'), self.stage_enter('S')]
+            self.group.send_message_delay(msgs, self.speed)
         else:
             log = 'PLAYER %d: Invalid state update.' % self.id_in_group
             logging.warning(log)
         self.state = new_state
         self.save()
-        log = 'PLAYER %d: New state is %s.' % (self.id_in_group, self.state)
+        log = 'PLAYER %d: STATE: Is %s.' % (self.id_in_group, self.state)
         logging.info(log)
 
-
-    def adjust_price(self, postive_jump):
-        if postive_jump:
-            ords = self.order_set.filter(status='A').order_by('-price')
-        else:
-            ords = self.order_set.filter(status='A').order_by('price')
+    def update_price(self, postive_jump):
+        sort = ('-price' if postive_jump else 'price')
+        ords = self.order_set.filter(status='A').order_by(sort)
         if len(ords) > 0:
-            msgs = []
-            for o in ords:
-                msgs.append(self.stage_replace(o))
+            msgs = [self.stage_replace(o) for o in ords]
             return msgs
         else:
             log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
             logging.info(log)
 
-    def update_spread(self, new_spread=None):
+    def update_spread(self, new_spread):
         self.spread = new_spread
+        self.save()
         ords = self.order_set.filter(status='A')
         if len(ords) > 0:
-            msgs = []
-            for o in ords:
-                msgs.append(self.stage_replace(o))
-            self.group.send_message_delay(m, self.speed)
+            msgs = [self.stage_replace(o) for o in ords]
+            self.group.send_message_delay(msgs, self.speed)
         else:
             log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
             logging.info(log)
@@ -320,8 +303,8 @@ class Player(BasePlayer):
     def update_speed(self):  
         self.speed = not self.speed      # Front end button doesnt work 0429
         self.save()
-        speed = 'fast' if self.speed else 'slow'
-        log = 'PLAYER %d: Speed is %s.' % (self.id_in_group, speed)
+        speed = ('fast' if self.speed else 'slow')
+        log = 'PLAYER %d: SPEED: Is %s.' % (self.id_in_group, speed)
         logging.info(log)
 
     # Receive methods
@@ -330,7 +313,7 @@ class Player(BasePlayer):
         if message['type'] == 'role_change':
             self.update_state(message['state'])
         elif message['type'] == 'spread_change':
-            self.update_spread(message['spread'])
+            msgs = self.update_spread(message['spread'])
         elif message['type'] == 'speed_change':
             self.update_speed()
         else:
@@ -353,7 +336,7 @@ class Player(BasePlayer):
     def confirm_enter(self,message):
         order = self.order_set.get(token=message['order_token'])
         order.activate(message['timestamp'])
-        log = 'PLAYER %d: Confirmed %s.' % (self.id_in_group, order.token)
+        log = 'PLAYER %d: CONFIRM: Enter. Token: %s.' % (self.id_in_group, order.token)
         logging.info(log)
 
     def confirm_replace(self, message):
@@ -363,50 +346,32 @@ class Player(BasePlayer):
         new_order = self.order_set.get(token=replacement_ord_token)
         old_order.cancel(message['timestamp'])
         new_order.activate(message['timestamp'])
-        log = 'PLAYER %d: Confirmed replaced %s with %s.' % (self.id_in_group, previous_ord_token, replacement_ord_token)
+        log = 'PLAYER %d: CONFIRM: Replace %s with %s.' % (self.id_in_group, previous_ord_token, replacement_ord_token)
         logging.info(log)
 
     def confirm_cancel(self, message):
         ord_token = message['order_token']
         order = self.order_set.get(token=ord_token)
         order.cancel(message['timestamp'])
-        log = ( 'PLAYER %d: Confirmed cancel %s, was a %s.' 
+        log = ( 'PLAYER %d: CONFIRM: Cancel %s, was a %s.' 
             % (self.id_in_group, order.token, order.side))
         logging.info(log)
 
     def confirm_exec(self,message):
+        print(message)
         order_token = message['order_token']
         order = self.order_set.get(token=order_token)
         order.execute(message['timestamp'])
-        # log = ('PLAYER %d: Confirmed transaction %s, %s is a %s.' 
-        #     % (self.id_in_group, order.token, order.side))
-        # logging.info(log)
-        # calc_profit(order.price, order.side)
+        log = ('PLAYER %d: CONFIRM: Transaction %s, %s at %s.' 
+            % (self.id_in_group, order.token, order.side, order.price))
+        logging.info(log)
         if self.state == 'MAKER':
-            self.stage_enter(order.side)
-
-    def calc_profit(self, exec_price, side):
-        profit = 0
-
-        if side == 'B':
-            if exec_price < self.fp:
-                profit += (self.fp - exec_price)   #   Buy low, increase is positive difference in values
-            else:
-                profit += (self.fp - exec_price)   #   Buy high, decrease is negative difference in values 
-        else:
-            if exec_price < self.fp:
-                profit = (exec_price - self.fp)    #   Sell low, decrease is negative difference in values 
-            else:
-                profit = (exec_price - self.fp)    #   Sell high, increase is positive difference in values 
-        self.profit += profit
-
-        #########################
-        # SEND profit to client #
-        #########################
+             m = [self.stage_enter(order.side)]
+             self.group.send_message_delay(m, self.speed)
 
 
     def jump_event(self, new_price):   # ! delays to be handled at group level
-        print("\n %s" % self.state)
+#        print("\n %s" % self.state)
         old_fp = self.fp              # ! snipes itself ?  
         self.fp = new_price
         self.save()
@@ -415,36 +380,42 @@ class Player(BasePlayer):
         if self.state == 'OUT':
             return [None, self.speed]
         elif self.state == 'SNIPER':
-            orders = []
-            if postive_jump:
-                orders = self.stage_enter(side='B', time_in_force=0)  # Special value for a market order
-            else:
-                orders = self.stage_enter(side='S', time_in_force=0)  # Special value for a market order
-            return [orders, self.speed]
+            side = ('B' if postive_jump else 'S')
+            order = [self.stage_enter(side, price=self.fp, time_in_force=0)]  # Special value for a market order
+            return [order, self.speed]
         else:
             if postive_jump:
-                orders = self.adjust_price(True)
+                orders = self.update_price(True)
             else:
-                orders = self.adjust_price(False)
+                orders = self.update_price(False)
             return [orders, self.speed]
+
 
 
 class Investor(Model):
 
     group = ForeignKey(Group)
+    order_count = models.IntegerField(initial=0)
 
     def receive_from_consumer(self, side):
         now = str(Get_Time())
         logging.info('INVESTOR arrives. : ' + side + ' ')
-        self.go_market(side)
+        self.invest(side)
 
 
-    def go_market(self, side):
+    def invest(self, side):
         """
         create ouch message here 
         side = side, price = 2147483647
         """
-        pass
+        order = Order.objects.create(side=side, price=2147483647, time_in_force=0)
+        order.token = "INV@" + str(order.side) + str(format(self.order_count, '09d'))
+        order.firm = "INV@"
+        ouch = Enter_Order_Msg(order)
+        self.group.send_message_nondelay([ouch])
+        self.order_count += 1
+        self.save()
+
 
     # receives confirmation ? 
 
@@ -473,22 +444,19 @@ class Order(Model):
     status = models.StringField(initial='S')
     update_staged = models.StringField(initial=None)
     time_canceled = models.IntegerField(initial=0)
-    player = ForeignKey(Player)
+    player = ForeignKey(Player, null=True, blank=True)
 #   last_replaced = models.StringField(initial=None)   # Also maybe redundant
 
-    # def __init__(self, *args, **kwargs):
-    #     super(Order, self).__init__(*args, **kwargs)
-
-    #     # self.save()
 
     def stage(self):
         time = Get_Time(granularity="nanoseconds")
         self.time_stage = time
         self.token = "SUB" + str(chr(self.player.id_in_group + 64)) + str(self.side) + str(format(self.player.order_count, '09d'))
         self.firm = "SUB" + str(chr(self.player.id_in_group + 64))
+        self.save()
         self.player.order_count += 1
         self.player.save()
-        self.save()
+
 
     def activate(self, time):
         self.status = 'A'
@@ -513,8 +481,8 @@ class Order(Model):
         self.save()
 
     def __str__(self):
-        str_ord = 'ORDER: %s Time Staged: %d, Timestamp: %d, Status: %s, Update Staged: %s' % (
-            self.token, self.time_stage, self.timestamp, self.status, self.update_staged) 
+        str_ord = '%s:%s Price: %d, Time In Force: %s, Timestamp: %d, Status: %s, Update Staged: %s' % (
+            self.token, self.side, self.price, self.time_in_force, self.timestamp, self.status, self.update_staged) 
         return str_ord
 
     def order_export(self):

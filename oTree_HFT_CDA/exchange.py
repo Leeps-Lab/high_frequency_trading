@@ -19,21 +19,27 @@ class OUCH(Protocol):
 
         
     def dataReceived(self, data):
+        print(data)
         if data[0] == ord('S'):
             self.bytes_needed.append(10)
         elif data[0] == ord('E'):
+            print('executed')
             self.bytes_needed.append(49)
         elif data[0] == ord('C'):
+            print('canceled')
             self.bytes_needed.append(28)
         elif data[0] == ord('U'):
+            print('updated')
             self.bytes_needed.append(80)
         elif data[0] == ord('A'):
+            print('accepted')
             self.bytes_needed.append(66)
         elif data[0] == ord('0'):
+            print('unknown shit')
             self.bytes_needed.append(24)
         else:
             raise ValueError('Invalid message header {}: {}'.format(chr(data[0]), data))
-
+            
         if len(data) >= self.bytes_needed[0]:
             remainder = self.bytes_needed.pop(0)
             self.buffers[0].extend(data[:remainder])
