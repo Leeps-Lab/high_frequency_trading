@@ -72,7 +72,7 @@ def Enter_Order_Msg(order):
     Splice_Into_Array(message, Integer_To_Unit8(order.stock_sym1), 20, 4)
     Splice_Into_Array(message, Integer_To_Unit8(order.stock_sym2), 24, 4)
 
-    Splice_Into_Array(message, Integer_To_Unit8(int(order.price) * 1000), 28, 4)
+    Splice_Into_Array(message, Integer_To_Unit8(int(order.price)), 28, 4)
 
     Splice_Into_Array(message, Integer_To_Unit8(order.time_in_force), 32, 4)
 

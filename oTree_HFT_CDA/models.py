@@ -95,11 +95,11 @@ class Group(BaseGroup):
         ouch_msg = {}
         if(msg[0] == ord('S') and len(msg) == 10):
             ouch_msg = System_Event_Message(msg)
-        #    print(ouch_msg)
+            # print(ouch_msg)
             # send broadcast to start playing
 
             return
-        elif(msg[0] == ord('E') and len(msg) == 49):
+        elif(msg[0] == ord('E') and len(msg) == 40):
             ouch_msg = Executed_Message(msg)
      #       print(ouch_msg)
         elif(msg[0] == ord('C') and len(msg) == 28):
@@ -161,15 +161,11 @@ class Group(BaseGroup):
         for i, player in enumerate(players):
             response = player.jump_event(new_price)
             if response[0] is not None:
-                print(i, player.id)
                 player_responses.append(response[0])
                 if response[1]:
-                    print('if')
                     fast_players.append(i)
                 else:
-                    print('else')
                     slow_players.append(i)
-                    print(slow_players)
 
         # print()
         # print(player_responses)
@@ -188,9 +184,7 @@ class Group(BaseGroup):
         time.sleep(0.4)
 
         for i in slow_players:
-            print(i)
             self.send_message_nondelay(player_responses[i])
-            print(player_responses[i])
 
 
                 
@@ -408,7 +402,11 @@ class Investor(Model):
         create ouch message here 
         side = side, price = 2147483647
         """
-        order = Order.objects.create(side=side, price=2147483647, time_in_force=0)
+        if side == 'B':
+            order = Order.objects.create(side=side, price=214748.3647, time_in_force=0)
+        elif side == 'S':
+            order = Order.objects.create(side=side, price=0, time_in_force=0)
+
         order.token = "INV@" + str(order.side) + str(format(self.order_count, '09d'))
         order.firm = "INV@"
         ouch = Enter_Order_Msg(order)
