@@ -10,10 +10,20 @@ except ImportError as e:
     raise(e)
     exit(1)
 
+def get_types():
+    msg_types = {
+        (ord('S'), 10): system_event,
+        (ord('E'), 40): executed,
+        (ord('C'), 28): canceled,
+        (ord('U'), 80): replaced,
+        (ord('A'), 66): accepted
+    }
+    return msg_types
+
 
 # Create a system event message with supplied event
 # code ['S' | 'E'] and given timestamp
-def System_Start_Msg(event_code, timestamp=None):
+def system_start(event_code, timestamp=None):
     if timestamp is None:
         timestamp = Integer_To_Unit8(Get_Time("nanoseconds"),4)
 
@@ -29,7 +39,7 @@ def System_Start_Msg(event_code, timestamp=None):
 
 
 
-def Replace_Order_Msg(replace_order, order):
+def replace(replace_order, order):
     message = np.empty(47, dtype=np.uint8)
 
     message[0] = np.uint8(ord('U'))  # set the System message code
@@ -55,7 +65,7 @@ def Replace_Order_Msg(replace_order, order):
 
 
 
-def Enter_Order_Msg(order):
+def enter(order):
     message = np.empty(49, dtype=np.uint8)
 
     message[0] = np.uint8(ord('O'))  # Set the System message code
@@ -92,7 +102,7 @@ def Enter_Order_Msg(order):
 # =========================================
 # existing_order_token : order going to be replaced [14 byte alphanumeric token]
 # =========================================
-def Cancel_Order_Msg(existing_order_token, shares=0):
+def cancel(existing_order_token, shares=0):
     message = np.empty(19, dtype=np.uint8)
 
     message[0] = np.uint8(ord('X'))  # set the System message code
@@ -108,7 +118,7 @@ def Cancel_Order_Msg(existing_order_token, shares=0):
 # =========================================
 # exchange_msg : byte array message received from the exchange
 # =========================================
-def Accepted_Message(exchange_msg):
+def accepted(exchange_msg):
     accepted_message = {}
 
     accepted_message["type"] = chr(exchange_msg[0]) # 'U' same as replace order. keep in mind
@@ -134,7 +144,7 @@ def Accepted_Message(exchange_msg):
 # =========================================
 # exchange_msg : byte array message received from the exchange
 # =========================================
-def Replaced_Message(exchange_msg):
+def replaced(exchange_msg):
     replace_message = {}
 
     replace_message["type"] = chr(exchange_msg[0])
@@ -161,7 +171,7 @@ def Replaced_Message(exchange_msg):
 # =========================================
 # exchange_msg : byte array message received from the exchange
 # =========================================
-def Canceled_Message(exchange_msg):
+def canceled(exchange_msg):
     cancel_message = {}
 
     cancel_message["type"] = chr(exchange_msg[0])
@@ -176,7 +186,7 @@ def Canceled_Message(exchange_msg):
 # =========================================
 # exchange_msg : byte array message received from the exchange
 # =========================================
-def Executed_Message(exchange_msg):
+def executed(exchange_msg):
     executed_message = {}
 
     executed_message["type"] = chr(exchange_msg[0])
@@ -192,7 +202,7 @@ def Executed_Message(exchange_msg):
 # =========================================
 # exchange_msg : byte array message received from the exchange
 # =========================================
-def System_Event_Message(exchange_msg):
+def system_event(exchange_msg):
     system_event_message = {}
 
     system_event_message["type"] = chr(exchange_msg[0])

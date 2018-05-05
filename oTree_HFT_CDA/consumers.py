@@ -31,6 +31,10 @@ class SubjectConsumer(JsonWebsocketConsumer):
     def send(self, msg, chnl):
         Channel(chnl).send(msg)
 
+    def broadcast(self, msg, chnl):
+        Group(chnl).send(msg)
+
+
 
 class InvestorConsumer(JsonWebsocketConsumer):
 

@@ -1,35 +1,21 @@
-from .translator import *
-from .utility import Get_Time
-
-from . import exchange
-
-import numpy as np
-from otree.db.models import Model, ForeignKey
-from django.core import serializers
-import time
-import pandas as pd
-try:
-    import thread
-except ImportError:
-    import _thread as thread
-from otree.api import (
-    models, widgets, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
-    Currency as c, currency_range
-)
-from jsonfield import JSONField
-#from . import exchange_server
 import subprocess
 import os
 import logging
 import random
+import time
+import pandas as pd
+from . import translator as translate
+from .utility import Get_Time, tokengen
+from . import exchange
+from channels import Group as CGroup, Channel
+from otree.db.models import Model, ForeignKey
+from django.core import serializers
+from otree.api import (
+    models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
+)
+from jsonfield import JSONField
 
-
-logger = logging.getLogger(__name__)
-
-logging.basicConfig(filename = 'all-log.txt',
-    filemode = 'a',
-    format = '%(asctime)s - %(levelname)s: %(message)s',\
-    datefmt = '%m/%d/%Y %I:%M:%S %p')
+log = logging.getLogger(__name__)
 
 
 author = 'LEEPS Lab UCSC'
@@ -44,15 +30,15 @@ class Constants(BaseConstants):
     players_per_group = 2
     num_rounds = 5
 
-    # exchange_soc = Exchange_Socket()
-
-    inv_py = './oTree_HFT_CDA/investor.py'
+    inv_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/investor.py')
     inv_url = 'ws://127.0.0.1:8000/hft_investor/'   
-    inv_csv = './oTree_HFT_CDA/investor_test.csv'
+    inv_csv = os.path.join(os.getcwd(), 'raw/inv_test.csv')
 
-    jump_py = './oTree_HFT_CDA/jump.py'
-    jump_url = 'ws://127.0.0.1:8000/hft_jump/'
-    jump_csv = './oTree_HFT_CDA/jump_test.csv'
+    jump_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/jump.py')
+    jump_url = 'ws://127.0.0.1:8000/hft_jump/'   
+    jump_csv = os.path.join(os.getcwd(), 'raw/jump_test.csv')
+
+
 
 
 class Subsession(BaseSubsession):
@@ -65,67 +51,59 @@ class Subsession(BaseSubsession):
             group.save()
 
 
+
 class Group(BaseGroup):
+
     port = models.IntegerField()
     json = JSONField()
 
     def connect_to_exchange(self):
-        logging.info("GROUP: Connecting to exchange on port %d" % self.port)
+        log.info("Group%d: Connecting to exchange on port %d" % (self.id, self.port))
         exchange.connect(self, '127.0.0.1', self.port)
-        logging.info("GROUP: Connected to exchange on port %d" % self.port)
+        log.info("Group%d: Connected to exchange on port %d" % (self.id, self.port))
 
     def disconnect_from_exchange(self):
         exchange.disconnect(self, '127.0.0.1', self.port)
+        log.info("Group%d: Disconnected from exchange on port %d" % (self.id, self.port))
 
-    def send_message_delay(self, msgs, speed):
-        if speed is True:
-            time.sleep(0.1)
-        elif speed is False:
-            time.sleep(0.5)
+    def send_exchange(self, msgs, delay=False, speed=False):
+        if delay:
+            dur = (0.1 if speed else 0.5)
+            time.sleep(dur)
         conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
         for m in msgs:
             conn.sendMessage(m)
 
-    def send_message_nondelay(self, msgs):
-        conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
-        for m in msgs:
-            conn.sendMessage(m)
-
-    def recv_message(self, msg):
-        ouch_msg = {}
-        if(msg[0] == ord('S') and len(msg) == 10):
-            ouch_msg = System_Event_Message(msg)
-            # print(ouch_msg)
-            # send broadcast to start playing
-
-            return
-        elif(msg[0] == ord('E') and len(msg) == 40):
-            ouch_msg = Executed_Message(msg)
-     #       print(ouch_msg)
-        elif(msg[0] == ord('C') and len(msg) == 28):
-            ouch_msg = Canceled_Message(msg)
-   #         print(ouch_msg)
-        elif(msg[0] == ord('U') and len(msg) == 80):
-            ouch_msg = Replaced_Message(msg)
-  #          print(ouch_msg)
-        elif(msg[0] == ord('A') and len(msg) == 66):
-            ouch_msg = Accepted_Message(msg)
-#            print(ouch_msg)
+    def receive_from_exchange(self, msg):
+        msg_type = (msg[0], len(msg))
+        try: 
+            ouch = translate.get_types()[msg_type](msg)
+            if ouch['type'] == 'S':
+                return
+        except KeyError:
+            log.warning('Group{}: received type-{}:length-{}'.format(self.id, chr(msg[0]), len(msg)))
+        if (ouch['order_token'][3] == '@'):
+            if ouch['type'] == 'E':
+                log.info('Group%d: Investor transacted.' % self.id)
+                note = {'note':'Something about the transaction.'}
+                self.broadcast(note)
+            else:
+                pass
         else:
-            logging.info("GROUP: Received Message from with msg type {} and length {}".format(chr(msg[0]), len(msg)))
-        
-        if ouch_msg['order_token'][3] == '@':
-            pass
-        else:
-            player = self.get_player_by_id(ord(ouch_msg['order_token'][3]) - 64)
-            player.receive_from_group(ouch_msg)
+            player = self.get_player_by_id(ord(ouch['order_token'][3]) - 64)
+            player.receive_from_group(ouch)
 
-
-        self.json['messages'].append(ouch_msg)
+        self.json['messages'].append(ouch)
         self.save()
+
+    def broadcast(self, note):
+        log.debug('Group%d: Broadcast investor transaction.' % self.id)
+        CGroup(str(self.id)).send(note)
+
 
     def save(self, *args, **kwargs):
         """
+        JAMES
         BUG: Django save-the-change, which all oTree models inherit from,
         doesn't recognize changes to JSONField properties. So saving the model
         won't trigger a database save. This is a hack, but fixes it so any
@@ -141,61 +119,51 @@ class Group(BaseGroup):
                     json_fields[field.attname] = getattr(self, field.attname)
             self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
 
-
     def spawn(self, name, url, data):
-        log = 'Group %d: Initialize %s..' % (self.id, name)
-        logging.info(log)
+        log.info('Group%d: Fire %s.' % (self.id, name))
         cmd = ['python', name, str(self.id), url, data]
         subprocess.Popen(cmd)
 
     def jump_event(self, new_price):
-        log = 'JUMP: New price is %d!' % new_price
-        logging.info(log)
+        log.info('Group%d: Jump, new price is %d!' % (self.id, new_price))
 
         players = self.get_players()
         player_responses = []
         fast_players = []
         slow_players = [] 
 
-
         for i, player in enumerate(players):
-            response = player.jump_event(new_price)
+            response = player.jump(new_price)
             if response[0] is not None:
                 player_responses.append(response[0])
                 if response[1]:
-                    fast_players.append(i)
+                    fast_players.append(i+1)
                 else:
-                    slow_players.append(i)
-
-        # print()
-        # print(player_responses)
-        # print()
-
+                    slow_players.append(i+1)
 
         random.shuffle(fast_players)
         random.shuffle(slow_players)
-        print(slow_players)
 
         time.sleep(0.1)
 
-        # for i in fast_players:
-        #     self.send_message_nondelay(player_responses[i])
+        if fast_players:
+            for i in fast_players:
+                log.debug('Group%d: fast player%d moves.' % (self.id, players[i-1].id_in_group))
+                self.send_exchange(player_responses[i-1])
 
         time.sleep(0.4)
 
-        for i in slow_players:
-            self.send_message_nondelay(player_responses[i])
+        if slow_players:
+            for i in slow_players:
+                log.debug('Group%d: slow player%d moves.' % (self.id, players[i-1].id_in_group))
+                self.send_exchange(player_responses[i-1])
 
-
-                
-
-
-
-
-        """
-        delay and jump players here
-        """
-
+    def export_orders(self):
+        pids = [self.player_set.all().values('id')]
+        orders = serializers.serialize("json", Order.objects.filter(player_id__in=pids))
+        df = pd.read_json(data)
+        filename = os.path.join(os.getcwd(), '/logs/group' + self.id + '.csv')
+        df.to_csv(filename)
 
 
 
@@ -210,7 +178,7 @@ class Player(BasePlayer):
     fp = models.IntegerField(initial=10000)
     order_count = models.IntegerField(initial=1)
 
-    # Staging orders
+    # Player actions
 
     def stage_enter(self, side, price=None, time_in_force=99999):
         """
@@ -218,13 +186,10 @@ class Player(BasePlayer):
         returns relevant ouch message
         """
         spread = (self.spread if side == 'S' else - self.spread)
-        price = (self.fp + spread / 2 if not price else price)
+        price = (int(self.fp + spread / 2) if not price else price)
         order = self._create_order(side=side, price=price, o_type='O', time_in_force=time_in_force)
-        print('Enter staged: ', order)
-        ouch = Enter_Order_Msg(order)
-        log = 'PLAYER %d: STAGE: Enter %s order %s.' % (self.id_in_group, order.side, order.token) 
-        logging.info(log)
-        logging.info(order)
+        ouch = translate.enter(order)
+        log.info('Player%d: Stage: Enter %s: %s.' % (self.id_in_group, order.side, order.token))
         return ouch
 
     def stage_replace(self, order):
@@ -232,17 +197,14 @@ class Player(BasePlayer):
         price = int(self.fp + spread / 2)
         order.stage_update('R')
         new_order = self._create_order(side=order.side, price=price, time_in_force=99999)
-        ouch = Replace_Order_Msg(order, new_order)   
-        log = 'PLAYER %d: STAGE: Replace order %s.' % (self.id_in_group, order.token)
-        logging.info(log)
+        ouch = translate.replace(order, new_order)   
+        log.info('Player%d: Stage: Replace: %s.' % (self.id_in_group, order.token))
         return ouch
 
     def stage_cancel(self, order):
         order.stage_update('C')
-        ouch = Cancel_Order_Msg(order.token)
-        log = 'PLAYER %d: STAGE: Cancel for the order %s.' % (self.id_in_group, order.token)
-        logging.info(log)
-        logging.info(order)
+        ouch = translate.cancel(order.token)
+        log.info('Player%d: Stage: Cancel: %s.' % (self.id_in_group, order.token))
         return ouch
 
     def _create_order(self, **kwargs):
@@ -250,175 +212,162 @@ class Player(BasePlayer):
         order.stage()
         return order
 
-    # Player actions
+    def _enter_market(self):
+        log.debug('Player%d: Enters market.' % (self.id_in_group)) 
+        msgs = [self.stage_enter('B'), self.stage_enter('S')]
+        self.group.send_exchange(msgs, delay=True, speed=self.speed)
 
-    def update_state(self, new_state):
-        if (new_state == 'OUT' or new_state == 'SNIPER'):
-            ords = self.order_set.filter(status='A')
-            if len(ords) > 0:
-                msgs = [self.stage_cancel(o) for o in ords]
-                self.group.send_message_delay(msgs, self.speed)       
-            else:
-                log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
-                logging.info(log)
-                
-        elif new_state == 'MAKER':  # Player enters as a maker
-            msgs = [self.stage_enter('B'), self.stage_enter('S')]
-            self.group.send_message_delay(msgs, self.speed)
+    def _leave_market(self):
+        ords = self.order_set.filter(status='A')
+        if ords:
+            msgs = [self.stage_cancel(o) for o in ords]
+            self.group.send_exchange(msgs, delay=True, speed=self.speed)
         else:
-            log = 'PLAYER %d: Invalid state update.' % self.id_in_group
-            logging.warning(log)
+            log.debug('Player%d: No active orders.' % self.id_in_group)
+   
+
+    # Client actions
+    def update_state(self, message):
+        states = {
+            'OUT':self._leave_market,
+            'SNIPER':self._leave_market,
+            'MAKER':self._enter_market
+        }
+        new_state = message['state']
+        try:
+            states[new_state]()
+        except KeyError:    # Is this even possible ? why check ?
+            log.warning('Player%d: Invalid state update.' % self.id_in_group)
         self.state = new_state
         self.save()
-        log = 'PLAYER %d: STATE: Is %s.' % (self.id_in_group, self.state)
-        logging.info(log)
+        log.info('Player%d: State update: %s.' % (self.id_in_group, self.state))
 
-    def update_price(self, postive_jump):
-        sort = ('-price' if postive_jump else 'price')
-        ords = self.order_set.filter(status='A').order_by(sort)
-        if len(ords) > 0:
-            msgs = [self.stage_replace(o) for o in ords]
-            return msgs
-        else:
-            log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
-            logging.info(log)
-
-    def update_spread(self, new_spread):
-        self.spread = new_spread
+    def update_spread(self, message):
+        self.spread = message['spread']
         self.save()
         ords = self.order_set.filter(status='A')
-        if len(ords) > 0:
+        if ords:
             msgs = [self.stage_replace(o) for o in ords]
-            self.group.send_message_delay(msgs, self.speed)
-        else:
-            log = 'PLAYER %d: No active orders in the market.' % self.id_in_group
-            logging.info(log)
+            self.group.send_exchange(msgs, delay=True, speed=self.speed)
+        log.info('Player%d: Spread update: %s.' % (self.id_in_group, self.spread))
 
-    def update_speed(self):  
+    def update_speed(self, message):  
         self.speed = not self.speed      # Front end button doesnt work 0429
         self.save()
         speed = ('fast' if self.speed else 'slow')
-        log = 'PLAYER %d: SPEED: Is %s.' % (self.id_in_group, speed)
-        logging.info(log)
+        log.info('Player%d: Speed change: %s.' % (self.id_in_group, speed))
+
 
     # Receive methods
+    def receive_from_client(self, msg):
+        events= {
+            'role_change':self.update_state,
+            'spread_change':self.update_spread,
+            'speed_change':self.update_speed
+        }
+        events[msg['type']](msg)
 
-    def receive_from_client(self, message):
-        if message['type'] == 'role_change':
-            self.update_state(message['state'])
-        elif message['type'] == 'spread_change':
-            msgs = self.update_spread(message['spread'])
-        elif message['type'] == 'speed_change':
-            self.update_speed()
-        else:
-            raise Exception('Bad message type received from client.')
+    def receive_from_group(self, msg):
+        events= {
+            'A':self.confirm_enter,
+            'U':self.confirm_replace,
+            'C':self.confirm_cancel,
+            'E':self.confirm_exec
+        }
+        events[msg['type']](msg)
 
-    def receive_from_group(self, message):
-        if message['type'] == 'A':
-            self.confirm_enter(message)
-        elif message['type'] == 'U':
-            self.confirm_replace(message)
-        elif message['type'] == 'C':
-            self.confirm_cancel(message)
-        elif message['type'] == 'E':
-            self.confirm_exec(message)
-        else:
-            raise Exception('Bad message type received from exchange.')
-
-    # Confirm when receive from exchange        
+    # Confirm methods    
     # These methods should send response to clients ! 
-    def confirm_enter(self,message):
-        order = self.order_set.get(token=message['order_token'])
-        order.activate(message['timestamp'])
-        log = 'PLAYER %d: CONFIRM: Enter. Token: %s.' % (self.id_in_group, order.token)
-        logging.info(log)
+    def confirm_enter(self,msg):
+        stamp, tok = msg['timestamp'], msg['order_token']
+        order = self.order_set.get(token=tok)
+        order.activate(stamp)
+        log.info('Player%d: Confirm: Enter: %s.' % (self.id_in_group, tok))
 
-    def confirm_replace(self, message):
-        previous_ord_token = message['previous_order_token']
-        replacement_ord_token = message['order_token']
-        old_order = self.order_set.get(token=previous_ord_token)
-        new_order = self.order_set.get(token=replacement_ord_token)
-        old_order.cancel(message['timestamp'])
-        new_order.activate(message['timestamp'])
-        log = 'PLAYER %d: CONFIRM: Replace %s with %s.' % (self.id_in_group, previous_ord_token, replacement_ord_token)
-        logging.info(log)
+    def confirm_replace(self, msg):
+        ptok, tok = msg['previous_order_token'], msg['order_token']
+        stamp = msg['timestamp'] 
+        old_order = self.order_set.get(token=ptok)
+        new_order = self.order_set.get(token=tok)
+        old_order.cancel(stamp)
+        new_order.activate(stamp)
+        log.info('Player%d: Confirm: Replace %s.' % (self.id_in_group, ptok))
 
-    def confirm_cancel(self, message):
-        ord_token = message['order_token']
-        order = self.order_set.get(token=ord_token)
-        order.cancel(message['timestamp'])
-        log = ( 'PLAYER %d: CONFIRM: Cancel %s, was a %s.' 
-            % (self.id_in_group, order.token, order.side))
-        logging.info(log)
+    def confirm_cancel(self, msg):
+        stamp, tok = msg['timestamp'], msg['order_token']
+        order = self.order_set.get(token=tok)
+        order.cancel(stamp)
+        log.info('Player%d: Confirm: Cancel %s.' % (self.id_in_group, tok))
 
-    def confirm_exec(self,message):
-        print(message)
-        order_token = message['order_token']
-        order = self.order_set.get(token=order_token)
-        order.execute(message['timestamp'])
-        log = ('PLAYER %d: CONFIRM: Transaction %s, %s at %s.' 
-            % (self.id_in_group, order.token, order.side, order.price))
-        logging.info(log)
+    def confirm_exec(self,msg):
+        stamp, tok = msg['timestamp'], msg['order_token']
+        order = self.order_set.get(token=tok)
+        order.execute(stamp)
+        log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
         if self.state == 'MAKER':
+             log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]
-             self.group.send_message_delay(m, self.speed)
+             self.group.send_exchange(m, delay=True, speed=self.speed)
 
 
-    def jump_event(self, new_price):   # ! delays to be handled at group level
-#        print("\n %s" % self.state)
-        old_fp = self.fp              # ! snipes itself ?  
+    def jump(self, new_price):  
+        old_fp = self.fp              
         self.fp = new_price
         self.save()
         postive_jump = (self.fp - old_fp) > 0
 
         if self.state == 'OUT':
             return [None, self.speed]
+
         elif self.state == 'SNIPER':
+            log.debug('Player%d: Jump: Snipe.' % self.id_in_group)
             side = ('B' if postive_jump else 'S')
             order = [self.stage_enter(side, price=self.fp, time_in_force=0)]  # Special value for a market order
             return [order, self.speed]
+
         else:
-            if postive_jump:
-                orders = self.update_price(True)
-            else:
-                orders = self.update_price(False)
+            flag = (1 if postive_jump else 0)
+            orders = self._adjust_price(flag)
             return [orders, self.speed]
+
+    def _adjust_price(self, flag):
+        sort = ('-price' if flag else 'price')
+        ords = self.order_set.filter(status='A').order_by(sort)
+        if ords:
+            log.debug('Player%d: Jump: Replace orders in the market.' % self.id_in_group)
+            msgs = [self.stage_replace(o) for o in ords]
+            return msgs
+
+    # Send to client
+
+    def send_client(self,msg):
+        Channel(str(self.channel)).send(msg)
 
 
 
 class Investor(Model):
 
     group = ForeignKey(Group)
-    order_count = models.IntegerField(initial=0)
+    order_count = models.IntegerField(initial=1)
 
     def receive_from_consumer(self, side):
-        now = str(Get_Time())
-        logging.info('INVESTOR arrives. : ' + side + ' ')
+        s = ('Buy' if side=='B' else 'Sell')
+        log.info('Investor: %s.' % s)
         self.invest(side)
 
-
     def invest(self, side):
-        """
-        create ouch message here 
-        side = side, price = 2147483647
-        """
-        if side == 'B':
-            order = Order.objects.create(side=side, price=214748.3647, time_in_force=0)
-        elif side == 'S':
-            order = Order.objects.create(side=side, price=0, time_in_force=0)
-
-        order.token = "INV@" + str(order.side) + str(format(self.order_count, '09d'))
-        order.firm = "INV@"
-        ouch = Enter_Order_Msg(order)
-        self.group.send_message_nondelay([ouch])
+        p = (214748.3647 if side == 'B' else 0)
+        order = Order.objects.create(side=side, price=p, time_in_force=0)
+        order.token, order.firm = tokengen(0, order.side, self.order_count)
+        ouch = translate.enter(order)
+        logging.debug('Investor sends an order: %s' % order.token)
+        self.group.send_exchange([ouch])
         self.order_count += 1
         self.save()
 
 
-    # receives confirmation ? 
 
-
-class Order(Model):
+class Order(Model):  # This is a big object. Do we really need all these fields ?
     # NASDAQ ouch fields
     o_type = models.StringField(initial=None)
     token = models.StringField()  # DAN
@@ -443,24 +392,20 @@ class Order(Model):
     update_staged = models.StringField(initial=None)
     time_canceled = models.IntegerField(initial=0)
     player = ForeignKey(Player, null=True, blank=True)
-#   last_replaced = models.StringField(initial=None)   # Also maybe redundant
 
 
     def stage(self):
         time = Get_Time(granularity="nanoseconds")
         self.time_stage = time
-        self.token = "SUB" + str(chr(self.player.id_in_group + 64)) + str(self.side) + str(format(self.player.order_count, '09d'))
-        self.firm = "SUB" + str(chr(self.player.id_in_group + 64))
-        self.save()
+        self.token, self.firm = tokengen(self.player.id_in_group, self.side, self.player.order_count)
         self.player.order_count += 1
+        self.save()
         self.player.save()
-
 
     def activate(self, time):
         self.status = 'A'
         self.timestamp = time
         self.save()
-
 
     def cancel(self, time):
         self.status = 'C'
@@ -473,18 +418,10 @@ class Order(Model):
         self.save()
 
     def stage_update(self, typ):
-        time = Get_Time(granularity="nanoseconds")
+        time = Get_Time()
         update = str(time) + ' ' + typ
         self.update_staged = update
         self.save()
 
-    def __str__(self):
-        str_ord = '%s:%s Price: %d, Time In Force: %s, Timestamp: %d, Status: %s, Update Staged: %s' % (
-            self.token, self.side, self.price, self.time_in_force, self.timestamp, self.status, self.update_staged) 
-        return str_ord
 
-    def order_export(self):
-        data = serializers.serialize("json", Order.objects.all())
-        df = pd.read_json(data)
-        df.to_csv('Orders.csv')
 

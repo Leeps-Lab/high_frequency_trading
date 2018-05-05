@@ -71,3 +71,10 @@ def Byte_Array_To_String(source, start, offset= 4):
         new_string = new_string + chr(source[source_index])
 
     return new_string
+
+
+def tokengen(pid, side, count, prefix='SUB'):
+    token = prefix + str(chr(pid + 64)) + str(side) + str(format(count, '09d'))
+    firm = prefix + str(chr(pid + 64))
+    return (token, firm)
+

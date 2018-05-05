@@ -37,7 +37,7 @@ class OUCH(Protocol):
             self.buffers[0].extend(data[:remainder])
             buf = self.buffers.pop(0)
             data = data[remainder:]
-            self.factory.group.recv_message(bytes(buf))
+            self.factory.group.receive_from_exchange(bytes(buf))
 
         if len(data):
             self.buffers.append([])
