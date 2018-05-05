@@ -49,6 +49,8 @@
     }
     .inputs{
         margin-top:160px;
+        width: 10%;
+        height: 100%;
     }
     .line {
         stroke: steelblue;
@@ -144,34 +146,18 @@ input:checked + .slider:before {
         </tr>
         </strong>
     </table>
-    <div class="row graph_row">
-    <svg id="profit-graph"  style="margin-left:00px; background-color: white; border-left:solid black 1px;"></svg>
-        <svg id="spread-graph" width="200" style="margin-left:10px; background-color: white;">
-          <path d=" M 100 0
-            L 100 5000"
-           stroke="lightgrey" stroke-width="5" fill="none"/>
-           <path d=" M 60 300
-            L 140 300"
-           stroke="grey" stroke-width="5" fill="none"/>
-        </svg> 
+    <div class="row graph_row" style="width:100%; height:100%;">
+
+    <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;"></svg>
+
+    <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
         <div class="inputs">
-
-            <input id="maker" ng-disabled="state=='state_maker'" value="Maker" class="button_off" type="button" style="width:80px" >
-
-            </input>
+          <input id="maker" value="Maker" class="button_off" type="button" style="width:80px" ></input>
           <br>
-            
-
-            <input id="sniper" ng-disabled="state=='state_snipe'" value="Sniper" class="button_off" type="button" style="width:80px" >
-
-            </input> 
+            <input id="sniper" value="Sniper" class="button_off" type="button" style="width:80px" ></input> 
             <br>
-            <input id="out" ng-disabled="state=='state_out'" value="Out" class="button-on" type="button" style="width:80px" >
-
-            </input>
+            <input id="out" value="Out" class="button-on" type="button" style="width:80px"></input>
             <br>
-
-                    
 
             <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
             <label class="switch" style="margin-left: 40px; margin-top: -5px;" onclick="updatespeed()">
@@ -238,8 +224,13 @@ window.onload = function () {
                 console.log('disconnected from oTree');
             };
 
+/*********************************
+END BUTTON LOGIC //may the force be with you
+*********************************/
+  //MAKER BUTTON
   document.getElementById("maker").onclick = function () {
     if ((document.getElementById("maker").className == "button-off") && (document.getElementById("maker").className != "button-pressed")){
+        //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
         $("#maker").toggleClass('button-off button-pressed');
         var msg = {
           type: 'role_change',
@@ -252,14 +243,19 @@ window.onload = function () {
         }
         console.log(msg);
         Button_Pressed("maker");
+        //CHANGE TABLE VALUE
+        $('#player_role').html('Maker');
         //send the order if not button pressed (reduces the chance of double orders)
     }
+    //TURN THE REST OF THE BUTTONS OFF
     $("#out").attr('class', 'button-off');
     $("#sniper").attr('class', 'button-off');
   };
 
+  //SNIPER BUTTON
   document.getElementById("sniper").onclick = function () {
       if ((document.getElementById("sniper").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
+        //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
         $("#sniper").toggleClass('button-off button-pressed');
         var msg = {
           type: 'role_change',
@@ -273,13 +269,18 @@ window.onload = function () {
         console.log(msg);
         Button_Pressed("sniper");
         //send the order if not button pressed (reduces the chance of double orders)
+        //CHANGE TABLE VALUE
+        $('#player_role').html('Sniper');
       }
+    //TURN THE REST OF THE BUTTONS OFF
     $("#maker").attr('class', 'button-off');
     $("#out").attr('class', 'button-off');
   };
 
+  //OUT BUTTON
   document.getElementById("out").onclick = function () {
     if (document.getElementById("out").className == "button-off"){
+      //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
       $("#out").toggleClass('button-off button-on');
       var msg = {
         type: 'role_change',
@@ -290,9 +291,12 @@ window.onload = function () {
       if (socket.readyState === socket.OPEN) {
         socket.send(JSON.stringify(msg));
       }
+      //CHANGE TABLE VALUE
+      $('#player_role').html('Out');
       console.log(msg);
       //send the out message
     }
+    //TURN THE REST OF THE BUTTONS OFF
     $("#maker").attr('class', 'button-off');
     $("#sniper").attr('class', 'button-off');
   };
@@ -300,11 +304,11 @@ window.onload = function () {
   var button_timer;
   var graph_timer;
   function Button_Pressed(id_name){
-    //Wait  seconds until you can send a replace order
+    //Wait .5 seconds for button pressed
     button_timer = setTimeout(Button_Change.bind(null,id_name), 500);
   }
   function Button_Change(id_name){
-    //Changing the class and color for the button to be pressed
+    //TURNING BUTTON ON
     $("#"+id_name).toggleClass('button-pressed button-on');
   }
 
@@ -318,10 +322,10 @@ window.onload = function () {
     //Changing the class and color for the button to be pressed
     $("#"+id_name).toggleClass('button-pressed button-on');
   }
+/*********************************
+END BUTTON LOGIC
+*********************************/
 
 }
-
-  
-
 </script>
 {% endblock %}
