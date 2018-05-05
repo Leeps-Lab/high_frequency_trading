@@ -5,21 +5,9 @@ var n = 20;
 var data = d3.range(17).map(function(d) { return {"y": 0}});
 spread = 3;
 
-makeProfitGraph(n,0,data);
-makeSpreadGraph(spread);
+makeGraphs(n,0,data);
 
-function makeSpreadGraph(spread){
-  var spread_width = d3.select("#spread-graph").width() ;
-  var spread_height = d3.select("#spread-graph").height() ;
-  alert();
-  d3.select("#spread-line")
-      .attr('d','M 10 25  L 10 75  L 10 25  L 60 75')
-      .attr('stroke', 'red')
-      .attr('stroke-width', '2')
-      .attr('fill','none');
-}
-
-function makeProfitGraph(n,x_data,y_data){
+function makeGraphs(n,x_data,y_data){
 
   var margin = {top: 0, right: 0, bottom: 0, left: 0}
     , width = $("#profit-graph").width()// Use the window's width 
@@ -50,15 +38,21 @@ function makeProfitGraph(n,x_data,y_data){
     .append("g")
       .attr("transform", "translate(0,0)");
 
+  var spread_width = $("#spread-graph").width() ;
+  var spread_height = $("#spread-graph").height() ;
+  alert("Sorta works at least");
 
 
-graphStartState();
+
+  graphStartState();
+
 
 setInterval(function() {
          Update();  
       }, 500);
 
   function graphStartState(){
+
     svg.append("path")
     .datum(y_data)
     .attr("class", "line") 
@@ -75,6 +69,7 @@ svg.append("g")
       .attr("transform", "translate(0," + (height - 180) + ")")
       .call(d3.axisTop(xScale));
   }
+  
 
 
   function Update() {
