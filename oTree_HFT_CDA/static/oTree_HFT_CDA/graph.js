@@ -134,26 +134,33 @@ setInterval(function() {
        spread_x = document.getElementById("spread-graph").getBoundingClientRect().x ;
        spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
 
+       //Where the grey middle line is
        svg_middle_x = spread_width/2;
        svg_middle_y = spread_height/2 - 90;
 
       //The tuple in which the mouse is clicked within the svg 
       spread_position = {x:(d3.event.clientX - spread_x),y:(d3.event.clientY - spread_y)};
 
+      //finding the distance from the mid
       if(spread_position.y >= svg_middle_y){
         distance_from_middle = spread_position.y - svg_middle_y;
       } else {
         distance_from_middle = svg_middle_y -spread_position.y ;
       }
+      //Ratio between the distance and the mid
       ratio = svg_middle_y / distance_from_middle;
 
+      //Spread is the ratio except in dollars which is what the actual spread is
       money_ratio = spread/ratio;
       actual_spread = money_ratio.toFixed(2);
       //alert("mouse position in svg when clicked is " + "(" + spread_position.x+ "," +spread_position.y +") and max spread is " + spread);
-      alert(actual_spread);
-
-
+      alert("This is your spread +-$"+actual_spread);
+      
+      //Time to draw the lasers tat go into the spread graph
+      //drawSpreadLine(actual_spread);
   });
+
+
 
 
 
