@@ -3,7 +3,7 @@
 
 var n = 20; 
 var data = d3.range(17).map(function(d) { return {"y": 0}});
-spread = 3;
+spread = 10;
 
 makeGraphs(n,0,data);
 
@@ -38,41 +38,58 @@ function makeGraphs(n,x_data,y_data){
     .append("g")
       .attr("transform", "translate(0,0)");
 
-  var spread_width = $("#spread-graph").width() ;
-  var spread_height = $("#spread-graph").height() ;
-  alert("Sorta works at least");
+  var spread_width = $("#spread-graph").width(),
+      spread_height = $("#spread-graph").height(),
+      spread_svg = d3.select("#spread-graph")
+                  .attr("width", spread_width)
+                  .attr("height", spread_height);
 
-
-
-  graphStartState();
+graphStartState();
 
 
 setInterval(function() {
          Update();  
-      }, 500);
+}, 500);
 
   function graphStartState(){
 
-    svg.append("path")
+  svg.append("path")
     .datum(y_data)
     .attr("class", "line") 
     .attr("d", line); 
 
-      // 4. Call the y axis in a group tag
+
   svg.append("g")
       .attr("class", "y_axis")
       .attr("transform", "translate(" + (width - 28) + ",0)")
-      .call(d3.axisRight(yScale)); // Create an axis component with d3.axisLeft
+      .call(d3.axisRight(yScale));
 
-svg.append("g")
+  svg.append("g")
       .attr("class", "x_axis")
       .attr("transform", "translate(0," + (height - 180) + ")")
-      .call(d3.axisTop(xScale));
+      .call(d3.axisTop(d3.scaleLinear()
+      .domain([0, 1]) //Timeeeee!!!!
+      .range([0, width - 30])));
+
+  spread_line = spread_svg.append("svg:line")
+               .attr("x1", spread_width/2)
+               .attr("y1", 0)
+               .attr("x2", spread_width/2)
+               .attr("y2", spread_height)
+               .style("stroke", "lightgrey")
+               .style("stroke-width", 5);
+
+  spread_line_fundamental_price = spread_svg.append("svg:line")
+               .attr("x1", spread_width - (spread_width - 45))
+               .attr("y1", spread_height/2 - 90)
+               .attr("x2", spread_width - 45)
+               .attr("y2", spread_height/2 - 90)
+               .style("stroke", "grey")
+               .style("stroke-width", 5);
   }
+
   
-
-
-  function Update() {
+   function Update(){
     //Remove Previous Graph Bounds
     d3.select(".y_axis").remove();
     d3.select(".x_axis").remove();
@@ -107,6 +124,41 @@ svg.append("g")
       .domain([x_axis_min, x_axis_max]) //Timeeeee!!!!
       .range([0, width - 30])))
   }
+
+
+  /***********************************************
+  DEALING WITH MOUSE CLICKS ON THE SPREAD GRAPHS
+  ************************************************/
+  spread_svg.on('click',function(d) { 
+      //The dimensions the svg take up
+       spread_x = document.getElementById("spread-graph").getBoundingClientRect().x ;
+       spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
+
+       svg_middle_x = spread_width/2;
+       svg_middle_y = spread_height/2 - 90;
+
+      //The tuple in which the mouse is clicked within the svg 
+      spread_position = {x:(d3.event.clientX - spread_x),y:(d3.event.clientY - spread_y)};
+
+      if(spread_position.y >= svg_middle_y){
+        distance_from_middle = spread_position.y - svg_middle_y;
+      } else {
+        distance_from_middle = svg_middle_y -spread_position.y ;
+      }
+      ratio = svg_middle_y / distance_from_middle;
+
+      money_ratio = spread/ratio;
+      actual_spread = money_ratio.toFixed(2);
+      //alert("mouse position in svg when clicked is " + "(" + spread_position.x+ "," +spread_position.y +") and max spread is " + spread);
+      alert(actual_spread);
+
+
+  });
+
+
+
+
+
   
 }
 
