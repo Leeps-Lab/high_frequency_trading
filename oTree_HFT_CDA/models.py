@@ -27,7 +27,7 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 2
+    players_per_group = 3
     num_rounds = 5
 
     inv_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/investor.py')
@@ -137,9 +137,9 @@ class Group(BaseGroup):
             if response[0] is not None:
                 player_responses.append(response[0])
                 if response[1]:
-                    fast_players.append(i+1)
+                    fast_players.append(i)
                 else:
-                    slow_players.append(i+1)
+                    slow_players.append(i)
 
         random.shuffle(fast_players)
         random.shuffle(slow_players)
@@ -149,14 +149,14 @@ class Group(BaseGroup):
 
         if fast_players:
             for i in fast_players:
-                log.debug('Group%d: fast player%d moves.' % (self.id, players[i-1].id_in_group))
+                log.debug('Group%d: fast %s player%d moves.' % (self.id, players[i].state, players[i].id_in_group))
                 self.send_exchange(player_responses[i-1])
 
         time.sleep(0.4)
 
         if slow_players:
             for i in slow_players:
-                log.debug('Group%d: slow player%d moves.' % (self.id, players[i-1].id_in_group))
+                log.debug('Group%d: slow %s player%d moves.' % (self.id, players[i].state, players[i].id_in_group))
                 self.send_exchange(player_responses[i-1])
 
     def export_orders(self):
@@ -240,24 +240,29 @@ class Player(BasePlayer):
         except KeyError:    # Is this even possible ? why check ?
             log.warning('Player%d: Invalid state update.' % self.id_in_group)
         self.state = new_state
-        self.save()
         log.info('Player%d: State update: %s.' % (self.id_in_group, self.state))
+        self.save()
+
 
     def update_spread(self, message):
         self.spread = message['spread']
-        self.save()
         ords = self.order_set.filter(status='A')
         if ords:
             msgs = [self.stage_replace(o) for o in ords]
             self.group.send_exchange(msgs, delay=True, speed=self.speed)
         log.info('Player%d: Spread update: %s.' % (self.id_in_group, self.spread))
+        self.save()
 
     def update_speed(self, message):  
         self.speed = not self.speed      # Front end button doesnt work 0429
+<<<<<<< Updated upstream
         self.save()
         print(self.speed)
+=======
+>>>>>>> Stashed changes
         speed = ('fast' if self.speed else 'slow')
         log.info('Player%d: Speed change: %s.' % (self.id_in_group, speed))
+        self.save()
 
 
     # Receive methods
@@ -293,7 +298,7 @@ class Player(BasePlayer):
         new_order = self.order_set.get(token=tok)
         old_order.cancel(stamp)
         new_order.activate(stamp)
-        log.info('Player%d: Confirm: Replace %s.' % (self.id_in_group, ptok))
+        log.info('Player%d: Confirm: Replace %s with %s.' % (self.id_in_group, ptok, tok))
 
     def confirm_cancel(self, msg):
         stamp, tok = msg['timestamp'], msg['order_token']
@@ -362,8 +367,8 @@ class Investor(Model):
         order = Order.objects.create(side=side, price=p, time_in_force=0)
         order.token, order.firm = tokengen(0, order.side, self.order_count)
         ouch = translate.enter(order)
-        logging.debug('Investor sends an order: %s' % order.token)
         self.group.send_exchange([ouch])
+        log.debug('Investor sends an order: %s' % order.token)
         self.order_count += 1
         self.save()
 

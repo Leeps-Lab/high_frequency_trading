@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO,
         filename=file,
         filemode='w')
 
-logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 
@@ -28,28 +28,28 @@ class Investor(Event):
         times = super(Investor, self).read()        
         time_side_tuples = list(times.itertuples(index=False, name=None))
         self.data = time_side_tuples
-        logging.info('Read data.')
+        log.info('Read data.')
 
     def run(self):
         """
         Implements investor behaviour
         """
         for t, side in self.data:
-            logging.info('Start wait: ' + str(time()))
-            logging.info('Sleep %d seconds.' % t)
+            log.info('Start wait: ' + str(time()))
+            log.info('Sleep %d seconds.' % t)
             sleep(t)
-            logging.info('End wait: ' + str(time()))
+            log.info('End wait: ' + str(time()))
             self.ws.send(json.dumps({'side': side}))
         sleep(0.5)
         self.ws.close()
 
 
 def main():
-    logging.info('Investor active: ' + str(time()))
+    log.info('Investor active: ' + str(time()))
     investor = Investor(sys.argv[1], sys.argv[2], sys.argv[3])
     investor.read()
     investor.add_ws()
-    logging.info('Websocket added: ' + str(time()))
+    log.info('Websocket added: ' + str(time()))
     investor.ws.run_forever()
 
 

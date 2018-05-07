@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO,
         filename=file,
         filemode='w')
 
-logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Jump(Event):
@@ -33,21 +33,21 @@ class Jump(Event):
         Implements jump
         """
         for t, price in self.data:
-            logging.info('Start wait: ' + str(time()))
-            logging.info('Sleep %d seconds.' % t)
+            log.info('Start wait: ' + str(time()))
+            log.info('Sleep %d seconds.' % t)
             sleep(t)
-            logging.info('End wait: ' + str(time()))
+            log.info('End wait: ' + str(time()))
             self.ws.send(json.dumps({'price': price}))
         sleep(0.5)
         self.ws.close()
 
 
 def main():
-    logging.info('Jump active: ' + str(time()))
+    log.info('Jump active: ' + str(time()))
     jumping = Jump(sys.argv[1], sys.argv[2], sys.argv[3])
     jumping.read()
     jumping.add_ws()
-    logging.info('Websocket added: ' + str(time()))
+    log.info('Websocket added: ' + str(time()))
     jumping.ws.run_forever()
 
 
