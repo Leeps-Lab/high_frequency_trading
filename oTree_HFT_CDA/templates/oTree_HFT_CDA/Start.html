@@ -1,153 +1,315 @@
-
 {% extends "global/Page.html" %}
 {% load staticfiles otree %}
 {% load staticfiles %}
 
-{% block styles %}
-    <!-- <link href="{% static "otree_HFT_CDA/Graph.css" %}"> -->
-{% endblock %}
 {% block content %}
-<div ng-controller="HFTStartController">
-    <!--Top Data Banner-->
-    <div class="top-banner" style="border:solid black 2px; background-color: lightgrey;">
-        <table class="table" style="width:100%" >
-            <tr>
-                <td class="status-display">Player ID: <span id="player_id" ></span></td>
-                <td class="status-display">Number of Traders: NUMBER TRADERS</td>
-                <td class="status-display">Role: <span id="player_role" ></span></td>
-                <td class="status-display">Fundamental Value: FUNDAMENTAL VALUE PRICE</td>
-            </tr>
-            <tr>
-                <td class="status-display">Period # CURRENT PERIOD</td>
-                <td class="status-display">Number of Makers: NUMBER MAKERS / FAST</td>
-                <td class="status-display">Spread: SPREAD OF MAKER </td>
-                <td class="status-display">Current Buy Offer: CURRENT BUY OFFER</td>
-            </tr>
-            <tr>
-                <td class="status-display">Speed Cost: SPEED COST / Second</td>
-                <td class="status-display">Number of Snipers: NUMBER SNIPERS / FAST</td>
-                <td class="status-display">Your Profit: RUNNING PROFIT</td>
-                 <td class="status-display">Current Sell Offer: CURRENT SELL OFFER</td>
-            </tr>
-        </table>
+<style type="text/css">
+    .front_end_controller{
+        width: 100%;
+        height: 100vh;
+        background-color: darkgrey;
+        margin-top: -80px;
+    }
+
+    .info_table{
+        width:100%;
+    }
+    .graph_row{
+        margin-top: 20px;
+        background-color: darkgrey;
+        width: 100%;
+        height:76%;
+        margin-left: 00px;
+        border-top:solid black 1px;
+    }
+    .profit_graph{
+        width:50%;
+        height:100%;
+    }
+    .spread_graph{
+        width:50%;
+        height:100%;
+    }
+    .button-on{
+        background-color:steelblue;
+        border-color: solid black 5px;
+        color:white;
+    }
+    .button-pressed{
+        background-color:#444444;
+        color:white;
+    }
+    .button-off{
+        background-color:#666666;
+        color:white;
+    }
+    input{
+        margin-left:30px;
+        margin-top:20px;
+    }
+    .inputs{
+        margin-top:160px;
+        width: 10%;
+        height: 100%;
+    }
+    .line {
+        stroke: steelblue;
+        stroke-width: 3.5px;
+        fill: none;
+    }
+    g{
+        color:  grey;
+        stroke-width: 2px;
+        fill: none;
+
+    }
+    
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #1fd15a;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #1fd15a;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+</style>
+
+<div class="front_end_controller">
+    <table class="info_table" style="width:100%" >
+        <strong>
+        <tr>
+            <td class="info_text">Player ID <span id="player_id"></span></td>
+            <td class="info_text">Number of Traders: NUMBER TRADERS</td>
+            <td class="info_text">Role: <span id="player_role"> </span> </td>
+            <td class="info_text">Fundamental Value: FUNDAMENTAL VALUE PRICE</td>
+        </tr>
+        <tr>
+            <td class="info_text">Period # CURRENT PERIOD</td>
+            <td class="info_text">Number of Makers: NUMBER MAKERS / FAST</td>
+            <td class="info_text">Spread: SPREAD OF MAKER </td>
+            <td class="info_text">Current Buy Offer: CURRENT BUY OFFER</td>
+        </tr>
+        <tr>
+            <td class="info_text">Speed Cost: SPEED COST / Second</td>
+            <td class="info_text">Number of Snipers: NUMBER SNIPERS / FAST</td>
+            <td class="info_text">Your Profit: RUNNING PROFIT</td>
+            <td class="info_text">Current Sell Offer: CURRENT SELL OFFER</td>
+        </tr>
+        </strong>
+    </table>
+    <div class="row graph_row" style="width:100%; height:100%;">
+
+    <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;"></svg>
+
+    <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
+        <div class="inputs">
+          <input id="maker" value="Maker" class="button-off" type="button" style="width:80px" ></input>
+          <br>
+          <input id="sniper" value="Sniper" class="button-off" type="button" style="width:80px" ></input> 
+          <br>
+          <input id="out" value="Out" class="button-on" type="button" style="width:80px"></input>
+          <br>
+
+            <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
+            <label class="switch" style="margin-left: 40px; margin-top: -5px;" >
+                <br>
+                <input type="checkbox" onclick="updatespeed()">
+                <span class="slider round"></span>
+            </label>
+
+        </div>
+
     </div>
+</div>
 
-    <!-- bottom of the ui -->
-    <div class="row" style="border:solid black 5px;">
-        <!-- graph the profit -->
-        <div class="col-xs-1 profit-graph-container" style=" border:solid yellow 5px;">
-             <svg id="profit-graph" width="460" height="400" style="margin-left:10px; margin-top:60px;"></svg>
-        </div>
-
-        <!-- graph the experiment -->
-        <div class="col-xs-1 user-graph-container" style="border:solid green 5px;">
-            <svg id="market_graph"></svg>
-        </div>
-
-        <!-- user buttons -->
-        <div class="col-xs-2 control-container" style="padding: 5px; border:solid blue 5px;">
-            <!-- roles -->
-            <div class="button-container-state">
-
-                    <button id="state_out" ng-disabled="state=='state_out'" class="btn" type="button" style="width:75px" onclick="updatestate('OUT')">
-                        Out   
-                    </button>
-
-
-                    <button id="state_snipe" ng-disabled="state=='state_snipe'" class="btn" type="button" style="width:75px" onclick="updatestate('SNIPER')">
-                        Sniper
-                    </button> 
-
-
-                    <button id="state_maker" ng-disabled="state=='state_maker'" class="btn" type="button" style="width:75px" onclick="updatestate('MAKER')">
-                        Maker
-                    </button>
-
-            </div>
-            <!-- speed button -->
-            <div class="button-container-speed">
-                <div class="speed-label" p style="font-size:15px">Speed</div>
-                <div class="material-switch">
-                    <input id="speed-switch" type="checkbox" ng-disabled="state=='state_out'"/>
-                    <label for="speed-switch"></label>
-                </div>
-            </div> 
-            <div class="batch-line-container">
-                <svg id="timer_graph"></svg>
-            </div>
-            <div id="timer"></div>
-        </div>
-
-
-    </div>
- </div>
 {% endblock %}
 
 {% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
-    <script src="https://d3js.org/d3.v4.js"></script>
-    <script src="{% static "oTree_HFT_CDA/graph.js"%}"></script>
-    <script>
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <!-- <script src="{% static 'oTree_HFT_CDA/graph.js' %}"></script>  -->
+<script>
 
-        window.onload = function () {
-            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-            var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
-            console.log(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
-            // Handle any errors that occur.
-            socket.onerror = function (error) {
-                console.log('WebSocket Error: ' + error);
-            };
+window.onload = function () {
 
-            $('#player_id').html({{player.id_in_group}})
-            $('#player_role').html('Out');
-            $('#curr_speed_cost').html(0);
+  // player variables initiation
+  $('#player_id').html({{player.id_in_group}})
+  $('#player_role').html('Out');
+  $('#curr_speed_cost').html(0);
+  var speed = false;
 
-            var speed = false;
-            updatespeed = function () {
-                speed = !speed;
-                if(speed){
-                    $('#curr_speed_cost').html({{Constants.speed_cost}});
-                }else {
-                    $('#curr_speed_cost').html(0);
-                }
-                var msg = {
-                    type: 'speed_change',
-                    id: {{player.id}},
-                    id_in_group: {{player.id_in_group}},
-                    speed: speed
-                };
-                if (socket.readyState === socket.OPEN) {
-                    socket.send(JSON.stringify(msg));
-                }
-            }
-            updatestate = function (rolestate) {
-                console.log(rolestate);
-                var msg = {
-                    type: 'role_change',
-                    id: {{player.id}},
-                    id_in_group: {{player.id_in_group}},
-                    state: rolestate
-                };
-                if (socket.readyState === socket.OPEN) {
-                    socket.send(JSON.stringify(msg));
-                }
-            }
-            // Show a connected message when the WebSocket is opened.
-            socket.onopen = function (event) {
-                console.log('connected to oTree');
-            };
-            // Handle messages sent by the server.
-            socket.onmessage = function (event) {
-                var obj = jQuery.parseJSON(event.data);
-                role = obj.state;
-                console.log('here');
-                $('#player_role').html(role);
-            };
-            // Show a disconnected message when the WebSocket is closed.
-            socket.onclose = function (event) {
-                console.log('disconnected from oTree');
-            };
+  /*#################################################
+  # Django Channles integration
+  #
+  ###################################################*/
+  var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+  var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
+  console.log(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
+            
+  // Handle any errors that occur.
+  socket.onerror = function (error) {
+    console.log('WebSocket Error: ' + error);
+  };
+  // Show a connected message when the WebSocket is opened.
+  socket.onopen = function (event) {
+      console.log('connected to oTree');
+  };
+  // Handle messages sent by the server.
+  socket.onmessage = function (event) {
+      var obj = jQuery.parseJSON(event.data);
+      role = obj.state;
+      console.log('here');
+      $('#player_role').html(role);
+  };
+  // Show a disconnected message when the WebSocket is closed.
+  socket.onclose = function (event) {
+      console.log('disconnected from oTree');
+  };
+
+  updatespeed = function () {
+      speed = !speed;
+      if(speed){
+          $('#curr_speed_cost').html({{Constants.speed_cost}});
+      }else {
+          $('#curr_speed_cost').html(0);
+      }
+      var msg = {
+          type: 'speed_change',
+          id: {{player.id}},
+          id_in_group: {{player.id_in_group}},
+          speed: speed
+      };
+      if (socket.readyState === socket.OPEN) {
+          socket.send(JSON.stringify(msg));
+      }
+  }
+
+            
+
+/*********************************
+END BUTTON LOGIC //may the force be with you
+*********************************/
+  //MAKER BUTTON
+  document.getElementById("maker").onclick = function () {
+    if ((document.getElementById("maker").className == "button-off")){
+        //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+        $("#maker").toggleClass('button-off button-on');
+        $("#out").attr('class', 'button-off');
+        $("#sniper").attr('class', 'button-off');
+        var msg = {
+          type: 'role_change',
+          id: {{player.id}},
+          id_in_group: {{player.id_in_group}},
+          state: "MAKER"
+        };
+        if (socket.readyState === socket.OPEN) {
+          socket.send(JSON.stringify(msg));
+        }
+        $('#player_role').html('Maker');
+
     }
-    </script>
+    //TURN THE REST OF THE BUTTONS OFF
+    
+  };
 
+  //SNIPER BUTTON
+  document.getElementById("sniper").onclick = function () {
+      if ((document.getElementById("sniper").className == "button-off")){
+        //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+        $("#sniper").toggleClass('button-off button-on');
+        $("#maker").attr('class', 'button-off');
+        $("#out").attr('class', 'button-off');
+        var msg = {
+          type: 'role_change',
+          id: {{player.id}},
+          id_in_group: {{player.id_in_group}},
+          state: "SNIPER"
+        };
+        if (socket.readyState === socket.OPEN) {
+          socket.send(JSON.stringify(msg));
+        }
+        $('#player_role').html('Sniper');
+        
+      }
+    //TURN THE REST OF THE BUTTONS OFF
+    
+  };
+
+  //OUT BUTTON
+  document.getElementById("out").onclick = function () {
+    if (document.getElementById("out").className == "button-off"){
+      //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
+      $("#out").toggleClass('button-off button-on');
+      $("#maker").attr('class', 'button-off');
+      $("#sniper").attr('class', 'button-off');
+      var msg = {
+        type: 'role_change',
+        id: {{player.id}},
+        id_in_group: {{player.id_in_group}},
+        state: "OUT"
+      };
+      if (socket.readyState === socket.OPEN) {
+        socket.send(JSON.stringify(msg));
+      }
+      //CHANGE TABLE VALUE
+      $('#player_role').html('Out');
+      
+    }
+    
+  };
+/*********************************
+END BUTTON LOGIC
+*********************************/
+
+}
+</script>
 {% endblock %}

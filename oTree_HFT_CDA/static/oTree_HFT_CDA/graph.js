@@ -47,7 +47,7 @@ function Button_Change(id_name){
   //Changing the class and color for the button to be pressed
   $("#"+id_name).toggleClass('button-pressed button-on');
 }
-
+/*
 function Draw_Graph(data){
   
   data.push({"y": d3.randomUniform(-1,1)()});
@@ -55,7 +55,6 @@ function Draw_Graph(data){
   Make_Profit_Graph(10,data);
   graph_timer = setTimeout(Draw_Graph.bind(null,data), 10);
 };
-/*
 function Change_Data(data){
   //Wait .5 seconds until you can send a replace order
   console.log(data);
@@ -69,6 +68,7 @@ function Change_Data(data){
 /*End Button Logic*/
 
 /*Start Graphing*/
+/*
 function Make_Profit_Graph(n,data){
   d3.select(".line").remove(); 
   // 2. Use the margin convention practice 
