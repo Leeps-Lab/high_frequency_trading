@@ -143,7 +143,8 @@ class Group(BaseGroup):
 
         random.shuffle(fast_players)
         random.shuffle(slow_players)
-
+        log.info('Group%d: fast player order: %s' % (self.id,  str(fast_players).strip('[]')))
+        log.info('Group%d: slow player order: %s' % (self.id,  str(slow_players).strip('[]')))
         time.sleep(0.1)
 
         if fast_players:
@@ -254,6 +255,7 @@ class Player(BasePlayer):
     def update_speed(self, message):  
         self.speed = not self.speed      # Front end button doesnt work 0429
         self.save()
+        print(self.speed)
         speed = ('fast' if self.speed else 'slow')
         log.info('Player%d: Speed change: %s.' % (self.id_in_group, speed))
 
