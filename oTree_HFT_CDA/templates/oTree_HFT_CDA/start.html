@@ -121,6 +121,10 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+.my_line{
+  stroke:steelblue;
+  stroke-width:2px;
+}
 </style>
 
 <div class="front_end_controller">
@@ -135,7 +139,7 @@ input:checked + .slider:before {
         <tr>
             <td class="info_text">Period # CURRENT PERIOD</td>
             <td class="info_text">Number of Makers: NUMBER MAKERS / FAST</td>
-            <td class="info_text">Spread: SPREAD OF MAKER </td>
+            <td class="info_text">Spread: <span id="spread_number"></span> </td>
             <td class="info_text">Current Buy Offer: CURRENT BUY OFFER</td>
         </tr>
         <tr>
@@ -152,17 +156,17 @@ input:checked + .slider:before {
 
     <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
         <div class="inputs">
-          <input id="maker" value="Maker" class="button_off" type="button" style="width:80px" ></input>
+          <input id="maker" value="Maker" class="button-off" type="button" style="width:80px" ></input>
           <br>
-            <input id="sniper" value="Sniper" class="button_off" type="button" style="width:80px" ></input> 
+            <input id="sniper" value="Sniper" class="button-off" type="button" style="width:80px" ></input> 
             <br>
             <input id="out" value="Out" class="button-on" type="button" style="width:80px"></input>
             <br>
 
             <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
-            <label class="switch" style="margin-left: 40px; margin-top: -5px;" onclick="updatespeed()">
+            <label class="switch" style="margin-left: 40px; margin-top: -5px;" >
                 <br>
-                <input type="checkbox">
+                <input type="checkbox" onclick="updatespeed()">
                 <span class="slider round"></span>
             </label>
 
@@ -170,7 +174,6 @@ input:checked + .slider:before {
 
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
@@ -245,6 +248,7 @@ END BUTTON LOGIC //may the force be with you
         Button_Pressed("maker");
         //CHANGE TABLE VALUE
         $('#player_role').html('Maker');
+        // drawSpreadLine(0);
         //send the order if not button pressed (reduces the chance of double orders)
     }
     //TURN THE REST OF THE BUTTONS OFF
@@ -273,6 +277,9 @@ END BUTTON LOGIC //may the force be with you
         $('#player_role').html('Sniper');
       }
     //TURN THE REST OF THE BUTTONS OFF
+    if($("#maker").className == "button-on"){
+      d3.selectAll(".my_line").remove();
+    }
     $("#maker").attr('class', 'button-off');
     $("#out").attr('class', 'button-off');
   };
@@ -305,7 +312,7 @@ END BUTTON LOGIC //may the force be with you
   var graph_timer;
   function Button_Pressed(id_name){
     //Wait .5 seconds for button pressed
-    button_timer = setTimeout(Button_Change.bind(null,id_name), 500);
+    button_timer = setTimeout(Button_Change.bind(null,id_name),500);
   }
   function Button_Change(id_name){
     //TURNING BUTTON ON

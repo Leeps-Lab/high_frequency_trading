@@ -99,14 +99,16 @@ setInterval(function() {
     x_axis_max++;
 
     //Get A new value and put into the array
-    var new_value = d3.randomUniform(-1,1)();
+    var profit = 2;
     y_data.shift(); // remove the first element of the array
-    y_data.push({"y": new_value } ); 
+    y_data.push({"y": profit  } ); 
 
     //Redraw the line add in transition
     svg.select(".line")
     .data([y_data]) 
-    .attr("d", line)
+ // set the transform to the right by x(1) pixels (6 for the scale we've set) to hide the new value
+    .attr("d", line) // apply the new data values ... but the new value is hidden at this point off the right of the canvas
+   
 
     //Redraw the y axis with new bounds
     svg.append("g")
@@ -130,8 +132,11 @@ setInterval(function() {
   DEALING WITH MOUSE CLICKS ON THE SPREAD GRAPHS
   ************************************************/
   spread_svg.on('click',function(d) { 
+      role = $("#player_role").text();
+      if(role == "Maker"){
+
       //The dimensions the svg take up
-       spread_x = document.getElementById("spread-graph").getBoundingClientRect().x ;
+       spread_x = document.getElementById("spread-graph").getBoundingClientRect().x;
        spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
 
        //Where the grey middle line is
@@ -152,13 +157,61 @@ setInterval(function() {
 
       //Spread is the ratio except in dollars which is what the actual spread is
       money_ratio = spread/ratio;
-      actual_spread = money_ratio.toFixed(2);
+      my_spread = money_ratio.toFixed(2);
       //alert("mouse position in svg when clicked is " + "(" + spread_position.x+ "," +spread_position.y +") and max spread is " + spread);
-      alert("This is your spread +-$"+actual_spread);
+      //alert("This is your spread +-$"+actual_spread);
       
+      $("#spread_number").text('+-$'+my_spread);
       //Time to draw the lasers tat go into the spread graph
-      //drawSpreadLine(actual_spread);
+      drawSpreadLine(my_spread);
+    }
   });
+
+  function drawSpreadLine(my_spread){
+       d3.selectAll(".my_line").remove();
+       spread_x = document.getElementById("spread-graph").getBoundingClientRect().x;
+       spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
+       //Where the grey middle line is
+       svg_middle_y = spread_height/2 - 90;
+
+       money_ratio =  spread/my_spread;
+       y_coordinate = svg_middle_y/money_ratio;
+      console.log(y_coordinate);
+      //Ratio between the distance and the mid
+      
+
+    your_spread_line_top = spread_svg.append("svg:line")
+               .attr("x1", spread_width - 35)
+               .attr("y1", svg_middle_y - y_coordinate)
+               .attr("x2", spread_width)
+               .attr("y2", svg_middle_y - y_coordinate)
+               .attr("class","my_line");
+
+    your_spread_line_bottom = spread_svg.append("svg:line")
+               .attr("x1", spread_width - 35)
+               .attr("y1", y_coordinate + svg_middle_y)
+               .attr("x2", spread_width)
+               .attr("y2", y_coordinate + svg_middle_y)
+               .attr("class","my_line");
+    //WAIT FOR SPEED AND THEN SET THE SPREAD
+    setTimeout(function() {
+      addLineAnimation();
+    }, 500);
+    
+  }
+
+  function addLineAnimation(){
+    //SETTING THE SPREAD TO THE LINE
+    spread_lines = d3.selectAll(".my_line");
+    add_animation = spread_lines
+                    .transition()
+                    .duration(200)
+                    .attr("x1", spread_width - (spread_width - 85))
+                    .attr("x2", spread_width - 85);           
+  }
+
+
+
 
 
 
