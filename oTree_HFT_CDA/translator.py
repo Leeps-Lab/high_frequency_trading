@@ -20,6 +20,17 @@ def get_types():
     }
     return msg_types
 
+defaults = {
+    'shares': 1,
+    'stock_sym1': 1280332576,
+    'stock_sym2': 538976288,
+    'display': 'Y',
+    'capacity': 'P',
+    'iso': 'N',
+    'min_quantity': 0,
+    'cross_type': 'N',
+    'customer_type': 'R'
+    }
 
 # Create a system event message with supplied event
 # code ['S' | 'E'] and given timestamp
@@ -50,19 +61,18 @@ def replace(replace_order, order):
     Splice_Into_Array(message, String_To_Unit8(order.token, 15), 15, 14)
 
     # Shares
-    Splice_Into_Array(message, Integer_To_Unit8(order.shares), 29, 4)  # Splices shares into messages[]
+    Splice_Into_Array(message, Integer_To_Unit8(defaults['shares']), 29, 4)  # Splices shares into messages[]
 
     Splice_Into_Array(message, Integer_To_Unit8(order.price), 33, 4)  # Splices price into messages[]
 
     Splice_Into_Array(message, Integer_To_Unit8(order.time_in_force), 37, 4)  # Splices time_in_force into messages[]
 
-    message[41] = np.uint8(ord(order.display))
-    message[42] = np.uint8(ord(order.iso))
+    message[41] = np.uint8(ord(defaults['display']))
+    message[42] = np.uint8(ord(defaults['iso']))
 
-    Splice_Into_Array(message, Integer_To_Unit8(order.min_quantity), 43, 4)  # Minimum Quantity OUCH 4.2
+    Splice_Into_Array(message, Integer_To_Unit8(defaults['min_quantity']), 43, 4)  # Minimum Quantity OUCH 4.2
 
     return message
-
 
 
 def enter(order):
@@ -75,12 +85,12 @@ def enter(order):
     message[15] = np.uint8(ord(order.side))
 
     # Shares; default to 1 for leeps experiment
-    Splice_Into_Array(message, Integer_To_Unit8(order.shares), 16, 4)
+    Splice_Into_Array(message, Integer_To_Unit8(defaults['shares']), 16, 4)
 
     # Stock Symbol;
     # Symbol created by Kristian Lopez Vargas and Eric Aldrich
-    Splice_Into_Array(message, Integer_To_Unit8(order.stock_sym1), 20, 4)
-    Splice_Into_Array(message, Integer_To_Unit8(order.stock_sym2), 24, 4)
+    Splice_Into_Array(message, Integer_To_Unit8(defaults['stock_sym1']), 20, 4)
+    Splice_Into_Array(message, Integer_To_Unit8(defaults['stock_sym2']), 24, 4)
 
     Splice_Into_Array(message, Integer_To_Unit8(int(order.price)), 28, 4)
 
@@ -88,14 +98,14 @@ def enter(order):
 
     Splice_Into_Array(message, String_To_Unit8(order.firm, 4), 36, 4)
 
-    message[40] = np.uint8(ord(order.display))  # Display -> Y
-    message[41] = np.uint8(ord(order.capacity))  # Capacity
-    message[42] = np.uint8(ord(order.iso))  # Intermarket Sweep Eligibility
+    message[40] = np.uint8(ord(defaults['display']))  # Display -> Y
+    message[41] = np.uint8(ord(defaults['capacity']))  # Capacity
+    message[42] = np.uint8(ord(defaults['iso']))  # Intermarket Sweep Eligibility
 
-    Splice_Into_Array(message, Integer_To_Unit8(order.min_quantity), 43, 4)  # Min Quantity
+    Splice_Into_Array(message, Integer_To_Unit8(defaults['min_quantity']), 43, 4)  # Min Quantity
 
-    message[47] = np.uint8(ord(order.cross_type))  # Cross Type
-    message[48] = np.uint8(ord(order.customer_type))  # Customer Type
+    message[47] = np.uint8(ord(defaults['cross_type']))  # Cross Type
+    message[48] = np.uint8(ord(defaults['customer_type']))  # Customer Type
 
     return message
 
