@@ -22,7 +22,7 @@ function makeGraphs(n,x_data,y_data){
 
   // 6. Y scale will use the randomly generate number 
   var yScale = d3.scaleLinear()
-      .domain([ - 3, 3]) // Fundamental Price +-Spread  
+      .domain([ - 10, 10]) // Fundamental Price +-Spread  
       .range([height - 180 ,5]); // output
 
   // 7. d3's line generator
@@ -101,21 +101,28 @@ setInterval(function() {
     //Get A new value and put into the array
     var profit = 2;
     y_data.shift(); // remove the first element of the array
-    y_data.push({"y": profit  } ); 
+    y_data.push({"y": d3.randomUniform(-5,5)() } ); 
 
     //Redraw the line add in transition
     svg.select(".line")
     .data([y_data]) 
- // set the transform to the right by x(1) pixels (6 for the scale we've set) to hide the new value
-    .attr("d", line) // apply the new data values ... but the new value is hidden at this point off the right of the canvas
-   
+    .attr("d", line)
+    .attr("transform", null)
+    .transition()
+    .duration(500)
+    .ease(d3.easeLinear)
+    .attr("transform", "translate(" + -1 + ")");
+
+  //  .attr("transform", null)
+  // .transition()
+  //   
 
     //Redraw the y axis with new bounds
     svg.append("g")
       .attr("class", "y_axis")
       .attr("transform", "translate(" + (width - 28) + ",0)")
       .call(d3.axisRight(d3.scaleLinear()
-      .domain([-3,3]) // Fundamental Price +- Spread  
+      .domain([-10,10]) // Fundamental Price +- Spread  
       .range([height-180,5]))) // Create an axis component with d3.axisLeft
 
     //Redraw the x axis with new bounds
@@ -169,14 +176,14 @@ setInterval(function() {
 
   function drawSpreadLine(my_spread){
        d3.selectAll(".my_line").remove();
-       spread_x = document.getElementById("spread-graph").getBoundingClientRect().x;
+       d3.selectAll("rect").remove();
        spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
        //Where the grey middle line is
        svg_middle_y = spread_height/2 - 90;
 
        money_ratio =  spread/my_spread;
        y_coordinate = svg_middle_y/money_ratio;
-      console.log(y_coordinate);
+       console.log(y_coordinate);
       //Ratio between the distance and the mid
       
 
@@ -193,11 +200,15 @@ setInterval(function() {
                .attr("x2", spread_width)
                .attr("y2", y_coordinate + svg_middle_y)
                .attr("class","my_line");
-    //WAIT FOR SPEED AND THEN SET THE SPREAD
-    setTimeout(function() {
+    //WAIT FOR SPEED AND THEN SET THE SPREAD with the bar line
+
       addLineAnimation();
-    }, 500);
-    
+      
+      setTimeout(function(d){
+        drawSpreadBar(my_spread,svg_middle_y,y_coordinate);
+      }, 300);
+      
+      //Timeout is whether or not speed is on
   }
 
   function addLineAnimation(){
@@ -205,9 +216,24 @@ setInterval(function() {
     spread_lines = d3.selectAll(".my_line");
     add_animation = spread_lines
                     .transition()
-                    .duration(200)
-                    .attr("x1", spread_width - (spread_width - 85))
-                    .attr("x2", spread_width - 85);           
+                    // duration is whether or not speed is on
+                    .duration(300)
+                    .attr("x1", 85)
+                    .attr("x2", spread_width - 85);         
+  }
+
+  function drawSpreadBar(my_spread,svg_middle_y,y_coordinate){
+    //take into account
+    var bar_color = "";
+    
+    //if not other maker within the spread
+    bar_color = "green_bar";
+    your_bar_rect = spread_svg.append("svg:rect")
+               .attr("x", spread_width - (spread_width - 85))
+               .attr("y", svg_middle_y - y_coordinate)
+               .attr("width", spread_width - 170)
+               .attr("height", 2*y_coordinate)
+               .attr("class",bar_color);
   }
 
 
