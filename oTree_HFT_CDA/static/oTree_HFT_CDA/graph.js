@@ -2,7 +2,7 @@
 /*Handles the Button Logic and the Graph shown in start.html*/
 
 var n = 20; 
-var data = d3.range(17).map(function(d) { return {"y": 0}});
+var data = d3.range(17).map(function(d) { return  0});
 spread = 10;
 
 makeGraphs(n,0,data);
@@ -28,7 +28,7 @@ function makeGraphs(n,x_data,y_data){
   // 7. d3's line generator
   var line = d3.line()
       .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
-      .y(function(d) { return yScale(d.y); }) // set the y values for the line generator 
+      .y(function(d) { return yScale(d); }) // set the y values for the line generator 
       .curve(d3.curveMonotoneX)// apply smoothing to the line
 
   // 1. Add the SVG to the page and employ #2
@@ -47,11 +47,11 @@ function makeGraphs(n,x_data,y_data){
 graphStartState();
 
 
-setInterval(function() {
-         Update();  
-}, 500);
+
 
   function graphStartState(){
+
+
 
   svg.append("path")
     .datum(y_data)
@@ -68,7 +68,7 @@ setInterval(function() {
       .attr("class", "x_axis")
       .attr("transform", "translate(0," + (height - 180) + ")")
       .call(d3.axisTop(d3.scaleLinear()
-      .domain([0, 1]) //Timeeeee!!!!
+      .domain([0, 17]) //Timeeeee!!!!
       .range([0, width - 30])));
 
   spread_line = spread_svg.append("svg:line")
@@ -86,6 +86,9 @@ setInterval(function() {
                .attr("y2", spread_height/2 - 90)
                .style("stroke", "grey")
                .style("stroke-width", 5);
+  setInterval(function() {
+         Update();  
+}, 500);
   }
 
   
@@ -101,21 +104,27 @@ setInterval(function() {
     //Get A new value and put into the array
     var profit = 2;
     y_data.shift(); // remove the first element of the array
-    y_data.push({"y": d3.randomUniform(-5,5)() } ); 
-
+    y_data.push(d3.randomUniform(-5,5)() ); 
+    //alert(y_data);
     //Redraw the line add in transition
-    svg.select(".line")
-    .data([y_data]) 
+    svg.select("path")
+    .datum(y_data) 
     .attr("d", line)
-    .attr("transform", null)
+    .attr("transform", "translate(" + xScale(1) + ")")
     .transition()
     .duration(500)
     .ease(d3.easeLinear)
-    .attr("transform", "translate(" + -1 + ")");
+    .attr("transform", "translate(" + xScale(0) + ")");
 
-  //  .attr("transform", null)
-  // .transition()
-  //   
+    // svg.append("path")
+    // .datum([y_data]) // set the new data
+    //       .attr("transform", "translate(" + xScale(1) + ")") // set the transform to the right by x(1) pixels (6 for the scale we've set) to hide the new value
+    //       .attr("d", line) // apply the new data values ... but the new value is hidden at this point off the right of the canvas
+    //       .transition() // start a transition to bring the new value into view
+    //       .ease(d3.easeLinear)
+    //       .duration(500) // for this demo we want a continual slide so set this to the same as the setInterval amount below
+    //       .attr("transform", "translate(" + xScale(0) + ")")
+    //       .attr("class", "line") ;
 
     //Redraw the y axis with new bounds
     svg.append("g")
