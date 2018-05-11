@@ -392,12 +392,13 @@ var auto_spread = 2;
   function svgClickListener(){
       spread_svg.on('click',function(d) { 
         role = $("#player_role").text();
+        alert("At least this is being called");
         if(role == "Maker"){
 
         //The dimensions the svg take up
-         spread_x = document.getElementById("spread-graph").getBoundingClientRect().x;
-         spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
-
+         spread_x = document.getElementById("spread-graph").getBoundingClientRect().left;
+         spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+         console.log(spread_x+"," +spread_y);
          //Where the grey middle line is
          svg_middle_x = spread_width/2;
          svg_middle_y = spread_height/2 - 90;
@@ -430,7 +431,7 @@ var auto_spread = 2;
   function drawSpreadLine(my_spread = auto_spread){
        d3.selectAll(".my_line").remove();
        d3.selectAll("rect").remove();
-       spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
+       spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
        //Where the grey middle line is
        svg_middle_y = spread_height/2 - 90;
 
