@@ -31,8 +31,8 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 3
-    num_rounds = 5
+    players_per_group = 6
+    num_rounds = 1
 
     inv_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/investor.py')
     inv_url = 'ws://127.0.0.1:8000/hft_investor/'   
@@ -254,7 +254,7 @@ class Player(BasePlayer):
 
 
     def update_spread(self, message):
-        self.spread = message['spread']
+        self.spread = 2000*float(message['spread'])
         ords = self.order_set.filter(status='A')
         if ords.exists():
             msgs = [self.stage_replace(o) for o in ords]

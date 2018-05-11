@@ -152,7 +152,7 @@ SESSION_CONFIGS = [
     {
         'name': 'oTree_HFT_CDA',
         'display_name': 'High Frequency Trading CDA',
-        'num_demo_participants': 3,
+        'num_demo_participants': 6,
         'app_sequence': ['oTree_HFT_CDA'],
     },
 ]
