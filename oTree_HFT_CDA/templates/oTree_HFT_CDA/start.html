@@ -263,7 +263,7 @@ START BUTTON LOGIC //may the force be with you
         //CHANGE TABLE VALUE
         $('#player_role').html('Maker');
 
-        Spread_Graph.drawLine(2); // Auto input spread
+        Spread_Graph.drawLine(); // Auto input spread
         //send the order if not button pressed (reduces the chance of double orders)
     }
     //TURN THE REST OF THE BUTTONS OFF
@@ -355,8 +355,8 @@ var Profit_Graph = {};
 
 var n = 20; 
 var data = d3.range(17).map(function(d) { return  0}); //Testing Purposes
-var max_spread = 10; // Pull from Constansts
-var auto_spread = 2;
+var max_spread = 2; // Pull from Constansts
+var auto_spread = 1;
 
 (function() {
 
@@ -420,10 +420,6 @@ var auto_spread = 2;
         //alert("mouse position in svg when clicked is " + "(" + spread_position.x+ "," +spread_position.y +") and max spread is " + spread);
         //alert("This is your spread +-$"+actual_spread);
         
-
-      
-
-        
         spreadChange(my_spread);
         //Time to draw the lasers tat go into the spread graph
         drawSpreadLine(my_spread);
@@ -431,7 +427,7 @@ var auto_spread = 2;
       });
   }
 
-  function drawSpreadLine(my_spread){
+  function drawSpreadLine(my_spread = auto_spread){
        d3.selectAll(".my_line").remove();
        d3.selectAll("rect").remove();
        spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
@@ -585,7 +581,7 @@ var auto_spread = 2;
     x_axis_max++;
 
     //Get A new value and put into the array
-    var profit = 2;
+    var profit = 0.5;
     data.shift(); // remove the first element of the array
     data.push(profit ); 
     //alert(y_data);
