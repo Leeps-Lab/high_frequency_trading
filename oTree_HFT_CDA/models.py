@@ -319,10 +319,30 @@ class Player(BasePlayer):
         order = self.order_set.get(token=tok)
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
+        # calc_profit(order.price, order.side)                                      ## Uncomment for profit testing
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]
              self.group.send_exchange(m, delay=True, speed=self.speed)
+
+    def calc_profit(self, exec_price, side):
+        profit = 0
+
+        if side == 'B':
+            if exec_price < self.fp:
+                profit += (self.fp - exec_price)   #   Buy low, increase is positive difference in values
+            else:
+                profit += (self.fp - exec_price)   #   Buy high, decrease is negative difference in values 
+        else:
+            if exec_price < self.fp:
+                profit = (exec_price - self.fp)    #   Sell low, decrease is negative difference in values 
+            else:
+                profit = (exec_price - self.fp)    #   Sell high, increase is positive difference in values 
+        self.profit += profit
+
+        #########################
+        # SEND profit to client #
+        #########################
 
 
     def jump(self, new_price):  
