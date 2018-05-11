@@ -6,10 +6,14 @@
 
 import time
 import numpy as np
+import datetime
+import pytz
+
+DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
 # provide time in milliseconds/seconds at
 # moment of function call
-def Get_Time(granularity="milliseconds"):
+def Get_Time(granularity="nanoseconds"):
 
     if granularity == "milliseconds":
         return int(round(time.time() * 1000))
@@ -18,7 +22,8 @@ def Get_Time(granularity="milliseconds"):
         return int(round(time.time()))
 
     elif granularity == "nanoseconds":
-        return int(round(time.time() * 1000000))
+        return nanoseconds_since_midnight()
+        # return int(round(time.time() * 1000000))
 
 
 # returns a numpy array representing each
@@ -78,3 +83,15 @@ def tokengen(pid, side, count, prefix='SUB'):
     firm = prefix + str(chr(pid + 64))
     return (token, firm)
 
+def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
+    now = datetime.datetime.now(tz=tz)
+    timestamp = 0  # since midnight
+    timestamp += now.hour
+    timestamp *= 60  # hours -> minutes
+    timestamp += now.minute
+    timestamp *= 60  # minutes -> seconds
+    timestamp += now.second
+    timestamp *= 10**6  # seconds -> microsecnds
+    timestamp += now.microsecond
+    timestamp *= 10**3  # microseconds -> nanoseconds
+    return timestamp

@@ -7,7 +7,7 @@ import random
 import time
 import pandas as pd
 from . import translator as translate
-from .utility import Get_Time, tokengen
+from .utility import nanoseconds_since_midnight, tokengen
 from . import exchange
 from channels import Group as CGroup, Channel
 from otree.db.models import Model, ForeignKey
@@ -420,7 +420,7 @@ class Order(Model):  # This is a big object. Do we really need all these fields 
 
 
     def stage(self):
-        time = Get_Time(granularity="nanoseconds")
+        time = nanoseconds_since_midnight()
         self.time_stage = time
         self.token, self.firm = tokengen(self.player.id_in_group, self.side, self.player.order_count)
         self.player.order_count += 1

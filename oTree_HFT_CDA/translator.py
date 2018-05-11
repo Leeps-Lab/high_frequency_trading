@@ -36,7 +36,9 @@ defaults = {
 # code ['S' | 'E'] and given timestamp
 def system_start(event_code, timestamp=None):
     if timestamp is None:
-        timestamp = Integer_To_Unit8(Get_Time("nanoseconds"),4)
+        timestamp = Integer_To_Unit8(nanoseconds_since_midnight(),4)
+
+    print("\n" + str(nanoseconds_since_midnight()) + "\n")
 
     message = np.empty(10, dtype=np.uint8)
 
