@@ -17,6 +17,7 @@ class SubjectConsumer(JsonWebsocketConsumer):
     def connect(self, message, player_id):
         player = Player.objects.get(id=player_id)
         player.channel = message.reply_channel
+        player.save()
 
     def raw_receive(self, message, group_id, player_id):
         msg = json.loads(message.content['text'])
