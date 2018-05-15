@@ -4,14 +4,13 @@ from .models import Player, Investor, Group as OGroup
 import json
 import logging
 
-logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 class SubjectConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id, player_id):
         Group(group_id).add(message.reply_channel)
-        log = 'Player %s is connected to Group %s.' % (player_id, group_id)
-        logging.info(log)
+        log.info('Player %s is connected to Group %s.' % (player_id, group_id))
         self.connect(message, player_id)
 
     def connect(self, message, player_id):
@@ -25,16 +24,8 @@ class SubjectConsumer(JsonWebsocketConsumer):
         player.receive_from_client(msg)
 
     def raw_disconnect(self, message, group_id, player_id):
-        log = 'Player %s  disconnected from Group %s.' % (player_id, group_id)
-        logging.info(log)
+        log.info('Player %s  disconnected from Group %s.' % (player_id, group_id))
         Group(group_id).discard(message.reply_channel)
-
-    def send(self, msg, chnl):
-        Channel(chnl).send(msg)
-
-    def broadcast(self, msg, chnl):
-        Group(chnl).send(msg)
-
 
 
 class InvestorConsumer(JsonWebsocketConsumer):
@@ -54,15 +45,13 @@ class InvestorConsumer(JsonWebsocketConsumer):
         investor.receive_from_consumer(msg['side'])
 
     def raw_disconnect(self, message, group_id):
-        log = 'Investor disconnected from Group %s.' % group_id
-        logging.info(log)
+        log.info('Investor disconnected from Group %s.' % group_id)
 
 
 class JumpConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id):
-        log = 'Jump is connected to Group %s.' % group_id
-        logging.info(log)
+        log.info('Jump is connected to Group %s.' % group_id)
 
     def raw_receive(self, message, group_id):
         msg = json.loads(message.content['text'])
@@ -70,5 +59,4 @@ class JumpConsumer(JsonWebsocketConsumer):
         group.jump_event(msg['price'])
 
     def raw_disconnect(self, message, group_id):
-        log = 'Jump disconnected from Group %s.' % group_id
-        logging.info(log)
+        log.info('Jump disconnected from Group %s.' % group_id)

@@ -15,7 +15,7 @@ from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
 from jsonfield import JSONField
-
+import json
 
 import time
 
@@ -31,7 +31,7 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 6
+    players_per_group = 2
     num_rounds = 1
 
     inv_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/investor.py')
@@ -101,8 +101,8 @@ class Group(BaseGroup):
         self.save()
 
     def broadcast(self, note):
-        log.debug('Group%d: Broadcast investor transaction.' % self.id)
-        CGroup(str(self.id)).send(note)
+        message = json.dumps(note)
+        CGroup(str(self.id)).send({"text": message})
 
 
     def save(self, *args, **kwargs):
@@ -185,7 +185,7 @@ class Player(BasePlayer):
     state = models.StringField(initial='OUT')
     speed = models.BooleanField(initial=0)  # 0 or 1
     spread = models.IntegerField(initial=2000)
-    channel = models.StringField()
+    channel = models.CharField(max_length=255)
     # fundamental price
     fp = models.IntegerField(initial=10000)
     order_count = models.IntegerField(initial=1)
@@ -247,7 +247,7 @@ class Player(BasePlayer):
         try:
             states[new_state]()
         except KeyError:  
-            log.warning('Player%d: Invalid state update.' % self.id_in_group)           
+            log.info('Player%d: Invalid state update.' % self.id_in_group)             
         self.state = new_state   
         self.save()
         log.info('Player%d: State update: %s.' % (self.id_in_group, self.state)) 
@@ -297,6 +297,7 @@ class Player(BasePlayer):
         order = self.order_set.get(token=tok)
         order.activate(stamp)
         log.info('Player%d: Confirm: Enter: %s.' % (self.id_in_group, tok))
+        self.send_client({"Yo":"Mama"})
 
     def confirm_replace(self, msg):
         ptok, tok = msg['previous_order_token'], msg['order_token']
@@ -376,7 +377,11 @@ class Player(BasePlayer):
     # Send to client
 
     def send_client(self,msg):
-        Channel(str(self.channel)).send(msg)
+        """
+        message has to be dictionary
+        """
+        message = json.dumps(msg)
+        Channel(self.channel).send({"text": message})
 
 
 

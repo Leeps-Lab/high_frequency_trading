@@ -228,9 +228,9 @@ window.onload = function () {
             };
             // Handle messages sent by the server.
             socket.onmessage = function (event) {
+                console.log('onmessage');
                 var obj = jQuery.parseJSON(event.data);
                 role = obj.state;
-                console.log('here');
                 $('#player_role').html(role);
             };
             // Show a disconnected message when the WebSocket is closed.
