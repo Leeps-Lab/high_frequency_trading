@@ -218,6 +218,7 @@ window.onload = function () {
     // Handle messages sent by the server.
     socket.onmessage = function (event) {
         var obj = jQuery.parseJSON(event.data);
+        console.log(obj.text)
         // switch statement on type of data parsed from event
     };
 
@@ -271,116 +272,94 @@ window.onload = function () {
     }
 
 
-  document.getElementById("maker").onclick = function () {
-    if ((document.getElementById("maker").className == "button-off") && (document.getElementById("maker").className != "button-pressed")){
-        //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
-        $("#maker").toggleClass('button-off button-pressed');
-        var msg = {
-          type: 'role_change',
-          id: {{player.id}},
-          id_in_group: {{player.id_in_group}},
-          state: "MAKER"
-        };
-        if (socket.readyState === socket.OPEN) {
-          socket.send(JSON.stringify(msg));
+    document.getElementById("maker").onclick = function () {
+        if ((document.getElementById("maker").className == "button-off") && (document.getElementById("maker").className != "button-pressed")){
+            //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+            $("#maker").toggleClass('button-off button-pressed');
+            var msg = {
+                type: 'role_change',
+                id: {{player.id}},
+                id_in_group: {{player.id_in_group}},
+                state: "MAKER"
+            };
+            if (socket.readyState === socket.OPEN) {
+              socket.send(JSON.stringify(msg));
+            }
+
+            Button_Pressed("maker");
+            $('#player_role').html('Maker');
+
+            Spread_Graph.spread(); // Auto Input Spread
+            Spread_Graph.drawMyLine(); // Auto input spread
         }
-        console.log(msg);
-        Spread_Graph.spread(); // Auto Input Spread
-        Button_Pressed("maker");
-        //CHANGE TABLE VALUE
-        $('#player_role').html('Maker');
+        $("#out").attr('class', 'button-off');
+        $("#sniper").attr('class', 'button-off');
+    };
 
-        Spread_Graph.drawMyLine(); // Auto input spread
-        //send the order if not button pressed (reduces the chance of double orders)
-    }
-    //TURN THE REST OF THE BUTTONS OFF
+    document.getElementById("sniper").onclick = function () {
+        if ((document.getElementById("sniper").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
+            //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+            $("#sniper").toggleClass('button-off button-pressed');
+            var msg = {
+                type: 'role_change',
+                id: {{player.id}},
+                id_in_group: {{player.id_in_group}},
+                state: "SNIPER"
+            };
+            if (socket.readyState === socket.OPEN) {
+                socket.send(JSON.stringify(msg));
+            }
+            Button_Pressed("sniper");
+            $('#player_role').html('Sniper');
 
-    $("#out").attr('class', 'button-off');
-    $("#sniper").attr('class', 'button-off');
-  };
-
-  //SNIPER BUTTON
-  document.getElementById("sniper").onclick = function () {
-      if ((document.getElementById("sniper").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
-        //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
-        $("#sniper").toggleClass('button-off button-pressed');
-        var msg = {
-          type: 'role_change',
-          id: {{player.id}},
-          id_in_group: {{player.id_in_group}},
-          state: "SNIPER"
-        };
-        if (socket.readyState === socket.OPEN) {
-          socket.send(JSON.stringify(msg));
+            Spread_Graph.clear();
         }
-        console.log(msg);
-        Button_Pressed("sniper");
-        //send the order if not button pressed (reduces the chance of double orders)
-        //CHANGE TABLE VALUE
-        $('#player_role').html('Sniper');
-      }
-    //TURN THE REST OF THE BUTTONS OFF
 
-    Spread_Graph.clear();
-    $("#maker").attr('class', 'button-off');
-    $("#out").attr('class', 'button-off');
-  };
+        $("#maker").attr('class', 'button-off');
+        $("#out").attr('class', 'button-off');
+    };
 
   //OUT BUTTON
-  document.getElementById("out").onclick = function () {
-    if (document.getElementById("out").className == "button-off"){
-      //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
-      $("#out").toggleClass('button-off button-on');
-      var msg = {
-        type: 'role_change',
-        id: {{player.id}},
-        id_in_group: {{player.id_in_group}},
-        state: "OUT"
-      };
-      if (socket.readyState === socket.OPEN) {
-        socket.send(JSON.stringify(msg));
-      }
-      //CHANGE TABLE VALUE
-      $('#player_role').html('Out');
-      console.log(msg);
-      //send the out message
+    document.getElementById("out").onclick = function () {
+        if (document.getElementById("out").className == "button-off"){
+            //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
+            $("#out").toggleClass('button-off button-on');
+            var msg = {
+                type: 'role_change',
+                id: {{player.id}},
+                id_in_group: {{player.id_in_group}},
+                state: "OUT"
+            };
+            if (socket.readyState === socket.OPEN) {
+                socket.send(JSON.stringify(msg));
+            }
+            Button_Pressed("out");
+            $('#player_role').html('Out');
 
+            Spread_Graph.clear();
+        }
+
+        $("#maker").attr('class', 'button-off');
+        $("#sniper").attr('class', 'button-off');
+    };
+
+    var button_timer;
+    var graph_timer;
+    function Button_Pressed(id_name){
+        //Wait .5 seconds for button pressed to even for fast players
+        // to eliminate spam clicking
+        button_timer = setTimeout(Button_Change.bind(null,id_name),500);
     }
-    Spread_Graph.clear();
-    //TURN THE REST OF THE BUTTONS OFF
-    $("#maker").attr('class', 'button-off');
-    $("#sniper").attr('class', 'button-off');
-  };
+    function Button_Change(id_name){
+        //TURNING BUTTON ON
+        $("#"+id_name).toggleClass('button-pressed button-on');
+    }
 
-  var button_timer;
-  var graph_timer;
-  function Button_Pressed(id_name){
-    //Wait .5 seconds for button pressed
-    button_timer = setTimeout(Button_Change.bind(null,id_name),500);
-  }
-  function Button_Change(id_name){
-    //TURNING BUTTON ON
-    $("#"+id_name).toggleClass('button-pressed button-on');
-  }
 
-  var button_timer;
-  var graph_timer;
-  function Button_Pressed(id_name){
-    //Wait  seconds until you can send a replace order
-    button_timer = setTimeout(Button_Change.bind(null,id_name), 500);
-  }
-  function Button_Change(id_name){
-    //Changing the class and color for the button to be pressed
-    $("#"+id_name).toggleClass('button-pressed button-on');
-  }
-/*********************************
-END BUTTON LOGIC
-*********************************/
+    var Spread_Graph = {};
+    var Profit_Graph = {};
 
-var Spread_Graph = {};
-var Profit_Graph = {};
-
-var Other_Maker_lines = {};
+    var Other_Maker_lines = {};
 
 var n = 20; 
 var data = d3.range(17).map(function(d) { return  0}); //Testing Purposes
