@@ -126,6 +126,11 @@ input:checked + .slider:before {
   stroke-width:2px;
 }
 
+.others_line{
+  stroke:rgb(2, 3, 4);
+  stroke-width:2px;
+}
+
 .green_bar{
   fill:#6edd68;
   opacity: 0.5;
@@ -138,23 +143,26 @@ input:checked + .slider:before {
 <div class="front_end_controller">
     <table class="info_table" style="width:100%" >
         <strong>
+        <!-- Row 1 of info box -->
         <tr>
-            <td class="info_text">Player ID <span id="player_id"></span></td>
-            <td class="info_text">Number of Traders: NUMBER TRADERS</td>
-            <td class="info_text">Role: <span id="player_role"> </span> </td>
-            <td class="info_text">Fundamental Value: FUNDAMENTAL VALUE PRICE</td>
+            <td class="info_text">Player ID:            <span id="player_id"></span></td>
+            <td class="info_text">Number of Traders:    <span id="num_traders"></span></td>
+            <td class="info_text">Role:                 <span id="player_role"> </span> </td>
+            <td class="info_text">Fundamental Value:    <span id="fp"></span></td>
         </tr>
+        <!-- Row 2 of info box -->
         <tr>
-            <td class="info_text">Period # CURRENT PERIOD</td>
-            <td class="info_text">Number of Makers: NUMBER MAKERS / FAST</td>
-            <td class="info_text">Spread: <span id="spread_number"></span> </td>
-            <td class="info_text">Current Buy Offer: CURRENT BUY OFFER</td>
+            <td class="info_text">Period:               <span id="period_id"></span></td>
+            <td class="info_text">Number of Makers:     <span id=num_makers></span></td>
+            <td class="info_text">Spread:               <span id="spread_value"></span> </td>
+            <td class="info_text">Current Buy Offer:    <span id="curr_bid"></span></td>
         </tr>
+        <!-- Row 3 of info box -->
         <tr>
-            <td class="info_text">Speed Cost: SPEED COST / Second</td>
-            <td class="info_text">Number of Snipers: NUMBER SNIPERS / FAST</td>
-            <td class="info_text">Your Profit: RUNNING PROFIT</td>
-            <td class="info_text">Current Sell Offer: CURRENT SELL OFFER</td>
+            <td class="info_text">Speed Cost:           <span id="speed_cost"></span></td>
+            <td class="info_text">Number of Snipers:    <span id="num_snipers"></span></td>
+            <td class="info_text">Your Profit:          <span id="profit"></span></td>
+            <td class="info_text">Current Sell Offer:   <span id="curr_ask"></span></td>
         </tr>
         </strong>
     </table>
@@ -193,57 +201,76 @@ input:checked + .slider:before {
 /*Handles the Button Logic and the Graph shown in start.html*/
 
 window.onload = function () {
-            var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-            var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
-            console.log(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
-            // Handle any errors that occur.
-            socket.onerror = function (error) {
-                console.log('WebSocket Error: ' + error);
-            };
-            $('#player_id').html({{player.id_in_group}})
-            $('#player_role').html('Out');
+    // Establish websocket variables
+    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
+
+    // Handle any errors that occur.
+    socket.onerror = function (error) {
+        console.log('WebSocket Error: ' + error);
+    };
+
+    // Show a connected message when the WebSocket is opened.
+    socket.onopen = function (event) {
+        console.log('Client has connected to django channels');
+    };
+
+    // Handle messages sent by the server.
+    socket.onmessage = function (event) {
+        var obj = jQuery.parseJSON(event.data);
+        // switch statement on type of data parsed from event
+    };
+
+    // Show a disconnected message when the WebSocket is closed.
+    socket.onclose = function (event) {
+        console.log('disconnected from oTree');
+    };
+
+
+    /*
+        Set as many info box default values as possible from initial data
+
+    */
+    $('#player_id').html({{player.id_in_group}});
+    $('#period_id').html(1);
+    $('#curr_speed_cost').html(0);
+
+    $('#num_traders').html({{Constants.players_per_group}});
+    $('#num_snipers').html(0);
+    $('#num_makers').html(0);
+    
+    $('#player_role').html('OUT');
+    $('#spread_value').html('N/A');
+    $('#profit').html(20);
+
+    $('#fp').html(player.fp);
+    $('#curr_bid').html('N/A');
+    $('#curr_ask').html('N/A');
+
+
+    // On load global var? Terrible
+    var speed = false;
+
+    // Called on click to toggle input
+    updatespeed = function () {
+        speed = !speed;
+        if(speed){
+            $('#curr_speed_cost').html({{Constants.speed_cost}});
+        }else {
             $('#curr_speed_cost').html(0);
-            var speed = false;
-            updatespeed = function () {
-                speed = !speed;
-                if(speed){
-                    $('#curr_speed_cost').html({{Constants.speed_cost}});
-                }else {
-                    $('#curr_speed_cost').html(0);
-                }
-                var msg = {
-                    type: 'speed_change',
-                    id: {{player.id}},
-                    id_in_group: {{player.id_in_group}},
-                    speed: speed
-                };
-                if (socket.readyState === socket.OPEN) {
-                    socket.send(JSON.stringify(msg));
-                }
-            }
-
-            // Show a connected message when the WebSocket is opened.
-            socket.onopen = function (event) {
-                console.log('connected to oTree');
-            };
-            // Handle messages sent by the server.
-            socket.onmessage = function (event) {
-                console.log('onmessage');
-                var obj = jQuery.parseJSON(event.data);
-                role = obj.state;
-                $('#player_role').html(role);
-            };
-            // Show a disconnected message when the WebSocket is closed.
-            socket.onclose = function (event) {
-                console.log('disconnected from oTree');
-            };
+        }
+        var msg = {
+            type: 'speed_change',
+            id: {{player.id}},
+            id_in_group: {{player.id_in_group}},
+            speed: speed
+        };
+        if (socket.readyState === socket.OPEN) {
+            socket.send(JSON.stringify(msg));
+        }
+    }
 
 
-
-/*********************************
-START BUTTON LOGIC //may the force be with you
-*********************************/
-  //MAKER BUTTON
   document.getElementById("maker").onclick = function () {
     if ((document.getElementById("maker").className == "button-off") && (document.getElementById("maker").className != "button-pressed")){
         //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
@@ -263,7 +290,7 @@ START BUTTON LOGIC //may the force be with you
         //CHANGE TABLE VALUE
         $('#player_role').html('Maker');
 
-        Spread_Graph.drawLine(); // Auto input spread
+        Spread_Graph.drawMyLine(); // Auto input spread
         //send the order if not button pressed (reduces the chance of double orders)
     }
     //TURN THE REST OF THE BUTTONS OFF
@@ -353,6 +380,8 @@ END BUTTON LOGIC
 var Spread_Graph = {};
 var Profit_Graph = {};
 
+var Other_Maker_lines = {};
+
 var n = 20; 
 var data = d3.range(17).map(function(d) { return  0}); //Testing Purposes
 var max_spread = 10; // Pull from Constansts
@@ -392,7 +421,7 @@ var auto_spread = 2;
   function svgClickListener(){
       spread_svg.on('click',function(d) { 
         role = $("#player_role").text();
-        alert("At least this is being called");
+        //alert("At least this is being called");
         if(role == "Maker"){
 
         //The dimensions the svg take up
@@ -423,12 +452,13 @@ var auto_spread = 2;
         
         spreadChange(my_spread);
         //Time to draw the lasers tat go into the spread graph
-        drawSpreadLine(my_spread);
+        
+        drawMySpreadLine(my_spread);
         }
       });
   }
 
-  function drawSpreadLine(my_spread = auto_spread){
+  function drawMySpreadLine(my_spread = auto_spread){
        d3.selectAll(".my_line").remove();
        d3.selectAll("rect").remove();
        spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
@@ -439,7 +469,6 @@ var auto_spread = 2;
        y_coordinate = svg_middle_y/money_ratio;
       // console.log(y_coordinate);
       //Ratio between the distance and the mid
-      
 
     your_spread_line_top = spread_svg.append("svg:line")
                .attr("x1", spread_width - 35)
@@ -476,6 +505,81 @@ var auto_spread = 2;
                     .attr("x2", spread_width - 85);         
   }
 
+
+  function drawOthersSpreadLine(my_spread, ordertoken_buy, ordertoken_sell, speed){
+        spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+
+        //Where the grey middle line is
+        svg_middle_y = spread_height/2 - 90;
+        money_ratio =  max_spread/my_spread;
+        y_coordinate = svg_middle_y/money_ratio;
+        // console.log(y_coordinate);
+        //Ratio between the distance and the mid
+
+        your_spread_line_top = spread_svg.append("svg:line")
+               .attr("x1", spread_width - 35)
+               .attr("y1", svg_middle_y - y_coordinate)
+               .attr("x2", spread_width)
+               .attr("y2", svg_middle_y - y_coordinate)
+               .attr("class","others_line");
+
+
+        your_spread_line_bottom = spread_svg.append("svg:line")
+               .attr("x1", spread_width - 35)
+               .attr("y1", y_coordinate + svg_middle_y)
+               .attr("x2", spread_width)
+               .attr("y2", y_coordinate + svg_middle_y)
+               .attr("class","others_line");
+
+        // for removing when a transation occurs
+        Other_Maker_lines[ordertoken_sell] = [your_spread_line_top, your_spread_line_bottom]
+        Other_Maker_lines[ordertoken_buy] = [your_spread_line_top, your_spread_line_bottom]
+
+        addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
+        //Timeout is whether or not speed is on
+  }
+
+function addOthersLineAnimation(lines){
+    //SETTING THE SPREAD TO THE LINE
+    for( i = 0; i < 2; i++){
+      add_animation = lines[i]
+                      .transition()
+                      // duration is whether or not speed is on
+                      .duration(500)
+                      .attr("x1", 85)
+                      .attr("x2", spread_width - 85); 
+    }      
+      
+  }
+  
+
+  function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side){
+   //take into account
+   var bar_color = "green_bar";
+
+   //if not other maker within the spread
+   if(side === 'B'){
+
+     your_bar_rect = spread_svg.append("svg:rect")
+                .attr("x", spread_width - (spread_width - 85) + 40)
+                .attr("y", svg_middle_y)
+                .attr("width", (spread_width - 220) / 2)
+                .attr("height", y_coordinate)
+                .attr("class",bar_color);
+   } else if(side === 'S'){
+     newY = y_coordinate * -1;
+
+
+     your_bar_rect = spread_svg.append("svg:rect")
+                .attr("x", spread_width - (spread_width - 85) + 40)
+                .attr("y", svg_middle_y - y_coordinate)
+                .attr("width", (spread_width - 220) / 2)
+                .attr("height", y_coordinate)
+                .attr("class",bar_color);
+
+   }
+ }
+
   function drawSpreadBar(my_spread,svg_middle_y,y_coordinate){
     //take into account
     var bar_color = "";
@@ -492,7 +596,15 @@ var auto_spread = 2;
 
   function clearGraph(){
     d3.selectAll(".my_line").remove();
+    d3.selectAll(".others_line").remove();
     d3.selectAll("rect").remove();
+  }
+
+  function removeOtherMakerLine(order_token){
+    var lines_to_remove = Other_Maker_lines[order_token];
+    lines_to_remove[0].remove();
+    lines_to_remove[1].remove();
+    
   }
 
   function spreadChange(my_spread = auto_spread){
@@ -512,7 +624,8 @@ var auto_spread = 2;
   }
 
   Spread_Graph.start = drawStartState;
-  Spread_Graph.drawLine = drawSpreadLine;
+  Spread_Graph.drawMyLine = drawMySpreadLine;
+  Spread_Graph.drawOthersLine = drawOthersSpreadLine;
   Spread_Graph.animateLine = addLineAnimation;
   Spread_Graph.drawBar = drawSpreadBar;
   Spread_Graph.listen = svgClickListener;

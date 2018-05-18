@@ -33,6 +33,7 @@ class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
     players_per_group = 2
     num_rounds = 1
+    speed_cost = 0.1
 
     inv_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/investor.py')
     inv_url = 'ws://127.0.0.1:8000/hft_investor/'   
