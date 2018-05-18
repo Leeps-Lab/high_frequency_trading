@@ -172,11 +172,11 @@ input:checked + .slider:before {
 
     <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
         <div class="inputs">
-          <input id="maker" value="Maker" class="button-off" type="button" style="width:80px" ></input>
+          <input id="maker" value="maker" class="button-off" type="button" style="width:80px" ></input>
           <br>
-            <input id="sniper" value="Sniper" class="button-off" type="button" style="width:80px" ></input> 
+            <input id="sniper" value="sniper" class="button-off" type="button" style="width:80px" ></input> 
             <br>
-            <input id="out" value="Out" class="button-on" type="button" style="width:80px"></input>
+            <input id="out" value="out" class="button-on" type="button" style="width:80px"></input>
             <br>
 
             <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
@@ -201,6 +201,7 @@ input:checked + .slider:before {
 /*Handles the Button Logic and the Graph shown in start.html*/
 
 window.onload = function () {
+
     // Establish websocket variables
     var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
     var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
@@ -218,7 +219,11 @@ window.onload = function () {
     // Handle messages sent by the server.
     socket.onmessage = function (event) {
         var obj = jQuery.parseJSON(event.data);
-        console.log(obj.text)
+        if(obj.FPC != undefined){
+            $('#fp').html(obj.FPC);
+
+        } 
+
         // switch statement on type of data parsed from event
     };
 
@@ -234,7 +239,7 @@ window.onload = function () {
     */
     $('#player_id').html({{player.id_in_group}});
     $('#period_id').html(1);
-    $('#curr_speed_cost').html(0);
+    $('#speed_cost').html(0);
 
     $('#num_traders').html({{Constants.players_per_group}});
     $('#num_snipers').html(0);
@@ -244,7 +249,7 @@ window.onload = function () {
     $('#spread_value').html('N/A');
     $('#profit').html(20);
 
-    $('#fp').html(player.fp);
+//-> buggyas fuc,k    // $('#fp').html(player.fp);
     $('#curr_bid').html('N/A');
     $('#curr_ask').html('N/A');
 
@@ -256,9 +261,9 @@ window.onload = function () {
     updatespeed = function () {
         speed = !speed;
         if(speed){
-            $('#curr_speed_cost').html({{Constants.speed_cost}});
+            $('#speed_cost').html({{Constants.speed_cost}});
         }else {
-            $('#curr_speed_cost').html(0);
+            $('#speed_cost').html(0);
         }
         var msg = {
             type: 'speed_change',
@@ -361,255 +366,248 @@ window.onload = function () {
 
     var Other_Maker_lines = {};
 
-var n = 20; 
-var data = d3.range(17).map(function(d) { return  0}); //Testing Purposes
-var max_spread = 10; // Pull from Constansts
-var auto_spread = 2;
-
-(function() {
-
-  var spread_width = $("#spread-graph").width(),
-      spread_height = $("#spread-graph").height(),
-      spread_svg = d3.select("#spread-graph")
-                  .attr("width", spread_width)
-                  .attr("height", spread_height);
+    var n = 20; 
+    var data = d3.range(17).map(function(d) { return  0}); //Testing Purposes
+    var max_spread = 10; // Pull from Constansts
+    var auto_spread = 2;
 
 
-  function drawStartState(){
-    spread_line = spread_svg.append("svg:line")
-                   .attr("x1", spread_width/2)
-                   .attr("y1", 0)
-                   .attr("x2", spread_width/2)
-                   .attr("y2", spread_height)
-                   .style("stroke", "lightgrey")
-                   .style("stroke-width", 5);
+    // Functions for drawing choice box
+    (function() {
 
-    spread_line_fundamental_price = spread_svg.append("svg:line")
-                   .attr("x1", spread_width - (spread_width - 45))
-                   .attr("y1", spread_height/2 - 90)
-                   .attr("x2", spread_width - 45)
-                   .attr("y2", spread_height/2 - 90)
-                   .style("stroke", "grey")
-                   .style("stroke-width", 5);
+        var spread_width = $("#spread-graph").width(),
+          spread_height = $("#spread-graph").height(),
+          spread_svg = d3.select("#spread-graph")
+                      .attr("width", spread_width)
+                      .attr("height", spread_height);
 
-  }
 
-  /***********************************************
-  DEALING WITH MOUSE CLICKS ON THE SPREAD GRAPHS
-  ************************************************/
-  function svgClickListener(){
-      spread_svg.on('click',function(d) { 
-        role = $("#player_role").text();
-        //alert("At least this is being called");
-        if(role == "Maker"){
+        function drawStartState(){
+        spread_line = spread_svg.append("svg:line")
+                       .attr("x1", spread_width/2)
+                       .attr("y1", 0)
+                       .attr("x2", spread_width/2)
+                       .attr("y2", spread_height)
+                       .style("stroke", "lightgrey")
+                       .style("stroke-width", 5);
 
-        //The dimensions the svg take up
-         spread_x = document.getElementById("spread-graph").getBoundingClientRect().left;
-         spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
-         console.log(spread_x+"," +spread_y);
-         //Where the grey middle line is
-         svg_middle_x = spread_width/2;
-         svg_middle_y = spread_height/2 - 90;
+        spread_line_fundamental_price = spread_svg.append("svg:line")
+                       .attr("x1", spread_width - (spread_width - 45))
+                       .attr("y1", spread_height/2 - 90)
+                       .attr("x2", spread_width - 45)
+                       .attr("y2", spread_height/2 - 90)
+                       .style("stroke", "grey")
+                       .style("stroke-width", 5);
 
-        //The tuple in which the mouse is clicked within the svg 
-        spread_position = {x:(d3.event.clientX - spread_x),y:(d3.event.clientY - spread_y)};
-
-        //finding the distance from the mid
-        if(spread_position.y >= svg_middle_y){
-          distance_from_middle = spread_position.y - svg_middle_y;
-        } else {
-          distance_from_middle = svg_middle_y -spread_position.y ;
         }
-        //Ratio between the distance and the mid
-        ratio = svg_middle_y / distance_from_middle;
 
-        //Spread is the ratio except in dollars which is what the actual spread is
-        money_ratio = max_spread/ratio;
-        my_spread = money_ratio.toFixed(2);
-        //alert("mouse position in svg when clicked is " + "(" + spread_position.x+ "," +spread_position.y +") and max spread is " + spread);
-        //alert("This is your spread +-$"+actual_spread);
-        
-        spreadChange(my_spread);
-        //Time to draw the lasers tat go into the spread graph
-        
-        drawMySpreadLine(my_spread);
+        /***********************************************
+        DEALING WITH MOUSE CLICKS ON THE SPREAD GRAPHS
+        ************************************************/
+        function svgClickListener(){
+            spread_svg.on('click',function(d) { 
+                role = $("#player_role").text();
+                if(role == "Maker"){
+
+                    //The dimensions the svg take up
+                    spread_x = document.getElementById("spread-graph").getBoundingClientRect().left;
+                    spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+                    console.log(spread_x+"," +spread_y);
+                    //Where the grey middle line is
+                    svg_middle_x = spread_width/2;
+                    svg_middle_y = spread_height/2 - 90;
+
+                    //The tuple in which the mouse is clicked within the svg 
+                    spread_position = {x:(d3.event.clientX - spread_x),y:(d3.event.clientY - spread_y)};
+
+                    //finding the distance from the mid
+                    if(spread_position.y >= svg_middle_y){
+                        distance_from_middle = spread_position.y - svg_middle_y;
+                    } else {
+                        distance_from_middle = svg_middle_y -spread_position.y ;
+                    }
+                    //Ratio between the distance and the mid
+                    ratio = svg_middle_y / distance_from_middle;
+
+                    //Spread is the ratio except in dollars which is what the actual spread is
+                    money_ratio = max_spread/ratio;
+                    my_spread = money_ratio.toFixed(2);
+
+                    spreadChange(my_spread);
+                    //Time to draw the lasers tat go into the spread graph
+
+                    drawMySpreadLine(my_spread);
+                }
+            });
         }
-      });
-  }
 
-  function drawMySpreadLine(my_spread = auto_spread){
-       d3.selectAll(".my_line").remove();
-       d3.selectAll("rect").remove();
-       spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
-       //Where the grey middle line is
-       svg_middle_y = spread_height/2 - 90;
+        function drawMySpreadLine(my_spread = auto_spread){
+            d3.selectAll(".my_line").remove();
+            d3.selectAll("rect").remove();
+            spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+            //Where the grey middle line is
+            svg_middle_y = spread_height/2 - 90;
 
-       money_ratio =  max_spread/my_spread;
-       y_coordinate = svg_middle_y/money_ratio;
-      // console.log(y_coordinate);
-      //Ratio between the distance and the mid
+            money_ratio =  max_spread/my_spread;
+            y_coordinate = svg_middle_y/money_ratio;
+            // console.log(y_coordinate);
+            //Ratio between the distance and the mid
 
-    your_spread_line_top = spread_svg.append("svg:line")
-               .attr("x1", spread_width - 35)
-               .attr("y1", svg_middle_y - y_coordinate)
-               .attr("x2", spread_width)
-               .attr("y2", svg_middle_y - y_coordinate)
-               .attr("class","my_line");
+            your_spread_line_top = spread_svg.append("svg:line")
+                   .attr("x1", spread_width - 35)
+                   .attr("y1", svg_middle_y - y_coordinate)
+                   .attr("x2", spread_width)
+                   .attr("y2", svg_middle_y - y_coordinate)
+                   .attr("class","my_line");
 
-    your_spread_line_bottom = spread_svg.append("svg:line")
-               .attr("x1", spread_width - 35)
-               .attr("y1", y_coordinate + svg_middle_y)
-               .attr("x2", spread_width)
-               .attr("y2", y_coordinate + svg_middle_y)
-               .attr("class","my_line");
-    //WAIT FOR SPEED AND THEN SET THE SPREAD with the bar line
+            your_spread_line_bottom = spread_svg.append("svg:line")
+                   .attr("x1", spread_width - 35)
+                   .attr("y1", y_coordinate + svg_middle_y)
+                   .attr("x2", spread_width)
+                   .attr("y2", y_coordinate + svg_middle_y)
+                   .attr("class","my_line");
+            //WAIT FOR SPEED AND THEN SET THE SPREAD with the bar line
 
-      addLineAnimation();
-      
-      setTimeout(function(d){
-        drawSpreadBar(my_spread,svg_middle_y,y_coordinate);
-      }, 500);
-      
-      //Timeout is whether or not speed is on
-  }
+            addLineAnimation();
 
-  function addLineAnimation(){
-    //SETTING THE SPREAD TO THE LINE
-    spread_lines = d3.selectAll(".my_line");
-    add_animation = spread_lines
-                    .transition()
-                    // duration is whether or not speed is on
-                    .duration(500)
-                    .attr("x1", 85)
-                    .attr("x2", spread_width - 85);         
-  }
+            setTimeout(function(d){
+            drawSpreadBar(my_spread,svg_middle_y,y_coordinate);
+            }, 500);
+
+          //Timeout is whether or not speed is on
+        }
+
+        function addLineAnimation(){
+            //SETTING THE SPREAD TO THE LINE
+            spread_lines = d3.selectAll(".my_line");
+            add_animation = spread_lines
+                        .transition()
+                        // duration is whether or not speed is on
+                        .duration(500)
+                        .attr("x1", 85)
+                        .attr("x2", spread_width - 85);         
+        }
 
 
-  function drawOthersSpreadLine(my_spread, ordertoken_buy, ordertoken_sell, speed){
-        spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+        function drawOthersSpreadLine(my_spread, ordertoken_buy, ordertoken_sell, speed){
+            spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
 
-        //Where the grey middle line is
-        svg_middle_y = spread_height/2 - 90;
-        money_ratio =  max_spread/my_spread;
-        y_coordinate = svg_middle_y/money_ratio;
-        // console.log(y_coordinate);
-        //Ratio between the distance and the mid
+            //Where the grey middle line is
+            svg_middle_y = spread_height/2 - 90;
+            money_ratio =  max_spread/my_spread;
+            y_coordinate = svg_middle_y/money_ratio;
+            // console.log(y_coordinate);
+            //Ratio between the distance and the mid
 
-        your_spread_line_top = spread_svg.append("svg:line")
-               .attr("x1", spread_width - 35)
-               .attr("y1", svg_middle_y - y_coordinate)
-               .attr("x2", spread_width)
-               .attr("y2", svg_middle_y - y_coordinate)
-               .attr("class","others_line");
+            your_spread_line_top = spread_svg.append("svg:line")
+                   .attr("x1", spread_width - 35)
+                   .attr("y1", svg_middle_y - y_coordinate)
+                   .attr("x2", spread_width)
+                   .attr("y2", svg_middle_y - y_coordinate)
+                   .attr("class","others_line");
 
 
-        your_spread_line_bottom = spread_svg.append("svg:line")
-               .attr("x1", spread_width - 35)
-               .attr("y1", y_coordinate + svg_middle_y)
-               .attr("x2", spread_width)
-               .attr("y2", y_coordinate + svg_middle_y)
-               .attr("class","others_line");
+            your_spread_line_bottom = spread_svg.append("svg:line")
+                   .attr("x1", spread_width - 35)
+                   .attr("y1", y_coordinate + svg_middle_y)
+                   .attr("x2", spread_width)
+                   .attr("y2", y_coordinate + svg_middle_y)
+                   .attr("class","others_line");
 
-        // for removing when a transation occurs
-        Other_Maker_lines[ordertoken_sell] = [your_spread_line_top, your_spread_line_bottom]
-        Other_Maker_lines[ordertoken_buy] = [your_spread_line_top, your_spread_line_bottom]
+            // for removing when a transation occurs
+            Other_Maker_lines[ordertoken_sell] = [your_spread_line_top, your_spread_line_bottom]
+            Other_Maker_lines[ordertoken_buy] = [your_spread_line_top, your_spread_line_bottom]
 
-        addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
-        //Timeout is whether or not speed is on
-  }
+            addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
+            //Timeout is whether or not speed is on
+        }
 
-function addOthersLineAnimation(lines){
-    //SETTING THE SPREAD TO THE LINE
-    for( i = 0; i < 2; i++){
-      add_animation = lines[i]
-                      .transition()
-                      // duration is whether or not speed is on
-                      .duration(500)
-                      .attr("x1", 85)
-                      .attr("x2", spread_width - 85); 
-    }      
-      
-  }
+        function addOthersLineAnimation(lines){
+            //SETTING THE SPREAD TO THE LINE
+            for( i = 0; i < 2; i++){
+                add_animation = lines[i]
+                  .transition()
+                  // duration is whether or not speed is on
+                  .duration(500)
+                  .attr("x1", 85)
+                  .attr("x2", spread_width - 85); 
+            }      
+          
+        }
   
 
-  function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side){
-   //take into account
-   var bar_color = "green_bar";
+        function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side){
+            //take into account
+            var bar_color = "green_bar";
 
-   //if not other maker within the spread
-   if(side === 'B'){
+            //if not other maker within the spread
+            if(side === 'B'){
+                your_bar_rect = spread_svg.append("svg:rect")
+                    .attr("x", spread_width - (spread_width - 85) + 40)
+                    .attr("y", svg_middle_y)
+                    .attr("width", (spread_width - 220) / 2)
+                    .attr("height", y_coordinate)
+                    .attr("class",bar_color);
+            } else if(side === 'S'){
+                newY = y_coordinate * -1;
+                your_bar_rect = spread_svg.append("svg:rect")
+                        .attr("x", spread_width - (spread_width - 85) + 40)
+                        .attr("y", svg_middle_y - y_coordinate)
+                        .attr("width", (spread_width - 220) / 2)
+                        .attr("height", y_coordinate)
+                        .attr("class",bar_color);
+            }
+        }
 
-     your_bar_rect = spread_svg.append("svg:rect")
-                .attr("x", spread_width - (spread_width - 85) + 40)
-                .attr("y", svg_middle_y)
-                .attr("width", (spread_width - 220) / 2)
-                .attr("height", y_coordinate)
-                .attr("class",bar_color);
-   } else if(side === 'S'){
-     newY = y_coordinate * -1;
+        function drawSpreadBar(my_spread,svg_middle_y,y_coordinate){
+            //take into account
+            var bar_color = "";
 
+            //if not other maker within the spread
+            bar_color = "green_bar";
+            your_bar_rect = spread_svg.append("svg:rect")
+                       .attr("x", spread_width - (spread_width - 85))
+                       .attr("y", svg_middle_y - y_coordinate)
+                       .attr("width", spread_width - 170)
+                       .attr("height", 2*y_coordinate)
+                       .attr("class",bar_color);
+        }
 
-     your_bar_rect = spread_svg.append("svg:rect")
-                .attr("x", spread_width - (spread_width - 85) + 40)
-                .attr("y", svg_middle_y - y_coordinate)
-                .attr("width", (spread_width - 220) / 2)
-                .attr("height", y_coordinate)
-                .attr("class",bar_color);
+        function clearGraph(){
+            d3.selectAll(".my_line").remove();
+            d3.selectAll(".others_line").remove();
+            d3.selectAll("rect").remove();
+        }
 
-   }
- }
+        function removeOtherMakerLine(order_token){
+            var lines_to_remove = Other_Maker_lines[order_token];
+            lines_to_remove[0].remove();
+            lines_to_remove[1].remove();
 
-  function drawSpreadBar(my_spread,svg_middle_y,y_coordinate){
-    //take into account
-    var bar_color = "";
-    
-    //if not other maker within the spread
-    bar_color = "green_bar";
-    your_bar_rect = spread_svg.append("svg:rect")
-               .attr("x", spread_width - (spread_width - 85))
-               .attr("y", svg_middle_y - y_coordinate)
-               .attr("width", spread_width - 170)
-               .attr("height", 2*y_coordinate)
-               .attr("class",bar_color);
-  }
+        }
 
-  function clearGraph(){
-    d3.selectAll(".my_line").remove();
-    d3.selectAll(".others_line").remove();
-    d3.selectAll("rect").remove();
-  }
+        function spreadChange(my_spread = auto_spread){
 
-  function removeOtherMakerLine(order_token){
-    var lines_to_remove = Other_Maker_lines[order_token];
-    lines_to_remove[0].remove();
-    lines_to_remove[1].remove();
-    
-  }
+            var msg = {
+                type: 'spread_change',
+                id: {{player.id}},
+                id_in_group: {{player.id_in_group}},
+                spread: my_spread
+            };
+            if (socket.readyState === socket.OPEN) {
+                socket.send(JSON.stringify(msg));
+            }
+            $("#spread_value").text('+-$'+my_spread);
+        }
 
-  function spreadChange(my_spread = auto_spread){
-
-    var msg = {
-        type: 'spread_change',
-        id: {{player.id}},
-        id_in_group: {{player.id_in_group}},
-        spread: my_spread
-      };
-      if (socket.readyState === socket.OPEN) {
-        socket.send(JSON.stringify(msg));
-      }
-      $("#spread_number").text('+-$'+my_spread);
-      console.log(msg);
-
-  }
-
-  Spread_Graph.start = drawStartState;
-  Spread_Graph.drawMyLine = drawMySpreadLine;
-  Spread_Graph.drawOthersLine = drawOthersSpreadLine;
-  Spread_Graph.animateLine = addLineAnimation;
-  Spread_Graph.drawBar = drawSpreadBar;
-  Spread_Graph.listen = svgClickListener;
-  Spread_Graph.clear = clearGraph;
-  Spread_Graph.spread = spreadChange;
+        Spread_Graph.start = drawStartState;
+        Spread_Graph.drawMyLine = drawMySpreadLine;
+        Spread_Graph.drawOthersLine = drawOthersSpreadLine;
+        Spread_Graph.animateLine = addLineAnimation;
+        Spread_Graph.drawBar = drawSpreadBar;
+        Spread_Graph.listen = svgClickListener;
+        Spread_Graph.clear = clearGraph;
+        Spread_Graph.spread = spreadChange;
 }());
 
 

@@ -133,6 +133,9 @@ class Group(BaseGroup):
     def jump_event(self, new_price):
         log.info('-----------Jump Start---------------')
         log.info('Group%d: Jump, new price is %d!' % (self.id, new_price) )
+
+        self.broadcast({"FPC":new_price})
+
         players = self.get_players()
         player_responses = []
         fast_players = []
