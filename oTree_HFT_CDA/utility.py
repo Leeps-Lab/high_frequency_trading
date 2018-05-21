@@ -6,10 +6,14 @@
 
 import time
 import numpy as np
+import datetime
+import pytz
+
+DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
 # provide time in milliseconds/seconds at
 # moment of function call
-def Get_Time(granularity="milliseconds"):
+def Get_Time(granularity="nanoseconds"):
 
     if granularity == "milliseconds":
         return int(round(time.time() * 1000))
@@ -18,7 +22,8 @@ def Get_Time(granularity="milliseconds"):
         return int(round(time.time()))
 
     elif granularity == "nanoseconds":
-        return int(round(time.time() * 1000000))
+        return nanoseconds_since_midnight()
+        # return int(round(time.time() * 1000000))
 
 
 # returns a numpy array representing each
@@ -42,7 +47,8 @@ def String_To_Unit8(string, num_of_bytes=4):
             spliced[i] = np.uint8(ord(string[i]))
         except IndexError:
             spliced[i] = np.uint8(ord("0"))
-    return np.flip(spliced,0)
+    return spliced
+    # return np.flip(spliced,0)
 
 # take a souce array and splice it into destination array
 # at index=start.
@@ -70,3 +76,22 @@ def Byte_Array_To_String(source, start, offset= 4):
         new_string = new_string + chr(source[source_index])
 
     return new_string
+
+
+def tokengen(pid, side, count, prefix='SUB'):
+    token = prefix + str(chr(pid + 64)) + str(side) + str(format(count, '09d'))
+    firm = prefix + str(chr(pid + 64))
+    return (token, firm)
+
+def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
+    now = datetime.datetime.now(tz=tz)
+    timestamp = 0  # since midnight
+    timestamp += now.hour
+    timestamp *= 60  # hours -> minutes
+    timestamp += now.minute
+    timestamp *= 60  # minutes -> seconds
+    timestamp += now.second
+    timestamp *= 10**6  # seconds -> microsecnds
+    timestamp += now.microsecond
+    timestamp *= 10**3  # microseconds -> nanoseconds
+    return timestamp

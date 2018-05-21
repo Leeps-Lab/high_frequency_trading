@@ -28,8 +28,8 @@ oTreeHighFrequencyTrading.controller("HFTStartController",
          $scope.LaserSound;
          $scope.statename = "Out";
          $scope.minSpread = .01;
-	     $scope.inputData;
-	     $scope.adminStartTime;
+        $scope.inputData;
+        $scope.adminStartTime;
 
          $scope.s = {
             NO_LINES: 0,
@@ -414,7 +414,7 @@ oTreeHighFrequencyTrading.controller("HFTStartController",
                  }
                   var msg = new Message("USER", "UUSPR", [rs.user_id, $scope.spread, getTime()]);
                   $scope.sendToGroupManager(msg);
-	               var msg2 = new Message("USER", "UMAKER", [rs.user_id, getTime()]);
+                  var msg2 = new Message("USER", "UMAKER", [rs.user_id, getTime()]);
                   $scope.sendToGroupManager(msg2);
 
                   if ($scope.state != "state_maker") {
@@ -600,9 +600,9 @@ oTreeHighFrequencyTrading.controller("HFTStartController",
                   break;
 
                case "MAKER":
-		  if($scope.state != "state_maker") {
- 		  	$scope.setState("state_maker");
-		  }
+        if($scope.state != "state_maker") {
+         $scope.setState("state_maker");
+        }
                   console.log($scope.state, rs.user_id);
                   $scope.tickState = $scope.s.NO_LINES;        //fake a click event
                   $scope.event = $scope.e.CLICK;
@@ -612,7 +612,7 @@ oTreeHighFrequencyTrading.controller("HFTStartController",
                   var nMsg = new Message("USER", "UUSPR", [rs.user_id, $scope.spread, getTime()]);
                   $scope.sendToGroupManager(nMsg);
 
-		  var msg = new Message("USER", "UMAKER", [rs.user_id, getTime()]);
+        var msg = new Message("USER", "UMAKER", [rs.user_id, getTime()]);
                   $scope.sendToGroupManager(msg);
                   break;
 
@@ -631,10 +631,10 @@ oTreeHighFrequencyTrading.controller("HFTStartController",
                   var msg = new Message("USER", "UUSPR", [rs.user_id, $scope.spread, getTime()]);
                   $scope.sendToGroupManager(msg);
 
-		  var msg2 = new Message("USER", "UMAKER", [rs.user_id, getTime()]);
+        var msg2 = new Message("USER", "UMAKER", [rs.user_id, getTime()]);
                   $scope.sendToGroupManager(msg2);
 
-		  if ($scope.state != "state_maker") {
+        if ($scope.state != "state_maker") {
                      $scope.setState("state_maker");
                   }
                   break;

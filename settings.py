@@ -1,12 +1,12 @@
 import os
 from os import environ
-
+import logging
 import dj_database_url
 #from boto.mturk import qualification
-
+from datetime import datetime
 import otree.settings
 
-
+CHANNEL_ROUTING = 'oTree_HFT_CDA.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # the environment variable OTREE_PRODUCTION controls whether Django runs in
@@ -22,7 +22,14 @@ INTERNAL_IPS = (
 )
 
 # don't share this with anybody.
-SECRET_KEY = '{{ secret_key }}'
+# SECRET_KEY = '{{ secret_key }}'
+ADMIN_USERNAME = 'admin'
+
+# for security, best to set admin password in an environment variable
+ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD')
+
+# don't share this with anybody.
+SECRET_KEY = '7n786ty33t%4n-91z!*(n^y928_@4%o-vbw@ads29^-*t+2txj'
 
 DATABASES = {
     'default': dj_database_url.config(
@@ -149,6 +156,40 @@ SESSION_CONFIGS = [
         'app_sequence': ['oTree_HFT_CDA'],
     },
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(levelname)s|%(asctime)s] [%(filename)s:%(lineno)s - %(funcName)20s()] %(message)s'
+        },
+        'simple': {
+            'format': '[%(asctime)s] %(message)s'
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'simple'
+        },
+        'logfile': {
+            'class': 'logging.FileHandler',
+            'level': 'DEBUG',
+            'formatter': 'verbose',
+            'filename': os.path.join(os.getcwd(), ('logs/' + datetime.now().strftime('%Y%m%d %H-%M') + '.txt'))
+            }
+        },
+    'loggers': {
+        'oTree_HFT_CDA': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': False
+        }
+    }
+    
+}
 
 # anything you put after the below line will override
 # oTree's default settings. Use with caution.

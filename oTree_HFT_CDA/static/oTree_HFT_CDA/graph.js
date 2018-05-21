@@ -1,245 +1,424 @@
-/*Patrick Toral ptoral@ucsc.edu*/
-/*Front End Javascript for start.html*/
-/*Handles the Button Logic and the Graph shown in start.html*/
-var n = 10;
-var data = d3.range(n).map(function(d) { return {"y": 0}});
-Draw_Graph(data);
-//alert("hi danb");
 
-/*Starting Button Logic*/
-document.getElementById("maker").onclick = function () {
-  if ((document.getElementById("maker").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
-    $("#maker").toggleClass('button-off button-pressed');
-    Button_Pressed("maker");
-    //send the order if not button pressed (reduces the chance of double orders)
-  }
-  $("#out").attr('class', 'button-off');
-  $("#sniper").attr('class', 'button-off');
-};
+// /*Front End Javascript for start.html*/
+// /*Handles the Button Logic and the Graph shown in start.html*/
 
-    document.getElementById("sniper").onclick = function () {
-        if ((document.getElementById("sniper").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
-            $("#sniper").toggleClass('button-off button-pressed');
-            Button_Pressed("sniper");
-            //send the order if not button pressed (reduces the chance of double orders)
-        }
-        $("#maker").attr('class', 'button-off');
-        $("#out").attr('class', 'button-off');
-    };
+//             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+//             var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
+//             console.log(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
+//             // Handle any errors that occur.
+//             socket.onerror = function (error) {
+//                 console.log('WebSocket Error: ' + error);
+//             };
+//             $('#player_id').html({{player.id_in_group}})
+//             $('#player_role').html('Out');
+//             $('#curr_speed_cost').html(0);
+//             var speed = false;
+//             updatespeed = function () {
+//                 speed = !speed;
+//                 if(speed){
+//                     $('#curr_speed_cost').html({{Constants.speed_cost}});
+//                 }else {
+//                     $('#curr_speed_cost').html(0);
+//                 }
+//                 var msg = {
+//                     type: 'speed_change',
+//                     id: {{player.id}},
+//                     id_in_group: {{player.id_in_group}},
+//                     speed: speed
+//                 };
+//                 if (socket.readyState === socket.OPEN) {
+//                     socket.send(JSON.stringify(msg));
+//                 }
+//             }
 
-    document.getElementById("out").onclick = function () {
-        if (document.getElementById("out").className == "button-off"){
-            $("#out").toggleClass('button-off button-on');
-            //send the out message
-        }
-        $("#maker").attr('class', 'button-off');
-        $("#sniper").attr('class', 'button-off');
-    };
+//             // Show a connected message when the WebSocket is opened.
+//             socket.onopen = function (event) {
+//                 console.log('connected to oTree');
+//             };
+//             // Handle messages sent by the server.
+//             socket.onmessage = function (event) {
+//                 var obj = jQuery.parseJSON(event.data);
+//                 role = obj.state;
+//                 console.log('here');
+//                 $('#player_role').html(role);
+//             };
+//             // Show a disconnected message when the WebSocket is closed.
+//             socket.onclose = function (event) {
+//                 console.log('disconnected from oTree');
+//             };
 
-var button_timer;
-var graph_timer;
 
-function Button_Pressed(id_name){
-  //Wait .5 seconds until you can send a replace order
-  button_timer = setTimeout(Button_Change.bind(null,id_name), 500);
-}
-function Button_Change(id_name){
-  //Changing the class and color for the button to be pressed
-  $("#"+id_name).toggleClass('button-pressed button-on');
-}
 
-function Draw_Graph(data){
-  
-  data.push({"y": d3.randomUniform(-1,1)()});
-  data.shift();
-  Make_Profit_Graph(10,data);
-  graph_timer = setTimeout(Draw_Graph.bind(null,data), 10);
-};
-/*
-function Change_Data(data){
-  //Wait .5 seconds until you can send a replace order
-  console.log(data);
-  var other = data.shift();
-  console.log(other);
-  var new_element = {"y": d3.randomUniform(1)() };
-  data.push(new_element);
-  console.log(data);
-};
-*/
-/*End Button Logic*/
+// /*********************************
+// START BUTTON LOGIC //may the force be with you
+// *********************************/
+//   //MAKER BUTTON
+//   document.getElementById("maker").onclick = function () {
+//     if ((document.getElementById("maker").className == "button-off") && (document.getElementById("maker").className != "button-pressed")){
+//         //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+//         $("#maker").toggleClass('button-off button-pressed');
+//         var msg = {
+//           type: 'role_change',
+//           id: {{player.id}},
+//           id_in_group: {{player.id_in_group}},
+//           state: "MAKER"
+//         };
+//         if (socket.readyState === socket.OPEN) {
+//           socket.send(JSON.stringify(msg));
+//         }
+//         console.log(msg);
+//         Button_Pressed("maker");
+//         //CHANGE TABLE VALUE
+//         $('#player_role').html('Maker');
 
-/*Start Graphing*/
-function Make_Profit_Graph(n,data){
-  d3.select(".line").remove(); 
-  // 2. Use the margin convention practice 
-  var margin = {top: 50, right: 50, bottom: 50, left: 50}
-    , width = window.innerWidth - margin.left - margin.right // Use the window's width 
-    , height = window.innerHeight - margin.top - margin.bottom; // Use the window's height
-  // The number of datapoints
-  // 5. X scale will use the index of our data
-  var xScale = d3.scaleLinear()
-      .domain([0, n-1]) // input
-      .range([0, width]); // output
+//         Spread_Graph.drawLine(2);
+//         //send the order if not button pressed (reduces the chance of double orders)
+//     }
+//     //TURN THE REST OF THE BUTTONS OFF
 
-  // 6. Y scale will use the randomly generate number 
-  var yScale = d3.scaleLinear()
-      .domain([-1, 1]) // Fundamental Price +-Spread  
-      .range([height, 0]); // output
+//     $("#out").attr('class', 'button-off');
+//     $("#sniper").attr('class', 'button-off');
+//   };
 
-  //console.log(data[data.length - 1]);
-  var class_flag
-  if (data[data.length - 1] > data[data.length -2]){
+//   //SNIPER BUTTON
+//   document.getElementById("sniper").onclick = function () {
+//       if ((document.getElementById("sniper").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
+//         //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+//         $("#sniper").toggleClass('button-off button-pressed');
+//         var msg = {
+//           type: 'role_change',
+//           id: {{player.id}},
+//           id_in_group: {{player.id_in_group}},
+//           state: "SNIPE"
+//         };
+//         if (socket.readyState === socket.OPEN) {
+//           socket.send(JSON.stringify(msg));
+//         }
+//         console.log(msg);
+//         Button_Pressed("sniper");
+//         //send the order if not button pressed (reduces the chance of double orders)
+//         //CHANGE TABLE VALUE
+//         $('#player_role').html('Sniper');
+//       }
+//     //TURN THE REST OF THE BUTTONS OFF
 
-  } else if (data[data.length - 1] < data[data.length -2]){
+//     Spread_Graph.clear();
+//     $("#maker").attr('class', 'button-off');
+//     $("#out").attr('class', 'button-off');
+//   };
 
-  }
-  // 7. d3's line generator
-  var line = d3.line()
-      .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
-      .y(function(d) { return yScale(d.y); }) // set the y values for the line generator 
-      .curve(d3.curveMonotoneX) // apply smoothing to the line
+//   //OUT BUTTON
+//   document.getElementById("out").onclick = function () {
+//     if (document.getElementById("out").className == "button-off"){
+//       //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
+//       $("#out").toggleClass('button-off button-on');
+//       var msg = {
+//         type: 'role_change',
+//         id: {{player.id}},
+//         id_in_group: {{player.id_in_group}},
+//         state: "OUT"
+//       };
+//       if (socket.readyState === socket.OPEN) {
+//         socket.send(JSON.stringify(msg));
+//       }
+//       //CHANGE TABLE VALUE
+//       $('#player_role').html('Out');
+//       console.log(msg);
+//       //send the out message
 
-  // 1. Add the SVG to the page and employ #2
-  var svg = d3.select("#profit-graph")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+//     }
+//     Spread_Graph.clear();
+//     //TURN THE REST OF THE BUTTONS OFF
+//     $("#maker").attr('class', 'button-off');
+//     $("#sniper").attr('class', 'button-off');
+//   };
 
-  // 4. Call the y axis in a group tag
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+//   var button_timer;
+//   var graph_timer;
+//   function Button_Pressed(id_name){
+//     //Wait .5 seconds for button pressed
+//     button_timer = setTimeout(Button_Change.bind(null,id_name),500);
+//   }
+//   function Button_Change(id_name){
+//     //TURNING BUTTON ON
+//     $("#"+id_name).toggleClass('button-pressed button-on');
+//   }
 
-  // 9. Append the path, bind the data, and call the line generator 
-  svg.append("path")
-      .datum(data) // 10. Binds data to the line 
-      .attr("class", "line") // Assign a class for styling 
-      .attr("d", line); // 11. Calls the line generator 
-}
+//   var button_timer;
+//   var graph_timer;
+//   function Button_Pressed(id_name){
+//     //Wait  seconds until you can send a replace order
+//     button_timer = setTimeout(Button_Change.bind(null,id_name), 500);
+//   }
+//   function Button_Change(id_name){
+//     //Changing the class and color for the button to be pressed
+//     $("#"+id_name).toggleClass('button-pressed button-on');
+//   }
+// /*********************************
+// END BUTTON LOGIC
+// *********************************/
 
-/*
-         var width = 400, height = 300;
-         var data = [100, 120, 140, 160, 180, 200];
-         var svg = d3.select("#profit-graph")
-            .attr("width", width)
-            .attr("height", height)
-            .style("background-color","white");
-         g = svg.append("g").attr("transform", "translate(" + 45 + "," + 150 + ")");
-         
-         var xscale = d3.scaleLinear()
-            .domain([0, d3.max(data)])
-            .range([0, width - 60]);
-         
-         var yscale = d3.scaleLinear()
-            .domain([-d3.max(data), d3.max(data)])
-            .range([height - 20, 0]);
-    
-         var x_axis = d3.axisBottom().scale(xscale);
-         
-         var y_axis = d3.axisLeft().scale(yscale);
-         
-         svg.append("g")
-            .attr("transform", "translate(55, 10)")
-            .call(y_axis);
+// var Spread_Graph = {};
+// var Profit_Graph = {};
 
-        svg.append("g")
-            .attr("transform", "translate(55, 282)")
-            .call(x_axis);
+// var n = 20; 
+// var data = d3.range(17).map(function(d) { return  0}); //Testing Purposes
+// max_spread = 10; // Pull from Constansts
+
+// (function() {
+
+//   var spread_width = $("#spread-graph").width(),
+//       spread_height = $("#spread-graph").height(),
+//       spread_svg = d3.select("#spread-graph")
+//                   .attr("width", spread_width)
+//                   .attr("height", spread_height);
+
+//   function drawStartState(){
+//     spread_line = spread_svg.append("svg:line")
+//                    .attr("x1", spread_width/2)
+//                    .attr("y1", 0)
+//                    .attr("x2", spread_width/2)
+//                    .attr("y2", spread_height)
+//                    .style("stroke", "lightgrey")
+//                    .style("stroke-width", 5);
+
+//     spread_line_fundamental_price = spread_svg.append("svg:line")
+//                    .attr("x1", spread_width - (spread_width - 45))
+//                    .attr("y1", spread_height/2 - 90)
+//                    .attr("x2", spread_width - 45)
+//                    .attr("y2", spread_height/2 - 90)
+//                    .style("stroke", "grey")
+//                    .style("stroke-width", 5);
+
+//   }
+
+//   /***********************************************
+//   DEALING WITH MOUSE CLICKS ON THE SPREAD GRAPHS
+//   ************************************************/
+//   function svgClickListener(){
+//       spread_svg.on('click',function(d) { 
+//         role = $("#player_role").text();
+//         if(role == "Maker"){
+
+//         //The dimensions the svg take up
+//          spread_x = document.getElementById("spread-graph").getBoundingClientRect().x;
+//          spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
+
+//          //Where the grey middle line is
+//          svg_middle_x = spread_width/2;
+//          svg_middle_y = spread_height/2 - 90;
+
+//         //The tuple in which the mouse is clicked within the svg 
+//         spread_position = {x:(d3.event.clientX - spread_x),y:(d3.event.clientY - spread_y)};
+
+//         //finding the distance from the mid
+//         if(spread_position.y >= svg_middle_y){
+//           distance_from_middle = spread_position.y - svg_middle_y;
+//         } else {
+//           distance_from_middle = svg_middle_y -spread_position.y ;
+//         }
+//         //Ratio between the distance and the mid
+//         ratio = svg_middle_y / distance_from_middle;
+
+//         //Spread is the ratio except in dollars which is what the actual spread is
+//         money_ratio = max_spread/ratio;
+//         my_spread = money_ratio.toFixed(2);
+//         //alert("mouse position in svg when clicked is " + "(" + spread_position.x+ "," +spread_position.y +") and max spread is " + spread);
+//         //alert("This is your spread +-$"+actual_spread);
         
-        //var n = 40, random = d3.randomNormal(-200, 200), data = d3.range(30).map(random);
-        console.log(data);
 
-        g.append("text")
-          .attr("class", "y-label")
-          .attr("text-anchor", "end")
-          .attr("x", -18)
-          .attr("y", 0)
-          .text("Profit");
+//       var msg = {
+//         type: 'spread_change',
+//         id: {{player.id}},
+//         id_in_group: {{player.id_in_group}},
+//         spread: "state_out"
+//       };
+//       if (socket.readyState === socket.OPEN) {
+//         socket.send(JSON.stringify(msg));
+//       }
+//       console.log(msg);
 
-        g.append("text")
-          .attr("class", "y-label")
-          .attr("text-anchor", "end")
-          .attr("x", -20)
-          .attr("y", 14)
-          .text("in $");
-                
-        svg.append("path")
-    .datum(data) // 10. Binds data to the line 
-    .attr("class", "line") // Assign a class for styling 
-    .attr("d", line); // 11. Calls the line generator 
-    */
-         
-/*
-    //n = max profit need toa add 
-    var n = 40, random = d3.randomNormal(0, 1), data = d3.range(30).map(random);
 
-    var svg = d3.select("#profit-graph"), margin = {top: 20, right: 20, bottom: 20, left: 40},
-        width = +svg.attr("width") - margin.left - margin.right,
-        height = +svg.attr("height") - margin.top - margin.bottom,
-        style = svg.style("background-color","white"),
-        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+//         $("#spread_number").text('+-$'+my_spread);
+//         //Time to draw the lasers tat go into the spread graph
+//         drawSpreadLine(my_spread);
+//         }
+//       });
+//   }
 
-    var x = d3.scaleLinear()
-        .domain([1, n - 2])
-        .range([0, width]);
+//   function drawSpreadLine(my_spread){
+//        d3.selectAll(".my_line").remove();
+//        d3.selectAll("rect").remove();
+//        spread_y = document.getElementById("spread-graph").getBoundingClientRect().y;
+//        //Where the grey middle line is
+//        svg_middle_y = spread_height/2 - 90;
 
-    var y = d3.scaleLinear()
-        //domain is spread +- your current profit
-        .domain([-20, 20])
-        .range([height, 0]);
+//        money_ratio =  max_spread/my_spread;
+//        y_coordinate = svg_middle_y/money_ratio;
+//        console.log(y_coordinate);
+//       //Ratio between the distance and the mid
+      
 
-    var line = d3.line()
-        .x(function(d, i) { return x(i); })
-        .y(function(d, i) { return y(d); });
+//     your_spread_line_top = spread_svg.append("svg:line")
+//                .attr("x1", spread_width - 35)
+//                .attr("y1", svg_middle_y - y_coordinate)
+//                .attr("x2", spread_width)
+//                .attr("y2", svg_middle_y - y_coordinate)
+//                .attr("class","my_line");
 
-    g.append("text")
-    .attr("class", "y-label")
-    .attr("text-anchor", "end")
-    .attr("x", 0)
-    .attr("y", height/2)
-    .text("Profit");
+//     your_spread_line_bottom = spread_svg.append("svg:line")
+//                .attr("x1", spread_width - 35)
+//                .attr("y1", y_coordinate + svg_middle_y)
+//                .attr("x2", spread_width)
+//                .attr("y2", y_coordinate + svg_middle_y)
+//                .attr("class","my_line");
+//     //WAIT FOR SPEED AND THEN SET THE SPREAD with the bar line
 
-    g.append("defs").append("clipPath")
-        .attr("id", "clip")
-      .append("rect")
-        .attr("width", width)
-        .attr("height", height);
+//       addLineAnimation();
+      
+//       setTimeout(function(d){
+//         drawSpreadBar(my_spread,svg_middle_y,y_coordinate);
+//       }, 500);
+      
+//       //Timeout is whether or not speed is on
+//   }
 
-    g.append("g")
-        .attr("class", "axis axis--y")
-        .call(d3.axisLeft(y));
+//   function addLineAnimation(){
+//     //SETTING THE SPREAD TO THE LINE
+//     spread_lines = d3.selectAll(".my_line");
+//     add_animation = spread_lines
+//                     .transition()
+//                     // duration is whether or not speed is on
+//                     .duration(500)
+//                     .attr("x1", 85)
+//                     .attr("x2", spread_width - 85);         
+//   }
 
-    g.append("g")
-    .attr("clip-path", "url(#clip)")
-      .append("path")
-        .attr("stroke-width", "12")
-        .datum(data)
+//   function drawSpreadBar(my_spread,svg_middle_y,y_coordinate){
+//     //take into account
+//     var bar_color = "";
+    
+//     //if not other maker within the spread
+//     bar_color = "green_bar";
+//     your_bar_rect = spread_svg.append("svg:rect")
+//                .attr("x", spread_width - (spread_width - 85))
+//                .attr("y", svg_middle_y - y_coordinate)
+//                .attr("width", spread_width - 170)
+//                .attr("height", 2*y_coordinate)
+//                .attr("class",bar_color);
+//   }
 
-      .transition()
-        .duration(700)
-        .ease(d3.easeLinear)
-        .on("start", tick);
+//   function clearGraph(){
+//     d3.selectAll(".my_line").remove();
+//     d3.selectAll("rect").remove();
+//   }
 
-    function tick() {
+//   Spread_Graph.start = drawStartState;
+//   Spread_Graph.drawLine = drawSpreadLine;
+//   Spread_Graph.animateLine = addLineAnimation;
+//   Spread_Graph.drawBar = drawSpreadBar;
+//   Spread_Graph.listen = svgClickListener;
+//   Spread_Graph.clear = clearGraph;
+// }());
 
-      // Push a new data point onto the back.
-      data.push(random());
 
-      // Redraw the line.
-      d3.select(this)
-          .attr("d", line)
-          .attr("transform", 20);
 
-      // Slide it to the left.
-      d3.active(this)
-          .attr("transform", "translate(" + x(0) + ",0)")
-        .transition()
-          .on("start", tick);
 
-      // Pop the old data point off the front.
-      data.shift();
+// (function(){
+//   var profit_width = $("#profit-graph").width()// Use the window's width 
+//     , profit_height = $("#profit-graph").height()  // Use the window's height
+//     ,x_axis_min = 0
+//     ,x_axis_max = n-1;
 
-    }
-*/
-/*End Graphing*/
+//   var xScale = d3.scaleLinear()
+//       .domain([x_axis_min, x_axis_max]) // input
+//       .range([0, profit_width - 30]) // output
+//     , yScale = d3.scaleLinear()
+//       .domain([ - max_spread, max_spread]) // Fundamental Price +-Spread  
+//       .range([profit_height - 180 ,5]); // output
+
+//   var line = d3.line()
+//       .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
+//       .y(function(d) { return yScale(d); }) // set the y values for the line generator 
+//       .curve(d3.curveMonotoneX)// apply smoothing to the line
+  
+//   var svg = d3.select("#profit-graph")
+//       .attr("width", profit_width)
+//       .attr("height", profit_height)
+//       .append("g")
+//       .attr("transform", "translate(0,0)");
+
+//   function graphStartState(){
+//     svg.append("path")
+//       .datum(data)
+//       .attr("class", "line") 
+//       .attr("d", line); 
+
+
+//     svg.append("g")
+//         .attr("class", "y_axis")
+//         .attr("transform", "translate(" + (profit_width - 28) + ",0)")
+//         .call(d3.axisRight(yScale));
+
+//     svg.append("g")
+//         .attr("class", "x_axis")
+//         .attr("transform", "translate(0," + (profit_height - 180) + ")")
+//         .call(d3.axisTop(d3.scaleLinear()
+//         .domain([0, 17]) //Timeeeee!!!!
+//         .range([0, profit_width - 30])));
+
+
+//     setInterval(function() {
+//        Update();  
+//     }, 500);
+//   }
+
+//   function Update(){
+//     //Remove Previous Graph Bounds
+//     d3.select(".y_axis").remove();
+//     d3.select(".x_axis").remove();
+
+//     //Get Time From Timer
+//     x_axis_min++;
+//     x_axis_max++;
+
+//     //Get A new value and put into the array
+//     var profit = 2;
+//     data.shift(); // remove the first element of the array
+//     data.push(d3.randomUniform(-5,5)() ); 
+//     //alert(y_data);
+//     //Redraw the line add in transition
+//     svg.select("path")
+//     .datum(data) 
+//     .attr("d", line)
+//     .attr("transform", "translate(" + xScale(1) + ")")
+//     .transition()
+//     .duration(500)
+//     .ease(d3.easeLinear)
+//     .attr("transform", "translate(" + xScale(0) + ")");
+
+//     //Redraw the y axis with new bounds
+//     svg.append("g")
+//       .attr("class", "y_axis")
+//       .attr("transform", "translate(" + (profit_width - 28) + ",0)")
+//       .call(d3.axisRight(d3.scaleLinear()
+//       .domain([-10,10]) // Fundamental Price +- Spread  
+//       .range([profit_height-180,5]))) // Create an axis component with d3.axisLeft
+
+//     //Redraw the x axis with new bounds
+//     svg.append("g")
+//       .attr("class", "x_axis")
+//       .attr("transform", "translate(0," + (profit_height - 180) + ")")
+//       .call(d3.axisTop(d3.scaleLinear()
+//       .domain([x_axis_min, x_axis_max]) //Timeeeee!!!!
+//       .range([0, profit_width - 30])))
+//   }
+  
+//   Profit_Graph.start = graphStartState;
+//   Profit_Graph.update = Update;
+
+// }());
+
+// Spread_Graph.start();
+// Spread_Graph.listen();
+// Profit_Graph.start();

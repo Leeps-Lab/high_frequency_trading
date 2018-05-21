@@ -1,0 +1,722 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load staticfiles %}
+
+{% block content %}
+<style type="text/css">
+    .front_end_controller{
+        width: 100%;
+        height: 100vh;
+        background-color: darkgrey;
+        margin-top: -80px;
+    }
+
+    .info_table{
+        width:100%;
+    }
+    .graph_row{
+        margin-top: 20px;
+        background-color: darkgrey;
+        width: 100%;
+        height:76%;
+        margin-left: 00px;
+        border-top:solid black 1px;
+    }
+    .profit_graph{
+        width:50%;
+        height:100%;
+    }
+    .spread_graph{
+        width:50%;
+        height:100%;
+    }
+    .button-on{
+        background-color:steelblue;
+        border-color: solid black 5px;
+        color:white;
+    }
+    .button-pressed{
+        background-color:#444444;
+        color:white;
+    }
+    .button-off{
+        background-color:#666666;
+        color:white;
+    }
+    input{
+        margin-left:30px;
+        margin-top:20px;
+    }
+    .inputs{
+        margin-top:160px;
+        width: 10%;
+        height: 100%;
+    }
+    .line {
+        stroke: steelblue;
+        stroke-width: 3.5px;
+        fill: none;
+    }
+    g{
+        color:  grey;
+        stroke-width: 2px;
+        fill: none;
+
+    }
+    /* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #1fd15a;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #1fd15a;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+.my_line{
+  stroke:steelblue;
+  stroke-width:2px;
+}
+
+.others_line{
+  stroke:rgb(2, 3, 4);
+  stroke-width:2px;
+}
+
+.green_bar{
+  fill:#6edd68;
+  opacity: 0.5;
+}
+.blue_bar{
+
+}
+</style>
+
+<div class="front_end_controller">
+    <table class="info_table" style="width:100%" >
+        <strong>
+        <!-- Row 1 of info box -->
+        <tr>
+            <td class="info_text">Player ID:            <span id="player_id"></span></td>
+            <td class="info_text">Number of Traders:    <span id="num_traders"></span></td>
+            <td class="info_text">Role:                 <span id="player_role"> </span> </td>
+            <td class="info_text">Fundamental Value:    <span id="fp"></span></td>
+        </tr>
+        <!-- Row 2 of info box -->
+        <tr>
+            <td class="info_text">Period:               <span id="period_id"></span></td>
+            <td class="info_text">Number of Makers:     <span id=num_makers></span></td>
+            <td class="info_text">Spread:               <span id="spread_value"></span> </td>
+            <td class="info_text">Current Buy Offer:    <span id="curr_bid"></span></td>
+        </tr>
+        <!-- Row 3 of info box -->
+        <tr>
+            <td class="info_text">Speed Cost:           <span id="speed_cost"></span></td>
+            <td class="info_text">Number of Snipers:    <span id="num_snipers"></span></td>
+            <td class="info_text">Your Profit:          <span id="profit"></span></td>
+            <td class="info_text">Current Sell Offer:   <span id="curr_ask"></span></td>
+        </tr>
+        </strong>
+    </table>
+    <div class="row graph_row" style="width:100%; height:100%;">
+
+    <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;"></svg>
+
+    <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
+        <div class="inputs">
+          <input id="maker" value="maker" class="button-off" type="button" style="width:80px" ></input>
+          <br>
+            <input id="sniper" value="sniper" class="button-off" type="button" style="width:80px" ></input> 
+            <br>
+            <input id="out" value="out" class="button-on" type="button" style="width:80px"></input>
+            <br>
+
+            <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
+            <label class="switch" style="margin-left: 40px; margin-top: -5px;" >
+                <br>
+                <input type="checkbox" onclick="updatespeed()">
+                <span class="slider round"></span>
+            </label>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <script src="{% static 'oTree_HFT_CDA/graph.js' %}"></script> 
+<script>
+
+/*Front End Javascript for start.html*/
+/*Handles the Button Logic and the Graph shown in start.html*/
+
+window.onload = function () {
+
+    // Establish websocket variables
+    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
+
+    // Handle any errors that occur.
+    socket.onerror = function (error) {
+        console.log('WebSocket Error: ' + error);
+    };
+
+    // Show a connected message when the WebSocket is opened.
+    socket.onopen = function (event) {
+        console.log('Client has connected to django channels');
+    };
+
+    // Handle messages sent by the server.
+    socket.onmessage = function (event) {
+        var obj = jQuery.parseJSON(event.data);
+        if(obj.FPC != undefined){
+            $('#fp').html(obj.FPC);
+
+        } 
+
+        // switch statement on type of data parsed from event
+    };
+
+    // Show a disconnected message when the WebSocket is closed.
+    socket.onclose = function (event) {
+        console.log('disconnected from oTree');
+    };
+
+
+    /*
+        Set as many info box default values as possible from initial data
+
+    */
+    $('#player_id').html({{player.id_in_group}});
+    $('#period_id').html(1);
+    $('#speed_cost').html(0);
+
+    $('#num_traders').html({{Constants.players_per_group}});
+    $('#num_snipers').html(0);
+    $('#num_makers').html(0);
+    
+    $('#player_role').html('OUT');
+    $('#spread_value').html('N/A');
+    $('#profit').html(20);
+
+//-> buggyas fuc,k    // $('#fp').html(player.fp);
+    $('#curr_bid').html('N/A');
+    $('#curr_ask').html('N/A');
+
+
+    // On load global var? Terrible
+    var speed = false;
+
+    // Called on click to toggle input
+    updatespeed = function () {
+        speed = !speed;
+        if(speed){
+            $('#speed_cost').html({{Constants.speed_cost}});
+        }else {
+            $('#speed_cost').html(0);
+        }
+        var msg = {
+            type: 'speed_change',
+            id: {{player.id}},
+            id_in_group: {{player.id_in_group}},
+            speed: speed
+        };
+        if (socket.readyState === socket.OPEN) {
+            socket.send(JSON.stringify(msg));
+        }
+    }
+
+
+    document.getElementById("maker").onclick = function () {
+        if ((document.getElementById("maker").className == "button-off") && (document.getElementById("maker").className != "button-pressed")){
+            //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+            $("#maker").toggleClass('button-off button-pressed');
+            var msg = {
+                type: 'role_change',
+                id: {{player.id}},
+                id_in_group: {{player.id_in_group}},
+                state: "MAKER"
+            };
+            if (socket.readyState === socket.OPEN) {
+              socket.send(JSON.stringify(msg));
+            }
+
+            Button_Pressed("maker");
+            $('#player_role').html('Maker');
+
+            Spread_Graph.spread(); // Auto Input Spread
+            Spread_Graph.drawMyLine(); // Auto input spread
+        }
+        $("#out").attr('class', 'button-off');
+        $("#sniper").attr('class', 'button-off');
+    };
+
+    document.getElementById("sniper").onclick = function () {
+        if ((document.getElementById("sniper").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
+            //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+            $("#sniper").toggleClass('button-off button-pressed');
+            var msg = {
+                type: 'role_change',
+                id: {{player.id}},
+                id_in_group: {{player.id_in_group}},
+                state: "SNIPER"
+            };
+            if (socket.readyState === socket.OPEN) {
+                socket.send(JSON.stringify(msg));
+            }
+            Button_Pressed("sniper");
+            $('#player_role').html('Sniper');
+
+            Spread_Graph.clear();
+        }
+
+        $("#maker").attr('class', 'button-off');
+        $("#out").attr('class', 'button-off');
+    };
+
+  //OUT BUTTON
+    document.getElementById("out").onclick = function () {
+        if (document.getElementById("out").className == "button-off"){
+            //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
+            $("#out").toggleClass('button-off button-on');
+            var msg = {
+                type: 'role_change',
+                id: {{player.id}},
+                id_in_group: {{player.id_in_group}},
+                state: "OUT"
+            };
+            if (socket.readyState === socket.OPEN) {
+                socket.send(JSON.stringify(msg));
+            }
+            Button_Pressed("out");
+            $('#player_role').html('Out');
+
+            Spread_Graph.clear();
+        }
+
+        $("#maker").attr('class', 'button-off');
+        $("#sniper").attr('class', 'button-off');
+    };
+
+    var button_timer;
+    var graph_timer;
+    function Button_Pressed(id_name){
+        //Wait .5 seconds for button pressed to even for fast players
+        // to eliminate spam clicking
+        button_timer = setTimeout(Button_Change.bind(null,id_name),500);
+    }
+    function Button_Change(id_name){
+        //TURNING BUTTON ON
+        $("#"+id_name).toggleClass('button-pressed button-on');
+    }
+
+
+    var Spread_Graph = {};
+    var Profit_Graph = {};
+
+    var Other_Maker_lines = {};
+
+    var n = 20; 
+    var data = d3.range(17).map(function(d) { return  0}); //Testing Purposes
+    var max_spread = 10; // Pull from Constansts
+    var auto_spread = 2;
+
+
+    // Functions for drawing choice box
+    (function() {
+
+        var spread_width = $("#spread-graph").width(),
+          spread_height = $("#spread-graph").height(),
+          spread_svg = d3.select("#spread-graph")
+                      .attr("width", spread_width)
+                      .attr("height", spread_height);
+
+
+        function drawStartState(){
+        spread_line = spread_svg.append("svg:line")
+                       .attr("x1", spread_width/2)
+                       .attr("y1", 0)
+                       .attr("x2", spread_width/2)
+                       .attr("y2", spread_height)
+                       .style("stroke", "lightgrey")
+                       .style("stroke-width", 5);
+
+        spread_line_fundamental_price = spread_svg.append("svg:line")
+                       .attr("x1", spread_width - (spread_width - 45))
+                       .attr("y1", spread_height/2 - 90)
+                       .attr("x2", spread_width - 45)
+                       .attr("y2", spread_height/2 - 90)
+                       .style("stroke", "grey")
+                       .style("stroke-width", 5);
+
+        }
+
+        /***********************************************
+        DEALING WITH MOUSE CLICKS ON THE SPREAD GRAPHS
+        ************************************************/
+        function svgClickListener(){
+            spread_svg.on('click',function(d) { 
+                role = $("#player_role").text();
+                if(role == "Maker"){
+
+                    //The dimensions the svg take up
+                    spread_x = document.getElementById("spread-graph").getBoundingClientRect().left;
+                    spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+                    console.log(spread_x+"," +spread_y);
+                    //Where the grey middle line is
+                    svg_middle_x = spread_width/2;
+                    svg_middle_y = spread_height/2 - 90;
+
+                    //The tuple in which the mouse is clicked within the svg 
+                    spread_position = {x:(d3.event.clientX - spread_x),y:(d3.event.clientY - spread_y)};
+
+                    //finding the distance from the mid
+                    if(spread_position.y >= svg_middle_y){
+                        distance_from_middle = spread_position.y - svg_middle_y;
+                    } else {
+                        distance_from_middle = svg_middle_y -spread_position.y ;
+                    }
+                    //Ratio between the distance and the mid
+                    ratio = svg_middle_y / distance_from_middle;
+
+                    //Spread is the ratio except in dollars which is what the actual spread is
+                    money_ratio = max_spread/ratio;
+                    my_spread = money_ratio.toFixed(2);
+
+                    spreadChange(my_spread);
+                    //Time to draw the lasers tat go into the spread graph
+
+                    drawMySpreadLine(my_spread);
+                }
+            });
+        }
+
+        function drawMySpreadLine(my_spread = auto_spread){
+            d3.selectAll(".my_line").remove();
+            d3.selectAll("rect").remove();
+            spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+            //Where the grey middle line is
+            svg_middle_y = spread_height/2 - 90;
+
+            money_ratio =  max_spread/my_spread;
+            y_coordinate = svg_middle_y/money_ratio;
+            // console.log(y_coordinate);
+            //Ratio between the distance and the mid
+
+            your_spread_line_top = spread_svg.append("svg:line")
+                   .attr("x1", spread_width - 35)
+                   .attr("y1", svg_middle_y - y_coordinate)
+                   .attr("x2", spread_width)
+                   .attr("y2", svg_middle_y - y_coordinate)
+                   .attr("class","my_line");
+
+            your_spread_line_bottom = spread_svg.append("svg:line")
+                   .attr("x1", spread_width - 35)
+                   .attr("y1", y_coordinate + svg_middle_y)
+                   .attr("x2", spread_width)
+                   .attr("y2", y_coordinate + svg_middle_y)
+                   .attr("class","my_line");
+            //WAIT FOR SPEED AND THEN SET THE SPREAD with the bar line
+
+            addLineAnimation();
+
+            setTimeout(function(d){
+            drawSpreadBar(my_spread,svg_middle_y,y_coordinate);
+            }, 500);
+
+          //Timeout is whether or not speed is on
+        }
+
+        function addLineAnimation(){
+            //SETTING THE SPREAD TO THE LINE
+            spread_lines = d3.selectAll(".my_line");
+            add_animation = spread_lines
+                        .transition()
+                        // duration is whether or not speed is on
+                        .duration(500)
+                        .attr("x1", 85)
+                        .attr("x2", spread_width - 85);         
+        }
+
+
+        function drawOthersSpreadLine(my_spread, ordertoken_buy, ordertoken_sell, speed){
+            spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+
+            //Where the grey middle line is
+            svg_middle_y = spread_height/2 - 90;
+            money_ratio =  max_spread/my_spread;
+            y_coordinate = svg_middle_y/money_ratio;
+            // console.log(y_coordinate);
+            //Ratio between the distance and the mid
+
+            your_spread_line_top = spread_svg.append("svg:line")
+                   .attr("x1", spread_width - 35)
+                   .attr("y1", svg_middle_y - y_coordinate)
+                   .attr("x2", spread_width)
+                   .attr("y2", svg_middle_y - y_coordinate)
+                   .attr("class","others_line");
+
+
+            your_spread_line_bottom = spread_svg.append("svg:line")
+                   .attr("x1", spread_width - 35)
+                   .attr("y1", y_coordinate + svg_middle_y)
+                   .attr("x2", spread_width)
+                   .attr("y2", y_coordinate + svg_middle_y)
+                   .attr("class","others_line");
+
+            // for removing when a transation occurs
+            Other_Maker_lines[ordertoken_sell] = [your_spread_line_top, your_spread_line_bottom]
+            Other_Maker_lines[ordertoken_buy] = [your_spread_line_top, your_spread_line_bottom]
+
+            addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
+            //Timeout is whether or not speed is on
+        }
+
+        function addOthersLineAnimation(lines){
+            //SETTING THE SPREAD TO THE LINE
+            for( i = 0; i < 2; i++){
+                add_animation = lines[i]
+                  .transition()
+                  // duration is whether or not speed is on
+                  .duration(500)
+                  .attr("x1", 85)
+                  .attr("x2", spread_width - 85); 
+            }      
+          
+        }
+  
+
+        function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side){
+            //take into account
+            var bar_color = "green_bar";
+
+            //if not other maker within the spread
+            if(side === 'B'){
+                your_bar_rect = spread_svg.append("svg:rect")
+                    .attr("x", spread_width - (spread_width - 85) + 40)
+                    .attr("y", svg_middle_y)
+                    .attr("width", (spread_width - 220) / 2)
+                    .attr("height", y_coordinate)
+                    .attr("class",bar_color);
+            } else if(side === 'S'){
+                newY = y_coordinate * -1;
+                your_bar_rect = spread_svg.append("svg:rect")
+                        .attr("x", spread_width - (spread_width - 85) + 40)
+                        .attr("y", svg_middle_y - y_coordinate)
+                        .attr("width", (spread_width - 220) / 2)
+                        .attr("height", y_coordinate)
+                        .attr("class",bar_color);
+            }
+        }
+
+        function drawSpreadBar(my_spread,svg_middle_y,y_coordinate){
+            //take into account
+            var bar_color = "";
+
+            //if not other maker within the spread
+            bar_color = "green_bar";
+            your_bar_rect = spread_svg.append("svg:rect")
+                       .attr("x", spread_width - (spread_width - 85))
+                       .attr("y", svg_middle_y - y_coordinate)
+                       .attr("width", spread_width - 170)
+                       .attr("height", 2*y_coordinate)
+                       .attr("class",bar_color);
+        }
+
+        function clearGraph(){
+            d3.selectAll(".my_line").remove();
+            d3.selectAll(".others_line").remove();
+            d3.selectAll("rect").remove();
+        }
+
+        function removeOtherMakerLine(order_token){
+            var lines_to_remove = Other_Maker_lines[order_token];
+            lines_to_remove[0].remove();
+            lines_to_remove[1].remove();
+
+        }
+
+        function spreadChange(my_spread = auto_spread){
+
+            var msg = {
+                type: 'spread_change',
+                id: {{player.id}},
+                id_in_group: {{player.id_in_group}},
+                spread: my_spread
+            };
+            if (socket.readyState === socket.OPEN) {
+                socket.send(JSON.stringify(msg));
+            }
+            $("#spread_value").text('+-$'+my_spread);
+        }
+
+        Spread_Graph.start = drawStartState;
+        Spread_Graph.drawMyLine = drawMySpreadLine;
+        Spread_Graph.drawOthersLine = drawOthersSpreadLine;
+        Spread_Graph.animateLine = addLineAnimation;
+        Spread_Graph.drawBar = drawSpreadBar;
+        Spread_Graph.listen = svgClickListener;
+        Spread_Graph.clear = clearGraph;
+        Spread_Graph.spread = spreadChange;
+}());
+
+
+
+
+(function(){
+  var profit_width = $("#profit-graph").width()// Use the window's width 
+    , profit_height = $("#profit-graph").height()  // Use the window's height
+    ,x_axis_min = 0
+    ,x_axis_max = n-1;
+
+  var xScale = d3.scaleLinear()
+      .domain([x_axis_min, x_axis_max]) // input
+      .range([0, profit_width - 30]) // output
+    , yScale = d3.scaleLinear()
+      .domain([ - max_spread, max_spread]) // Fundamental Price +-Spread  
+      .range([profit_height - 180 ,5]); // output
+
+  var line = d3.line()
+      .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
+      .y(function(d) { return yScale(d); }) // set the y values for the line generator 
+      .curve(d3.curveMonotoneX)// apply smoothing to the line
+  
+  var svg = d3.select("#profit-graph")
+      .attr("width", profit_width)
+      .attr("height", profit_height)
+      .append("g")
+      .attr("transform", "translate(0,0)");
+
+  function graphStartState(){
+    svg.append("path")
+      .data([data])
+      .attr("class", "line") 
+      .attr("d", line); 
+
+
+    svg.append("g")
+        .attr("class", "y_axis")
+        .attr("transform", "translate(" + (profit_width - 28) + ",0)")
+        .call(d3.axisRight(yScale));
+
+    svg.append("g")
+        .attr("class", "x_axis")
+        .attr("transform", "translate(0," + (profit_height - 180) + ")")
+        .call(d3.axisTop(d3.scaleLinear()
+        .domain([0, 17]) //Timeeeee!!!!
+        .range([0, profit_width - 30])));
+
+
+    setInterval(function() {
+       Update();  
+    }, 500);
+  }
+
+  function Update(){
+    //Remove Previous Graph Bounds
+    d3.select(".y_axis").remove();
+    d3.select(".x_axis").remove();
+
+    //Get Time From Timer
+    x_axis_min++;
+    x_axis_max++;
+
+    //Get A new value and put into the array
+    var profit = 0.5;
+    data.shift(); // remove the first element of the array
+    data.push(profit ); 
+    //alert(y_data);
+    //Redraw the line add in transition
+    svg.select("path")
+      .data([data])
+      .attr("class", "line") 
+      .attr("d", line); 
+    // .data([data]) 
+    // .attr("d", line)
+    // .attr("transform", "translate(" + x(1)+ ")")
+    // .transition()
+    // .duration(500)
+    // .ease(d3.easeLinear)
+    // .attr("transform", "translate(" + x(0)+ ")");
+
+    //Redraw the y axis with new bounds
+    svg.append("g")
+      .attr("class", "y_axis")
+      .attr("transform", "translate(" + (profit_width - 28) + ",0)")
+      .call(d3.axisRight(d3.scaleLinear()
+      .domain([-10,10]) // Fundamental Price +- Spread  
+      .range([profit_height-180,5]))) // Create an axis component with d3.axisLeft
+
+    //Redraw the x axis with new bounds
+    svg.append("g")
+      .attr("class", "x_axis")
+      .attr("transform", "translate(0," + (profit_height - 180) + ")")
+      .call(d3.axisTop(d3.scaleLinear()
+      .domain([x_axis_min, x_axis_max]) //Timeeeee!!!!
+      .range([0, profit_width - 30])))
+  }
+  
+  Profit_Graph.start = graphStartState;
+  Profit_Graph.update = Update;
+
+}());
+
+Spread_Graph.start();
+Spread_Graph.listen();
+// Profit_Graph.start();
+
+
+}
+</script>
+{% endblock %}
+ 

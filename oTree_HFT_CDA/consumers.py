@@ -1,48 +1,62 @@
 from channels import Group, Channel
-from channels.sessions import channel_session
-from .models import Player, Group as OtreeGroup, Investor
+from channels.generic.websockets import JsonWebsocketConsumer
+from .models import Player, Investor, Group as OGroup
 import json
-import random
-import datetime
-import time
+import logging
 
-# Consumers for clients
-# Connected to websocket.connect
-def ws_connect(message, group_name):
-    print('Player connected.')
-    message.reply_channel.send({'accept': True})
-    Group(group_name).add(message.reply_channel)
+log = logging.getLogger(__name__)
 
+class SubjectConsumer(JsonWebsocketConsumer):
 
-# Connected to websocket.receive
-def ws_receive(message, group_name):
-    group_id = group_name[5:]
-    mygroup = OtreeGroup.objects.get(id=group_id)
-    json_message = json.loads(message.content['text'])
-    print(message.content)
-    player = mygroup.get_player_by_id(json_message['id_in_group'])
-    player.channel = message.reply_channel
-    player.receive_from_client(json_message)
+    def raw_connect(self, message, group_id, player_id):
+        Group(group_id).add(message.reply_channel)
+        log.info('Player %s is connected to Group %s.' % (player_id, group_id))
+        self.connect(message, player_id)
 
-# Connected to websocket.disconnect
-def ws_disconnect(message, group_name):
-    Group(group_name).discard(message.reply_channel)
+    def connect(self, message, player_id):
+        player = Player.objects.get(id=player_id)
+        player.channel = message.reply_channel
+        player.save()
 
+    def raw_receive(self, message, group_id, player_id):
+        msg = json.loads(message.content['text'])
+        player = Player.objects.get(id=player_id)
+        player.receive_from_client(msg)
 
-# Consumers for the investor
-# Connected to websocket.connect
-def ws_connect_inv(message, group_name):
-    print('Investor connected.')
-    message.reply_channel.send({'accept': True})
-
-# Connected to websocket.receive
-def ws_receive_inv(message, group_name):
-    print('Investor here!')
-    group_id = group_name[5:]
-    investor = Investor.objects.create(group_id=group_id)
-    investor.receive_from_consumer(message)
+    def raw_disconnect(self, message, group_id, player_id):
+        log.info('Player %s  disconnected from Group %s.' % (player_id, group_id))
+        Group(group_id).discard(message.reply_channel)
 
 
-#  inverse consumer?? Works well.
-def ws_send(message, channel):
-    Channel(str(channel)).send(message)
+class InvestorConsumer(JsonWebsocketConsumer):
+
+    def raw_connect(self, message, group_id):
+        log = 'Investor is connected to Group %s.' % group_id
+        logging.info(log)
+        self.connect(group_id)
+
+    def connect(self, group_id):
+        investor = Investor.objects.create(group_id=group_id)
+        investor.save()
+
+    def raw_receive(self, message, group_id):
+        msg = json.loads(message.content['text'])
+        investor = Investor.objects.get(group_id=group_id)
+        investor.receive_from_consumer(msg['side'])
+
+    def raw_disconnect(self, message, group_id):
+        log.info('Investor disconnected from Group %s.' % group_id)
+
+
+class JumpConsumer(JsonWebsocketConsumer):
+
+    def raw_connect(self, message, group_id):
+        log.info('Jump is connected to Group %s.' % group_id)
+
+    def raw_receive(self, message, group_id):
+        msg = json.loads(message.content['text'])
+        group = OGroup.objects.get(id=group_id)
+        group.jump_event(msg['price'])
+
+    def raw_disconnect(self, message, group_id):
+        log.info('Jump disconnected from Group %s.' % group_id)

@@ -1,28 +1,10 @@
-from channels.routing import route, include
-from .consumers import ws_receive, ws_connect, ws_disconnect, ws_receive_inv
+from channels.routing import route_class
+from .consumers import SubjectConsumer, InvestorConsumer, JumpConsumer
 from otree.channels.routing import channel_routing
 
 
-
-players_routing = [
-    route("websocket.connect",
-    ws_connect,  path=r'^/(?P<group_name>\w+)$'),
-    route("websocket.receive",
-    ws_receive,  path=r'^/(?P<group_name>\w+)$'),
-    route("websocket.disconnect",
-    ws_disconnect,  path=r'^/(?P<group_name>\w+)$'),
-    ]
-
-investor_routing = [
-    route("websocket.connect",
-    ws_connect_inv,  path=r'^/(?P<group_name>\w+)$'),
-    route("websocket.receive",
-    ws_receive_inv,  path=r'^/(?P<group_name>\w+)$'),
-    route("websocket.disconnect",
-    ws_disconnect,  path=r'^/(?P<group_name>\w+)$'),
-    ]
-
 channel_routing += [
-    include(players_routing, path=r"^/otree_HFT_CDA"),
-    include(investor_routing, path=r"^/otree_HFT_CDA/investor"),
+    route_class(SubjectConsumer, path=r"^/hft/(?P<group_id>\w+)/(?P<player_id>\w+)/"),
+    route_class(InvestorConsumer, path=r"^/hft_investor/(?P<group_id>\w+)/"),
+    route_class(JumpConsumer, path=r"^/hft_jump/(?P<group_id>\w+)/")
 ]
