@@ -138,8 +138,340 @@ input:checked + .slider:before {
 .blue_bar{
 
 }
-</style>
 
+body {
+    padding: 10px;
+    /*height: 100%;*/
+    /*width: 100%;*/
+    /*background-color: red;*/
+}
+.zoom-in, .zoom-out {
+    cursor: pointer;
+    position: absolute;
+    right: 40px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    border: 1px solid rgb(200, 200, 200);
+    background-color: white;
+    font-weight: bold;
+    -webkit-user-select: none
+}
+
+.zoom-in {
+    top: 20px;
+    line-height: 18px;
+}
+
+.zoom-out {
+    top: 45px;
+    line-height: 17px;
+}
+
+.zoom-disabled {
+    pointer-events: none;
+    cursor: default;
+    background-color: lightgray;
+}
+
+/*#slider {
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    height: 180px;
+}*/
+
+#slider {
+    /*margin: auto;*/
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 450px;         /*how to make this not a floating number*/
+    height: 50px;
+}
+
+.ui-slider {
+    border-radius: 0;
+}
+
+.ui-slider .ui-slider-handle {
+    display: none;
+}
+
+.ui-slider .ui-slider-range {
+    position: absolute;
+    z-index: 1;
+    border-radius: 0;
+    background: none;
+    background-color: rgb(26, 73, 232);
+}
+
+.slider-spread-indicators {
+    position: absolute;
+    z-index: 1;
+    right: -5px;
+    bottom: 0;
+    border-top: 2px solid black;
+    width: 10px;
+}
+
+#slider-container {
+    float: center;
+    width: 100%;
+    height: 50%;
+    padding-top: 10px
+}
+
+#slider-val {
+    margin: auto;
+    width: 50px;
+    display: block;
+}
+
+#buttons-container {
+    /*text-align: left;*/
+    /*float: left;*/
+    float: center;
+    width: 70%;
+    height: 100%;
+    padding: 10px;
+}
+
+
+#graph-controls {
+    margin-top: 20px;
+}
+
+#data-container {
+    width: 100%;
+    height: 100%;
+    border: 1px solid transparent;
+}
+
+.status-table {
+    margin-top: 20px;
+    height: 50%;
+    background-color: white;
+    /*overflow: auto;*/
+    border: 1px solid rgb(200, 200, 200);
+}
+
+/*styles for table state indication entries
+  capital is to make it work better with ng-style*/
+.state-label-Snipe {
+    background-color: rgba(200, 79, 34, .5);
+}
+
+.state-label-Maker {
+    background-color: rgba(26, 73, 232, .5);
+}
+
+.state-label-Out {
+    background-color: rgba(110, 110, 110, .5);
+}
+
+.status-display {
+    margin-top: 15px;
+}
+
+.data-heading {
+    margin-top: 20px;
+    text-align: center;
+    background-color: white;
+}
+
+.speed-label {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.state-label {
+    font-size: 24px;
+}
+
+.spread-label {
+    font-size: 24px;
+}
+
+.ui-container {
+    margin-bottom: 60px;
+}
+
+.top-left-screen {
+    border: rgb(200, 200, 200) 2px solid;
+    /*background-color: rgb(230, 230, 230);*/
+    background-color: white;
+    z-index: 100;                           /*test for adding invisible slider*/
+}
+
+.top-right-screen {
+    margin-left: 25px;
+    border: rgb(200, 200, 200) 2px solid;
+    background-color: rgb(230, 230, 230);
+}
+
+.bottom-left-screen {
+    border: rgb(200, 200, 200) 2px solid;
+    background-color: rgb(230, 230, 230);
+}
+
+.top-banner {
+    /*margin-bottom: 5px;*/
+    border: rgb(200, 200, 200) 2px solid;
+    background-color: rgb(230, 230, 230);
+    width: 100%;
+}
+
+.profit-graph-container {
+    height: 500px;
+    margin: 40px;
+    width: 70%;
+    /*border: rgb(200, 200, 200) 1px solid;*/
+    background-color: rgb(230, 230, 230);
+}
+
+.user-graph-container {
+    height: 500px;
+    margin: 20px;
+    width: 20%;
+    /*border: rgb(200, 200, 200) 1px solid;*/
+    background-color: rgb(230, 230, 230);
+}
+
+.table{
+    table-layout : auto;
+    padding-bottom: 0px;
+}
+
+.control-container {
+    height: 500px;
+    width: 10%;
+    /*border: rgb(200, 200, 200) 1px solid;*/
+    background-color: rgb(230, 230, 230);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.button-container-state {
+    background-color: rgb(230, 230, 230);
+    padding-bottom: 5px;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.button-container-speed {
+    background-color: rgb(230, 230, 230);
+    flex: 1 1 auto;
+}
+
+.graph-screen-wrapper {
+    height: 225px;  /*changed from 450 on 7/26/17 for displaying a smaller graph*/
+    margin: 40px;
+}
+
+.screen-wrapper {
+    height: 450px;
+    margin: 40px;
+}
+
+.screen {
+    width: 100%;
+    height: 100%;
+}
+
+
+.button-container-spread {
+    border: 1px solid rgb(200, 200, 200);
+    padding: 10px;
+}
+
+.state-selected {
+    color: white;
+    border: 2px solid black;
+}
+
+#state_out.state-selected {
+    background-color: rgb(110, 110, 110);
+}
+
+#state_snipe.state-selected {
+    background-color: rgb(200, 79, 34);
+}
+
+#state_maker.state-selected {
+    background-color: rgb(26, 73, 232);
+}
+
+.state-not-selected {
+    color: white;
+    border: 2px solid gray;
+    background-color: gray;
+}
+
+.row {
+    padding: 0px;
+    margin: 0px;
+}
+
+[class*="col-"] {
+    padding: 0px;
+    margin: 0px;
+}
+
+/*material switch css*/
+/*stolen from http://bootsnipp.com/snippets/featured/material-design-switch*/
+
+.material-switch > input[type="checkbox"] {
+    display: none;
+}
+.material-switch > label {
+    cursor: pointer;
+    height: 0px;
+    position: relative;
+    width: 40px;
+    text-align: left;
+    /*switch color*/
+    background-color: green;
+}
+.material-switch > label::before {
+    background: rgb(0, 0, 0);
+    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    content: '';
+    height: 16px;
+    margin-top: -8px;
+    position:absolute;
+    opacity: 0.3;
+    transition: all 0.4s ease-in-out;
+    width: 40px;
+}
+.material-switch > label::after {
+    background: rgb(255, 255, 255);
+    border-radius: 16px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    content: '';
+    height: 24px;
+    left: -4px;
+    margin-top: -8px;
+    position: absolute;
+    top: -4px;
+    transition: all 0.3s ease-in-out;
+    width: 24px;
+}
+.material-switch > input[type="checkbox"]:checked + label::before {
+    background: inherit;
+    opacity: 0.5;
+}
+.material-switch > input[type="checkbox"]:checked + label::after {
+    background: inherit;
+    left: 20px;
+}
+.material-switch > input[disabled] + label {
+    cursor: not-allowed;
+}
+</style>
 <div class="front_end_controller">
     <table class="info_table" style="width:100%" >
         <strong>
@@ -168,7 +500,20 @@ input:checked + .slider:before {
     </table>
     <div class="row graph_row" style="width:100%; height:100%;">
 
-    <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;"></svg>
+    <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;">
+        <span class="zoom-in" id="profit-zoom-in" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">+</span>
+        <span class="zoom-out" id="profit-zoom-out" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">-</span>
+    </svg>
+
+
+    <!-- graph the profit -->
+    <!-- <div class="col-xs-8 profit-graph-container" style="padding: 5px"> -->
+        <!-- <svg width="100%" height="100%" id="profit-graph"> -->
+            <!-- tradingGraph.expandedGraph? -->
+            <!-- <span class="zoom-in" id="profit-zoom-in" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">+</span> -->
+            <!-- <span class="zoom-out" id="profit-zoom-out" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">-</span> -->
+        <!-- </svg> -->
+    <!-- </div> -->
 
     <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
         <div class="inputs">
@@ -194,7 +539,8 @@ input:checked + .slider:before {
 
 {% block scripts %}
     <script src="https://d3js.org/d3.v5.js"></script>
-    <script src="{% static 'oTree_HFT_CDA/graph.js' %}"></script> 
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script src="https://momentjs.com/downloads/moment-timezone.min.js"></script>
 <script>
 
 /*Front End Javascript for start.html*/
@@ -231,6 +577,8 @@ window.onload = function () {
     socket.onclose = function (event) {
         console.log('disconnected from oTree');
     };
+
+
 
 
     /*
@@ -608,113 +956,281 @@ window.onload = function () {
         Spread_Graph.listen = svgClickListener;
         Spread_Graph.clear = clearGraph;
         Spread_Graph.spread = spreadChange;
-}());
-
-
-
-
-(function(){
-  var profit_width = $("#profit-graph").width()// Use the window's width 
-    , profit_height = $("#profit-graph").height()  // Use the window's height
-    ,x_axis_min = 0
-    ,x_axis_max = n-1;
-
-  var xScale = d3.scaleLinear()
-      .domain([x_axis_min, x_axis_max]) // input
-      .range([0, profit_width - 30]) // output
-    , yScale = d3.scaleLinear()
-      .domain([ - max_spread, max_spread]) // Fundamental Price +-Spread  
-      .range([profit_height - 180 ,5]); // output
-
-  var line = d3.line()
-      .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
-      .y(function(d) { return yScale(d); }) // set the y values for the line generator 
-      .curve(d3.curveMonotoneX)// apply smoothing to the line
-  
-  var svg = d3.select("#profit-graph")
-      .attr("width", profit_width)
-      .attr("height", profit_height)
-      .append("g")
-      .attr("transform", "translate(0,0)");
-
-  function graphStartState(){
-    svg.append("path")
-      .data([data])
-      .attr("class", "line") 
-      .attr("d", line); 
-
-
-    svg.append("g")
-        .attr("class", "y_axis")
-        .attr("transform", "translate(" + (profit_width - 28) + ",0)")
-        .call(d3.axisRight(yScale));
-
-    svg.append("g")
-        .attr("class", "x_axis")
-        .attr("transform", "translate(0," + (profit_height - 180) + ")")
-        .call(d3.axisTop(d3.scaleLinear()
-        .domain([0, 17]) //Timeeeee!!!!
-        .range([0, profit_width - 30])));
-
-
-    setInterval(function() {
-       Update();  
-    }, 500);
-  }
-
-  function Update(){
-    //Remove Previous Graph Bounds
-    d3.select(".y_axis").remove();
-    d3.select(".x_axis").remove();
-
-    //Get Time From Timer
-    x_axis_min++;
-    x_axis_max++;
-
-    //Get A new value and put into the array
-    var profit = 0.5;
-    data.shift(); // remove the first element of the array
-    data.push(profit ); 
-    //alert(y_data);
-    //Redraw the line add in transition
-    svg.select("path")
-      .data([data])
-      .attr("class", "line") 
-      .attr("d", line); 
-    // .data([data]) 
-    // .attr("d", line)
-    // .attr("transform", "translate(" + x(1)+ ")")
-    // .transition()
-    // .duration(500)
-    // .ease(d3.easeLinear)
-    // .attr("transform", "translate(" + x(0)+ ")");
-
-    //Redraw the y axis with new bounds
-    svg.append("g")
-      .attr("class", "y_axis")
-      .attr("transform", "translate(" + (profit_width - 28) + ",0)")
-      .call(d3.axisRight(d3.scaleLinear()
-      .domain([-10,10]) // Fundamental Price +- Spread  
-      .range([profit_height-180,5]))) // Create an axis component with d3.axisLeft
-
-    //Redraw the x axis with new bounds
-    svg.append("g")
-      .attr("class", "x_axis")
-      .attr("transform", "translate(0," + (profit_height - 180) + ")")
-      .call(d3.axisTop(d3.scaleLinear()
-      .domain([x_axis_min, x_axis_max]) //Timeeeee!!!!
-      .range([0, profit_width - 30])))
-  }
-  
-  Profit_Graph.start = graphStartState;
-  Profit_Graph.update = Update;
-
-}());
+    }());
 
 Spread_Graph.start();
 Spread_Graph.listen();
-// Profit_Graph.start();
 
+
+(function(){
+
+}());
+
+    var graph = {};
+
+    graph.profitElementId = "profit-graph";                         // id of the profit graph svg element
+    graph.profitElementWidth = $('#' + graph.profitElementId).width();                                //Width and height of the profit svg element
+    graph.profitElementHeight = $('#' + graph.profitElementId).height();    
+    graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
+    graph.graphPaddingRight = 20;  //used                                 // how far from the x axis label that the line stops moving
+    graph.profitSVG = d3.select('#' + graph.profitElementId);       //profit svg element
+    graph.minPriceProfit = 0;      //used                                 //min price on price axis for profit graph
+    graph.maxPriceProfit = 0;      //used                                 //max price on price axis for profit graph
+    graph.centerPriceProfit = 0;   //used
+    graph.graphAdjustSpeedMarket = .1;                              //speed that market price axis adjusts in pixels per frame
+    graph.graphAdjustSpeedProfit = .1;                              //speed that profit price axis adjusts in pixels per frame
+    graph.marketPriceGridIncrement = 1;                             //amount between each line on market price axis
+    graph.profitPriceGridIncrement = 1;         //used                    //amount between each line on profit price axis
+    graph.contractedTimeInterval = 60;                              //amount of time displayed on time axis when graph is contracted
+    graph.timeInterval = graph.contractedTimeInterval;  //used            //current amount in seconds displayed at once on full time axis
+    graph.timeIncrement = 5;                                        //Amount in seconds between lines on time axis
+    graph.currentTime = 0;                                          //Time displayed on graph
+    graph.profitPriceLines = [];           
+    graph.timeLines = [];
+    graph.pricesArray = [];
+    graph.adminStartTime = {{subsession.start_time}};
+    console.log(graph.adminStartTime);
+    // graph.timeOffset = playerTimeOffset;                         //offset to adjust for clock difference between lab computers
+    graph.timeOffset = 0;                                           //offset to adjust for clock difference between lab computers
+
+    graph.timeSinceStart = 0;                                       //the amount of time since the start of the experiment in seconds
+    graph.timePerPixel = 0;    //used                                     // number of ms represented by one pixel
+    graph.advanceTimeShown = 0;  //used                                   // the amount of time shown to the right of the current time on the graph
+
+    graph.priceRange = 10;
+
+    graph.marketZoomLevel = 4;                                      // current zoom level for each graph
+    graph.profitZoomLevel = 4;
+    graph.maxZoomLevel = 4;                                         // maximum allowed zoom level
+    graph.zoomAmount = 0;                                           // amount zoomed per click
+
+    graph.expandedGraph = false;
+    graph.prevMaxPriceMarket = 0;                                   // storage for previous max and min values for when graph is in expanded mode
+    graph.prevMinPriceMarket = 0;
+    graph.prevMaxPriceProfit = 0;
+    graph.prevMinPriceProfit = 0;
+
+    graph.op = 1;                                                  //added 7/24/17 for adding opacity to transaction lines
+    graph.currentTransaction = null;                               //added 7/24/17 for ensuring only the correct orders are drawn as transacted
+    graph.currTransactionID = null;                                //added 7/24/17 for ensuring only the correct orders are drawn as transacted
+    graph.heightScale = .4;                                        //added 7/26/17 to shift the height of the graph to fit buttons under
+    graph.widthScale = 0;                                          //added 7/28/17 to widen the graphs of ticks to be better fit spread 
+    graph.oldFundPrice = null;
+    graph.FPCop = 1;
+    graph.currSpreadTick = 0;
+    graph.startTime = 0;
+    graph.tickAnimationID = 0;
+    graph.staticTickAnimationID = 0;
+    graph.laser = true;                                            //magic
+    graph.removeStartTime = 0;
+    graph.removeAnimationID = 0;
+    graph.removeStaticAnimationID = 0;
+    graph.IDArray = [];
+    graph.slowDelay = 500;                   
+    graph.fastDelay = 100;
+    graph.FPCswing = null;                                        //used for shifting spread ticks with FPC's
+    graph.currentSellTick = [];
+    graph.currentBuyTick = [];
+    graph.PreviousProfit = 0;
+    graph.maxSpread = 2.0;  //USED
+    graph.profit = 0; 
+
+    
+    function calcPriceGridLines(maxPrice, minPrice, increment) {
+        var gridLineVal = minPrice + increment - (minPrice % increment);
+        // adjust for mod of negative numbers not being negative
+        if(minPrice < 0) gridLineVal -= increment;
+        var lines = [];
+        while (gridLineVal < maxPrice) {
+            lines.push(gridLineVal);
+            gridLineVal += increment;
+        }
+        return lines;
+    };
+    
+
+    function calcTimeGridLines(startTime, endTime, increment) {
+        var timeLineVal = startTime - ((startTime - graph.adminStartTime) % increment);
+        var lines = [];
+        while (timeLineVal < endTime) {
+            lines.push(timeLineVal);
+            timeLineVal += increment;
+        }
+        return lines;
+    };
+
+    // return the number of nanoseconds since midnight
+    function getTime(){
+        var m = moment().tz("America/Los_Angeles"); 
+        var hours =   m.hours()       *(60*60)*1000000000;
+        var minutes = m.minutes()     *60*1000000000;
+        var seconds = m.seconds()     *1000000000;
+        var millis  = m.milliseconds()*1000000;
+        return hours+minutes+seconds+millis;
+    }
+
+    function mapTimeToXAxis(timeStamp) {
+        var percentOffset;
+        if (graph.timeSinceStart >= graph.timeInterval) {
+            percentOffset = (timeStamp - (graph.currentTime - (graph.timeInterval * 1000000000))) / (graph.timeInterval * 1000000000);
+        }else {
+            percentOffset = (timeStamp - graph.adminStartTime) / (graph.timeInterval * 1000000000);
+        }
+        return (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight) * percentOffset;   //changed 7/27/17
+    };
+
+    function calcPriceBounds() {
+        //calc bounds for profit graph
+
+        if (graph.profit > (.2 * graph.minPriceProfit) + (.8 * graph.maxPriceProfit) ||
+            graph.profit < (.8 * graph.minPriceProfit) + (.2 * graph.maxPriceProfit)) {
+            graph.centerPriceProfit = graph.profit;
+        }
+
+        var curCenterProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
+
+        if (Math.abs(graph.centerPriceProfit - curCenterProfit) > 1) {
+            graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
+            if (graph.centerPriceProfit > curCenterProfit) {
+               graph.maxPriceProfit += graph.graphAdjustSpeedProfit;
+               graph.minPriceProfit += graph.graphAdjustSpeedProfit;
+            } else {
+               graph.maxPriceProfit -= graph.graphAdjustSpeedProfit;
+               graph.minPriceProfit -= graph.graphAdjustSpeedProfit;
+            }
+        }
+    };
+
+    function millisToTime(timeStamp) {
+         var secs = (timeStamp - graph.adminStartTime) / 1000000000;
+         var mins = Math.trunc(secs / 60);
+         secs %= 60;
+         return mins + ":" + ("00" + secs).substr(-2, 2);
+      };
+
+    function drawTimeGridLines() {
+         //Draw rectangles for time grid lines
+         graph.profitSVG.selectAll("rect.time-grid-box-dark")
+            .data(graph.timeLines)
+            .enter()
+            .append("rect")
+            .filter(function (d) {
+               // only draw elements that are an even number of increments from the start
+               return ((d - graph.adminStartTime) / (graph.timeIncrement * 1000000000)) % 2 == 0;      //was 1000 7/27/17
+            })
+            .attr("x", function (d) {
+               return mapTimeToXAxis(d);
+            })
+            .attr("y", 0)
+            .attr("width", graph.timeIncrement / graph.timeInterval * (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight))   //changed 7/27/17 (width)
+            .attr("height", graph.profitElementHeight)
+            .attr("class", "time-grid-box-dark");
+
+         //Draw labels for time grid lines
+         graph.profitSVG.selectAll("text.time-grid-line-text")
+            .data(graph.timeLines)
+            .enter()
+            .append("text")
+            .attr("text-anchor", "start")
+            .attr("x", function (d) {
+               return mapTimeToXAxis(d) + 5;
+            })
+            .attr("y", graph.profitElementHeight - 5)
+            .text(function (d) {
+               return millisToTime(d)
+            })
+            .attr("class", "time-grid-line-text");
+    };
+
+
+    function init(startFP, startingWealth) {
+         // set price bounds for both graphs
+        graph.maxPriceProfit = startingWealth + graph.maxSpread;
+        graph.minPriceProfit = startingWealth - graph.maxSpread;
+        graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
+        graph.profit = startingWealth;
+
+        graph.timePerPixel = graph.timeInterval * 1000 / (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight);   
+        graph.advanceTimeShown = graph.timePerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
+
+        graph.zoomAmount = graph.maxSpread / 2;
+        graph.widthScale = 10 / graph.maxSpread;
+        graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
+        graph.timeLines = calcTimeGridLines(graph.adminStartTime, graph.adminStartTime + graph.timeInterval * 1000000000 + graph.advanceTimeShown, graph.timeIncrement * 1000000000);
+    };
+
+    function draw() {
+        //Clear the svg elements
+        graph.profitSVG.selectAll("*").remove();
+
+
+        graph.currentTime =  getTime() - graph.timeOffset
+        graph.timeSinceStart = (graph.currentTime - graph.adminStartTime) / 1000000000;
+        /*
+        if (graph.expandedGraph) {
+            graph.timeInterval = graph.timeSinceStart;
+            graph.timePerPixel = graph.timeInterval * 1000000000 / (graph.elementWidth - graph.axisLabelWidth - graph.graphPaddingRight);
+            graph.advanceTimeShown = graph.timePerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
+
+            graph.maxPriceMarket = Math.max(dataHistory.highestMarketPrice + 1, graph.prevMaxPriceMarket);
+            graph.minPriceMarket = Math.min(dataHistory.lowestMarketPrice - 1, graph.prevMinPriceMarket);
+            graph.maxPriceProfit = Math.max(dataHistory.highestProfitPrice + 1, graph.prevMaxPriceProfit);
+            graph.minPriceProfit = Math.min(dataHistory.lowestProfitPrice - 1, graph.prevMinPriceProfit);
+        }
+        */
+        graph.curTimeX = mapTimeToXAxis(graph.currentTime);
+
+        // recalculate market price bounds
+        calcPriceBounds();
+
+        //Check if it is necessary to recalculate timeLines
+        // recalculate if right edge of graph is more than a batch length past last batch line
+        // or if left edge is more than a batch length past first batch line
+        // Math.max expression finds time at left edge of screen
+        if (graph.currentTime + graph.advanceTimeShown > graph.timeLines[graph.timeLines.length - 1] + graph.timeIncrement ||
+            Math.max(graph.adminStartTime, graph.currentTime - graph.timeInterval * 1000000000) < graph.timeLines[0] - graph.timeIncrement) {
+            graph.timeLines = calcTimeGridLines(graph.currentTime - graph.timeInterval * 1000000000, graph.currentTime + graph.advanceTimeShown, graph.timeIncrement * 1000000000);
+        }
+
+        //Invoke all of the draw functions
+        //graph.drawTimeGridLines(graphRefr, graph.marketSVG);
+        drawTimeGridLines();
+
+        /*
+        //graph.drawPriceGridLines(graphRefr, graph.marketPriceLines, graph.marketSVG, graph.mapMarketPriceToYAxis);
+        graph.drawPriceGridLines(graphRefr, graph.profitPriceLines, graph.profitSVG, graph.mapProfitPriceToYAxis);
+
+        graph.drawLaserOffers(graphRefr, dataHistory);
+        graph.drawLaserTransactions(graphRefr, dataHistory.transactions, dataHistory.myId);
+        graph.DrawSnipe(graphRefr, dataHistory);
+         
+        if(graph.oldFundPrice == null){
+            graph.oldFundPrice = dataHistory.curFundPrice[1];   //initialize
+            graph.FPCswing = 0;
+        }else if(graph.oldFundPrice != dataHistory.curFundPrice[1]){               //the value jumped, draw the yellow line
+            graph.FPCswing = ((dataHistory.curFundPrice[1] - graph.oldFundPrice) * graphRefr.elementHeight / graphRefr.priceRange).toFixed(2);
+            if(graph.FPCop > 0){                                                 //while still visible
+                graph.drawFundamentalValue(graphRefr, dataHistory);
+            }else{
+                graph.oldFundPrice = dataHistory.curFundPrice[1];                 //update our checker
+                graph.FPCop = 1;            
+            }                                     //reset opacity
+        }  
+
+
+
+        //graph.drawMarket(graphRefr, dataHistory.pastFundPrices, dataHistory.curFundPrice, "price-line");
+        //graph.drawPriceAxis(graphRefr, graph.marketPriceLines, graph.marketSVG, graph.mapMarketPriceToYAxis);
+        graph.drawPriceAxis(graphRefr, graph.profitPriceLines, graph.profitSVG, graph.mapProfitPriceToYAxis);
+        graph.drawAllProfit(graphRefr, dataHistory);
+        requestAnimationFrame(draw)
+        */
+      };
+
+
+    init(10000, 20000);
+
+    requestAnimationFrame(draw)
 
 }
 </script>

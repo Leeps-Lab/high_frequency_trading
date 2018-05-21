@@ -47,6 +47,8 @@ class Constants(BaseConstants):
 
 
 class Subsession(BaseSubsession):
+    start_time = models.IntegerField()
+
     def creating_session(self):
         for i, group in enumerate(self.get_groups()):
             group.port = 9000 + i + 1
