@@ -6,6 +6,7 @@ import random
 import time
 import pandas as pd
 from . import translator as translate
+from .exp_logging import prepare
 from .utility import nanoseconds_since_midnight, tokengen
 from . import exchange
 from channels import Group as CGroup, Channel
@@ -132,6 +133,10 @@ class Group(BaseGroup):
 
     def jump_event(self, new_price):
         log.info('-----------Jump Start---------------')
+        lablog = prepare(
+            group=self.id, level='env', typ='jump', fp=new_price
+        )
+        log.experiment(lablog) 
         log.info('Group%d: Jump, new price is %d!' % (self.id, new_price) )
 
         self.broadcast({"FPC":new_price})
@@ -255,6 +260,11 @@ class Player(BasePlayer):
         self.state = new_state   
         self.save()
         log.info('Player%d: State update: %s.' % (self.id_in_group, self.state)) 
+        lablog = prepare(
+            group=self.group_id, level='choice', typ='state', 
+            pid=self.id_in_group, nstate=self.state
+        )
+        log.experiment(lablog) 
 
 
     def update_spread(self, message):
@@ -265,6 +275,11 @@ class Player(BasePlayer):
             self.group.send_exchange(msgs, delay=True, speed=self.speed)
         self.save()
         log.info('Player%d: Spread update: %s.' % (self.id_in_group, self.spread))
+        lablog = prepare(
+            group = self.group_id, level='choice', typ='spread', 
+            pid=self.id_in_group, nspread=self.spread
+        )
+        log.experiment(lablog) 
 
     def update_speed(self, message):  
         self.speed = not self.speed      # Front end button doesnt work 0429
@@ -272,6 +287,11 @@ class Player(BasePlayer):
         speed = ('fast' if self.speed else 'slow')
         log.info('Player%d: Speed change: %s.' % (self.id_in_group, speed))
         self.save()
+        lablog = prepare(
+            group=self.group_id, level='choice', typ='speed', 
+            pid=self.id_in_group, nspeed=self.speed
+        )
+        log.experiment(lablog) 
 
 
     # Receive methods
@@ -302,6 +322,12 @@ class Player(BasePlayer):
         order.activate(stamp)
         log.info('Player%d: Confirm: Enter: %s.' % (self.id_in_group, tok))
         self.send_client({"Yo":"Mama"})
+        lablog = prepare(
+            group = self.group_id, level='exch', typ='enter', 
+            pid= self.id_in_group, token= order.token, stamp= order.timestamp, 
+            side= order.side, tif= order.time_in_force, price=order.price
+        )
+        log.experiment(lablog)
 
     def confirm_replace(self, msg):
         ptok, tok = msg['previous_order_token'], msg['order_token']
@@ -311,12 +337,22 @@ class Player(BasePlayer):
         old_order.cancel(stamp)
         new_order.activate(stamp)
         log.info('Player%d: Confirm: Replace %s with %s.' % (self.id_in_group, ptok, tok))
+        lablog = prepare(
+            group = self.group_id, level='exch', typ='replace', 
+            pid=self.id_in_group, old_token=old_order.token, new_token=new_order.token, stamp=new_order.timestamp,
+        )
+        log.experiment(lablog)
 
     def confirm_cancel(self, msg):
         stamp, tok = msg['timestamp'], msg['order_token']
         order = self.order_set.get(token=tok)
         order.cancel(stamp)
         log.info('Player%d: Confirm: Cancel %s.' % (self.id_in_group, tok))
+        lablog = prepare(
+            group = self.group_id ,level='exch', typ='cancel', 
+            pid= self.id_in_group, token= order.token, stamp=order.timestamp
+        )
+        log.experiment(lablog)
 
     def confirm_exec(self,msg):
         stamp, tok = msg['timestamp'], msg['order_token']
@@ -328,6 +364,11 @@ class Player(BasePlayer):
              log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]
              self.group.send_exchange(m, delay=True, speed=self.speed)
+        lablog = prepare(
+            group = self.group_id , level='exch', typ= 'exec', 
+            pid= self.id_in_group, token= order.token, price= order.price, stamp= order.timestamp
+        )
+        log.experiment(lablog)
 
     def calc_profit(self, exec_price, side):
         profit = 0
@@ -382,7 +423,7 @@ class Player(BasePlayer):
 
     def send_client(self,msg):
         """
-        message has to be dictionary
+        message has to be a dictionary
         """
         message = json.dumps(msg)
         Channel(self.channel).send({"text": message})

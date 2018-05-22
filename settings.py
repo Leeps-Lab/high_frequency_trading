@@ -5,6 +5,7 @@ import dj_database_url
 #from boto.mturk import qualification
 from datetime import datetime
 import otree.settings
+from oTree_HFT_CDA.exp_logging import custom_filter
 
 CHANNEL_ROUTING = 'oTree_HFT_CDA.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -157,15 +158,46 @@ SESSION_CONFIGS = [
     },
 ]
 
+# patch logging to add new level
+
+logging.EXP = logging.DEBUG - 5     # define new log level
+
+logging.addLevelName(logging.EXP, 'EXP')
+
+def experiment(self, message, *args, **kws):
+    """
+    sends log record to custom log level
+    """
+    self.log(logging.EXP, message, *args, **kws) 
+
+logging.Logger.experiment = experiment
+logging.custom_filter = custom_filter
+
+# configure logging in json style
+
+today = datetime.now().strftime('%Y%m%d %H.%M')   # get todays date
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+
         'verbose': {
             'format': '[%(levelname)s|%(asctime)s] [%(filename)s:%(lineno)s - %(funcName)20s()] %(message)s'
         },
+
         'simple': {
             'format': '[%(asctime)s] %(message)s'
+        },
+
+        'json': {
+            'fmt': '%(message)s',
+        }
+    },
+
+    'filters': {
+        'lablog': {
+            '()': 'oTree_HFT_CDA.exp_logging.custom_filter',
         }
     },
     'handlers': {
@@ -178,13 +210,20 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'level': 'DEBUG',
             'formatter': 'verbose',
-            'filename': os.path.join(os.getcwd(), ('logs/' + datetime.now().strftime('%Y%m%d %H-%M') + '.txt'))
-            }
+            'filename': os.path.join(os.getcwd(), ('logs/' + today  + '.txt'))
         },
+        'explogfile': {
+            'class': 'logging.FileHandler',
+            'level': 'EXP',
+            'formatter': 'json',
+            'filters': ['lablog'],
+            'filename': os.path.join(os.getcwd(), ('logs/exp_' + today + '.txt'))
+        }
+    },
     'loggers': {
         'oTree_HFT_CDA': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
+            'handlers': ['console', 'logfile', 'explogfile'],
+            'level': 'EXP',
             'propagate': False
         }
     }
