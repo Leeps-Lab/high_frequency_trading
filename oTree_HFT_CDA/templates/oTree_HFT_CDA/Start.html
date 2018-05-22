@@ -500,22 +500,14 @@ body {
     </table>
     <div class="row graph_row" style="width:100%; height:100%;">
 
-    <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;">
-        <span class="zoom-in" id="profit-zoom-in" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">+</span>
-        <span class="zoom-out" id="profit-zoom-out" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">-</span>
-    </svg>
-
-
-    <!-- graph the profit -->
-    <!-- <div class="col-xs-8 profit-graph-container" style="padding: 5px"> -->
-        <!-- <svg width="100%" height="100%" id="profit-graph"> -->
+        <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;">
             <!-- tradingGraph.expandedGraph? -->
-            <!-- <span class="zoom-in" id="profit-zoom-in" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">+</span> -->
-            <!-- <span class="zoom-out" id="profit-zoom-out" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">-</span> -->
-        <!-- </svg> -->
-    <!-- </div> -->
+                <!-- <span class="zoom-in" id="profit-zoom-in" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">+</span> -->
+                <!-- <span class="zoom-out" id="profit-zoom-out" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">-</span> -->
+        </svg>
 
-    <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
+
+        <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
         <div class="inputs">
           <input id="maker" value="maker" class="button-off" type="button" style="width:80px" ></input>
           <br>
@@ -530,7 +522,6 @@ body {
                 <input type="checkbox" onclick="updatespeed()">
                 <span class="slider round"></span>
             </label>
-
         </div>
 
     </div>
@@ -964,40 +955,80 @@ Spread_Graph.listen();
 
 (function(){
 
-}());
-
+    // global varuavke 
     var graph = {};
 
-    graph.profitElementId = "profit-graph";                         // id of the profit graph svg element
-    graph.profitElementWidth = $('#' + graph.profitElementId).width();                                //Width and height of the profit svg element
+    /*
+     * set of variables we added that were not part of the original solution
+     */
+    graph.maxSpread = 2000;
+
+    /*
+     * Set of variables we update from oTree
+     */  
+    graph.profit = graph.startingWealth;                                           // Through Django Channels
+    graph.adminStartTime = {{subsession.start_time}};           // Django Query
+
+
+    /*
+     * HTML Variables
+     */
+    graph.profitElementId = "profit-graph";                                     // id of the profit graph svg element
+    graph.profitElementWidth = $('#' + graph.profitElementId).width();          // Width and height of the profit svg element
     graph.profitElementHeight = $('#' + graph.profitElementId).height();    
+    
+    /*
+     * D3 variables
+     */
+    graph.profitSVG = d3.select('#' + graph.profitElementId);                   //profit svg element
+    graph.curTimeX = 0;
+
+
+    /*
+     * Variables for time calculation
+     */
+    var nanoToSec = 1e9;
+    var million = 1e6;
+    graph.timeOffset = 0;                                             //offset to adjust for clock difference between lab computers
+    graph.contractedTimeInterval = 60e9;                              //amount of time displayed on time axis when graph is contracted in nanoseconds
+    graph.timeInterval = graph.contractedTimeInterval;                //current amount in seconds displayed at once on full time axis
+    graph.timeIncrement = 5e9;                                        // Amount in nanoseconds between lines on time x-axis
+    graph.timeSinceStart = 0;                                         //the amount of time since the start of the experiment in nanoseconds
+    graph.nanosecondPerPixel = 0;    //used                           // number of ms represented by one pixel
+    graph.advanceTimeShown = 0;  //used                               // the amount of time shown to the right of the current time on the graph
+
+    /*
+     * Manifest deafult values
+     */
+    graph.slowDelay = 5e8;                                             // slow delay is 500 milliseconds = 5e8 nano
+    graph.fastDelay = 1e8;                                             // slow delay is 100 milliseconds = 1e8 nano
+    graph.startingWealth = 20000;
+
+    // maybe spread on profit graph
+    graph.priceRange = 10000;
+    graph.maxPriceProfit = graph.startingWealth + (graph.priceRange / 2);
+    graph.minPriceProfit = graph.startingWealth - (graph.priceRange / 2);
+    graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
+
+//------------------------------------------------
+
     graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
     graph.graphPaddingRight = 20;  //used                                 // how far from the x axis label that the line stops moving
-    graph.profitSVG = d3.select('#' + graph.profitElementId);       //profit svg element
-    graph.minPriceProfit = 0;      //used                                 //min price on price axis for profit graph
-    graph.maxPriceProfit = 0;      //used                                 //max price on price axis for profit graph
     graph.centerPriceProfit = 0;   //used
     graph.graphAdjustSpeedMarket = .1;                              //speed that market price axis adjusts in pixels per frame
     graph.graphAdjustSpeedProfit = .1;                              //speed that profit price axis adjusts in pixels per frame
-    graph.marketPriceGridIncrement = 1;                             //amount between each line on market price axis
-    graph.profitPriceGridIncrement = 1;         //used                    //amount between each line on profit price axis
-    graph.contractedTimeInterval = 60;                              //amount of time displayed on time axis when graph is contracted
-    graph.timeInterval = graph.contractedTimeInterval;  //used            //current amount in seconds displayed at once on full time axis
-    graph.timeIncrement = 5;                                        //Amount in seconds between lines on time axis
-    graph.currentTime = 0;                                          //Time displayed on graph
-    graph.profitPriceLines = [];           
+    graph.numberOfTicks = 10;
+    graph.profitPriceGridIncrement = graph.priceRange / graph.numberOfTicks;                             //amount between each line on profit price axis
+    
+    graph.currentTime = 0;                                          // Time displayed on graph
+    graph.profitPriceLines = [];                                    // The array of price lines
     graph.timeLines = [];
     graph.pricesArray = [];
-    graph.adminStartTime = {{subsession.start_time}};
-    console.log(graph.adminStartTime);
-    // graph.timeOffset = playerTimeOffset;                         //offset to adjust for clock difference between lab computers
-    graph.timeOffset = 0;                                           //offset to adjust for clock difference between lab computers
+   
 
-    graph.timeSinceStart = 0;                                       //the amount of time since the start of the experiment in seconds
-    graph.timePerPixel = 0;    //used                                     // number of ms represented by one pixel
-    graph.advanceTimeShown = 0;  //used                                   // the amount of time shown to the right of the current time on the graph
+    
 
-    graph.priceRange = 10;
+    
 
     graph.marketZoomLevel = 4;                                      // current zoom level for each graph
     graph.profitZoomLevel = 4;
@@ -1026,20 +1057,21 @@ Spread_Graph.listen();
     graph.removeAnimationID = 0;
     graph.removeStaticAnimationID = 0;
     graph.IDArray = [];
-    graph.slowDelay = 500;                   
-    graph.fastDelay = 100;
+
     graph.FPCswing = null;                                        //used for shifting spread ticks with FPC's
     graph.currentSellTick = [];
     graph.currentBuyTick = [];
     graph.PreviousProfit = 0;
-    graph.maxSpread = 2.0;  //USED
-    graph.profit = 0; 
+    
+     
 
     
     function calcPriceGridLines(maxPrice, minPrice, increment) {
         var gridLineVal = minPrice + increment - (minPrice % increment);
         // adjust for mod of negative numbers not being negative
-        if(minPrice < 0) gridLineVal -= increment;
+        if(minPrice < 0){
+            gridLineVal -= increment;
+        }
         var lines = [];
         while (gridLineVal < maxPrice) {
             lines.push(gridLineVal);
@@ -1050,7 +1082,7 @@ Spread_Graph.listen();
     
 
     function calcTimeGridLines(startTime, endTime, increment) {
-        var timeLineVal = startTime - ((startTime - graph.adminStartTime) % increment);
+        var timeLineVal = startTime + increment;
         var lines = [];
         while (timeLineVal < endTime) {
             lines.push(timeLineVal);
@@ -1061,20 +1093,22 @@ Spread_Graph.listen();
 
     // return the number of nanoseconds since midnight
     function getTime(){
-        var m = moment().tz("America/Los_Angeles"); 
-        var hours =   m.hours()       *(60*60)*1000000000;
-        var minutes = m.minutes()     *60*1000000000;
-        var seconds = m.seconds()     *1000000000;
-        var millis  = m.milliseconds()*1000000;
-        return hours+minutes+seconds+millis;
-    }
+        var now = new Date(),
+        then = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,0,0),
+        diff = now.getTime() - then.getTime(); // difference in milliseconds
+        return diff * 1000000;
+    };
 
     function mapTimeToXAxis(timeStamp) {
         var percentOffset;
         if (graph.timeSinceStart >= graph.timeInterval) {
-            percentOffset = (timeStamp - (graph.currentTime - (graph.timeInterval * 1000000000))) / (graph.timeInterval * 1000000000);
+            percentOffset = (timeStamp - (graph.currentTime - graph.timeInterval)) / (graph.timeInterval);
         }else {
-            percentOffset = (timeStamp - graph.adminStartTime) / (graph.timeInterval * 1000000000);
+            percentOffset = (timeStamp - graph.adminStartTime) / graph.timeInterval;
         }
         return (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight) * percentOffset;   //changed 7/27/17
     };
@@ -1102,11 +1136,12 @@ Spread_Graph.listen();
     };
 
     function millisToTime(timeStamp) {
-         var secs = (timeStamp - graph.adminStartTime) / 1000000000;
+        // take nano to seconds
+         var secs = (timeStamp - graph.adminStartTime) / nanoToSec;
          var mins = Math.trunc(secs / 60);
          secs %= 60;
          return mins + ":" + ("00" + secs).substr(-2, 2);
-      };
+    };
 
     function drawTimeGridLines() {
          //Draw rectangles for time grid lines
@@ -1143,34 +1178,18 @@ Spread_Graph.listen();
     };
 
 
-    function init(startFP, startingWealth) {
-         // set price bounds for both graphs
-        graph.maxPriceProfit = startingWealth + graph.maxSpread;
-        graph.minPriceProfit = startingWealth - graph.maxSpread;
-        graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
-        graph.profit = startingWealth;
-
-        graph.timePerPixel = graph.timeInterval * 1000 / (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight);   
-        graph.advanceTimeShown = graph.timePerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
-
-        graph.zoomAmount = graph.maxSpread / 2;
-        graph.widthScale = 10 / graph.maxSpread;
-        graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
-        graph.timeLines = calcTimeGridLines(graph.adminStartTime, graph.adminStartTime + graph.timeInterval * 1000000000 + graph.advanceTimeShown, graph.timeIncrement * 1000000000);
-    };
-
     function draw() {
         //Clear the svg elements
         graph.profitSVG.selectAll("*").remove();
 
 
         graph.currentTime =  getTime() - graph.timeOffset
-        graph.timeSinceStart = (graph.currentTime - graph.adminStartTime) / 1000000000;
+        graph.timeSinceStart = graph.currentTime - graph.adminStartTime;
         /*
         if (graph.expandedGraph) {
             graph.timeInterval = graph.timeSinceStart;
-            graph.timePerPixel = graph.timeInterval * 1000000000 / (graph.elementWidth - graph.axisLabelWidth - graph.graphPaddingRight);
-            graph.advanceTimeShown = graph.timePerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
+            graph.millisecondPerPixel = graph.timeInterval * 1000000000 / (graph.elementWidth - graph.axisLabelWidth - graph.graphPaddingRight);
+            graph.advanceTimeShown = graph.millisecondPerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
 
             graph.maxPriceMarket = Math.max(dataHistory.highestMarketPrice + 1, graph.prevMaxPriceMarket);
             graph.minPriceMarket = Math.min(dataHistory.lowestMarketPrice - 1, graph.prevMinPriceMarket);
@@ -1225,13 +1244,33 @@ Spread_Graph.listen();
         graph.drawAllProfit(graphRefr, dataHistory);
         requestAnimationFrame(draw)
         */
-      };
+    };
+
+    function init(startFP, startingWealth) {
+        // nanoseconds per picxel 
+        graph.nanosecondPerPixel = graph.timeInterval / (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight);   
+        // the amount of nano taken up by the axisLabelWidth ad graphPadding riht
+        graph.advanceTimeShown = graph.nanosecondPerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
+
+        // disabled
+        graph.zoomAmount = graph.maxSpread / 2;
+
+        // collect an array of price values where the horizontal lines will be drawn
+        graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
+
+        var endTime = graph.adminStartTime + graph.timeInterval + graph.advanceTimeShown
+        graph.timeLines = calcTimeGridLines(graph.adminStartTime, endTime, graph.timeIncrement);
+    };
 
 
-    init(10000, 20000);
+    // First Functions
+    // 10000 <- 
+    var startFP = 10000;
+    var startingWealth = 20000;
+    init(startFP, startingWealth);
 
     requestAnimationFrame(draw)
-
+    }());
 }
 </script>
 {% endblock %}

@@ -95,15 +95,3 @@ def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     timestamp += now.microsecond
     timestamp *= 10**3  # microseconds -> nanoseconds
     return timestamp
-
-def redwood_get_time(tz=DEFAULT_TIMEZONE):
-    now = datetime.datetime.now(tz=tz)
-    timestamp = 0  # since midnight
-    timestamp += now.hour
-    timestamp *= 60  # hours -> minutes
-    timestamp += now.minute
-    timestamp *= 60  # minutes -> seconds
-    timestamp += now.second
-    timestamp *= 10**6  # seconds -> microsecnds
-    timestamp += now.microsecond
-    return timestamp
