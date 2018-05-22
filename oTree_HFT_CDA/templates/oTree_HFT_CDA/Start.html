@@ -471,6 +471,75 @@ body {
 .material-switch > input[disabled] + label {
     cursor: not-allowed;
 }
+
+/*
+    Below this line is css for profit-graph
+*/
+
+    .time-grid-box-dark {
+        fill: rgb(250, 250, 250);
+    }
+
+    .time-grid-line-text {
+        fill: rgb(150, 150, 150);
+        font-size: 10px;
+        -webkit-user-select: none;
+        cursor: default;
+    }
+
+    .price-grid-line {
+        stroke: rgb(230, 230, 230);
+        stroke-width: 1;
+    }
+
+    .price-grid-line-zero {
+        stroke: rgb(168, 168, 168);
+        stroke-width: 1;
+    }
+
+    .price-grid-line-text {
+        fill: rgb(150, 150, 150);
+        font-size: 10px;
+        -webkit-user-select: none;
+        cursor: default;
+    }
+
+    .my-profit-out {
+        stroke: rgb(110, 110, 110);
+        stroke-width: 3;
+    }
+
+    .my-profit-snipe {
+        stroke: rgb(200, 79, 34);
+        stroke-width: 3;
+    }
+
+    .my-profit-maker {
+        stroke: rgb(26, 73, 232);
+        stroke-width: 10;
+    }
+
+    .my-positive-profit {
+        stroke: green;
+        stroke-width: 2;
+    }
+
+    .my-negative-profit {
+        stroke: red;
+        stroke-width: 2;
+    }
+
+    .my-positive-profit {
+        stroke: green;
+        stroke-width: 2;
+    }
+
+    .my-negative-profit {
+        stroke: red;
+        stroke-width: 2;
+    }
+
+
 </style>
 <div class="front_end_controller">
     <table class="info_table" style="width:100%" >
@@ -965,7 +1034,8 @@ Spread_Graph.listen();
 
     /*
      * Set of variables we update from oTree
-     */  
+     */ 
+    graph.startingWealth = 20000; 
     graph.profit = graph.startingWealth;                                           // Through Django Channels
     graph.adminStartTime = {{subsession.start_time}};           // Django Query
 
@@ -988,6 +1058,7 @@ Spread_Graph.listen();
      * Variables for time calculation
      */
     var nanoToSec = 1e9;
+    var secToNano = 1e-9
     var million = 1e6;
     graph.timeOffset = 0;                                             //offset to adjust for clock difference between lab computers
     graph.contractedTimeInterval = 60e9;                              //amount of time displayed on time axis when graph is contracted in nanoseconds
@@ -1014,9 +1085,7 @@ Spread_Graph.listen();
 
     graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
     graph.graphPaddingRight = 20;  //used                                 // how far from the x axis label that the line stops moving
-    graph.centerPriceProfit = 0;   //used
-    graph.graphAdjustSpeedMarket = .1;                              //speed that market price axis adjusts in pixels per frame
-    graph.graphAdjustSpeedProfit = .1;                              //speed that profit price axis adjusts in pixels per frame
+    graph.graphAdjustSpeedProfit = 1;                              //speed that profit price axis adjusts in pixels per frame
     graph.numberOfTicks = 10;
     graph.profitPriceGridIncrement = graph.priceRange / graph.numberOfTicks;                             //amount between each line on profit price axis
     
@@ -1103,6 +1172,7 @@ Spread_Graph.listen();
         return diff * 1000000;
     };
 
+    // returns percent along the x axis your timestamp is 
     function mapTimeToXAxis(timeStamp) {
         var percentOffset;
         if (graph.timeSinceStart >= graph.timeInterval) {
@@ -1113,6 +1183,15 @@ Spread_Graph.listen();
         return (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight) * percentOffset;   //changed 7/27/17
     };
 
+    // return percent from
+    function mapProfitPriceToYAxis(price) {
+        // percent distance from maxPriceProfit
+        var percentOffset = (graph.maxPriceProfit - price) / (graph.maxPriceProfit - graph.minPriceProfit);
+
+        // value of the percent offset from top of graph
+        return graph.profitElementHeight * percentOffset;      //changed 7/27/17 to fix profit graph
+    };
+
     function calcPriceBounds() {
         //calc bounds for profit graph
 
@@ -1121,10 +1200,12 @@ Spread_Graph.listen();
             graph.centerPriceProfit = graph.profit;
         }
 
+        // what is set now
         var curCenterProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
 
-        if (Math.abs(graph.centerPriceProfit - curCenterProfit) > 1) {
+        if (Math.abs(graph.centerPriceProfit - curCenterProfit) > 1000) {
             graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
+            //adjust per frame what the max and min should be
             if (graph.centerPriceProfit > curCenterProfit) {
                graph.maxPriceProfit += graph.graphAdjustSpeedProfit;
                graph.minPriceProfit += graph.graphAdjustSpeedProfit;
@@ -1137,27 +1218,28 @@ Spread_Graph.listen();
 
     function millisToTime(timeStamp) {
         // take nano to seconds
-         var secs = (timeStamp - graph.adminStartTime) / nanoToSec;
-         var mins = Math.trunc(secs / 60);
-         secs %= 60;
-         return mins + ":" + ("00" + secs).substr(-2, 2);
+        var secs = (timeStamp - graph.adminStartTime) / nanoToSec;
+        var mins = Math.trunc(secs / 60);
+        secs %= 60;
+        return mins + ":" + ("00" + secs).substr(-2, 2);
     };
 
     function drawTimeGridLines() {
-         //Draw rectangles for time grid lines
-         graph.profitSVG.selectAll("rect.time-grid-box-dark")
+        //Draw rectangles for time grid lines
+        graph.profitSVG.selectAll("rect.time-grid-box-dark")
             .data(graph.timeLines)
             .enter()
             .append("rect")
             .filter(function (d) {
-               // only draw elements that are an even number of increments from the start
-               return ((d - graph.adminStartTime) / (graph.timeIncrement * 1000000000)) % 2 == 0;      //was 1000 7/27/17
+                // only draw elements that are an even number of increments from the start
+                return ((d - graph.adminStartTime) / (graph.timeIncrement)) % 2 == 0;
             })
             .attr("x", function (d) {
                return mapTimeToXAxis(d);
             })
             .attr("y", 0)
-            .attr("width", graph.timeIncrement / graph.timeInterval * (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight))   //changed 7/27/17 (width)
+            // width of a sinle timeIncrement should be 5 secs ?
+            .attr("width", graph.timeIncrement / graph.timeInterval * (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight))   
             .attr("height", graph.profitElementHeight)
             .attr("class", "time-grid-box-dark");
 
@@ -1177,6 +1259,113 @@ Spread_Graph.listen();
             .attr("class", "time-grid-line-text");
     };
 
+    function drawPriceGridLines(priceMapFunction) {
+        //hack to fix problem with this not being set correctly for map function
+        // priceMapFunction = priceMapFunction.bind(graphRefr);
+
+        //Draw the lines for the price grid lines
+        graph.profitSVG.selectAll("line.price-grid-line")
+            .data(graph.profitPriceLines)
+            .enter()
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", graph.profitElementWidth - graph.axisLabelWidth)        //changed 7/27/17
+            .attr("y1", function (d) {
+                return mapProfitPriceToYAxis(d);
+            })
+            .attr("y2", function (d) {
+                return mapProfitPriceToYAxis(d);
+            })
+            .attr("class", function (d) {
+                return d != 0 ? "price-grid-line" : "price-grid-line-zero";
+        });
+    };
+
+    function drawPriceAxis(){
+        //Draw the text that goes along with the price gridlines and axis
+        graph.profitSVG.selectAll("text.price-grid-line-text")
+            .data(graph.profitPriceLines)
+            .enter()
+            .append("text")
+            .attr("text-anchor", "start")
+            .attr("x", graph.profitElementWidth - graph.axisLabelWidth + 12)  // << why this fuck is this 12
+            .attr("y", function (d) {  
+               return mapProfitPriceToYAxis(d) + 3;
+            })
+            .attr("class", "price-grid-line-text")
+            .text(function (d) {
+                return d;
+        });
+    };
+
+    //draws profit line
+    function drawProfit(historyDataSet, currentData, profitJumps) {
+        graph.profitSVG.selectAll("line.my-profit-out line.my-profit-maker line.my-profit-snipe")
+            .data(historyDataSet, function (d) {   
+            //historyDataSet = [startTime, endTime, curProfit, endProfit, state] 
+               return d;
+            })
+            .enter()
+            .append("line")
+            .filter(function (d) {
+                console.log(d[1]);
+                console.log(graph.currentTime - graph.timeInterval)
+               return d[1] >= (graph.currentTime - graph.timeInterval);
+            })
+            .attr("x1", function (d) {
+               return mapTimeToXAxis(d[0]);
+            })
+            .attr("x2", function (d) {
+               return mapTimeToXAxis(d[1]);
+            })
+            .attr("y1", function (d) {
+               return mapProfitPriceToYAxis(d[2]);
+            })
+            .attr("y2", function (d) {
+               return mapProfitPriceToYAxis(d[3]);
+            })
+            .attr("class", function (d) {
+               // a masterpiece // no fuck you
+               return d[4] == "Out" ? "my-profit-out" : (d[4] == "Maker" ? "my-profit-maker" : "my-profit-snipe");
+        });
+
+        //currentData = [startTime, price, slope, state]
+        // if (currentData != null) {
+        //     var pricefinal = currentData[1] - ((graph.currentTime - currentData[0]) * currentData[2]); //determines how far down the line has moved (from speed)
+        //     graph.profitSVG.append("line")
+        //        .attr("x1", mapTimeToXAxis(currentData[0]))
+        //        .attr("x2", graph.curTimeX)
+        //        .attr("y1", mapProfitPriceToYAxis(currentData[1]))
+        //        .attr("y2", mapProfitPriceToYAxis(pricefinal))
+        //        .attr("class", currentData[3] == "Out" ? "my-profit-out" : (currentData[3] == "Maker" ? "my-profit-maker" : "my-profit-snipe"));
+        // }
+        
+       
+        // graph.profitSVG.selectAll("line.positive-profit line.negative-profit")
+        //     .data(profitJumps)      
+        //     // profitJumps = {timestamp, newPrice, oldPrice}    
+        //     .enter()
+        //     .append("line")
+        //     .filter(function (d) {
+        //        return d.timestamp >= (graph.currentTime - graph.timeInterval);
+        //     })
+        //     .attr("x1", function (d) {
+        //        return mapTimeToXAxis(d.timestamp);
+        //     })
+        //     .attr("x2", function (d) {
+        //        return mapTimeToXAxis(d.timestamp);
+        //     })
+        //     .attr("y1", function (d) {
+        //        return mapProfitPriceToYAxis(d.oldPrice);     //old profit
+        //     })
+        //     .attr("y2", function (d) {
+        //        return mapProfitPriceToYAxis(d.newPrice);     //current profit
+        //     })
+        //     .attr("class", function (d) {
+        //           return d.oldPrice < d.newPrice ? "my-positive-profit" : "my-negative-profit";
+        //     });   
+    };
+
 
     function draw() {
         //Clear the svg elements
@@ -1185,65 +1374,39 @@ Spread_Graph.listen();
 
         graph.currentTime =  getTime() - graph.timeOffset
         graph.timeSinceStart = graph.currentTime - graph.adminStartTime;
-        /*
-        if (graph.expandedGraph) {
-            graph.timeInterval = graph.timeSinceStart;
-            graph.millisecondPerPixel = graph.timeInterval * 1000000000 / (graph.elementWidth - graph.axisLabelWidth - graph.graphPaddingRight);
-            graph.advanceTimeShown = graph.millisecondPerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
 
-            graph.maxPriceMarket = Math.max(dataHistory.highestMarketPrice + 1, graph.prevMaxPriceMarket);
-            graph.minPriceMarket = Math.min(dataHistory.lowestMarketPrice - 1, graph.prevMinPriceMarket);
-            graph.maxPriceProfit = Math.max(dataHistory.highestProfitPrice + 1, graph.prevMaxPriceProfit);
-            graph.minPriceProfit = Math.min(dataHistory.lowestProfitPrice - 1, graph.prevMinPriceProfit);
-        }
-        */
         graph.curTimeX = mapTimeToXAxis(graph.currentTime);
 
         // recalculate market price bounds
         calcPriceBounds();
 
-        //Check if it is necessary to recalculate timeLines
+        // Check if it is necessary to recalculate timeLines
         // recalculate if right edge of graph is more than a batch length past last batch line
         // or if left edge is more than a batch length past first batch line
         // Math.max expression finds time at left edge of screen
         if (graph.currentTime + graph.advanceTimeShown > graph.timeLines[graph.timeLines.length - 1] + graph.timeIncrement ||
-            Math.max(graph.adminStartTime, graph.currentTime - graph.timeInterval * 1000000000) < graph.timeLines[0] - graph.timeIncrement) {
-            graph.timeLines = calcTimeGridLines(graph.currentTime - graph.timeInterval * 1000000000, graph.currentTime + graph.advanceTimeShown, graph.timeIncrement * 1000000000);
+            Math.max(graph.adminStartTime, graph.currentTime - graph.timeInterval) < graph.timeLines[0] - graph.timeIncrement) {
+            var startTime = graph.currentTime - graph.timeInterval;
+            var endTime = graph.currentTime + graph.advanceTimeShown;
+            graph.timeLines = calcTimeGridLines(startTime, endTime, graph.timeIncrement);
         }
 
         //Invoke all of the draw functions
-        //graph.drawTimeGridLines(graphRefr, graph.marketSVG);
         drawTimeGridLines();
 
-        /*
-        //graph.drawPriceGridLines(graphRefr, graph.marketPriceLines, graph.marketSVG, graph.mapMarketPriceToYAxis);
-        graph.drawPriceGridLines(graphRefr, graph.profitPriceLines, graph.profitSVG, graph.mapProfitPriceToYAxis);
+        
+        drawPriceGridLines();
 
-        graph.drawLaserOffers(graphRefr, dataHistory);
-        graph.drawLaserTransactions(graphRefr, dataHistory.transactions, dataHistory.myId);
-        graph.DrawSnipe(graphRefr, dataHistory);
-         
-        if(graph.oldFundPrice == null){
-            graph.oldFundPrice = dataHistory.curFundPrice[1];   //initialize
-            graph.FPCswing = 0;
-        }else if(graph.oldFundPrice != dataHistory.curFundPrice[1]){               //the value jumped, draw the yellow line
-            graph.FPCswing = ((dataHistory.curFundPrice[1] - graph.oldFundPrice) * graphRefr.elementHeight / graphRefr.priceRange).toFixed(2);
-            if(graph.FPCop > 0){                                                 //while still visible
-                graph.drawFundamentalValue(graphRefr, dataHistory);
-            }else{
-                graph.oldFundPrice = dataHistory.curFundPrice[1];                 //update our checker
-                graph.FPCop = 1;            
-            }                                     //reset opacity
-        }  
+// -->>> still need       graph.DrawSnipe(graphRefr, dataHistory);
 
 
-
-        //graph.drawMarket(graphRefr, dataHistory.pastFundPrices, dataHistory.curFundPrice, "price-line");
-        //graph.drawPriceAxis(graphRefr, graph.marketPriceLines, graph.marketSVG, graph.mapMarketPriceToYAxis);
-        graph.drawPriceAxis(graphRefr, graph.profitPriceLines, graph.profitSVG, graph.mapProfitPriceToYAxis);
-        graph.drawAllProfit(graphRefr, dataHistory);
-        requestAnimationFrame(draw)
-        */
+        drawPriceAxis();
+        // historyDataSet = [startTime, endTime, curProfit, endProfit, state] 
+        var historyDataSet = [[0 + graph.adminStartTime, (30*nanoToSec)+ graph.adminStartTime, graph.profit, graph.profit+ 5000, "Maker"]];
+        // profitJumps = {timestamp, newPrice, oldPrice}    
+        var profitJumps = {timestamp:graph.adminStartTime, newPrice:0, oldPrice:0};
+        drawProfit(historyDataSet, null, profitJumps);
+        // requestAnimationFrame(draw);
     };
 
     function init(startFP, startingWealth) {
