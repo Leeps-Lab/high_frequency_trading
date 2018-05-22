@@ -6,8 +6,9 @@ import random
 import time
 import pandas as pd
 from . import translator as translate
-from .utility import nanoseconds_since_midnight, tokengen
+from .utility import nanoseconds_since_midnight, tokengen, Get_Time
 from . import exchange
+from .Fundamental_Price import Price_Log, Price_Node
 from channels import Group as CGroup, Channel
 from otree.db.models import Model, ForeignKey
 from django.core import serializers
@@ -54,6 +55,8 @@ class Subsession(BaseSubsession):
                 "messages": [],
             }
             group.save()
+
+            self.session.vars['FP_Log'] = Price_Log(10)
 
 
 
@@ -154,6 +157,8 @@ class Group(BaseGroup):
         random.shuffle(slow_players)
 
 
+        self.session.vars['FP_Log'].push(Get_Time("nanoseconds"), new_price)
+
         log.debug('Group%d: Jump: Delaying 0.1 seconds..' % self.id)
 
         time.sleep(0.1)
@@ -193,6 +198,7 @@ class Player(BasePlayer):
     # fundamental price
     fp = models.IntegerField(initial=10000)
     order_count = models.IntegerField(initial=1)
+    profit = models.IntegerField(initial=10000)
 
     # Player actions
 
@@ -318,31 +324,33 @@ class Player(BasePlayer):
         order.cancel(stamp)
         log.info('Player%d: Confirm: Cancel %s.' % (self.id_in_group, tok))
 
-    def confirm_exec(self,msg):
+    def confirm_exec(self, msg):
         stamp, tok = msg['timestamp'], msg['order_token']
         order = self.order_set.get(token=tok)
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
-        # calc_profit(order.price, order.side)                                      ## Uncomment for profit testing
+        self.calc_profit(order.price, order.side, stamp)                                      ## Uncomment for profit testing
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]
              self.group.send_exchange(m, delay=True, speed=self.speed)
 
-    def calc_profit(self, exec_price, side):
+    def calc_profit(self, exec_price, side, timestamp):
         profit = 0
+        fp = self.session.vars['FP_Log'].getFP(timestamp)
 
         if side == 'B':
-            if exec_price < self.fp:
-                profit += (self.fp - exec_price)   #   Buy low, increase is positive difference in values
+            if exec_price < fp:
+                profit += (fp - exec_price)   #   Buy low, increase is positive difference in values
             else:
-                profit += (self.fp - exec_price)   #   Buy high, decrease is negative difference in values 
+                profit += (fp - exec_price)   #   Buy high, decrease is negative difference in values 
         else:
-            if exec_price < self.fp:
-                profit = (exec_price - self.fp)    #   Sell low, decrease is negative difference in values 
+            if exec_price < fp:
+                profit = (exec_price - fp)    #   Sell low, decrease is negative difference in values 
             else:
-                profit = (exec_price - self.fp)    #   Sell high, increase is positive difference in values 
+                profit = (exec_price - fp)    #   Sell high, increase is positive difference in values 
         self.profit += profit
+        print("/////////////////////////////////////// %d ///////////////////////////////////////" % (self.profit))
 
         #########################
         # SEND profit to client #
