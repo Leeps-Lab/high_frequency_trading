@@ -8,14 +8,15 @@ class Price_Log:
     def __init__(self, length):
         self.list = []
         self.size = 0
-        self.push(0, 10000)                     # Initial price of experiment
         self.length = length                    # lengh of backlog of timestamps
+        self.push(0, 10000)                     # Initial price of experiment
         
 
 
     def push(self, time, price):
         self.list.append(Price_Node(time, price))
         self.size += 1
+        self.popBackOff()
 
     def popBackOff(self):
         if self.size > self.length:
