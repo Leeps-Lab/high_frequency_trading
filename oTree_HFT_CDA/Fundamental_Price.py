@@ -8,13 +8,13 @@ class Price_Log:
     def __init__(self, length):
         self.list = []
         self.size = 0
-        self.push(Price_Node(0, 10000))         # Initial price of experiment
+        self.push(0, 10000)                     # Initial price of experiment
         self.length = length                    # lengh of backlog of timestamps
         
 
 
-    def push(self, node):
-        self.list.append(node)
+    def push(self, time, price):
+        self.list.append(Price_Node(time, price))
         self.size += 1
 
     def popBackOff(self):

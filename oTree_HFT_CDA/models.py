@@ -350,7 +350,9 @@ class Player(BasePlayer):
             else:
                 profit = (exec_price - fp)    #   Sell high, increase is positive difference in values 
         self.profit += profit
-        print("/////////////////////////////////////// %d ///////////////////////////////////////" % (self.profit))
+        print("//////////////////////////////////////////////////////////////////////////////")
+        print("FP: %d\texec_price: %d\tprofit: %d"  % (fp, exec_price, profit))
+        print("//////////////////////////////////////////////////////////////////////////////")
 
         #########################
         # SEND profit to client #
