@@ -477,7 +477,7 @@ body {
 */
 
     .time-grid-box-dark {
-        fill: rgb(250, 250, 250);
+        fill: rgb(211, 211, 211);
     }
 
     .time-grid-line-text {
@@ -529,15 +529,6 @@ body {
         stroke-width: 2;
     }
 
-    .my-positive-profit {
-        stroke: green;
-        stroke-width: 2;
-    }
-
-    .my-negative-profit {
-        stroke: red;
-        stroke-width: 2;
-    }
 
 
 </style>
@@ -646,20 +637,20 @@ window.onload = function () {
 
     */
     $('#player_id').html({{player.id_in_group}});
-    $('#period_id').html(1);
-    $('#speed_cost').html(0);
+//     $('#period_id').html(1);
+//     $('#speed_cost').html(0);
 
-    $('#num_traders').html({{Constants.players_per_group}});
-    $('#num_snipers').html(0);
-    $('#num_makers').html(0);
+//     $('#num_traders').html({{Constants.players_per_group}});
+//     $('#num_snipers').html(0);
+//     $('#num_makers').html(0);
     
-    $('#player_role').html('OUT');
-    $('#spread_value').html('N/A');
-    $('#profit').html(20);
+//     $('#player_role').html('OUT');
+//     $('#spread_value').html('N/A');
+//     $('#profit').html(20);
 
-//-> buggyas fuc,k    // $('#fp').html(player.fp);
-    $('#curr_bid').html('N/A');
-    $('#curr_ask').html('N/A');
+// //-> buggyas fuc,k    // $('#fp').html(player.fp);
+//     $('#curr_bid').html('N/A');
+//     $('#curr_ask').html('N/A');
 
 
     // On load global var? Terrible
@@ -1024,8 +1015,19 @@ Spread_Graph.listen();
 
 (function(){
 
+
+
     // global varuavke 
     var graph = {};
+
+    /*
+     * Debug variables
+     */
+    graph.debug = {
+        "calcTimeGridLines"    :false,
+        "secondTick"           :false,
+    };
+
 
     /*
      * set of variables we added that were not part of the original solution
@@ -1061,8 +1063,7 @@ Spread_Graph.listen();
     var secToNano = 1e-9
     var million = 1e6;
     graph.timeOffset = 0;                                             //offset to adjust for clock difference between lab computers
-    graph.contractedTimeInterval = 60e9;                              //amount of time displayed on time axis when graph is contracted in nanoseconds
-    graph.timeInterval = graph.contractedTimeInterval;                //current amount in seconds displayed at once on full time axis
+    graph.timeInterval = 60e9;                                        //current amount in seconds displayed at once on full time axis
     graph.timeIncrement = 5e9;                                        // Amount in nanoseconds between lines on time x-axis
     graph.timeSinceStart = 0;                                         //the amount of time since the start of the experiment in nanoseconds
     graph.nanosecondPerPixel = 0;    //used                           // number of ms represented by one pixel
@@ -1151,16 +1152,36 @@ Spread_Graph.listen();
     
 
     function calcTimeGridLines(startTime, endTime, increment) {
-        var timeLineVal = startTime + increment;
+
+        if(graph.debug["calcTimeGridLines"]){
+            console.log("Call to calculate calTimeGrindLines with scaled values\n   startTime:  " + (startTime / nanoToSec).toFixed(2) + 
+                "\n   endTime:    " + (endTime / nanoToSec).toFixed(2) + 
+                "\n   difference: " + ((endTime - startTime) / nanoToSec).toFixed(2) + 
+                "\n   increment:  " + (increment / nanoToSec) + 
+                "\n   adminStart: " + (graph.adminStartTime / nanoToSec).toFixed(2));
+        }
+
+        // var timeLineVal = startTime + increment;
+        var timeLineVal = startTime - ((startTime - graph.adminStartTime) % increment);
         var lines = [];
         while (timeLineVal < endTime) {
             lines.push(timeLineVal);
             timeLineVal += increment;
         }
+
+        if(graph.debug["calcTimeGridLines"]){
+            console.log("Lines post computation: previous set of lines :-: computed set of lines ");
+            for(i = 0; i < lines.length; i++){
+                console.log("   [" + i + "]    " + ((graph.timeLines[i] - graph.adminStartTime) / nanoToSec).toFixed(2) + "  :-:  " + ((lines[i] - graph.adminStartTime) / nanoToSec).toFixed(2));
+            }
+        }
+
+
         return lines;
     };
 
     // return the number of nanoseconds since midnight
+    // TODO FIND MORE ACCURATE NANO
     function getTime(){
         var now = new Date(),
         then = new Date(
@@ -1169,7 +1190,8 @@ Spread_Graph.listen();
         now.getDate(),
         0,0,0),
         diff = now.getTime() - then.getTime(); // difference in milliseconds
-        return diff * 1000000;
+        diff *= 1000000; // milli -> nano;
+        return  diff; 
     };
 
     // returns percent along the x axis your timestamp is 
@@ -1302,14 +1324,13 @@ Spread_Graph.listen();
     function drawProfit(historyDataSet, currentData, profitJumps) {
         graph.profitSVG.selectAll("line.my-profit-out line.my-profit-maker line.my-profit-snipe")
             .data(historyDataSet, function (d) {   
-            //historyDataSet = [startTime, endTime, curProfit, endProfit, state] 
+
+            // historyDataSet structure = [[startTime, endTime, startProfit, endProfit, state],...] 
                return d;
             })
             .enter()
             .append("line")
             .filter(function (d) {
-                console.log(d[1]);
-                console.log(graph.currentTime - graph.timeInterval)
                return d[1] >= (graph.currentTime - graph.timeInterval);
             })
             .attr("x1", function (d) {
@@ -1329,41 +1350,41 @@ Spread_Graph.listen();
                return d[4] == "Out" ? "my-profit-out" : (d[4] == "Maker" ? "my-profit-maker" : "my-profit-snipe");
         });
 
-        //currentData = [startTime, price, slope, state]
-        // if (currentData != null) {
-        //     var pricefinal = currentData[1] - ((graph.currentTime - currentData[0]) * currentData[2]); //determines how far down the line has moved (from speed)
-        //     graph.profitSVG.append("line")
-        //        .attr("x1", mapTimeToXAxis(currentData[0]))
-        //        .attr("x2", graph.curTimeX)
-        //        .attr("y1", mapProfitPriceToYAxis(currentData[1]))
-        //        .attr("y2", mapProfitPriceToYAxis(pricefinal))
-        //        .attr("class", currentData[3] == "Out" ? "my-profit-out" : (currentData[3] == "Maker" ? "my-profit-maker" : "my-profit-snipe"));
-        // }
+        // currentData structure = [startTime, price, slope, state]
+        if (currentData != null) {
+            var pricefinal = currentData[1] - ((graph.currentTime - currentData[0]) * currentData[2]); //determines how far down the line has moved (from speed)
+            graph.profitSVG.append("line")
+               .attr("x1", mapTimeToXAxis(currentData[0]))
+               .attr("x2", graph.curTimeX)
+               .attr("y1", mapProfitPriceToYAxis(currentData[1]))
+               .attr("y2", mapProfitPriceToYAxis(pricefinal))
+               .attr("class", currentData[3] == "Out" ? "my-profit-out" : (currentData[3] == "Maker" ? "my-profit-maker" : "my-profit-snipe"));
+        }
         
        
-        // graph.profitSVG.selectAll("line.positive-profit line.negative-profit")
-        //     .data(profitJumps)      
-        //     // profitJumps = {timestamp, newPrice, oldPrice}    
-        //     .enter()
-        //     .append("line")
-        //     .filter(function (d) {
-        //        return d.timestamp >= (graph.currentTime - graph.timeInterval);
-        //     })
-        //     .attr("x1", function (d) {
-        //        return mapTimeToXAxis(d.timestamp);
-        //     })
-        //     .attr("x2", function (d) {
-        //        return mapTimeToXAxis(d.timestamp);
-        //     })
-        //     .attr("y1", function (d) {
-        //        return mapProfitPriceToYAxis(d.oldPrice);     //old profit
-        //     })
-        //     .attr("y2", function (d) {
-        //        return mapProfitPriceToYAxis(d.newPrice);     //current profit
-        //     })
-        //     .attr("class", function (d) {
-        //           return d.oldPrice < d.newPrice ? "my-positive-profit" : "my-negative-profit";
-        //     });   
+        graph.profitSVG.selectAll("line.positive-profit line.negative-profit")
+            .data(profitJumps)      
+            // profitJumps structure = {timestamp:(nano), newPrice:(thousands), oldPrice:(thousands)}    
+            .enter()
+            .append("line")
+            .filter(function (d) {
+               return d.timestamp >= (graph.currentTime - graph.timeInterval);
+            })
+            .attr("x1", function (d) {
+               return mapTimeToXAxis(d.timestamp);
+            })
+            .attr("x2", function (d) {
+               return mapTimeToXAxis(d.timestamp);
+            })
+            .attr("y1", function (d) {
+               return mapProfitPriceToYAxis(d.oldPrice);     //old profit
+            })
+            .attr("y2", function (d) {
+               return mapProfitPriceToYAxis(d.newPrice);     //current profit
+            })
+            .attr("class", function (d) {
+                  return d.oldPrice < d.newPrice ? "my-positive-profit" : "my-negative-profit";
+            });   
     };
 
 
@@ -1372,20 +1393,35 @@ Spread_Graph.listen();
         graph.profitSVG.selectAll("*").remove();
 
 
-        graph.currentTime =  getTime() - graph.timeOffset
+        // the current time relative to the backend of otree; graph.timeOffset during the transition
+        // is 0, but eventually we will calculate per player what the delay over django channels is 
+        graph.currentTime =  getTime() - graph.timeOffset; 
         graph.timeSinceStart = graph.currentTime - graph.adminStartTime;
+
+
+
+        // Print to console.log everytime a second occurs
+        if((graph.previousTime != Math.trunc(graph.timeSinceStart / nanoToSec)) && graph.debug["secondTick"]){
+            graph.previousTime = Math.trunc(graph.timeSinceStart / nanoToSec);
+            console.log(graph.previousTime)
+        } 
 
         graph.curTimeX = mapTimeToXAxis(graph.currentTime);
 
         // recalculate market price bounds
         calcPriceBounds();
 
-        // Check if it is necessary to recalculate timeLines
-        // recalculate if right edge of graph is more than a batch length past last batch line
-        // or if left edge is more than a batch length past first batch line
-        // Math.max expression finds time at left edge of screen
-        if (graph.currentTime + graph.advanceTimeShown > graph.timeLines[graph.timeLines.length - 1] + graph.timeIncrement ||
-            Math.max(graph.adminStartTime, graph.currentTime - graph.timeInterval) < graph.timeLines[0] - graph.timeIncrement) {
+        // recalculate if virtual right side of graph is more than a graph.timeIncrement past last graph.timeLine line
+        var rightSideOfGraph = graph.timeLines[graph.timeLines.length - 1] + graph.timeIncrement;
+
+        if (graph.currentTime + graph.advanceTimeShown > rightSideOfGraph){
+            console.log("On Redraw:");
+            console.log("   currentTime: " + (graph.currentTime / nanoToSec).toFixed(2));
+            console.log("   timeInterval: " + (graph.timeInterval / nanoToSec).toFixed(2));
+            console.log("   advanceTimeShown: " + (graph.advanceTimeShown / nanoToSec).toFixed(2));
+            console.log("   rightSideOfGraph: " + (rightSideOfGraph / nanoToSec).toFixed(2));
+            
+
             var startTime = graph.currentTime - graph.timeInterval;
             var endTime = graph.currentTime + graph.advanceTimeShown;
             graph.timeLines = calcTimeGridLines(startTime, endTime, graph.timeIncrement);
@@ -1397,26 +1433,41 @@ Spread_Graph.listen();
         
         drawPriceGridLines();
 
-// -->>> still need       graph.DrawSnipe(graphRefr, dataHistory);
 
 
         drawPriceAxis();
-        // historyDataSet = [startTime, endTime, curProfit, endProfit, state] 
+        
+        /* *****************************************************************************
+         * Data Structures present in Redwood front end, and need to be adapted to otree 
+         ******************************************************************************/ 
+
+        // historyDataSet = [[startTime, endTime, startProfit, endProfit, state],...] 
+        // 2-D array where each index contains a different portion of the profit line *over the entire experiment*
+        // Each index has a startTime (nano), endTime (nano), startProfit (thousands), endProfit (thousands) 
         var historyDataSet = [[0 + graph.adminStartTime, (30*nanoToSec)+ graph.adminStartTime, graph.profit, graph.profit+ 5000, "Maker"]];
+        
         // profitJumps = {timestamp, newPrice, oldPrice}    
         var profitJumps = {timestamp:graph.adminStartTime, newPrice:0, oldPrice:0};
-        drawProfit(historyDataSet, null, profitJumps);
-        // requestAnimationFrame(draw);
+        
+
+        // drawProfit(historyDataSet, null, profitJumps);
+        
+
+
+        requestAnimationFrame(draw);
     };
 
     function init(startFP, startingWealth) {
+        for(i = 2; i < arguments.length; i++){
+            graph.debug[arguments[i]] = true;
+        }
+
+        graph.previousTime = 0;
+
         // nanoseconds per picxel 
         graph.nanosecondPerPixel = graph.timeInterval / (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight);   
         // the amount of nano taken up by the axisLabelWidth ad graphPadding riht
         graph.advanceTimeShown = graph.nanosecondPerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
-
-        // disabled
-        graph.zoomAmount = graph.maxSpread / 2;
 
         // collect an array of price values where the horizontal lines will be drawn
         graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
@@ -1430,7 +1481,8 @@ Spread_Graph.listen();
     // 10000 <- 
     var startFP = 10000;
     var startingWealth = 20000;
-    init(startFP, startingWealth);
+
+    init(startFP, startingWealth, "calcTimeGridLines", "secondTick");
 
     requestAnimationFrame(draw)
     }());
