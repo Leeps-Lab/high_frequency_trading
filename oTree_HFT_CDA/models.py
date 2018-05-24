@@ -50,9 +50,11 @@ class Constants(BaseConstants):
 class Subsession(BaseSubsession):
     
     def creating_session(self):
+        # location of Price_Log object
         self.session.vars['FP_Log'] = Price_Log(10)
 
         for i, group in enumerate(self.get_groups()):
+            # Designating the first group as the authorized FPC updater
             if i == 0:
                 self.session.vars['profit_pusher'] = group.id
             
@@ -145,7 +147,9 @@ class Group(BaseGroup):
         log.info('-----------Jump Start---------------')
         log.info('Group%d: Jump, new price is %d!' % (self.id, new_price) )
 
+        # Check if group.id is the designated FPC updater
         if self.session.vars["profit_pusher"] == self.id:
+            # Push new profit to Price_Log
             self.session.vars['FP_Log'].push(Get_Time("nanoseconds"), new_price)
             self.session.save()
 
@@ -337,7 +341,7 @@ class Player(BasePlayer):
         order = self.order_set.get(token=tok)
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
-        self.calc_profit(order.price, order.side, stamp)                                      ## Uncomment for profit testing
+        self.calc_profit(order.price, order.side, stamp)                                      
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]

@@ -5,13 +5,11 @@ class Price_Node:
 
 
 class Price_Log:
-    def __init__(self, length):
+    def __init__(self, length, fundamentalPrice=10000):
         self.list = []
         self.size = 0
-        self.length = length                    # lengh of backlog of timestamps
-        self.push(0, 10000)                     # Initial price of experiment
-        
-
+        self.length = length                    
+        self.push(0, fundamentalPrice)                     
 
     def push(self, time, price):
         self.list.append(Price_Node(time, price))
