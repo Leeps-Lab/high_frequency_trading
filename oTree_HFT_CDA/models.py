@@ -51,12 +51,18 @@ class Subsession(BaseSubsession):
     
     def creating_session(self):
         self.session.vars['FP_Log'] = Price_Log(10)
+
         for i, group in enumerate(self.get_groups()):
+            if i == 0:
+                self.session.vars['profit_pusher'] = group.id
+            
             group.port = 9000 + i + 1
             group.json = {
                 "messages": [],
             }
             group.save()
+
+        self.session.save()
 
             
 
@@ -139,8 +145,9 @@ class Group(BaseGroup):
         log.info('-----------Jump Start---------------')
         log.info('Group%d: Jump, new price is %d!' % (self.id, new_price) )
 
-        self.session.vars['FP_Log'].push(Get_Time("nanoseconds"), new_price)
-        self.session.save()
+        if self.session.vars["profit_pusher"] == self.id:
+            self.session.vars['FP_Log'].push(Get_Time("nanoseconds"), new_price)
+            self.session.save()
 
         self.broadcast({"FPC":new_price})
 
@@ -355,6 +362,7 @@ class Player(BasePlayer):
 
         self.profit += profit
         self.save()
+
 
     def jump(self, new_price):  
         old_fp = self.fp              
