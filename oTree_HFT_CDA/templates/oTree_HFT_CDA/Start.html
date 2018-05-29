@@ -145,34 +145,6 @@ body {
     /*width: 100%;*/
     /*background-color: red;*/
 }
-.zoom-in, .zoom-out {
-    cursor: pointer;
-    position: absolute;
-    right: 40px;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    border: 1px solid rgb(200, 200, 200);
-    background-color: white;
-    font-weight: bold;
-    -webkit-user-select: none
-}
-
-.zoom-in {
-    top: 20px;
-    line-height: 18px;
-}
-
-.zoom-out {
-    top: 45px;
-    line-height: 17px;
-}
-
-.zoom-disabled {
-    pointer-events: none;
-    cursor: default;
-    background-color: lightgray;
-}
 
 /*#slider {
     margin: auto;
@@ -516,7 +488,7 @@ body {
 
     .my-profit-maker {
         stroke: rgb(26, 73, 232);
-        stroke-width: 10;
+        stroke-width: 3;
     }
 
     .my-positive-profit {
@@ -620,6 +592,7 @@ window.onload = function () {
             $('#fp').html(obj.FPC);
 
         }else if(obj.EXEC != undefined){
+            console.log("Received a profit from execution: " +  obj.EXEC);
             var timeNow = getTime() - graph.timeOffset;
 
 
@@ -627,10 +600,10 @@ window.onload = function () {
                 {
                     timestamp:timeNow,
                     oldProfit:graph.profit,
-                    newProfit:graph.profit + obj.profit, 
+                    newProfit:graph.profit + obj.EXEC, 
                 }
             );
-            graph.profit += obj.profit;
+            graph.profit += obj.EXEC;
 
             graph.profitSegments.push(
                 {
@@ -715,6 +688,19 @@ window.onload = function () {
         if ((document.getElementById("maker").className == "button-off") && (document.getElementById("maker").className != "button-pressed")){
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
             $("#maker").toggleClass('button-off button-pressed');
+            $('#player_role').html('MAKER');
+
+            var timeNow = getTime() - graph.timeOffset;
+            graph.profitSegments.push(
+                {
+                    startTime:timeNow,
+                    endTime:timeNow, 
+                    startProfit:graph.profit, 
+                    endProfit:graph.profit,
+                    state:$("#player_role").text()
+                }
+            );
+
             var msg = {
                 type: 'role_change',
                 id: {{player.id}},
@@ -726,7 +712,6 @@ window.onload = function () {
             }
 
             Button_Pressed("maker");
-            $('#player_role').html('MAKER');
 
             Spread_Graph.spread(); // Auto Input Spread
             Spread_Graph.drawMyLine(); // Auto input spread
@@ -739,6 +724,19 @@ window.onload = function () {
         if ((document.getElementById("sniper").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
             $("#sniper").toggleClass('button-off button-pressed');
+            $('#player_role').html('SNIPER');
+
+            var timeNow = getTime() - graph.timeOffset;
+            graph.profitSegments.push(
+                {
+                    startTime:timeNow,
+                    endTime:timeNow, 
+                    startProfit:graph.profit, 
+                    endProfit:graph.profit,
+                    state:$("#player_role").text()
+                }
+            );
+
             var msg = {
                 type: 'role_change',
                 id: {{player.id}},
@@ -749,7 +747,6 @@ window.onload = function () {
                 socket.send(JSON.stringify(msg));
             }
             Button_Pressed("sniper");
-            $('#player_role').html('SNIPER');
 
             Spread_Graph.clear();
         }
@@ -763,6 +760,19 @@ window.onload = function () {
         if (document.getElementById("out").className == "button-off"){
             //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
             $("#out").toggleClass('button-off button-on');
+            $('#player_role').html('OUT');
+            
+            var timeNow = getTime() - graph.timeOffset;
+            graph.profitSegments.push(
+                {
+                    startTime:timeNow,
+                    endTime:timeNow, 
+                    startProfit:graph.profit, 
+                    endProfit:graph.profit,
+                    state:$("#player_role").text()
+                }
+            );
+
             var msg = {
                 type: 'role_change',
                 id: {{player.id}},
@@ -773,7 +783,7 @@ window.onload = function () {
                 socket.send(JSON.stringify(msg));
             }
             Button_Pressed("out");
-            $('#player_role').html('OUT');
+            
 
             Spread_Graph.clear();
         }
@@ -1067,7 +1077,6 @@ Spread_Graph.listen();
     graph.startingWealth = 20000; 
     graph.profit = graph.startingWealth;                                           // Through Django Channels
     graph.adminStartTime = {{subsession.start_time}};           // Django Query
-    graph.speed = 0;
 
     /*
      * HTML Variables
@@ -1480,7 +1489,7 @@ Spread_Graph.listen();
         
         var profitDecrement = 0;
         if(speed){
-            profitDecrement = (graph.profitSegments[graph.profitSegments.length - 1]["endTime"] - graph.profitSegments[graph.profitSegments.length - 1]["startTime"]) * -1e-7;
+            profitDecrement = (graph.profitSegments[graph.profitSegments.length - 1]["endTime"] - graph.profitSegments[graph.profitSegments.length - 1]["startTime"]) * -1e-8;
         }
 
 

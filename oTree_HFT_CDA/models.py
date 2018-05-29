@@ -6,8 +6,9 @@ import random
 import time
 import pandas as pd
 from . import translator as translate
-from .utility import nanoseconds_since_midnight, tokengen
+from .utility import nanoseconds_since_midnight, tokengen, Get_Time
 from . import exchange
+from .profit import Price_Log, Price_Node
 from channels import Group as CGroup, Channel
 from otree.db.models import Model, ForeignKey
 from django.core import serializers
@@ -48,14 +49,24 @@ class Constants(BaseConstants):
 
 class Subsession(BaseSubsession):
     start_time = models.IntegerField()
-
     def creating_session(self):
+        # location of Price_Log object
+        self.session.vars['FP_Log'] = Price_Log(10)
+
         for i, group in enumerate(self.get_groups()):
+            # Designating the first group as the authorized FPC updater
+            if i == 0:
+                self.session.vars['profit_pusher'] = group.id
+            
             group.port = 9000 + i + 1
             group.json = {
                 "messages": [],
             }
             group.save()
+
+        self.session.save()
+
+            
 
 
 
@@ -136,6 +147,12 @@ class Group(BaseGroup):
         log.info('-----------Jump Start---------------')
         log.info('Group%d: Jump, new price is %d!' % (self.id, new_price) )
 
+        # Check if group.id is the designated FPC updater
+        if self.session.vars["profit_pusher"] == self.id:
+            # Push new profit to Price_Log
+            self.session.vars['FP_Log'].push(Get_Time("nanoseconds"), new_price)
+            self.session.save()
+
         self.broadcast({"FPC":new_price})
 
         players = self.get_players()
@@ -154,7 +171,6 @@ class Group(BaseGroup):
 
         random.shuffle(fast_players)
         random.shuffle(slow_players)
-
 
         log.debug('Group%d: Jump: Delaying 0.1 seconds..' % self.id)
 
@@ -195,6 +211,7 @@ class Player(BasePlayer):
     # fundamental price
     fp = models.IntegerField(initial=10000)
     order_count = models.IntegerField(initial=1)
+    profit = models.IntegerField(initial=10000)
 
     # Player actions
 
@@ -303,7 +320,6 @@ class Player(BasePlayer):
         order = self.order_set.get(token=tok)
         order.activate(stamp)
         log.info('Player%d: Confirm: Enter: %s.' % (self.id_in_group, tok))
-        self.send_client({"Yo":"Mama"})
 
     def confirm_replace(self, msg):
         ptok, tok = msg['previous_order_token'], msg['order_token']
@@ -320,35 +336,37 @@ class Player(BasePlayer):
         order.cancel(stamp)
         log.info('Player%d: Confirm: Cancel %s.' % (self.id_in_group, tok))
 
-    def confirm_exec(self,msg):
+    def confirm_exec(self, msg):
         stamp, tok = msg['timestamp'], msg['order_token']
         order = self.order_set.get(token=tok)
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
-        # calc_profit(order.price, order.side)                                      ## Uncomment for profit testing
+        self.calc_profit(order.price, order.side, stamp)                                      
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]
              self.group.send_exchange(m, delay=True, speed=self.speed)
 
-    def calc_profit(self, exec_price, side):
+    def calc_profit(self, exec_price, side, timestamp):
         profit = 0
+        fp = self.session.vars['FP_Log'].getFP(timestamp)
 
         if side == 'B':
-            if exec_price < self.fp:
-                profit += (self.fp - exec_price)   #   Buy low, increase is positive difference in values
-            else:
-                profit += (self.fp - exec_price)   #   Buy high, decrease is negative difference in values 
+            # Execution of your buy offer
+            if exec_price < fp:                  #  Player bought lower than FP (positive profit)
+                profit += abs(fp - exec_price)  
+            else:                                #  Player bought higher than FP (negative profit)   
+                profit -= abs(fp - exec_price)   
         else:
-            if exec_price < self.fp:
-                profit = (exec_price - self.fp)    #   Sell low, decrease is negative difference in values 
+            # Execution of your sell offer
+            if exec_price < fp:                  #  Player sold lower than FP (negative profit)
+                profit -= abs(fp - exec_price)    
             else:
-                profit = (exec_price - self.fp)    #   Sell high, increase is positive difference in values 
-        self.profit += profit
+                profit += abs(fp - exec_price)      #  Player sold higher than FP (positive profit)
 
-        #########################
-        # SEND profit to client #
-        #########################
+        self.send_client({"EXEC":profit})
+        self.profit += profit
+        self.save()
 
 
     def jump(self, new_price):  
