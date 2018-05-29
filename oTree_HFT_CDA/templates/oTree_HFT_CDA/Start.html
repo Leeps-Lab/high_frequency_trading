@@ -516,8 +516,8 @@ window.onload = function () {
                    .attr("class","others_line");
 
             // for removing when a transation occurs
-            Other_Maker_lines[ordertoken_sell] = [your_spread_line_top, your_spread_line_bottom]
-            Other_Maker_lines[ordertoken_buy] = [your_spread_line_top, your_spread_line_bottom]
+            Other_Maker_lines[ordertoken_sell] = your_spread_line_top
+            Other_Maker_lines[ordertoken_buy] = your_spread_line_bottom
 
             addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
             //Timeout is whether or not speed is on
@@ -582,8 +582,7 @@ window.onload = function () {
 
         function removeOtherMakerLine(order_token){
             var lines_to_remove = Other_Maker_lines[order_token];
-            lines_to_remove[0].remove();
-            lines_to_remove[1].remove();
+            lines_to_remove.remove();
 
         }
 
