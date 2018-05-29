@@ -655,10 +655,13 @@ window.onload = function () {
 
     // On load global var? Terrible
     var speed = false;
+    // global variable 
+    var graph = {};
 
     // Called on click to toggle input
     updatespeed = function () {
         speed = !speed;
+        graph.speed++;
         if(speed){
             $('#speed_cost').html({{Constants.speed_cost}});
         }else {
@@ -1012,14 +1015,6 @@ window.onload = function () {
 Spread_Graph.start();
 Spread_Graph.listen();
 
-
-(function(){
-
-
-
-    // global varuavke 
-    var graph = {};
-
     /*
      * Debug variables
      */
@@ -1040,7 +1035,7 @@ Spread_Graph.listen();
     graph.startingWealth = 20000; 
     graph.profit = graph.startingWealth;                                           // Through Django Channels
     graph.adminStartTime = {{subsession.start_time}};           // Django Query
-
+    graph.speed = 0;
 
     /*
      * HTML Variables
@@ -1389,6 +1384,7 @@ Spread_Graph.listen();
 
 
     function draw() {
+        console.log(graph.speed);
         //Clear the svg elements
         graph.profitSVG.selectAll("*").remove();
 
@@ -1415,13 +1411,6 @@ Spread_Graph.listen();
         var rightSideOfGraph = graph.timeLines[graph.timeLines.length - 1] + graph.timeIncrement;
 
         if (graph.currentTime + graph.advanceTimeShown > rightSideOfGraph){
-            console.log("On Redraw:");
-            console.log("   currentTime: " + (graph.currentTime / nanoToSec).toFixed(2));
-            console.log("   timeInterval: " + (graph.timeInterval / nanoToSec).toFixed(2));
-            console.log("   advanceTimeShown: " + (graph.advanceTimeShown / nanoToSec).toFixed(2));
-            console.log("   rightSideOfGraph: " + (rightSideOfGraph / nanoToSec).toFixed(2));
-            
-
             var startTime = graph.currentTime - graph.timeInterval;
             var endTime = graph.currentTime + graph.advanceTimeShown;
             graph.timeLines = calcTimeGridLines(startTime, endTime, graph.timeIncrement);
@@ -1450,7 +1439,7 @@ Spread_Graph.listen();
         var profitJumps = {timestamp:graph.adminStartTime, newPrice:0, oldPrice:0};
         
 
-        // drawProfit(historyDataSet, null, profitJumps);
+        drawProfit(historyDataSet, null, profitJumps);
         
 
 
@@ -1482,10 +1471,11 @@ Spread_Graph.listen();
     var startFP = 10000;
     var startingWealth = 20000;
 
-    init(startFP, startingWealth, "calcTimeGridLines", "secondTick");
+    init(startFP, startingWealth, "secondTick");
 
     requestAnimationFrame(draw)
-    }());
+
+
 }
 </script>
 {% endblock %}
