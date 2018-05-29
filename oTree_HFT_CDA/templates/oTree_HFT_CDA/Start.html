@@ -619,7 +619,7 @@ window.onload = function () {
         if(obj.FPC != undefined){
             $('#fp').html(obj.FPC);
 
-        }else if(obj.exec != undefiend){
+        }else if(obj.EXEC != undefined){
             var timeNow = getTime() - graph.timeOffset;
 
 
@@ -1126,8 +1126,8 @@ Spread_Graph.listen();
     graph.profitJumps = [
         // {
         //     timestamp:graph.adminStartTime + (30*nanoToSec),
-        //     newPrice:graph.profit, 
-        //     oldPrice:graph.profit + 2000,
+        //     newProfit:graph.profit, 
+        //     oldProfit:graph.profit + 2000,
         // }
     ];
 
