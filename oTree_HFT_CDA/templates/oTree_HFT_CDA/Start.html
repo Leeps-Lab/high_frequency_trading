@@ -619,6 +619,28 @@ window.onload = function () {
         if(obj.FPC != undefined){
             $('#fp').html(obj.FPC);
 
+        }else if(obj.exec != undefiend){
+            var timeNow = getTime() - graph.timeOffset;
+
+
+            graph.profitJumps.push(
+                {
+                    timestamp:timeNow,
+                    oldProfit:graph.profit,
+                    newProfit:graph.profit + obj.profit, 
+                }
+            );
+            graph.profit += obj.profit;
+
+            graph.profitSegments.push(
+                {
+                    startTime:timeNow,
+                    endTime:timeNow, 
+                    startProfit:graph.profit, 
+                    endProfit:graph.profit,
+                    state:$("#player_role").text()
+                }
+            )
         } 
 
         // switch statement on type of data parsed from event
@@ -644,7 +666,7 @@ window.onload = function () {
 //     $('#num_snipers').html(0);
 //     $('#num_makers').html(0);
     
-//     $('#player_role').html('OUT');
+    $('#player_role').html('OUT');
 //     $('#spread_value').html('N/A');
 //     $('#profit').html(20);
 
@@ -661,12 +683,22 @@ window.onload = function () {
     // Called on click to toggle input
     updatespeed = function () {
         speed = !speed;
-        graph.speed++;
         if(speed){
             $('#speed_cost').html({{Constants.speed_cost}});
         }else {
             $('#speed_cost').html(0);
         }
+        var timeNow = getTime() - graph.timeOffset;
+        graph.profitSegments.push(
+            {
+                startTime:timeNow,
+                endTime:timeNow, 
+                startProfit:graph.profit, 
+                endProfit:graph.profit,
+                state:$("#player_role").text()
+            }
+        );
+
         var msg = {
             type: 'speed_change',
             id: {{player.id}},
@@ -694,7 +726,7 @@ window.onload = function () {
             }
 
             Button_Pressed("maker");
-            $('#player_role').html('Maker');
+            $('#player_role').html('MAKER');
 
             Spread_Graph.spread(); // Auto Input Spread
             Spread_Graph.drawMyLine(); // Auto input spread
@@ -717,7 +749,7 @@ window.onload = function () {
                 socket.send(JSON.stringify(msg));
             }
             Button_Pressed("sniper");
-            $('#player_role').html('Sniper');
+            $('#player_role').html('SNIPER');
 
             Spread_Graph.clear();
         }
@@ -741,7 +773,7 @@ window.onload = function () {
                 socket.send(JSON.stringify(msg));
             }
             Button_Pressed("out");
-            $('#player_role').html('Out');
+            $('#player_role').html('OUT');
 
             Spread_Graph.clear();
         }
@@ -1076,12 +1108,35 @@ Spread_Graph.listen();
     graph.maxPriceProfit = graph.startingWealth + (graph.priceRange / 2);
     graph.minPriceProfit = graph.startingWealth - (graph.priceRange / 2);
     graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
+   
+    /*
+     * DataHistory object sets
+     */
+    // historyDataSet structure = [[startTime, endTime, startProfit, endProfit, state],...] 
+    graph.profitSegments = [
+        {
+            startTime:graph.adminStartTime,
+            endTime:graph.adminStartTime, 
+            startProfit:graph.profit, 
+            endProfit:graph.profit,
+            state:$("#player_role").text()
+        }
+    ];
+
+    graph.profitJumps = [
+        // {
+        //     timestamp:graph.adminStartTime + (30*nanoToSec),
+        //     newPrice:graph.profit, 
+        //     oldPrice:graph.profit + 2000,
+        // }
+    ];
+
 
 //------------------------------------------------
 
     graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
     graph.graphPaddingRight = 20;  //used                                 // how far from the x axis label that the line stops moving
-    graph.graphAdjustSpeedProfit = 1;                              //speed that profit price axis adjusts in pixels per frame
+    graph.graphAdjustSpeedProfit = 10;                              //speed that profit price axis adjusts in pixels per frame
     graph.numberOfTicks = 10;
     graph.profitPriceGridIncrement = graph.priceRange / graph.numberOfTicks;                             //amount between each line on profit price axis
     
@@ -1316,7 +1371,7 @@ Spread_Graph.listen();
     };
 
     //draws profit line
-    function drawProfit(historyDataSet, currentData, profitJumps) {
+    function drawProfit(historyDataSet, profitJumps) {
         graph.profitSVG.selectAll("line.my-profit-out line.my-profit-maker line.my-profit-snipe")
             .data(historyDataSet, function (d) {   
 
@@ -1326,37 +1381,25 @@ Spread_Graph.listen();
             .enter()
             .append("line")
             .filter(function (d) {
-               return d[1] >= (graph.currentTime - graph.timeInterval);
+               return d.endTime >= (graph.currentTime - graph.timeInterval);
             })
             .attr("x1", function (d) {
-               return mapTimeToXAxis(d[0]);
+               return mapTimeToXAxis(d.startTime);
             })
             .attr("x2", function (d) {
-               return mapTimeToXAxis(d[1]);
+               return mapTimeToXAxis(d.endTime);
             })
             .attr("y1", function (d) {
-               return mapProfitPriceToYAxis(d[2]);
+               return mapProfitPriceToYAxis(d.startProfit);
             })
             .attr("y2", function (d) {
-               return mapProfitPriceToYAxis(d[3]);
+               return mapProfitPriceToYAxis(d.endProfit);
             })
             .attr("class", function (d) {
                // a masterpiece // no fuck you
-               return d[4] == "Out" ? "my-profit-out" : (d[4] == "Maker" ? "my-profit-maker" : "my-profit-snipe");
+               return d.state == "OUT" ? "my-profit-out" : (d.state == "MAKER" ? "my-profit-maker" : "my-profit-snipe");
         });
 
-        // currentData structure = [startTime, price, slope, state]
-        if (currentData != null) {
-            var pricefinal = currentData[1] - ((graph.currentTime - currentData[0]) * currentData[2]); //determines how far down the line has moved (from speed)
-            graph.profitSVG.append("line")
-               .attr("x1", mapTimeToXAxis(currentData[0]))
-               .attr("x2", graph.curTimeX)
-               .attr("y1", mapProfitPriceToYAxis(currentData[1]))
-               .attr("y2", mapProfitPriceToYAxis(pricefinal))
-               .attr("class", currentData[3] == "Out" ? "my-profit-out" : (currentData[3] == "Maker" ? "my-profit-maker" : "my-profit-snipe"));
-        }
-        
-       
         graph.profitSVG.selectAll("line.positive-profit line.negative-profit")
             .data(profitJumps)      
             // profitJumps structure = {timestamp:(nano), newPrice:(thousands), oldPrice:(thousands)}    
@@ -1372,19 +1415,19 @@ Spread_Graph.listen();
                return mapTimeToXAxis(d.timestamp);
             })
             .attr("y1", function (d) {
-               return mapProfitPriceToYAxis(d.oldPrice);     //old profit
+               return mapProfitPriceToYAxis(d.oldProfit);     //old profit
             })
             .attr("y2", function (d) {
-               return mapProfitPriceToYAxis(d.newPrice);     //current profit
+               return mapProfitPriceToYAxis(d.newProfit);     //current profit
             })
             .attr("class", function (d) {
-                  return d.oldPrice < d.newPrice ? "my-positive-profit" : "my-negative-profit";
+                  return d.oldProfit < d.newProfit ? "my-positive-profit" : "my-negative-profit";
             });   
     };
 
 
     function draw() {
-        console.log(graph.speed);
+
         //Clear the svg elements
         graph.profitSVG.selectAll("*").remove();
 
@@ -1433,13 +1476,21 @@ Spread_Graph.listen();
         // historyDataSet = [[startTime, endTime, startProfit, endProfit, state],...] 
         // 2-D array where each index contains a different portion of the profit line *over the entire experiment*
         // Each index has a startTime (nano), endTime (nano), startProfit (thousands), endProfit (thousands) 
-        var historyDataSet = [[0 + graph.adminStartTime, (30*nanoToSec)+ graph.adminStartTime, graph.profit, graph.profit+ 5000, "Maker"]];
+        graph.profitSegments[graph.profitSegments.length - 1]["endTime"] = graph.currentTime;
         
-        // profitJumps = {timestamp, newPrice, oldPrice}    
-        var profitJumps = {timestamp:graph.adminStartTime, newPrice:0, oldPrice:0};
+        var profitDecrement = 0;
+        if(speed){
+            profitDecrement = (graph.profitSegments[graph.profitSegments.length - 1]["endTime"] - graph.profitSegments[graph.profitSegments.length - 1]["startTime"]) * -1e-7;
+        }
+
+
+        graph.profitSegments[graph.profitSegments.length - 1]["endProfit"] = graph.profitSegments[graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
+        graph.profit = graph.profitSegments[graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
+
+        
         
 
-        drawProfit(historyDataSet, null, profitJumps);
+        drawProfit(graph.profitSegments, graph.profitJumps);
         
 
 
