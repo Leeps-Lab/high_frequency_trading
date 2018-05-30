@@ -801,7 +801,7 @@ window.onload = function () {
         function svgClickListener(){
             spread_svg.on('click',function(d) { 
                 role = $("#player_role").text();
-                if(role == "Maker"){
+                if(role == "MAKER"){
 
                     //The dimensions the svg take up
                     spread_x = document.getElementById("spread-graph").getBoundingClientRect().left;
@@ -862,22 +862,22 @@ window.onload = function () {
                    .attr("class","my_line");
             //WAIT FOR SPEED AND THEN SET THE SPREAD with the bar line
 
-            addLineAnimation();
+            addLineAnimation(); 
 
             setTimeout(function(d){
-            drawSpreadBar(my_spread,svg_middle_y,y_coordinate);
+                drawSpreadBar(my_spread,svg_middle_y,y_coordinate);
             }, 500);
 
           //Timeout is whether or not speed is on
         }
 
-        function addLineAnimation(){
+        function addLineAnimation(speed = 500){
             //SETTING THE SPREAD TO THE LINE
             spread_lines = d3.selectAll(".my_line");
             add_animation = spread_lines
                         .transition()
                         // duration is whether or not speed is on
-                        .duration(500)
+                        .duration(speed)
                         .attr("x1", 85)
                         .attr("x2", spread_width - 85);         
         }
@@ -909,20 +909,20 @@ window.onload = function () {
                    .attr("class","others_line");
 
             // for removing when a transation occurs
-            Other_Maker_lines[ordertoken_sell] = [your_spread_line_top, your_spread_line_bottom]
-            Other_Maker_lines[ordertoken_buy] = [your_spread_line_top, your_spread_line_bottom]
+            Other_Maker_lines[ordertoken_sell] = your_spread_line_top
+            Other_Maker_lines[ordertoken_buy] = your_spread_line_bottom
 
             addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
             //Timeout is whether or not speed is on
         }
 
-        function addOthersLineAnimation(lines){
+        function addOthersLineAnimation(lines, speed = 500){
             //SETTING THE SPREAD TO THE LINE
             for( i = 0; i < 2; i++){
                 add_animation = lines[i]
                   .transition()
                   // duration is whether or not speed is on
-                  .duration(500)
+                  .duration(speed)
                   .attr("x1", 85)
                   .attr("x2", spread_width - 85); 
             }      
@@ -975,8 +975,7 @@ window.onload = function () {
 
         function removeOtherMakerLine(order_token){
             var lines_to_remove = Other_Maker_lines[order_token];
-            lines_to_remove[0].remove();
-            lines_to_remove[1].remove();
+            lines_to_remove.remove();
 
         }
 
