@@ -277,7 +277,8 @@ class Player(BasePlayer):
 
 
     def update_spread(self, message):
-        self.spread = 2000*float(message['spread'])
+        self.spread = int(message['spread'])
+        self.group.broadcast({"SPRCHG":{self.id_in_group:{"B":(self.fp - self.spread / 2), "A":(self.fp + self.spread / 2)}}})
         ords = self.order_set.filter(status='A')
         if ords.exists():
             msgs = [self.stage_replace(o) for o in ords]
@@ -338,6 +339,8 @@ class Player(BasePlayer):
 
     def confirm_exec(self, msg):
         stamp, tok = msg['timestamp'], msg['order_token']
+        # if tok[4] == "B":
+            # self.group.broadcast({"SIDE":{self.id_in_group:{"B":(self.fp - self.spread / 2)}}})
         order = self.order_set.get(token=tok)
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
