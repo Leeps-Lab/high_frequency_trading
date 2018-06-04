@@ -79,7 +79,12 @@ g{
 }
 
 .transaction_bar_light{
-  fill:#6edd68;
+  fill:#00cc00;
+  opacity: 0.5;
+}
+
+.transaction_bar_dark{
+  fill:#006600;
   opacity: 0.5;
 }
 
@@ -216,9 +221,8 @@ window.onload = function () {
             
 
         }else if(obj.EXEC != undefined){
-            console.log("Received a profit from execution: " +  obj.EXEC);
             var timeNow = getTime() - graph.timeOffset;
-
+            console.log("EXEC: " + obj.EXEC);
 
             graph.profitJumps.push(
                 {
@@ -246,7 +250,6 @@ window.onload = function () {
             Spread_Graph.drawMyLine(obj.SPRCHG);
             
         }else if(obj.SIDE != undefined){
-            console.log("SIDE");
             Spread_Graph.clear();
             for(var key in obj.SIDE){
                 Spread_Graph.drawMyLine({}, 0, obj.SIDE[key]);
@@ -345,6 +348,7 @@ window.onload = function () {
                 }
             );
 
+
             var msg = {
                 type: 'role_change',
                 id: {{player.id}},
@@ -391,6 +395,10 @@ window.onload = function () {
             Button_Pressed("sniper");
 
             Spread_Graph.clear();
+            console.log(spread_lines);
+            delete spread_lines[parseInt($("#player_id").text())]
+            console.log(spread_lines);
+
         }
 
         $("#maker").attr('class', 'button-off');
@@ -428,6 +436,8 @@ window.onload = function () {
             
 
             Spread_Graph.clear();
+            delete spread_lines[parseInt($("#player_id").text())]
+
         }
 
         $("#maker").attr('class', 'button-off');
@@ -532,8 +542,6 @@ window.onload = function () {
 
         function drawMySpreadLines(newLines, offset = 0, exec={}){
             for(var key in spread_lines){
-                console.log(spread_lines[key]);
-                console.log(exec);
                 if(key == parseInt($('#player_id').text())){
                     spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
                     //Where the grey middle line is
@@ -541,8 +549,6 @@ window.onload = function () {
                     my_spread = parseInt(spread_lines[key]["A"] - spread_lines[key]["B"]);
                     money_ratio =  max_spread/my_spread;
                     y_coordinate = svg_middle_y/money_ratio;
-                    // console.log(y_coordinate);
-                    //Ratio between the distance and the mid
                     var lines = [];
                     var exec_side = "";
 
@@ -574,11 +580,10 @@ window.onload = function () {
                     addOthersLineAnimation(lines, 0);
                     drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset);
                     if(exec_side != ""){
-                        drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side);
+                        drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, "transaction_bar_light");
                     }
 
                 }else{
-                    // console.log("Drawing other line")
                     spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
                     var lines = [];
                     //Where the grey middle line is
@@ -612,6 +617,9 @@ window.onload = function () {
                         exec_side = "B";
                     }
                     addOthersLineAnimation(lines, 0);
+                    if(exec_side != ""){
+                        drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, "transaction_bar_dark");
+                    }
                 }
                 
                 
@@ -699,9 +707,9 @@ window.onload = function () {
         }
   
 
-        function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side){
+        function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side, color){
             //take into account
-            var bar_color = "transaction_bar_light";
+            var bar_color = color;
 
             //if not other maker within the spread
             if(side === 'B'){
@@ -722,6 +730,7 @@ window.onload = function () {
             }
             setTimeout(function(){
                 d3.selectAll(".transaction_bar_light").remove();
+                d3.selectAll(".transaction_bar_dark").remove();
             },400);
         }
 

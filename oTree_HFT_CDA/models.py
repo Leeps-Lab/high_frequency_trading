@@ -251,6 +251,7 @@ class Player(BasePlayer):
         self.group.send_exchange(msgs, delay=True, speed=self.speed)
 
     def _leave_market(self):
+        self.group.broadcast({"SPRCHG":{self.id_in_group:0}})
         ords = self.order_set.filter(status='A')
         if ords.exists():
             msgs = [self.stage_cancel(o) for o in ords]
