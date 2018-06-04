@@ -78,6 +78,11 @@ g{
   opacity: 0.5;
 }
 
+.transaction_bar_light{
+  fill:#6edd68;
+  opacity: 0.5;
+}
+
 .table{
     table-layout : auto;
     padding-bottom: 0px;
@@ -187,9 +192,18 @@ window.onload = function () {
         var obj = jQuery.parseJSON(event.data);
         if(obj.FPC != undefined){
             var difference = $('#fp').text() - obj.FPC;
+
+            console.log(difference);
+
             $('#fp').html(obj.FPC);
             Spread_Graph.clear();
-            Spread_Graph.drawMyLine({}, 500);
+            Spread_Graph.drawMyLine({}, difference/ 10);
+
+            for(var key in spread_lines){
+                spread_lines[key]["A"] -= parseInt(difference);
+                spread_lines[key]["B"] -= parseInt(difference);
+            }
+
 
             setTimeout(function(){
                 Spread_Graph.clear();
@@ -225,12 +239,23 @@ window.onload = function () {
                 }
             )
         }else if(obj.SPRCHG != undefined){
-            console.log(obj.SPRCHG);
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
                 delete spread_lines[key];
             }
             Spread_Graph.drawMyLine(obj.SPRCHG);
+            
+        }else if(obj.SIDE != undefined){
+            console.log("SIDE");
+            Spread_Graph.clear();
+            for(var key in obj.SIDE){
+                Spread_Graph.drawMyLine({}, 0, obj.SIDE[key]);
+            }
+
+            setTimeout(function(){
+                Spread_Graph.drawMyLine({}, 0, {})
+            },500);
+
             
         }
        
@@ -505,12 +530,10 @@ window.onload = function () {
             });
         }
 
-        function drawMySpreadLines(newLines, offset = 0){
-            console.log("Spread_lines: ");
-            console.log(spread_lines);
-            console.log("NewLines: ");
-            console.log(newLines);
+        function drawMySpreadLines(newLines, offset = 0, exec={}){
             for(var key in spread_lines){
+                console.log(spread_lines[key]);
+                console.log(exec);
                 if(key == parseInt($('#player_id').text())){
                     spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
                     //Where the grey middle line is
@@ -520,26 +543,44 @@ window.onload = function () {
                     y_coordinate = svg_middle_y/money_ratio;
                     // console.log(y_coordinate);
                     //Ratio between the distance and the mid
+                    var lines = [];
+                    var exec_side = "";
 
-                    your_spread_line_top = spread_svg.append("svg:line")
-                        .attr("x1", spread_width - 35)
-                        .attr("y1", svg_middle_y - y_coordinate + offset)
-                        .attr("x2", spread_width)
-                        .attr("y2", svg_middle_y - y_coordinate + offset)
-                        .attr("class","my_line");
+                    if(exec["A"] == undefined || spread_lines[key]["A"] != exec["A"]){
+                        your_spread_line_top = spread_svg.append("svg:line")
+                            .attr("x1", spread_width - 35)
+                            .attr("y1", svg_middle_y - y_coordinate + offset)
+                            .attr("x2", spread_width)
+                            .attr("y2", svg_middle_y - y_coordinate + offset)
+                            .attr("class","my_line");
+                        lines.push(your_spread_line_top);
+                    }else{
+                        exec_side = "S";
+                    }
 
-                    your_spread_line_bottom = spread_svg.append("svg:line")
-                        .attr("x1", spread_width - 35)
-                        .attr("y1", y_coordinate + svg_middle_y + offset)
-                        .attr("x2", spread_width)
-                        .attr("y2", y_coordinate + svg_middle_y + offset)
-                        .attr("class","my_line");
-                        addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0);
-                        drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset);
+                    if(exec["B"] == undefined || spread_lines[key]["B"] != exec["B"]){                    
+                        your_spread_line_bottom = spread_svg.append("svg:line")
+                            .attr("x1", spread_width - 35)
+                            .attr("y1", y_coordinate + svg_middle_y + offset)
+                            .attr("x2", spread_width)
+                            .attr("y2", y_coordinate + svg_middle_y + offset)
+                            .attr("class","my_line");
+                        lines.push(your_spread_line_bottom);
+                        
+                            
+                    }else{
+                        exec_side = "B";
+                    }
+                    addOthersLineAnimation(lines, 0);
+                    drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset);
+                    if(exec_side != ""){
+                        drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side);
+                    }
+
                 }else{
                     // console.log("Drawing other line")
                     spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
-
+                    var lines = [];
                     //Where the grey middle line is
                     svg_middle_y = spread_height/2;
                     my_spread = parseInt(spread_lines[key]["A"] - spread_lines[key]["B"]);
@@ -547,22 +588,30 @@ window.onload = function () {
                     y_coordinate = svg_middle_y/money_ratio;
                     // console.log(y_coordinate);
                     //Ratio between the distance and the mid
+                    if(exec["A"] == undefined || spread_lines[key]["A"] != exec["A"]){
+                        your_spread_line_top = spread_svg.append("svg:line")
+                            .attr("x1", spread_width - 35)
+                            .attr("y1", svg_middle_y - y_coordinate + offset)
+                            .attr("x2", spread_width)
+                            .attr("y2", svg_middle_y - y_coordinate + offset)
+                            .attr("class","others_line");
+                        lines.push(your_spread_line_top);
+                    }else{
+                        exec_side = "S";
 
-                    your_spread_line_top = spread_svg.append("svg:line")
-                        .attr("x1", spread_width - 35)
-                        .attr("y1", svg_middle_y - y_coordinate + offset)
-                        .attr("x2", spread_width)
-                        .attr("y2", svg_middle_y - y_coordinate + offset)
-                        .attr("class","others_line");
-
-
-                    your_spread_line_bottom = spread_svg.append("svg:line")
-                        .attr("x1", spread_width - 35)
-                        .attr("y1", y_coordinate + svg_middle_y + offset)
-                        .attr("x2", spread_width)
-                        .attr("y2", y_coordinate + svg_middle_y + offset)
-                        .attr("class","others_line");
-                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0);
+                    }
+                    if(exec["B"] == undefined || spread_lines[key]["B"] != exec["B"]){
+                        your_spread_line_bottom = spread_svg.append("svg:line")
+                            .attr("x1", spread_width - 35)
+                            .attr("y1", y_coordinate + svg_middle_y + offset)
+                            .attr("x2", spread_width)
+                            .attr("y2", y_coordinate + svg_middle_y + offset)
+                            .attr("class","others_line");
+                        lines.push(your_spread_line_bottom);
+                    }else{
+                        exec_side = "B";
+                    }
+                    addOthersLineAnimation(lines, 0);
                 }
                 
                 
@@ -582,21 +631,19 @@ window.onload = function () {
                     y_coordinate = svg_middle_y/money_ratio;
                     // console.log(y_coordinate);
                     //Ratio between the distance and the mid
-
                     your_spread_line_top = spread_svg.append("svg:line")
                         .attr("x1", spread_width - 35)
                         .attr("y1", svg_middle_y - y_coordinate + offset)
                         .attr("x2", spread_width)
                         .attr("y2", svg_middle_y - y_coordinate + offset)
                         .attr("class","my_line");
-
+                
                     your_spread_line_bottom = spread_svg.append("svg:line")
                         .attr("x1", spread_width - 35)
                         .attr("y1", y_coordinate + svg_middle_y + offset)
                         .attr("x2", spread_width)
                         .attr("y2", y_coordinate + svg_middle_y + offset)
                         .attr("class","my_line");
-                    //WAIT FOR SPEED AND THEN SET THE SPREAD with the bar line
 
                     addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]); 
 
@@ -612,8 +659,6 @@ window.onload = function () {
                     money_ratio =  max_spread/my_spread;
                     y_coordinate = svg_middle_y/money_ratio;
                     // console.log(y_coordinate);
-                    //Ratio between the distance and the mid
-
                     your_spread_line_top = spread_svg.append("svg:line")
                         .attr("x1", spread_width - 35)
                         .attr("y1", svg_middle_y - y_coordinate)
@@ -621,14 +666,13 @@ window.onload = function () {
                         .attr("y2", svg_middle_y - y_coordinate)
                         .attr("class","others_line");
 
-
+                
                     your_spread_line_bottom = spread_svg.append("svg:line")
                         .attr("x1", spread_width - 35)
                         .attr("y1", y_coordinate + svg_middle_y)
                         .attr("x2", spread_width)
                         .attr("y2", y_coordinate + svg_middle_y)
                         .attr("class","others_line");
-
                     // for removing when a transation occurs
 
                     addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
@@ -643,7 +687,7 @@ window.onload = function () {
 
         function addOthersLineAnimation(lines, speed = 500){
             //SETTING THE SPREAD TO THE LINE
-            for( i = 0; i < 2; i++){
+            for( i = 0; i < lines.length; i++){
                 add_animation = lines[i]
                   .transition()
                   // duration is whether or not speed is on
@@ -657,7 +701,7 @@ window.onload = function () {
 
         function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side){
             //take into account
-            var bar_color = "green_bar";
+            var bar_color = "transaction_bar_light";
 
             //if not other maker within the spread
             if(side === 'B'){
@@ -676,6 +720,9 @@ window.onload = function () {
                         .attr("height", y_coordinate)
                         .attr("class",bar_color);
             }
+            setTimeout(function(){
+                d3.selectAll(".transaction_bar_light").remove();
+            },400);
         }
 
         function drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset){
@@ -804,13 +851,7 @@ Spread_Graph.listen();
         }
     ];
 
-    graph.profitJumps = [
-        // {
-        //     timestamp:graph.adminStartTime + (30*nanoToSec),
-        //     newProfit:graph.profit, 
-        //     oldProfit:graph.profit + 2000,
-        // }
-    ];
+    graph.profitJumps = [];
 
 
 //------------------------------------------------
@@ -1047,7 +1088,7 @@ Spread_Graph.listen();
             })
             .attr("class", "price-grid-line-text")
             .text(function (d) {
-                return d;
+                return d / 1000;
         });
     };
 

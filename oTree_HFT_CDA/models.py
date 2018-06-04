@@ -339,8 +339,11 @@ class Player(BasePlayer):
 
     def confirm_exec(self, msg):
         stamp, tok = msg['timestamp'], msg['order_token']
-        # if tok[4] == "B":
-            # self.group.broadcast({"SIDE":{self.id_in_group:{"B":(self.fp - self.spread / 2)}}})
+        if tok[4] == "B":
+            self.group.broadcast({"SIDE":{self.id_in_group:{"B":(self.fp - self.spread / 2)}}})
+        elif tok[4] == "S":
+            self.group.broadcast({"SIDE":{self.id_in_group:{"A":(self.fp - self.spread / 2)}}})
+
         order = self.order_set.get(token=tok)
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
