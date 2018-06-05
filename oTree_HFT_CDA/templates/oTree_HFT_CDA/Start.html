@@ -204,7 +204,7 @@ window.onload = function () {
             var difference = $('#fp').text() - obj.FPC;
             $('#fp').html(obj.FPC);
             Spread_Graph.clear();
-            Spread_Graph.drawMyLine({}, difference/ 10);
+            Spread_Graph.drawMyLine({}, difference / 10);
 
             for(var key in spread_lines){
                 for(var token in spread_lines[key]){
@@ -479,7 +479,7 @@ window.onload = function () {
     var max_spread = 2000; // Pull from Constansts
     var default_spread = 1000;
 
-      var smallest_spread = {"key":-1, "spread":max_spread};
+    var smallest_spread = {"key":-1, "spread":max_spread};
 
 
     // Functions for drawing choice box
