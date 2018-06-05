@@ -212,6 +212,7 @@ class Player(BasePlayer):
     fp = models.IntegerField(initial=10000)
     order_count = models.IntegerField(initial=1)
     profit = models.IntegerField(initial=10000)
+    time_of_speed_change = models.IntegerField()
 
     # Player actions
 
@@ -289,6 +290,7 @@ class Player(BasePlayer):
 
     def update_speed(self, message):  
         self.speed = not self.speed      # Front end button doesnt work 0429
+        self.calc_speed(self.speed, Get_Time())
         self.save()
         speed = ('fast' if self.speed else 'slow')
         log.info('Player%d: Speed change: %s.' % (self.id_in_group, speed))
@@ -361,23 +363,31 @@ class Player(BasePlayer):
             # Execution of your buy offer
             if exec_price < fp:                  #  Player bought lower than FP (positive profit)
                 profit += abs(fp - exec_price)  
-                print("fp: %d    exec_price: %d   profit: %d" % (fp,exec_price, profit))
+                time_temp = Get_Time()
+                self.calc_speed(False, Get_Time())
             else:                                #  Player bought higher than FP (negative profit)   
                 profit -= abs(fp - exec_price)   
-                print("fp: %d    exec_price: %d   profit: %d" % (fp,exec_price, profit))
-        else:
+                self.calc_speed(False, Get_Time())
             # Execution of your sell offer
             if exec_price < fp:                  #  Player sold lower than FP (negative profit)
                 profit -= abs(fp - exec_price) 
-                print("fp: %d    exec_price: %d   profit: %d" % (fp,exec_price, profit))   
+                self.calc_speed(False, Get_Time())
             else:
                 profit += abs(fp - exec_price)      #  Player sold higher than FP (positive profit)
-                print("fp: %d    exec_price: %d   profit: %d" % (fp,exec_price, profit))
+                self.calc_speed(False, Get_Time())
 
         self.profit += profit
         self.save()
 
         return profit
+
+    # state = True/False (speed on/speed off) timestamp = time of speed state change
+    def calc_speed(self, state, timestamp):
+        if state is :
+            self.time_of_speed_change = Get_Time()
+        else:
+            self.profit -= (timestamp - self.time_of_speed_change) * Constants.speed_cost
+            self.save()
 
 
     def jump(self, new_price):  
