@@ -362,19 +362,31 @@ class Player(BasePlayer):
         if side == 'B':
             # Execution of your buy offer
             if exec_price < fp:                  #  Player bought lower than FP (positive profit)
-                profit += abs(fp - exec_price)  
-                time_temp = Get_Time()
-                self.calc_speed(False, Get_Time())
+                profit += abs(fp - exec_price)
+                if self.speed == 1:
+                    time_temp = Get_Time()
+                    self.calc_speed(0, Get_Time())
+                    self.calc_speed(1, Get_Time())
             else:                                #  Player bought higher than FP (negative profit)   
                 profit -= abs(fp - exec_price)   
-                self.calc_speed(False, Get_Time())
+                if self.speed == 1:
+                    time_temp = Get_Time()
+                    self.calc_speed(0, Get_Time())
+                    self.calc_speed(1, Get_Time())
+        else:
             # Execution of your sell offer
             if exec_price < fp:                  #  Player sold lower than FP (negative profit)
                 profit -= abs(fp - exec_price) 
-                self.calc_speed(False, Get_Time())
+                if self.speed == 1:
+                    time_temp = Get_Time()
+                    self.calc_speed(0, Get_Time())
+                    self.calc_speed(1, Get_Time())
             else:
                 profit += abs(fp - exec_price)      #  Player sold higher than FP (positive profit)
-                self.calc_speed(False, Get_Time())
+                if self.speed == 1:
+                    time_temp = Get_Time()
+                    self.calc_speed(0, Get_Time())
+                    self.calc_speed(1, Get_Time())
 
         self.profit += profit
         self.save()
@@ -383,7 +395,7 @@ class Player(BasePlayer):
 
     # state = True/False (speed on/speed off) timestamp = time of speed state change
     def calc_speed(self, state, timestamp):
-        if state is True:
+        if state == 1:
             self.time_of_speed_change = Get_Time()
         else:
             self.profit -= (timestamp - self.time_of_speed_change) * Constants.speed_cost
