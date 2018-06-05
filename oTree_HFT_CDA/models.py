@@ -340,15 +340,14 @@ class Player(BasePlayer):
 
     def confirm_exec(self, msg):
         stamp, tok = msg['timestamp'], msg['order_token']
-        if tok[4] == "B":
-            self.group.broadcast({"SIDE":{self.id_in_group:{"B":(self.fp - self.spread / 2)}}})
-        elif tok[4] == "S":
-            self.group.broadcast({"SIDE":{self.id_in_group:{"A":(self.fp - self.spread / 2)}}})
+        
 
         order = self.order_set.get(token=tok)
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
-        self.calc_profit(order.price, order.side, stamp)                                      
+        profit = self.calc_profit(order.price, order.side, stamp)                                      
+        
+        self.group.broadcast({"EXEC":{"id": self.id_in_group, "token":tok, "profit":profit}})
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]
@@ -371,9 +370,10 @@ class Player(BasePlayer):
             else:
                 profit += abs(fp - exec_price)      #  Player sold higher than FP (positive profit)
 
-        self.send_client({"EXEC":profit})
         self.profit += profit
         self.save()
+
+        return profit
 
 
     def jump(self, new_price):  
