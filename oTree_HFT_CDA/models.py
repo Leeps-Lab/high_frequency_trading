@@ -383,7 +383,7 @@ class Player(BasePlayer):
 
     # state = True/False (speed on/speed off) timestamp = time of speed state change
     def calc_speed(self, state, timestamp):
-        if state is :
+        if state is True:
             self.time_of_speed_change = Get_Time()
         else:
             self.profit -= (timestamp - self.time_of_speed_change) * Constants.speed_cost
