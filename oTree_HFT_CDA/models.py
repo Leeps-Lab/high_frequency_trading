@@ -32,7 +32,7 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 2
+    players_per_group = 3
     num_rounds = 1
     speed_cost = 0.1
 
@@ -232,7 +232,7 @@ class Player(BasePlayer):
         price = int(self.fp + spread / 2)
         new_order = self._create_order(side=order.side, price=price, time_in_force=99999)
         ouch = translate.replace(order, new_order)   
-        log.info('Player%d: Stage: Replace: %s.' % (self.id_in_group, order.token))
+        log.info('Player%d: Stage: Replace: %s with %s.' % (self.id_in_group, order.token, new_order.token))
         return ouch
 
     def stage_cancel(self, order):
@@ -312,9 +312,6 @@ class Player(BasePlayer):
             'E':self.confirm_exec
         }
         events[msg['type']](msg)
-
-    # Confirm methods    
-
     # These methods should send response to clients ! 
 
     def confirm_enter(self,msg):
@@ -339,15 +336,18 @@ class Player(BasePlayer):
         log.info('Player%d: Confirm: Cancel %s.' % (self.id_in_group, tok))
 
     def confirm_exec(self, msg):
-        stamp, tok = msg['timestamp'], msg['order_token']
+        stamp, tok, price = msg['timestamp'], msg['order_token'], msg['price']
         
-
         order = self.order_set.get(token=tok)
+        
+        
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
-        profit = self.calc_profit(order.price, order.side, stamp)                                      
-        
+        profit = self.calc_profit(price, order.side, stamp)                                      
+        print("id: %s, pofit%d" %(self.id_in_group, profit))
+
         self.group.broadcast({"EXEC":{"id": self.id_in_group, "token":tok, "profit":profit}})
+
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]
@@ -356,19 +356,23 @@ class Player(BasePlayer):
     def calc_profit(self, exec_price, side, timestamp):
         profit = 0
         fp = self.session.vars['FP_Log'].getFP(timestamp)
-
+        
         if side == 'B':
             # Execution of your buy offer
             if exec_price < fp:                  #  Player bought lower than FP (positive profit)
                 profit += abs(fp - exec_price)  
+                print("fp: %d    exec_price: %d   profit: %d" % (fp,exec_price, profit))
             else:                                #  Player bought higher than FP (negative profit)   
                 profit -= abs(fp - exec_price)   
+                print("fp: %d    exec_price: %d   profit: %d" % (fp,exec_price, profit))
         else:
             # Execution of your sell offer
             if exec_price < fp:                  #  Player sold lower than FP (negative profit)
-                profit -= abs(fp - exec_price)    
+                profit -= abs(fp - exec_price) 
+                print("fp: %d    exec_price: %d   profit: %d" % (fp,exec_price, profit))   
             else:
                 profit += abs(fp - exec_price)      #  Player sold higher than FP (positive profit)
+                print("fp: %d    exec_price: %d   profit: %d" % (fp,exec_price, profit))
 
         self.profit += profit
         self.save()
@@ -479,8 +483,9 @@ class Order(Model):  # This is a big object. Do we really need all these fields 
         self.time_stage = time
         self.token, self.firm = tokengen(self.player.id_in_group, self.side, self.player.order_count)
         self.player.order_count += 1
-        self.save()
         self.player.save()
+        self.save()
+
 
     def activate(self, time):
         self.status = 'A'

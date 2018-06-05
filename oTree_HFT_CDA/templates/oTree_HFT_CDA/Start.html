@@ -225,26 +225,28 @@ window.onload = function () {
             
 
         }else if(obj.EXEC != undefined){
+            console.log(obj.EXEC);
             var timeNow = getTime() - graph.timeOffset;
+            if(obj.EXEC.id == parseInt($("#player_id").text())){
+                graph.profitJumps.push(
+                    {
+                        timestamp:timeNow,
+                        oldProfit:graph.profit,
+                        newProfit:graph.profit + obj.EXEC.profit, 
+                    }
+                );
+                graph.profit += obj.EXEC.profit;
 
-            graph.profitJumps.push(
-                {
-                    timestamp:timeNow,
-                    oldProfit:graph.profit,
-                    newProfit:graph.profit + obj.EXEC.profit, 
-                }
-            );
-            graph.profit += obj.EXEC.profit;
-
-            graph.profitSegments.push(
-                {
-                    startTime:timeNow,
-                    endTime:timeNow, 
-                    startProfit:graph.profit, 
-                    endProfit:graph.profit,
-                    state:$("#player_role").text()
-                }
-            )
+                graph.profitSegments.push(
+                    {
+                        startTime:timeNow,
+                        endTime:timeNow, 
+                        startProfit:graph.profit, 
+                        endProfit:graph.profit,
+                        state:$("#player_role").text()
+                    }
+                )   
+            }
         }else if(obj.SPRCHG != undefined){
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
