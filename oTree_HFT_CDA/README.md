@@ -9,4 +9,5 @@ Websocket-client will be used to communicate with the exchange server.
 
 Django channels will be tested for integration as a means of RTC between the subjects and admin machine.
 
-Branch Designated for integrating Redis as an in-memory db.
+
+Branch Designated for front end work

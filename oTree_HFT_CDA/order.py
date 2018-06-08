@@ -33,17 +33,17 @@ class OrderStore:
     def activate(self, time, order):
         order.activate(time)
         self.active[order.token] = order
-        log.info('Order %s activated.' % order.token)
+        log.debug('Order %s activated.' % order.token)
 
     def cancel(self, time, order):
         order.cancel(time)
         self.inactive[order.token] = order
-        log.info('Order %s is inactive.' % order.token)
+        log.debug('Order %s is inactive.' % order.token)
 
     def execute(self, time, order):
         order.execute(time)
         self.inactive[order.token] = order
-        log.info('Order %s executed and inactive.' % order.token)
+        log.debug('Order %s executed and inactive.' % order.token)
 
 
 class Order:

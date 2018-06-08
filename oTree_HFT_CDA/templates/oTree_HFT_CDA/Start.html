@@ -4,17 +4,18 @@
 
 {% block content %}
 <style type="text/css">
-    .front_end_controller{
+
+
+    .front-end-controller{
         width: 100%;
         height: 100vh;
         background-color: darkgrey;
         margin-top: -80px;
     }
-
-    .info_table{
+    .info-table{
         width:100%;
     }
-    .graph_row{
+    .graph-row{
         margin-top: 20px;
         background-color: darkgrey;
         width: 100%;
@@ -22,105 +23,46 @@
         margin-left: 00px;
         border-top:solid black 1px;
     }
-    .profit_graph{
-        width:50%;
-        height:100%;
-    }
-    .spread_graph{
-        width:50%;
-        height:100%;
-    }
-    .button-on{
-        background-color:steelblue;
-        border-color: solid black 5px;
-        color:white;
-    }
-    .button-pressed{
-        background-color:#444444;
-        color:white;
-    }
-    .button-off{
-        background-color:#666666;
-        color:white;
-    }
-    input{
-        margin-left:30px;
-        margin-top:20px;
-    }
-    .inputs{
-        margin-top:160px;
-        width: 10%;
-        height: 100%;
-    }
-    .line {
-        stroke: steelblue;
-        stroke-width: 3.5px;
-        fill: none;
-    }
-    g{
-        color:  grey;
-        stroke-width: 2px;
-        fill: none;
 
-    }
-    /* The switch - the box around the slider */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
+
+
+/* 
+    * Button presses class
+    */
+.button-on{
+    background-color:steelblue;
+    border-color: solid black 5px;
+    color:white;
+}
+.button-pressed{
+    background-color:#444444;
+    color:white;
+}
+.button-off{
+    background-color:#666666;
+    color:white;
+}
+input{
+    margin-left:30px;
+    margin-top:20px;
+}
+.inputs{
+    margin-top:160px;
+    width: 10%;
+    height: 100%;
+}
+.line {
+    stroke: steelblue;
+    stroke-width: 3.5px;
+    fill: none;
+}
+g{
+    color:  grey;
+    stroke-width: 2px;
+    fill: none;
+
 }
 
-/* Hide default HTML checkbox */
-.switch input {display:none;}
-
-/* The slider */
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #1fd15a;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #1fd15a;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
 .my_line{
   stroke:steelblue;
   stroke-width:2px;
@@ -135,13 +77,44 @@ input:checked + .slider:before {
   fill:#6edd68;
   opacity: 0.5;
 }
+
 .blue_bar{
-
+  fill:#00ffff;
+  opacity: 0.5;
 }
-</style>
 
-<div class="front_end_controller">
-    <table class="info_table" style="width:100%" >
+.transaction_bar_light{
+  fill:#00cc00;
+  opacity: 0.5;
+}
+
+.transaction_bar_dark{
+  fill:#006600;
+  opacity: 0.5;
+}
+
+.table{
+    table-layout : auto;
+    padding-bottom: 0px;
+}
+
+.row {
+    padding: 0px;
+    margin: 0px;
+}
+
+[class*="col-"] {
+    padding: 0px;
+    margin: 0px;
+}
+
+
+
+
+
+</style>
+<div class="front-end-controller">
+    <table class="info-table" style="width:100%" >
         <strong>
         <!-- Row 1 of info box -->
         <tr>
@@ -166,11 +139,16 @@ input:checked + .slider:before {
         </tr>
         </strong>
     </table>
-    <div class="row graph_row" style="width:100%; height:100%;">
+    <div class="row graph-row" style="width:100%; height:100%;">
 
-    <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;"></svg>
+        <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;">
+            <!-- tradingGraph.expandedGraph? -->
+                <!-- <span class="zoom-in" id="profit-zoom-in" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">+</span> -->
+                <!-- <span class="zoom-out" id="profit-zoom-out" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">-</span> -->
+        </svg>
 
-    <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
+
+        <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
         <div class="inputs">
           <input id="maker" value="maker" class="button-off" type="button" style="width:80px" ></input>
           <br>
@@ -185,7 +163,6 @@ input:checked + .slider:before {
                 <input type="checkbox" onclick="updatespeed()">
                 <span class="slider round"></span>
             </label>
-
         </div>
 
     </div>
@@ -194,7 +171,11 @@ input:checked + .slider:before {
 
 {% block scripts %}
     <script src="https://d3js.org/d3.v5.js"></script>
-    <script src="{% static 'oTree_HFT_CDA/graph.js' %}"></script> 
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script src="https://momentjs.com/downloads/moment-timezone.min.js"></script>
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/profit-graph.css" %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/slider.css" %}">
+
 <script>
 
 /*Front End Javascript for start.html*/
@@ -205,7 +186,6 @@ window.onload = function () {
     // Establish websocket variables
     var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
     var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
-    console.log(socket);
 
     // Handle any errors that occur.
     socket.onerror = function (error) {
@@ -221,9 +201,81 @@ window.onload = function () {
     socket.onmessage = function (event) {
         var obj = jQuery.parseJSON(event.data);
         if(obj.FPC != undefined){
+            var difference = $('#fp').text() - obj.FPC;
             $('#fp').html(obj.FPC);
+            Spread_Graph.clear();
+            Spread_Graph.drawMyLine({}, difference / 10);
 
-        } 
+            for(var key in spread_lines){
+                for(var token in spread_lines[key]){
+                    spread_lines[key][token] -= parseInt(difference);
+                    spread_lines[key][token] -= parseInt(difference);
+                }
+            }
+
+
+            setTimeout(function(){
+                Spread_Graph.clear();
+                Spread_Graph.drawMyLine({}, 0);
+            },500);
+
+            
+
+            
+            
+
+        }else if(obj.EXEC != undefined){
+            console.log(obj.EXEC);
+            var timeNow = getTime() - graph.timeOffset;
+            if(obj.EXEC.id == parseInt($("#player_id").text())){
+                graph.profitJumps.push(
+                    {
+                        timestamp:timeNow,
+                        oldProfit:graph.profit,
+                        newProfit:graph.profit + obj.EXEC.profit, 
+                    }
+                );
+                graph.profit += obj.EXEC.profit;
+
+                graph.profitSegments.push(
+                    {
+                        startTime:timeNow,
+                        endTime:timeNow, 
+                        startProfit:graph.profit, 
+                        endProfit:graph.profit,
+                        state:$("#player_role").text()
+                    }
+                )   
+            }
+        }else if(obj.SPRCHG != undefined){
+            Spread_Graph.clear();
+            for(var key in obj.SPRCHG){
+                delete spread_lines[key];
+            }
+
+            for(var key in obj.SPRCHG){
+                if((obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"]) < smallest_spread["spread"]){
+                    smallest_spread["key"] = key;
+                    smallest_spread["spread"] = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"]
+                }
+            }
+
+            Spread_Graph.drawMyLine(obj.SPRCHG);
+            
+        }
+        // else if(obj.SIDE != undefined){
+        //     Spread_Graph.clear();
+        //     for(var key in obj.SIDE){
+        //         Spread_Graph.drawMyLine({}, 0, obj.SIDE[key]);
+        //     }
+
+        //     setTimeout(function(){
+        //         Spread_Graph.drawMyLine({}, 0, {})
+        //     },500);
+
+            
+        // }
+       
 
         // switch statement on type of data parsed from event
     };
@@ -232,6 +284,8 @@ window.onload = function () {
     socket.onclose = function (event) {
         console.log('disconnected from oTree');
     };
+
+
 
 
     /*
@@ -250,13 +304,15 @@ window.onload = function () {
     $('#spread_value').html('N/A');
     $('#profit').html(20);
 
-//-> buggyas fuc,k    // $('#fp').html(player.fp);
+    $('#fp').html({{player.fp}});
     $('#curr_bid').html('N/A');
     $('#curr_ask').html('N/A');
 
 
     // On load global var? Terrible
     var speed = false;
+    // global variable 
+    var graph = {};
 
     // Called on click to toggle input
     updatespeed = function () {
@@ -266,6 +322,17 @@ window.onload = function () {
         }else {
             $('#speed_cost').html(0);
         }
+        var timeNow = getTime() - graph.timeOffset;
+        graph.profitSegments.push(
+            {
+                startTime:timeNow,
+                endTime:timeNow, 
+                startProfit:graph.profit, 
+                endProfit:graph.profit,
+                state:$("#player_role").text()
+            }
+        );
+
         var msg = {
             type: 'speed_change',
             id: {{player.id}},
@@ -282,6 +349,20 @@ window.onload = function () {
         if ((document.getElementById("maker").className == "button-off") && (document.getElementById("maker").className != "button-pressed")){
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
             $("#maker").toggleClass('button-off button-pressed');
+            $('#player_role').html('MAKER');
+
+            var timeNow = getTime() - graph.timeOffset;
+            graph.profitSegments.push(
+                {
+                    startTime:timeNow,
+                    endTime:timeNow, 
+                    startProfit:graph.profit, 
+                    endProfit:graph.profit,
+                    state:$("#player_role").text()
+                }
+            );
+
+
             var msg = {
                 type: 'role_change',
                 id: {{player.id}},
@@ -293,10 +374,7 @@ window.onload = function () {
             }
 
             Button_Pressed("maker");
-            $('#player_role').html('Maker');
 
-            Spread_Graph.spread(); // Auto Input Spread
-            Spread_Graph.drawMyLine(); // Auto input spread
         }
         $("#out").attr('class', 'button-off');
         $("#sniper").attr('class', 'button-off');
@@ -306,6 +384,19 @@ window.onload = function () {
         if ((document.getElementById("sniper").className == "button-off") && (document.getElementById("sniper").className != "button-pressed")){
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
             $("#sniper").toggleClass('button-off button-pressed');
+            $('#player_role').html('SNIPER');
+
+            var timeNow = getTime() - graph.timeOffset;
+            graph.profitSegments.push(
+                {
+                    startTime:timeNow,
+                    endTime:timeNow, 
+                    startProfit:graph.profit, 
+                    endProfit:graph.profit,
+                    state:$("#player_role").text()
+                }
+            );
+
             var msg = {
                 type: 'role_change',
                 id: {{player.id}},
@@ -316,9 +407,12 @@ window.onload = function () {
                 socket.send(JSON.stringify(msg));
             }
             Button_Pressed("sniper");
-            $('#player_role').html('Sniper');
 
             Spread_Graph.clear();
+            console.log(spread_lines);
+            delete spread_lines[parseInt($("#player_id").text())]
+            console.log(spread_lines);
+
         }
 
         $("#maker").attr('class', 'button-off');
@@ -330,6 +424,19 @@ window.onload = function () {
         if (document.getElementById("out").className == "button-off"){
             //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
             $("#out").toggleClass('button-off button-on');
+            $('#player_role').html('OUT');
+            
+            var timeNow = getTime() - graph.timeOffset;
+            graph.profitSegments.push(
+                {
+                    startTime:timeNow,
+                    endTime:timeNow, 
+                    startProfit:graph.profit, 
+                    endProfit:graph.profit,
+                    state:$("#player_role").text()
+                }
+            );
+
             var msg = {
                 type: 'role_change',
                 id: {{player.id}},
@@ -340,9 +447,11 @@ window.onload = function () {
                 socket.send(JSON.stringify(msg));
             }
             Button_Pressed("out");
-            $('#player_role').html('Out');
+            
 
             Spread_Graph.clear();
+            delete spread_lines[parseInt($("#player_id").text())]
+
         }
 
         $("#maker").attr('class', 'button-off');
@@ -363,173 +472,240 @@ window.onload = function () {
 
 
     var Spread_Graph = {};
-    var Profit_Graph = {};
 
-    var Other_Maker_lines = {};
+  
+    
+    var id;
+    var spread_lines = {};
 
-    var n = 20; 
-    var data = d3.range(17).map(function(d) { return  0}); //Testing Purposes
-    var max_spread = 10; // Pull from Constansts
-    var auto_spread = 2;
+    var max_spread = 2000; // Pull from Constansts
+    var default_spread = 1000;
+
+    var smallest_spread = {"key":-1, "spread":max_spread};
 
 
     // Functions for drawing choice box
     (function() {
 
         var spread_width = $("#spread-graph").width(),
-          spread_height = $("#spread-graph").height(),
-          spread_svg = d3.select("#spread-graph")
-                      .attr("width", spread_width)
-                      .attr("height", spread_height);
+            spread_height = $("#spread-graph").height(),
+            spread_svg = d3.select("#spread-graph")
+            .attr("width", spread_width)
+            .attr("height", spread_height);
 
-
+        
+        // center vertical line
         function drawStartState(){
-        spread_line = spread_svg.append("svg:line")
-                       .attr("x1", spread_width/2)
-                       .attr("y1", 0)
-                       .attr("x2", spread_width/2)
-                       .attr("y2", spread_height)
-                       .style("stroke", "lightgrey")
-                       .style("stroke-width", 5);
+            spread_line = spread_svg.append("svg:line")
+                .attr("x1", spread_width/2)
+                .attr("y1", 0)
+                .attr("x2", spread_width/2)
+                .attr("y2", spread_height)
+                .style("stroke", "lightgrey")
+                .style("stroke-width", 5);
 
-        spread_line_fundamental_price = spread_svg.append("svg:line")
-                       .attr("x1", spread_width - (spread_width - 45))
-                       .attr("y1", spread_height/2 - 90)
-                       .attr("x2", spread_width - 45)
-                       .attr("y2", spread_height/2 - 90)
-                       .style("stroke", "grey")
-                       .style("stroke-width", 5);
+            spread_line_fundamental_price = spread_svg.append("svg:line")
+                .attr("x1", 0 + 45)
+                .attr("y1", spread_height/2)
+                .attr("x2", spread_width - 45)
+                .attr("y2", spread_height/2)
+                .style("stroke", "grey")
+                .style("stroke-width", 5);
 
         }
 
-        /***********************************************
-        DEALING WITH MOUSE CLICKS ON THE SPREAD GRAPHS
-        ************************************************/
         function svgClickListener(){
             spread_svg.on('click',function(d) { 
                 role = $("#player_role").text();
-                if(role == "Maker"){
+                if(role == "MAKER"){
 
                     //The dimensions the svg take up
                     spread_x = document.getElementById("spread-graph").getBoundingClientRect().left;
                     spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
-                    console.log(spread_x+"," +spread_y);
+
                     //Where the grey middle line is
-                    svg_middle_x = spread_width/2;
-                    svg_middle_y = spread_height/2 - 90;
+                    svg_middle_x = spread_width / 2;
+                    fp_line_y = spread_height / 2;
 
                     //The tuple in which the mouse is clicked within the svg 
-                    spread_position = {x:(d3.event.clientX - spread_x),y:(d3.event.clientY - spread_y)};
+                    click_point = {
+                        x:(d3.event.clientX - spread_x),
+                        y:(d3.event.clientY - spread_y)
+                    };
 
                     //finding the distance from the mid
-                    if(spread_position.y >= svg_middle_y){
-                        distance_from_middle = spread_position.y - svg_middle_y;
-                    } else {
-                        distance_from_middle = svg_middle_y -spread_position.y ;
-                    }
-                    //Ratio between the distance and the mid
-                    ratio = svg_middle_y / distance_from_middle;
+                    distance_from_middle = Math.abs(click_point.y - fp_line_y);
 
-                    //Spread is the ratio except in dollars which is what the actual spread is
-                    money_ratio = max_spread/ratio;
-                    my_spread = money_ratio.toFixed(2);
+                    ratio = distance_from_middle / (spread_height / 2);
 
-                    spreadChange(my_spread);
-                    //Time to draw the lasers tat go into the spread graph
+                    my_spread = (ratio * max_spread).toFixed(0);
 
-                    drawMySpreadLine(my_spread);
+                    sendSpreadChange(my_spread);
+
                 }
             });
         }
 
-        function drawMySpreadLine(my_spread = auto_spread){
-            d3.selectAll(".my_line").remove();
-            d3.selectAll("rect").remove();
-            spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
-            //Where the grey middle line is
-            svg_middle_y = spread_height/2 - 90;
+        function drawMySpreadLines(newLines, offset = 0, exec={}){
+            for(var key in spread_lines){
+                if(key == parseInt($('#player_id').text())){
+                    spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+                    //Where the grey middle line is
+                    svg_middle_y = spread_height/2;
+                    my_spread = parseInt(spread_lines[key]["A"] - spread_lines[key]["B"]);
+                    money_ratio =  max_spread/my_spread;
+                    y_coordinate = svg_middle_y/money_ratio;
+                    var lines = [];
+                    var exec_side = "";
 
-            money_ratio =  max_spread/my_spread;
-            y_coordinate = svg_middle_y/money_ratio;
-            // console.log(y_coordinate);
-            //Ratio between the distance and the mid
+                    if(exec["A"] == undefined || spread_lines[key]["A"] != exec["A"]){
+                        your_spread_line_top = spread_svg.append("svg:line")
+                            .attr("x1", spread_width - 35)
+                            .attr("y1", svg_middle_y - y_coordinate + offset)
+                            .attr("x2", spread_width)
+                            .attr("y2", svg_middle_y - y_coordinate + offset)
+                            .attr("class","my_line");
+                        lines.push(your_spread_line_top);
+                    }else{
+                        exec_side = "S";
+                    }
 
-            your_spread_line_top = spread_svg.append("svg:line")
-                   .attr("x1", spread_width - 35)
-                   .attr("y1", svg_middle_y - y_coordinate)
-                   .attr("x2", spread_width)
-                   .attr("y2", svg_middle_y - y_coordinate)
-                   .attr("class","my_line");
+                    if(exec["B"] == undefined || spread_lines[key]["B"] != exec["B"]){                    
+                        your_spread_line_bottom = spread_svg.append("svg:line")
+                            .attr("x1", spread_width - 35)
+                            .attr("y1", y_coordinate + svg_middle_y + offset)
+                            .attr("x2", spread_width)
+                            .attr("y2", y_coordinate + svg_middle_y + offset)
+                            .attr("class","my_line");
+                        lines.push(your_spread_line_bottom);
+                        
+                            
+                    }else{
+                        exec_side = "B";
+                    }
+                    addOthersLineAnimation(lines, 0);
+                    drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+                    if(exec_side != ""){
+                        drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, "transaction_bar_light");
+                    }
 
-            your_spread_line_bottom = spread_svg.append("svg:line")
-                   .attr("x1", spread_width - 35)
-                   .attr("y1", y_coordinate + svg_middle_y)
-                   .attr("x2", spread_width)
-                   .attr("y2", y_coordinate + svg_middle_y)
-                   .attr("class","my_line");
-            //WAIT FOR SPEED AND THEN SET THE SPREAD with the bar line
+                }else{
+                    spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+                    var lines = [];
+                    //Where the grey middle line is
+                    svg_middle_y = spread_height/2;
+                    my_spread = parseInt(spread_lines[key]["A"] - spread_lines[key]["B"]);
+                    money_ratio =  max_spread/my_spread;
+                    y_coordinate = svg_middle_y/money_ratio;
+                    // console.log(y_coordinate);
+                    //Ratio between the distance and the mid
+                    if(exec["A"] == undefined || spread_lines[key]["A"] != exec["A"]){
+                        your_spread_line_top = spread_svg.append("svg:line")
+                            .attr("x1", spread_width - 35)
+                            .attr("y1", svg_middle_y - y_coordinate + offset)
+                            .attr("x2", spread_width)
+                            .attr("y2", svg_middle_y - y_coordinate + offset)
+                            .attr("class","others_line");
+                        lines.push(your_spread_line_top);
+                    }else{
+                        exec_side = "S";
 
-            addLineAnimation();
+                    }
+                    if(exec["B"] == undefined || spread_lines[key]["B"] != exec["B"]){
+                        your_spread_line_bottom = spread_svg.append("svg:line")
+                            .attr("x1", spread_width - 35)
+                            .attr("y1", y_coordinate + svg_middle_y + offset)
+                            .attr("x2", spread_width)
+                            .attr("y2", y_coordinate + svg_middle_y + offset)
+                            .attr("class","others_line");
+                        lines.push(your_spread_line_bottom);
+                    }else{
+                        exec_side = "B";
+                    }
+                    addOthersLineAnimation(lines, 0);
+                    if(exec_side != ""){
+                        drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, "transaction_bar_dark");
+                    }
+                }
+                
+                
 
-            setTimeout(function(d){
-            drawSpreadBar(my_spread,svg_middle_y,y_coordinate);
-            }, 500);
+            }
 
-          //Timeout is whether or not speed is on
+            for(var key in newLines){
+                if(key == parseInt($('#player_id').text())){
+                    // d3.selectAll(".my_line").remove();
+                    spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+                    //Where the grey middle line is
+                    svg_middle_y = spread_height / 2;
+                    
+                    my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
+
+                    money_ratio =  max_spread/my_spread;
+                    y_coordinate = svg_middle_y/money_ratio;
+                    // console.log(y_coordinate);
+                    //Ratio between the distance and the mid
+                    your_spread_line_top = spread_svg.append("svg:line")
+                        .attr("x1", spread_width - 35)
+                        .attr("y1", svg_middle_y - y_coordinate + offset)
+                        .attr("x2", spread_width)
+                        .attr("y2", svg_middle_y - y_coordinate + offset)
+                        .attr("class","my_line");
+                
+                    your_spread_line_bottom = spread_svg.append("svg:line")
+                        .attr("x1", spread_width - 35)
+                        .attr("y1", y_coordinate + svg_middle_y + offset)
+                        .attr("x2", spread_width)
+                        .attr("y2", y_coordinate + svg_middle_y + offset)
+                        .attr("class","my_line");
+
+                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]); 
+
+                    setTimeout(function(d){
+                        drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+                    }, 500);
+                }else{
+                    spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+
+                    //Where the grey middle line is
+                    svg_middle_y = spread_height/2;
+                    my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
+                    money_ratio =  max_spread/my_spread;
+                    y_coordinate = svg_middle_y/money_ratio;
+                    // console.log(y_coordinate);
+                    your_spread_line_top = spread_svg.append("svg:line")
+                        .attr("x1", spread_width - 35)
+                        .attr("y1", svg_middle_y - y_coordinate)
+                        .attr("x2", spread_width)
+                        .attr("y2", svg_middle_y - y_coordinate)
+                        .attr("class","others_line");
+
+                
+                    your_spread_line_bottom = spread_svg.append("svg:line")
+                        .attr("x1", spread_width - 35)
+                        .attr("y1", y_coordinate + svg_middle_y)
+                        .attr("x2", spread_width)
+                        .attr("y2", y_coordinate + svg_middle_y)
+                        .attr("class","others_line");
+                    // for removing when a transation occurs
+
+                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
+                }
+                spread_lines[key] = newLines[key];
+            }
+
         }
 
-        function addLineAnimation(){
+
+
+
+        function addOthersLineAnimation(lines, speed = 500){
             //SETTING THE SPREAD TO THE LINE
-            spread_lines = d3.selectAll(".my_line");
-            add_animation = spread_lines
-                        .transition()
-                        // duration is whether or not speed is on
-                        .duration(500)
-                        .attr("x1", 85)
-                        .attr("x2", spread_width - 85);         
-        }
-
-
-        function drawOthersSpreadLine(my_spread, ordertoken_buy, ordertoken_sell, speed){
-            spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
-
-            //Where the grey middle line is
-            svg_middle_y = spread_height/2 - 90;
-            money_ratio =  max_spread/my_spread;
-            y_coordinate = svg_middle_y/money_ratio;
-            // console.log(y_coordinate);
-            //Ratio between the distance and the mid
-
-            your_spread_line_top = spread_svg.append("svg:line")
-                   .attr("x1", spread_width - 35)
-                   .attr("y1", svg_middle_y - y_coordinate)
-                   .attr("x2", spread_width)
-                   .attr("y2", svg_middle_y - y_coordinate)
-                   .attr("class","others_line");
-
-
-            your_spread_line_bottom = spread_svg.append("svg:line")
-                   .attr("x1", spread_width - 35)
-                   .attr("y1", y_coordinate + svg_middle_y)
-                   .attr("x2", spread_width)
-                   .attr("y2", y_coordinate + svg_middle_y)
-                   .attr("class","others_line");
-
-            // for removing when a transation occurs
-            Other_Maker_lines[ordertoken_sell] = your_spread_line_top
-            Other_Maker_lines[ordertoken_buy] = your_spread_line_bottom
-
-            addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
-            //Timeout is whether or not speed is on
-        }
-
-        function addOthersLineAnimation(lines){
-            //SETTING THE SPREAD TO THE LINE
-            for( i = 0; i < 2; i++){
+            for( i = 0; i < lines.length; i++){
                 add_animation = lines[i]
                   .transition()
                   // duration is whether or not speed is on
-                  .duration(500)
+                  .duration(speed)
                   .attr("x1", 85)
                   .attr("x2", spread_width - 85); 
             }      
@@ -537,9 +713,9 @@ window.onload = function () {
         }
   
 
-        function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side){
+        function drawTransactionBar(my_spread,svg_middle_y,y_coordinate,side, color){
             //take into account
-            var bar_color = "green_bar";
+            var bar_color = color;
 
             //if not other maker within the spread
             if(side === 'B'){
@@ -558,17 +734,25 @@ window.onload = function () {
                         .attr("height", y_coordinate)
                         .attr("class",bar_color);
             }
+            setTimeout(function(){
+                d3.selectAll(".transaction_bar_light").remove();
+                d3.selectAll(".transaction_bar_dark").remove();
+            },400);
         }
 
-        function drawSpreadBar(my_spread,svg_middle_y,y_coordinate){
+        function drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, id){
             //take into account
             var bar_color = "";
 
             //if not other maker within the spread
-            bar_color = "green_bar";
+            if(id == smallest_spread["key"]){
+                bar_color = "blue_bar";
+            }else{
+                bar_color = "green_bar";
+            }
             your_bar_rect = spread_svg.append("svg:rect")
                        .attr("x", spread_width - (spread_width - 85))
-                       .attr("y", svg_middle_y - y_coordinate)
+                       .attr("y", svg_middle_y - y_coordinate + offset)
                        .attr("width", spread_width - 170)
                        .attr("height", 2*y_coordinate)
                        .attr("class",bar_color);
@@ -586,7 +770,7 @@ window.onload = function () {
 
         }
 
-        function spreadChange(my_spread = auto_spread){
+        function sendSpreadChange(my_spread = auto_spread){
 
             var msg = {
                 type: 'spread_change',
@@ -597,122 +781,491 @@ window.onload = function () {
             if (socket.readyState === socket.OPEN) {
                 socket.send(JSON.stringify(msg));
             }
-            $("#spread_value").text('+-$'+my_spread);
+            $("#spread_value").text('+-$'+(my_spread / 1000).toFixed(2));
         }
 
         Spread_Graph.start = drawStartState;
-        Spread_Graph.drawMyLine = drawMySpreadLine;
-        Spread_Graph.drawOthersLine = drawOthersSpreadLine;
-        Spread_Graph.animateLine = addLineAnimation;
+        Spread_Graph.drawMyLine = drawMySpreadLines;
         Spread_Graph.drawBar = drawSpreadBar;
         Spread_Graph.listen = svgClickListener;
         Spread_Graph.clear = clearGraph;
-}());
-
-
-
-
-(function(){
-  var profit_width = $("#profit-graph").width()// Use the window's width 
-    , profit_height = $("#profit-graph").height()  // Use the window's height
-    ,x_axis_min = 0
-    ,x_axis_max = n-1;
-
-  var xScale = d3.scaleLinear()
-      .domain([x_axis_min, x_axis_max]) // input
-      .range([0, profit_width - 30]) // output
-    , yScale = d3.scaleLinear()
-      .domain([ - max_spread, max_spread]) // Fundamental Price +-Spread  
-      .range([profit_height - 180 ,5]); // output
-
-  var line = d3.line()
-      .x(function(d, i) { return xScale(i); }) // set the x values for the line generator
-      .y(function(d) { return yScale(d); }) // set the y values for the line generator 
-      .curve(d3.curveMonotoneX)// apply smoothing to the line
-  
-  var svg = d3.select("#profit-graph")
-      .attr("width", profit_width)
-      .attr("height", profit_height)
-      .append("g")
-      .attr("transform", "translate(0,0)");
-
-  function graphStartState(){
-    svg.append("path")
-      .data([data])
-      .attr("class", "line") 
-      .attr("d", line); 
-
-
-    svg.append("g")
-        .attr("class", "y_axis")
-        .attr("transform", "translate(" + (profit_width - 28) + ",0)")
-        .call(d3.axisRight(yScale));
-
-    svg.append("g")
-        .attr("class", "x_axis")
-        .attr("transform", "translate(0," + (profit_height - 180) + ")")
-        .call(d3.axisTop(d3.scaleLinear()
-        .domain([0, 17]) //Timeeeee!!!!
-        .range([0, profit_width - 30])));
-
-
-    setInterval(function() {
-       Update();  
-    }, 500);
-  }
-
-  function Update(){
-    //Remove Previous Graph Bounds
-    d3.select(".y_axis").remove();
-    d3.select(".x_axis").remove();
-
-    //Get Time From Timer
-    x_axis_min++;
-    x_axis_max++;
-
-    //Get A new value and put into the array
-    var profit = 0.5;
-    data.shift(); // remove the first element of the array
-    data.push(profit ); 
-    //alert(y_data);
-    //Redraw the line add in transition
-    svg.select("path")
-      .data([data])
-      .attr("class", "line") 
-      .attr("d", line); 
-    // .data([data]) 
-    // .attr("d", line)
-    // .attr("transform", "translate(" + x(1)+ ")")
-    // .transition()
-    // .duration(500)
-    // .ease(d3.easeLinear)
-    // .attr("transform", "translate(" + x(0)+ ")");
-
-    //Redraw the y axis with new bounds
-    svg.append("g")
-      .attr("class", "y_axis")
-      .attr("transform", "translate(" + (profit_width - 28) + ",0)")
-      .call(d3.axisRight(d3.scaleLinear()
-      .domain([-10,10]) // Fundamental Price +- Spread  
-      .range([profit_height-180,5]))) // Create an axis component with d3.axisLeft
-
-    //Redraw the x axis with new bounds
-    svg.append("g")
-      .attr("class", "x_axis")
-      .attr("transform", "translate(0," + (profit_height - 180) + ")")
-      .call(d3.axisTop(d3.scaleLinear()
-      .domain([x_axis_min, x_axis_max]) //Timeeeee!!!!
-      .range([0, profit_width - 30])))
-  }
-  
-  Profit_Graph.start = graphStartState;
-  Profit_Graph.update = Update;
-
-}());
+        Spread_Graph.spread = sendSpreadChange;
+    }());
 
 Spread_Graph.start();
 Spread_Graph.listen();
-// Profit_Graph.start();
+
+    /*
+     * Debug variables
+     */
+    graph.debug = {
+        "calcTimeGridLines"    :false,
+        "secondTick"           :false,
+    };
+
+
+    /*
+     * set of variables we added that were not part of the original solution
+     */
+    graph.maxSpread = 2000;
+
+    /*
+     * Set of variables we update from oTree
+     */ 
+    graph.startingWealth = 20000; 
+    graph.profit = graph.startingWealth;                                           // Through Django Channels
+    graph.adminStartTime = {{subsession.start_time}};           // Django Query
+
+    /*
+     * HTML Variables
+     */
+    graph.profitElementId = "profit-graph";                                     // id of the profit graph svg element
+    graph.profitElementWidth = $('#' + graph.profitElementId).width();          // Width and height of the profit svg element
+    graph.profitElementHeight = $('#' + graph.profitElementId).height();    
+    
+    /*
+     * D3 variables
+     */
+    graph.profitSVG = d3.select('#' + graph.profitElementId);                   //profit svg element
+    graph.curTimeX = 0;
+
+
+    /*
+     * Variables for time calculation
+     */
+    var nanoToSec = 1e9;
+    var secToNano = 1e-9
+    var million = 1e6;
+    graph.timeOffset = 0;                                             //offset to adjust for clock difference between lab computers
+    graph.timeInterval = 60e9;                                        //current amount in seconds displayed at once on full time axis
+    graph.timeIncrement = 5e9;                                        // Amount in nanoseconds between lines on time x-axis
+    graph.timeSinceStart = 0;                                         //the amount of time since the start of the experiment in nanoseconds
+    graph.nanosecondPerPixel = 0;    //used                           // number of ms represented by one pixel
+    graph.advanceTimeShown = 0;  //used                               // the amount of time shown to the right of the current time on the graph
+
+    /*
+     * Manifest deafult values
+     */
+    graph.slowDelay = 5e8;                                             // slow delay is 500 milliseconds = 5e8 nano
+    graph.fastDelay = 1e8;                                             // slow delay is 100 milliseconds = 1e8 nano
+    graph.startingWealth = 20000;
+
+    // maybe spread on profit graph
+    graph.priceRange = 10000;
+    graph.maxPriceProfit = graph.startingWealth + (graph.priceRange / 2);
+    graph.minPriceProfit = graph.startingWealth - (graph.priceRange / 2);
+    graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
+   
+    /*
+     * DataHistory object sets
+     */
+    // historyDataSet structure = [[startTime, endTime, startProfit, endProfit, state],...] 
+    graph.profitSegments = [
+        {
+            startTime:graph.adminStartTime,
+            endTime:graph.adminStartTime, 
+            startProfit:graph.profit, 
+            endProfit:graph.profit,
+            state:$("#player_role").text()
+        }
+    ];
+
+    graph.profitJumps = [];
+
+
+//------------------------------------------------
+
+    graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
+    graph.graphPaddingRight = 20;  //used                                 // how far from the x axis label that the line stops moving
+    graph.graphAdjustSpeedProfit = 10;                              //speed that profit price axis adjusts in pixels per frame
+    graph.numberOfTicks = 10;
+    graph.profitPriceGridIncrement = graph.priceRange / graph.numberOfTicks;                             //amount between each line on profit price axis
+    
+    graph.currentTime = 0;                                          // Time displayed on graph
+    graph.profitPriceLines = [];                                    // The array of price lines
+    graph.timeLines = [];
+    graph.pricesArray = [];
+   
+
+    
+
+    
+
+    graph.marketZoomLevel = 4;                                      // current zoom level for each graph
+    graph.profitZoomLevel = 4;
+    graph.maxZoomLevel = 4;                                         // maximum allowed zoom level
+    graph.zoomAmount = 0;                                           // amount zoomed per click
+
+    graph.expandedGraph = false;
+    graph.prevMaxPriceMarket = 0;                                   // storage for previous max and min values for when graph is in expanded mode
+    graph.prevMinPriceMarket = 0;
+    graph.prevMaxPriceProfit = 0;
+    graph.prevMinPriceProfit = 0;
+
+    graph.op = 1;                                                  //added 7/24/17 for adding opacity to transaction lines
+    graph.currentTransaction = null;                               //added 7/24/17 for ensuring only the correct orders are drawn as transacted
+    graph.currTransactionID = null;                                //added 7/24/17 for ensuring only the correct orders are drawn as transacted
+    graph.heightScale = .4;                                        //added 7/26/17 to shift the height of the graph to fit buttons under
+    graph.widthScale = 0;                                          //added 7/28/17 to widen the graphs of ticks to be better fit spread 
+    graph.oldFundPrice = null;
+    graph.FPCop = 1;
+    graph.currSpreadTick = 0;
+    graph.startTime = 0;
+    graph.tickAnimationID = 0;
+    graph.staticTickAnimationID = 0;
+    graph.laser = true;                                            //magic
+    graph.removeStartTime = 0;
+    graph.removeAnimationID = 0;
+    graph.removeStaticAnimationID = 0;
+    graph.IDArray = [];
+
+    graph.FPCswing = null;                                        //used for shifting spread ticks with FPC's
+    graph.currentSellTick = [];
+    graph.currentBuyTick = [];
+    graph.PreviousProfit = 0;
+    
+     
+
+    
+    function calcPriceGridLines(maxPrice, minPrice, increment) {
+        var gridLineVal = minPrice + increment - (minPrice % increment);
+        // adjust for mod of negative numbers not being negative
+        if(minPrice < 0){
+            gridLineVal -= increment;
+        }
+        var lines = [];
+        while (gridLineVal < maxPrice) {
+            lines.push(gridLineVal);
+            gridLineVal += increment;
+        }
+        return lines;
+    };
+    
+
+    function calcTimeGridLines(startTime, endTime, increment) {
+
+        if(graph.debug["calcTimeGridLines"]){
+            console.log("Call to calculate calTimeGrindLines with scaled values\n   startTime:  " + (startTime / nanoToSec).toFixed(2) + 
+                "\n   endTime:    " + (endTime / nanoToSec).toFixed(2) + 
+                "\n   difference: " + ((endTime - startTime) / nanoToSec).toFixed(2) + 
+                "\n   increment:  " + (increment / nanoToSec) + 
+                "\n   adminStart: " + (graph.adminStartTime / nanoToSec).toFixed(2));
+        }
+
+        // var timeLineVal = startTime + increment;
+        var timeLineVal = startTime - ((startTime - graph.adminStartTime) % increment);
+        var lines = [];
+        while (timeLineVal < endTime) {
+            lines.push(timeLineVal);
+            timeLineVal += increment;
+        }
+
+        if(graph.debug["calcTimeGridLines"]){
+            console.log("Lines post computation: previous set of lines :-: computed set of lines ");
+            for(i = 0; i < lines.length; i++){
+                console.log("   [" + i + "]    " + ((graph.timeLines[i] - graph.adminStartTime) / nanoToSec).toFixed(2) + "  :-:  " + ((lines[i] - graph.adminStartTime) / nanoToSec).toFixed(2));
+            }
+        }
+
+
+        return lines;
+    };
+
+    // return the number of nanoseconds since midnight
+    // TODO FIND MORE ACCURATE NANO
+    function getTime(){
+        var now = new Date(),
+        then = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,0,0),
+        diff = now.getTime() - then.getTime(); // difference in milliseconds
+        diff *= 1000000; // milli -> nano;
+        return  diff; 
+    };
+
+    // returns percent along the x axis your timestamp is 
+    function mapTimeToXAxis(timeStamp) {
+        var percentOffset;
+        if (graph.timeSinceStart >= graph.timeInterval) {
+            percentOffset = (timeStamp - (graph.currentTime - graph.timeInterval)) / (graph.timeInterval);
+        }else {
+            percentOffset = (timeStamp - graph.adminStartTime) / graph.timeInterval;
+        }
+        return (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight) * percentOffset;   //changed 7/27/17
+    };
+
+    // return percent from
+    function mapProfitPriceToYAxis(price) {
+        // percent distance from maxPriceProfit
+        var percentOffset = (graph.maxPriceProfit - price) / (graph.maxPriceProfit - graph.minPriceProfit);
+
+        // value of the percent offset from top of graph
+        return graph.profitElementHeight * percentOffset;      //changed 7/27/17 to fix profit graph
+    };
+
+    function calcPriceBounds() {
+        //calc bounds for profit graph
+
+        if (graph.profit > (.2 * graph.minPriceProfit) + (.8 * graph.maxPriceProfit) ||
+            graph.profit < (.8 * graph.minPriceProfit) + (.2 * graph.maxPriceProfit)) {
+            graph.centerPriceProfit = graph.profit;
+        }
+
+        // what is set now
+        var curCenterProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
+
+        if (Math.abs(graph.centerPriceProfit - curCenterProfit) > 1000) {
+            graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
+            //adjust per frame what the max and min should be
+            if (graph.centerPriceProfit > curCenterProfit) {
+               graph.maxPriceProfit += graph.graphAdjustSpeedProfit;
+               graph.minPriceProfit += graph.graphAdjustSpeedProfit;
+            } else {
+               graph.maxPriceProfit -= graph.graphAdjustSpeedProfit;
+               graph.minPriceProfit -= graph.graphAdjustSpeedProfit;
+            }
+        }
+    };
+
+    function millisToTime(timeStamp) {
+        // take nano to seconds
+        var secs = (timeStamp - graph.adminStartTime) / nanoToSec;
+        var mins = Math.trunc(secs / 60);
+        secs %= 60;
+        return mins + ":" + ("00" + secs).substr(-2, 2);
+    };
+
+    function drawTimeGridLines() {
+        //Draw rectangles for time grid lines
+        graph.profitSVG.selectAll("rect.time-grid-box-dark")
+            .data(graph.timeLines)
+            .enter()
+            .append("rect")
+            .filter(function (d) {
+                // only draw elements that are an even number of increments from the start
+                return ((d - graph.adminStartTime) / (graph.timeIncrement)) % 2 == 0;
+            })
+            .attr("x", function (d) {
+               return mapTimeToXAxis(d);
+            })
+            .attr("y", 0)
+            // width of a sinle timeIncrement should be 5 secs ?
+            .attr("width", graph.timeIncrement / graph.timeInterval * (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight))   
+            .attr("height", graph.profitElementHeight)
+            .attr("class", "time-grid-box-dark");
+
+         //Draw labels for time grid lines
+         graph.profitSVG.selectAll("text.time-grid-line-text")
+            .data(graph.timeLines)
+            .enter()
+            .append("text")
+            .attr("text-anchor", "start")
+            .attr("x", function (d) {
+               return mapTimeToXAxis(d) + 5;
+            })
+            .attr("y", graph.profitElementHeight - 5)
+            .text(function (d) {
+               return millisToTime(d)
+            })
+            .attr("class", "time-grid-line-text");
+    };
+
+    function drawPriceGridLines(priceMapFunction) {
+        //hack to fix problem with this not being set correctly for map function
+        // priceMapFunction = priceMapFunction.bind(graphRefr);
+
+        //Draw the lines for the price grid lines
+        graph.profitSVG.selectAll("line.price-grid-line")
+            .data(graph.profitPriceLines)
+            .enter()
+            .append("line")
+            .attr("x1", 0)
+            .attr("x2", graph.profitElementWidth - graph.axisLabelWidth)        //changed 7/27/17
+            .attr("y1", function (d) {
+                return mapProfitPriceToYAxis(d);
+            })
+            .attr("y2", function (d) {
+                return mapProfitPriceToYAxis(d);
+            })
+            .attr("class", function (d) {
+                return d != 0 ? "price-grid-line" : "price-grid-line-zero";
+        });
+    };
+
+    function drawPriceAxis(){
+        //Draw the text that goes along with the price gridlines and axis
+        graph.profitSVG.selectAll("text.price-grid-line-text")
+            .data(graph.profitPriceLines)
+            .enter()
+            .append("text")
+            .attr("text-anchor", "start")
+            .attr("x", graph.profitElementWidth - graph.axisLabelWidth + 12)  // << why this fuck is this 12
+            .attr("y", function (d) {  
+               return mapProfitPriceToYAxis(d) + 3;
+            })
+            .attr("class", "price-grid-line-text")
+            .text(function (d) {
+                return d / 1000;
+        });
+    };
+
+    //draws profit line
+    function drawProfit(historyDataSet, profitJumps) {
+        graph.profitSVG.selectAll("line.my-profit-out line.my-profit-maker line.my-profit-snipe")
+            .data(historyDataSet, function (d) {   
+
+            // historyDataSet structure = [[startTime, endTime, startProfit, endProfit, state],...] 
+               return d;
+            })
+            .enter()
+            .append("line")
+            .filter(function (d) {
+               return d.endTime >= (graph.currentTime - graph.timeInterval);
+            })
+            .attr("x1", function (d) {
+               return mapTimeToXAxis(d.startTime);
+            })
+            .attr("x2", function (d) {
+               return mapTimeToXAxis(d.endTime);
+            })
+            .attr("y1", function (d) {
+               return mapProfitPriceToYAxis(d.startProfit);
+            })
+            .attr("y2", function (d) {
+               return mapProfitPriceToYAxis(d.endProfit);
+            })
+            .attr("class", function (d) {
+               // a masterpiece // no fuck you
+               return d.state == "OUT" ? "my-profit-out" : (d.state == "MAKER" ? "my-profit-maker" : "my-profit-snipe");
+        });
+
+        graph.profitSVG.selectAll("line.positive-profit line.negative-profit")
+            .data(profitJumps)      
+            // profitJumps structure = {timestamp:(nano), newPrice:(thousands), oldPrice:(thousands)}    
+            .enter()
+            .append("line")
+            .filter(function (d) {
+               return d.timestamp >= (graph.currentTime - graph.timeInterval);
+            })
+            .attr("x1", function (d) {
+               return mapTimeToXAxis(d.timestamp);
+            })
+            .attr("x2", function (d) {
+               return mapTimeToXAxis(d.timestamp);
+            })
+            .attr("y1", function (d) {
+               return mapProfitPriceToYAxis(d.oldProfit);     //old profit
+            })
+            .attr("y2", function (d) {
+               return mapProfitPriceToYAxis(d.newProfit);     //current profit
+            })
+            .attr("class", function (d) {
+                  return d.oldProfit < d.newProfit ? "my-positive-profit" : "my-negative-profit";
+            });   
+    };
+
+
+    function draw() {
+
+        //Clear the svg elements
+        graph.profitSVG.selectAll("*").remove();
+
+
+        // the current time relative to the backend of otree; graph.timeOffset during the transition
+        // is 0, but eventually we will calculate per player what the delay over django channels is 
+        graph.currentTime =  getTime() - graph.timeOffset; 
+        graph.timeSinceStart = graph.currentTime - graph.adminStartTime;
+
+
+
+        // Print to console.log everytime a second occurs
+        if((graph.previousTime != Math.trunc(graph.timeSinceStart / nanoToSec)) && graph.debug["secondTick"]){
+            graph.previousTime = Math.trunc(graph.timeSinceStart / nanoToSec);
+            console.log(graph.previousTime)
+        } 
+
+        graph.curTimeX = mapTimeToXAxis(graph.currentTime);
+
+        // recalculate market price bounds
+        calcPriceBounds();
+
+        // recalculate if virtual right side of graph is more than a graph.timeIncrement past last graph.timeLine line
+        var rightSideOfGraph = graph.timeLines[graph.timeLines.length - 1] + graph.timeIncrement;
+
+        if (graph.currentTime + graph.advanceTimeShown > rightSideOfGraph){
+            var startTime = graph.currentTime - graph.timeInterval;
+            var endTime = graph.currentTime + graph.advanceTimeShown;
+            graph.timeLines = calcTimeGridLines(startTime, endTime, graph.timeIncrement);
+        }
+
+        //Invoke all of the draw functions
+        drawTimeGridLines();
+
+        
+        drawPriceGridLines();
+
+
+
+        drawPriceAxis();
+        
+        /* *****************************************************************************
+         * Data Structures present in Redwood front end, and need to be adapted to otree 
+         ******************************************************************************/ 
+
+        // historyDataSet = [[startTime, endTime, startProfit, endProfit, state],...] 
+        // 2-D array where each index contains a different portion of the profit line *over the entire experiment*
+        // Each index has a startTime (nano), endTime (nano), startProfit (thousands), endProfit (thousands) 
+        graph.profitSegments[graph.profitSegments.length - 1]["endTime"] = graph.currentTime;
+        
+        var profitDecrement = 0;
+        if(speed){
+            profitDecrement = (graph.profitSegments[graph.profitSegments.length - 1]["endTime"] - graph.profitSegments[graph.profitSegments.length - 1]["startTime"]) * -1e-8;
+        }
+
+
+        graph.profitSegments[graph.profitSegments.length - 1]["endProfit"] = graph.profitSegments[graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
+        graph.profit = graph.profitSegments[graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
+
+        
+        
+
+        drawProfit(graph.profitSegments, graph.profitJumps);
+        
+
+
+        requestAnimationFrame(draw);
+    };
+
+    function init(startFP, startingWealth) {
+        for(i = 2; i < arguments.length; i++){
+            graph.debug[arguments[i]] = true;
+        }
+
+        graph.previousTime = 0;
+
+        // nanoseconds per picxel 
+        graph.nanosecondPerPixel = graph.timeInterval / (graph.profitElementWidth - graph.axisLabelWidth - graph.graphPaddingRight);   
+        // the amount of nano taken up by the axisLabelWidth ad graphPadding riht
+        graph.advanceTimeShown = graph.nanosecondPerPixel * (graph.axisLabelWidth + graph.graphPaddingRight);
+
+        // collect an array of price values where the horizontal lines will be drawn
+        graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
+
+        var endTime = graph.adminStartTime + graph.timeInterval + graph.advanceTimeShown
+        graph.timeLines = calcTimeGridLines(graph.adminStartTime, endTime, graph.timeIncrement);
+    };
+
+
+    // First Functions
+    // 10000 <- 
+    var startFP = 10000;
+    var startingWealth = 20000;
+
+    init(startFP, startingWealth, "secondTick");
+
+    requestAnimationFrame(draw)
 
 
 }
