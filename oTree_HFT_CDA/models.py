@@ -83,7 +83,7 @@ class Group(BaseGroup):
             conn.sendMessage(m)
 
     def receive_from_exchange(self, msg):
-        msg_type = (msg[0], len(msg))
+        msg_type = (msg[0], len(msg))       # we use integer indexes since its the only option in this case
         try: 
             ouch = translate.get_types()[msg_type](msg)
             if ouch['type'] == 'S':
@@ -111,6 +111,10 @@ class Group(BaseGroup):
         CGroup(str(self.id)).send({"text": message})
 
     def spawn(self, name, url, data):
+        """
+        fires exogenous processes
+        as subprocess
+        """
         log.info('Group%d: Fire %s.' % (self.id, name))
         cmd = ['python', name, str(self.id), url, data]
         subprocess.Popen(cmd)
@@ -135,9 +139,9 @@ class Group(BaseGroup):
 
         for i, player in enumerate(players):
             response = player.jump(new_price)
-            player_responses.append(response[0])
-            if response[0] is not None:
-                if response[1]:
+            player_responses.append(response['order'])
+            if response['order']:
+                if response['speed']:
                     fast_players.append(i)
                 else:
                     slow_players.append(i)      
@@ -146,7 +150,6 @@ class Group(BaseGroup):
         random.shuffle(slow_players)
 
         log.debug('Group%d: Jump: Delaying 0.1 seconds..' % self.id)
-
         time.sleep(0.1)
 
         log.info(
@@ -453,6 +456,11 @@ class Player(BasePlayer):
              self.group.send_exchange(m, delay=True, speed=self.speed)
 
     def calc_profit(self, exec_price, side, timestamp):
+        """
+        find the distance btw fundamental and execution prices
+        order side determines profit sign
+        log speed cost along the way
+        """
         fp = cache.get('FP_Log').getFP(timestamp)
         d = abs(fp - exec_price)
         if exec_price < fp:
@@ -466,6 +474,9 @@ class Player(BasePlayer):
         return pi
     
     def _calc_speed_cost(self, timestamp):
+        """
+        calculate speed cost since the previous calculation
+        """
         delta = timestamp - self.time_of_speed_change
         cost = delta * Constants.speed_cost
         self.time_of_speed_change = timestamp
@@ -517,31 +528,57 @@ class Player(BasePlayer):
     #         self.profit -= (timestamp - self.time_of_speed_change) * Constants.speed_cost
     #         self.save()
 
-
-
-    def jump(self, new_price):  
-        old_fp = self.fp              
-        self.fp = new_price
+    def jump(self, new_price):
+        is_positive = new_price - self.fp
+        self.fp = new_price 
         self.save()
-        postive_jump = (self.fp - old_fp) > 0
+        response = {'order': False, 'speed': self.speed}
 
-        if self.state == 'OUT':
-            log.debug('Player%d: Jump Action: Nothing to do.' % self.id_in_group)
-            return [None, self.speed]
-
-        elif self.state == 'SNIPER':
+        if self.state == 'SNIPER':
             log.debug('Player%d: Jump Action: Snipe.' % self.id_in_group)
-            side = ('B' if postive_jump else 'S')
-            order = [self.stage_enter(side, price=self.fp, time_in_force=0)]  # Special value for a market order
-            return [order, self.speed]
-
-        else:
+            side = 'B' if is_positive else 'S'
+            order = [self.stage_enter(side, price=self.fp, time_in_force=0)]
+            response['order'] = order
+        elif self.state == 'MAKER':
             log.debug('Player%d: Jump Action: Replace orders.' % self.id_in_group)
-            flag = (1 if postive_jump else 0)
+            flag = 1 if is_positive else 0
             orders = self._adjust_price(flag)
-            return [orders, self.speed]
+            response['order'] = orders
+        else:
+            log.debug('Player%d: Jump Action: Nothing to do.' % self.id_in_group)
+        return response
+
+
+    # def jump(self, new_price):  
+    #     old_fp = self.fp              
+    #     self.fp = new_price
+    #     self.save()
+    #     postive_jump = (self.fp - old_fp) > 0
+
+    #     if self.state == 'OUT':
+    #         log.debug('Player%d: Jump Action: Nothing to do.' % self.id_in_group)
+    #         return [None, self.speed]
+
+    #     elif self.state == 'SNIPER':
+    #         log.debug('Player%d: Jump Action: Snipe.' % self.id_in_group)
+    #         side = ('B' if postive_jump else 'S')
+    #         order = [self.stage_enter(side, price=self.fp, time_in_force=0)]  # Special value for a market order
+    #         return [order, self.speed]
+
+    #     else:
+    #         log.debug('Player%d: Jump Action: Replace orders.' % self.id_in_group)
+    #         flag = (1 if postive_jump else 0)
+    #         orders = self._adjust_price(flag)
+    #         return [orders, self.speed]
+
 
     def _adjust_price(self, flag):
+        """
+        implement makers response to jumps
+        find active orders
+        compose replace messages
+        return ouch messages
+        """
         ords = self.order_store().get_active_set().values()
         if ords:    # have to start from above if jump is positive
             sorted_ords = sorted(
@@ -551,6 +588,7 @@ class Player(BasePlayer):
             return msgs
         else:
             pass
+
 
     """
     send message to the client after event or operation

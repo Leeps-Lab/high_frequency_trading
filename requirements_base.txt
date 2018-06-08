@@ -1,1 +1,2 @@
 otree>=2.0.27
+django-redis==4.9.0
