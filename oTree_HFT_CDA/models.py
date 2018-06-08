@@ -460,9 +460,9 @@ class Player(BasePlayer):
         else:
             pi = d if side == 'S' else -d
         self.profit += pi
-        self.save()
         if self.speed:
             self._calc_speed_cost(labtime())
+        self.save()
         return pi
     
     def _calc_speed_cost(self, timestamp):
