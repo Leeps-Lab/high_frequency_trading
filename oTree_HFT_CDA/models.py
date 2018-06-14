@@ -29,7 +29,7 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 3
+    players_per_group = 2
     num_rounds = 1
     speed_cost = 0.1 * (10 ** -6)
 
@@ -208,10 +208,10 @@ class Player(BasePlayer):
     # basic state variables
     state = models.StringField(initial='OUT')
     speed = models.BooleanField(initial=0)  # 0 or 1
-    spread = models.IntegerField(initial=2000)
+    spread = models.IntegerField(initial=200)
     channel = models.CharField(max_length=255)
 
-    fp = models.IntegerField(initial=10000)
+    fp = models.IntegerField(initial=100000)
     order_count = models.IntegerField(initial=1)
     profit = models.IntegerField(initial=10000)
     time_of_speed_change = models.IntegerField()
@@ -462,6 +462,7 @@ class Player(BasePlayer):
         log speed cost along the way
         """
         fp = cache.get('FP_Log').getFP(timestamp)
+
         d = abs(fp - exec_price)
         if exec_price < fp:
             pi = d if side == 'B' else -d
