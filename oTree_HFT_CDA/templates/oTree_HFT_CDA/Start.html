@@ -6,149 +6,56 @@
 <style type="text/css">
 
 
-    .front-end-controller{
-        width: 100%;
-        height: 100vh;
-        background-color: darkgrey;
-        margin-top: -80px;
-    }
-    .info-table{
-        width:100%;
-    }
-    .graph-row{
-        margin-top: 20px;
-        background-color: darkgrey;
-        width: 100%;
-        height:76%;
-        margin-left: 00px;
-        border-top:solid black 1px;
-    }
 
 
 
-/* 
-    * Button presses class
-    */
-.button-on{
-    background-color:steelblue;
-    border-color: solid black 5px;
-    color:white;
-}
-.button-pressed{
-    background-color:#444444;
-    color:white;
-}
-.button-off{
-    background-color:#666666;
-    color:white;
-}
-input{
-    margin-left:30px;
-    margin-top:20px;
-}
-.inputs{
-    margin-top:160px;
-    width: 10%;
-    height: 100%;
-}
-.line {
-    stroke: steelblue;
-    stroke-width: 3.5px;
-    fill: none;
-}
-g{
-    color:  grey;
-    stroke-width: 2px;
-    fill: none;
 
-}
-
-.my_line{
-  stroke:steelblue;
-  stroke-width:2px;
-}
-
-.others_line{
-  stroke:rgb(2, 3, 4);
-  stroke-width:2px;
-}
-
-.green_bar{
-  fill:#6edd68;
-  opacity: 0.5;
-}
-
-.blue_bar{
-  fill:#00ffff;
-  opacity: 0.5;
-}
-
-.transaction_bar_light{
-  fill:#00cc00;
-  opacity: 0.5;
-}
-
-.transaction_bar_dark{
-  fill:#006600;
-  opacity: 0.5;
-}
-
-.table{
-    table-layout : auto;
-    padding-bottom: 0px;
-}
-
-.row {
-    padding: 0px;
-    margin: 0px;
-}
 
 [class*="col-"] {
     padding: 0px;
     margin: 0px;
 }
-
-
-
-
-
 </style>
 <div class="front-end-controller">
-    <table class="info-table" style="width:100%" >
-        <strong>
-        <!-- Row 1 of info box -->
-        <tr>
-            <td class="info_text">Player ID:            <span id="player_id"></span></td>
-            <td class="info_text">Number of Traders:    <span id="num_traders"></span></td>
-            <td class="info_text">Role:                 <span id="player_role"> </span> </td>
-            <td class="info_text">Fundamental Value:    <span id="fp"></span></td>
-        </tr>
-        <!-- Row 2 of info box -->
-        <tr>
-            <td class="info_text">Period:               <span id="period_id"></span></td>
-            <td class="info_text">Number of Makers:     <span id=num_makers></span></td>
-            <td class="info_text">Spread:               <span id="spread_value"></span> </td>
-            <td class="info_text">Current Buy Offer:    <span id="curr_bid"></span></td>
-        </tr>
-        <!-- Row 3 of info box -->
-        <tr>
-            <td class="info_text">Speed Cost:           <span id="speed_cost"></span></td>
-            <td class="info_text">Number of Snipers:    <span id="num_snipers"></span></td>
-            <td class="info_text">Your Profit:          <span id="profit"></span></td>
-            <td class="info_text">Current Sell Offer:   <span id="curr_ask"></span></td>
-        </tr>
-        </strong>
-    </table>
-    <div class="row graph-row" style="width:100%; height:100%;">
+    <div class="top-banner">
+        <table class="table" style="width: 100%" >
+            <strong>
+            <!-- Row 1 of info box -->
+            <tr>
+                <td class="info_text">Player ID:            <span id="player_id"></span></td>
+                <td class="info_text">Number of Traders:    <span id="num_traders"></span></td>
+                <td class="info_text">Role:                 <span id="player_role"> </span> </td>
+                <td class="info_text">Fundamental Value:    <span id="fp"></span></td>
+            </tr>
+            <!-- Row 2 of info box -->
+            <tr>
+                <td class="info_text">Period:               <span id="period_id"></span></td>
+                <td class="info_text">Number of Makers:     <span id=num_makers></span></td>
+                <td class="info_text">Spread:               <span id="spread_value"></span> </td>
+                <td class="info_text">Current Buy Offer:    <span id="curr_bid"></span></td>
+            </tr>
+            <!-- Row 3 of info box -->
+            <tr>
+                <td class="info_text">Speed Cost:           <span id="speed_cost"></span></td>
+                <td class="info_text">Number of Snipers:    <span id="num_snipers"></span></td>
+                <td class="info_text">Your Profit:          <span id="profit"></span></td>
+                <td class="info_text">Current Sell Offer:   <span id="curr_ask"></span></td>
+            </tr>
+            </strong>
+        </table>
+    </div>
 
-        <svg id="profit-graph"  style="width:60%; height:100%; background-color: white; border-left:solid black 1px;">
-            <!-- tradingGraph.expandedGraph? -->
-                <!-- <span class="zoom-in" id="profit-zoom-in" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">+</span> -->
-                <!-- <span class="zoom-out" id="profit-zoom-out" ng-class="{'zoom-disabled': tradingGraph.expandedGraph}">-</span> -->
-        </svg>
+    <div class="graph-row" style="width:100%; height:100%;">
 
+        <div class="profit-graph-container"></div>
+            <svg id="profit-graph" style="width:100%; height:100%;"></svg>
+        </div>
 
-        <svg id="spread-graph" style=" width:25%; height:100%; margin-left:10px; background-color: white;"></svg> 
+        <div class="user-graph-container">
+            <svg id="spread-graph" style=" width:100px; height:100%;"></svg> 
+        </div>
+
+            
         <div class="inputs">
           <input id="maker" value="maker" class="button-off" type="button" style="width:80px" ></input>
           <br>
@@ -175,8 +82,11 @@ g{
     <script src="https://momentjs.com/downloads/moment-timezone.min.js"></script>
     <link rel="stylesheet" href="{% static "oTree_HFT_CDA/profit-graph.css" %}">
     <link rel="stylesheet" href="{% static "oTree_HFT_CDA/slider.css" %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/start.css" %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/buttons.css" %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/choice-box.css" %}">
 
-<script>
+    <script>
 
 /*Front End Javascript for start.html*/
 /*Handles the Button Logic and the Graph shown in start.html*/

@@ -1,0 +1,17 @@
+.button-on{
+    background-color:steelblue;
+    border-color: solid black 5px;
+    color:white;
+}
+.button-pressed{
+    background-color:#444444;
+    color:white;
+}
+.button-off{
+    background-color:#666666;
+    color:white;
+}
+input{
+    margin-left:30px;
+    margin-top:20px;
+}

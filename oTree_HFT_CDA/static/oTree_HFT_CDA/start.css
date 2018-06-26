@@ -1,0 +1,43 @@
+.front-end-controller{
+    width: 90vw;
+    height: 90vh;
+    background-color: darkgrey;
+    margin-top: -80px;
+}
+.top-banner{
+    border: rgb(200, 200, 200) 2px solid;
+    background-color: rgb(230, 230, 230);
+    width: 100%;
+}
+.graph-row{
+    padding: 0px;
+    margin: 0px;
+}
+.profit-graph-container {
+    height: 500px;
+    margin: 40px;
+    width: 70%;
+    background-color: rgb(230, 230, 230);
+    padding: 5px;
+}
+.user-graph-container {
+    height: 500px;
+    margin: 20px;
+    width: 20%;
+    background-color: rgb(230, 230, 230);
+    padding: 5px;
+}
+.inputs{
+    height: 500px;
+    width: 10%;
+    background-color: rgb(230, 230, 230);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+}
+
+.table{
+    table-layout : auto;
+    padding-bottom: 0px;
+}

@@ -32,7 +32,7 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 3
+    players_per_group = 2
     num_rounds = 1
     speed_cost = 0.1
 
