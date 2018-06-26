@@ -3,23 +3,10 @@
 {% load staticfiles %}
 
 {% block content %}
-<style type="text/css">
 
-
-
-
-
-
-
-[class*="col-"] {
-    padding: 0px;
-    margin: 0px;
-}
-</style>
 <div class="front-end-controller">
     <div class="top-banner">
-        <table class="table" style="width: 100%" >
-            <strong>
+        <table class="table" style="width:100%" >
             <!-- Row 1 of info box -->
             <tr>
                 <td class="info_text">Player ID:            <span id="player_id"></span></td>
@@ -41,11 +28,10 @@
                 <td class="info_text">Your Profit:          <span id="profit"></span></td>
                 <td class="info_text">Current Sell Offer:   <span id="curr_ask"></span></td>
             </tr>
-            </strong>
         </table>
     </div>
 
-    <div class="graph-row" style="width:100%; height:100%;">
+    <div class="graph-row">
 
         <div class="profit-graph-container"></div>
             <svg id="profit-graph" style="width:100%; height:100%;"></svg>
@@ -57,19 +43,31 @@
 
             
         <div class="inputs">
-          <input id="maker" value="maker" class="button-off" type="button" style="width:80px" ></input>
-          <br>
-            <input id="sniper" value="sniper" class="button-off" type="button" style="width:80px" ></input> 
-            <br>
-            <input id="out" value="out" class="button-on" type="button" style="width:80px"></input>
-            <br>
-
-            <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
-            <label class="switch" style="margin-left: 40px; margin-top: -5px;" >
-                <br>
-                <input type="checkbox" onclick="updatespeed()">
-                <span class="slider round"></span>
-            </label>
+            <div class="button-container">
+                <div class="row" style="padding-bottom:3em">
+                    <button id="out" value="out" class="button-on" type="button" style="width:75px">
+                        Out   
+                    </button>
+                </div>
+                <div class="row" style="padding-bottom:3em">
+                    <button id="sniper" value="sniper" class="button-off" type="button" style="width:75px">
+                        Snipe
+                    </button> 
+                </div>
+                <div class="row">
+                    <button id="maker" value="maker" class="button-off" type="button" style="width:75px">
+                        Maker
+                    </button>
+                </div>
+            </div>
+            <div class="button-container-speed">
+                    <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
+                    <label class="switch" style="margin-left: 40px; margin-top: -5px;" >
+                        <br>
+                        <input type="checkbox" onclick="updatespeed()">
+                        <span class="slider round"></span>
+                    </label>
+            </div>
         </div>
 
     </div>
