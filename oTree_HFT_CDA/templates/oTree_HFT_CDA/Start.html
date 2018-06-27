@@ -33,7 +33,7 @@
 
     <div class="graph-row">
 
-        <div class="profit-graph-container"></div>
+        <div class="profit-graph-container">
             <svg id="profit-graph" style="width:100%; height:100%;"></svg>
         </div>
 
@@ -654,9 +654,9 @@ window.onload = function () {
 
             //if not other maker within the spread
             if(id == smallest_spread["key"]){
-                bar_color = "blue_bar";
-            }else{
                 bar_color = "green_bar";
+            }else{
+                bar_color = "blue_bar";
             }
             your_bar_rect = spread_svg.append("svg:rect")
                        .attr("x", spread_width - (spread_width - 85))
