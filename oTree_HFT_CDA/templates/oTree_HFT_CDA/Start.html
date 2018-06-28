@@ -109,6 +109,7 @@ window.onload = function () {
     // Handle messages sent by the server.
     socket.onmessage = function (event) {
         var obj = jQuery.parseJSON(event.data);
+
         if(obj.FPC != undefined){
             var difference = $('#fp').text() - obj.FPC;
             $('#fp').html(obj.FPC);
@@ -127,12 +128,6 @@ window.onload = function () {
                 Spread_Graph.clear();
                 Spread_Graph.drawMyLine({}, 0);
             },500);
-
-            
-
-            
-            
-
         }else if(obj.EXEC != undefined){
             console.log(obj.EXEC);
             var timeNow = getTime() - graph.timeOffset;
@@ -171,6 +166,8 @@ window.onload = function () {
 
             Spread_Graph.drawMyLine(obj.SPRCHG);
             
+        }else if(obj.INV != undefined){
+            Spread_Graph.drawMyLine({}, 0, {}, true);
         }
         // else if(obj.SIDE != undefined){
         //     Spread_Graph.clear();
@@ -455,7 +452,7 @@ window.onload = function () {
             });
         }
 
-        function drawMySpreadLines(newLines, offset = 0, exec={}){
+        function drawMySpreadLines(newLines, offset=0, exec={}, inv=false){
             for(var key in spread_lines){
                 if(key == parseInt($('#player_id').text())){
                     spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
@@ -602,6 +599,18 @@ window.onload = function () {
                 }
                 spread_lines[key] = newLines[key];
             }
+            if(inv == true){
+                spread_line_fundamental_price = spread_svg.append("svg:line")
+                    .attr("x1", 0 + 60)
+                    .attr("y1", spread_height/2)
+                    .attr("x2", spread_width - 60)
+                    .attr("y2", spread_height/2)
+                    .style("stroke", "yellow")
+                    .style("stroke-width", 10)
+                    .attr("class", "inv-line");
+            }else{
+                d3.selectAll(".inv-line").remove();
+            }
             
             spread_line_fundamental_price = spread_svg.append("svg:line")
                 .attr("x1", 0 + 45)
@@ -610,6 +619,10 @@ window.onload = function () {
                 .attr("y2", spread_height/2)
                 .style("stroke", "grey")
                 .style("stroke-width", 5);
+
+            if(inv == true){
+                window.setTimeout(d3.selectAll(".inv-line").remove(), 100);
+            }
 
 
         }
