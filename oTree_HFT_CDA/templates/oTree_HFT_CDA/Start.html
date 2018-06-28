@@ -411,12 +411,12 @@ window.onload = function () {
                 .style("stroke-width", 5);
 
             spread_line_fundamental_price = spread_svg.append("svg:line")
-                .attr("x1", 0 + 45)
+                .attr("x1", 0 + 60)
                 .attr("y1", spread_height/2)
-                .attr("x2", spread_width - 45)
+                .attr("x2", spread_width - 60)
                 .attr("y2", spread_height/2)
                 .style("stroke", "grey")
-                .style("stroke-width", 5);
+                .style("stroke-width", 3);
 
         }
 
@@ -601,9 +601,9 @@ window.onload = function () {
             }
             if(inv == true){
                 spread_line_fundamental_price = spread_svg.append("svg:line")
-                    .attr("x1", 0 + 60)
+                    .attr("x1", 0 + 50)
                     .attr("y1", spread_height/2)
-                    .attr("x2", spread_width - 60)
+                    .attr("x2", spread_width - 50)
                     .attr("y2", spread_height/2)
                     .style("stroke", "yellow")
                     .style("stroke-width", 10)
@@ -611,13 +611,13 @@ window.onload = function () {
             }
             
             spread_line_fundamental_price = spread_svg.append("svg:line")
-                .attr("x1", 0 + 45)
+                .attr("x1", 0 + 60)
                 .attr("y1", spread_height/2)
-                .attr("x2", spread_width - 45)
+                .attr("x2", spread_width - 60)
                 .attr("y2", spread_height/2)
                 .style("stroke", "grey")
-                .style("stroke-width", 5);
-                
+                .style("stroke-width", 3);
+
             if(inv == true){
                 setTimeout(function(){
                     d3.selectAll(".inv-line").remove();
