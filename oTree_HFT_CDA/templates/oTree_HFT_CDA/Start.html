@@ -608,8 +608,6 @@ window.onload = function () {
                     .style("stroke", "yellow")
                     .style("stroke-width", 10)
                     .attr("class", "inv-line");
-            }else{
-                d3.selectAll(".inv-line").remove();
             }
             
             spread_line_fundamental_price = spread_svg.append("svg:line")
@@ -619,11 +617,12 @@ window.onload = function () {
                 .attr("y2", spread_height/2)
                 .style("stroke", "grey")
                 .style("stroke-width", 5);
-
+                
             if(inv == true){
-                window.setTimeout(d3.selectAll(".inv-line").remove(), 100);
+                setTimeout(function(){
+                    d3.selectAll(".inv-line").remove();
+                },400);
             }
-
 
         }
 
