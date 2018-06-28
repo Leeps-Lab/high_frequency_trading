@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
         format='%(asctime)s %(name)-6s %(levelname)s: %(message)s',
         datefmt='%m-%d %H:%M:%S',
         filename=file,
-        filemode='w')
+        filemode='w+')
 
 log = logging.getLogger(__name__)
 

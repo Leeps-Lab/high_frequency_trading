@@ -13,8 +13,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
 if environ.get('OTREE_PRODUCTION') not in {None, '', '0'}:
     DEBUG = False
+elif 'OTREE_PRODUCTION' not in os.environ:
+    DEBUG = False
 else:
     DEBUG = True
+
 
 INTERNAL_IPS = (
     '0.0.0.0',

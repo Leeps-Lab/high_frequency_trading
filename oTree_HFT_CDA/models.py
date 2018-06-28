@@ -48,7 +48,7 @@ class Constants(BaseConstants):
 
 
 class Subsession(BaseSubsession):
-    
+    start_time = models.IntegerField()
     def creating_session(self):
         # location of Price_Log object
         self.session.vars['FP_Log'] = Price_Log(10)
@@ -212,6 +212,7 @@ class Player(BasePlayer):
     fp = models.IntegerField(initial=10000)
     order_count = models.IntegerField(initial=1)
     profit = models.IntegerField(initial=10000)
+    time_of_speed_change = models.IntegerField()
 
     # Player actions
 
@@ -232,7 +233,7 @@ class Player(BasePlayer):
         price = int(self.fp + spread / 2)
         new_order = self._create_order(side=order.side, price=price, time_in_force=99999)
         ouch = translate.replace(order, new_order)   
-        log.info('Player%d: Stage: Replace: %s.' % (self.id_in_group, order.token))
+        log.info('Player%d: Stage: Replace: %s with %s.' % (self.id_in_group, order.token, new_order.token))
         return ouch
 
     def stage_cancel(self, order):
@@ -251,6 +252,7 @@ class Player(BasePlayer):
         self.group.send_exchange(msgs, delay=True, speed=self.speed)
 
     def _leave_market(self):
+        self.group.broadcast({"SPRCHG":{self.id_in_group:0}})
         ords = self.order_set.filter(status='A')
         if ords.exists():
             msgs = [self.stage_cancel(o) for o in ords]
@@ -277,7 +279,8 @@ class Player(BasePlayer):
 
 
     def update_spread(self, message):
-        self.spread = 2000*float(message['spread'])
+        self.spread = int(message['spread'])
+        self.group.broadcast({"SPRCHG":{self.id_in_group:{"B":(self.fp - self.spread / 2), "A":(self.fp + self.spread / 2)}}})
         ords = self.order_set.filter(status='A')
         if ords.exists():
             msgs = [self.stage_replace(o) for o in ords]
@@ -287,6 +290,7 @@ class Player(BasePlayer):
 
     def update_speed(self, message):  
         self.speed = not self.speed      # Front end button doesnt work 0429
+        self.calc_speed(self.speed, Get_Time())
         self.save()
         speed = ('fast' if self.speed else 'slow')
         log.info('Player%d: Speed change: %s.' % (self.id_in_group, speed))
@@ -310,9 +314,6 @@ class Player(BasePlayer):
             'E':self.confirm_exec
         }
         events[msg['type']](msg)
-
-    # Confirm methods    
-
     # These methods should send response to clients ! 
 
     def confirm_enter(self,msg):
@@ -337,11 +338,18 @@ class Player(BasePlayer):
         log.info('Player%d: Confirm: Cancel %s.' % (self.id_in_group, tok))
 
     def confirm_exec(self, msg):
-        stamp, tok = msg['timestamp'], msg['order_token']
+        stamp, tok, price = msg['timestamp'], msg['order_token'], msg['price']
+        
         order = self.order_set.get(token=tok)
+        
+        
         order.execute(stamp)
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
-        self.calc_profit(order.price, order.side, stamp)                                      
+        profit = self.calc_profit(price, order.side, stamp)                                      
+        print("id: %s, pofit%d" %(self.id_in_group, profit))
+
+        self.group.broadcast({"EXEC":{"id": self.id_in_group, "token":tok, "profit":profit}})
+
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
              m = [self.stage_enter(order.side)]
@@ -350,22 +358,48 @@ class Player(BasePlayer):
     def calc_profit(self, exec_price, side, timestamp):
         profit = 0
         fp = self.session.vars['FP_Log'].getFP(timestamp)
-
+        
         if side == 'B':
             # Execution of your buy offer
             if exec_price < fp:                  #  Player bought lower than FP (positive profit)
-                profit += abs(fp - exec_price)  
+                profit += abs(fp - exec_price)
+                if self.speed == 1:
+                    time_temp = Get_Time()
+                    self.calc_speed(0, Get_Time())
+                    self.calc_speed(1, Get_Time())
             else:                                #  Player bought higher than FP (negative profit)   
                 profit -= abs(fp - exec_price)   
+                if self.speed == 1:
+                    time_temp = Get_Time()
+                    self.calc_speed(0, Get_Time())
+                    self.calc_speed(1, Get_Time())
         else:
             # Execution of your sell offer
             if exec_price < fp:                  #  Player sold lower than FP (negative profit)
-                profit -= abs(fp - exec_price)    
+                profit -= abs(fp - exec_price) 
+                if self.speed == 1:
+                    time_temp = Get_Time()
+                    self.calc_speed(0, Get_Time())
+                    self.calc_speed(1, Get_Time())
             else:
                 profit += abs(fp - exec_price)      #  Player sold higher than FP (positive profit)
+                if self.speed == 1:
+                    time_temp = Get_Time()
+                    self.calc_speed(0, Get_Time())
+                    self.calc_speed(1, Get_Time())
 
         self.profit += profit
         self.save()
+
+        return profit
+
+    # state = True/False (speed on/speed off) timestamp = time of speed state change
+    def calc_speed(self, state, timestamp):
+        if state == 1:
+            self.time_of_speed_change = Get_Time()
+        else:
+            self.profit -= (timestamp - self.time_of_speed_change) * Constants.speed_cost
+            self.save()
 
 
     def jump(self, new_price):  
@@ -471,8 +505,9 @@ class Order(Model):  # This is a big object. Do we really need all these fields 
         self.time_stage = time
         self.token, self.firm = tokengen(self.player.id_in_group, self.side, self.player.order_count)
         self.player.order_count += 1
-        self.save()
         self.player.save()
+        self.save()
+
 
     def activate(self, time):
         self.status = 'A'
