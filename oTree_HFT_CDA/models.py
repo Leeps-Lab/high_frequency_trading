@@ -459,8 +459,6 @@ class Investor(Model):
         ouch = translate.enter(order)
         log.debug('Investor sends an order: %s' % order.token)
         self.group.send_exchange([ouch])
-        self.group.broadcast({"INV":0})
-
         self.order_count += 1
         self.save()
 

@@ -32,9 +32,9 @@
     width: 20%;
     background-color: rgb(255, 255, 255);
     padding: 5px;
-    border-style: solid;
-    border-width: 2px;
-    border-color: blueviolet;
+    /* border-style: solid; */
+    /* border-width: 2px;
+    border-color: blueviolet; */
 }
 .inputs{
     float: left;

@@ -19,14 +19,14 @@
                 <td class="info_text">Period:               <span id="period_id"></span></td>
                 <td class="info_text">Number of Makers:     <span id=num_makers></span></td>
                 <td class="info_text">Spread:               <span id="spread_value"></span> </td>
-                <td class="info_text">Current Buy Offer:    <span id="curr_bid"></span></td>
+                <td class="info_text">Current Buy Price:    <span id="curr_bid"></span></td>
             </tr>
             <!-- Row 3 of info box -->
             <tr>
                 <td class="info_text">Speed Cost:           <span id="speed_cost"></span></td>
-                <td class="info_text">Number of Snipers:    <span id="num_snipers"></span></td>
+                <td class="info_text"></td>
                 <td class="info_text">Your Profit:          <span id="profit"></span></td>
-                <td class="info_text">Current Sell Offer:   <span id="curr_ask"></span></td>
+                <td class="info_text">Current Sell Price:   <span id="curr_ask"></span></td>
             </tr>
         </table>
     </div>
@@ -111,6 +111,7 @@ window.onload = function () {
         var obj = jQuery.parseJSON(event.data);
 
         if(obj.FPC != undefined){
+            Spread_Graph.drawMyLine({}, 0, {}, true);
             var difference = $('#fp').text() - obj.FPC;
             $('#fp').html(obj.FPC);
             Spread_Graph.clear();
@@ -166,8 +167,6 @@ window.onload = function () {
 
             Spread_Graph.drawMyLine(obj.SPRCHG);
             
-        }else if(obj.INV != undefined){
-            Spread_Graph.drawMyLine({}, 0, {}, true);
         }
         // else if(obj.SIDE != undefined){
         //     Spread_Graph.clear();
@@ -203,7 +202,6 @@ window.onload = function () {
     $('#speed_cost').html(0);
 
     $('#num_traders').html({{Constants.players_per_group}});
-    $('#num_snipers').html(0);
     $('#num_makers').html(0);
     
     $('#player_role').html('OUT');
@@ -466,9 +464,9 @@ window.onload = function () {
 
                     if(exec["A"] == undefined || spread_lines[key]["A"] != exec["A"]){
                         your_spread_line_top = spread_svg.append("svg:line")
-                            .attr("x1", spread_width - 35)
+                            .attr("x1", (spread_width / 2) - 25)
                             .attr("y1", svg_middle_y - y_coordinate + offset)
-                            .attr("x2", spread_width)
+                            .attr("x2", (spread_width / 2) + 25)
                             .attr("y2", svg_middle_y - y_coordinate + offset)
                             .attr("class","my_line");
                         lines.push(your_spread_line_top);
@@ -478,9 +476,9 @@ window.onload = function () {
 
                     if(exec["B"] == undefined || spread_lines[key]["B"] != exec["B"]){                    
                         your_spread_line_bottom = spread_svg.append("svg:line")
-                            .attr("x1", spread_width - 35)
+                            .attr("x1", (spread_width / 2) - 25)
                             .attr("y1", y_coordinate + svg_middle_y + offset)
-                            .attr("x2", spread_width)
+                            .attr("x2", (spread_width / 2) + 25)
                             .attr("y2", y_coordinate + svg_middle_y + offset)
                             .attr("class","my_line");
                         lines.push(your_spread_line_bottom);
@@ -507,9 +505,9 @@ window.onload = function () {
                     //Ratio between the distance and the mid
                     if(exec["A"] == undefined || spread_lines[key]["A"] != exec["A"]){
                         your_spread_line_top = spread_svg.append("svg:line")
-                            .attr("x1", spread_width - 35)
+                            .attr("x1", (spread_width / 2) - 15)
                             .attr("y1", svg_middle_y - y_coordinate + offset)
-                            .attr("x2", spread_width)
+                            .attr("x2", (spread_width / 2) + 15)
                             .attr("y2", svg_middle_y - y_coordinate + offset)
                             .attr("class","others_line");
                         lines.push(your_spread_line_top);
@@ -519,9 +517,9 @@ window.onload = function () {
                     }
                     if(exec["B"] == undefined || spread_lines[key]["B"] != exec["B"]){
                         your_spread_line_bottom = spread_svg.append("svg:line")
-                            .attr("x1", spread_width - 35)
+                            .attr("x1", (spread_width / 2) - 15)
                             .attr("y1", y_coordinate + svg_middle_y + offset)
-                            .attr("x2", spread_width)
+                            .attr("x2", (spread_width / 2) + 15)
                             .attr("y2", y_coordinate + svg_middle_y + offset)
                             .attr("class","others_line");
                         lines.push(your_spread_line_bottom);
@@ -552,16 +550,16 @@ window.onload = function () {
                     // console.log(y_coordinate);
                     //Ratio between the distance and the mid
                     your_spread_line_top = spread_svg.append("svg:line")
-                        .attr("x1", spread_width - 35)
+                        .attr("x1", (spread_width / 2) - 25)
                         .attr("y1", svg_middle_y - y_coordinate + offset)
-                        .attr("x2", spread_width)
+                        .attr("x2", (spread_width / 2) + 25)
                         .attr("y2", svg_middle_y - y_coordinate + offset)
                         .attr("class","my_line");
                 
                     your_spread_line_bottom = spread_svg.append("svg:line")
-                        .attr("x1", spread_width - 35)
+                        .attr("x1", (spread_width / 2) - 25)
                         .attr("y1", y_coordinate + svg_middle_y + offset)
-                        .attr("x2", spread_width)
+                        .attr("x2", (spread_width / 2) + 25)
                         .attr("y2", y_coordinate + svg_middle_y + offset)
                         .attr("class","my_line");
 
@@ -580,17 +578,17 @@ window.onload = function () {
                     y_coordinate = svg_middle_y/money_ratio;
                     // console.log(y_coordinate);
                     your_spread_line_top = spread_svg.append("svg:line")
-                        .attr("x1", spread_width - 35)
+                        .attr("x1", (spread_width / 2) - 15)
                         .attr("y1", svg_middle_y - y_coordinate)
-                        .attr("x2", spread_width)
+                        .attr("x2", (spread_width / 2) + 15)
                         .attr("y2", svg_middle_y - y_coordinate)
                         .attr("class","others_line");
 
                 
                     your_spread_line_bottom = spread_svg.append("svg:line")
-                        .attr("x1", spread_width - 35)
+                        .attr("x1", (spread_width / 2) - 15)
                         .attr("y1", y_coordinate + svg_middle_y)
-                        .attr("x2", spread_width)
+                        .attr("x2", (spread_width / 2) + 15)
                         .attr("y2", y_coordinate + svg_middle_y)
                         .attr("class","others_line");
                     // for removing when a transation occurs
@@ -636,8 +634,8 @@ window.onload = function () {
                   .transition()
                   // duration is whether or not speed is on
                   .duration(speed)
-                  .attr("x1", 85)
-                  .attr("x2", spread_width - 85); 
+                //   .attr("x1", (spread_width / 2) - 25)
+                //   .attr("x2", (spread_width / 2) + 25); 
             }      
           
         }
@@ -681,9 +679,9 @@ window.onload = function () {
                 bar_color = "blue_bar";
             }
             your_bar_rect = spread_svg.append("svg:rect")
-                       .attr("x", spread_width - (spread_width - 85))
+                       .attr("x", (spread_width / 2) - 25)
                        .attr("y", svg_middle_y - y_coordinate + offset)
-                       .attr("width", spread_width - 170)
+                       .attr("width", 50)
                        .attr("height", 2*y_coordinate)
                        .attr("class",bar_color);
         }
