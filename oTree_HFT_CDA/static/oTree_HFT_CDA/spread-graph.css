@@ -22,7 +22,7 @@ g{
 
 .green_bar{
   fill:#6edd68;
-  opacity: 0.5;
+  opacity: 0.1;
 }
 
 .blue_bar{
@@ -32,10 +32,25 @@ g{
 
 .transaction_bar_light{
   fill:#00cc00;
+  opacity: 1.0;
+}
+
+.transaction_bar_light_green{
+  fill:#00cc00;
+  opacity: 1.0;
+}
+
+.transaction_bar_light_red{
+  fill:#cc0000;
+  opacity: 1.0;
+}
+
+.transaction_bar_dark_green{
+  fill:#002900;
   opacity: 0.5;
 }
 
-.transaction_bar_dark{
-  fill:#006600;
+.transaction_bar_dark_red{
+  fill:#290000;
   opacity: 0.5;
 }
