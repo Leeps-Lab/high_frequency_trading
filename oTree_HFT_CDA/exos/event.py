@@ -31,7 +31,7 @@ class Event(object):
                 times.append(row[0])
                 events.append(row[1])
         events = events[1:]
-        first_arrival = int(times[1])
+        first_arrival = float(times[1])
         times = np.asarray(times[1:], dtype = np.float)
         times = np.ediff1d(times)
         times = np.concatenate([[first_arrival], times]).tolist()

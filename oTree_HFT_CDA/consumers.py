@@ -33,7 +33,7 @@ class InvestorConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id):
         log = 'Investor is connected to Group %s.' % group_id
-        logging.info(log)
+        log.info(log)
         self.connect(group_id)
 
     def connect(self, group_id):

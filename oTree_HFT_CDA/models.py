@@ -34,11 +34,11 @@ class Constants(BaseConstants):
     default_fp = 10 ** 5
 
     inv_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/investor.py')
-    inv_url = 'ws://127.0.0.1:80/hft_investor/'   
+    inv_url = 'ws://127.0.0.1:8000/hft_investor/'   
     inv_csv = os.path.join(os.getcwd(), 'raw/inv_test.csv')
 
     jump_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/jump.py')
-    jump_url = 'ws://127.0.0.1:80/hft_jump/'   
+    jump_url = 'ws://127.0.0.1:8000/hft_jump/'   
     jump_csv = os.path.join(os.getcwd(), 'raw/jump_test.csv')
 
 
