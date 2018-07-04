@@ -4,12 +4,12 @@ try:
 except ImportError:
     import _thread as thread
 import sys
-import pandas as pd
+import numpy as np
 import logging
 import json
 from time import sleep
 import datetime
-
+import csv
 
 class Event(object):
 
@@ -23,11 +23,19 @@ class Event(object):
         read arrival side&time
         store as (time, side) tuples
         """
-        arrive_times = pd.read_csv(self.filename)
-        first_arv = int(arrive_times.loc[0, 'time'])
-        arrive_times['time'] = arrive_times['time'].diff()
-        arrive_times.loc[0, 'time'] = first_arv
-        return arrive_times
+        times = []
+        events = []
+        with open(self.filename) as f:
+            reader=csv.reader(f)
+            for row in reader:
+                times.append(row[0])
+                events.append(row[1])
+        events = events[1:]
+        first_arrival = int(times[1])
+        times = np.asarray(times[1:], dtype = np.float)
+        times = np.ediff1d(times)
+        times = np.concatenate([[first_arrival], times]).tolist()
+        return (times, events)
 
     def run(self):
         """

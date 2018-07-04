@@ -34,6 +34,10 @@ class OrderStore:
         order.activate(time)
         self.active[order.token] = order
         log.debug('Order %s activated.' % order.token)
+    
+    def register_update(self, time , order, update_token):
+        order.to_update(time, update_token)
+
 
     def cancel(self, time, order):
         order.cancel(time)
@@ -56,6 +60,7 @@ class Order:
         self.side = kwargs['side']
         self.time_in_force = kwargs['time_in_force']
         self.status = 'S'
+        self.update_requested = False
         self.tokengen()
 
     def tokengen(self, prefix='SUB'):
@@ -68,6 +73,11 @@ class Order:
     def activate(self, time):
         self.status = 'A'
         self.timestamp = time
+    
+    def to_update(self, time, update_token):
+        self.update_requested = True
+        self.update_req_time = time
+        self.update_token = update_token
 
     def cancel(self, time):
         self.status = 'C'

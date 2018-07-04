@@ -79,7 +79,8 @@ USE_POINTS = True
 LANGUAGE_CODE = 'en'
 
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
-INSTALLED_APPS = ['otree', 'django_extensions']
+# INSTALLED_APPS = ['otree', 'django_extensions']
+INSTALLED_APPS = ['otree']
 #EXTENSION_APPS = ['otree_redwood']
 
 # SENTRY_DSN = ''
@@ -152,7 +153,7 @@ SESSION_CONFIGS = [
     {
         'name': 'oTree_HFT_CDA',
         'display_name': 'High Frequency Trading CDA',
-        'num_demo_participants': 2,
+        'num_demo_participants': 3,
         'app_sequence': ['oTree_HFT_CDA'],
     },
 ]

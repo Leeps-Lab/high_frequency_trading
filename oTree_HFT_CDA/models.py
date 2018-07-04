@@ -4,7 +4,6 @@ import os
 import logging
 import random
 import time
-import pandas as pd
 from . import translator as translate
 from .utility import nanoseconds_since_midnight as labtime
 from . import exchange
@@ -29,21 +28,22 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 2
+    players_per_group = 3
     num_rounds = 1
-    speed_cost = 0.1 * (10 ** -6)
+    speed_cost = 0.1 * (10 ** -6)   # yes, it is 10 ** -5.
+    default_fp = 10 ** 5
 
     inv_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/investor.py')
-    inv_url = 'ws://127.0.0.1:8000/hft_investor/'   
+    inv_url = 'ws://127.0.0.1:80/hft_investor/'   
     inv_csv = os.path.join(os.getcwd(), 'raw/inv_test.csv')
 
     jump_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/jump.py')
-    jump_url = 'ws://127.0.0.1:8000/hft_jump/'   
+    jump_url = 'ws://127.0.0.1:80/hft_jump/'   
     jump_csv = os.path.join(os.getcwd(), 'raw/jump_test.csv')
 
 
 class Subsession(BaseSubsession):
-    start_time = models.IntegerField()
+    start_time = models.BigIntegerField()
 
     def creating_session(self):
         # location of Price_Log object
@@ -53,9 +53,9 @@ class Subsession(BaseSubsession):
             if i == 0:
                 cache.set('profit_pusher', group.id, timeout=None)           
             group.port = 9000 + i + 1
-            group.json = {
-                "messages": [],
-            }
+            # group.json = {
+            #     "messages": [],
+            # }
             group.save()
         self.session.save()
 
@@ -66,11 +66,11 @@ class Group(BaseGroup):
 
     def connect_to_exchange(self):
         log.info("Group%d: Connecting to exchange on port %d" % (self.id, self.port))
-        exchange.connect(self, '127.0.0.1', self.port)
+        exchange.connect(self, 'otree_hft_cda_cda_exc_1', self.port)
         log.info("Group%d: Connected to exchange on port %d" % (self.id, self.port))
 
     def disconnect_from_exchange(self):
-        exchange.disconnect(self, '127.0.0.1', self.port)
+        exchange.disconnect(self, 'otree_hft_cda_cda_exc_1', self.port)
         log.info("Group%d: Disconnected from exchange on port %d" % (self.id, self.port))
 
     def send_exchange(self, msgs, delay=False, speed=False):
@@ -78,25 +78,27 @@ class Group(BaseGroup):
             dur = (0.1 if speed else 0.5)
             log.info('Group%d: Delaying order: %f.' % (self.id, dur))
             time.sleep(dur)
-        conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
+        conn = exchange.connect(self, 'otree_hft_cda_cda_exc_1', self.port, wait_for_connection=True).connection
         for m in msgs:
             conn.sendMessage(m)
 
     def receive_from_exchange(self, msg):
-        msg_type = (msg[0], len(msg))       # we use integer indexes since its the only option in this case
+        msg_format = (msg[0], len(msg))   # index 0 is message type     
         try: 
-            ouch = translate.get_types()[msg_type](msg)
+            ouch = translate.get_types()[msg_format](msg)
             if ouch['type'] == 'S':
                 return
         except KeyError:
-            log.warning('Group{}: received type-{}:length-{}'.format(self.id, chr(msg[0]), len(msg)))
-        if (ouch['order_token'][3] == '@'):
+            msg_type ,msg_len = chr(msg[0]), len(msg)
+            log.warning('Group{}: received type-{}:length-{}'.format(self.id, msg_type, msg_len))
+        if (ouch['order_token'][3] == '@'):     # index 3 is subject ID
             if ouch['type'] == 'E':
                 log.info('Group%d: Investor transacted.' % self.id)
             else:
                 pass
         else:
-            player = self.get_player_by_id(ord(ouch['order_token'][3]) - 64)
+            pid = ord(ouch['order_token'][3]) - 64
+            player = self.get_player_by_id(pid)
             player.receive_from_group(ouch)
         # do we want to save received messages ?
         # 
@@ -112,8 +114,8 @@ class Group(BaseGroup):
 
     def spawn(self, name, url, data):
         """
-        fires exogenous processes
-        as subprocess
+        fires exogenous investors and jumps
+        as subprocesses
         """
         log.info('Group%d: Fire %s.' % (self.id, name))
         cmd = ['python', name, str(self.id), url, data]
@@ -129,7 +131,7 @@ class Group(BaseGroup):
             fp_log = cache.get('FP_Log')
             fp_log.push(labtime(), new_price)
             cache.set('FP_Log', fp_log, timeout=None)
-
+        # broadcast new price to clients
         self.broadcast({"FPC": new_price})
 
         players = self.get_players()
@@ -145,17 +147,15 @@ class Group(BaseGroup):
                     fast_players.append(i)
                 else:
                     slow_players.append(i)      
-
-        random.shuffle(fast_players)
-        random.shuffle(slow_players)
-
         log.debug('Group%d: Jump: Delaying 0.1 seconds..' % self.id)
         time.sleep(0.1)
 
-        log.info(
-            'Group{}: fast players move order: {}'.format(self.id,  [i+1 for i in fast_players])
-        )
         if fast_players:
+            random.shuffle(fast_players)
+            fast_order = [i+1 for i in fast_players]
+            log.info(
+                'Group{}: fast players move order: {}'.format(self.id, fast_order)
+            )
             for i in fast_players:
                 state = players[i].state
                 pid = players[i].id_in_group
@@ -163,20 +163,27 @@ class Group(BaseGroup):
                     'Group%d: fast %s player%d moves.' % (self.id, state, pid )
                 )
                 self.send_exchange(player_responses[i])
+        else:
+            log.info('No fast players.')
 
-        log.debug('Group%d: Jump: Delaying 0.4 seconds more..' % self.id)
-        time.sleep(0.4)
-
-        log.info(
-            'Group{}: slow players move order: {}'.format(self.id,  [i+1 for i in slow_players])
-        )
         if slow_players:
+            log.debug('Group%d: Jump: Delaying 0.4 seconds more..' % self.id)
+            time.sleep(0.4)
+            random.shuffle(slow_players)
+            slow_order = [i+1 for i in slow_players]
+            log.info(
+                'Group{}: slow players move order: {}'.format(self.id, slow_order)
+            )
             for i in slow_players:
                 state = players[i].state
                 pid = players[i].id_in_group
                 log.debug(
-                    'Group%d: slow %s player%d moves.' % (self.id, state, pid))
+                    'Group%d: slow %s player%d moves.' % (self.id, state, pid)
+                )
                 self.send_exchange(player_responses[i])
+        else:
+            log.info('No slow players')
+                
         log.info('-----------Jump End---------------')
 
 
@@ -210,11 +217,11 @@ class Player(BasePlayer):
     speed = models.BooleanField(initial=0)  # 0 or 1
     spread = models.IntegerField(initial=200)
     channel = models.CharField(max_length=255)
+    ready = models.BooleanField(initial=0)
 
-    fp = models.IntegerField(initial=100000)
-    order_count = models.IntegerField(initial=1)
+#    fp = models.IntegerField(initial=100000)
     profit = models.IntegerField(initial=10000)
-    time_of_speed_change = models.IntegerField()
+    time_of_speed_change = models.BigIntegerField()
 
     # Player actions
 
@@ -225,7 +232,7 @@ class Player(BasePlayer):
         return the ouch message
         """  
         spread = (self.spread if side == 'S' else - self.spread)
-        price = (int(self.fp + spread / 2) if not price else price)
+        price = (int(self.fp() + spread / 2) if not price else price)
         order = self._create_order(side=side, price=price, o_type='O', time_in_force=time_in_force)    
         ouch = translate.enter(order)
         log.info('Player%d: Stage: Enter %s: %s.' % (self.id_in_group, order.side, order.token))
@@ -238,9 +245,18 @@ class Player(BasePlayer):
         return a the ouch message
         """
         spread = (self.spread if order.side == 'S' else - self.spread)
-        price = int(self.fp + spread / 2)
+        price = int(self.fp() + spread / 2)
+        if order.update_requested:  # check if replace/cancel staged already
+            log.debug('Already staged a replace for %s' % order.token)
+            staged_order_token = order.update_token
+            orderstore = self.order_store()
+            staged_order = orderstore.get_staged(staged_order_token)    # its staged then its in staged dict.
+            self.stage_replace(staged_order)    # replace staged order instead
         new_order = self._create_order(side=order.side, price=price, time_in_force=99999)
-        ouch = translate.replace(order, new_order)   
+        ouch = translate.replace(order, new_order)
+        orderstore = self.order_store()
+        orderstore.register_update(labtime(), order, new_order.token)
+        self.save_order_store(orderstore)
         log.info('Player%d: Stage: Replace: %s with %s.' % (self.id_in_group, order.token, new_order.token))
         return ouch
 
@@ -249,6 +265,11 @@ class Player(BasePlayer):
         create a cancel order message
         return the ouch message
         """
+        if order.update_requested:
+            staged_order_token = order.update_token
+            orderstore = self.order_store()
+            staged_order = orderstore.get_staged(staged_order_token)
+            self.stage_cancel(staged_order)  # cancel staged order instead
         ouch = translate.cancel(order.token)
         log.info('Player%d: Stage: Cancel: %s.' % (self.id_in_group, order.token))
         return ouch
@@ -288,7 +309,7 @@ class Player(BasePlayer):
     # Client actions
     def update_state(self, message):
         """
-        switch between 3 roles (states): OUT, SNIPER and MAKER
+        switch between 3 roles (states): out, sniper and maker
         """
         states = {
             'OUT':self._leave_market,
@@ -297,13 +318,13 @@ class Player(BasePlayer):
         }
         new_state = message['state']
         log.debug('Player%d: Start state update.' % (self.id_in_group)) 
+        self.state = new_state
+        log.info('Player%d: State is now: %s.' % (self.id_in_group, self.state))   
+        self.save()
         try:
             states[new_state]()
         except KeyError:    # like this is possible
-            log.info('Player%d: Invalid state update.' % self.id_in_group)             
-        self.state = new_state   
-        self.save()
-        log.info('Player%d: State is now: %s.' % (self.id_in_group, self.state)) 
+            log.info('Player%d: Invalid state update.' % self.id_in_group)              
 
 
     def update_spread(self, message):
@@ -314,14 +335,11 @@ class Player(BasePlayer):
         replace existing orders with new price
         """
         self.spread = int(message['spread'])
-        leg_low = self.fp - self.spread / 2
-        leg_up = self.fp + self.spread / 2
+        fp  = self.fp()
+        leg_low, leg_up = fp - self.spread / 2, fp + self.spread / 2       
         self.group.broadcast({
-            "SPRCHG":{
-                self.id_in_group: {
-                    "B": leg_low, "A": leg_up}
-                }
-            })
+            "SPRCHG":{ self.id_in_group: {"B": leg_low, "A": leg_up} }
+        })
         ords = self.order_store().get_active_set().values()
         log.debug('Player%d: Start spread change.' % (self.id_in_group)) 
         if ords:
@@ -459,15 +477,15 @@ class Player(BasePlayer):
         """
         find the distance btw fundamental and execution prices
         order side determines profit sign
-        log speed cost along the way
+        incur speed cost along the way
         """
         fp = cache.get('FP_Log').getFP(timestamp)
 
         d = abs(fp - exec_price)
         if exec_price < fp:
-            pi = d if side == 'B' else -d
+            pi = d if side == 'B' else -d  # buyer (seller) buys (sells) less than fp
         else:
-            pi = d if side == 'S' else -d
+            pi = d if side == 'S' else -d  # seller (buyer) sells (buys) higher than fp 
         self.profit += pi
         if self.speed:
             self._calc_speed_cost(labtime())
@@ -530,17 +548,22 @@ class Player(BasePlayer):
     #         self.save()
 
     def jump(self, new_price):
-        is_positive = new_price - self.fp
-        self.fp = new_price 
-        self.save()
+        """
+        player's response to jump
+        update fundamental price
+        return jump response to group.jump
+        """
+        is_positive = new_price - self.fp() > 0.
+        self.fp_update(new_price)
         response = {'order': False, 'speed': self.speed}
+        current_role = self.state
 
-        if self.state == 'SNIPER':
+        if current_role == 'SNIPER':
             log.debug('Player%d: Jump Action: Snipe.' % self.id_in_group)
             side = 'B' if is_positive else 'S'
-            order = [self.stage_enter(side, price=self.fp, time_in_force=0)]
+            order = [self.stage_enter(side, price=self.fp(), time_in_force=0)]
             response['order'] = order
-        elif self.state == 'MAKER':
+        elif current_role == 'MAKER':
             log.debug('Player%d: Jump Action: Replace orders.' % self.id_in_group)
             flag = 1 if is_positive else 0
             orders = self._adjust_price(flag)
@@ -575,7 +598,7 @@ class Player(BasePlayer):
 
     def _adjust_price(self, flag):
         """
-        implement makers response to jumps
+        implement makers' response to jumps
         find active orders
         compose replace messages
         return ouch messages
@@ -592,7 +615,7 @@ class Player(BasePlayer):
 
 
     """
-    send message to the client after event or operation
+    send message to the client after an event
     """
 
     # Send to client
@@ -615,18 +638,44 @@ class Player(BasePlayer):
         player's order store
         lives in cache backend
         """
-        order_store = cache.get(self.id)
+        k = str(self.id) + '_orders'
+        order_store = cache.get(k)
         if not order_store:
             log.info('Player%d: Create Order Store.' % self.id_in_group)
             order_store = OrderStore(self.id, self.id_in_group)
-            cache.set(self.id, order_store, timeout=None)
+            cache.set(k, order_store, timeout=None)
         return order_store
 
     def save_order_store(self, orderstore):
         """
         write to cache
         """
-        cache.set(self.id, orderstore, timeout=None)
+        k = str(self.id) + '_orders'
+        cache.set(k, orderstore, timeout=None)
+
+    def fp(self):
+        """
+        each player stores a fundamental price on cache
+        read from cache
+        return fp
+        """
+        k = str(self.id) + '_fp'
+        fp = cache.get(k)
+        if not fp:
+            fp = Constants.default_fp
+            log.info(
+                'Player%d: Define fundamental price as %d .' % (self.id_in_group, fp)
+            )
+            cache.set(k, fp, timeout=None)
+        return fp
+
+    def fp_update(self, new_fp):
+        k = str(self.id) + '_fp'
+        cache.set(k, new_fp, timeout=None)
+        log.info('Player%d: Update FP: %d' % (self.id_in_group, new_fp))
+
+        
+
 
 
 class Investor(Model):
@@ -636,7 +685,7 @@ class Investor(Model):
 
     def receive_from_consumer(self, side):
         s = ('Buy' if side=='B' else 'Sell')
-        log.info('Investor: %s.' % s)
+        log.info('Investor%d: %s.' % (self.order_count, s))
         self.invest(side)
 
     def invest(self, side):
