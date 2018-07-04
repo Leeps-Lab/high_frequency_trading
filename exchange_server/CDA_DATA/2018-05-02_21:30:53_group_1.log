@@ -1,0 +1,3 @@
+{'timestamp': 77476861555000, 'order': 'H: 12439827978545803312:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 77479871253000, 'order': 'O: SUBAB000000001:B1xLPS     @9000', 'book': {'Bids': [{'price': 9000, 'orders': [(b'SUBAB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 77479871990000, 'order': 'O: SUBAS000000002:S1xLPS     @11000', 'book': {'Bids': [{'price': 9000, 'orders': [(b'SUBAB000000001', 1)]}], 'Asks': [{'price': 11000, 'orders': [(b'SUBAS000000002', 1)]}]}}

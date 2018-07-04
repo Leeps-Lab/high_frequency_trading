@@ -1,0 +1,60 @@
+{'timestamp': 38687702534000, 'order': 'H: 14012633586317930544:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 38755886974000, 'order': 'H: 14305514935309840432:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 38882673968000, 'order': 'H: 14850045028129058864:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 39093866756000, 'order': 'H: 15757115522311794736:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 39096293313000, 'order': 'O: SUBAB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBAB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 39096293881000, 'order': 'O: SUBAS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBAB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBAS000000002', 1)]}]}}
+{'timestamp': 39148948930000, 'order': 'H: 15993679335973204016:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 39153064741000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 39153066610000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 39156255808000, 'order': 'U: SUBBB000000005->SUBBB000000005:1@4294966309', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 39156256370000, 'order': 'U: SUBBS000000006->SUBBS000000006:1@1013', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 39156256792000, 'order': 'O: SUBAS000000001:S1xLPS     @4294966296', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 39160258833000, 'order': 'U: SUBBS000000007->SUBBS000000007:1@1015', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 39160259339000, 'order': 'U: SUBBB000000008->SUBBB000000008:1@4294966311', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 39160259652000, 'order': 'O: SUBAB000000003:B1xLPS     @4294966296', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 40265391366000, 'order': 'H: 2341996232243687472:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 40318172785000, 'order': 'H: 2568701906254835760:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 40323552353000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 40323553152000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 40325916610000, 'order': 'O: SUBAS000000001:S1xLPS     @4294966296', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 40325917087000, 'order': 'U: SUBBB000000001->SUBBB000000003:1@4294966309', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 40325918240000, 'order': 'U: SUBBS000000002->SUBBS000000004:1@1013', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41031314022000, 'order': 'H: 5631647959267422256:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41035824985000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 41035825621000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 41100155265000, 'order': 'H: 5927313877291249712:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41105524586000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 41105525084000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 41107470263000, 'order': 'U: SUBBS000000002->SUBBS000000003:1@14000', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41107471080000, 'order': 'U: SUBBB000000001->SUBBB000000004:1@12000', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41107472593000, 'order': 'O: SUBAB000000001:B1xLPS     @4293967296', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41292568315000, 'order': 'H: 6753672895075987504:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41297298140000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 41297298608000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 41299867027000, 'order': 'O: SUBAS000000001:S1xLPS     @4294966296', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 41299867479000, 'order': 'U: SUBBB000000001->SUBBB000000003:1@4293980296', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41299868589000, 'order': 'U: SUBBS000000002->SUBBS000000004:1@1013000', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41548475728000, 'order': 'H: 7852838460157079600:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41554245706000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 41554246124000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 41555749453000, 'order': 'O: SUBAS000000001:S1xLPS     @4294966296', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 41555750097000, 'order': 'U: SUBBB000000001->SUBBB000000003:1@4294966309', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41555751493000, 'order': 'U: SUBBS000000002->SUBBS000000004:1@1013', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41662757209000, 'order': 'H: 8343657401369505840:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 41665322175000, 'order': 'O: SUBAB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBAB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 41665322750000, 'order': 'O: SUBAS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBAB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBAS000000002', 1)]}]}}
+{'timestamp': 41668826975000, 'order': 'X: SUBAB000000001:0', 'book': {'Bids': [], 'Asks': [{'price': 11000000, 'orders': [(b'SUBAS000000002', 1)]}]}}
+{'timestamp': 41668827500000, 'order': 'X: SUBAS000000002:0', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 55703338639000, 'order': 'H: 13307279323568287792:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 55707948569000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 55707949374000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 55714581664000, 'order': 'U: SUBBS000000002->SUBBS000000003:1@14000', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 55714583492000, 'order': 'U: SUBBB000000001->SUBBB000000004:1@12000', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 55714584636000, 'order': 'O: SUBAB000000001:B1xLPS     @13000000', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 68870257835000, 'order': 'H: 14518534017427451952:S', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 68875003152000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
+{'timestamp': 68875003870000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
+{'timestamp': 68881513179000, 'order': 'U: SUBBS000000002->SUBBS000000003:1@14000', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 68881514335000, 'order': 'U: SUBBB000000001->SUBBB000000004:1@12000', 'book': {'Bids': [], 'Asks': []}}
+{'timestamp': 68881515795000, 'order': 'O: SUBAB000000001:B1xLPS     @13000000', 'book': {'Bids': [], 'Asks': []}}
