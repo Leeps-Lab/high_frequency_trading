@@ -66,11 +66,11 @@ class Group(BaseGroup):
 
     def connect_to_exchange(self):
         log.info("Group%d: Connecting to exchange on port %d" % (self.id, self.port))
-        exchange.connect(self, 'otree_hft_cda_cda_exc_1', self.port)
+        exchange.connect(self, '127.0.0.1', self.port)
         log.info("Group%d: Connected to exchange on port %d" % (self.id, self.port))
 
     def disconnect_from_exchange(self):
-        exchange.disconnect(self, 'otree_hft_cda_cda_exc_1', self.port)
+        exchange.disconnect(self, '127.0.0.1', self.port)
         log.info("Group%d: Disconnected from exchange on port %d" % (self.id, self.port))
 
     def send_exchange(self, msgs, delay=False, speed=False):
@@ -78,7 +78,7 @@ class Group(BaseGroup):
             dur = (0.1 if speed else 0.5)
             log.info('Group%d: Delaying order: %f.' % (self.id, dur))
             time.sleep(dur)
-        conn = exchange.connect(self, 'otree_hft_cda_cda_exc_1', self.port, wait_for_connection=True).connection
+        conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
         for m in msgs:
             conn.sendMessage(m)
 
