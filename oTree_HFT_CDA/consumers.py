@@ -32,8 +32,7 @@ class SubjectConsumer(JsonWebsocketConsumer):
 class InvestorConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id):
-        log = 'Investor is connected to Group %s.' % group_id
-        log.info(log)
+        log.info('Investor is connected to Group %s.' % group_id)
         self.connect(group_id)
 
     def connect(self, group_id):

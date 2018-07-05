@@ -18,7 +18,7 @@ from django.core.cache import cache
 from .order import Order, OrderStore
 import time
 log = logging.getLogger(__name__)
-
+from twisted.internet import reactor
 author = 'LEEPS Lab UCSC'
 
 doc = """
@@ -28,18 +28,19 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 3
+    players_per_group = 2
     num_rounds = 1
+
     speed_cost = 0.1 * (10 ** -6)   # yes, it is 10 ** -5.
-    default_fp = 10 ** 5
+    default_fp = 10 ** 5    #   default fundamental price
+
+    exc_host = '127.0.0.1'  # ip of exchange hosting machine
+
+    short_delay = 0.1   # slow players delay
+    long_delay = 0.5    # fast players delay
 
     inv_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/investor.py')
-    inv_url = 'ws://127.0.0.1:8000/hft_investor/'   
-    inv_csv = os.path.join(os.getcwd(), 'raw/inv_test.csv')
-
     jump_py = os.path.join(os.getcwd(), 'oTree_HFT_CDA/exos/jump.py')
-    jump_url = 'ws://127.0.0.1:8000/hft_jump/'   
-    jump_csv = os.path.join(os.getcwd(), 'raw/jump_test.csv')
 
 
 class Subsession(BaseSubsession):
@@ -66,21 +67,22 @@ class Group(BaseGroup):
 
     def connect_to_exchange(self):
         log.info("Group%d: Connecting to exchange on port %d" % (self.id, self.port))
-        exchange.connect(self, '127.0.0.1', self.port)
+        exchange.connect(self, Constants.exc_host, self.port, wait_for_connection=True)
         log.info("Group%d: Connected to exchange on port %d" % (self.id, self.port))
 
     def disconnect_from_exchange(self):
-        exchange.disconnect(self, '127.0.0.1', self.port)
+        exchange.disconnect(self, Constants.exc_host, self.port)
         log.info("Group%d: Disconnected from exchange on port %d" % (self.id, self.port))
 
     def send_exchange(self, msgs, delay=False, speed=False):
         if delay:
-            dur = (0.1 if speed else 0.5)
+            dur = Constants.short_delay if speed else Constants.long_delay
             log.info('Group%d: Delaying order: %f.' % (self.id, dur))
-            time.sleep(dur)
-        conn = exchange.connect(self, '127.0.0.1', self.port, wait_for_connection=True).connection
+        else:
+            dur = 0.
+        conn = exchange.connect(self, Constants.exc_host, self.port).connection
         for m in msgs:
-            conn.sendMessage(m)
+            conn.sendMessage(m, dur)
 
     def receive_from_exchange(self, msg):
         msg_format = (msg[0], len(msg))   # index 0 is message type     
@@ -91,7 +93,7 @@ class Group(BaseGroup):
         except KeyError:
             msg_type ,msg_len = chr(msg[0]), len(msg)
             log.warning('Group{}: received type-{}:length-{}'.format(self.id, msg_type, msg_len))
-        if (ouch['order_token'][3] == '@'):     # index 3 is subject ID
+        if ouch['order_token'][3] == '@':     # index 3 is subject ID
             if ouch['type'] == 'E':
                 log.info('Group%d: Investor transacted.' % self.id)
             else:
@@ -147,8 +149,6 @@ class Group(BaseGroup):
                     fast_players.append(i)
                 else:
                     slow_players.append(i)      
-        log.debug('Group%d: Jump: Delaying 0.1 seconds..' % self.id)
-        time.sleep(0.1)
 
         if fast_players:
             random.shuffle(fast_players)
@@ -162,13 +162,11 @@ class Group(BaseGroup):
                 log.debug(
                     'Group%d: fast %s player%d moves.' % (self.id, state, pid )
                 )
-                self.send_exchange(player_responses[i])
+                self.send_exchange(player_responses[i], delay=True, speed=True)
         else:
             log.info('No fast players.')
 
         if slow_players:
-            log.debug('Group%d: Jump: Delaying 0.4 seconds more..' % self.id)
-            time.sleep(0.4)
             random.shuffle(slow_players)
             slow_order = [i+1 for i in slow_players]
             log.info(
@@ -180,7 +178,7 @@ class Group(BaseGroup):
                 log.debug(
                     'Group%d: slow %s player%d moves.' % (self.id, state, pid)
                 )
-                self.send_exchange(player_responses[i])
+                self.send_exchange(player_responses[i], delay=True, speed=False)
         else:
             log.info('No slow players')
                 
@@ -307,6 +305,7 @@ class Player(BasePlayer):
             log.debug('Player%d: No active orders.' % self.id_in_group)
    
     # Client actions
+
     def update_state(self, message):
         """
         switch between 3 roles (states): out, sniper and maker
@@ -356,7 +355,7 @@ class Player(BasePlayer):
         """  
         self.speed = not self.speed
         self.save()
-        speed = ('fast' if self.speed else 'slow')
+        speed = 'fast' if self.speed else 'slow'
         log.info('Player%d: Speed change: %s.' % (self.id_in_group, speed))
         now = labtime()
         if self.speed:
