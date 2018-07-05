@@ -4,18 +4,18 @@
 version: "3"
 
 services:
-  cda_exc:
-    build: ./exchange_server/
-#    image: test_exc
-    stdin_open: true
-    tty: true
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "3"
-    restart: always
-    networks:
-      - exc-net
+#   cda_exc:
+#     build: ./exchange_server/
+# #    image: test_exc
+#     stdin_open: true
+#     tty: true
+#     logging:
+#       options:
+#         max-size: "10m"
+#         max-file: "3"
+#     restart: always
+#     networks:
+#       - exc-net
 
   database:
     image: postgres:9.5
