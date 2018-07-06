@@ -29,13 +29,13 @@ Your app description
 
 class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
-    players_per_group = 2
+    players_per_group = 6
     num_rounds = 1
 
     speed_cost = 0.1 * (10 ** -6)   # yes, it is 10 ** -5.
     default_fp = 10 ** 5    #   default fundamental price
 
-    exc_host = '127.0.0.1'  # ip of exchange hosting machine
+    exc_host = 'exchanges'  # ip of exchange hosting machine
 
     short_delay = 0.1   # slow players delay
     long_delay = 0.5    # fast players delay

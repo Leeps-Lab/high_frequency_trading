@@ -1,4 +1,4 @@
-FROM python:3-alpine
+FROM python:3.5-alpine
 
 ENV REDIS_URL="redis://redis:6379" \
     DJANGO_SETTINGS_MODULE="settings" \

@@ -150,8 +150,8 @@ SESSION_CONFIG_DEFAULTS = {
     'participation_fee': 0.00,
     'doc': "Investor and jump files must be csvs.",
     'mturk_hit_settings': mturk_hit_settings,
-    'investors_url': 'ws://127.0.0.1:8000/hft_investor/' ,
-    'jumps_url': 'ws://127.0.0.1:8000/hft_jump/',
+    'investors_url': 'ws://127.0.0.1:80/hft_investor/' ,
+    'jumps_url': 'ws://127.0.0.1:80/hft_jump/',
 }
 
 SESSION_CONFIGS = [
