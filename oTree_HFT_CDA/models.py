@@ -13,6 +13,7 @@ from otree.db.models import Model, ForeignKey
 from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
+from .client_message import ClientMessage
 import json
 from django.core.cache import cache
 from .order import Order, OrderStore
@@ -34,7 +35,7 @@ class Constants(BaseConstants):
     speed_cost = 0.1 * (10 ** -6)   # yes, it is 10 ** -5.
     default_fp = 10 ** 5    #   default fundamental price
 
-    exc_host = 'exchanges'  # ip of exchange hosting machine
+    exc_host = '127.0.0.1'  # ip of exchange hosting machine
 
     short_delay = 0.1   # slow players delay
     long_delay = 0.5    # fast players delay
@@ -134,7 +135,7 @@ class Group(BaseGroup):
             fp_log.push(labtime(), new_price)
             cache.set('FP_Log', fp_log, timeout=None)
         # broadcast new price to clients
-        self.broadcast({"FPC": new_price})
+        self.broadcast(ClientMessage.fund_p_change(new_price))
 
         players = self.get_players()
         player_responses = []
@@ -296,7 +297,7 @@ class Player(BasePlayer):
         exit market after switching from maker
         pass two ouch messages to cancel active orders
         """
-        self.group.broadcast({"SPRCHG":{self.id_in_group:0}})
+        self.group.broadcast(ClientMessage.spread_change(self.id_in_group))
         ords = self.order_store().get_active_set().values()
         if ords:
             msgs = [self.stage_cancel(o) for o in ords]
@@ -335,10 +336,10 @@ class Player(BasePlayer):
         """
         self.spread = int(message['spread'])
         fp  = self.fp()
-        leg_low, leg_up = fp - self.spread / 2, fp + self.spread / 2       
-        self.group.broadcast({
-            "SPRCHG":{ self.id_in_group: {"B": leg_low, "A": leg_up} }
-        })
+        lo, hi = fp - self.spread / 2, fp + self.spread / 2       
+        self.group.broadcast(
+            ClientMessage.spread_change(self.id_in_group, leg_up=hi, leg_low=lo)
+        )
         ords = self.order_store().get_active_set().values()
         log.debug('Player%d: Start spread change.' % (self.id)) 
         if ords:
@@ -463,10 +464,9 @@ class Player(BasePlayer):
         log.info('Player%d: Confirm: Transaction: %s.' % (self.id, tok))
         profit = self.calc_profit(price, order.side, stamp) 
         log.info('Player%d: Take Transaction Profit: %d.' % (self.id, profit))
-        self.group.broadcast({
-            "EXEC": {
-                "id": self.id_in_group, "token": tok, "profit": profit}
-            })
+        self.group.broadcast(
+            ClientMessage.execution(self.id_in_group, tok, profit)
+        )
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id)
              m = [self.stage_enter(order.side)]
