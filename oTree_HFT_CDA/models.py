@@ -13,6 +13,7 @@ from otree.db.models import Model, ForeignKey
 from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
+from .client_message import ClientMessage
 import json
 from django.core.cache import cache
 from .order import Order, OrderStore
@@ -134,7 +135,7 @@ class Group(BaseGroup):
             fp_log.push(labtime(), new_price)
             cache.set('FP_Log', fp_log, timeout=None)
         # broadcast new price to clients
-        self.broadcast({"FPC": new_price})
+        self.broadcast(ClientMessage.fund_p_change(new_price))
 
         players = self.get_players()
         player_responses = []
@@ -233,7 +234,7 @@ class Player(BasePlayer):
         price = (int(self.fp() + spread / 2) if not price else price)
         order = self._create_order(side=side, price=price, o_type='O', time_in_force=time_in_force)    
         ouch = translate.enter(order)
-        log.info('Player%d: Stage: Enter %s: %s.' % (self.id_in_group, order.side, order.token))
+        log.info('Player%d: Stage: Enter %s: %s.' % (self.id, order.side, order.token))
         return ouch
 
     def stage_replace(self, order):
@@ -255,7 +256,7 @@ class Player(BasePlayer):
         orderstore = self.order_store()
         orderstore.register_update(labtime(), order, new_order.token)
         self.save_order_store(orderstore)
-        log.info('Player%d: Stage: Replace: %s with %s.' % (self.id_in_group, order.token, new_order.token))
+        log.info('Player%d: Stage: Replace: %s with %s.' % (self.id, order.token, new_order.token))
         return ouch
 
     def stage_cancel(self, order):
@@ -269,7 +270,7 @@ class Player(BasePlayer):
             staged_order = orderstore.get_staged(staged_order_token)
             self.stage_cancel(staged_order)  # cancel staged order instead
         ouch = translate.cancel(order.token)
-        log.info('Player%d: Stage: Cancel: %s.' % (self.id_in_group, order.token))
+        log.info('Player%d: Stage: Cancel: %s.' % (self.id, order.token))
         return ouch
 
     def _create_order(self, **kwargs):
@@ -287,7 +288,7 @@ class Player(BasePlayer):
         enter market after switching role to maker
         send two enter ouch messages to exchange via group
         """
-        log.debug('Player%d: Enters market.' % (self.id_in_group)) 
+        log.debug('Player%d: Enters market.' % (self.id)) 
         msgs = [self.stage_enter('B'), self.stage_enter('S')]
         self.group.send_exchange(msgs, delay=True, speed=self.speed)
 
@@ -296,13 +297,13 @@ class Player(BasePlayer):
         exit market after switching from maker
         pass two ouch messages to cancel active orders
         """
-        self.group.broadcast({"SPRCHG":{self.id_in_group:0}})
+        self.group.broadcast(ClientMessage.spread_change(self.id_in_group))
         ords = self.order_store().get_active_set().values()
         if ords:
             msgs = [self.stage_cancel(o) for o in ords]
             self.group.send_exchange(msgs, delay=True, speed=self.speed)
         else:
-            log.debug('Player%d: No active orders.' % self.id_in_group)
+            log.debug('Player%d: No active orders.' % self.id)
    
     # Client actions
 
@@ -316,14 +317,14 @@ class Player(BasePlayer):
             'MAKER':self._enter_market
         }
         new_state = message['state']
-        log.debug('Player%d: Start state update.' % (self.id_in_group)) 
+        log.debug('Player%d: Start state update.' % (self.id)) 
         self.state = new_state
-        log.info('Player%d: State is now: %s.' % (self.id_in_group, self.state))   
+        log.info('Player%d: State is now: %s.' % (self.id, self.state))   
         self.save()
         try:
             states[new_state]()
         except KeyError:    # like this is possible
-            log.info('Player%d: Invalid state update.' % self.id_in_group)              
+            log.info('Player%d: Invalid state update.' % self.id)              
 
 
     def update_spread(self, message):
@@ -335,17 +336,17 @@ class Player(BasePlayer):
         """
         self.spread = int(message['spread'])
         fp  = self.fp()
-        leg_low, leg_up = fp - self.spread / 2, fp + self.spread / 2       
-        self.group.broadcast({
-            "SPRCHG":{ self.id_in_group: {"B": leg_low, "A": leg_up} }
-        })
+        lo, hi = fp - self.spread / 2, fp + self.spread / 2       
+        self.group.broadcast(
+            ClientMessage.spread_change(self.id_in_group, leg_up=hi, leg_low=lo)
+        )
         ords = self.order_store().get_active_set().values()
-        log.debug('Player%d: Start spread change.' % (self.id_in_group)) 
+        log.debug('Player%d: Start spread change.' % (self.id)) 
         if ords:
             msgs = [self.stage_replace(o) for o in ords]
             self.group.send_exchange(msgs, delay=True, speed=self.speed)
         self.save()
-        log.info('Player%d: Spread update: %s.' % (self.id_in_group, self.spread))
+        log.info('Player%d: Spread update: %s.' % (self.id, self.spread))
 
     def update_speed(self, message): 
         """
@@ -356,7 +357,7 @@ class Player(BasePlayer):
         self.speed = not self.speed
         self.save()
         speed = 'fast' if self.speed else 'slow'
-        log.info('Player%d: Speed change: %s.' % (self.id_in_group, speed))
+        log.info('Player%d: Speed change: %s.' % (self.id, speed))
         now = labtime()
         if self.speed:
             self.time_of_speed_change = now
@@ -414,7 +415,7 @@ class Player(BasePlayer):
         order = orderstore.get_staged(tok)
         assert order    # I should get rid of these asserts after testing
         orderstore.activate(stamp, order)
-        log.info('Player%d: Confirm: Enter: %s.' % (self.id_in_group, tok))
+        log.info('Player%d: Confirm: Enter: %s.' % (self.id, tok))
         self.save_order_store(orderstore)
 
     def confirm_replace(self, msg):
@@ -431,7 +432,7 @@ class Player(BasePlayer):
         orderstore.cancel(stamp, old_order)
         orderstore.activate(stamp, new_order)
         self.save_order_store(orderstore)
-        log.info('Player%d: Confirm: Replace %s with %s.' % (self.id_in_group, ptok, tok))
+        log.info('Player%d: Confirm: Replace %s with %s.' % (self.id, ptok, tok))
 
     def confirm_cancel(self, msg):
         """
@@ -446,7 +447,7 @@ class Player(BasePlayer):
         assert order
         orderstore.cancel(stamp, order)
         self.save_order_store(orderstore)        
-        log.info('Player%d: Confirm: Cancel %s.' % (self.id_in_group, tok))
+        log.info('Player%d: Confirm: Cancel %s.' % (self.id, tok))
 
     def confirm_exec(self,msg):
         """
@@ -460,15 +461,14 @@ class Player(BasePlayer):
         order = orderstore.get_active(tok)
         orderstore.execute(stamp, order)
         self.save_order_store(orderstore) 
-        log.info('Player%d: Confirm: Transaction: %s.' % (self.id_in_group, tok))
+        log.info('Player%d: Confirm: Transaction: %s.' % (self.id, tok))
         profit = self.calc_profit(price, order.side, stamp) 
-        log.info('Player%d: Take Transaction Profit: %d.' % (self.id_in_group, profit))
-        self.group.broadcast({
-            "EXEC": {
-                "id": self.id_in_group, "token": tok, "profit": profit}
-            })
+        log.info('Player%d: Take Transaction Profit: %d.' % (self.id, profit))
+        self.group.broadcast(
+            ClientMessage.execution(self.id_in_group, tok, profit)
+        )
         if self.state == 'MAKER':
-             log.debug('Player%d: Execution action: Enter a new order.' % self.id_in_group)
+             log.debug('Player%d: Execution action: Enter a new order.' % self.id)
              m = [self.stage_enter(order.side)]
              self.group.send_exchange(m, delay=True, speed=self.speed)
 
@@ -499,7 +499,7 @@ class Player(BasePlayer):
         cost = delta * Constants.speed_cost
         self.time_of_speed_change = timestamp
         self.profit -= cost
-        log.info('Player%d: Take speed cost: %d' % (self.id_in_group, cost))
+        log.info('Player%d: Take speed cost: %d' % (self.id, cost))
 
     # def calc_profit(self, exec_price, side, timestamp):
     #     profit = 0
@@ -558,17 +558,17 @@ class Player(BasePlayer):
         current_role = self.state
 
         if current_role == 'SNIPER':
-            log.debug('Player%d: Jump Action: Snipe.' % self.id_in_group)
+            log.debug('Player%d: Jump Action: Snipe.' % self.id)
             side = 'B' if is_positive else 'S'
             order = [self.stage_enter(side, price=self.fp(), time_in_force=0)]
             response['order'] = order
         elif current_role == 'MAKER':
-            log.debug('Player%d: Jump Action: Replace orders.' % self.id_in_group)
+            log.debug('Player%d: Jump Action: Replace orders.' % self.id)
             flag = 1 if is_positive else 0
             orders = self._adjust_price(flag)
             response['order'] = orders
         else:
-            log.debug('Player%d: Jump Action: Nothing to do.' % self.id_in_group)
+            log.debug('Player%d: Jump Action: Nothing to do.' % self.id)
         return response
 
 
@@ -640,7 +640,7 @@ class Player(BasePlayer):
         k = str(self.id) + '_orders'
         order_store = cache.get(k)
         if not order_store:
-            log.info('Player%d: Create Order Store.' % self.id_in_group)
+            log.info('Player%d: Create Order Store.' % self.id)
             order_store = OrderStore(self.id, self.id_in_group)
             cache.set(k, order_store, timeout=None)
         return order_store
@@ -663,7 +663,7 @@ class Player(BasePlayer):
         if not fp:
             fp = Constants.default_fp
             log.info(
-                'Player%d: Define fundamental price as %d .' % (self.id_in_group, fp)
+                'Player%d: Define fundamental price as %d .' % (self.id, fp)
             )
             cache.set(k, fp, timeout=None)
         return fp
@@ -671,7 +671,7 @@ class Player(BasePlayer):
     def fp_update(self, new_fp):
         k = str(self.id) + '_fp'
         cache.set(k, new_fp, timeout=None)
-        log.info('Player%d: Update FP: %d' % (self.id_in_group, new_fp))
+        log.info('Player%d: Update FP: %d' % (self.id, new_fp))
 
         
 

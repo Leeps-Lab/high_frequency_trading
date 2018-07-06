@@ -11,4 +11,4 @@ RUN apk -U add --no-cache bash \
 WORKDIR /opt/cda_exc
 VOLUME /data
 CMD ["bash"]
-EXPOSE 9001
+EXPOSE 9001 9002 9003 9004 9005 9006 9007 9008 9009 9010
