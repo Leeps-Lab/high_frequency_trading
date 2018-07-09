@@ -706,14 +706,8 @@ window.onload = function () {
             d3.selectAll(".others_line").remove();
             d3.selectAll("rect").remove();
         }
-
-        function removeOtherMakerLine(order_token){
-            var lines_to_remove = Other_Maker_lines[order_token];
-            lines_to_remove.remove();
-
-        }
-
-        function sendSpreadChange(my_spread = auto_spread){
+        
+        function sendSpreadChange(my_spread){
 
             var msg = {
                 type: 'spread_change',
