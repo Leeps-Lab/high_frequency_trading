@@ -137,12 +137,10 @@ window.onload = function () {
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
             
-            console.log(exec);
             Spread_Graph.clear();
             Spread_Graph.drawMyLine({}, 0, exec);
 
             if(obj.EXEC.id == parseInt($("#player_id").text())){
-                console.log("HERE");
                 graph.profitJumps.push(
                     {
                         timestamp:timeNow,
@@ -311,9 +309,7 @@ window.onload = function () {
             Button_Pressed("sniper");
 
             Spread_Graph.clear();
-            console.log(spread_lines);
             delete spread_lines[parseInt($("#player_id").text())]
-            console.log(spread_lines);
 
         }
 
@@ -369,7 +365,6 @@ window.onload = function () {
     }
     function Button_Change(id_name){
         //TURNING BUTTON ON
-        console.log(id_name);
         if(id_name == "out" || id_name == "maker"){
             $("#"+id_name).toggleClass('button-pressed button-on');
         }else if (id_name == "sniper"){
@@ -455,7 +450,6 @@ window.onload = function () {
         }
 
         function drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){
-            console.log(exec);
             var exec_side = "";
             var exec_spread = "";
             for(var key in spread_lines){
@@ -498,7 +492,7 @@ window.onload = function () {
                         exec_spread = my_spread;
                     } 
 
-                    addOthersLineAnimation(lines, 0);
+                    addOthersLineAnimation(lines, 0, 25);
                     drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
 
                     if(exec_side != ""){
@@ -543,7 +537,7 @@ window.onload = function () {
                         exec_spread = my_spread;
                     }
 
-                    addOthersLineAnimation(lines, 0);
+                    addOthersLineAnimation(lines, 0, 15);
                     if(exec_side != ""){
                         drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"));
                     }
@@ -567,22 +561,22 @@ window.onload = function () {
                     // console.log(y_coordinate);
                     //Ratio between the distance and the mid
                     your_spread_line_top = spread_svg.append("svg:line")
-                        .attr("x1", (spread_width / 2) - 25)
+                        .attr("x1", spread_width)
                         .attr("y1", svg_middle_y - y_coordinate + offset)
-                        .attr("x2", (spread_width / 2) + 25)
+                        .attr("x2", spread_width - 25)
                         .attr("y2", svg_middle_y - y_coordinate + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line");
                 
                     your_spread_line_bottom = spread_svg.append("svg:line")
-                        .attr("x1", (spread_width / 2) - 25)
+                        .attr("x1", spread_width)
                         .attr("y1", y_coordinate + svg_middle_y + offset)
-                        .attr("x2", (spread_width / 2) + 25)
+                        .attr("x2", spread_width - 25)
                         .attr("y2", y_coordinate + svg_middle_y + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line");
 
-                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]); 
+                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 25); 
 
                     setTimeout(function(d){
                         drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
@@ -597,24 +591,24 @@ window.onload = function () {
                     y_coordinate = svg_middle_y/money_ratio;
                     // console.log(y_coordinate);
                     your_spread_line_top = spread_svg.append("svg:line")
-                        .attr("x1", (spread_width / 2) - 15)
+                        .attr("x1", spread_width)
                         .attr("y1", svg_middle_y - y_coordinate)
-                        .attr("x2", (spread_width / 2) + 15)
+                        .attr("x2", spread_width - 15)
                         .attr("y2", svg_middle_y - y_coordinate)
                         .attr("stroke-width",1)
                         .attr("class","others_line");
 
                 
                     your_spread_line_bottom = spread_svg.append("svg:line")
-                        .attr("x1", (spread_width / 2) - 15)
+                        .attr("x1", spread_width)
                         .attr("y1", y_coordinate + svg_middle_y)
-                        .attr("x2", (spread_width / 2) + 15)
+                        .attr("x2", spread_width - 15)
                         .attr("y2", y_coordinate + svg_middle_y)
                         .attr("stroke-width",1)
                         .attr("class","others_line");
                     // for removing when a transation occurs
 
-                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
+                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 15);
                 }
                 spread_lines[key] = newLines[key];
             }
@@ -648,15 +642,14 @@ window.onload = function () {
 
 
 
-        function addOthersLineAnimation(lines, speed = 500){
+        function addOthersLineAnimation(lines, speed=500, width){
             //SETTING THE SPREAD TO THE LINE
             for( i = 0; i < lines.length; i++){
                 add_animation = lines[i]
                   .transition()
-                  // duration is whether or not speed is on
                   .duration(speed)
-                //   .attr("x1", (spread_width / 2) - 25)
-                //   .attr("x2", (spread_width / 2) + 25); 
+                  .attr("x1", (spread_width / 2) + width)
+                  .attr("x2", (spread_width / 2) - width);
             }      
           
         }
