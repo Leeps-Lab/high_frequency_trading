@@ -163,8 +163,14 @@ window.onload = function () {
         }else if(obj.SPRCHG != undefined){
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
+                if(obj.SPRCHG[key] == 0 && smallest_spread[key] != undefined){
+                    delete obj.SPRCHG[key];
+                    updateSmallest(key);
+                }
                 delete spread_lines[key];
             }
+
+
 
             for(var key in obj.SPRCHG){
                 if((obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"]) < smallest_spread["spread"]){
@@ -426,6 +432,17 @@ window.onload = function () {
                 .style("stroke", "grey")
                 .style("stroke-width", 3);
 
+        }
+
+        function updateSmallest(key){
+            delete smallest_spread[key];
+            smallest_spread[-1] = max_spread;
+            for(var key in spread_lines){
+                if((spread_lines[key]["A"] - spread_lines[key]["B"]) < smallest_spread["spread"]){
+                    smallest_spread["key"] = key;
+                    smallest_spread["spread"] = spread_lines[key]["A"] - spread_lines[key]["B"]
+                }
+            }
         }
 
         function svgClickListener(){
