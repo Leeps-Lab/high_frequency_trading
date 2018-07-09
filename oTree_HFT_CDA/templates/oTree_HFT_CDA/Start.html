@@ -64,7 +64,7 @@
                     <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
                     <label class="switch" style="margin-left: 40px; margin-top: -5px;" >
                         <br>
-                        <input type="checkbox" onclick="updatespeed()">
+                        <input id="speed-btn" type="checkbox" onclick="updatespeed()" disabled="true">
                         <span class="slider round"></span>
                     </label>
             </div>
@@ -251,6 +251,8 @@ window.onload = function () {
             $("#maker").toggleClass('button-off button-pressed');
             $('#player_role').html('MAKER');
 
+            document.getElementById("speed-btn").disabled = false;
+
             var timeNow = getTime() - graph.timeOffset;
             graph.profitSegments.push(
                 {
@@ -285,6 +287,9 @@ window.onload = function () {
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
             $("#sniper").toggleClass('button-off button-pressed');
             $('#player_role').html('SNIPER');
+
+            document.getElementById("speed-btn").disabled = false;
+
 
             var timeNow = getTime() - graph.timeOffset;
             graph.profitSegments.push(
@@ -323,6 +328,8 @@ window.onload = function () {
             //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
             $("#out").toggleClass('button-off button-on');
             $('#player_role').html('OUT');
+            document.getElementById("speed-btn").disabled = true;
+            
             
             var timeNow = getTime() - graph.timeOffset;
             graph.profitSegments.push(
@@ -346,6 +353,10 @@ window.onload = function () {
             }
             Button_Pressed("out");
             
+            if(speed){
+                updatespeed();
+                document.getElementById("speed-btn").checked = false;
+            }
 
             Spread_Graph.clear();
             delete spread_lines[parseInt($("#player_id").text())]
