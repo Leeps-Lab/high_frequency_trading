@@ -891,8 +891,6 @@ Spread_Graph.listen();
     graph.profitJumps = [];
 
 
-//------------------------------------------------
-
     graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
     graph.graphPaddingRight = 20;  //used                                 // how far from the x axis label that the line stops moving
     graph.graphAdjustSpeedProfit = 10;                              //speed that profit price axis adjusts in pixels per frame
@@ -902,49 +900,10 @@ Spread_Graph.listen();
     graph.currentTime = 0;                                          // Time displayed on graph
     graph.profitPriceLines = [];                                    // The array of price lines
     graph.timeLines = [];
-    graph.pricesArray = [];
    
 
-    
+    // graph.startTime = 0;
 
-    
-
-    graph.marketZoomLevel = 4;                                      // current zoom level for each graph
-    graph.profitZoomLevel = 4;
-    graph.maxZoomLevel = 4;                                         // maximum allowed zoom level
-    graph.zoomAmount = 0;                                           // amount zoomed per click
-
-    graph.expandedGraph = false;
-    graph.prevMaxPriceMarket = 0;                                   // storage for previous max and min values for when graph is in expanded mode
-    graph.prevMinPriceMarket = 0;
-    graph.prevMaxPriceProfit = 0;
-    graph.prevMinPriceProfit = 0;
-
-    graph.op = 1;                                                  //added 7/24/17 for adding opacity to transaction lines
-    graph.currentTransaction = null;                               //added 7/24/17 for ensuring only the correct orders are drawn as transacted
-    graph.currTransactionID = null;                                //added 7/24/17 for ensuring only the correct orders are drawn as transacted
-    graph.heightScale = .4;                                        //added 7/26/17 to shift the height of the graph to fit buttons under
-    graph.widthScale = 0;                                          //added 7/28/17 to widen the graphs of ticks to be better fit spread 
-    graph.oldFundPrice = null;
-    graph.FPCop = 1;
-    graph.currSpreadTick = 0;
-    graph.startTime = 0;
-    graph.tickAnimationID = 0;
-    graph.staticTickAnimationID = 0;
-    graph.laser = true;                                            //magic
-    graph.removeStartTime = 0;
-    graph.removeAnimationID = 0;
-    graph.removeStaticAnimationID = 0;
-    graph.IDArray = [];
-
-    graph.FPCswing = null;                                        //used for shifting spread ticks with FPC's
-    graph.currentSellTick = [];
-    graph.currentBuyTick = [];
-    graph.PreviousProfit = 0;
-    
-     
-
-    
     function calcPriceGridLines(maxPrice, minPrice, increment) {
         var gridLineVal = minPrice + increment - (minPrice % increment);
         // adjust for mod of negative numbers not being negative
