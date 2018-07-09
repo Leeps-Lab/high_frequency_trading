@@ -445,6 +445,59 @@ window.onload = function () {
 
                     sendSpreadChange(my_spread);
 
+                }else if(role == "OUT"){
+                    //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+                    $("#maker").toggleClass('button-off button-pressed');
+                    $('#player_role').html('MAKER');
+
+                    var timeNow = getTime() - graph.timeOffset;
+                    graph.profitSegments.push(
+                        {
+                            startTime:timeNow,
+                            endTime:timeNow, 
+                            startProfit:graph.profit, 
+                            endProfit:graph.profit,
+                            state:$("#player_role").text()
+                        }
+                    );
+
+
+                    var msg = {
+                        type: 'role_change',
+                        id: {{player.id}},
+                        id_in_group: {{player.id_in_group}},
+                        state: "MAKER"
+                    };
+                    if (socket.readyState === socket.OPEN) {
+                        socket.send(JSON.stringify(msg));
+                    }
+
+                    Button_Pressed("maker");
+
+                    $("#out").attr('class', 'button-off');
+
+                    //The dimensions the svg take up
+                    spread_x = document.getElementById("spread-graph").getBoundingClientRect().left;
+                    spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+
+                    //Where the grey middle line is
+                    svg_middle_x = spread_width / 2;
+                    fp_line_y = spread_height / 2;
+
+                    //The tuple in which the mouse is clicked within the svg 
+                    click_point = {
+                        x:(d3.event.clientX - spread_x),
+                        y:(d3.event.clientY - spread_y)
+                    };
+
+                    //finding the distance from the mid
+                    distance_from_middle = Math.abs(click_point.y - fp_line_y);
+
+                    ratio = distance_from_middle / (spread_height / 2);
+
+                    my_spread = (ratio * max_spread).toFixed(0);
+
+                    sendSpreadChange(my_spread);
                 }
             });
         }
@@ -706,7 +759,7 @@ window.onload = function () {
             d3.selectAll(".others_line").remove();
             d3.selectAll("rect").remove();
         }
-        
+
         function sendSpreadChange(my_spread){
 
             var msg = {

@@ -206,7 +206,7 @@ class Player(BasePlayer):
     # basic state variables
     state = models.StringField(initial='OUT')
     speed = models.BooleanField(initial=0)  # 0 or 1
-    spread = models.IntegerField(initial=2000)
+    spread = models.IntegerField(initial=1000)
     channel = models.CharField(max_length=255)
     # fundamental price
     fp = models.IntegerField(initial=10000)
@@ -251,6 +251,7 @@ class Player(BasePlayer):
         msgs = [self.stage_enter('B'), self.stage_enter('S')]
         self.group.send_exchange(msgs, delay=True, speed=self.speed)
 
+
     def _leave_market(self):
         self.group.broadcast({"SPRCHG":{self.id_in_group:0}})
         ords = self.order_set.filter(status='A')
@@ -280,7 +281,6 @@ class Player(BasePlayer):
 
     def update_spread(self, message):
         self.spread = int(message['spread'])
-        self.group.broadcast({"SPRCHG":{self.id_in_group:{"B":(self.fp - self.spread / 2), "A":(self.fp + self.spread / 2)}}})
         ords = self.order_set.filter(status='A')
         if ords.exists():
             msgs = [self.stage_replace(o) for o in ords]
@@ -320,6 +320,7 @@ class Player(BasePlayer):
         stamp, tok = msg['timestamp'], msg['order_token']
         order = self.order_set.get(token=tok)
         order.activate(stamp)
+        self.group.broadcast({"SPRCHG":{self.id_in_group:{"B":(self.fp - self.spread / 2), "A":(self.fp + self.spread / 2)}}})
         log.info('Player%d: Confirm: Enter: %s.' % (self.id_in_group, tok))
 
     def confirm_replace(self, msg):
@@ -329,6 +330,7 @@ class Player(BasePlayer):
         new_order = self.order_set.get(token=tok)
         old_order.cancel(stamp)
         new_order.activate(stamp)
+        self.group.broadcast({"SPRCHG":{self.id_in_group:{"B":(self.fp - self.spread / 2), "A":(self.fp + self.spread / 2)}}})
         log.info('Player%d: Confirm: Replace %s with %s.' % (self.id_in_group, ptok, tok))
 
     def confirm_cancel(self, msg):
