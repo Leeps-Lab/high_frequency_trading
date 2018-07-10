@@ -14,4 +14,4 @@ __pycache__/
 *.txt
 *.rdb
 *.log
-.vscode
+*.vscode
