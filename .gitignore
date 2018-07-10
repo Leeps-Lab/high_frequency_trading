@@ -12,9 +12,6 @@ __pycache__/
 .DS_Store
 *.csv
 *.txt
-<<<<<<< HEAD
 *.rdb
 *.log
-=======
-*vscode*
->>>>>>> master
+.vscode

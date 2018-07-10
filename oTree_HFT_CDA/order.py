@@ -12,42 +12,61 @@ class OrderStore:
         self.id_in_group = id_in_group
         self.count = 1
         self.active = dict()
-        self.staged = dict()
         self.inactive = dict()
+        # self.active = dict()
+        # self.staged = dict()
+        # self.replace = dict()
+        # self.inactive = dict()
 
     def create(self, **kwargs):
         order = Order(self.id_in_group, self.count, **kwargs)
-        self.staged[order.token] = order
+        self.active[order.token] = order
         self.count += 1
         return order
-
-    def get_active_set(self):
-        return self.active
-
-    def get_active(self, token):
+    
+    def get_order(self, token):
         return self.active.pop(token, False)
-
-    def get_staged(self, token):
-        return self.staged.pop(token, False)
+    
+    def find_order(self, token):
+        return self.active[token]
+        
+    def get_all(self, state):
+        return {k:v for k, v in self.active.items() if v.status == state}
+    
+    def find_head(self, order):
+        """
+        find most recent replace message for an order
+        """
+        new_head = order
+        while new_head.is_replacing():
+            new_head = self.find_order(new_head.replace_token)
+        log.debug('Order %s: Head is %s.' % (order.token, new_head.token))
+        return new_head
 
     def activate(self, time, order):
         order.activate(time)
-        self.active[order.token] = order
-        log.debug('Order %s activated.' % order.token)
-    
-    def register_update(self, time , order, update_token):
-        order.to_update(time, update_token)
-
 
     def cancel(self, time, order):
         order.cancel(time)
         self.inactive[order.token] = order
-        log.debug('Order %s is inactive.' % order.token)
+
 
     def execute(self, time, order):
         order.execute(time)
         self.inactive[order.token] = order
-        log.debug('Order %s executed and inactive.' % order.token)
+        
+
+    # def get_active(self, token):
+    #     return self.active.pop(token, False)
+
+    # def get_staged(self, token):
+    #     return self.staged.pop(token, False)
+
+    # def get_replace(self, token):
+    #     return self.replace.pop(token, False)
+    
+    # def find_staged(self, token):
+    #     return self.staged[token] 
 
 
 class Order:
@@ -56,11 +75,11 @@ class Order:
         self.pid = pid
         self.count = count
         self.price = kwargs['price']
-        self.o_type = kwargs.get('o_type', None)
+        self.o_type = kwargs.get('o_type', 'n/a')
         self.side = kwargs['side']
         self.time_in_force = kwargs['time_in_force']
-        self.status = 'S'
-        self.update_requested = False
+        self.status = kwargs['status']
+        self.replace_requested = False
         self.tokengen()
 
     def tokengen(self, prefix='SUB'):
@@ -71,19 +90,53 @@ class Order:
         self.firm = prefix + subject
 
     def activate(self, time):
-        self.status = 'A'
+        if self.time_in_force == 0:
+            self.status = 'sni'
+            log.debug('Order %s: Activated as sniper.' % self.token )
+        else:
+            self.status = 'act'
+            log.debug('Order %s: Activated as maker enter.' % self.token )
         self.timestamp = time
+       
+    def to_replace(self, time, replace_token):
+        self.replace_requested = True
+        self.replace_token = replace_token
+        self.replace_req_time = time
+        log.debug('Order %s: Register replace with %s.' % (self.token, self.replace_token))
     
-    def to_update(self, time, update_token):
-        self.update_requested = True
-        self.update_req_time = time
-        self.update_token = update_token
+    def is_replacing(self):
+        return self.replace_requested
 
     def cancel(self, time):
-        self.status = 'C'
+        self.status = 'cnc'
         self.time_canceled = time
+        log.debug('Order %s is inactive.' % self.token)
 
     def execute(self, time):
-        self.status = 'X'
+        self.status = 'xxx'
         self.timestamp = time
+        log.debug('Order %s executed and inactive.' % self.token)
+
+    def __repr__(self):
+        side = 'buy' if self.side == 'B' else 'sell'
+        pid = str(self.pid)
+        typ = self.o_type.lower()
+        state = self.status
+        if self.replace_requested:
+            replace = self.replace_token
+            repl_time = str(self.replace_req_time)
+        else:
+            replace = 'n/a'
+            repl_time = 'n/a'
+        price = str(self.price)
+        out = (pid + ':' + side + ':' + typ + ':' + state + ':' + price  + ':' +
+            replace + ':' + repl_time)
+        return out
+            
+
+
+
+
+
+
 

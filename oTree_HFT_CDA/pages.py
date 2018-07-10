@@ -11,14 +11,14 @@ class PreWaitPage(WaitPage):
         self.group.connect_to_exchange()
         self.group.send_exchange(system_start('S'))
         self.group.spawn(
-            Constants.inv_py, 
-            settings.SESSION_CONFIG_DEFAULTS['investors_url'], 
-            settings.SESSION_CONFIGS[0]['investors_file']
+            Constants.investor_py, 
+            Constants.investor_url, 
+            self.group.investor_file
         )
         self.group.spawn(
             Constants.jump_py, 
-            settings.SESSION_CONFIG_DEFAULTS['jumps_url'], 
-            settings.SESSION_CONFIGS[0]['jumps_file']
+            Constants.jump_url,
+            self.group.jump_file
         )
         self.subsession.start_time = labtime()
 

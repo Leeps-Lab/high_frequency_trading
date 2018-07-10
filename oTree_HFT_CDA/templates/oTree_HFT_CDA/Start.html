@@ -64,7 +64,7 @@
                     <p  style="text-align: center; margin-left: 30px; margin-top:50px;">Speed</p>
                     <label class="switch" style="margin-left: 40px; margin-top: -5px;" >
                         <br>
-                        <input type="checkbox" onclick="updatespeed()">
+                        <input id="speed-btn" type="checkbox" onclick="updatespeed()" disabled="true">
                         <span class="slider round"></span>
                     </label>
             </div>
@@ -137,12 +137,10 @@ window.onload = function () {
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
             
-            console.log(exec);
             Spread_Graph.clear();
             Spread_Graph.drawMyLine({}, 0, exec);
 
             if(obj.EXEC.id == parseInt($("#player_id").text())){
-                console.log("HERE");
                 graph.profitJumps.push(
                     {
                         timestamp:timeNow,
@@ -165,6 +163,10 @@ window.onload = function () {
         }else if(obj.SPRCHG != undefined){
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
+                if(obj.SPRCHG[key] == 0 && smallest_spread[key] != undefined){
+                    delete obj.SPRCHG[key];
+                    updateSmallest(key);
+                }
                 delete spread_lines[key];
             }
 
@@ -199,15 +201,14 @@ window.onload = function () {
     $('#period_id').html(1);
     $('#speed_cost').html(0);
 
-    $('#num_traders').html({{Constants.players_per_group}});
+    $('#num_traders').html({{subsession.players_per_group}});
     $('#num_makers').html(0);
     
     $('#player_role').html('OUT');
     $('#spread_value').html('N/A');
     $('#profit').html(20);
 
-    $('#fp').html({{Constants.default_fp}});
-
+    $('#fp').html({{player.default_fp}});
     $('#curr_bid').html('N/A');
     $('#curr_ask').html('N/A');
 
@@ -221,7 +222,7 @@ window.onload = function () {
     updatespeed = function () {
         speed = !speed;
         if(speed){
-            $('#speed_cost').html({{Constants.speed_cost}});
+            $('#speed_cost').html({{player.speed_cost}});
         }else {
             $('#speed_cost').html(0);
         }
@@ -253,6 +254,8 @@ window.onload = function () {
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
             $("#maker").toggleClass('button-off button-pressed');
             $('#player_role').html('MAKER');
+
+            document.getElementById("speed-btn").disabled = false;
 
             var timeNow = getTime() - graph.timeOffset;
             graph.profitSegments.push(
@@ -289,6 +292,9 @@ window.onload = function () {
             $("#sniper").toggleClass('button-off button-pressed');
             $('#player_role').html('SNIPER');
 
+            document.getElementById("speed-btn").disabled = false;
+
+
             var timeNow = getTime() - graph.timeOffset;
             graph.profitSegments.push(
                 {
@@ -312,9 +318,7 @@ window.onload = function () {
             Button_Pressed("sniper");
 
             Spread_Graph.clear();
-            console.log(spread_lines);
             delete spread_lines[parseInt($("#player_id").text())]
-            console.log(spread_lines);
 
         }
 
@@ -328,6 +332,8 @@ window.onload = function () {
             //IF THE BUTTON IS OFF TURN IT ON WITH NO DELAY
             $("#out").toggleClass('button-off button-on');
             $('#player_role').html('OUT');
+            document.getElementById("speed-btn").disabled = true;
+            
             
             var timeNow = getTime() - graph.timeOffset;
             graph.profitSegments.push(
@@ -351,6 +357,10 @@ window.onload = function () {
             }
             Button_Pressed("out");
             
+            if(speed){
+                updatespeed();
+                document.getElementById("speed-btn").checked = false;
+            }
 
             Spread_Graph.clear();
             delete spread_lines[parseInt($("#player_id").text())]
@@ -370,7 +380,6 @@ window.onload = function () {
     }
     function Button_Change(id_name){
         //TURNING BUTTON ON
-        console.log(id_name);
         if(id_name == "out" || id_name == "maker"){
             $("#"+id_name).toggleClass('button-pressed button-on');
         }else if (id_name == "sniper"){
@@ -387,8 +396,8 @@ window.onload = function () {
     var id;
     var spread_lines = {};
 
-    var max_spread = 2000; // Pull from Constansts
-    var default_spread = 1000;
+    var max_spread = 20000; // Pull from models
+    var default_spread = 10000;
 
     var smallest_spread = {"key":-1, "spread":max_spread};
 
@@ -423,6 +432,17 @@ window.onload = function () {
 
         }
 
+        function updateSmallest(key){
+            delete smallest_spread[key];
+            smallest_spread[-1] = max_spread;
+            for(var key in spread_lines){
+                if((spread_lines[key]["A"] - spread_lines[key]["B"]) < smallest_spread["spread"]){
+                    smallest_spread["key"] = key;
+                    smallest_spread["spread"] = spread_lines[key]["A"] - spread_lines[key]["B"]
+                }
+            }
+        }
+
         function svgClickListener(){
             spread_svg.on('click',function(d) { 
                 role = $("#player_role").text();
@@ -451,12 +471,64 @@ window.onload = function () {
 
                     sendSpreadChange(my_spread);
 
+                }else if(role == "OUT"){
+                    //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
+                    $("#maker").toggleClass('button-off button-pressed');
+                    $('#player_role').html('MAKER');
+
+                    var timeNow = getTime() - graph.timeOffset;
+                    graph.profitSegments.push(
+                        {
+                            startTime:timeNow,
+                            endTime:timeNow, 
+                            startProfit:graph.profit, 
+                            endProfit:graph.profit,
+                            state:$("#player_role").text()
+                        }
+                    );
+
+
+                    var msg = {
+                        type: 'role_change',
+                        id: {{player.id}},
+                        id_in_group: {{player.id_in_group}},
+                        state: "MAKER"
+                    };
+                    if (socket.readyState === socket.OPEN) {
+                        socket.send(JSON.stringify(msg));
+                    }
+
+                    Button_Pressed("maker");
+
+                    $("#out").attr('class', 'button-off');
+
+                    //The dimensions the svg take up
+                    spread_x = document.getElementById("spread-graph").getBoundingClientRect().left;
+                    spread_y = document.getElementById("spread-graph").getBoundingClientRect().top;
+
+                    //Where the grey middle line is
+                    svg_middle_x = spread_width / 2;
+                    fp_line_y = spread_height / 2;
+
+                    //The tuple in which the mouse is clicked within the svg 
+                    click_point = {
+                        x:(d3.event.clientX - spread_x),
+                        y:(d3.event.clientY - spread_y)
+                    };
+
+                    //finding the distance from the mid
+                    distance_from_middle = Math.abs(click_point.y - fp_line_y);
+
+                    ratio = distance_from_middle / (spread_height / 2);
+
+                    my_spread = (ratio * max_spread).toFixed(0);
+
+                    sendSpreadChange(my_spread);
                 }
             });
         }
 
         function drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){
-            console.log(exec);
             var exec_side = "";
             var exec_spread = "";
             for(var key in spread_lines){
@@ -499,7 +571,7 @@ window.onload = function () {
                         exec_spread = my_spread;
                     } 
 
-                    addOthersLineAnimation(lines, 0);
+                    addOthersLineAnimation(lines, 0, 25);
                     drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
 
                     if(exec_side != ""){
@@ -544,7 +616,7 @@ window.onload = function () {
                         exec_spread = my_spread;
                     }
 
-                    addOthersLineAnimation(lines, 0);
+                    addOthersLineAnimation(lines, 0, 15);
                     if(exec_side != ""){
                         drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"));
                     }
@@ -568,22 +640,22 @@ window.onload = function () {
                     // console.log(y_coordinate);
                     //Ratio between the distance and the mid
                     your_spread_line_top = spread_svg.append("svg:line")
-                        .attr("x1", (spread_width / 2) - 25)
+                        .attr("x1", spread_width)
                         .attr("y1", svg_middle_y - y_coordinate + offset)
-                        .attr("x2", (spread_width / 2) + 25)
+                        .attr("x2", spread_width - 25)
                         .attr("y2", svg_middle_y - y_coordinate + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line");
                 
                     your_spread_line_bottom = spread_svg.append("svg:line")
-                        .attr("x1", (spread_width / 2) - 25)
+                        .attr("x1", spread_width)
                         .attr("y1", y_coordinate + svg_middle_y + offset)
-                        .attr("x2", (spread_width / 2) + 25)
+                        .attr("x2", spread_width - 25)
                         .attr("y2", y_coordinate + svg_middle_y + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line");
 
-                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]); 
+                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 25); 
 
                     setTimeout(function(d){
                         drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
@@ -598,24 +670,24 @@ window.onload = function () {
                     y_coordinate = svg_middle_y/money_ratio;
                     // console.log(y_coordinate);
                     your_spread_line_top = spread_svg.append("svg:line")
-                        .attr("x1", (spread_width / 2) - 15)
+                        .attr("x1", spread_width)
                         .attr("y1", svg_middle_y - y_coordinate)
-                        .attr("x2", (spread_width / 2) + 15)
+                        .attr("x2", spread_width - 15)
                         .attr("y2", svg_middle_y - y_coordinate)
                         .attr("stroke-width",1)
                         .attr("class","others_line");
 
                 
                     your_spread_line_bottom = spread_svg.append("svg:line")
-                        .attr("x1", (spread_width / 2) - 15)
+                        .attr("x1", spread_width)
                         .attr("y1", y_coordinate + svg_middle_y)
-                        .attr("x2", (spread_width / 2) + 15)
+                        .attr("x2", spread_width - 15)
                         .attr("y2", y_coordinate + svg_middle_y)
                         .attr("stroke-width",1)
                         .attr("class","others_line");
                     // for removing when a transation occurs
 
-                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom]);
+                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 15);
                 }
                 spread_lines[key] = newLines[key];
             }
@@ -649,15 +721,14 @@ window.onload = function () {
 
 
 
-        function addOthersLineAnimation(lines, speed = 500){
+        function addOthersLineAnimation(lines, speed=500, width){
             //SETTING THE SPREAD TO THE LINE
             for( i = 0; i < lines.length; i++){
                 add_animation = lines[i]
                   .transition()
-                  // duration is whether or not speed is on
                   .duration(speed)
-                //   .attr("x1", (spread_width / 2) - 25)
-                //   .attr("x2", (spread_width / 2) + 25); 
+                  .attr("x1", (spread_width / 2) + width)
+                  .attr("x2", (spread_width / 2) - width);
             }      
           
         }
@@ -715,13 +786,7 @@ window.onload = function () {
             d3.selectAll("rect").remove();
         }
 
-        function removeOtherMakerLine(order_token){
-            var lines_to_remove = Other_Maker_lines[order_token];
-            lines_to_remove.remove();
-
-        }
-
-        function sendSpreadChange(my_spread = auto_spread){
+        function sendSpreadChange(my_spread){
 
             var msg = {
                 type: 'spread_change',
@@ -732,7 +797,7 @@ window.onload = function () {
             if (socket.readyState === socket.OPEN) {
                 socket.send(JSON.stringify(msg));
             }
-            $("#spread_value").text('+-$'+(my_spread / 1000).toFixed(2));
+            $("#spread_value").text('+-$'+(my_spread / 10000).toFixed(2));
         }
 
         Spread_Graph.start = drawStartState;
@@ -758,12 +823,12 @@ Spread_Graph.listen();
     /*
      * set of variables we added that were not part of the original solution
      */
-    graph.maxSpread = 2000;
+    graph.maxSpread = 20000;
 
     /*
      * Set of variables we update from oTree
      */ 
-    graph.startingWealth = 20000; 
+    graph.startingWealth = 200000; 
     graph.profit = graph.startingWealth;                                           // Through Django Channels
     graph.adminStartTime = {{subsession.start_time}};           // Django Query
 
@@ -799,10 +864,9 @@ Spread_Graph.listen();
      */
     graph.slowDelay = 5e8;                                             // slow delay is 500 milliseconds = 5e8 nano
     graph.fastDelay = 1e8;                                             // slow delay is 100 milliseconds = 1e8 nano
-    graph.startingWealth = 20000;
 
     // maybe spread on profit graph
-    graph.priceRange = 10000;
+    graph.priceRange = 100000;
     graph.maxPriceProfit = graph.startingWealth + (graph.priceRange / 2);
     graph.minPriceProfit = graph.startingWealth - (graph.priceRange / 2);
     graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
@@ -824,60 +888,19 @@ Spread_Graph.listen();
     graph.profitJumps = [];
 
 
-//------------------------------------------------
-
     graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
     graph.graphPaddingRight = 20;  //used                                 // how far from the x axis label that the line stops moving
-    graph.graphAdjustSpeedProfit = 10;                              //speed that profit price axis adjusts in pixels per frame
+    graph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
     graph.numberOfTicks = 10;
     graph.profitPriceGridIncrement = graph.priceRange / graph.numberOfTicks;                             //amount between each line on profit price axis
     
     graph.currentTime = 0;                                          // Time displayed on graph
     graph.profitPriceLines = [];                                    // The array of price lines
     graph.timeLines = [];
-    graph.pricesArray = [];
    
 
-    
+    // graph.startTime = 0;
 
-    
-
-    graph.marketZoomLevel = 4;                                      // current zoom level for each graph
-    graph.profitZoomLevel = 4;
-    graph.maxZoomLevel = 4;                                         // maximum allowed zoom level
-    graph.zoomAmount = 0;                                           // amount zoomed per click
-
-    graph.expandedGraph = false;
-    graph.prevMaxPriceMarket = 0;                                   // storage for previous max and min values for when graph is in expanded mode
-    graph.prevMinPriceMarket = 0;
-    graph.prevMaxPriceProfit = 0;
-    graph.prevMinPriceProfit = 0;
-
-    graph.op = 1;                                                  //added 7/24/17 for adding opacity to transaction lines
-    graph.currentTransaction = null;                               //added 7/24/17 for ensuring only the correct orders are drawn as transacted
-    graph.currTransactionID = null;                                //added 7/24/17 for ensuring only the correct orders are drawn as transacted
-    graph.heightScale = .4;                                        //added 7/26/17 to shift the height of the graph to fit buttons under
-    graph.widthScale = 0;                                          //added 7/28/17 to widen the graphs of ticks to be better fit spread 
-    graph.oldFundPrice = null;
-    graph.FPCop = 1;
-    graph.currSpreadTick = 0;
-    graph.startTime = 0;
-    graph.tickAnimationID = 0;
-    graph.staticTickAnimationID = 0;
-    graph.laser = true;                                            //magic
-    graph.removeStartTime = 0;
-    graph.removeAnimationID = 0;
-    graph.removeStaticAnimationID = 0;
-    graph.IDArray = [];
-
-    graph.FPCswing = null;                                        //used for shifting spread ticks with FPC's
-    graph.currentSellTick = [];
-    graph.currentBuyTick = [];
-    graph.PreviousProfit = 0;
-    
-     
-
-    
     function calcPriceGridLines(maxPrice, minPrice, increment) {
         var gridLineVal = minPrice + increment - (minPrice % increment);
         // adjust for mod of negative numbers not being negative
@@ -967,7 +990,7 @@ Spread_Graph.listen();
         // what is set now
         var curCenterProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
 
-        if (Math.abs(graph.centerPriceProfit - curCenterProfit) > 1000) {
+        if (Math.abs(graph.centerPriceProfit - curCenterProfit) > 10000) {
             graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
             //adjust per frame what the max and min should be
             if (graph.centerPriceProfit > curCenterProfit) {
@@ -1058,7 +1081,7 @@ Spread_Graph.listen();
             })
             .attr("class", "price-grid-line-text")
             .text(function (d) {
-                return d / 1000;
+                return d / 10000;
         });
     };
 
@@ -1172,7 +1195,7 @@ Spread_Graph.listen();
         
         var profitDecrement = 0;
         if(speed){
-            profitDecrement = (graph.profitSegments[graph.profitSegments.length - 1]["endTime"] - graph.profitSegments[graph.profitSegments.length - 1]["startTime"]) * -1e-8;
+            profitDecrement = (graph.profitSegments[graph.profitSegments.length - 1]["endTime"] - graph.profitSegments[graph.profitSegments.length - 1]["startTime"]) * -({{player.speed_cost}});
         }
 
 
