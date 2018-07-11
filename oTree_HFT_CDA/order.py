@@ -45,7 +45,8 @@ class OrderStore:
         new_head = order
         while self.is_replacing(new_head):
             new_head = self.find_order(new_head.replace_token)
-        log.debug('Order %s: Head is %s.' % (order.token, new_head.token))
+        if isinstance(new_head, Order):
+            log.debug('Order %s: Head is %s.' % (order.token, new_head.token))
         return new_head
 
     def is_replacing(self, order):

@@ -347,7 +347,7 @@ class Player(BasePlayer):
             staged_orders = list(orderstore.get_all('stg').values())
             log.debug('Player%s: %d orders staged.' % (self.id, len(staged_orders)))    
             orders.extend(staged_orders)
-        assert len(orders) == 2
+       # assert len(orders) == 2
         return orders
 
     def _leave_market(self):

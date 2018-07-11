@@ -1,6 +1,0 @@
-{'timestamp': 69051960879000, 'order': 'H: 15298946523051601968:S', 'book': {'Bids': [], 'Asks': []}}
-{'timestamp': 69057828796000, 'order': 'O: SUBBB000000001:B1xLPS     @9000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': []}}
-{'timestamp': 69057829430000, 'order': 'O: SUBBS000000002:S1xLPS     @11000000', 'book': {'Bids': [{'price': 9000000, 'orders': [(b'SUBBB000000001', 1)]}], 'Asks': [{'price': 11000000, 'orders': [(b'SUBBS000000002', 1)]}]}}
-{'timestamp': 69063206512000, 'order': 'U: SUBBS000000002->SUBBS000000003:1@14000', 'book': {'Bids': [], 'Asks': []}}
-{'timestamp': 69063207197000, 'order': 'U: SUBBB000000001->SUBBB000000004:1@12000', 'book': {'Bids': [], 'Asks': []}}
-{'timestamp': 69063208630000, 'order': 'O: SUBAB000000001:B1xLPS     @13000000', 'book': {'Bids': [], 'Asks': []}}
