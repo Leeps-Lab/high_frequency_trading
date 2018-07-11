@@ -283,6 +283,8 @@ class Player(BasePlayer):
         )
         orderstore = self.order_store()
         order_to_replace = orderstore.find_head(order)
+        if not order_to_replace:
+            return False
         order_to_replace.to_replace(labtime(), new_order.token)
         orderstore.active[order_to_replace.token] = order_to_replace
         ouch = translate.replace(order_to_replace, new_order)        
@@ -345,6 +347,7 @@ class Player(BasePlayer):
             staged_orders = list(orderstore.get_all('stg').values())
             log.debug('Player%s: %d orders staged.' % (self.id, len(staged_orders)))    
             orders.extend(staged_orders)
+        assert len(orders) == 2
         return orders
 
     def _leave_market(self):
@@ -374,7 +377,11 @@ class Player(BasePlayer):
         sorted_orders = sorted(  # better to start from above if jump is positive.
             orders, key=lambda order: order.price, reverse=flag
         )
-        msgs = [self.stage_replace(o) for o in sorted_orders]
+        msgs = []
+        for o in sorted_orders:
+            m = self.stage_replace(o)
+            if m is not False:
+                msgs.append(m)
         return msgs
 
         # order_store  = self.order_store()

@@ -28,7 +28,12 @@ class OrderStore:
         return self.active.pop(token, False)
     
     def find_order(self, token):
-        return self.active[token]
+        try:
+            out = self.active[token]
+        except KeyError:
+            log.info('Order %s: Already inactive.' % token )
+            out = False
+        return out
         
     def get_all(self, state):
         return {k:v for k, v in self.active.items() if v.status == state}
@@ -38,10 +43,16 @@ class OrderStore:
         find most recent replace message for an order
         """
         new_head = order
-        while new_head.is_replacing():
+        while self.is_replacing(new_head):
             new_head = self.find_order(new_head.replace_token)
         log.debug('Order %s: Head is %s.' % (order.token, new_head.token))
         return new_head
+
+    def is_replacing(self, order):
+        out = False
+        if order:
+            out = order.replace_requested 
+        return out
 
     def activate(self, time, order):
         order.activate(time)
@@ -104,8 +115,8 @@ class Order:
         self.replace_req_time = time
         log.debug('Order %s: Register replace with %s.' % (self.token, self.replace_token))
     
-    def is_replacing(self):
-        return self.replace_requested
+    # def is_replacing(self):
+    #     return self.replace_requested
 
     def cancel(self, time):
         self.status = 'cnc'
