@@ -25,9 +25,8 @@ class Investor(Event):
         super(Investor, self).__init__(group_id, url, filename)
 
     def read(self):
-        times = super(Investor, self).read()        
-        time_side_tuples = list(times.itertuples(index=False, name=None))
-        self.data = time_side_tuples
+        times, sides = super(Investor, self).read()
+        self.data = list(zip(times, sides))        
         log.info('Read data.')
 
     def run(self):

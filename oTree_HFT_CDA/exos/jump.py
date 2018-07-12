@@ -24,8 +24,9 @@ class Jump(Event):
         super(Jump, self).__init__(group_id, url, filename)
 
     def read(self):
-        times = super(Jump, self).read()
-        self.data = list(times.values)
+        times, prices = super(Jump, self).read()
+        prices = [int(p) for p in prices]
+        self.data = list(zip(times, prices))
         logging.info('Read data.')
 
     def run(self, *args):

@@ -203,14 +203,14 @@ window.onload = function () {
     $('#period_id').html(1);
     $('#speed_cost').html(0);
 
-    $('#num_traders').html({{Constants.players_per_group}});
+    $('#num_traders').html({{subsession.players_per_group}});
     $('#num_makers').html(0);
     
     $('#player_role').html('OUT');
     $('#spread_value').html('N/A');
     $('#profit').html(20);
 
-    $('#fp').html({{player.fp}});
+    $('#fp').html({{player.default_fp}});
     $('#curr_bid').html('N/A');
     $('#curr_ask').html('N/A');
 
@@ -224,7 +224,7 @@ window.onload = function () {
     updatespeed = function () {
         speed = !speed;
         if(speed){
-            $('#speed_cost').html({{Constants.speed_cost}});
+            $('#speed_cost').html({{player.speed_cost}});
         }else {
             $('#speed_cost').html(0);
         }
@@ -398,8 +398,8 @@ window.onload = function () {
     var id;
     var spread_lines = {};
 
-    var max_spread = 2000; // Pull from Constansts
-    var default_spread = 1000;
+    var max_spread = 20000; // Pull from models
+    var default_spread = 10000;
 
     var smallest_spread = {"key":-1, "spread":max_spread};
 
@@ -799,7 +799,7 @@ window.onload = function () {
             if (socket.readyState === socket.OPEN) {
                 socket.send(JSON.stringify(msg));
             }
-            $("#spread_value").text('+-$'+(my_spread / 1000).toFixed(2));
+            $("#spread_value").text('+-$'+(my_spread / 10000).toFixed(2));
         }
 
         Spread_Graph.start = drawStartState;
@@ -825,12 +825,12 @@ Spread_Graph.listen();
     /*
      * set of variables we added that were not part of the original solution
      */
-    graph.maxSpread = 2000;
+    graph.maxSpread = 20000;
 
     /*
      * Set of variables we update from oTree
      */ 
-    graph.startingWealth = 20000; 
+    graph.startingWealth = 200000; 
     graph.profit = graph.startingWealth;                                           // Through Django Channels
     graph.adminStartTime = {{subsession.start_time}};           // Django Query
 
@@ -866,10 +866,9 @@ Spread_Graph.listen();
      */
     graph.slowDelay = 5e8;                                             // slow delay is 500 milliseconds = 5e8 nano
     graph.fastDelay = 1e8;                                             // slow delay is 100 milliseconds = 1e8 nano
-    graph.startingWealth = 20000;
 
     // maybe spread on profit graph
-    graph.priceRange = 10000;
+    graph.priceRange = 100000;
     graph.maxPriceProfit = graph.startingWealth + (graph.priceRange / 2);
     graph.minPriceProfit = graph.startingWealth - (graph.priceRange / 2);
     graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
@@ -893,7 +892,7 @@ Spread_Graph.listen();
 
     graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
     graph.graphPaddingRight = 20;  //used                                 // how far from the x axis label that the line stops moving
-    graph.graphAdjustSpeedProfit = 10;                              //speed that profit price axis adjusts in pixels per frame
+    graph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
     graph.numberOfTicks = 10;
     graph.profitPriceGridIncrement = graph.priceRange / graph.numberOfTicks;                             //amount between each line on profit price axis
     
@@ -993,7 +992,7 @@ Spread_Graph.listen();
         // what is set now
         var curCenterProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
 
-        if (Math.abs(graph.centerPriceProfit - curCenterProfit) > 1000) {
+        if (Math.abs(graph.centerPriceProfit - curCenterProfit) > 10000) {
             graph.profitPriceLines = calcPriceGridLines(graph.maxPriceProfit, graph.minPriceProfit, graph.profitPriceGridIncrement);
             //adjust per frame what the max and min should be
             if (graph.centerPriceProfit > curCenterProfit) {
@@ -1084,7 +1083,7 @@ Spread_Graph.listen();
             })
             .attr("class", "price-grid-line-text")
             .text(function (d) {
-                return d / 1000;
+                return d / 10000;
         });
     };
 
@@ -1198,7 +1197,7 @@ Spread_Graph.listen();
         
         var profitDecrement = 0;
         if(speed){
-            profitDecrement = (graph.profitSegments[graph.profitSegments.length - 1]["endTime"] - graph.profitSegments[graph.profitSegments.length - 1]["startTime"]) * -1e-8;
+            profitDecrement = (graph.profitSegments[graph.profitSegments.length - 1]["endTime"] - graph.profitSegments[graph.profitSegments.length - 1]["startTime"]) * -({{player.speed_cost}});
         }
 
 

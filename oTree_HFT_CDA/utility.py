@@ -11,20 +11,6 @@ import pytz
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
-# provide time in milliseconds/seconds at
-# moment of function call
-def Get_Time(granularity="nanoseconds"):
-
-    if granularity == "milliseconds":
-        return int(round(time.time() * 1000))
-    
-    elif granularity == "seconds":
-        return int(round(time.time()))
-
-    elif granularity == "nanoseconds":
-        return nanoseconds_since_midnight()
-        # return int(round(time.time() * 1000000))
-
 
 # returns a numpy array representing each
 # consecutive byte in an num_of_bytes long integer
@@ -77,11 +63,6 @@ def Byte_Array_To_String(source, start, offset= 4):
 
     return new_string
 
-
-def tokengen(pid, side, count, prefix='SUB'):
-    token = prefix + str(chr(pid + 64)) + str(side) + str(format(count, '09d'))
-    firm = prefix + str(chr(pid + 64))
-    return (token, firm)
 
 def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     now = datetime.datetime.now(tz=tz)

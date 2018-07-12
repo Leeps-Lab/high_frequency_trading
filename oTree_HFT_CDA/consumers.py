@@ -10,11 +10,12 @@ class SubjectConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id, player_id):
         Group(group_id).add(message.reply_channel)
-        log.info('Player %s is connected to Group %s.' % (player_id, group_id))
-        self.connect(message, player_id)
+        self.connect(message, group_id, player_id)
 
-    def connect(self, message, player_id):
+    def connect(self, message, group_id, player_id):
         player = Player.objects.get(id=player_id)
+        log.info('Player %s is connected to Group %s with in-group id %s.' % (
+            player_id, group_id, player.id_in_group))
         player.channel = message.reply_channel
         player.save()
 
@@ -31,8 +32,7 @@ class SubjectConsumer(JsonWebsocketConsumer):
 class InvestorConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, group_id):
-        log = 'Investor is connected to Group %s.' % group_id
-        logging.info(log)
+        log.info('Investor is connected to Group %s.' % group_id)
         self.connect(group_id)
 
     def connect(self, group_id):

@@ -1,11 +1,12 @@
-import logging
-logger = logging.getLogger(__name__)
+
+import sys
+from twisted.python import log
 import time
-from twisted.internet import reactor
 from twisted.internet.protocol import Protocol, ClientFactory
 import numpy as np
+from twisted.internet import reactor
 
-
+log.startLogging(sys.stdout)
 
 class OUCH(Protocol):
 
@@ -15,7 +16,7 @@ class OUCH(Protocol):
         self.buffers = []
 
     def connectionMade(self):
-        logging.info("Connection made")
+        log.msg("Connection made")
 
         
     def dataReceived(self, data):
@@ -45,10 +46,10 @@ class OUCH(Protocol):
             # self.bytes_needed[0] -= len(data)
             # self.buffers[0].push(data)
 
-    def sendMessage(self, msg):
+    def sendMessage(self, msg, delay):
         msg = msg.tobytes()
         self.buffers.append([])
-        self.transport.write(msg)
+        reactor.callLater(delay, self.transport.write, msg)
 
 
 class OUCHConnectionFactory(ClientFactory):
@@ -60,19 +61,23 @@ class OUCHConnectionFactory(ClientFactory):
         self.addr = addr
         self.connection = None
 
+    def startedConnecting(self, connector):
+        log.msg('started connecting.')
+
     def buildProtocol(self, addr):
-        logging.info('connecting to exchange server at %s', addr)
+        log.msg('connecting to exchange server at %s' % addr)
         self.connection = ClientFactory.buildProtocol(self, addr)
         return self.connection
 
     def clientConnectionLost(self, connector, reason):
-        logging.error('lost connection to exchange at %s: %s', self.addr, reason)
+        log.msg('lost connection to exchange at %s: %s' % (self.addr, reason))
 
     def clientConnectionFailed(self, connector, reason):
-        logging.error('failed to connect to exchange at %s: %s', self.addr, reason)
+        log.msg('failed to connect to exchange at %s: %s' %( self.addr, reason))
 
 
 exchanges = {}
+
 def connect(group, host, port, wait_for_connection=False):
     addr = '{}:{}'.format(host, port)
     if addr not in exchanges:
@@ -84,11 +89,12 @@ def connect(group, host, port, wait_for_connection=False):
             raise ValueError('Exchange at {} already has a group'.format(addr))
         exchanges[addr].group = group
     while not exchanges[addr].connection and wait_for_connection:
-        logging.info('waiting for connection to %s...', addr)
-        time.sleep(0.01)
+        log.msg('waiting for connection to %s...' % addr)
+        time.sleep(0.1)
     return exchanges[addr]
 
 
 def disconnect(group, host, port):
     addr = '{}:{}'.format(host, port)
     exchanges[addr].group = None
+
