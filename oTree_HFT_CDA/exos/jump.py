@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
         format='%(asctime)s %(name)-6s %(levelname)s: %(message)s',
         datefmt='%m-%d %H:%M:%S',
         filename=file,
-        filemode='w')
+        filemode='w+')
 
 log = logging.getLogger(__name__)
 
@@ -24,8 +24,9 @@ class Jump(Event):
         super(Jump, self).__init__(group_id, url, filename)
 
     def read(self):
-        times = super(Jump, self).read()
-        self.data = list(times.values)
+        times, prices = super(Jump, self).read()
+        prices = [int(p) for p in prices]
+        self.data = list(zip(times, prices))
         logging.info('Read data.')
 
     def run(self, *args):

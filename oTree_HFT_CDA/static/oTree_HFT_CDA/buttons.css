@@ -1,0 +1,51 @@
+.button-on{
+    background-color:steelblue;
+    border-color: solid black 5px;
+    color:white;
+    border-color: black;
+    border-width: 2px;
+}
+
+.button-on-sniper{
+    background-color:orangered;
+    border-color: solid black 5px;
+    color:white;
+    border-color: black;
+    border-width: 2px;
+}
+
+.button-pressed{
+    background-color:#444444;
+    color:white;
+}
+.button-off{
+    background-color:#666666;
+    color:white;
+}
+input{
+    margin-left:30px;
+    margin-top:20px;
+}
+
+.button-container{
+    background-color: rgb(230, 230, 230);
+    padding-bottom: 5px;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.row {
+    padding: 0px;
+    margin: 0px;
+}
+
+.button-container-speed {
+    background-color: rgb(230, 230, 230);
+    flex: 1 1 auto;
+}
+
+button {
+    border-radius: 8px;
+}

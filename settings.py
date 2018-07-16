@@ -14,8 +14,11 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
 if environ.get('OTREE_PRODUCTION') not in {None, '', '0'}:
     DEBUG = False
+elif 'OTREE_PRODUCTION' not in os.environ:
+    DEBUG = False
 else:
     DEBUG = True
+
 
 INTERNAL_IPS = (
     '0.0.0.0',
@@ -80,7 +83,8 @@ USE_POINTS = True
 LANGUAGE_CODE = 'en'
 
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
-INSTALLED_APPS = ['otree', 'django_extensions']
+# INSTALLED_APPS = ['otree', 'django_extensions']
+INSTALLED_APPS = ['otree']
 #EXTENSION_APPS = ['otree_redwood']
 
 # SENTRY_DSN = ''
@@ -145,16 +149,37 @@ mturk_hit_settings = {
 SESSION_CONFIG_DEFAULTS = {
     'real_world_currency_per_point': 0.00,
     'participation_fee': 0.00,
-    'doc': "",
+    'doc': "Investor and jump files must be csvs.",
     'mturk_hit_settings': mturk_hit_settings,
+    'exchange_host': '127.0.0.1',
+    'speed_cost': 0.01 * (1e4) * (1e-9),
+    'fundamental_price': 1e6,
+    'initial_spread': 2e4,
+    'initial_endowment': 2e6,
+    'session_length': 240,
+    'players_per_group': 2,  
 }
 
 SESSION_CONFIGS = [
     {
-        'name': 'oTree_HFT_CDA',
-        'display_name': 'High Frequency Trading CDA',
-        'num_demo_participants': 2,
+        'name': 'oTree_HFT_CDA_1',
+        'display_name': 'Continous Double Auction - 3 Players 1 Group',
+        'num_demo_participants': 3,
+        'investor_file_g1': os.path.join(os.getcwd(), 'raw/inv_test.csv'),
+        'jump_file_g1': os.path.join(os.getcwd(), 'raw/jump_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
+        'players_per_group': 3,
+    },
+    {
+        'name': 'oTree_HFT_CDA_2',
+        'display_name': 'Continous Double Auction - 3 Players 2 Groups',
+        'num_demo_participants': 6,
+        'investor_file_g1': os.path.join(os.getcwd(), 'raw/inv_test.csv'),
+        'jump_file_g1': os.path.join(os.getcwd(), 'raw/jump_test.csv'),
+        'investor_file_g2': os.path.join(os.getcwd(), 'raw/inv_test.csv'),
+        'jump_file_g2': os.path.join(os.getcwd(), 'raw/jump_test.csv'),
+        'app_sequence': ['oTree_HFT_CDA'],
+        'players_per_group': 3,
     },
 ]
 

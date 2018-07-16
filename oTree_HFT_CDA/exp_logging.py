@@ -24,7 +24,19 @@ def state(**kwargs):
 def speed(**kwargs):
     pid = kwargs['pid']
     nspeed = kwargs['nspeed']
-    return {'player_id': pid, 'speed': nspeed}  
+    return {'player_id': pid, 'speed': nspeed}
+
+def profit(**kwargs):
+    pid = kwargs['pid']
+    profit = kwargs['profit']
+    source = kwargs['source']
+    stamp = kwargs['stamp']
+    endowment = kwargs['endowment']
+    result = {
+        'player_id': pid, 'profit': profit, 'source': source, 
+        'timestamp': stamp, 'endowment': endowment
+    }
+    return result
 
 def enter(**kwargs):
     pid = kwargs['pid']
@@ -79,7 +91,8 @@ dispatch = {
     'enter': enter,
     'exec': execution,
     'replace': replace,
-    'cancel': cancel
+    'cancel': cancel,
+    'profit': profit
 }
 
 def prepare(**kwargs):

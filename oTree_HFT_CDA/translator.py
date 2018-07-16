@@ -38,8 +38,6 @@ def system_start(event_code, timestamp=None):
     if timestamp is None:
         timestamp = Integer_To_Unit8(nanoseconds_since_midnight(),4)
 
-    print("\n" + str(nanoseconds_since_midnight()) + "\n")
-
     message = np.empty(10, dtype=np.uint8)
 
     message[0] = np.uint8(ord('H'))          # set the System message code 

@@ -12,3 +12,6 @@ __pycache__/
 .DS_Store
 *.csv
 *.txt
+*.rdb
+*.log
+*.vscode

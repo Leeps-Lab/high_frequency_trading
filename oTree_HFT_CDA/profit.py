@@ -5,7 +5,7 @@ class Price_Node:
 
 
 class Price_Log:
-    def __init__(self, length, fundamentalPrice=10000):
+    def __init__(self, length, fundamentalPrice=100000):
         self.list = []
         self.size = 0
         self.length = length                    
