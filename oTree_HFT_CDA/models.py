@@ -5,6 +5,7 @@ import logging
 import random
 import time
 from . import translator as translate
+from .exp_logging import prepare
 from .utility import nanoseconds_since_midnight as labtime
 from . import exchange
 from .profit import Price_Log, Price_Node
@@ -72,8 +73,8 @@ class Subsession(BaseSubsession):
             g.exch_host = self.session.config['exchange_host']
             g.exch_port = 9000 + i + 1
             # read in investor and jump arrival times
-            investors = 'investor_file_g' + str(i + 1)  # hacking
-            jumps = 'jump_file_g' + str(i + 1)
+            investors = 'investors_group_' + str(i + 1)  # hacking
+            jumps = 'jumps_group_' + str(i + 1)
             g.investor_file = self.session.config[investors]
             g.jump_file = self.session.config[jumps]
             # g.json = {
@@ -82,10 +83,10 @@ class Subsession(BaseSubsession):
             g.save()
 
         for p in players:
-            p.default_fp = self.session.config['fundamental_price']
-            p.spread = self.session.config['initial_spread']
-            p.profit = self.session.config['initial_endowment']
-            p.speed_cost = self.session.config['speed_cost']
+            p.default_fp = self.session.config['fundamental_price'] * 1e4
+            p.spread = self.session.config['initial_spread'] * 1e4
+            p.profit = self.session.config['initial_endowment'] * 1e4
+            p.speed_cost = self.session.config['speed_cost'] * (1e+4) * (1e-9)
             p.save()
 
         self.session.save()
@@ -157,6 +158,10 @@ class Group(BaseGroup):
 
     def jump_event(self, new_price):
         log.info('-----------Jump Start---------------')
+        lablog = prepare(
+            group=self.id, level='env', typ='jump', fp=new_price
+        )
+        log.experiment(lablog) 
         log.info('Group%d: Jump, new price is %d!' % (self.id, new_price) )
 
         # Check if group.id is the designated FPC updater
@@ -425,6 +430,11 @@ class Player(BasePlayer):
             states[new_state]()
         except KeyError:    # like this is possible
             log.info('Player%d: Invalid state update.' % self.id)
+        lablog = prepare(
+            group=self.group_id, level='choice', typ='state', 
+            pid=self.id_in_group, nstate=self.state
+        )
+        log.experiment(lablog) 
         
            
     def update_spread(self, message):
@@ -446,6 +456,11 @@ class Player(BasePlayer):
         self.group.send_exchange(msgs, delay=True, speed=self.speed)
         self.save()
         log.info('Player%d: Spread update: %s.' % (self.id, self.spread))
+        lablog = prepare(
+            group = self.group_id, level='choice', typ='spread', 
+            pid=self.id_in_group, nspread=self.spread
+        )
+        log.experiment(lablog) 
 
         # active_ords = self.order_store().get_active_set().values()
         # log.debug('Player%d: Start spread change.' % (self.id)) 
@@ -474,6 +489,11 @@ class Player(BasePlayer):
         else:
             self._calc_speed_cost(now)
         self.save()
+        lablog = prepare(
+            group=self.group_id, level='choice', typ='speed', 
+            pid=self.id_in_group, nspeed=self.speed
+        )
+        log.experiment(lablog) 
 
     """
     there are 3 possible client actions: 
@@ -534,6 +554,12 @@ class Player(BasePlayer):
             self.group.broadcast(
                 ClientMessage.spread_change(self.id_in_group, leg_up=hi, leg_low=lo)
             )
+        lablog = prepare(
+            group = self.group_id, level='exch', typ='enter', 
+            pid= self.id_in_group, token= order.token, stamp= order.timestamp, 
+            side= order.side, tif= order.time_in_force, price=order.price
+        )
+        log.experiment(lablog)
 
     def confirm_replace(self, msg):
         """
@@ -558,6 +584,11 @@ class Player(BasePlayer):
                 ClientMessage.spread_change(self.id_in_group, leg_up=hi, leg_low=lo)
             )
         log.info('Player%d: Confirm: Replace %s with %s.' % (self.id, ptok, tok))
+        lablog = prepare(
+            group = self.group_id, level='exch', typ='replace', 
+            pid=self.id_in_group, old_token=old_order.token, new_token=new_order.token, stamp=new_order.timestamp,
+        )
+        log.experiment(lablog)
 
     def confirm_cancel(self, msg):
         """
@@ -573,6 +604,11 @@ class Player(BasePlayer):
         orderstore.cancel(stamp, order)
         self.save_order_store(orderstore)        
         log.info('Player%d: Confirm: Cancel %s.' % (self.id, tok))
+        lablog = prepare(
+            group = self.group_id ,level='exch', typ='cancel', 
+            pid= self.id_in_group, token= order.token, stamp=order.timestamp
+        )
+        log.experiment(lablog)
 
     def confirm_exec(self,msg):
         """
@@ -596,6 +632,11 @@ class Player(BasePlayer):
              log.debug('Player%d: Execution action: Enter a new order.' % self.id)
              m = [self.stage_enter(order.side)]
              self.group.send_exchange(m, delay=True, speed=self.speed)
+        lablog = prepare(
+            group=self.group_id , level='exch', typ= 'exec', 
+            pid=self.id_in_group, token=order.token, price=order.price, stamp=order.timestamp
+        )
+        log.experiment(lablog)
 
     def calc_profit(self, exec_price, side, timestamp):
         """
@@ -614,6 +655,12 @@ class Player(BasePlayer):
         if self.speed:
             self._calc_speed_cost(labtime())
         self.save()
+        lablog = prepare(
+            group=self.group_id, level='market', typ='profit', 
+            source='cross', pid=self.id_in_group, stamp=timestamp,
+            endowment=self.profit, profit=pi 
+        )
+        log.experiment(lablog)
         return pi
     
     def _calc_speed_cost(self, timestamp):
@@ -625,6 +672,12 @@ class Player(BasePlayer):
         self.time_of_speed_change = timestamp
         self.profit -= cost
         log.info('Player%d: Take speed cost: %d' % (self.id, cost))
+        lablog = prepare(
+            group=self.group_id, level='market', typ='profit', 
+            source='speed', pid=self.id_in_group, stamp=timestamp,
+            endowment= self.profit, profit=-cost 
+        )
+        log.experiment(lablog)
 
     # def calc_profit(self, exec_price, side, timestamp):
     #     profit = 0
