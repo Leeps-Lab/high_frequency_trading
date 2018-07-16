@@ -73,8 +73,8 @@ class Subsession(BaseSubsession):
             g.exch_host = self.session.config['exchange_host']
             g.exch_port = 9000 + i + 1
             # read in investor and jump arrival times
-            investors = 'investor_file_g' + str(i + 1)  # hacking
-            jumps = 'jump_file_g' + str(i + 1)
+            investors = 'investors_group_' + str(i + 1)  # hacking
+            jumps = 'jumps_group_' + str(i + 1)
             g.investor_file = self.session.config[investors]
             g.jump_file = self.session.config[jumps]
             # g.json = {
@@ -83,10 +83,10 @@ class Subsession(BaseSubsession):
             g.save()
 
         for p in players:
-            p.default_fp = self.session.config['fundamental_price']
-            p.spread = self.session.config['initial_spread']
-            p.profit = self.session.config['initial_endowment']
-            p.speed_cost = self.session.config['speed_cost']
+            p.default_fp = self.session.config['fundamental_price'] * 1e4
+            p.spread = self.session.config['initial_spread'] * 1e4
+            p.profit = self.session.config['initial_endowment'] * 1e4
+            p.speed_cost = self.session.config['speed_cost'] * (1e+4) * (1e-9)
             p.save()
 
         self.session.save()
