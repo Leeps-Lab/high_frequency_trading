@@ -26,6 +26,7 @@ class PreWaitPage(WaitPage):
 
 class Start(Page):
 #    timeout_seconds = 45
+
     pass
 
 

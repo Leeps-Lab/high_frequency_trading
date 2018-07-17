@@ -4,6 +4,7 @@ import os
 import logging
 import random
 import time
+from jsonfield import JSONField
 from . import translator as translate
 from .exp_logging import prepare
 from .utility import nanoseconds_since_midnight as labtime
@@ -20,9 +21,8 @@ from django.core.cache import cache
 from .order import Order, OrderStore
 import time
 log = logging.getLogger(__name__)
-from twisted.internet import reactor
-author = 'LEEPS Lab UCSC'
 
+author = 'LEEPS Lab UCSC'
 doc = """
 Your app description
 """
@@ -51,6 +51,7 @@ class Constants(BaseConstants):
 class Subsession(BaseSubsession):
     start_time = models.BigIntegerField()
     players_per_group = models.IntegerField()
+    player_states = JSONField()
 
     def creating_session(self):
         # configurable group size, copy from oTree docs.
@@ -82,14 +83,62 @@ class Subsession(BaseSubsession):
             # }
             g.save()
 
+        self.player_states = {
+            "is_live": {},
+            "ready_to_advance": {},
+        }
+
         for p in players:
             p.default_fp = self.session.config['fundamental_price'] * 1e4
             p.spread = self.session.config['initial_spread'] * 1e4
             p.profit = self.session.config['initial_endowment'] * 1e4
             p.speed_cost = self.session.config['speed_cost'] * (1e+4) * (1e-9)
             p.save()
+            self.player_states["is_live"][p.id]= True
+            self.player_states["ready_to_advance"][p.id]= False
 
+        self.save()
         self.session.save()
+    
+    def player_can_leave(self, player_id):
+        advancing = self.player_states["ready_to_advance"]
+        advancing[player_id] = True
+        total_advancing = sum(advancing.values())
+        self.player_states["ready_to_advance"] = advancing
+        self.save()
+        log.info('Session: %d players are ready to advance to results page.' % total_advancing)
+        if total_advancing == self.live_count():  # in case people gets dc ed
+            log.info('All players are ready to advance.')
+            self.session.advance_last_place_participants()
+    
+    def live_count(self):
+        total_live = sum(self.player_states["is_live"].values())
+        return total_live
+
+    def player_dropped(self, player_id):
+        self.player_states["is_live"][player_id]= False
+        self.save()
+
+
+    def save(self, *args, **kwargs):
+        """
+        JAMES
+        BUG: Django save-the-change, which all oTree models inherit from,
+        doesn't recognize changes to JSONField properties. So saving the model
+        won't trigger a database save. This is a hack, but fixes it so any
+        JSONFields get updated every save. oTree uses a forked version of
+        save-the-change so a good alternative might be to fix that to recognize
+        JSONFields (diff them at save time, maybe?).
+        """
+        super().save(*args, **kwargs)
+        if self.pk is not None:
+            json_fields = {}
+            for field in self._meta.get_fields():
+                if isinstance(field, JSONField):
+                    json_fields[field.attname] = getattr(self, field.attname)
+            self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
+
+
 
 class Group(BaseGroup):
 
@@ -97,6 +146,7 @@ class Group(BaseGroup):
     exch_port = models.IntegerField()
     investor_file = models.StringField()
     jump_file = models.StringField()
+
 
     def connect_to_exchange(self):
         log.info("Group%d: Connecting to exchange on port %d" % (self.id, self.exch_port))
@@ -222,29 +272,6 @@ class Group(BaseGroup):
         log.info('-----------Jump End---------------')
 
 
-
-"""
-why do we have this part, we never use jsonfield ?
-"""
-
-    # def save(self, *args, **kwargs):
-    #     """
-    #     JAMES
-    #     BUG: Django save-the-change, which all oTree models inherit from,
-    #     doesn't recognize changes to JSONField properties. So saving the model
-    #     won't trigger a database save. This is a hack, but fixes it so any
-    #     JSONFields get updated every save. oTree uses a forked version of
-    #     save-the-change so a good alternative might be to fix that to recognize
-    #     JSONFields (diff them at save time, maybe?).
-    #     """
-    #     super().save(*args, **kwargs)
-    #     if self.pk is not None:
-    #         json_fields = {}
-    #         for field in self._meta.get_fields():
-    #             if isinstance(field, JSONField):
-    #                 json_fields[field.attname] = getattr(self, field.attname)
-    #         self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
-
 class Player(BasePlayer):
 
     # basic state variables
@@ -320,7 +347,6 @@ class Player(BasePlayer):
         create a cancel order message
         return the ouch message
         """
-
         ouch = translate.cancel(order.token)
         log.info('Player%d: Stage: Cancel: %s.' % (self.id, order.token))
         return ouch
@@ -494,6 +520,10 @@ class Player(BasePlayer):
             pid=self.id_in_group, nspeed=self.speed
         )
         log.experiment(lablog) 
+    
+    def session_finished(self, msg):
+        log.info('Player%s: Ready to advance to results page.' % self.id)
+        self.subsession.player_can_leave(self.id)
 
     """
     there are 3 possible client actions: 
@@ -511,7 +541,8 @@ class Player(BasePlayer):
         actions= {
             'role_change':self.update_state,
             'spread_change':self.update_spread,
-            'speed_change':self.update_speed
+            'speed_change':self.update_speed,
+            'advance_me': self.session_finished,
         }
         actions[msg['type']](msg)
 

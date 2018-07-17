@@ -27,6 +27,9 @@ class SubjectConsumer(JsonWebsocketConsumer):
     def raw_disconnect(self, message, group_id, player_id):
         log.info('Player %s  disconnected from Group %s.' % (player_id, group_id))
         Group(group_id).discard(message.reply_channel)
+        group = OGroup.objects.get(id=group_id)
+        group.session.player_dropped(player_id)
+        
 
 
 class InvestorConsumer(JsonWebsocketConsumer):
