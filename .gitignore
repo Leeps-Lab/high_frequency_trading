@@ -15,3 +15,5 @@ __pycache__/
 *.rdb
 *.log
 *.vscode
+!investors*.csv
+!jumps*.csv
