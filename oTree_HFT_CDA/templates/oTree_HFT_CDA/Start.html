@@ -196,7 +196,7 @@ window.onload = function () {
             $('#period_id').html(1);
             $('#speed_cost').html(0);
 
-            $('#num_traders').html({{Constants.players_per_group}});
+            $('#num_traders').html({{subsession.players_per_group}});
             $('#num_makers').html(0);
             
             $('#player_role').html('OUT');
@@ -206,8 +206,22 @@ window.onload = function () {
             $('#fp').html({{player.fp}});
             $('#curr_bid').html('N/A');
             $('#curr_ask').html('N/A');
-            
-            setTimeout(endRound(), {{Constants.round_length}});
+
+            var round_length = {{subsession.round_length}} * 1000
+            console.log(round_length);
+            window.setTimeout(function(){
+                console.log("edning");
+                var msg = {
+                    type: 'advance_me',
+                };
+                if (socket.readyState === socket.OPEN) {
+                    socket.send(JSON.stringify(msg));
+                }
+        
+                $(':button').prop('disabled', true);
+                Spread_Graph.disabled = true;
+
+            }, round_length);
 
             
 
@@ -225,29 +239,28 @@ window.onload = function () {
 
     $(':button').prop('disabled', true);
 
-    setTimeout(function(){
+    window.setTimeout(function(){
         var msg = {
             type: 'player_ready',
         };
         if (socket.readyState === socket.OPEN) {
             console.log("Sending")
             socket.send(JSON.stringify(msg));
-        }else{
-            console.log("wtf")
         }
     },2000);
 
-    function endRound(){
-        var msg = {
-            'type': 'advance_me',
-        };
-        if (socket.readyState === socket.OPEN) {
-            socket.send(JSON.stringify(msg));
-        }
+    // function endRound(){
+    //     console.log("edning");
+    //     var msg = {
+    //         'type': 'advance_me',
+    //     };
+    //     if (socket.readyState === socket.OPEN) {
+    //         socket.send(JSON.stringify(msg));
+    //     }
 
-        $(':button').prop('disabled', true);
-        Spread_Graph.disabled = true;
-    }
+    //     $(':button').prop('disabled', true);
+    //     Spread_Graph.disabled = true;
+    // }
 
 
     // On load global var? Terrible
@@ -258,7 +271,7 @@ window.onload = function () {
     updatespeed = function () {
         speed = !speed;
         if(speed){
-            $('#speed_cost').html({{Constants.speed_cost}});
+            $('#speed_cost').html({{player.speed_cost}});
         }else {
             $('#speed_cost').html(0);
         }

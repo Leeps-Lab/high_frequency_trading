@@ -239,10 +239,11 @@ SESSION_CONFIGS = [
         'name': 'oTree_HFT_CDA_1',
         'display_name': 'Continous Double Auction - 3 Players 1 Group',
         'num_demo_participants': 3,
-        'investors_1': os.path.join(os.getcwd(), 'session-config/test/inv_test.csv'),
-        'jumps_1': os.path.join(os.getcwd(), 'session-config/test/jump_test.csv'),
+        'investors_1': os.path.join(os.getcwd(), 'session-config/test/investors_test.csv'),
+        'jumps_1': os.path.join(os.getcwd(), 'session-config/test/jumps_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
         'players_per_group': 3,
+        'session_length': 30,
     },
     {
         'name': 'oTree_HFT_CDA_2',
@@ -254,6 +255,7 @@ SESSION_CONFIGS = [
         'jumps_2': os.path.join(os.getcwd(), 'session-config/test/jump_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
         'players_per_group': 3,
+        'session_length': 30,
     },
 ]
 

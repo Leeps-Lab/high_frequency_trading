@@ -32,7 +32,6 @@ class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
     players_per_group = None
     num_rounds = 1
-    round_length = 240000000
 
     # speed_cost = 0.1 * (1e-5)   
     # default_fp = 10 ** 6    #   default fundamental price
@@ -53,12 +52,14 @@ class Subsession(BaseSubsession):
     start_time = models.BigIntegerField()
     players_per_group = models.IntegerField()
     player_states = JSONField()
+    round_length = models.IntegerField(initial=30)
 
     def creating_session(self):
         # configurable group size, copy from oTree docs.
         group_matrix = []
         players = self.get_players()
         ppg = self.session.config['players_per_group']
+        # round_length = self.session.config['session_length']
         self.players_per_group = ppg
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
@@ -75,8 +76,11 @@ class Subsession(BaseSubsession):
             g.exch_host = self.session.config['exchange_host']
             g.exch_port = 9000 + i + 1
             # read in investor and jump arrival times
-            investors = 'investors_group_' + str(i + 1)  # hacking
-            jumps = 'jumps_group_' + str(i + 1)
+            # investors = 'investors_group_' + str(i + 1)  # hacking
+            investors = 'investors_' + str(i + 1)  # hacking
+            # jumps = 'jumps_group_' + str(i + 1)
+            jumps = 'jumps_' + str(i + 1)
+
             g.investor_file = self.session.config[investors]
             g.jump_file = self.session.config[jumps]
             # g.json = {
@@ -102,6 +106,7 @@ class Subsession(BaseSubsession):
         self.session.save()
     
     def player_can_leave(self, player_id):
+        print(player_id)
         advancing = self.player_states["ready_to_advance"]
         advancing[player_id] = True
         total_advancing = sum(advancing.values())
@@ -275,11 +280,12 @@ class Group(BaseGroup):
 
     def update_player(self, msg):
         self.ready_players += 1
-        if self.ready_players == Constants.players_per_group:
+        self.save()
+        if self.ready_players == self.subsession.players_per_group:
             self.broadcast(
                 ClientMessage.start_session()
             )
-        self.save()
+            # ali start inv and jump
 
 
 
