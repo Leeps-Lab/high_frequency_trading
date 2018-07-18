@@ -1,0 +1,128 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load staticfiles %}
+
+{% block content %}
+<div id="dual_x_div" style="width: 600px; height: 500px; float: left;"></div>
+<div id="piechart" style="width: 600px; height: 500px; float: right; "></div>
+
+
+
+
+<ul class="legend">
+    <li><span class="fastinside"></span> Fast Inside Maker Profit/Min</li>
+    <li><span class="slowinside"></span> Slow Inside Maker Profit/Min</li>
+    <li><span class="fastoutside"></span> Fast Outside Maker Profit/Min</li>
+    <li><span class="slowoutside"></span> Slow Outside Maker Profit/Min</li>
+    <li><span class="fastsniper"></span> Fast Sniper Profit/Min</li>
+    <li><span class="slowsniper"></span> Slow Sniper Profit/Min</li>
+</ul>
+
+{% endblock %}
+
+
+{% block app_styles %}
+
+<style type="text/css">
+    /* basic positioning */
+    .legend {font-family: Arial; font-size: 14px; float: left; }
+    .legend { list-style: none; }
+    .legend li { float: left; margin-right: 10px; }
+    .legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
+    /* your colors */
+    .legend .fastinside { background-color: #0033FF; }
+    .legend .slowinside { background-color: #0099FF; }
+    .legend .fastoutside { background-color: #6633FF; }
+    .legend .slowoutside { background-color: #6699FF; }
+    .legend .fastsniper { background-color: #FF9900; }
+    .legend .slowsniper { background-color: #FFCC66; }
+</style>
+
+{% endblock %}
+
+{% block scripts %}
+
+
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+    <script type="text/javascript">      
+           google.charts.load('visualization', '1', {packages:['corechart'], callback: drawStuff});
+
+        function drawStuff() {
+            var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Type');
+                data.addColumn('number', 'Fast');
+                data.addColumn({type: 'string', role: 'style'});
+                data.addColumn('number', 'Slow');
+                data.addColumn({type: 'string', role: 'style'});
+                data.addRows([
+                ['InsideMaker', -0.750724637681,'color: #0033FF', -0.475,  'color: #0099FF'],
+['OutsideMaker', 0.0485714285714,'color: #6633FF', 5.94285714286,  'color: #6699FF'],
+['Sniper', 0.672727272727,'color: #FF9900', 0.0,  'color: #FFCC66'],
+
+        ]);
+        var options = {
+          "title":"Profit by Strategy",
+          bars: 'vertical', 
+          series: {
+            0: { axis: 'distance' }, 
+            1: { axis: 'brightness' } 
+          },
+          legend: {position: 'none'},
+          vAxis:{
+              textStyle: {
+                  color: 'black', 
+                  // fontName: 'Arial Black',
+                   fontSize: 18,
+                   bold:true
+               }
+          },
+          hAxis:{
+              textStyle: {
+                  color: 'black', 
+                  // fontName: 'Arial Black',
+                   fontSize: 14,
+                   // bold:true
+               }
+          }
+
+        };
+
+      var chart = new google.visualization.ColumnChart(document.getElementById('dual_x_div'));
+      chart.draw(data, options);
+    };</script>
+
+
+    
+    <script type="text/javascript">      
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['Type', 'Time per session'],
+          ['OutTime', 0.6258],
+          ['FastSniperTime', 0.16128],
+          ['SlowSniperTime', 0.02112],
+          ['FastMakerTime', 0.16305],
+          ['SlowMakerTime', 0.02875]
+        ]);
+
+        var options = {
+          title: 'Frequency of Strategies',
+          pieHole: 0.4,
+          colors: ['#C2C2D6', '#FF9900', '#FFCC66', '#0033FF', '#0099FF']
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+        chart.draw(data, options);
+        }
+    </script>
+
+
+
+
+{% endblock %}

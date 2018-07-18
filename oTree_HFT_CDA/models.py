@@ -146,7 +146,7 @@ class Group(BaseGroup):
     exch_port = models.IntegerField()
     investor_file = models.StringField()
     jump_file = models.StringField()
-
+    ready_players = models.IntegerField(initial=0)
 
     def connect_to_exchange(self):
         log.info("Group%d: Connecting to exchange on port %d" % (self.id, self.exch_port))
@@ -270,6 +270,17 @@ class Group(BaseGroup):
             log.info('No slow players')
                 
         log.info('-----------Jump End---------------')
+
+
+    def update_player(self, msg):
+        self.ready_players += 1
+        if self.ready_players == Constants.players_per_group:
+            self.broadcast(
+                ClientMessage.start_session()
+            )
+        self.save()
+
+
 
 
 class Player(BasePlayer):
@@ -543,6 +554,7 @@ class Player(BasePlayer):
             'spread_change':self.update_spread,
             'speed_change':self.update_speed,
             'advance_me': self.session_finished,
+            'player_ready':self.group.update_player,
         }
         actions[msg['type']](msg)
 

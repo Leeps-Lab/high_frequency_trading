@@ -37,6 +37,7 @@ class ResultsWaitPage(WaitPage):
         #  cache.clear()    #   this will go somewhere here dont forget !!
 
 class Results(Page):
+    
     pass
 
 page_sequence = [
