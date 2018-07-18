@@ -32,6 +32,7 @@ class Constants(BaseConstants):
     name_in_url = 'oTree_HFT_CDA'
     players_per_group = None
     num_rounds = 1
+    round_length = 240000000
 
     # speed_cost = 0.1 * (1e-5)   
     # default_fp = 10 ** 6    #   default fundamental price
