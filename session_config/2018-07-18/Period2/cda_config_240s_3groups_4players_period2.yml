@@ -1,0 +1,27 @@
+files:
+  dir: session-config
+  folder: 2018-07-18/Period2/
+  investors:
+    group_1: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/2018-07-18/Period2/investors_period2_group1.csv
+    group_2: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/2018-07-18/Period2/investors_period2_group2.csv
+    group_3: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/2018-07-18/Period2/investors_period2_group3.csv
+  jumps:
+    group_1: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/2018-07-18/Period2/jumps_period2_group1.csv
+    group_2: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/2018-07-18/Period2/jumps_period2_group2.csv
+    group_3: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/2018-07-18/Period2/jumps_period2_group3.csv
+group:
+  group-assignments: '[[7, 4, 2, 6], [3, 11, 5, 9], [1, 8, 12, 10]]'
+  number-of-groups: 3
+  players-per-group: 4
+market:
+  matching-engine-host: 127.0.0.1
+parameters:
+  fundamental-price: 100
+  initial-endowment: 20
+  initial-spread: 1
+  max-spread: 2
+  session-length: 240
+  speed-cost: 0.022
+session:
+  display_name: CDA Production
+  session_name: 2018-07-18_cda_period_2
