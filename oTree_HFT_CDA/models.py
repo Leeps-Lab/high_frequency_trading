@@ -73,8 +73,8 @@ class Subsession(BaseSubsession):
             g.exch_host = self.session.config['exchange_host']
             g.exch_port = 9000 + i + 1
             # read in investor and jump arrival times
-            investors = 'investors_group_' + str(i + 1)  # hacking
-            jumps = 'jumps_group_' + str(i + 1)
+            investors = 'investors_group' + '_' + str(i + 1)
+            jumps = 'jumps_group' + '_' + str(i + 1)
             g.investor_file = self.session.config[investors]
             g.jump_file = self.session.config[jumps]
             # g.json = {

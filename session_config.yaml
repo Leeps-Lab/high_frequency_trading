@@ -1,8 +1,5 @@
-session:
-  session-name: hft_session
-  display-name: test_custom_config
-
 market:
+  market-design: CDA
   matching-engine-host: "127.0.0.1"
 
 group:
