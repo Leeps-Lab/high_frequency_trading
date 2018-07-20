@@ -49,21 +49,24 @@ class Constants(BaseConstants):
 
 
 class Subsession(BaseSubsession):
-    # start_time = models.BigIntegerField()
     players_per_group = models.IntegerField()
-    player_states = JSONField()
+    # player_states = JSONField()
     round_length = models.IntegerField()
+    trade_ended = models.BooleanField(initial=0)
 
     def creating_session(self):
+        # set session length
+        self.round_length = self.session.config['session_length']
+        log.info('Session length: %d.' % self.round_length)
         # configurable group size, copy from oTree docs.
         group_matrix = []
         players = self.get_players()
-        self.round_length = self.session.config['session_length']
         ppg = self.session.config['players_per_group']
         self.players_per_group = ppg
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
+ 
         # location of Price_Log object
         cache.set('FP_Log', Price_Log(10), timeout=None)
 
@@ -112,7 +115,12 @@ class Subsession(BaseSubsession):
     
     def end_trade(self, player_id):
         log.info('Session: Player%s flag timer end.' % player_id)
-        self.session.advance_last_place_participants()
+        if self.trade_ended == 0:
+            self.trade_ended = 1
+            self.save()
+            self.session.advance_last_place_participants()
+        else:
+            pass
 
     def groups_ready(self, group_id):
         k = 'group_stats_' + str(self.id)
@@ -310,13 +318,13 @@ class Group(BaseGroup):
             log.info('Group%s: All players are in market.' % self.id)
             self.subsession.groups_ready(self.id)
     
-    def player_dropped(self, player_id):
-        k = 'player_states'+ '_' + str(self.id)
-        players_in_market = cache.get(k)
-        players_in_market[player_id] = False
-        cache.set(k, players_in_market, timeout=None)
-        total = sum(players_in_market.values())
-        log.info('Group%s: %d players are in market.' % (self.id, total))
+    # def player_dropped(self, player_id):
+    #     k = 'player_states'+ '_' + str(self.id)
+    #     players_in_market = cache.get(k)
+    #     players_in_market[player_id] = False
+    #     cache.set(k, players_in_market, timeout=None)
+    #     total = sum(players_in_market.values())
+    #     log.info('Group%s: %d players are in market.' % (self.id, total))
 
     # def update_player(self, msg):
     #     self.ready_players += 1
@@ -586,9 +594,9 @@ class Player(BasePlayer):
         log.info('Player%d: In market.' % self.id)
         self.group.players_in_market(self.id)
     
-    def dropped(self):
-        log.info('Player%s: Disconnected.' % self.id)
-        self.group.player_dropped(self.id)
+    # def dropped(self):
+    #     log.info('Player%s: Disconnected.' % self.id)
+    #     self.group.player_dropped(self.id)
   
     def session_finished(self, msg):
         log.info('Player%s: Ready to advance to results page.' % self.id)
