@@ -26,7 +26,7 @@ filePath = dateStr+"/"
 if os.path.isdir(filePath)==False:
     os.mkdir(filePath)
 configURLRoot = "https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/"+dateStr+"/"
-exchangeURI = "127.0.0.1" #"54.219.182.118"
+exchangeURI = "exchanges" #"54.219.182.118"
 
 # Generate jump and investor files
 createMarketEvents(nGroups,nPeriods,experimentLengthMS,dateStr,lambdaJVec,lambdaIVec,startingPrice,sigJump)
@@ -43,9 +43,10 @@ marketDict = {'matching-engine-host': str(exchangeURI),'design':exchangeType.upp
 groupDict = {'number-of-groups':nGroups,'players-per-group':nPlayersPerGroup,'group-assignments':str(groupList)}
 parametersDict = {'fundamental-price':startingPrice,'max-spread':maxSpread,'initial-spread':initialSpread,
                   'initial-endowment':startingWealth,'speed-cost':speedCostList[0],'session-length':experimentLengthSeconds}
+demoDict = {'number-of-participants':nGroups*nPlayersPerGroup}
 investorsDict = {}
 jumpsDict = {}
-filesDict = {'dir':'session-config','folder':dateStr+'/Period1/','investors':investorsDict,'jumps':jumpsDict}
+filesDict = {'dir':'session_config','folder':dateStr+'/Period1/','investors':investorsDict,'jumps':jumpsDict}
 for ix,period in enumerate(range(1,nPeriods+1)):
     sessionDict = {'session_name': dateStr+'_'+exchangeType+'_period_'+str(period),'display_name':'CDA Production'}
     speedCost = speedCostList[ix]
@@ -59,7 +60,7 @@ for ix,period in enumerate(range(1,nPeriods+1)):
         investorsDict['group_'+str(group)] = marketEventsURL
         jumpsDict['group_'+str(group)] = priceChangesURL
     outputDict = {'session':sessionDict, 'market':marketDict,'group':groupDict,
-                  'parameters':parametersDict,'files':filesDict}
+                  'parameters':parametersDict,'files':filesDict, 'demo':demoDict}
     fileName = filesDict['folder']+dateStr+'_'+exchangeType+'_'+str(experimentLengthSeconds)+'s_'+str(nGroups)+'groups_'+str(nPlayersPerGroup)+'players_period'+str(period)+'.yaml'
     with open(fileName, 'w') as outfile:
         yaml.dump(outputDict, outfile, default_flow_style=False)
