@@ -14,7 +14,7 @@
     left: 0;
     background-color: grey;
     opacity: .8; 
-    pointer-events: none;
+    pointer-events: all;
 }
 .top-banner{
     border: rgb(200, 200, 200) 2px solid;

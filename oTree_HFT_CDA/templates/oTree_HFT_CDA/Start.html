@@ -163,6 +163,7 @@ window.onload = function () {
                 )   
             }
         }else if(obj.SPRCHG != undefined){
+            console.log("REcieved a spread chamge");
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
                 // if(obj.SPRCHG[key] == 0 && smallest_spread[key] != undefined){
@@ -207,14 +208,45 @@ window.onload = function () {
             $('#curr_bid').html('N/A');
             $('#curr_ask').html('N/A');
 
+            /*
+                * DataHistory object sets
+                */
+            // historyDataSet structure = [[startTime, endTime, startProfit, endProfit, state],...] 
+            graph.profitSegments = [
+                {
+                    startTime:graph.adminStartTime,
+                    endTime:graph.adminStartTime, 
+                    startProfit:graph.profit, 
+                    endProfit:graph.profit,
+                    state:$("#player_role").text()
+                }
+            ];
+
+
             $('.overlay').css({
                     'opacity' : '0',
+                    'pointer-events': 'none',
             });
 
 
             var round_length = {{subsession.round_length}} * 1000
             
-            window.setTimeout(endRound(), round_length);
+            window.setTimeout(function(){
+                var msg = {
+                    type: 'advance_me',
+                };
+                if (socket.readyState === socket.OPEN) {
+                    socket.send(JSON.stringify(msg));
+                }
+
+                $(':button').prop('disabled', true);
+                Spread_Graph.disabled = true;
+                $(':overlay').css({
+                    'opacity' : '0.8',
+                    'pointer-events': 'all',
+
+                });
+            }, round_length);
 
             
 
@@ -241,21 +273,6 @@ window.onload = function () {
             socket.send(JSON.stringify(msg));
         }
     },2000);
-
-    function endRound(){
-        var msg = {
-            type: 'advance_me',
-        };
-        if (socket.readyState === socket.OPEN) {
-            socket.send(JSON.stringify(msg));
-        }
-
-        $(':button').prop('disabled', true);
-        Spread_Graph.disabled = true;
-        $(':overlay').css({
-            'opacity' : '0.8',
-        });
-    }
 
 
     // On load global var? Terrible
@@ -733,7 +750,7 @@ window.onload = function () {
                         .attr("class","others_line");
                     // for removing when a transation occurs
 
-                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 15);
+                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0, 15);
                 }
                 spread_lines[key] = newLines[key];
             }
@@ -921,19 +938,7 @@ graph.maxPriceProfit = graph.startingWealth + (graph.priceRange / 2);
 graph.minPriceProfit = graph.startingWealth - (graph.priceRange / 2);
 graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
 
-/*
-    * DataHistory object sets
-    */
-// historyDataSet structure = [[startTime, endTime, startProfit, endProfit, state],...] 
-graph.profitSegments = [
-    {
-        startTime:graph.adminStartTime,
-        endTime:graph.adminStartTime, 
-        startProfit:graph.profit, 
-        endProfit:graph.profit,
-        state:$("#player_role").text()
-    }
-];
+
 
 graph.profitJumps = [];
 
@@ -1286,10 +1291,6 @@ function init(startFP, startingWealth) {
 // 10000 <- 
 var startFP = 10000;
 var startingWealth = 20000;
-
-// init(startFP, startingWealth, "secondTick");
-
-// requestAnimationFrame(draw)
 
 
 
