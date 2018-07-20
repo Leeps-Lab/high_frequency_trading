@@ -456,8 +456,8 @@ window.onload = function () {
     var id;
     var spread_lines = {};
 
-    var max_spread = 2000; // Pull from Constansts
-    var default_spread = 1000;
+    var max_spread = 20000; // Pull from Constansts
+    var default_spread = 10000;
 
     var smallest_spread = {"key":-1, "spread":max_spread};
 
@@ -890,12 +890,12 @@ graph.debug = {
 /*
     * set of variables we added that were not part of the original solution
     */
-graph.maxSpread = 2000;
+graph.maxSpread = 20000;
 
 /*
     * Set of variables we update from oTree
     */ 
-graph.startingWealth = 20000; 
+graph.startingWealth = 200000; 
 graph.profit = graph.startingWealth;                                           // Through Django Channels
 
 /*
@@ -930,10 +930,9 @@ graph.advanceTimeShown = 0;  //used                               // the amount 
     */
 graph.slowDelay = 5e8;                                             // slow delay is 500 milliseconds = 5e8 nano
 graph.fastDelay = 1e8;                                             // slow delay is 100 milliseconds = 1e8 nano
-graph.startingWealth = 20000;
 
 // maybe spread on profit graph
-graph.priceRange = 10000;
+graph.priceRange = 100000;
 graph.maxPriceProfit = graph.startingWealth + (graph.priceRange / 2);
 graph.minPriceProfit = graph.startingWealth - (graph.priceRange / 2);
 graph.centerPriceProfit = (graph.maxPriceProfit + graph.minPriceProfit) / 2;
