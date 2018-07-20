@@ -163,6 +163,7 @@ window.onload = function () {
                 )   
             }
         }else if(obj.SPRCHG != undefined){
+            console.log("REcieved a spread chamge");
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
                 // if(obj.SPRCHG[key] == 0 && smallest_spread[key] != undefined){
@@ -749,7 +750,7 @@ window.onload = function () {
                         .attr("class","others_line");
                     // for removing when a transation occurs
 
-                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 15);
+                    addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0, 15);
                 }
                 spread_lines[key] = newLines[key];
             }
