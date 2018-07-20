@@ -214,7 +214,20 @@ window.onload = function () {
 
             var round_length = {{subsession.round_length}} * 1000
             
-            window.setTimeout(endRound(), round_length);
+            window.setTimeout(function(){
+                var msg = {
+                    type: 'advance_me',
+                };
+                if (socket.readyState === socket.OPEN) {
+                    socket.send(JSON.stringify(msg));
+                }
+
+                $(':button').prop('disabled', true);
+                Spread_Graph.disabled = true;
+                $(':overlay').css({
+                    'opacity' : '0.8',
+                });
+            }, round_length);
 
             
 
@@ -241,21 +254,6 @@ window.onload = function () {
             socket.send(JSON.stringify(msg));
         }
     },2000);
-
-    function endRound(){
-        var msg = {
-            type: 'advance_me',
-        };
-        if (socket.readyState === socket.OPEN) {
-            socket.send(JSON.stringify(msg));
-        }
-
-        $(':button').prop('disabled', true);
-        Spread_Graph.disabled = true;
-        $(':overlay').css({
-            'opacity' : '0.8',
-        });
-    }
 
 
     // On load global var? Terrible
