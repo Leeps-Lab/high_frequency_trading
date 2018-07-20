@@ -7,27 +7,27 @@ from django.conf import settings
 
 
 class PreWaitPage(WaitPage):
-    def after_all_players_arrive(self):      
-        self.group.connect_to_exchange()
-        self.group.send_exchange(system_start('S'))
-        self.group.spawn(
-            Constants.investor_py, 
-            Constants.investor_url, 
-            self.group.investor_file
-        )
-        self.group.spawn(
-            Constants.jump_py, 
-            Constants.jump_url,
-            self.group.jump_file
-        )
-        self.subsession.start_time = labtime()
+    pass
+    # def after_all_players_arrive(self):      
+    #     # self.group.connect_to_exchange()
+    #     # self.group.send_exchange(system_start('S'))
+    #     # self.group.spawn(
+    #     #     Constants.investor_py, 
+    #     #     Constants.investor_url, 
+    #     #     self.group.investor_file
+    #     # )
+    #     # self.group.spawn(
+    #     #     Constants.jump_py, 
+    #     #     Constants.jump_url,
+    #     #     self.group.jump_file
+    #     # )
+    #     self.subsession.start_time = labtime()
 
         
 
 class Start(Page):
-#    timeout_seconds = 45
-
     pass
+
 
 
 class ResultsWaitPage(WaitPage):

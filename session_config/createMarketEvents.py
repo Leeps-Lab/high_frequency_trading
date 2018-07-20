@@ -2,16 +2,16 @@ import numpy as np
 import pandas as pd
 import pdb
 
-def createMarketEvents(nGroups,nPeriods,experimentLength,dateStr,lambdaJVec,lambdaIVec):
+def createMarketEvents(nGroups,nPeriods,experimentLength,dateStr,lambdaJVec,lambdaIVec,startPrice,sigJump):
   
   # Output file
   #filePath = "/Users/ealdrich/Dropbox/Academics/Research/UCSC/oTree_HFT_CDA/config/"+dateStr+"/"
   filePath = dateStr+"/"
 
   # Parameters for jump distribution
-  startPrice = 100
+  startPrice = startPrice
   muJump = 0
-  sigJump = 0.5
+  sigJump = sigJump
 
   for ix,periodVal in enumerate(range(1,nPeriods+1)):
     
@@ -36,7 +36,7 @@ def createMarketEvents(nGroups,nPeriods,experimentLength,dateStr,lambdaJVec,lamb
 
       # Save jumps to CSV
       jumpData = pd.DataFrame({'time':jumpTimes,'size':jumpSizes},columns=['time','size'])
-      jumpFile = filePath+"Jumps/jumps_period"+str(periodVal)+"_group"+str(groupVal)+".csv"
+      jumpFile = filePath+"Period"+str(periodVal)+"/jumps_period"+str(periodVal)+"_group"+str(groupVal)+".csv"
       jumpData.to_csv(jumpFile,index=False)
 
       # Simulate investor arrivals and directions
@@ -51,5 +51,5 @@ def createMarketEvents(nGroups,nPeriods,experimentLength,dateStr,lambdaJVec,lamb
 
       # Save investor arrivals to CSV
       investorData = pd.DataFrame({'time':investorTimes,'direction':investorDirections},columns=['time','direction'])
-      investorFile = filePath+"Investors/investors_period"+str(periodVal)+"_group"+str(groupVal)+".csv"
+      investorFile = filePath+"Period"+str(periodVal)+"/investors_period"+str(periodVal)+"_group"+str(groupVal)+".csv"
       investorData.to_csv(investorFile,index=False)

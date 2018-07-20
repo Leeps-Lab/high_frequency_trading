@@ -25,10 +25,10 @@ class SubjectConsumer(JsonWebsocketConsumer):
         player.receive_from_client(msg)
 
     def raw_disconnect(self, message, group_id, player_id):
-        log.info('Player %s  disconnected from Group %s.' % (player_id, group_id))
+        log.info('Player %s disconnected from Group %s.' % (player_id, group_id))
         Group(group_id).discard(message.reply_channel)
-        group = OGroup.objects.get(id=group_id)
-        group.subsession.player_dropped(player_id)
+        player = OGroup.objects.get(id=player_id)
+        player.dropped(player_id)
         
 
 

@@ -49,22 +49,21 @@ class Constants(BaseConstants):
 
 
 class Subsession(BaseSubsession):
-    start_time = models.BigIntegerField()
+    # start_time = models.BigIntegerField()
     players_per_group = models.IntegerField()
     player_states = JSONField()
-    round_length = models.IntegerField(initial=30)
+    round_length = models.IntegerField()
 
     def creating_session(self):
         # configurable group size, copy from oTree docs.
         group_matrix = []
         players = self.get_players()
+        self.round_length = self.session.config['session_length']
         ppg = self.session.config['players_per_group']
-        # round_length = self.session.config['session_length']
         self.players_per_group = ppg
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
-
         # location of Price_Log object
         cache.set('FP_Log', Price_Log(10), timeout=None)
 
@@ -76,11 +75,8 @@ class Subsession(BaseSubsession):
             g.exch_host = self.session.config['exchange_host']
             g.exch_port = 9000 + i + 1
             # read in investor and jump arrival times
-            # investors = 'investors_group_' + str(i + 1)  # hacking
-            investors = 'investors_' + str(i + 1)  # hacking
-            # jumps = 'jumps_group_' + str(i + 1)
-            jumps = 'jumps_' + str(i + 1)
-
+            investors = 'investors_group' + '_' + str(i + 1)
+            jumps = 'jumps_group' + '_' + str(i + 1)
             g.investor_file = self.session.config[investors]
             g.jump_file = self.session.config[jumps]
             # g.json = {
@@ -88,10 +84,10 @@ class Subsession(BaseSubsession):
             # }
             g.save()
 
-        self.player_states = {
-            "is_live": {},
-            "ready_to_advance": {},
-        }
+        # self.player_states = {
+        #     "is_live": {},
+        #     "ready_to_advance": {},
+        # }
 
         for p in players:
             p.default_fp = self.session.config['fundamental_price'] * 1e4
@@ -99,32 +95,38 @@ class Subsession(BaseSubsession):
             p.profit = self.session.config['initial_endowment'] * 1e4
             p.speed_cost = self.session.config['speed_cost'] * (1e+4) * (1e-9)
             p.save()
-            self.player_states["is_live"][p.id]= True
-            self.player_states["ready_to_advance"][p.id]= False
-
         self.save()
         self.session.save()
     
-    def player_can_leave(self, player_id):
-        print(player_id)
-        advancing = self.player_states["ready_to_advance"]
-        advancing[player_id] = True
-        total_advancing = sum(advancing.values())
-        self.player_states["ready_to_advance"] = advancing
-        self.save()
-        log.info('Session: %d players are ready to advance to results page.' % total_advancing)
-        if total_advancing == self.live_count():  # in case people gets dc ed
-            log.info('All players are ready to advance.')
-            self.session.advance_last_place_participants()
+    # def player_can_leave(self, player_id):
+    #     print(player_id)
+    #     advancing = self.player_states["ready_to_advance"]
+    #     advancing[player_id] = True
+    #     total_advancing = sum(advancing.values())
+    #     self.player_states["ready_to_advance"] = advancing
+    #     self.save()
+    #     log.info('Session: %d players are ready to advance to results page.' % total_advancing)
+    #     if total_advancing == self.live_count():  # in case people gets dc ed
+    #         log.info('All players are ready to advance.')
+    #         self.session.advance_last_place_participants()
     
-    def live_count(self):
-        total_live = sum(self.player_states["is_live"].values())
-        return total_live
+    def end_trade(self, player_id):
+        log.info('Session: Player%s flag timer end.' % player_id)
+        self.session.advance_last_place_participants()
 
-    def player_dropped(self, player_id):
-        self.player_states["is_live"][player_id]= False
-        self.save()
-
+    def groups_ready(self, group_id):
+        k = 'group_stats_' + str(self.id)
+        group_state = cache.get(k)
+        if not group_state:
+            group_state = {}
+        group_state[group_id] = True
+        cache.set(k, group_state, timeout=None)
+        total = sum(group_state.values())
+        log.info('Session: %d groups ready to start.' % total)
+        if total == self.session.num_participants / self.players_per_group:
+            log.info('Session: Starting trade, %d.' % self.round_length)
+            for g in self.get_groups():
+                g.start()
 
     def save(self, *args, **kwargs):
         """
@@ -152,7 +154,27 @@ class Group(BaseGroup):
     exch_port = models.IntegerField()
     investor_file = models.StringField()
     jump_file = models.StringField()
-    ready_players = models.IntegerField(initial=0)
+    is_trading = models.BooleanField(initial=0)
+    # ready_players = models.IntegerField(initial=0)
+
+    def start(self):
+        self.connect_to_exchange()
+        self.send_exchange(translate.system_start('S'))
+        self.broadcast(
+            ClientMessage.start_session()
+        )
+        self.spawn(
+            Constants.investor_py, 
+            Constants.investor_url, 
+            self.investor_file
+        )
+        self.spawn(
+            Constants.jump_py, 
+            Constants.jump_url,
+            self.jump_file
+        )
+        self.is_trading = True
+        self.save()
 
     def connect_to_exchange(self):
         log.info("Group%d: Connecting to exchange on port %d" % (self.id, self.exch_port))
@@ -219,7 +241,6 @@ class Group(BaseGroup):
         )
         log.experiment(lablog) 
         log.info('Group%d: Jump, new price is %d!' % (self.id, new_price) )
-
         # Check if group.id is the designated FPC updater
         if cache.get('profit_pusher') == self.id:
             # Push new profit to Price_Log
@@ -273,18 +294,37 @@ class Group(BaseGroup):
                 )
                 self.send_exchange(player_responses[i], delay=True, speed=False)
         else:
-            log.info('No slow players')
-                
+            log.info('No slow players')            
         log.info('-----------Jump End---------------')
 
+    def players_in_market(self, player_id):
+        k = 'player_states'+ '_' + str(self.id)
+        players_in_market = cache.get(k)
+        if not players_in_market:
+            players_in_market = { }
+        players_in_market[player_id] = True
+        cache.set(k, players_in_market, timeout=None)
+        total = sum(players_in_market.values())
+        log.info('Group%s: %d players are in market.' % (self.id, total))
+        if self.subsession.players_per_group == total:
+            log.info('Group%s: All players are in market.' % self.id)
+            self.subsession.groups_ready(self.id)
+    
+    def player_dropped(self, player_id):
+        k = 'player_states'+ '_' + str(self.id)
+        players_in_market = cache.get(k)
+        players_in_market[player_id] = False
+        cache.set(k, players_in_market, timeout=None)
+        total = sum(players_in_market.values())
+        log.info('Group%s: %d players are in market.' % (self.id, total))
 
-    def update_player(self, msg):
-        self.ready_players += 1
-        self.save()
-        if self.ready_players == self.subsession.players_per_group:
-            self.broadcast(
-                ClientMessage.start_session()
-            )
+    # def update_player(self, msg):
+    #     self.ready_players += 1
+    #     self.save()
+    #     if self.ready_players == self.subsession.players_per_group:
+    #         self.broadcast(
+    #             ClientMessage.start_session()
+    #         )
             # ali start inv and jump
 
 
@@ -398,6 +438,9 @@ class Player(BasePlayer):
             orders.extend(staged_orders)
        # assert len(orders) == 2
         return orders
+
+
+
 
     def _leave_market(self):
         """
@@ -538,10 +581,18 @@ class Player(BasePlayer):
             pid=self.id_in_group, nspeed=self.speed
         )
         log.experiment(lablog) 
+
+    def in_market(self, msg):
+        log.info('Player%d: In market.' % self.id)
+        self.group.players_in_market(self.id)
     
+    def dropped(self):
+        log.info('Player%s: Disconnected.' % self.id)
+        self.group.player_dropped(self.id)
+  
     def session_finished(self, msg):
         log.info('Player%s: Ready to advance to results page.' % self.id)
-        self.subsession.player_can_leave(self.id)
+        self.subsession.end_trade(self.id)
 
     """
     there are 3 possible client actions: 
@@ -561,7 +612,7 @@ class Player(BasePlayer):
             'spread_change':self.update_spread,
             'speed_change':self.update_speed,
             'advance_me': self.session_finished,
-            'player_ready':self.group.update_player,
+            'player_ready':self.in_market,
         }
         actions[msg['type']](msg)
 
