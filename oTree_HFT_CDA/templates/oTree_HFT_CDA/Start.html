@@ -71,20 +71,20 @@
         </div>
     </div>
 </div>
+<div class="overlay">a</div>
+
 {% endblock %}
 
 {% block scripts %}
     <script src="https://d3js.org/d3.v5.js"></script>
     <script src="https://momentjs.com/downloads/moment.js"></script>
     <script src="https://momentjs.com/downloads/moment-timezone.min.js"></script>
-    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/profit-graph.css" %}">
-    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/slider.css" %}">
-    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/start.css" %}">
-    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/buttons.css" %}">
-    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/spread-graph.css" %}">
-    <!-- <link rel="stylesheet" href="{% static "oTree_HFT_CDA/js/spread-graph.js" %}"> -->
-    <!-- <link rel="stylesheet" src="{% static "oTree_HFT_CDA/js/profit-graph.js" %}"> -->
-    <!-- <script src="{% static "oTree_HFT_CDA/js/profit-graph.js" %}"></script> -->
+    <link rel="manifest" href="{% static 'oTree_HFT_CDA/manifest.json' %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/css/profit-graph.css" %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/css/slider.css" %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/css/start.css" %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/css/buttons.css" %}">
+    <link rel="stylesheet" href="{% static "oTree_HFT_CDA/css/spread-graph.css" %}">
 
     <script>
 
@@ -207,21 +207,14 @@ window.onload = function () {
             $('#curr_bid').html('N/A');
             $('#curr_ask').html('N/A');
 
-            var round_length = {{subsession.round_length}} * 1000
-            console.log(round_length);
-            window.setTimeout(function(){
-                console.log("edning");
-                var msg = {
-                    type: 'advance_me',
-                };
-                if (socket.readyState === socket.OPEN) {
-                    socket.send(JSON.stringify(msg));
-                }
-        
-                $(':button').prop('disabled', true);
-                Spread_Graph.disabled = true;
+            $('.overlay').css({
+                    'opacity' : '0',
+            });
 
-            }, round_length);
+
+            var round_length = {{subsession.round_length}} * 1000
+            
+            window.setTimeout(endRound(), round_length);
 
             
 
@@ -237,7 +230,7 @@ window.onload = function () {
     };
 
 
-    $(':button').prop('disabled', true);
+    // $(':button').prop('disabled', true);
 
     window.setTimeout(function(){
         var msg = {
@@ -249,18 +242,20 @@ window.onload = function () {
         }
     },2000);
 
-    // function endRound(){
-    //     console.log("edning");
-    //     var msg = {
-    //         'type': 'advance_me',
-    //     };
-    //     if (socket.readyState === socket.OPEN) {
-    //         socket.send(JSON.stringify(msg));
-    //     }
+    function endRound(){
+        var msg = {
+            type: 'advance_me',
+        };
+        if (socket.readyState === socket.OPEN) {
+            socket.send(JSON.stringify(msg));
+        }
 
-    //     $(':button').prop('disabled', true);
-    //     Spread_Graph.disabled = true;
-    // }
+        $(':button').prop('disabled', true);
+        Spread_Graph.disabled = true;
+        $(':overlay').css({
+            'opacity' : '0.8',
+        });
+    }
 
 
     // On load global var? Terrible
@@ -885,7 +880,6 @@ graph.maxSpread = 2000;
     */ 
 graph.startingWealth = 20000; 
 graph.profit = graph.startingWealth;                                           // Through Django Channels
-// graph.adminStartTime = {{subsession.start_time}};           // Django Query
 
 /*
     * HTML Variables

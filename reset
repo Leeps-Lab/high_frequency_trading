@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "yes" | otree collectstatic
+echo "yes" | otree resetdb
+otree runserver

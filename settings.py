@@ -21,7 +21,6 @@ elif 'OTREE_PRODUCTION' not in os.environ:
 else:
     DEBUG = True
 
-DEBUG=True
 INTERNAL_IPS = (
     '0.0.0.0',
     '127.0.0.1',
@@ -244,7 +243,7 @@ SESSION_CONFIGS = [
         'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
         'players_per_group': 3,
-        'session_length': 30,
+        'session_length': 240,
     },
     {
         'name': 'oTree_HFT_CDA_2',
@@ -256,7 +255,7 @@ SESSION_CONFIGS = [
         'jumps_group_2': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
         'players_per_group': 3,
-        'session_length': 30,
+        'session_length': 240,
     },
 ]
 
