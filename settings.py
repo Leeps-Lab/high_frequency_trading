@@ -6,6 +6,7 @@ import dj_database_url
 from datetime import datetime
 import otree.settings
 import yaml
+import augment_configs
 from oTree_HFT_CDA.exp_logging import custom_filter
 
 CHANNEL_ROUTING = 'oTree_HFT_CDA.routing.channel_routing'
@@ -222,7 +223,6 @@ LOGGING = {
 SESSION_CONFIG_DEFAULTS = {
     'real_world_currency_per_point': 0.00,
     'participation_fee': 0.00,
-    'doc': "Investor and jump files must be csvs.",
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['oTree_HFT_CDA'],
     'exchange_host': '127.0.0.1',
@@ -230,8 +230,9 @@ SESSION_CONFIG_DEFAULTS = {
     'fundamental_price': 100,
     'initial_spread': 2,
     'initial_endowment': 20,
-    'session_length': 240,
-    'players_per_group': 2,  
+    'session_length': 240, 
+    'number_of_groups': 1,
+    'players_per_group': 3,
 }
 
 SESSION_CONFIGS = [
@@ -239,8 +240,8 @@ SESSION_CONFIGS = [
         'name': 'oTree_HFT_CDA_1',
         'display_name': 'Continous Double Auction - 3 Players 1 Group',
         'num_demo_participants': 3,
-        'investors_1': os.path.join(os.getcwd(), 'session-config/test/inv_test.csv'),
-        'jumps_1': os.path.join(os.getcwd(), 'session-config/test/jump_test.csv'),
+        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/inv_test.csv'),
+        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jump_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
         'players_per_group': 3,
     },
@@ -248,57 +249,16 @@ SESSION_CONFIGS = [
         'name': 'oTree_HFT_CDA_2',
         'display_name': 'Continous Double Auction - 3 Players 2 Groups',
         'num_demo_participants': 6,
-        'investors_1': os.path.join(os.getcwd(), 'session-config/test/inv_test.csv'),
-        'jumps_1': os.path.join(os.getcwd(), 'session-config/test/jump_test.csv'),
-        'investors_2': os.path.join(os.getcwd(), 'session-config/test/inv_test.csv'),
-        'jumps_2': os.path.join(os.getcwd(), 'session-config/test/jump_test.csv'),
+        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/inv_test.csv'),
+        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jump_test.csv'),
+        'investors_group_2': os.path.join(os.getcwd(), 'session_config/test/inv_test.csv'),
+        'jumps_group_2': os.path.join(os.getcwd(), 'session_config/test/jump_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
         'players_per_group': 3,
     },
 ]
 
-
-# Read in custom configs
-conf_file = os.path.join(os.getcwd(), 'session_config.yaml')
-with open(conf_file, 'r') as f:
-    try:
-        ses_conf = yaml.load(f)
-    except yaml.YAMLError as e:
-        print (e)
-    except:
-        print('Error while reading %s' % conf_file)
-
-# Make it part of session configs
-try:
-    custom_config ={
-        'name': ses_conf['session']['session-name'],
-        'display_name': ses_conf['session']['display-name'],
-        'exchange_host': ses_conf['market']['matching-engine-host'],
-        'num_demo_participants': ses_conf['demo']['number-of-players'],
-        'number_of_groups': ses_conf['group']['number-of-groups'],
-        'players_per_group': ses_conf['group']['players-per-group'],
-        'speed_cost': ses_conf['parameters']['speed-cost'],
-        'fundamental_price': ses_conf['parameters']['fundamental-price'],
-        'initial_spread': ses_conf['parameters']['initial-spread'],
-        'initial_endowment': ses_conf['parameters']['initial-endowment'],
-        'session_length': ses_conf['parameters']['session-length'],
-        'app_sequence': ['oTree_HFT_CDA'],   
-    }
-except KeyError:
-    print('Check keys in config file.')
-except: 
-    print('Failed to read custom configs.')
-else:
-    csv_dir = os.path.join(os.getcwd(), ses_conf['files']['dir'], ses_conf['files']['folder'])
-    for k, v in ses_conf['files']['investors'].items():
-        label = 'investors_' + k
-        loc = os.path.join(csv_dir, v)
-        custom_config.update({label:loc})
-    for k, v in ses_conf['files']['jumps'].items():
-        label = 'jumps_' + k
-        loc = os.path.join(csv_dir, v)
-        custom_config.update({label:loc})
-    SESSION_CONFIGS.append(custom_config)
+SESSION_CONFIGS = augment_configs.augment(SESSION_CONFIGS)
 
 # anything you put after the below line will override
 # oTree's default settings. Use with caution.

@@ -62,7 +62,6 @@ class OrderStore:
         order.cancel(time)
         self.inactive[order.token] = order
 
-
     def execute(self, time, order):
         order.execute(time)
         self.inactive[order.token] = order
