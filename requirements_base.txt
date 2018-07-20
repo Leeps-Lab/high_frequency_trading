@@ -3,3 +3,4 @@ django-redis==4.9.0
 websocket-client==0.47.0
 numpy==1.13.3
 PyYAML==3.12
+requests==2.11.1
