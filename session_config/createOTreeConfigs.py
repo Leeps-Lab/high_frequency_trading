@@ -63,3 +63,4 @@ for ix,period in enumerate(range(1,nPeriods+1)):
     fileName = filesDict['folder']+dateStr+'_'+exchangeType+'_'+str(experimentLengthSeconds)+'s_'+str(nGroups)+'groups_'+str(nPlayersPerGroup)+'players_period'+str(period)+'.yaml'
     with open(fileName, 'w') as outfile:
         yaml.dump(outputDict, outfile, default_flow_style=False)
+        os.system('cp '+fileName+' session_configs/')
