@@ -183,9 +183,8 @@ Socket Actions
         var fund_price = document.querySelector('info-table').fp;
         var obj = jQuery.parseJSON(event.data);
 
-        console.log(obj);
+
         if(obj.FPC != undefined){
-            console.log("This");
             Spread_Graph.drawMySpreadLines({}, 0, {}, true);
 
             var difference = fund_price - obj.FPC;
@@ -211,7 +210,7 @@ Socket Actions
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
             
-            console.log(exec);
+
             Spread_Graph.clear();
             Spread_Graph.drawMySpreadLines({}, 0, exec);
             if(obj.EXEC.id == oTreeConstants.player_id){
@@ -235,7 +234,7 @@ Socket Actions
                 )   
             }
         } else if(obj.SPRCHG != undefined) {
-
+            console.log(obj.SPRCHG);
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
 
@@ -258,9 +257,6 @@ Socket Actions
             Spread_Graph.drawMySpreadLines(obj.SPRCHG);
             
         } else if(obj.SYNC != undefined){
-
-            console.log(obj.SYNC);
-
             Profit_Graph.adminStartTime = Profit_Graph.getTime();
 
             Profit_Graph.profitSegments = [

@@ -145,7 +145,7 @@ g{
 
           var clicked_point = {
 
-            x:(d3.event.clientX ),
+            x:(d3.event.clientX -),
             y:(d3.event.clientY - Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top )
 
           };

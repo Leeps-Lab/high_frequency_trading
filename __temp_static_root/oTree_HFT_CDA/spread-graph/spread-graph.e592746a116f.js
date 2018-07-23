@@ -145,19 +145,19 @@ g{
 
           var clicked_point = {
 
-            x:(d3.event.clientX ),
-            y:(d3.event.clientY - Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top )
+            x:(d3.event.clientX),
+            y:(d3.event.clientY)
 
           };
+          console.log("("+clicked_point.x+","+clicked_point.y+ ")" );
 
-          console.log("("+Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top+ ")" );
-
-          var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
-
+          var distance_from_middle = Math.abs((clicked_point.y - 92 ) - fp_line_y);
+          console.log(distance_from_middle +" dfmmm");
           var ratio = distance_from_middle / (Spread_Graph.spread_height/2);
-
+          console.log(ratio +" ratio");
           var my_spread = (ratio*oTreeConstants.max_spread).toFixed(0);
-               Spread_Graph.sendSpreadChange(my_spread);
+          console.log(my_spread + "8=D");
+          Spread_Graph.sendSpreadChange(my_spread);
           } else if(role == "OUT"){
              //  //Send in default order for maker
              // document.querySelector('input-section').shadowRoot.querySelector("#maker").click();

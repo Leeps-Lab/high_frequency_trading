@@ -86,7 +86,7 @@ g{
     Spread_Graph.spread_svg_dom = Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph");
     Spread_Graph.spread_svg_dom.style.width = Spread_Graph.spread_width;
     Spread_Graph.spread_svg_dom.style.height = Spread_Graph.spread_height;
-
+    Spread_Graph.svg_y_offset = Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top;
 
 
     //d3 Selection of the SVG we will be using this variable from now on
@@ -137,29 +137,26 @@ g{
     Spread_Graph.spread_svg.on('click',function(d) { 
       var role = document.querySelector('info-table').player_role;
         if(role == "MAKER"){
-          var spread_x = Spread_Graph.spread_x;
-          var spread_y = Spread_Graph.spread_y;
+
         
           var svg_middle_x = Spread_Graph.spread_width / 2;
           var fp_line_y = Spread_Graph.spread_height / 2;
 
-
-
           var clicked_point = {
 
-            x:(d3.event.clientX - spread_x),
-            y:(d3.event.clientY - spread_y)
+            x:(d3.event.clientX ),
+            y:(d3.event.clientY - Spread_Graph.svg_y_offset)
 
           };
-          console.log(d3.event.clientY + " event y");
 
-          var distance_from_middle = Math.abs((clicked_point.y - 75) - fp_line_y);
-          
+          console.log("("+Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top+ ")" );
+
+          var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
+
           var ratio = distance_from_middle / (Spread_Graph.spread_height/2);
 
           var my_spread = (ratio*oTreeConstants.max_spread).toFixed(0);
-          console.log(my_spread);
-          Spread_Graph.sendSpreadChange(my_spread);
+               Spread_Graph.sendSpreadChange(my_spread);
           } else if(role == "OUT"){
              //  //Send in default order for maker
              // document.querySelector('input-section').shadowRoot.querySelector("#maker").click();
