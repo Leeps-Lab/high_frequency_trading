@@ -61,50 +61,38 @@ class InfoTable extends PolymerElement {
         type: String
       },
       num_traders: {
-        type: String,
-        value:"this"
+        type: String, 
       },
       player_role: {
         type: String,
-        value:"this"
       },
       fp: {
         type: String,
-        value:"this"
       },
 
       period_id: {
         type: String,
-        value:"this"
       },
       num_makers: {
         type: String,
-        value:"this"
       },
       spread_value: {
         type: String,
-        value:"this"
       },
       curr_bid: {
         type: String,
-        value:"this"
       },
-
       speed_cost: {
         type: String,
-        value:"this"
       },
       num_snipers: {
         type: String,
-        value:"this"
       },
       profit: {
         type: String,
-        value:"this"
       },
       curr_ask: {
         type: String,
-        value:"this"
       }
     };
   }

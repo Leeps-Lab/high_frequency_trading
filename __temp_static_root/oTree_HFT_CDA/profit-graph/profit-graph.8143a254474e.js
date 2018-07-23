@@ -398,7 +398,7 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
                return Profit_Graph.mapProfitPriceToYAxis(d.oldProfit);     //old profit
             })
             .attr("y2", function (d) {
-               return Profit_Graph.mapProfitPriceToYAxis(d.newProfit);     //current profit
+               return Profit_Graph.mapProfitPriceToYAxis(d.newprofit);     //current profit
             })
             .attr("class", function (d) {
                   return d.oldProfit < d.newProfit ? "my-positive-profit" : "my-negative-profit";
@@ -436,7 +436,6 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
         Profit_Graph.drawTimeGridLines();
         Profit_Graph.drawPriceGridLines();
         Profit_Graph.drawPriceAxis();
-
         var speed = document.querySelector("input-section").shadowRoot.querySelector("#speed_checkbox").checked
         /* *****************************************************************************
         * Data Structures present in Redwood front end, and need to be adapted to otree 
@@ -449,7 +448,7 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
     
     var profitDecrement = 0;
     if(speed){
-        profitDecrement = (Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endTime"] - Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startTime"]) * -(0.01 * (1e+4) * (1e-9));
+        profitDecrement = (Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endTime"] - Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startTime"]) * -1e-8;
     }
 
 

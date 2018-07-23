@@ -79,7 +79,7 @@
         
         </div>
     </div>
-    <div class="overlay">a</div>
+    <div class="overlay"></div>
 <script>
 
 </script>
@@ -124,13 +124,13 @@ Constant, Player, and Group Information from oTree stored in the oTreeConstants 
     oTreeConstants.speed_cost = {{Constants.long_delay}};
     oTreeConstants.max_spread = 20000; 
     oTreeConstants.default_spread = {{player.spread}};
-    oTreeConstants.starting_wealth = {{player.profit}}; 
+    oTreeConstants.starting_wealth = 200000; //{{player.profit}} 
     oTreeConstants.startFP = {{player.default_fp}}; 
     // oTreeConstants.admin_start_time = {{subsession.start_time}};
     oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
     oTreeConstants.round_length = {{subsession.round_length}};
     oTreeConstants.timeOffset = 0; 
-
+    console.log({{player.speed_cost}});
 
 
 /*
@@ -219,8 +219,8 @@ Socket Actions
                 Profit_Graph.profitJumps.push(
                     {
                         timestamp:timeNow,
-                        oldProfit:graph.profit,
-                        newProfit:graph.profit + obj.EXEC.profit, 
+                        oldProfit:Profit_Graph.profit,
+                        newProfit:Profit_Graph.profit + obj.EXEC.profit, 
                     }
                 );
                 Profit_Graph.profit += obj.EXEC.profit;
@@ -228,8 +228,8 @@ Socket Actions
                     {
                         startTime:timeNow,
                         endTime:timeNow, 
-                        startProfit:graph.profit, 
-                        endProfit:graph.profit,
+                        startProfit:Profit_Graph.profit, 
+                        endProfit:Profit_Graph.profit,
                         state:document.querySelector('info-table').player_role
                     }
                 )   

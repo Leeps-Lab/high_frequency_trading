@@ -117,7 +117,7 @@ class ProfitGraph extends PolymerElement {
 
 
     // maybe spread on profit graph
-    Profit_Graph.priceRange = 100000;
+    Profit_Graph.priceRange = 10000;
     Profit_Graph.maxPriceProfit = Profit_Graph.startingWealth + (Profit_Graph.priceRange / 2);
     Profit_Graph.minPriceProfit = Profit_Graph.startingWealth - (Profit_Graph.priceRange / 2);
     Profit_Graph.centerPriceProfit = (Profit_Graph.maxPriceProfit + Profit_Graph.minPriceProfit) / 2;
@@ -127,7 +127,7 @@ class ProfitGraph extends PolymerElement {
     //------------------------------------------------
     Profit_Graph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
     Profit_Graph.graphPaddingRight = 50;  //used                                 // how far from the x axis label that the line stops moving
-    Profit_Graph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
+    Profit_Graph.graphAdjustSpeedProfit = 10;                              //speed that profit price axis adjusts in pixels per frame
     Profit_Graph.numberOfTicks = 10;
     Profit_Graph.profitPriceGridIncrement = Profit_Graph.priceRange / Profit_Graph.numberOfTicks;                             //amount between each line on profit price axis
     
@@ -381,24 +381,24 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
         });
 
         Profit_Graph.profitSVG.selectAll("line.positive-profit line.negative-profit")
-            .data(profitJumps)      
+            .data(Profit_Graph.profitJumps)      
             // profitJumps structure = {timestamp:(nano), newPrice:(thousands), oldPrice:(thousands)}    
             .enter()
             .append("line")
             .filter(function (d) {
-               return d.timestamp >= (Profit_Graph.currentTime - Profit_Graph.timeInterval);
+               return d.timestamp >= (current_time - time_interval);
             })
             .attr("x1", function (d) {
-               return Profit_Graph.mapTimeToXAxis(d.timestamp);
+               return Profit_Graph.mapTimeToXAxis(d.timeStamp);
             })
             .attr("x2", function (d) {
-               return Profit_Graph.mapTimeToXAxis(d.timestamp);
+               return Profit_Graph.mapTimeToXAxis(d.timeStamp);
             })
             .attr("y1", function (d) {
                return Profit_Graph.mapProfitPriceToYAxis(d.oldProfit);     //old profit
             })
             .attr("y2", function (d) {
-               return Profit_Graph.mapProfitPriceToYAxis(d.newProfit);     //current profit
+               return Profit_Graph.mapProfitPriceToYAxis(d.newprofit);     //current profit
             })
             .attr("class", function (d) {
                   return d.oldProfit < d.newProfit ? "my-positive-profit" : "my-negative-profit";
@@ -436,26 +436,24 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
         Profit_Graph.drawTimeGridLines();
         Profit_Graph.drawPriceGridLines();
         Profit_Graph.drawPriceAxis();
+        
+        /* *****************************************************************************
+         * Data Structures present in Redwood front end, and need to be adapted to otree 
+         ******************************************************************************/ 
+        // historyDataSet = [[startTime, endTime, startProfit, endProfit, state],...] 
+        // 2-D array where each index contains a different portion of the profit line *over the entire experiment*
+        // Each index has a startTime (nano), endTime (nano), startProfit (thousands), endProfit (thousands) 
+        Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endTime"] = Profit_Graph.currentTime;
+        
+        var profitDecrement = 0;
 
         var speed = document.querySelector("input-section").shadowRoot.querySelector("#speed_checkbox").checked
-        /* *****************************************************************************
-        * Data Structures present in Redwood front end, and need to be adapted to otree 
-        ******************************************************************************/ 
-
-    // historyDataSet = [[startTime, endTime, startProfit, endProfit, state],...] 
-    // 2-D array where each index contains a different portion of the profit line *over the entire experiment*
-    // Each index has a startTime (nano), endTime (nano), startProfit (thousands), endProfit (thousands) 
-    Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endTime"] = Profit_Graph.currentTime;
-    
-    var profitDecrement = 0;
-    if(speed){
-        profitDecrement = (Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endTime"] - Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startTime"]) * -(0.01 * (1e+4) * (1e-9));
-    }
-
-
-    Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endProfit"] = Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
-    Profit_Graph.profit = Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
-
+        if(speed){
+            profitDecrement = (Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endTime"] - Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startTime"]) * -1e-8;
+        }
+        Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endProfit"] = Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
+        Profit_Graph.profit = Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
+        console.log(Profit_Graph.profitJumps);
         Profit_Graph.drawProfit(Profit_Graph.profitSegments, Profit_Graph.profitJumps);
         requestAnimationFrame(Profit_Graph.draw);
 
