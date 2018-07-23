@@ -86,7 +86,7 @@ g{
     Spread_Graph.spread_svg_dom = Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph");
     Spread_Graph.spread_svg_dom.style.width = Spread_Graph.spread_width;
     Spread_Graph.spread_svg_dom.style.height = Spread_Graph.spread_height;
-    Spread_Graph.svg_y_offset = Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top;
+    
 
 
     //d3 Selection of the SVG we will be using this variable from now on
@@ -134,7 +134,8 @@ g{
   }
 
   listen(){
-    Spread_Graph.spread_svg.on('click',function(d) { 
+    Spread_Graph.spread_svg.on('click',function(d) {
+      Spread_Graph.svg_y_offset = Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top;
       var role = document.querySelector('info-table').player_role;
         if(role == "MAKER"){
 
@@ -149,7 +150,6 @@ g{
 
           };
 
-          console.log("("+Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top+ ")" );
 
           var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
 
@@ -163,7 +163,7 @@ g{
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
                     document.querySelector("input-section").shadowRoot.querySelector("#maker").className = "button-pressed";
 
-                    document.querySelector("info-table").player_role = "Maker";
+                    document.querySelector("info-table").player_role = "MAKER";
 
                     var timeNow = Profit_Graph.getTime() - Profit_Graph.timeOffset;
                     Profit_Graph.profitSegments.push(

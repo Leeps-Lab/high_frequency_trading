@@ -163,7 +163,7 @@ g{
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
                     document.querySelector("input-section").shadowRoot.querySelector("#maker").className = "button-pressed";
 
-                    document.querySelector("info-table").player_role = "MAKER";
+                    document.querySelector("info-table").player_role = "Maker";
 
                     var timeNow = Profit_Graph.getTime() - Profit_Graph.timeOffset;
                     Profit_Graph.profitSegments.push(

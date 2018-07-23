@@ -17,7 +17,7 @@ group:
   players-per-group: 5
 market:
   design: CDA
-  matching-engine-host: exchanges
+  matching-engine-host: "127.0.0.1"
 parameters:
   fundamental-price: 100
   initial-endowment: 20

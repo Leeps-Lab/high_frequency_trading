@@ -35,7 +35,7 @@ def create(config, filename):   # TODO: Consider refactoring this
             'number_of_groups': config['group']['number-of-groups'],
             'players_per_group': config['group']['players-per-group'],
             'speed_cost': config['parameters']['speed-cost'],
-            'num_demo_participants': config['demo']['no-participants'],
+            'num_demo_participants': config['demo']['number-of-participants'],
             'fundamental_price': config['parameters']['fundamental-price'],
             'initial_spread': config['parameters']['initial-spread'],
             'initial_endowment': config['parameters']['initial-endowment'],

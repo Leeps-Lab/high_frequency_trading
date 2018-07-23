@@ -97,6 +97,7 @@ class Subsession(BaseSubsession):
             p.spread = self.session.config['initial_spread'] * 1e4
             p.profit = self.session.config['initial_endowment'] * 1e4
             p.speed_cost = self.session.config['speed_cost'] * (1e+4) * (1e-9)
+            print(p.speed_cost)
             p.save()
         self.save()
         self.session.save()
