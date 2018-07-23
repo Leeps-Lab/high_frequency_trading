@@ -25,7 +25,7 @@ class PreWaitPage(WaitPage):
 
         
 
-class Start(Page):
+class index(Page):
     pass
 
 
@@ -42,7 +42,7 @@ class Results(Page):
 
 page_sequence = [
     PreWaitPage,
-    Start,
+    index,
     ResultsWaitPage,
     Results
 ]
