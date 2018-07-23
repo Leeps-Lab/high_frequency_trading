@@ -128,7 +128,7 @@ Constant, Player, and Group Information from oTree stored in the oTreeConstants 
     oTreeConstants.startFP = {{player.default_fp}}; 
     // oTreeConstants.admin_start_time = {{subsession.start_time}};
     oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
-
+    oTreeConstants.round_length = {{subsession.round_length}};
     oTreeConstants.timeOffset = 0; 
 
 
@@ -294,6 +294,17 @@ Socket Actions
             document.querySelector(".overlay").style.pointerEvents = 'none';
 
 
+            window.setTimeout(function(){
+                var msg = {
+                    type: 'advance_me',
+                };
+                if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                    socketActions.socket.send(JSON.stringify(msg));
+                }
+
+                document.querySelector(".overlay").style.opacity = 0.8;
+                document.querySelector(".overlay").style.pointerEvents = 'all';
+            }, oTreeConstants.round_length * 1000);
 
     
 
