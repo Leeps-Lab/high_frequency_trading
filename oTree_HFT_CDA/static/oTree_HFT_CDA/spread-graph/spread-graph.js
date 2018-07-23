@@ -199,8 +199,8 @@ g{
 
                     //The tuple in which the mouse is clicked within the svg 
                     var click_point = {
-                        x:(d3.event.clientX - Spread_Graph.spread_x),
-                        y:(d3.event.clientY - Spread_Graph.spread_y)
+                        x:(d3.event.clientX),
+                        y:(d3.event.clientY - Spread_Graph.svg_y_offset)
                     };
 
                     //finding the distance from the mid
