@@ -42,6 +42,7 @@ def create(config, filename):   # TODO: Consider refactoring this
             'session_length': config['parameters']['session-length'],
             'app_sequence': ['oTree_HFT_CDA']
             }
+
     except KeyError as e:
         raise e
         print('Failed to read custom configs %s.' % filename)
