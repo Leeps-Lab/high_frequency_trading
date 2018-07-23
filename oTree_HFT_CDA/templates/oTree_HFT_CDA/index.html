@@ -122,14 +122,14 @@ Constant, Player, and Group Information from oTree stored in the oTreeConstants 
     oTreeConstants.player_id = {{player.id}};
     oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
     oTreeConstants.speed_cost = {{Constants.long_delay}};
-    oTreeConstants.max_spread = 20000; 
+    oTreeConstants.max_spread = {{player.max_spread}}; 
     oTreeConstants.default_spread = {{player.spread}};
-    oTreeConstants.starting_wealth = 200000; //{{player.profit}} 
+    oTreeConstants.starting_wealth = {{player.profit}};
     oTreeConstants.startFP = {{player.default_fp}}; 
-    // oTreeConstants.admin_start_time = {{subsession.start_time}};
     oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
     oTreeConstants.round_length = {{subsession.round_length}};
     oTreeConstants.timeOffset = 0; 
+    oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
     console.log({{player.speed_cost}});
 
 

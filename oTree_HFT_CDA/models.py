@@ -96,8 +96,8 @@ class Subsession(BaseSubsession):
             p.default_fp = self.session.config['fundamental_price'] * 1e4
             p.spread = self.session.config['initial_spread'] * 1e4
             p.profit = self.session.config['initial_endowment'] * 1e4
-            p.speed_cost = self.session.config['speed_cost'] * (1e+4) * (1e-9)
-            print(p.speed_cost)
+            p.speed_cost = self.session.config['speed_cost']*(1e+4)
+            p.max_spread = self.session.config['max_spread'] * 1e4
             p.save()
         self.save()
         self.session.save()
@@ -348,9 +348,10 @@ class Player(BasePlayer):
     channel = models.CharField(max_length=255)
  #  ready = models.BooleanField(initial=0)
     default_fp = models.IntegerField()
-    profit = models.IntegerField(initial=200000)     
+    profit = models.IntegerField()     
     time_of_speed_change = models.BigIntegerField()
     speed_cost = models.IntegerField()
+    max_spread = models.IntegerField()
 
     # Player actions
 

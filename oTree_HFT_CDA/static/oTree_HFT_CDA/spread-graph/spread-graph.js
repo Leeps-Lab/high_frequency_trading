@@ -226,7 +226,7 @@ g{
                 socketActions.socket.send(JSON.stringify(msg));
             }
             // console.log(msg);
-            document.querySelector('info-table').setAttribute('spread_value','+-' + (my_spread / 1000).toFixed(2));
+            document.querySelector('info-table').setAttribute('spread_value','+-' + (my_spread / 10000).toFixed(2));
   }
 
   drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){

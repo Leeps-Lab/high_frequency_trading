@@ -449,7 +449,7 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
     
     var profitDecrement = 0;
     if(speed){
-        profitDecrement = (Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endTime"] - Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startTime"]) * -(0.01 * (1e+4) * (1e-9));
+        profitDecrement = (Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["endTime"] - Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startTime"]) * -(oTreeConstants.speed_cost);
     }
 
 

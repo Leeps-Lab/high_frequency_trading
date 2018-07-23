@@ -38,6 +38,7 @@ def create(config, filename):   # TODO: Consider refactoring this
             'num_demo_participants': config['demo']['number-of-participants'],
             'fundamental_price': config['parameters']['fundamental-price'],
             'initial_spread': config['parameters']['initial-spread'],
+            'max_spread': config['parameters']['max-spread'],
             'initial_endowment': config['parameters']['initial-endowment'],
             'session_length': config['parameters']['session-length'],
             'app_sequence': ['oTree_HFT_CDA']
