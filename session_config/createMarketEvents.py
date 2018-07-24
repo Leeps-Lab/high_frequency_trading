@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pdb
+import os
 
 def createMarketEvents(nGroups,nPeriods,experimentLength,dateStr,lambdaJVec,lambdaIVec,startPrice,sigJump):
   
@@ -36,7 +37,10 @@ def createMarketEvents(nGroups,nPeriods,experimentLength,dateStr,lambdaJVec,lamb
 
       # Save jumps to CSV
       jumpData = pd.DataFrame({'time':jumpTimes,'size':jumpSizes},columns=['time','size'])
-      jumpFile = filePath+"Period"+str(periodVal)+"/jumps_period"+str(periodVal)+"_group"+str(groupVal)+".csv"
+      filePathSub = filePath+"Period"+str(periodVal)+"/"
+      if os.path.isdir(filePathSub)==False:
+        os.mkdir(filePathSub)
+      jumpFile = filePathSub+"jumps_period"+str(periodVal)+"_group"+str(groupVal)+".csv"
       jumpData.to_csv(jumpFile,index=False)
 
       # Simulate investor arrivals and directions

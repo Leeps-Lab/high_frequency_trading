@@ -21,7 +21,6 @@ elif 'OTREE_PRODUCTION' not in os.environ:
 else:
     DEBUG = True
 
-
 INTERNAL_IPS = (
     '0.0.0.0',
     '127.0.0.1',
@@ -240,21 +239,23 @@ SESSION_CONFIGS = [
         'name': 'oTree_HFT_CDA_1',
         'display_name': 'Continous Double Auction - 3 Players 1 Group',
         'num_demo_participants': 3,
-        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/inv_test.csv'),
-        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jump_test.csv'),
+        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
+        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
         'players_per_group': 3,
+        'session_length': 240,
     },
     {
         'name': 'oTree_HFT_CDA_2',
         'display_name': 'Continous Double Auction - 3 Players 2 Groups',
         'num_demo_participants': 6,
-        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/inv_test.csv'),
-        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jump_test.csv'),
-        'investors_group_2': os.path.join(os.getcwd(), 'session_config/test/inv_test.csv'),
-        'jumps_group_2': os.path.join(os.getcwd(), 'session_config/test/jump_test.csv'),
+        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
+        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jump_stest.csv'),
+        'investors_group_2': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
+        'jumps_group_2': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
         'app_sequence': ['oTree_HFT_CDA'],
         'players_per_group': 3,
+        'session_length': 240,
     },
 ]
 

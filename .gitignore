@@ -18,3 +18,4 @@ __pycache__/
 reset*
 !investors*.csv
 !jumps*.csv
+!__temp_static_root

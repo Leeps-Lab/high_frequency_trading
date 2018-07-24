@@ -35,13 +35,15 @@ def create(config, filename):   # TODO: Consider refactoring this
             'number_of_groups': config['group']['number-of-groups'],
             'players_per_group': config['group']['players-per-group'],
             'speed_cost': config['parameters']['speed-cost'],
-            'num_demo_participants': config['demo']['no-participants'],
+            'num_demo_participants': config['demo']['number-of-participants'],
             'fundamental_price': config['parameters']['fundamental-price'],
             'initial_spread': config['parameters']['initial-spread'],
+            'max_spread': config['parameters']['max-spread'],
             'initial_endowment': config['parameters']['initial-endowment'],
             'session_length': config['parameters']['session-length'],
             'app_sequence': ['oTree_HFT_CDA']
             }
+
     except KeyError as e:
         raise e
         print('Failed to read custom configs %s.' % filename)

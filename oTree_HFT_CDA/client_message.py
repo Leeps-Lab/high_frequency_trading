@@ -33,3 +33,10 @@ class ClientMessage:
         value = { "id": player_id, "token": token, "profit": profit  }
         msg = {key: value}
         return msg
+
+    @staticmethod
+    def start_session():
+        key = "SYNC"
+        value = 0
+        msg = {key: value}
+        return msg

@@ -4,6 +4,7 @@ import os
 import logging
 import random
 import time
+from jsonfield import JSONField
 from . import translator as translate
 from .exp_logging import prepare
 from .utility import nanoseconds_since_midnight as labtime
@@ -20,9 +21,8 @@ from django.core.cache import cache
 from .order import Order, OrderStore
 import time
 log = logging.getLogger(__name__)
-from twisted.internet import reactor
-author = 'LEEPS Lab UCSC'
 
+author = 'LEEPS Lab UCSC'
 doc = """
 Your app description
 """
@@ -49,10 +49,15 @@ class Constants(BaseConstants):
 
 
 class Subsession(BaseSubsession):
-    start_time = models.BigIntegerField()
     players_per_group = models.IntegerField()
+    # player_states = JSONField()
+    round_length = models.IntegerField()
+    trade_ended = models.BooleanField(initial=0)
 
     def creating_session(self):
+        # set session length
+        self.round_length = self.session.config['session_length']
+        log.info('Session length: %d.' % self.round_length)
         # configurable group size, copy from oTree docs.
         group_matrix = []
         players = self.get_players()
@@ -61,7 +66,7 @@ class Subsession(BaseSubsession):
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
-
+ 
         # location of Price_Log object
         cache.set('FP_Log', Price_Log(10), timeout=None)
 
@@ -82,14 +87,75 @@ class Subsession(BaseSubsession):
             # }
             g.save()
 
+        # self.player_states = {
+        #     "is_live": {},
+        #     "ready_to_advance": {},
+        # }
+
         for p in players:
             p.default_fp = self.session.config['fundamental_price'] * 1e4
             p.spread = self.session.config['initial_spread'] * 1e4
             p.profit = self.session.config['initial_endowment'] * 1e4
-            p.speed_cost = self.session.config['speed_cost'] * (1e+4) * (1e-9)
+            p.speed_cost = self.session.config['speed_cost']*(1e+4)
+            p.max_spread = self.session.config['max_spread'] * 1e4
             p.save()
-
+        self.save()
         self.session.save()
+    
+    # def player_can_leave(self, player_id):
+    #     print(player_id)
+    #     advancing = self.player_states["ready_to_advance"]
+    #     advancing[player_id] = True
+    #     total_advancing = sum(advancing.values())
+    #     self.player_states["ready_to_advance"] = advancing
+    #     self.save()
+    #     log.info('Session: %d players are ready to advance to results page.' % total_advancing)
+    #     if total_advancing == self.live_count():  # in case people gets dc ed
+    #         log.info('All players are ready to advance.')
+    #         self.session.advance_last_place_participants()
+    
+    def end_trade(self, player_id):
+        log.info('Session: Player%s flag timer end.' % player_id)
+        if self.trade_ended == 0:
+            self.trade_ended = 1
+            self.save()
+            self.session.advance_last_place_participants()
+        else:
+            pass
+
+    def groups_ready(self, group_id):
+        k = 'group_stats_' + str(self.id)
+        group_state = cache.get(k)
+        if not group_state:
+            group_state = {}
+        group_state[group_id] = True
+        cache.set(k, group_state, timeout=None)
+        total = sum(group_state.values())
+        log.info('Session: %d groups ready to start.' % total)
+        if total == self.session.num_participants / self.players_per_group:
+            log.info('Session: Starting trade, %d.' % self.round_length)
+            for g in self.get_groups():
+                g.start()
+
+    def save(self, *args, **kwargs):
+        """
+        JAMES
+        BUG: Django save-the-change, which all oTree models inherit from,
+        doesn't recognize changes to JSONField properties. So saving the model
+        won't trigger a database save. This is a hack, but fixes it so any
+        JSONFields get updated every save. oTree uses a forked version of
+        save-the-change so a good alternative might be to fix that to recognize
+        JSONFields (diff them at save time, maybe?).
+        """
+        super().save(*args, **kwargs)
+        if self.pk is not None:
+            json_fields = {}
+            for field in self._meta.get_fields():
+                if isinstance(field, JSONField):
+                    json_fields[field.attname] = getattr(self, field.attname)
+            self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
+
+
 
 class Group(BaseGroup):
 
@@ -97,6 +163,27 @@ class Group(BaseGroup):
     exch_port = models.IntegerField()
     investor_file = models.StringField()
     jump_file = models.StringField()
+    is_trading = models.BooleanField(initial=0)
+    # ready_players = models.IntegerField(initial=0)
+
+    def start(self):
+        self.connect_to_exchange()
+        self.send_exchange(translate.system_start('S'))
+        self.broadcast(
+            ClientMessage.start_session()
+        )
+        self.spawn(
+            Constants.investor_py, 
+            Constants.investor_url, 
+            self.investor_file
+        )
+        self.spawn(
+            Constants.jump_py, 
+            Constants.jump_url,
+            self.jump_file
+        )
+        self.is_trading = True
+        self.save()
 
     def connect_to_exchange(self):
         log.info("Group%d: Connecting to exchange on port %d" % (self.id, self.exch_port))
@@ -163,7 +250,6 @@ class Group(BaseGroup):
         )
         log.experiment(lablog) 
         log.info('Group%d: Jump, new price is %d!' % (self.id, new_price) )
-
         # Check if group.id is the designated FPC updater
         if cache.get('profit_pusher') == self.id:
             # Push new profit to Price_Log
@@ -217,33 +303,41 @@ class Group(BaseGroup):
                 )
                 self.send_exchange(player_responses[i], delay=True, speed=False)
         else:
-            log.info('No slow players')
-                
+            log.info('No slow players')            
         log.info('-----------Jump End---------------')
 
+    def players_in_market(self, player_id):
+        k = 'player_states'+ '_' + str(self.id)
+        players_in_market = cache.get(k)
+        if not players_in_market:
+            players_in_market = { }
+        players_in_market[player_id] = True
+        cache.set(k, players_in_market, timeout=None)
+        total = sum(players_in_market.values())
+        log.info('Group%s: %d players are in market.' % (self.id, total))
+        if self.subsession.players_per_group == total:
+            log.info('Group%s: All players are in market.' % self.id)
+            self.subsession.groups_ready(self.id)
+    
+    # def player_dropped(self, player_id):
+    #     k = 'player_states'+ '_' + str(self.id)
+    #     players_in_market = cache.get(k)
+    #     players_in_market[player_id] = False
+    #     cache.set(k, players_in_market, timeout=None)
+    #     total = sum(players_in_market.values())
+    #     log.info('Group%s: %d players are in market.' % (self.id, total))
+
+    # def update_player(self, msg):
+    #     self.ready_players += 1
+    #     self.save()
+    #     if self.ready_players == self.subsession.players_per_group:
+    #         self.broadcast(
+    #             ClientMessage.start_session()
+    #         )
+            # ali start inv and jump
 
 
-"""
-why do we have this part, we never use jsonfield ?
-"""
 
-    # def save(self, *args, **kwargs):
-    #     """
-    #     JAMES
-    #     BUG: Django save-the-change, which all oTree models inherit from,
-    #     doesn't recognize changes to JSONField properties. So saving the model
-    #     won't trigger a database save. This is a hack, but fixes it so any
-    #     JSONFields get updated every save. oTree uses a forked version of
-    #     save-the-change so a good alternative might be to fix that to recognize
-    #     JSONFields (diff them at save time, maybe?).
-    #     """
-    #     super().save(*args, **kwargs)
-    #     if self.pk is not None:
-    #         json_fields = {}
-    #         for field in self._meta.get_fields():
-    #             if isinstance(field, JSONField):
-    #                 json_fields[field.attname] = getattr(self, field.attname)
-    #         self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
 
 class Player(BasePlayer):
 
@@ -254,9 +348,10 @@ class Player(BasePlayer):
     channel = models.CharField(max_length=255)
  #  ready = models.BooleanField(initial=0)
     default_fp = models.IntegerField()
-    profit = models.IntegerField(initial=200000)     
+    profit = models.IntegerField()     
     time_of_speed_change = models.BigIntegerField()
     speed_cost = models.IntegerField()
+    max_spread = models.IntegerField()
 
     # Player actions
 
@@ -320,7 +415,6 @@ class Player(BasePlayer):
         create a cancel order message
         return the ouch message
         """
-
         ouch = translate.cancel(order.token)
         log.info('Player%d: Stage: Cancel: %s.' % (self.id, order.token))
         return ouch
@@ -354,6 +448,9 @@ class Player(BasePlayer):
             orders.extend(staged_orders)
        # assert len(orders) == 2
         return orders
+
+
+
 
     def _leave_market(self):
         """
@@ -495,6 +592,18 @@ class Player(BasePlayer):
         )
         log.experiment(lablog) 
 
+    def in_market(self, msg):
+        log.info('Player%d: In market.' % self.id)
+        self.group.players_in_market(self.id)
+    
+    # def dropped(self):
+    #     log.info('Player%s: Disconnected.' % self.id)
+    #     self.group.player_dropped(self.id)
+  
+    def session_finished(self, msg):
+        log.info('Player%s: Ready to advance to results page.' % self.id)
+        self.subsession.end_trade(self.id)
+
     """
     there are 3 possible client actions: 
     role change, spread change and state change
@@ -511,7 +620,9 @@ class Player(BasePlayer):
         actions= {
             'role_change':self.update_state,
             'spread_change':self.update_spread,
-            'speed_change':self.update_speed
+            'speed_change':self.update_speed,
+            'advance_me': self.session_finished,
+            'player_ready':self.in_market,
         }
         actions[msg['type']](msg)
 

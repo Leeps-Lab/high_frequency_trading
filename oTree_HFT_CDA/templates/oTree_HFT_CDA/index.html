@@ -1,0 +1,329 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load staticfiles %}
+{% block content %}
+<style>
+    .front_end_controller{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color:  rgb(230, 230, 230);
+        top:0;
+        left: 0;
+    }
+    .overlay{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top:0;
+    left: 0;
+    background-color: grey;
+    opacity: .8; 
+    pointer-events: all;
+    }
+  /*  .row{
+        width:100%;
+        height:100%;
+    }*/
+    .row {
+        padding: 0px;
+        margin: 0px;
+    }
+    spread-graph{
+        width: 20%;
+        height:600px;
+        margin-left:10px;
+        background-color:white;
+    }
+    profit-graph{
+        width:70%; 
+        height:600px; 
+        background-color: white; 
+    }
+    input-section{
+        margin-top:160px;
+        width: 5%;
+        height: 100%;
+        float: left;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        margin-left:10px;
+        align-items: center;
+    }
+    info-table{
+        background-color: rgb(230, 230, 230);
+        width: 100%;
+        height: 150px;
+    }
+</style>
+    
+    <!-- front_end_controller defines the whole user interface -->
+    <div class="front_end_controller">
+        
+        <!-- info-table is the top information diplay -->
+        <div class="top-banner">
+        <info-table></info-table>
+        </div>
+        <!-- new row defining the interactive part of the front end -->
+        <div class="row">
+            
+            <!-- left most graph displaying users changing profit -->
+            <profit-graph></profit-graph>
+            
+            <!-- middle graph displaying and able to be clicked to show spread  -->
+            <spread-graph></spread-graph>
+            
+            <!-- right most section comprised of the strategy buttons -->
+            <input-section></input-section>
+        
+        </div>
+    </div>
+    <div class="overlay"></div>
+<script>
+
+</script>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script src="https://momentjs.com/downloads/moment-timezone.min.js"></script>
+    <link rel="manifest" href="{% static 'oTree_HFT_CDA/manifest.json' %}">
+    <script src="{% static 'oTree_HFT_CDA/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
+    <script type="module" src="{% static 'oTree_HFT_CDA/input-section/input-section.js' %}"></script>
+    <script type="module" src="{% static 'oTree_HFT_CDA/spread-graph/spread-graph.js' %}"></script>
+    <script type="module" src="{% static 'oTree_HFT_CDA/profit-graph/profit-graph.js' %}"></script>
+    
+    <script type="module" src="{% static 'oTree_HFT_CDA/profit-graph/profit-graph.js' %}"></script>
+    <script type="module" src="{% static 'oTree_HFT_CDA/info-table/info-table.js' %}"></script>
+    
+<script>
+    //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
+    var oTreeConstants ={};
+
+    //All socket actions are stored in this object to be used in the seperated js files
+    var socketActions = {};
+
+    //Graph features defines the features of the profit and spread graph to be used in the corresponding Shadow DOM constructors
+    var Graph_Features = {};
+
+
+    var Spread_Graph = {};
+
+    var Profit_Graph = {};
+    var Input_Section = {};
+(function(){
+/*  
+IMPORTANT:
+Constant, Player, and Group Information from oTree stored in the oTreeConstants objects
+*/
+    oTreeConstants.group_id = {{group.id}};
+    oTreeConstants.player_id = {{player.id}};
+    oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
+    oTreeConstants.speed_cost = {{Constants.long_delay}};
+    oTreeConstants.max_spread = {{player.max_spread}}; 
+    oTreeConstants.default_spread = {{player.spread}};
+    oTreeConstants.starting_wealth = {{player.profit}};
+    oTreeConstants.startFP = {{player.default_fp}}; 
+    oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
+    oTreeConstants.round_length = {{subsession.round_length}};
+    oTreeConstants.timeOffset = 0; 
+    oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
+    console.log({{player.speed_cost}});
+
+
+/*
+IMPORTANT:
+Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
+*/
+    //SPREAD GRAPH
+    Spread_Graph.spread_width = document.querySelector("spread-graph").clientWidth;
+    Spread_Graph.spread_height = document.querySelector("spread-graph").clientHeight;
+    Spread_Graph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
+    Spread_Graph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
+    Spread_Graph.spread_lines = {};
+
+    //PROFIT GRAPH
+    Profit_Graph.profit_width = document.querySelector("profit-graph").clientWidth;
+    Profit_Graph.profit_height = document.querySelector("profit-graph").clientHeight;
+
+
+/*
+In order for our Shadow DOM Elements to be acessable in javascript we must set the mode to 'open', 'closed' is the other option and would restrict access to the Shadow DOM Elements. Since they are now open we can access them with js in their corressponding .js files
+*/
+    document.querySelector("spread-graph").attachShadow({mode: 'open'});
+    document.querySelector("profit-graph").attachShadow({mode: 'open'});
+    document.querySelector("input-section").attachShadow({mode: 'open'});
+
+
+/*
+Socket Actions
+*/
+    //Socket Connection
+    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
+   
+    socketActions.socket = socket;
+
+    //     // Handle any errors that occur.
+    socketActions.socket.onerror = function (error) {
+        console.log('WebSocket Error: ' + error);
+    };
+
+    // Show a connected message when the WebSocket is opened.
+    socketActions.socket.onopen = function (event) {
+        console.log('Client has connected to django channels');
+    };
+
+    // Handle messages sent by the server.
+
+     socketActions.socket.onmessage = function (event) {
+
+        var fund_price = document.querySelector('info-table').fp;
+        var obj = jQuery.parseJSON(event.data);
+
+
+        if(obj.FPC != undefined){
+            Spread_Graph.drawMySpreadLines({}, 0, {}, true);
+
+            var difference = fund_price - obj.FPC;
+            document.querySelector('info-table').fp = obj.FPC;
+            
+            Spread_Graph.clear();
+            Spread_Graph.drawMySpreadLines({}, difference / 10);
+            for(var key in Spread_Graph.spread_lines){
+
+                for(var token in Spread_Graph.spread_lines[key]){
+                    Spread_Graph.spread_lines[key][token] -= parseInt(difference);
+                    Spread_Graph.spread_lines[key][token] -= parseInt(difference);
+                }
+            }
+            setTimeout(function(){
+                Spread_Graph.clear();
+                Spread_Graph.drawMySpreadLines({}, 0);
+            },500);
+        }else if(obj.EXEC != undefined){
+            var timeNow = Profit_Graph.getTime() - oTreeConstants.timeOffset;
+            var exec = {};
+            exec["player"] = obj.EXEC.id;
+            exec["side"] = obj.EXEC.token[4];
+            exec["profit"] = obj.EXEC.profit;
+            
+
+            Spread_Graph.clear();
+            Spread_Graph.drawMySpreadLines({}, 0, exec);
+            if(obj.EXEC.id == oTreeConstants.player_id){
+
+                Profit_Graph.profitJumps.push(
+                    {
+                        timestamp:timeNow,
+                        oldProfit:Profit_Graph.profit,
+                        newProfit:Profit_Graph.profit + obj.EXEC.profit, 
+                    }
+                );
+                Profit_Graph.profit += obj.EXEC.profit;
+                Profit_Graph.profitSegments.push(
+                    {
+                        startTime:timeNow,
+                        endTime:timeNow, 
+                        startProfit:Profit_Graph.profit, 
+                        endProfit:Profit_Graph.profit,
+                        state:document.querySelector('info-table').player_role
+                    }
+                )   
+            }
+        } else if(obj.SPRCHG != undefined) {
+            console.log(obj.SPRCHG);
+            Spread_Graph.clear();
+            for(var key in obj.SPRCHG){
+
+                // if(obj.SPRCHG[key] == 0 && oTreeConstants.smallest_spread[key] != undefined){
+                //     Spread_Graph.clear();
+                //     delete obj.SPRCHG[key];
+                //     Spread_Graph.updateSmallest(key);
+                // }
+
+                delete Spread_Graph.spread_lines[key];
+            }
+
+            // for(var key in obj.SPRCHG){
+            //     if((obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"]) < oTreeConstants.smallest_spread["spread"]){
+            //         oTreeConstants.smallest_spread["key"] = key;
+            //         oTreeConstants.smallest_spread["spread"] = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"]
+            //     }
+            // }
+
+            Spread_Graph.drawMySpreadLines(obj.SPRCHG);
+            
+        } else if(obj.SYNC != undefined){
+            Profit_Graph.adminStartTime = Profit_Graph.getTime();
+
+            Profit_Graph.profitSegments = [
+                {
+                    startTime:Profit_Graph.adminStartTime,
+                    endTime:Profit_Graph.adminStartTime, 
+                    startProfit:Profit_Graph.profit, 
+                    endProfit:Profit_Graph.profit,
+                    state:"OUT"
+                }
+            ];
+
+            Profit_Graph.init(oTreeConstants.startFP, Profit_Graph.startingWealth, "secondTick");
+            requestAnimationFrame(Profit_Graph.draw);
+
+                /** Initializing all info table values **/
+            document.querySelector('info-table').setAttribute("player_id","{{player.id_in_group}}");
+            document.querySelector('info-table').setAttribute("period_id","1"); 
+            document.querySelector('info-table').setAttribute("speed_cost","0"); 
+            document.querySelector('info-table').setAttribute("num_traders","{{Constants.players_per_group}}"); 
+            document.querySelector('info-table').setAttribute("player_role","OUT"); 
+            document.querySelector('info-table').setAttribute("spread_value","N/A");     
+            document.querySelector('info-table').setAttribute("num_makers","0"); 
+            document.querySelector('info-table').setAttribute("num_snipers","0"); 
+            document.querySelector('info-table').setAttribute("profit","20"); 
+            document.querySelector('info-table').setAttribute("fp","{{player.fp}}"); 
+            document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
+            document.querySelector('info-table').setAttribute("curr_ask","N/A");
+
+            document.querySelector(".overlay").style.opacity = 0;
+            document.querySelector(".overlay").style.pointerEvents = 'none';
+
+
+            window.setTimeout(function(){
+                var msg = {
+                    type: 'advance_me',
+                };
+                if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                    socketActions.socket.send(JSON.stringify(msg));
+                }
+
+                document.querySelector(".overlay").style.opacity = 0.8;
+                document.querySelector(".overlay").style.pointerEvents = 'all';
+            }, oTreeConstants.round_length * 1000);
+
+    
+
+        }
+    };
+
+    // Show a disconnected message when the WebSocket is closed.
+    socketActions.socket.onclose = function (event) {
+        console.log('disconnected from oTree');
+    };
+
+    window.setTimeout(function(){
+        var msg = {
+            type: 'player_ready',
+        };
+   
+        if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+            socketActions.socket.send(JSON.stringify(msg));
+        }
+    },5000);
+}());
+
+</script>
+
+
+{% endblock %}

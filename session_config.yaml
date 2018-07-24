@@ -15,6 +15,7 @@ parameters:
 
 demo:
   number-of-players: 6
+  
 
 files:
   dir: session-config
