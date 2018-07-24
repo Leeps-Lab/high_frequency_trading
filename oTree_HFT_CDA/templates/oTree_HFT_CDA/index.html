@@ -118,21 +118,19 @@
 IMPORTANT:
 Constant, Player, and Group Information from oTree stored in the oTreeConstants objects
 */
-    oTreeConstants.group_id = {{group.id}};
-    oTreeConstants.player_id = {{player.id}};
-    oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
-    oTreeConstants.speed_cost = {{Constants.long_delay}};
-    oTreeConstants.max_spread = {{player.max_spread}}; 
-    oTreeConstants.default_spread = {{player.spread}};
-    oTreeConstants.starting_wealth = {{player.profit}};
-    oTreeConstants.startFP = {{player.default_fp}}; 
-    oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
-    oTreeConstants.round_length = {{subsession.round_length}};
+    oTreeConstants.group_id = 0;
+    oTreeConstants.player_id = 0;
+    oTreeConstants.player_id_in_group = 0; 
+    oTreeConstants.speed_cost = 0;
+    oTreeConstants.max_spread = 0; 
+    oTreeConstants.default_spread = 0;
+    oTreeConstants.starting_wealth = 0;
+    oTreeConstants.startFP = 0; 
+    oTreeConstants.smallest_spread = {};
+    oTreeConstants.round_length = 0;
     oTreeConstants.timeOffset = 0; 
-    oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
-    console.log({{player.speed_cost}});
-
-
+    oTreeConstants.speed_cost = 0;
+    
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
@@ -313,6 +311,21 @@ Socket Actions
     };
 
     window.setTimeout(function(){
+        console.log("Sending");
+
+        oTreeConstants.group_id = {{group.id}};
+        oTreeConstants.player_id = {{player.id}};
+        oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
+        oTreeConstants.speed_cost = {{Constants.long_delay}};
+        oTreeConstants.max_spread = {{player.max_spread}}; 
+        oTreeConstants.default_spread = {{player.spread}};
+        oTreeConstants.starting_wealth = {{player.profit}};
+        oTreeConstants.startFP = {{player.default_fp}}; 
+        oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
+        oTreeConstants.round_length = {{subsession.round_length}};
+        oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
+        console.log({{player.speed_cost}});
+
         var msg = {
             type: 'player_ready',
         };
@@ -320,7 +333,7 @@ Socket Actions
         if (socketActions.socket.readyState === socketActions.socket.OPEN) {
             socketActions.socket.send(JSON.stringify(msg));
         }
-    },5000);
+    },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
 }());
 
 </script>
