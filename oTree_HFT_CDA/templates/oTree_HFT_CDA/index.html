@@ -236,13 +236,10 @@ Socket Actions
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
 
-                // if(obj.SPRCHG[key] == 0 && oTreeConstants.smallest_spread[key] != undefined){
-                //     Spread_Graph.clear();
-                //     delete obj.SPRCHG[key];
-                //     Spread_Graph.updateSmallest(key);
-                // }
-
                 delete Spread_Graph.spread_lines[key];
+                if(obj.SPRCHG[key] == 0){
+                    delete obj.SPRCHG[key];
+                }
             }
 
             // for(var key in obj.SPRCHG){
