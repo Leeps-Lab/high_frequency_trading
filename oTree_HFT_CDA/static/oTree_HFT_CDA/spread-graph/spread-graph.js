@@ -269,8 +269,11 @@ g{
             exec_side = "B";
             exec_spread = my_spread;
         }
-        Spread_Graph.addOthersLineAnimation(lines, 0);
-        Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+        var role = document.querySelector('info-table').player_role;
+        if(role == "MAKER"){
+            Spread_Graph.addOthersLineAnimation(lines, 0);
+            Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+        }
         if(exec_side != ""){
             Spread_Graph.drawTransactionBar(exec_spread, svg_middle_y,y_coordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"));
         }
@@ -341,10 +344,13 @@ g{
                         .attr("y2", y_coordinate + svg_middle_y + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line");
-                    Spread_Graph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 25); 
-                    setTimeout(function(d){
-                        Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
-                    }, 500);
+                    var role = document.querySelector('info-table').player_role;
+                    if(role == "MAKER"){
+                        Spread_Graph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 25); 
+                        setTimeout(function(d){
+                            Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+                        }, 500);
+                    }
                 }else{
 
                     //Where the grey middle line is
