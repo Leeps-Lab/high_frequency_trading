@@ -232,6 +232,7 @@ SESSION_CONFIG_DEFAULTS = {
     'session_length': 240, 
     'number_of_groups': 1,
     'players_per_group': 3,
+    'doc': '',
 }
 
 SESSION_CONFIGS = [
