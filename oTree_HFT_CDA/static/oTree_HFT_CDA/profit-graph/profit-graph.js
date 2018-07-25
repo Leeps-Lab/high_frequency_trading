@@ -117,7 +117,7 @@ class ProfitGraph extends PolymerElement {
 
 
     // maybe spread on profit graph
-    Profit_Graph.priceRange = 100000;
+    Profit_Graph.priceRange =  5*oTreeConstants.max_spread;
     Profit_Graph.maxPriceProfit = Profit_Graph.startingWealth + (Profit_Graph.priceRange / 2);
     Profit_Graph.minPriceProfit = Profit_Graph.startingWealth - (Profit_Graph.priceRange / 2);
     Profit_Graph.centerPriceProfit = (Profit_Graph.maxPriceProfit + Profit_Graph.minPriceProfit) / 2;
@@ -348,7 +348,7 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
             })
             .attr("class", "price-grid-line-text")
             .text(function (d) {
-                return d / 1000;
+                return d * (1e-4);
         });
     }
 

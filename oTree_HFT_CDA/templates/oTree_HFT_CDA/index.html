@@ -128,7 +128,7 @@ Constant, Player, and Group Information from oTree stored in the oTreeConstants 
     oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
     oTreeConstants.round_length = {{subsession.round_length}};
     oTreeConstants.timeOffset = 0; 
-    oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
+    oTreeConstants.speed_cost = {{player.speed_cost}};
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
@@ -303,8 +303,8 @@ Socket Actions
             document.querySelector('info-table').setAttribute("spread_value","N/A");     
             document.querySelector('info-table').setAttribute("num_makers","0"); 
             document.querySelector('info-table').setAttribute("num_snipers","0"); 
-            document.querySelector('info-table').setAttribute("profit","20"); 
-            document.querySelector('info-table').setAttribute("fp","{{player.fp}}"); 
+            document.querySelector('info-table').setAttribute("profit",oTreeConstants.startProfit); 
+            document.querySelector('info-table').setAttribute("fp"," "+ {{player.fp}} * (1e-4) + " "); 
             document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
             document.querySelector('info-table').setAttribute("curr_ask","N/A");
             document.querySelector('info-table').setAttribute("group_id","{{player.group_id}}");

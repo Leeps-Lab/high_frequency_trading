@@ -339,7 +339,7 @@ border-radius: 50%;
 
           this.speed = !this.speed;
           if(this.speed){
-              document.querySelector('info-table').setAttribute("speed_cost",oTreeConstants.speed_cost);
+              document.querySelector('info-table').setAttribute("speed_cost",oTreeConstants.speed_cost * (1e-4) * (1e9));
           }else {
               document.querySelector('info-table').setAttribute("speed_cost",0);
           }
