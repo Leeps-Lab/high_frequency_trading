@@ -232,22 +232,52 @@ Socket Actions
                 )   
             }
         } else if(obj.SPRCHG != undefined) {
-            console.log(obj.SPRCHG);
+            console.log("SPRCHG MSG");
+            var player_id = parseInt(oTreeConstants.player_id_in_group);
+            var smallest_spread = [-1, Number.MAX_SAFE_INTEGER];
             Spread_Graph.clear();
             for(var key in obj.SPRCHG){
 
                 delete Spread_Graph.spread_lines[key];
                 if(obj.SPRCHG[key] == 0){
+                    // Maker has left the market, and needs to set the boolean
                     delete obj.SPRCHG[key];
                 }
+
+                // process all new spreads  after the zeros have been removed
+                var spread = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"];
+                if(spread < 0){
+                    console.error("Invalid spread calculation from a SPRCHG msg", obj.SPRCHG);
+                }
+                
+                if(spread < smallest_spread[1]){
+                    smallest_spread[0] = parseInt(key);
+                    smallest_spread[1] = spread;
+                }
+                console.log(smallest_spread);
+
+
             }
 
-            // for(var key in obj.SPRCHG){
-            //     if((obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"]) < oTreeConstants.smallest_spread["spread"]){
-            //         oTreeConstants.smallest_spread["key"] = key;
-            //         oTreeConstants.smallest_spread["spread"] = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"]
-            //     }
-            // }
+            for(var key in Spread_Graph.spread_lines){
+                // process all new spreads  after the zeros have been removed
+                var spread = Spread_Graph.spread_lines[key]["A"] - Spread_Graph.spread_lines[key]["B"];
+                
+                if(spread < smallest_spread[1]){
+                    smallest_spread[0] = parseInt(key);
+                    smallest_spread[1] = spread;
+                }
+                console.log(smallest_spread);
+
+            }
+
+            if(smallest_spread[0] == player_id){
+                console.log("Setting to true");
+                Spread_Graph.smallest_spread = true;
+            }else{
+                console.log("Setting to dalse");
+                Spread_Graph.smallest_spread = false;
+            }
 
             Spread_Graph.drawMySpreadLines(obj.SPRCHG);
             

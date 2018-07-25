@@ -34,7 +34,7 @@ g{
 
 .green_bar{
   fill:#6edd68;
-  opacity: 0.1;
+  opacity: 0.5;
 }
 
 .blue_bar{
@@ -86,7 +86,7 @@ g{
     Spread_Graph.spread_svg_dom = Spread_Graph.spread_graph_shadow_dom.querySelector("#spread-graph");
     Spread_Graph.spread_svg_dom.style.width = Spread_Graph.spread_width;
     Spread_Graph.spread_svg_dom.style.height = Spread_Graph.spread_height;
-    
+    Spread_Graph.smallest_spread = true;
 
 
     //d3 Selection of the SVG we will be using this variable from now on
@@ -107,6 +107,7 @@ g{
     Spread_Graph.drawTransactionBar = this.drawTransactionBar;    
     Spread_Graph.drawSpreadBar = this.drawSpreadBar;
     Spread_Graph.updateSmallest = this.updateSmallest;
+
 
     //Creating the start state
     Spread_Graph.start();
@@ -284,7 +285,6 @@ g{
         my_spread = parseInt(Spread_Graph.spread_lines[key]["A"] - Spread_Graph.spread_lines[key]["B"]);
         money_ratio =  oTreeConstants.max_spread/my_spread;
         y_coordinate = svg_middle_y/money_ratio;
-        // console.log(y_coordinate);
         //Ratio between the distance and the mid
         if(exec.player != key || exec.side != "S"){
             your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
@@ -327,7 +327,6 @@ g{
                     my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
                     money_ratio =  oTreeConstants.max_spread/my_spread;
                     y_coordinate = svg_middle_y/money_ratio;
-                    // console.log(y_coordinate);
                     //Ratio between the distance and the mid
                     var your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
                         .attr("x1", Spread_Graph.spread_width)
@@ -368,7 +367,6 @@ g{
                     my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
                     money_ratio =  oTreeConstants.max_spread/my_spread;
                     y_coordinate = svg_middle_y/money_ratio;
-                    // console.log(y_coordinate);
                    var your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
                         .attr("x1",Spread_Graph.spread_width)
                         .attr("y1", svg_middle_y - y_coordinate)
@@ -385,7 +383,7 @@ g{
                         .attr("stroke-width",1)
                         .attr("class","others_line");
                     // for removing when a transation occurs
-                    Spread_Graph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 15);
+                    Spread_Graph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0, 15);
                 }
                 Spread_Graph.spread_lines[key] = newLines[key];
             }
@@ -427,10 +425,9 @@ g{
 
   drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, id){
         //take into account
-        console.log(y_coordinate);
         var bar_color = "";
         //if not other maker within the spread
-        if(id == oTreeConstants.smallest_spread["key"]){
+        if(Spread_Graph.smallest_spread == true){
             bar_color = "green_bar";
         }else{
             bar_color = "blue_bar";
