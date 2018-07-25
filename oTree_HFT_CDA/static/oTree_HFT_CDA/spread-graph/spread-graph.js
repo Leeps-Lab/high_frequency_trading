@@ -346,10 +346,20 @@ g{
                         .attr("class","my_line");
                     var role = document.querySelector('info-table').player_role;
                     if(role == "MAKER"){
-                        Spread_Graph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 25); 
-                        setTimeout(function(d){
-                            Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
-                        }, 500);
+                        if(newLines[key]["TOK"][4] == "B"){
+                            Spread_Graph.addOthersLineAnimation([your_spread_line_bottom], 500, 25);
+                            Spread_Graph.addOthersLineAnimation([your_spread_line_top], 0, 25); 
+                        }else if(newLines[key]["TOK"][4] == "S"){
+                            Spread_Graph.addOthersLineAnimation([your_spread_line_bottom], 0, 25);
+                            Spread_Graph.addOthersLineAnimation([your_spread_line_top], 500, 25); 
+                        }else{
+                            console.log("Unrecognizeable token");
+                        }
+                        Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+                        
+                        // setTimeout(function(d){
+                        //     Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+                        // }, 500);
                     }
                 }else{
 
