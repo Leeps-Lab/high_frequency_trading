@@ -8,7 +8,7 @@ class ClientMessage:
     """
 
     @staticmethod
-    def spread_change(player_id, leg_up=None, leg_low=None):
+    def spread_change(player_id, leg_up=None, leg_low=None, token=None):
         """
         default will 0 the spread
         """
@@ -16,7 +16,7 @@ class ClientMessage:
         if not leg_up and not leg_low:
             value = {player_id: 0}
         else:
-            value = {player_id: {"A": leg_up, "B": leg_low}}       
+            value = {player_id: {"A": leg_up, "B": leg_low, "TOK":token}}       
         msg = {key: value}
         return msg 
         

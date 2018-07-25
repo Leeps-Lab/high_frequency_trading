@@ -663,7 +663,7 @@ class Player(BasePlayer):
             fp  = self.fp()  # what is my fundamental price ?
             lo, hi = fp - self.spread / 2, fp + self.spread / 2  # then these are legs
             self.group.broadcast(
-                ClientMessage.spread_change(self.id_in_group, leg_up=hi, leg_low=lo)
+                ClientMessage.spread_change(self.id_in_group, leg_up=hi, leg_low=lo, token=tok)
             )
         lablog = prepare(
             group = self.group_id, level='exch', typ='enter', 
@@ -692,7 +692,7 @@ class Player(BasePlayer):
             fp  = self.fp()
             lo, hi = fp - self.spread / 2, fp + self.spread / 2
             self.group.broadcast(
-                ClientMessage.spread_change(self.id_in_group, leg_up=hi, leg_low=lo)
+                ClientMessage.spread_change(self.id_in_group, leg_up=hi, leg_low=lo, token=tok)
             )
         log.info('Player%d: Confirm: Replace %s with %s.' % (self.id, ptok, tok))
         lablog = prepare(
