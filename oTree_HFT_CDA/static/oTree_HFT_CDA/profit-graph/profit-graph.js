@@ -351,8 +351,10 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
                 return d / 1000;
         });
     }
-    drawProfit(historyDataSet, profitJumps) {
 
+    drawProfit(historyDataSet, profitJumps) {
+        console.log(profitJumps);
+        
         Profit_Graph.profitSVG.selectAll("line.my-profit-out line.my-profit-maker line.my-profit-snipe")
             .data(historyDataSet, function (d) {   
             // historyDataSet structure = [[startTime, endTime, startProfit, endProfit, state],...] 

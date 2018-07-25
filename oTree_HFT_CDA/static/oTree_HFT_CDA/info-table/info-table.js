@@ -46,6 +46,7 @@ class InfoTable extends PolymerElement {
         </tr>
         <!-- Row 3 of info box -->
         <tr>
+            <td class="info_text">Group ID:          [[group_id]]       </td>
             <td class="info_text">Speed Cost:           [[speed_cost]]   </td>
             <td class="info_text">Your Profit:          [[profit]]       </td>
             <td class="info_text">Current Sell Offer:   [[curr_ask]]     </td>
@@ -61,6 +62,9 @@ class InfoTable extends PolymerElement {
         type: String
       },
       num_traders: {
+        type: String, 
+      },
+      group_id: {
         type: String, 
       },
       player_role: {

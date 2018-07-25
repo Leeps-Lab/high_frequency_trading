@@ -118,19 +118,17 @@
 IMPORTANT:
 Constant, Player, and Group Information from oTree stored in the oTreeConstants objects
 */
-    oTreeConstants.group_id = 0;
-    oTreeConstants.player_id = 0;
-    oTreeConstants.player_id_in_group = 0; 
-    oTreeConstants.speed_cost = 0;
-    oTreeConstants.max_spread = 0; 
-    oTreeConstants.default_spread = 0;
-    oTreeConstants.starting_wealth = 0;
-    oTreeConstants.startFP = 0; 
-    oTreeConstants.smallest_spread = {};
-    oTreeConstants.round_length = 0;
+    oTreeConstants.group_id = {{group.id}};
+    oTreeConstants.player_id = {{player.id}};
+    oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
+    oTreeConstants.max_spread = {{player.max_spread}}; 
+    oTreeConstants.default_spread = {{player.spread}};
+    oTreeConstants.starting_wealth = {{player.profit}};
+    oTreeConstants.startFP = {{player.default_fp}}; 
+    oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
+    oTreeConstants.round_length = {{subsession.round_length}};
     oTreeConstants.timeOffset = 0; 
-    oTreeConstants.speed_cost = 0;
-    
+    oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
@@ -207,12 +205,15 @@ Socket Actions
             exec["player"] = obj.EXEC.id;
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
-            
 
             Spread_Graph.clear();
             Spread_Graph.drawMySpreadLines({}, 0, exec);
-            if(obj.EXEC.id == oTreeConstants.player_id){
+            console.log("Obj.EXEC.id =" + obj.EXEC.id);
+            console.log("oTreeConstants.player_id =" + oTreeConstants.player_id);
+            console.log("Are they same =" + oTreeConstants.player_id == obj.EXEC.id);
 
+            if(obj.EXEC.id == oTreeConstants.player_id_in_group){
+                console.log("Manipulating profit graph jump");
                 Profit_Graph.profitJumps.push(
                     {
                         timestamp:timeNow,
@@ -220,6 +221,7 @@ Socket Actions
                         newProfit:Profit_Graph.profit + obj.EXEC.profit, 
                     }
                 );
+
                 Profit_Graph.profit += obj.EXEC.profit;
                 Profit_Graph.profitSegments.push(
                     {
@@ -305,6 +307,7 @@ Socket Actions
             document.querySelector('info-table').setAttribute("fp","{{player.fp}}"); 
             document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
             document.querySelector('info-table').setAttribute("curr_ask","N/A");
+            document.querySelector('info-table').setAttribute("group_id","{{player.group_id}}");
 
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
