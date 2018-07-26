@@ -96,7 +96,7 @@ class Subsession(BaseSubsession):
             p.default_fp = self.session.config['fundamental_price'] * 1e4
             p.spread = self.session.config['initial_spread'] * 1e4
             p.profit = self.session.config['initial_endowment'] * 1e4
-            p.speed_cost = self.session.config['speed_cost'] * 1e4 * 1e-9   # convert it to nanoseconds from seconds
+            p.speed_cost = self.session.config['speed_cost'] * 1e4   # convert it to nanoseconds from seconds
             p.max_spread = self.session.config['max_spread'] * 1e4
             p.save()
         self.save()
@@ -779,10 +779,9 @@ class Player(BasePlayer):
         calculate speed cost since the previous calculation
         """
         delta = timestamp - self.time_of_speed_change
-        cost = delta * self.speed_cost
+        cost = delta * self.speed_cost * 1e-9
         self.time_of_speed_change = timestamp
         self.profit -= cost
-        print(self.id, delta, self.speed_cost, cost)
         log.info('Player%d: Take speed cost: %d' % (self.id, cost))
         lablog = prepare(
             group=self.group_id, level='market', typ='profit', 
