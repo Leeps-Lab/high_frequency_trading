@@ -12,14 +12,14 @@
         left: 0;
     }
     .overlay{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top:0;
-    left: 0;
-    background-color: grey;
-    opacity: .8; 
-    pointer-events: all;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top:0;
+        left: 0;
+        background-color: grey;
+        opacity: .8; 
+        pointer-events: all;
     }
   /*  .row{
         width:100%;
@@ -184,7 +184,7 @@ Socket Actions
             Spread_Graph.drawMySpreadLines({}, 0, {}, true);
 
             var difference = fund_price - obj.FPC;
-            document.querySelector('info-table').fp = obj.FPC;
+            document.querySelector('info-table').fp = obj.FPC*(1e-4);
             
             Spread_Graph.clear();
             Spread_Graph.drawMySpreadLines({}, difference / 10);
@@ -208,12 +208,9 @@ Socket Actions
 
             Spread_Graph.clear();
             Spread_Graph.drawMySpreadLines({}, 0, exec);
-            console.log("Obj.EXEC.id =" + obj.EXEC.id);
-            console.log("oTreeConstants.player_id =" + oTreeConstants.player_id);
-            console.log("Are they same =" + oTreeConstants.player_id == obj.EXEC.id);
-
+          
             if(obj.EXEC.id == oTreeConstants.player_id_in_group){
-                console.log("Manipulating profit graph jump");
+                
                 Profit_Graph.profitJumps.push(
                     {
                         timestamp:timeNow,
@@ -303,7 +300,7 @@ Socket Actions
             document.querySelector('info-table').setAttribute("spread_value","N/A");     
             document.querySelector('info-table').setAttribute("num_makers","0"); 
             document.querySelector('info-table').setAttribute("num_snipers","0"); 
-            document.querySelector('info-table').setAttribute("profit",oTreeConstants.startProfit); 
+            document.querySelector('info-table').setAttribute("profit",oTreeConstants.starting_wealth*(1-4)); 
             document.querySelector('info-table').setAttribute("fp"," "+ {{player.fp}} * (1e-4) + " "); 
             document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
             document.querySelector('info-table').setAttribute("curr_ask","N/A");
