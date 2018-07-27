@@ -66,9 +66,6 @@ class Subsession(BaseSubsession):
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
- 
-        # location of Price_Log object
-        cache.set('FP_Log', Price_Log(10), timeout=None)
 
         for i, g in enumerate(self.get_groups()):
             # designating the first group as the authorized FPC updater
@@ -91,9 +88,11 @@ class Subsession(BaseSubsession):
         #     "is_live": {},
         #     "ready_to_advance": {},
         # }
-
+        first_price = self.session.config['fundamental_price'] * 1e4
+        # location of Price_Log object
+        cache.set('FP_Log', Price_Log(10, first_price), timeout=None)  # only log last 10 fp jumps
         for p in players:
-            p.default_fp = self.session.config['fundamental_price'] * 1e4
+            p.default_fp = first_price
             p.spread = self.session.config['initial_spread'] * 1e4
             p.profit = self.session.config['initial_endowment'] * 1e4
             p.speed_cost = self.session.config['speed_cost'] * 1e4   # convert it to nanoseconds from seconds
@@ -201,7 +200,8 @@ class Group(BaseGroup):
         else:
             dur = 0.
         conn = exchange.connect(self, self.exch_host, self.exch_port).connection
-        for m in msgs:
+        true_msgs = filter(lambda x: x is not False, msgs)
+        for m in true_msgs:
             conn.sendMessage(m, dur)
 
     def receive_from_exchange(self, msg):
@@ -376,7 +376,7 @@ class Player(BasePlayer):
         create a new order 
         return a the ouch message
         """
-        spread = (self.spread if order.side == 'S' else - self.spread)
+        spread = self.spread if order.side == 'S' else - self.spread
         price = int(self.fp() + spread / 2)
         new_order = self._create_order(
             status='re', side=order.side, price=price, time_in_force=99999
@@ -415,8 +415,12 @@ class Player(BasePlayer):
         create a cancel order message
         return the ouch message
         """
-        ouch = translate.cancel(order.token)
-        log.info('Player%d: Stage: Cancel: %s.' % (self.id, order.token))
+        orderstore = self.order_store()
+        order_to_cancel = orderstore.find_head(order)
+        if not order_to_cancel:
+            return False
+        ouch = translate.cancel(order_to_cancel.token)
+        log.info('Player%d: Stage: Cancel: %s.' % (self.id, order_to_cancel.token))
         return ouch
 
     def _create_order(self, **kwargs):
@@ -518,15 +522,17 @@ class Player(BasePlayer):
             'SNIPER':self._leave_market,
             'MAKER':self._enter_market
         }
-        new_state = message['state']
+        new_state = message['state'].upper()
         self.state = new_state
         self.save() 
         log.info('Player%d: State is now: %s.' % (self.id, self.state))    
         log.debug('Player%d: Start state update.' % (self.id)) 
         try:
             states[new_state]()
-        except KeyError:    # like this is possible
+        except KeyError as e:    # like this is possible
+            log.info(new_state)
             log.info('Player%d: Invalid state update.' % self.id)
+            raise e
         lablog = prepare(
             group=self.group_id, level='choice', typ='state', 
             pid=self.id_in_group, nstate=self.state
@@ -552,7 +558,7 @@ class Player(BasePlayer):
         msgs = self.makers_replace(1)  # replace orders, start from above
         self.group.send_exchange(msgs, delay=True, speed=self.speed)
         self.save()
-        log.info('Player%d: Spread update: %s.' % (self.id, self.spread))
+        log.info('Player%d: End Spread update: %s.' % (self.id, self.spread))
         lablog = prepare(
             group = self.group_id, level='choice', typ='spread', 
             pid=self.id_in_group, nspread=self.spread
@@ -739,6 +745,7 @@ class Player(BasePlayer):
         self.group.broadcast(
             ClientMessage.execution(self.id_in_group, tok, profit)
         )
+        log.debug(order)
         if self.state == 'MAKER':
              log.debug('Player%d: Execution action: Enter a new order.' % self.id)
              m = [self.stage_enter(order.side)]
@@ -756,7 +763,8 @@ class Player(BasePlayer):
         take speed cost along the way
         """
         fp = cache.get('FP_Log').getFP(timestamp)
-
+        print('calc profit fp: ', fp)
+        print('calc profit exec_price: ', exec_price)
         d = abs(fp - exec_price)
         if exec_price < fp:
             pi = d if side == 'B' else -d  # buyer (seller) buys (sells) less than fp
