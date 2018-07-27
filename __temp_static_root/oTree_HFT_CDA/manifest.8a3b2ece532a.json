@@ -1,0 +1,7 @@
+{
+  "name": "profit-graph",
+  "short_name": "profit-graph",
+  "description": "Profit Graph yo",
+  "start_url": "/",
+  "display": "standalone"
+}

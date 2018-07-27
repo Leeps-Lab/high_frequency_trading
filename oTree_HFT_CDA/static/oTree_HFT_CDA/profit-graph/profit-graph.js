@@ -353,8 +353,7 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
     }
 
     drawProfit(historyDataSet, profitJumps) {
-        console.log(profitJumps);
-        
+       
         Profit_Graph.profitSVG.selectAll("line.my-profit-out line.my-profit-maker line.my-profit-snipe")
             .data(historyDataSet, function (d) {   
             // historyDataSet structure = [[startTime, endTime, startProfit, endProfit, state],...] 
@@ -375,6 +374,7 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
                return Profit_Graph.mapProfitPriceToYAxis(d.startProfit);
             })
             .attr("y2", function (d) {
+               document.querySelector('info-table').setAttribute("profit",d.endProfit*(1e-4)); 
                return Profit_Graph.mapProfitPriceToYAxis(d.endProfit);
             })
             .attr("class", function (d) {
@@ -460,7 +460,6 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
 
         Profit_Graph.drawProfit(Profit_Graph.profitSegments, Profit_Graph.profitJumps);
         requestAnimationFrame(Profit_Graph.draw);
-
         }
      
     init(startFP, startingWealth) {
