@@ -183,6 +183,7 @@ class ProfitGraph extends PolymerElement {
     Profit_Graph.drawPriceAxis = this.drawPriceAxis;
     Profit_Graph.drawProfit = this.drawProfit;
     Profit_Graph.draw = this.draw;
+    Profit_Graph.clear = this.clear;
     Profit_Graph.init =  this.init;
   }
 
@@ -374,7 +375,7 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
                return Profit_Graph.mapProfitPriceToYAxis(d.startProfit);
             })
             .attr("y2", function (d) {
-               document.querySelector('info-table').setAttribute("profit",d.endProfit*(1e-4)); 
+               document.querySelector('info-table').setAttribute("profit",(d.endProfit*(1e-4)).toFixed(2)); 
                return Profit_Graph.mapProfitPriceToYAxis(d.endProfit);
             })
             .attr("class", function (d) {
@@ -459,9 +460,18 @@ Profit_Graph.profitSVG.selectAll("rect.time-grid-box-dark")
     Profit_Graph.profit = Profit_Graph.profitSegments[Profit_Graph.profitSegments.length - 1]["startProfit"] + profitDecrement;
 
         Profit_Graph.drawProfit(Profit_Graph.profitSegments, Profit_Graph.profitJumps);
-        requestAnimationFrame(Profit_Graph.draw);
+        if(oTreeConstants.end_msg == "off"){
+            requestAnimationFrame(Profit_Graph.draw);
+        } else {
+            Profit_Graph.clear();
         }
-     
+    }
+
+    clear(){
+        //Clear the svg elements
+        Profit_Graph.profitSVG.selectAll("*").remove();
+    }
+
     init(startFP, startingWealth) {
         for(var i = 2; i < arguments.length; i++){
             Profit_Graph.debug[arguments[i]] = true;

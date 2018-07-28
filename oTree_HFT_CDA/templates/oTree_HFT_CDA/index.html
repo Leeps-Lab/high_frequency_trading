@@ -129,6 +129,7 @@ Constant, Player, and Group Information from oTree stored in the oTreeConstants 
     oTreeConstants.round_length = {{subsession.round_length}};
     oTreeConstants.timeOffset = 0; 
     oTreeConstants.speed_cost = {{player.speed_cost}};
+    oTreeConstants.end_msg = "off";
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
@@ -184,7 +185,7 @@ Socket Actions
             Spread_Graph.drawMySpreadLines({}, 0, {}, true);
 
             var difference = fund_price - obj.FPC;
-            document.querySelector('info-table').fp = obj.FPC*(1e-4);
+            document.querySelector('info-table').fp = (obj.FPC*(1e-4)).toFixed(2);
             
             Spread_Graph.clear();
             Spread_Graph.drawMySpreadLines({}, difference / 10);
@@ -295,7 +296,7 @@ Socket Actions
             document.querySelector('info-table').setAttribute("player_id","{{player.id_in_group}}");
             document.querySelector('info-table').setAttribute("period_id","1"); 
             document.querySelector('info-table').setAttribute("speed_cost","0"); 
-            document.querySelector('info-table').setAttribute("num_traders","{{Constants.players_per_group}}"); 
+            document.querySelector('info-table').setAttribute("num_traders","0"); 
             document.querySelector('info-table').setAttribute("player_role","OUT"); 
             document.querySelector('info-table').setAttribute("spread_value","N/A");     
             document.querySelector('info-table').setAttribute("num_makers","0"); 
@@ -306,20 +307,24 @@ Socket Actions
             document.querySelector('info-table').setAttribute("curr_ask","N/A");
             document.querySelector('info-table').setAttribute("group_id","{{player.group_id}}");
 
+
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
 
 
             window.setTimeout(function(){
+                Profit_Graph.clear();
+                Spread_Graph.clear();
                 var msg = {
                     type: 'advance_me',
                 };
+                oTreeConstants.end_msg = msg;    
                 if (socketActions.socket.readyState === socketActions.socket.OPEN) {
                     socketActions.socket.send(JSON.stringify(msg));
                 }
-
-                document.querySelector(".overlay").style.opacity = 0.8;
+                document.querySelector(".overlay").style.opacity = 0.9;
                 document.querySelector(".overlay").style.pointerEvents = 'all';
+                document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold;'>End Session, calculating results!</h1>";
             }, oTreeConstants.round_length * 1000);
 
     
