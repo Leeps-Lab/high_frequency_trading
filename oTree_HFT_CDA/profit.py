@@ -5,11 +5,11 @@ class Price_Node:
 
 
 class Price_Log:
-    def __init__(self, length, fundamentalPrice=100000):
+    def __init__(self, length, fundamental_price):
         self.list = []
         self.size = 0
         self.length = length                    
-        self.push(0, fundamentalPrice)                     
+        self.push(0, fundamental_price)                     
 
     def push(self, time, price):
         self.list.append(Price_Node(time, price))
@@ -23,5 +23,6 @@ class Price_Log:
     def getFP(self, timestamp):
         for priceNode in reversed(self.list):
             if priceNode.timestamp <= timestamp:
+                print(priceNode.fp)
                 return priceNode.fp
 

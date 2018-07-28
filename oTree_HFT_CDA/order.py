@@ -137,8 +137,8 @@ class Order:
             replace = self.replace_token
             repl_time = str(self.replace_req_time)
         else:
-            replace = 'n/a'
-            repl_time = 'n/a'
+            replace = 'na'
+            repl_time = 'na'
         price = str(self.price)
         out = (pid + ':' + side + ':' + typ + ':' + state + ':' + price  + ':' +
             replace + ':' + repl_time)
