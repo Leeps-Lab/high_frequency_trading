@@ -65,7 +65,7 @@ otree server will have $num_workers workers.
 $num_markets markets will be trading. "
 
 if [ "$pull" ]; then
-    echo "TODO"
+    git pull origin master
 fi
 
 if [ "$build" ];then
