@@ -1,8 +1,7 @@
-FROM python:3.5-alpine
+FROM python:3.6-alpine
 
 ENV REDIS_URL="redis://redis:6379" \
-    DJANGO_SETTINGS_MODULE="settings" \
-    PIP_NO_BUILD_ISOLATION=false
+    DJANGO_SETTINGS_MODULE="settings"
 
 ADD ./ /opt/otree
 
@@ -11,7 +10,8 @@ RUN apk -U add --no-cache bash \
                           gcc \
                           musl-dev \
                           postgresql \
-                          postgresql-dev \
+                          postgresql-dev \                     
+    && pip install -e /opt/otree/otree-core-hft \                       
     && pip install --no-cache-dir -r /opt/otree/requirements.txt \
     && mkdir -p /opt/init \
     && chmod +x /opt/otree/entrypoint.sh \

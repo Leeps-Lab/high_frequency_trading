@@ -27,11 +27,12 @@ services:
 
   otree:
     build: ./
-  # image: otree:latest
+    image: otree:hft
     environment:
       DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/${POSTGRES_DATABASE}"
       OTREE_ADMIN_PASSWORD: ${OTREE_ADMIN_PASSWORD}
       OTREE_AUTH_LEVEL: ${OTREE_AUTH_LEVEL}
+      NUM_WORKERS: ${NUM_WORKERS}
     ports:
       - ${OTREE_PORT}:80
     volumes:
@@ -60,6 +61,19 @@ services:
     networks:
       - redis-net
 
+  exchanges:
+    build: ./exchange_server/
+    image: exchanges
+    environment:
+      NUM_GROUPS: ${NUM_GROUPS}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    read_only: true
+    networks:
+      - exc-net
 
 volumes:
   database:

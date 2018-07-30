@@ -1,4 +1,4 @@
-#otree>=2.0.27
+# otree===2.0.27
 django-redis==4.9.0
 websocket-client==0.47.0
 numpy==1.13.3

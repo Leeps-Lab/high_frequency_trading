@@ -12,4 +12,6 @@ if [ ! -f "/opt/init/.done" ]; then
 fi
 
 export PYTHONUNBUFFERED=1
-cd /opt/otree && otree runserver 0.0.0.0:80 
+cd /opt/otree && echo "yes" | otree resetdb \
+&& echo "yes" | otree collectstatic \
+&& otree runserver 0.0.0.0:80 --num_workers ${NUM_WORKERS}
