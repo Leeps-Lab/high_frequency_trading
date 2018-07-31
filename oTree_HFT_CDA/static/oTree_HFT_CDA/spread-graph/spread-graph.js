@@ -231,6 +231,7 @@ g{
   }
 
   drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){
+    Spread_Graph.clear();
     var exec_side = "";
     var exec_spread = "";
     var player_id = oTreeConstants.player_id_in_group;
@@ -396,8 +397,13 @@ g{
                     .style("stroke", "yellow")
                     .style("stroke-width", 10)
                     .attr("class", "inv-line");
-            }
-            
+
+                    window.setTimeout(function(){
+                        Spread_Graph.spread_svg.select(".inv-line").remove();
+                        d3.select(".inv-line").remove();
+                    },400);
+            } 
+
             var spread_line_fundamental_price = Spread_Graph.spread_svg.append("svg:line")
                 .attr("x1", 0 + 60)
                 .attr("y1", Spread_Graph.spread_height/2)
@@ -405,11 +411,6 @@ g{
                 .attr("y2", Spread_Graph.spread_height/2)
                 .style("stroke", "grey")
                 .style("stroke-width", 3);
-            if(inv == true){
-                setTimeout(function(){
-                    d3.selectAll(".inv-line").remove();
-                },400);
-            }
   }
 
  addOthersLineAnimation(lines, speed=500, width){

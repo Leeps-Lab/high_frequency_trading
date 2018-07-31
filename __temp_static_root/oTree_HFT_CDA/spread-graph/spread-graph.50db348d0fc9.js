@@ -398,8 +398,7 @@ g{
                     .style("stroke-width", 10)
                     .attr("class", "inv-line");
 
-                    window.setTimeout(function(){
-                        Spread_Graph.spread_svg.select(".inv-line").remove();
+                    setTimeout(function(){
                         d3.select(".inv-line").remove();
                     },400);
             } 

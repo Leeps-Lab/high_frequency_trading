@@ -399,7 +399,7 @@ g{
                     .attr("class", "inv-line");
 
                     window.setTimeout(function(){
-                        Spread_Graph.spread_svg.select(".inv-line").remove();
+                        console.log(Spread_Graph.spread_svg);
                         d3.select(".inv-line").remove();
                     },400);
             } 

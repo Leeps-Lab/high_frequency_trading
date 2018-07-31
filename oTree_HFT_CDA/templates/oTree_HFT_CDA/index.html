@@ -214,7 +214,7 @@ Socket Actions
                     Spread_Graph.spread_lines[key][token] -= parseInt(difference);
                 }
             }
-            setTimeout(function(){
+            window.setTimeout(function(){
                 Spread_Graph.clear();
                 Spread_Graph.drawMySpreadLines({}, 0);
             },500);
