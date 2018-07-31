@@ -81,6 +81,26 @@
     </div>
     <div class="overlay"></div>
 <script>
+    (function(){
+        var Static_Files = {
+            polymer: "/static/oTree_HFT_CDA/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
+            input_section: "/static/oTree_HFT_CDA/input-section/input-section.js",
+            spread_graph: "/static/oTree_HFT_CDA/spread-graph/spread-graph.js",
+            profit_graph: "/static/oTree_HFT_CDA/profit-graph/profit-graph.js",
+            info_table: "/static/oTree_HFT_CDA/info-table/info-table.js"
+        };
+
+        var static_file;
+        for(var key in Static_Files){
+            static_file = Static_Files[key];
+            $.get(static_file)
+                .done(function() { 
+                }).fail(function() { 
+                    location.reload();
+            });
+        }
+        
+    }());
 
 </script>
 {% endblock %}
@@ -94,25 +114,22 @@
     <script type="module" src="{% static 'oTree_HFT_CDA/input-section/input-section.js' %}"></script>
     <script type="module" src="{% static 'oTree_HFT_CDA/spread-graph/spread-graph.js' %}"></script>
     <script type="module" src="{% static 'oTree_HFT_CDA/profit-graph/profit-graph.js' %}"></script>
-    
-    <script type="module" src="{% static 'oTree_HFT_CDA/profit-graph/profit-graph.js' %}"></script>
     <script type="module" src="{% static 'oTree_HFT_CDA/info-table/info-table.js' %}"></script>
     
 <script>
     //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
-    var oTreeConstants ={};
+    var oTreeConstants = {};
 
     //All socket actions are stored in this object to be used in the seperated js files
     var socketActions = {};
 
-    //Graph features defines the features of the profit and spread graph to be used in the corresponding Shadow DOM constructors
-    var Graph_Features = {};
-
-
     var Spread_Graph = {};
 
     var Profit_Graph = {};
+
     var Input_Section = {};
+
+
 (function(){
 /*  
 IMPORTANT:
@@ -171,6 +188,7 @@ Socket Actions
     // Show a connected message when the WebSocket is opened.
     socketActions.socket.onopen = function (event) {
         console.log('Client has connected to django channels');
+        // Also Check if all files exist on the server
     };
 
     // Handle messages sent by the server.
@@ -311,21 +329,22 @@ Socket Actions
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
 
-
-            window.setTimeout(function(){
-                Profit_Graph.clear();
-                Spread_Graph.clear();
-                var msg = {
-                    type: 'advance_me',
-                };
-                oTreeConstants.end_msg = msg;    
-                if (socketActions.socket.readyState === socketActions.socket.OPEN) {
-                    socketActions.socket.send(JSON.stringify(msg));
-                }
-                document.querySelector(".overlay").style.opacity = 0.9;
-                document.querySelector(".overlay").style.pointerEvents = 'all';
-                document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold;'>End Session, calculating results!</h1>";
-            }, oTreeConstants.round_length * 1000);
+            if(oTreeConstants.file_ready == true){
+                window.setTimeout(function(){
+                    Profit_Graph.clear();
+                    Spread_Graph.clear();
+                    var msg = {
+                        type: 'advance_me',
+                    };
+                    oTreeConstants.end_msg = msg;    
+                    if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                        socketActions.socket.send(JSON.stringify(msg));
+                    }
+                    document.querySelector(".overlay").style.opacity = 0.9;
+                    document.querySelector(".overlay").style.pointerEvents = 'all';
+                    document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold;'>End Session, calculating results!</h1>";
+                }, oTreeConstants.round_length * 1000);
+            }
 
     
 
@@ -337,30 +356,31 @@ Socket Actions
         console.log('disconnected from oTree');
     };
 
-    window.setTimeout(function(){
-        console.log("Sending");
 
-        oTreeConstants.group_id = {{group.id}};
-        oTreeConstants.player_id = {{player.id}};
-        oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
-        oTreeConstants.speed_cost = {{Constants.long_delay}};
-        oTreeConstants.max_spread = {{player.max_spread}}; 
-        oTreeConstants.default_spread = {{player.spread}};
-        oTreeConstants.starting_wealth = {{player.profit}};
-        oTreeConstants.startFP = {{player.default_fp}}; 
-        oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
-        oTreeConstants.round_length = {{subsession.round_length}};
-        oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
-        console.log({{player.speed_cost}});
+        window.setTimeout(function(){
+            console.log("Sending");
+            
+            oTreeConstants.group_id = {{group.id}};
+            oTreeConstants.player_id = {{player.id}};
+            oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
+            oTreeConstants.speed_cost = {{Constants.long_delay}};
+            oTreeConstants.max_spread = {{player.max_spread}}; 
+            oTreeConstants.default_spread = {{player.spread}};
+            oTreeConstants.starting_wealth = {{player.profit}};
+            oTreeConstants.startFP = {{player.default_fp}}; 
+            oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
+            oTreeConstants.round_length = {{subsession.round_length}};
+            oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
+            console.log({{player.speed_cost}});
 
-        var msg = {
-            type: 'player_ready',
-        };
-   
-        if (socketActions.socket.readyState === socketActions.socket.OPEN) {
-            socketActions.socket.send(JSON.stringify(msg));
-        }
-    },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
+            var msg = {
+                type: 'player_ready',
+            };
+    
+            if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                socketActions.socket.send(JSON.stringify(msg));
+            }
+        },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
 }());
 
 </script>

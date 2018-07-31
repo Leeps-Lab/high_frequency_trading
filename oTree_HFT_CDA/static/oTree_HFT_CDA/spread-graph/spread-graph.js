@@ -28,7 +28,7 @@ g{
 }
 
 .others_line{
-  stroke:rgb(2, 3, 4);
+  stroke:lightgrey;
   stroke-width:2px;
 }
 
