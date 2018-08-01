@@ -99,6 +99,7 @@
                     location.reload();
             });
         }
+        console.log("All files loaded");
         
     }());
 
@@ -117,20 +118,21 @@
     <script type="module" src="{% static 'oTree_HFT_CDA/info-table/info-table.js' %}"></script>
     
 <script>
-    //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
-    var oTreeConstants = {};
 
-    //All socket actions are stored in this object to be used in the seperated js files
-    var socketActions = {};
+//Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
+let oTreeConstants = {};
 
-    var Spread_Graph = {};
+//All socket actions are stored in this object to be used in the seperated js files
+let socketActions = {};
 
-    var Profit_Graph = {};
+let Spread_Graph = {};
 
-    var Input_Section = {};
+let Profit_Graph = {};
 
+let Input_Section = {};
 
 (function(){
+
 /*  
 IMPORTANT:
 Constant, Player, and Group Information from oTree stored in the oTreeConstants objects
@@ -197,14 +199,18 @@ Socket Actions
 
         var fund_price = document.querySelector('info-table').fp;
         var obj = jQuery.parseJSON(event.data);
+        var spread = document.querySelector("info-table").spread_value;
 
 
         if(obj.FPC != undefined){
-            Spread_Graph.drawMySpreadLines({}, 0, {}, true);
-
-            var difference = fund_price - obj.FPC;
-            document.querySelector('info-table').fp = (obj.FPC*(1e-4)).toFixed(2);
             
+
+            Spread_Graph.drawMySpreadLines({}, 0, {}, true);
+            
+            var difference = fund_price - obj.FPC;
+            var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
+            document.querySelector('info-table').fp = FPCDollarAmount;
+            Spread_Graph.updateBidAndAsk(FPCDollarAmount,spread);
             Spread_Graph.clear();
             Spread_Graph.drawMySpreadLines({}, difference / 10);
             for(var key in Spread_Graph.spread_lines){
@@ -291,7 +297,6 @@ Socket Actions
             }else{
                 Spread_Graph.smallest_spread = false;
             }
-
             Spread_Graph.drawMySpreadLines(obj.SPRCHG);
             
         } else if(obj.SYNC != undefined){

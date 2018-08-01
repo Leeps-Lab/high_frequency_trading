@@ -411,8 +411,7 @@ g{
                 .attr("y2", Spread_Graph.spread_height/2)
                 .style("stroke", "grey")
                 .style("stroke-width", 3);
-                //Updating table values with half the dollar value of the spread given above 
-                Spread_Graph.updateBidAndAsk(document.querySelector("info-table").fp,((my_spread/20000).toFixed(2)));
+                Spread_Graph.updateBidAndAsk(document.querySelector("info-table").fp);
   }
 
  addOthersLineAnimation(lines, speed=500, width){
@@ -480,13 +479,12 @@ g{
       Spread_Graph.spread_svg.selectAll(".others_line").remove();
       Spread_Graph.spread_svg.selectAll("rect").remove();
     }
-    updateBidAndAsk(FPCDollarAmount,spread_value){
+    updateBidAndAsk(FPCDollarAmount){
         console.log(FPCDollarAmount);
         if(document.querySelector("info-table").player_role == "MAKER"){
+            var spread_value = (parseInt(document.querySelector('info-table').spread_value)/2).toFixed(5);
             console.log(spread_value + " Spread value");
-            var sum = +FPCDollarAmount + +spread_value;
-            console.log(sum + " this is sum");
-            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
+            document.querySelector('info-table').curr_bid = parseFloat(FPCDollarAmount + spread_value).toFixed(2);
             document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
         } else {
             document.querySelector('info-table').curr_bid = "N/A";

@@ -107,7 +107,7 @@ g{
     Spread_Graph.drawTransactionBar = this.drawTransactionBar;    
     Spread_Graph.drawSpreadBar = this.drawSpreadBar;
     Spread_Graph.updateSmallest = this.updateSmallest;
-
+    Spread_Graph.updateBidAndAsk = this.updateBidAndAsk;
 
     //Creating the start state
     Spread_Graph.start();
@@ -227,7 +227,7 @@ g{
                 socketActions.socket.send(JSON.stringify(msg));
             }
             // console.log(msg);
-            document.querySelector('info-table').setAttribute('spread_value','+-' + (my_spread / 10000).toFixed(2));
+            document.querySelector('info-table').spread_value = (my_spread / 10000).toFixed(2);
   }
 
   drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){
@@ -411,6 +411,8 @@ g{
                 .attr("y2", Spread_Graph.spread_height/2)
                 .style("stroke", "grey")
                 .style("stroke-width", 3);
+                //Updating table values with half the dollar value of the spread given above 
+                Spread_Graph.updateBidAndAsk(document.querySelector("info-table").fp,((my_spread/20000).toFixed(2)));
   }
 
  addOthersLineAnimation(lines, speed=500, width){
@@ -478,7 +480,19 @@ g{
       Spread_Graph.spread_svg.selectAll(".others_line").remove();
       Spread_Graph.spread_svg.selectAll("rect").remove();
     }
-
+    updateBidAndAsk(FPCDollarAmount,spread_value){
+        console.log(FPCDollarAmount);
+        if(document.querySelector("info-table").player_role == "MAKER"){
+            console.log(spread_value + " Spread value");
+            var sum = +FPCDollarAmount + +spread_value;
+            console.log(sum + " this is sum");
+            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
+            document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
+        } else {
+            document.querySelector('info-table').curr_bid = "N/A";
+            document.querySelector('info-table').curr_ask = "N/A";
+        }
+    }
   }
 
 window.customElements.define('spread-graph', SpreadGraph);

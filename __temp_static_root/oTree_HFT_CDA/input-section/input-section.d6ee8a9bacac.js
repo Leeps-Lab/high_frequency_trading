@@ -195,7 +195,7 @@ border-radius: 50%;
      
      input_object.path[1].querySelector("#out").className = "button-off";
      input_object.path[1].querySelector("#sniper").className = "button-off";
-     document.querySelector('info-table').spread_value = (oTreeConstants.default_spread / 10000).toFixed(2);
+     document.querySelector('info-table').setAttribute('spread_value',(oTreeConstants.default_spread / 10000).toFixed(2));
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      if(this.speed){
      this.speed = !this.speed;

@@ -411,8 +411,8 @@ g{
                 .attr("y2", Spread_Graph.spread_height/2)
                 .style("stroke", "grey")
                 .style("stroke-width", 3);
-                //Updating table values with half the dollar value of the spread given above 
-                Spread_Graph.updateBidAndAsk(document.querySelector("info-table").fp,((my_spread/20000).toFixed(2)));
+            
+                Spread_Graph.updateBidAndAsk(document.querySelector("info-table").fp,((my_spread/10000).toFixed(2)));
   }
 
  addOthersLineAnimation(lines, speed=500, width){

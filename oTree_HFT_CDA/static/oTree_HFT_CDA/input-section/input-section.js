@@ -195,7 +195,7 @@ border-radius: 50%;
      
      input_object.path[1].querySelector("#out").className = "button-off";
      input_object.path[1].querySelector("#sniper").className = "button-off";
-     document.querySelector('info-table').setAttribute('spread_value','+-' + (oTreeConstants.default_spread / 1000).toFixed(2));
+     document.querySelector('info-table').spread_value = (oTreeConstants.default_spread / 10000).toFixed(2);
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      if(this.speed){
      this.speed = !this.speed;
@@ -253,7 +253,7 @@ border-radius: 50%;
        console.log(msg);
      Spread_Graph.clear();
       delete Spread_Graph.spread_lines[oTreeConstants.player_id]
-     document.querySelector('info-table').setAttribute("spread_value","+-0");
+     document.querySelector('info-table').setAttribute("spread_value","0");
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      input_object.path[1].querySelector("#maker").className = "button-off";
      input_object.path[1].querySelector("#out").className = "button-off";
@@ -310,7 +310,7 @@ border-radius: 50%;
      //Turn off Speed if it is on the front end
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      document.querySelector('info-table').setAttribute("speed_cost",0);
-     document.querySelector('info-table').setAttribute("spread_value","+-0");
+     document.querySelector('info-table').setAttribute("spread_value","0");
      if(this.speed){
      this.speed = !this.speed;
     }
