@@ -1,63 +1,8 @@
 {% extends "global/Page.html" %}
 {% load staticfiles otree %}
 {% load staticfiles %}
+
 {% block content %}
-<style>
-    .front_end_controller{
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-color:  rgb(230, 230, 230);
-        top:0;
-        left: 0;
-    }
-    .overlay{
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top:0;
-        left: 0;
-        background-color: grey;
-        opacity: .8; 
-        pointer-events: all;
-    }
-  /*  .row{
-        width:100%;
-        height:100%;
-    }*/
-    .row {
-        padding: 0px;
-        margin: 0px;
-    }
-    spread-graph{
-        width: 20%;
-        height:600px;
-        margin-left:10px;
-        background-color:white;
-    }
-    profit-graph{
-        width:70%; 
-        height:600px; 
-        background-color: white; 
-    }
-    input-section{
-        margin-top:160px;
-        width: 5%;
-        height: 100%;
-        float: left;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        margin-left:10px;
-        align-items: center;
-    }
-    info-table{
-        background-color: rgb(230, 230, 230);
-        width: 100%;
-        height: 150px;
-    }
-</style>
-    
     <!-- front_end_controller defines the whole user interface -->
     <div class="front_end_controller">
         
@@ -81,7 +26,11 @@
     </div>
     <div class="overlay"></div>
 <script>
+    //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
+    let oTreeConstants = {};
+
     (function(){
+
         var Static_Files = {
             polymer: "/static/oTree_HFT_CDA/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
             input_section: "/static/oTree_HFT_CDA/input-section/input-section.js",
@@ -100,10 +49,14 @@
             });
         }
         console.log("All files loaded");
+        oTreeConstants.file_ready = true;
         
     }());
-
 </script>
+{% endblock %}
+
+{% block styles%}
+<link rel="stylesheet" type = "text/css" href="{% static 'oTree_HFT_CDA/index/index.css' %}"/>
 {% endblock %}
 
 {% block scripts %}
@@ -118,10 +71,6 @@
     <script type="module" src="{% static 'oTree_HFT_CDA/info-table/info-table.js' %}"></script>
     
 <script>
-
-//Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
-let oTreeConstants = {};
-
 //All socket actions are stored in this object to be used in the seperated js files
 let socketActions = {};
 
@@ -203,8 +152,6 @@ Socket Actions
 
 
         if(obj.FPC != undefined){
-            
-
             Spread_Graph.drawMySpreadLines({}, 0, {}, true);
             
             var difference = fund_price - obj.FPC;
@@ -333,11 +280,11 @@ Socket Actions
 
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
-
-            if(oTreeConstants.file_ready == true){
+                
                 window.setTimeout(function(){
                     Profit_Graph.clear();
                     Spread_Graph.clear();
+                    oTreeConstants.end_msg = "on";
                     var msg = {
                         type: 'advance_me',
                     };
@@ -349,10 +296,6 @@ Socket Actions
                     document.querySelector(".overlay").style.pointerEvents = 'all';
                     document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold;'>End Session, calculating results!</h1>";
                 }, oTreeConstants.round_length * 1000);
-            }
-
-    
-
         }
     };
 
@@ -362,6 +305,7 @@ Socket Actions
     };
 
 
+    if(oTreeConstants.file_ready == true){
         window.setTimeout(function(){
             console.log("Sending");
             
@@ -376,7 +320,6 @@ Socket Actions
             oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
             oTreeConstants.round_length = {{subsession.round_length}};
             oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
-            console.log({{player.speed_cost}});
 
             var msg = {
                 type: 'player_ready',
@@ -386,6 +329,7 @@ Socket Actions
                 socketActions.socket.send(JSON.stringify(msg));
             }
         },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
+    }
 }());
 
 </script>

@@ -14,21 +14,6 @@ import {html, PolymerElement} from '../node_modules/@polymer/polymer/polymer-ele
 class InfoTable extends PolymerElement {
   static get template() {
     return html`
-<style>
-  table{
-    width:100%;
-    border: rgb(200, 200, 200) 3px solid;
-    text-align:center;
-    table-layout : auto;
-  }
-  td{
-    margin-top:10px; 
-    margin-left:50%;
-  }
-  .bold{
-    font-weight:bold;
-  }
-</style>
         <table>
           <!-- Row 1 of info box -->
           <tr>

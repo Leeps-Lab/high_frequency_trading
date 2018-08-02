@@ -10,66 +10,65 @@ class SpreadGraph extends PolymerElement {
     Spread_Graph.spread_graph_shadow_dom = document.querySelector("spread-graph").shadowRoot;
     //Second we add the HTML neccessary to be manipulated in the constructor and the subsequent functions
     Spread_Graph.spread_graph_shadow_dom.innerHTML = `
-<style>
-    .line {
-        stroke: steelblue;
-        stroke-width: 3.5px;
-        fill: none;
-    }
-    g{
-        color:  grey;
-        stroke-width: 2px;
-        fill: none;
+      <style>
+.line {
+    stroke: steelblue;
+    stroke-width: 3.5px;
+    fill: none;
+}
+g{
+    color:  grey;
+    stroke-width: 2px;
+    fill: none;
 
-    }
-    .my_line{
-    stroke:steelblue;
-    stroke-width:2px;
-    }
+}
+.my_line{
+  stroke:steelblue;
+  stroke-width:2px;
+}
 
-    .others_line{
-    stroke:lightgrey;
-    stroke-width:2px;
-    }
+.others_line{
+  stroke:lightgrey;
+  stroke-width:2px;
+}
 
-    .green_bar{
-    fill:#6edd68;
-    opacity: 0.5;
-    }
+.green_bar{
+  fill:#6edd68;
+  opacity: 0.5;
+}
 
-    .blue_bar{
-    fill:#00ffff;
-    opacity: 0.5;
-    }
+.blue_bar{
+  fill:#00ffff;
+  opacity: 0.5;
+}
 
-    .transaction_bar_light{
-    fill:#00cc00;
-    opacity: 1.0;
-    }
+.transaction_bar_light{
+  fill:#00cc00;
+  opacity: 1.0;
+}
 
-    .transaction_bar_light_green{
-    fill:#00cc00;
-    opacity: 1.0;
-    }
+.transaction_bar_light_green{
+  fill:#00cc00;
+  opacity: 1.0;
+}
 
-    .transaction_bar_light_red{
-    fill:#cc0000;
-    opacity: 1.0;
-    }
+.transaction_bar_light_red{
+  fill:#cc0000;
+  opacity: 1.0;
+}
 
-    .transaction_bar_dark_green{
-    fill:#002900;
-    opacity: 0.5;
-    }
+.transaction_bar_dark_green{
+  fill:#002900;
+  opacity: 0.5;
+}
 
-    .transaction_bar_dark_red{
-    fill:#290000;
-    opacity: 0.5;
-    }
-</style>
-
-<svg id="spread-graph"></svg>
-`;
+.transaction_bar_dark_red{
+  fill:#290000;
+  opacity: 0.5;
+}
+      </style>
+      <svg id="spread-graph"></svg>
+    `;
 
   /*  Spread Constant Information 
      *   oTreeConstants.max_spread = {{Constants.max_spread}}; 

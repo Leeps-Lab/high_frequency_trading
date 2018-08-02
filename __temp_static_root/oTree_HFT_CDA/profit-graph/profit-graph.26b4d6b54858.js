@@ -8,7 +8,7 @@ class ProfitGraph extends PolymerElement {
     super();
     Profit_Graph.shadow_dom = document.querySelector("profit-graph").shadowRoot;
     Profit_Graph.shadow_dom.innerHTML = `
-<style>
+    <style>
     .time-grid-box-dark {
         fill: rgb(211, 211, 211);
     }
@@ -61,9 +61,8 @@ class ProfitGraph extends PolymerElement {
         stroke: red;
         stroke-width: 2;
     }
-</style>
-
-<svg id="profit-graph"></svg>
+    </style>
+      <svg id="profit-graph"></svg>
     `;
 
     /*

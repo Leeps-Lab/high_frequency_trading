@@ -7,117 +7,115 @@ class InputSection extends PolymerElement {
   static get template() {
     return html`
 <style>
-.button-on{
-    background-color:steelblue;
-    border-color: solid black 5px;
-    color:white;
-    border-color: black;
-    border-width: 2px;
-}
+    .button-on{
+        background-color:steelblue;
+        border-color: solid black 5px;
+        color:white;
+        border-color: black;
+        border-width: 2px;
+    }
 
-.button-on-sniper{
-    background-color:orangered;
-    border-color: solid black 5px;
-    color:white;
-    border-color: black;
-    border-width: 2px;
-}
+    .button-on-sniper{
+        background-color:orangered;
+        border-color: solid black 5px;
+        color:white;
+        border-color: black;
+        border-width: 2px;
+    }
 
-.button-pressed{
-    background-color:#444444;
-    color:white;
-}
-.button-off{
-    background-color:#666666;
-    color:white;
-}
-input{
-    margin-left:30px;
-    margin-top:20px;
-}
+    .button-pressed{
+        background-color:#444444;
+        color:white;
+    }
+    .button-off{
+        background-color:#666666;
+        color:white;
+    }
+    input{
+        margin-left:30px;
+        margin-top:20px;
+    }
 
-.button-container{
-    background-color: rgb(230, 230, 230);
-    padding-bottom: 5px;
-    flex: 1 1 auto;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-}
+    .button-container{
+        background-color: rgb(230, 230, 230);
+        padding-bottom: 5px;
+        flex: 1 1 auto;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
 
 
 
-.button-container-speed {
-    background-color: rgb(230, 230, 230);
-    flex: 1 1 auto;
-}
+    .button-container-speed {
+        background-color: rgb(230, 230, 230);
+        flex: 1 1 auto;
+    }
 
-button {
-    border-radius: 8px;
-    font-size: 16px;
-    margin-left:50%;
+    button {
+        border-radius: 8px;
+        font-size: 16px;
+        margin-left:50%;
+    }
 
-}
+    /* The switch - the box around the slider */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
 
-/* The switch - the box around the slider */
-.switch {
-position: relative;
-display: inline-block;
-width: 60px;
-height: 34px;
+    /* Hide default HTML checkbox */
+    .switch input {display:none;}
 
-}
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
 
-/* Hide default HTML checkbox */
-.switch input {display:none;}
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
 
-/* The slider */
-.slider {
-position: absolute;
-cursor: pointer;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background-color: #ccc;
--webkit-transition: .4s;
-transition: .4s;
-}
+    input:checked + .slider {
+        background-color: #1fd15a;
+    }
 
-.slider:before {
-position: absolute;
-content: "";
-height: 26px;
-width: 26px;
-left: 4px;
-bottom: 4px;
-background-color: white;
--webkit-transition: .4s;
-transition: .4s;
-}
+    input:focus + .slider {
+        box-shadow: 0 0 1px #1fd15a;
+    }
 
-input:checked + .slider {
-background-color: #1fd15a;
-}
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
 
-input:focus + .slider {
-box-shadow: 0 0 1px #1fd15a;
-}
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
 
-input:checked + .slider:before {
--webkit-transform: translateX(26px);
--ms-transform: translateX(26px);
-transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-border-radius: 34px;
-}
-
-.slider.round:before {
-border-radius: 50%;
-}
+    .slider.round:before {
+        border-radius: 50%;
+    }
 </style>
     <button id="out" value="out" class="button-on" on-click="outClick" type="button" style="width:80px">Out</button>
 <br>
@@ -199,6 +197,7 @@ border-radius: 50%;
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      if(this.speed){
      this.speed = !this.speed;
+     document.querySelector('info-table').setAttribute("speed_cost","0");
     }
 
   }
@@ -252,13 +251,16 @@ border-radius: 50%;
     }
        console.log(msg);
      Spread_Graph.clear();
-      delete Spread_Graph.spread_lines[oTreeConstants.player_id]
+    delete Spread_Graph.spread_lines[oTreeConstants.player_id]
      document.querySelector('info-table').setAttribute("spread_value","0");
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      input_object.path[1].querySelector("#maker").className = "button-off";
      input_object.path[1].querySelector("#out").className = "button-off";
+     document.querySelector('info-table').setAttribute("curr_bid","N/A");
+     document.querySelector('info-table').setAttribute("curr_ask","N/A");
      if(this.speed){
      this.speed = !this.speed;
+     document.querySelector('info-table').setAttribute("speed_cost","0");
     }
   }
 
@@ -311,8 +313,11 @@ border-radius: 50%;
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      document.querySelector('info-table').setAttribute("speed_cost",0);
      document.querySelector('info-table').setAttribute("spread_value","0");
+     document.querySelector('info-table').setAttribute("curr_bid","N/A");
+     document.querySelector('info-table').setAttribute("curr_ask","N/A");
      if(this.speed){
      this.speed = !this.speed;
+     document.querySelector('info-table').setAttribute("speed_cost","0");
     }
     Spread_Graph.clear();
     delete Spread_Graph.spread_lines[oTreeConstants.player_id]

@@ -8,62 +8,9 @@ class ProfitGraph extends PolymerElement {
     super();
     Profit_Graph.shadow_dom = document.querySelector("profit-graph").shadowRoot;
     Profit_Graph.shadow_dom.innerHTML = `
-<style>
-    .time-grid-box-dark {
-        fill: rgb(211, 211, 211);
-    }
-    
-    .time-grid-line-text {
-        fill: rgb(150, 150, 150);
-        font-size: 10px;
-        -webkit-user-select: none;
-        cursor: default;
-    }
-    
-    .price-grid-line {
-        stroke: rgb(230, 230, 230);
-        stroke-width: 1;
-    }
-    
-    .price-grid-line-zero {
-        stroke: rgb(168, 168, 168);
-        stroke-width: 1;
-    }
-    
-    .price-grid-line-text {
-        fill: rgb(150, 150, 150);
-        font-size: 10px;
-        -webkit-user-select: none;
-        cursor: default;
-    }
-    
-    .my-profit-out {
-        stroke: rgb(110, 110, 110);
-        stroke-width: 3;
-    }
-    
-    .my-profit-snipe {
-        stroke: rgb(200, 79, 34);
-        stroke-width: 3;
-    }
-    
-    .my-profit-maker {
-        stroke: rgb(26, 73, 232);
-        stroke-width: 3;
-    }
-    
-    .my-positive-profit {
-        stroke: green;
-        stroke-width: 2;
-    }
-    
-    .my-negative-profit {
-        stroke: red;
-        stroke-width: 2;
-    }
-</style>
-
-<svg id="profit-graph"></svg>
+    <style>
+    </style>
+      <svg id="profit-graph"></svg>
     `;
 
     /*
