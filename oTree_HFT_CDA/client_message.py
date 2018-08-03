@@ -40,3 +40,10 @@ class ClientMessage:
         value = 0
         msg = {key: value}
         return msg
+
+    @staticmethod
+    def total_role(totals_dict):
+        key = "TOTAL"
+        value = totals_dict
+        msg = {key: value}
+        return msg

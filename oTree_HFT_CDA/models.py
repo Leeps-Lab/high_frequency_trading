@@ -132,16 +132,16 @@ class Subsession(BaseSubsession):
         groups = self.get_groups()
         for g in groups:
             g.disconnect_from_exchange()
-
+    
 
     def groups_ready(self, group_id):
-        k = 'group_stats_' + str(self.id)
-        group_state = cache.get(k)
-        if not group_state:
-            group_state = dict()
-        group_state[group_id] = True
-        cache.set(k, group_state, timeout=None)
-        total = sum(group_state.values())
+        k = 'session_stats_' + str(self.id)
+        session_state = cache.get(k)
+        if not session_state:
+            session_state = dict()
+        session_state[group_id] = True
+        cache.set(k, session_state, timeout=None)
+        total = sum(session_state.values())
         log.info('Session: %d groups ready to start.' % total)
         if total == self.session.num_participants / self.players_per_group:
             log.info('Session: Starting trade, %d.' % self.round_length)
@@ -470,6 +470,8 @@ class Group(BaseGroup):
     def loggy(self):
         hfl.logger.convert()
         hfl.logger.dump()
+
+
     
     # def player_dropped(self, player_id):
     #     k = 'player_states'+ '_' + str(self.id)
@@ -487,6 +489,7 @@ class Group(BaseGroup):
     #             ClientMessage.start_session()
     #         )
             # ali start inv and jump
+
 
 
 
@@ -844,9 +847,12 @@ class Player(BasePlayer):
             'OUT':self._leave_market,
             'SNIPER':self._leave_market,
             'MAKER':self._enter_market
-        }
-        # update player status
+        }         
+        old_state = self.status('state')
         new_state = message['state'].upper()
+        # update dict that keeps totals for roles
+        self.group_stats(old_state, new_state)           
+        # update player status
         self.status_update('state', new_state)
         try:
             log_dict = {
@@ -1360,6 +1366,23 @@ class Player(BasePlayer):
             cache.set(k, status, timeout=None) 
         out = status[field]
         return out
+    
+    def group_stats(self, old_state, new_state):
+        k = 'group_stats_' + str(self.group_id)
+        group_state = cache.get(k)
+        if not group_state:
+            group_state = {
+                'MAKER': 0, 'SNIPER':0, 'OUT':3
+            }
+        group_state[old_state] -= 1
+        group_state[new_state] += 1   
+        cache.set(k, group_state, timeout=None)
+        total = sum(group_state.values())
+        # this is kind of odd to do it here.
+        self.group.broadcast(
+            ClientMessage.total_role(group_state)
+        )
+        assert total == 3
     
     def status_update(self, field, new_state):
         k = str(self.id) + '_status'
