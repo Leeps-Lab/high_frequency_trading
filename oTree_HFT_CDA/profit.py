@@ -1,3 +1,4 @@
+
 class Price_Node:
     def __init__(self, timestamp, fp):
         self.timestamp = timestamp
@@ -23,6 +24,5 @@ class Price_Log:
     def getFP(self, timestamp):
         for priceNode in reversed(self.list):
             if priceNode.timestamp <= timestamp:
-                print(priceNode.fp)
                 return priceNode.fp
 

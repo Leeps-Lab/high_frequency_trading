@@ -1,22 +1,16 @@
-
 import logging
-
+import time
+from . import hft_logging as hfl
 log = logging.getLogger(__name__)
 
-
+author = 'hasan ali demirci'
 class OrderStore:
-
-
     def __init__(self, player_id, id_in_group):
         self.pid = player_id
         self.id_in_group = id_in_group
         self.count = 1
         self.active = dict()
         self.inactive = dict()
-        # self.active = dict()
-        # self.staged = dict()
-        # self.replace = dict()
-        # self.inactive = dict()
 
     def create(self, **kwargs):
         order = Order(self.id_in_group, self.count, **kwargs)
@@ -31,12 +25,13 @@ class OrderStore:
         try:
             out = self.active[token]
         except KeyError:
-            log.info('Order %s: Already inactive.' % token )
             out = False
+            log_dict = {'pid': self.pid, 'token': token}
+            hfl.logger.push(hfl.not_found, **log_dict)
         return out
-        
+  
     def get_all(self, state):
-        return {k:v for k, v in self.active.items() if v.status == state}
+        return [v for v in self.active.values() if v.status == state]
     
     def find_head(self, order):
         """
@@ -46,7 +41,8 @@ class OrderStore:
         while self.is_replacing(new_head):
             new_head = self.find_order(new_head.replace_token)
         if isinstance(new_head, Order):
-            log.debug('Order %s: Head is %s.' % (order.token, new_head.token))
+            l = '%s head is %s.' % (order.token, new_head.token)
+            hfl.logger.push(hfl.order_head, **{ 'pid': self.pid, 'context': l})
         return new_head
 
     def is_replacing(self, order):
@@ -57,14 +53,18 @@ class OrderStore:
 
     def activate(self, time, order):
         order.activate(time)
+        self.active[order.token] = order
+        return order
 
     def cancel(self, time, order):
         order.cancel(time)
         self.inactive[order.token] = order
+        return order
 
     def execute(self, time, order):
         order.execute(time)
         self.inactive[order.token] = order
+        return order
         
 
     # def get_active(self, token):
@@ -86,7 +86,6 @@ class Order:
         self.pid = pid
         self.count = count
         self.price = kwargs['price']
-        self.o_type = kwargs.get('o_type', 'n/a')
         self.side = kwargs['side']
         self.time_in_force = kwargs['time_in_force']
         self.status = kwargs['status']
@@ -102,46 +101,39 @@ class Order:
 
     def activate(self, time):
         if self.time_in_force == 0:
-            self.status = 'sni'
-            log.debug('Order %s: Activated as sniper.' % self.token )
+            self.status = 'SNI'
         else:
-            self.status = 'act'
-            log.debug('Order %s: Activated as maker enter.' % self.token )
+            self.status = 'ACT'
         self.timestamp = time
        
     def to_replace(self, time, replace_token):
         self.replace_requested = True
         self.replace_token = replace_token
         self.replace_req_time = time
-        log.debug('Order %s: Register replace with %s.' % (self.token, self.replace_token))
+ #       log.debug('Order %s: Register replace with %s.' % (self.token, self.replace_token))
     
     # def is_replacing(self):
     #     return self.replace_requested
 
     def cancel(self, time):
-        self.status = 'cnc'
+        self.status = 'XXX'
         self.time_canceled = time
-        log.debug('Order %s is inactive.' % self.token)
+   #     log.debug('Order %s is canceled and inactive.' % self.token)
 
     def execute(self, time):
-        self.status = 'xxx'
+        self.status = 'XXX'
         self.timestamp = time
-        log.debug('Order %s executed and inactive.' % self.token)
+  #      log.debug('Order %s executed and inactive.' % self.token)
+
+    def __eq__(self, other_order):
+        return self.token == other_order.token
 
     def __repr__(self):
-        side = 'buy' if self.side == 'B' else 'sell'
-        pid = str(self.pid)
-        typ = self.o_type.lower()
-        state = self.status
+        replace = 'none'
         if self.replace_requested:
             replace = self.replace_token
-            repl_time = str(self.replace_req_time)
-        else:
-            replace = 'na'
-            repl_time = 'na'
-        price = str(self.price)
-        out = (pid + ':' + side + ':' + typ + ':' + state + ':' + price  + ':' +
-            replace + ':' + repl_time)
+        out = '<Order {}:@{}:{}:{}:{}]>'.format(
+            self.token, self.price, self.status, self.time_in_force, replace)
         return out
             
 

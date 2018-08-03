@@ -46,7 +46,7 @@ def system_start(event_code, timestamp=None):
     # splice in timestamp
     Splice_Into_Array(message, timestamp, 1, 8)
 
-    return message
+    return [[message]]
 
 
 

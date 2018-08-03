@@ -5,6 +5,7 @@ import time
 from twisted.internet.protocol import Protocol, ClientFactory
 import numpy as np
 from twisted.internet import reactor
+from . import hft_logging as hfl
 
 log.startLogging(sys.stdout)
 
@@ -61,16 +62,16 @@ class OUCHConnectionFactory(ClientFactory):
         self.addr = addr
         self.connection = None
 
-    def startedConnecting(self, connector):
-        log.msg('started connecting.')
-
     def buildProtocol(self, addr):
-        log.msg('connecting to exchange server at %s' % addr)
+        l = 'connecting to exchange server at %s' % addr
+        hfl.logger.push(hfl.exchange, **{'context': l})
         self.connection = ClientFactory.buildProtocol(self, addr)
         return self.connection
 
     def clientConnectionLost(self, connector, reason):
-        log.msg('lost connection to exchange at %s: %s' % (self.addr, reason))
+        l = 'lost connection to exchange at %s: %s' % (self.addr, reason)
+        log.msg(l)
+        hfl.logger.push(hfl.exchange, **{'context': l})
 
     def clientConnectionFailed(self, connector, reason):
         log.msg('failed to connect to exchange at %s: %s' %( self.addr, reason))

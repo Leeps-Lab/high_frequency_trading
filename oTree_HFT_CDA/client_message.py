@@ -21,7 +21,7 @@ class ClientMessage:
         return msg 
         
     @staticmethod
-    def fund_p_change(new_price):
+    def fp_change(new_price):
         key = "FPC"
         value = new_price
         msg = {key: value}
