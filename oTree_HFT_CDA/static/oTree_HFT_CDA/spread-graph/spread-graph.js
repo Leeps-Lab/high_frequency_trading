@@ -10,65 +10,66 @@ class SpreadGraph extends PolymerElement {
     Spread_Graph.spread_graph_shadow_dom = document.querySelector("spread-graph").shadowRoot;
     //Second we add the HTML neccessary to be manipulated in the constructor and the subsequent functions
     Spread_Graph.spread_graph_shadow_dom.innerHTML = `
-      <style>
-.line {
-    stroke: steelblue;
-    stroke-width: 3.5px;
-    fill: none;
-}
-g{
-    color:  grey;
-    stroke-width: 2px;
-    fill: none;
+<style>
+    .line {
+        stroke: steelblue;
+        stroke-width: 3.5px;
+        fill: none;
+    }
+    g{
+        color:  grey;
+        stroke-width: 2px;
+        fill: none;
 
-}
-.my_line{
-  stroke:steelblue;
-  stroke-width:2px;
-}
+    }
+    .my_line{
+    stroke:steelblue;
+    stroke-width:2px;
+    }
 
-.others_line{
-  stroke:rgb(2, 3, 4);
-  stroke-width:2px;
-}
+    .others_line{
+    stroke:lightgrey;
+    stroke-width:2px;
+    }
 
-.green_bar{
-  fill:#6edd68;
-  opacity: 0.5;
-}
+    .green_bar{
+    fill:#6edd68;
+    opacity: 0.5;
+    }
 
-.blue_bar{
-  fill:#00ffff;
-  opacity: 0.5;
-}
+    .blue_bar{
+    fill:#00ffff;
+    opacity: 0.5;
+    }
 
-.transaction_bar_light{
-  fill:#00cc00;
-  opacity: 1.0;
-}
+    .transaction_bar_light{
+    fill:#00cc00;
+    opacity: 1.0;
+    }
 
-.transaction_bar_light_green{
-  fill:#00cc00;
-  opacity: 1.0;
-}
+    .transaction_bar_light_green{
+    fill:#00cc00;
+    opacity: 1.0;
+    }
 
-.transaction_bar_light_red{
-  fill:#cc0000;
-  opacity: 1.0;
-}
+    .transaction_bar_light_red{
+    fill:#cc0000;
+    opacity: 1.0;
+    }
 
-.transaction_bar_dark_green{
-  fill:#002900;
-  opacity: 0.5;
-}
+    .transaction_bar_dark_green{
+    fill:#002900;
+    opacity: 0.5;
+    }
 
-.transaction_bar_dark_red{
-  fill:#290000;
-  opacity: 0.5;
-}
-      </style>
-      <svg id="spread-graph"></svg>
-    `;
+    .transaction_bar_dark_red{
+    fill:#290000;
+    opacity: 0.5;
+    }
+</style>
+
+<svg id="spread-graph"></svg>
+`;
 
   /*  Spread Constant Information 
      *   oTreeConstants.max_spread = {{Constants.max_spread}}; 
@@ -107,7 +108,7 @@ g{
     Spread_Graph.drawTransactionBar = this.drawTransactionBar;    
     Spread_Graph.drawSpreadBar = this.drawSpreadBar;
     Spread_Graph.updateSmallest = this.updateSmallest;
-
+    Spread_Graph.updateBidAndAsk = this.updateBidAndAsk;
 
     //Creating the start state
     Spread_Graph.start();
@@ -227,189 +228,194 @@ g{
                 socketActions.socket.send(JSON.stringify(msg));
             }
             // console.log(msg);
-            document.querySelector('info-table').setAttribute('spread_value','+-' + (my_spread / 10000).toFixed(2));
+            document.querySelector('info-table').spread_value = (my_spread / 10000).toFixed(2);
   }
 
   drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){
-    var exec_side = "";
-    var exec_spread = "";
-    var player_id = oTreeConstants.player_id_in_group;
-   
-    for(var key in Spread_Graph.spread_lines){
-      if(key==player_id){
-        var svg_middle_y = Spread_Graph.spread_height/2;
-        var my_spread = parseInt(Spread_Graph.spread_lines[key]["A"] - Spread_Graph.spread_lines[key]["B"]);
-        var money_ratio =  oTreeConstants.max_spread/my_spread;
-        var y_coordinate = svg_middle_y/money_ratio;
-        var lines = []
-        if(exec.player != key || exec.side != "S"){
-          your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
-              .attr("x1", (Spread_Graph.spread_width / 2) - 25)
-              .attr("y1", svg_middle_y - y_coordinate + offset)
-              .attr("x2", (Spread_Graph.spread_width / 2) + 25)
-              .attr("y2", svg_middle_y - y_coordinate + offset)
-              .attr("stroke-width",3)
-              .attr("class","my_line");
-              
-          lines.push(your_spread_line_top);
-        }else if(exec.player == key && exec.side == "S"){
-            exec_side = "S";
-            exec_spread = my_spread;
-        }
-
-        if(exec.player != key || exec.side != "B"){          
-            your_spread_line_bottom = Spread_Graph.spread_svg.append("svg:line")
+    if(oTreeConstants.end_msg == "off"){
+        Spread_Graph.clear();
+        var exec_side = "";
+        var exec_spread = "";
+        var player_id = oTreeConstants.player_id_in_group;
+    
+        for(var key in Spread_Graph.spread_lines){
+        if(key==player_id){
+            var svg_middle_y = Spread_Graph.spread_height/2;
+            var my_spread = parseInt(Spread_Graph.spread_lines[key]["A"] - Spread_Graph.spread_lines[key]["B"]);
+            var money_ratio =  oTreeConstants.max_spread/my_spread;
+            var y_coordinate = svg_middle_y/money_ratio;
+            var lines = []
+            if(exec.player != key || exec.side != "S"){
+            your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
                 .attr("x1", (Spread_Graph.spread_width / 2) - 25)
-                .attr("y1", y_coordinate + svg_middle_y + offset)
+                .attr("y1", svg_middle_y - y_coordinate + offset)
                 .attr("x2", (Spread_Graph.spread_width / 2) + 25)
-                .attr("y2", y_coordinate + svg_middle_y + offset)
+                .attr("y2", svg_middle_y - y_coordinate + offset)
                 .attr("stroke-width",3)
                 .attr("class","my_line");
-            lines.push(your_spread_line_bottom);
-        }else if(exec.player == key && exec.side == "B"){
-            exec_side = "B";
-            exec_spread = my_spread;
-        }
-        var role = document.querySelector('info-table').player_role;
-        if(role == "MAKER"){
-            Spread_Graph.addOthersLineAnimation(lines, 0);
-            Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
-        }
-        if(exec_side != ""){
-            Spread_Graph.drawTransactionBar(exec_spread, svg_middle_y,y_coordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"));
-        }
-      } else {
-        var lines = [];
-        //Where the grey middle line is
-        var svg_middle_y = Spread_Graph.spread_height/2;
-        my_spread = parseInt(Spread_Graph.spread_lines[key]["A"] - Spread_Graph.spread_lines[key]["B"]);
-        money_ratio =  oTreeConstants.max_spread/my_spread;
-        y_coordinate = svg_middle_y/money_ratio;
-        //Ratio between the distance and the mid
-        if(exec.player != key || exec.side != "S"){
-            your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
-                .attr("x1", (Spread_Graph.spread_width / 2) - 15)
-                .attr("y1", svg_middle_y - y_coordinate + offset)
-                .attr("x2", (Spread_Graph.spread_width / 2) + 15)
-                .attr("y2", svg_middle_y - y_coordinate + offset)
-                .attr("stroke-width",1)
-                .attr("class","others_line");
+                
             lines.push(your_spread_line_top);
-        }else if(exec.player == key && exec.side == "S"){
-            exec_side = "S";
-            exec_spread = my_spread;
-        }
-        if(exec.player != key || exec.side != "B"){
-            your_spread_line_bottom = Spread_Graph.spread_svg.append("svg:line")
-                .attr("x1", (Spread_Graph.spread_width / 2) - 15)
-                .attr("y1", y_coordinate + svg_middle_y + offset)
-                .attr("x2", (Spread_Graph.spread_width / 2) + 15)
-                .attr("y2", y_coordinate + svg_middle_y + offset)
-                .attr("stroke-width",1)
-                .attr("class","others_line");
-            lines.push(your_spread_line_bottom);
-        }else if(exec.player == key && exec.side == "B"){
-            exec_side = "B";
-            exec_spread = my_spread;
-        }
-        Spread_Graph.addOthersLineAnimation(lines, 0);
-        if(exec_side != ""){
-            Spread_Graph.drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"));
-        }
-      }
-    }
+            }else if(exec.player == key && exec.side == "S"){
+                exec_side = "S";
+                exec_spread = my_spread;
+            }
 
-    for(var key in newLines){
-                if(key == oTreeConstants.player_id_in_group){
-                    //Where the grey middle line is
-                    svg_middle_y = Spread_Graph.spread_height / 2;
-                    
-                    my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
-                    money_ratio =  oTreeConstants.max_spread/my_spread;
-                    y_coordinate = svg_middle_y/money_ratio;
-                    //Ratio between the distance and the mid
-                    var your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
-                        .attr("x1", Spread_Graph.spread_width)
-                        .attr("y1", svg_middle_y - y_coordinate + offset)
-                        .attr("x2", Spread_Graph.spread_width - 25)
-                        .attr("y2", svg_middle_y - y_coordinate + offset)
-                        .attr("stroke-width",3)
-                        .attr("class","my_line");
-                
-                    var your_spread_line_bottom = Spread_Graph.spread_svg.append("svg:line")
-                        .attr("x1", Spread_Graph.spread_width)
-                        .attr("y1", y_coordinate + svg_middle_y + offset)
-                        .attr("x2", Spread_Graph.spread_width - 25)
-                        .attr("y2", y_coordinate + svg_middle_y + offset)
-                        .attr("stroke-width",3)
-                        .attr("class","my_line");
-                    var role = document.querySelector('info-table').player_role;
-                    if(role == "MAKER"){
-                        if(newLines[key]["TOK"][4] == "B"){
-                            Spread_Graph.addOthersLineAnimation([your_spread_line_bottom], 500, 25);
-                            Spread_Graph.addOthersLineAnimation([your_spread_line_top], 0, 25); 
-                        }else if(newLines[key]["TOK"][4] == "S"){
-                            Spread_Graph.addOthersLineAnimation([your_spread_line_bottom], 0, 25);
-                            Spread_Graph.addOthersLineAnimation([your_spread_line_top], 500, 25); 
-                        }else{
-                            console.log("Unrecognizeable token");
-                        }
-                        Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+            if(exec.player != key || exec.side != "B"){          
+                your_spread_line_bottom = Spread_Graph.spread_svg.append("svg:line")
+                    .attr("x1", (Spread_Graph.spread_width / 2) - 25)
+                    .attr("y1", y_coordinate + svg_middle_y + offset)
+                    .attr("x2", (Spread_Graph.spread_width / 2) + 25)
+                    .attr("y2", y_coordinate + svg_middle_y + offset)
+                    .attr("stroke-width",3)
+                    .attr("class","my_line");
+                lines.push(your_spread_line_bottom);
+            }else if(exec.player == key && exec.side == "B"){
+                exec_side = "B";
+                exec_spread = my_spread;
+            }
+            var role = document.querySelector('info-table').player_role;
+            if(role == "MAKER"){
+                Spread_Graph.addOthersLineAnimation(lines, 0);
+                Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+            }
+            if(exec_side != ""){
+                Spread_Graph.drawTransactionBar(exec_spread, svg_middle_y,y_coordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"));
+            }
+        } else {
+            var lines = [];
+            //Where the grey middle line is
+            var svg_middle_y = Spread_Graph.spread_height/2;
+            my_spread = parseInt(Spread_Graph.spread_lines[key]["A"] - Spread_Graph.spread_lines[key]["B"]);
+            money_ratio =  oTreeConstants.max_spread/my_spread;
+            y_coordinate = svg_middle_y/money_ratio;
+            //Ratio between the distance and the mid
+            if(exec.player != key || exec.side != "S"){
+                your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
+                    .attr("x1", (Spread_Graph.spread_width / 2) - 15)
+                    .attr("y1", svg_middle_y - y_coordinate + offset)
+                    .attr("x2", (Spread_Graph.spread_width / 2) + 15)
+                    .attr("y2", svg_middle_y - y_coordinate + offset)
+                    .attr("stroke-width",1)
+                    .attr("class","others_line");
+                lines.push(your_spread_line_top);
+            }else if(exec.player == key && exec.side == "S"){
+                exec_side = "S";
+                exec_spread = my_spread;
+            }
+            if(exec.player != key || exec.side != "B"){
+                your_spread_line_bottom = Spread_Graph.spread_svg.append("svg:line")
+                    .attr("x1", (Spread_Graph.spread_width / 2) - 15)
+                    .attr("y1", y_coordinate + svg_middle_y + offset)
+                    .attr("x2", (Spread_Graph.spread_width / 2) + 15)
+                    .attr("y2", y_coordinate + svg_middle_y + offset)
+                    .attr("stroke-width",1)
+                    .attr("class","others_line");
+                lines.push(your_spread_line_bottom);
+            }else if(exec.player == key && exec.side == "B"){
+                exec_side = "B";
+                exec_spread = my_spread;
+            }
+            Spread_Graph.addOthersLineAnimation(lines, 0);
+            if(exec_side != ""){
+                Spread_Graph.drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"));
+            }
+        }
+        }
+
+        for(var key in newLines){
+                    if(key == oTreeConstants.player_id_in_group){
+                        //Where the grey middle line is
+                        svg_middle_y = Spread_Graph.spread_height / 2;
                         
-                        // setTimeout(function(d){
-                        //     Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
-                        // }, 500);
-                    }
-                }else{
+                        my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
+                        money_ratio =  oTreeConstants.max_spread/my_spread;
+                        y_coordinate = svg_middle_y/money_ratio;
+                        //Ratio between the distance and the mid
+                        var your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
+                            .attr("x1", Spread_Graph.spread_width)
+                            .attr("y1", svg_middle_y - y_coordinate + offset)
+                            .attr("x2", Spread_Graph.spread_width - 25)
+                            .attr("y2", svg_middle_y - y_coordinate + offset)
+                            .attr("stroke-width",3)
+                            .attr("class","my_line");
+                    
+                        var your_spread_line_bottom = Spread_Graph.spread_svg.append("svg:line")
+                            .attr("x1", Spread_Graph.spread_width)
+                            .attr("y1", y_coordinate + svg_middle_y + offset)
+                            .attr("x2", Spread_Graph.spread_width - 25)
+                            .attr("y2", y_coordinate + svg_middle_y + offset)
+                            .attr("stroke-width",3)
+                            .attr("class","my_line");
+                        var role = document.querySelector('info-table').player_role;
+                        if(role == "MAKER"){
+                            if(newLines[key]["TOK"][4] == "B"){
+                                Spread_Graph.addOthersLineAnimation([your_spread_line_bottom], 500, 25);
+                                Spread_Graph.addOthersLineAnimation([your_spread_line_top], 0, 25); 
+                            }else if(newLines[key]["TOK"][4] == "S"){
+                                Spread_Graph.addOthersLineAnimation([your_spread_line_bottom], 0, 25);
+                                Spread_Graph.addOthersLineAnimation([your_spread_line_top], 500, 25); 
+                            }else{
+                                console.log("Unrecognizeable token");
+                            }
+                            Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+                            
+                            // setTimeout(function(d){
+                            //     Spread_Graph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+                            // }, 500);
+                        }
+                    }else{
 
-                    //Where the grey middle line is
-                    svg_middle_y = Spread_Graph.spread_height/2;
-                    my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
-                    money_ratio =  oTreeConstants.max_spread/my_spread;
-                    y_coordinate = svg_middle_y/money_ratio;
-                   var your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
-                        .attr("x1",Spread_Graph.spread_width)
-                        .attr("y1", svg_middle_y - y_coordinate)
-                        .attr("x2", Spread_Graph.spread_width - 15)
-                        .attr("y2", svg_middle_y - y_coordinate)
-                        .attr("stroke-width",1)
-                        .attr("class","others_line");
-                
-                    var your_spread_line_bottom = Spread_Graph.spread_svg.append("svg:line")
-                        .attr("x1", Spread_Graph.spread_width)
-                        .attr("y1", y_coordinate + svg_middle_y)
-                        .attr("x2", Spread_Graph.spread_width - 15)
-                        .attr("y2", y_coordinate + svg_middle_y)
-                        .attr("stroke-width",1)
-                        .attr("class","others_line");
-                    // for removing when a transation occurs
-                    Spread_Graph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0, 15);
+                        //Where the grey middle line is
+                        svg_middle_y = Spread_Graph.spread_height/2;
+                        my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
+                        money_ratio =  oTreeConstants.max_spread/my_spread;
+                        y_coordinate = svg_middle_y/money_ratio;
+                    var your_spread_line_top = Spread_Graph.spread_svg.append("svg:line")
+                            .attr("x1",Spread_Graph.spread_width)
+                            .attr("y1", svg_middle_y - y_coordinate)
+                            .attr("x2", Spread_Graph.spread_width - 15)
+                            .attr("y2", svg_middle_y - y_coordinate)
+                            .attr("stroke-width",1)
+                            .attr("class","others_line");
+                    
+                        var your_spread_line_bottom = Spread_Graph.spread_svg.append("svg:line")
+                            .attr("x1", Spread_Graph.spread_width)
+                            .attr("y1", y_coordinate + svg_middle_y)
+                            .attr("x2", Spread_Graph.spread_width - 15)
+                            .attr("y2", y_coordinate + svg_middle_y)
+                            .attr("stroke-width",1)
+                            .attr("class","others_line");
+                        // for removing when a transation occurs
+                        Spread_Graph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0, 15);
+                    }
+                    Spread_Graph.spread_lines[key] = newLines[key];
                 }
-                Spread_Graph.spread_lines[key] = newLines[key];
-            }
-            if(inv == true){
-               var spread_line_fundamental_price = Spread_Graph.spread_svg.append("svg:line")
-                    .attr("x1", 0 + 50)
+                if(inv == true){
+                var spread_line_fundamental_price = Spread_Graph.spread_svg.append("svg:line")
+                        .attr("x1", 0 + 50)
+                        .attr("y1", Spread_Graph.spread_height/2)
+                        .attr("x2", Spread_Graph.spread_width - 50)
+                        .attr("y2", Spread_Graph.spread_height/2)
+                        .style("stroke", "yellow")
+                        .style("stroke-width", 10)
+                        .attr("class", "inv-line");
+
+                        window.setTimeout(function(){
+                            Spread_Graph.spread_svg.select(".inv-line").remove();
+                            d3.select(".inv-line").remove();
+                        },400);
+                } 
+
+                var spread_line_fundamental_price = Spread_Graph.spread_svg.append("svg:line")
+                    .attr("x1", 0 + 60)
                     .attr("y1", Spread_Graph.spread_height/2)
-                    .attr("x2", Spread_Graph.spread_width - 50)
+                    .attr("x2", Spread_Graph.spread_width - 60)
                     .attr("y2", Spread_Graph.spread_height/2)
-                    .style("stroke", "yellow")
-                    .style("stroke-width", 10)
-                    .attr("class", "inv-line");
-            }
-            
-            var spread_line_fundamental_price = Spread_Graph.spread_svg.append("svg:line")
-                .attr("x1", 0 + 60)
-                .attr("y1", Spread_Graph.spread_height/2)
-                .attr("x2", Spread_Graph.spread_width - 60)
-                .attr("y2", Spread_Graph.spread_height/2)
-                .style("stroke", "grey")
-                .style("stroke-width", 3);
-            if(inv == true){
-                setTimeout(function(){
-                    d3.selectAll(".inv-line").remove();
-                },400);
-            }
+                    .style("stroke", "grey")
+                    .style("stroke-width", 3);
+                    //Updating table values with half the dollar value of the spread given above 
+                    Spread_Graph.updateBidAndAsk(document.querySelector("info-table").fp,((my_spread/20000).toFixed(2)));
+    }
   }
 
  addOthersLineAnimation(lines, speed=500, width){
@@ -477,7 +483,19 @@ g{
       Spread_Graph.spread_svg.selectAll(".others_line").remove();
       Spread_Graph.spread_svg.selectAll("rect").remove();
     }
-
+    updateBidAndAsk(FPCDollarAmount,spread_value){
+        console.log(FPCDollarAmount);
+        if(document.querySelector("info-table").player_role == "MAKER"){
+            console.log(spread_value + " Spread value");
+            var sum = +FPCDollarAmount + +spread_value;
+            console.log(sum + " this is sum");
+            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
+            document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
+        } else {
+            document.querySelector('info-table').curr_bid = "N/A";
+            document.querySelector('info-table').curr_ask = "N/A";
+        }
+    }
   }
 
 window.customElements.define('spread-graph', SpreadGraph);

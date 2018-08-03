@@ -1,63 +1,8 @@
 {% extends "global/Page.html" %}
 {% load staticfiles otree %}
 {% load staticfiles %}
+
 {% block content %}
-<style>
-    .front_end_controller{
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-color:  rgb(230, 230, 230);
-        top:0;
-        left: 0;
-    }
-    .overlay{
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top:0;
-        left: 0;
-        background-color: grey;
-        opacity: .8; 
-        pointer-events: all;
-    }
-  /*  .row{
-        width:100%;
-        height:100%;
-    }*/
-    .row {
-        padding: 0px;
-        margin: 0px;
-    }
-    spread-graph{
-        width: 20%;
-        height:600px;
-        margin-left:10px;
-        background-color:white;
-    }
-    profit-graph{
-        width:70%; 
-        height:600px; 
-        background-color: white; 
-    }
-    input-section{
-        margin-top:160px;
-        width: 5%;
-        height: 100%;
-        float: left;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        margin-left:10px;
-        align-items: center;
-    }
-    info-table{
-        background-color: rgb(230, 230, 230);
-        width: 100%;
-        height: 150px;
-    }
-</style>
-    
     <!-- front_end_controller defines the whole user interface -->
     <div class="front_end_controller">
         
@@ -81,8 +26,37 @@
     </div>
     <div class="overlay"></div>
 <script>
+    //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
+    let oTreeConstants = {};
 
+    (function(){
+
+        var Static_Files = {
+            polymer: "/static/oTree_HFT_CDA/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
+            input_section: "/static/oTree_HFT_CDA/input-section/input-section.js",
+            spread_graph: "/static/oTree_HFT_CDA/spread-graph/spread-graph.js",
+            profit_graph: "/static/oTree_HFT_CDA/profit-graph/profit-graph.js",
+            info_table: "/static/oTree_HFT_CDA/info-table/info-table.js"
+        };
+
+        var static_file;
+        for(var key in Static_Files){
+            static_file = Static_Files[key];
+            $.get(static_file)
+                .done(function() { 
+                }).fail(function() { 
+                    location.reload();
+            });
+        }
+        console.log("All files loaded");
+        oTreeConstants.file_ready = true;
+        
+    }());
 </script>
+{% endblock %}
+
+{% block styles%}
+<link rel="stylesheet" type = "text/css" href="{% static 'oTree_HFT_CDA/index/index.css' %}"/>
 {% endblock %}
 
 {% block scripts %}
@@ -94,26 +68,20 @@
     <script type="module" src="{% static 'oTree_HFT_CDA/input-section/input-section.js' %}"></script>
     <script type="module" src="{% static 'oTree_HFT_CDA/spread-graph/spread-graph.js' %}"></script>
     <script type="module" src="{% static 'oTree_HFT_CDA/profit-graph/profit-graph.js' %}"></script>
-    
-    <script type="module" src="{% static 'oTree_HFT_CDA/profit-graph/profit-graph.js' %}"></script>
     <script type="module" src="{% static 'oTree_HFT_CDA/info-table/info-table.js' %}"></script>
     
 <script>
-    //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
-    var oTreeConstants ={};
+//All socket actions are stored in this object to be used in the seperated js files
+let socketActions = {};
 
-    //All socket actions are stored in this object to be used in the seperated js files
-    var socketActions = {};
+let Spread_Graph = {};
 
-    //Graph features defines the features of the profit and spread graph to be used in the corresponding Shadow DOM constructors
-    var Graph_Features = {};
+let Profit_Graph = {};
 
+let Input_Section = {};
 
-    var Spread_Graph = {};
-
-    var Profit_Graph = {};
-    var Input_Section = {};
 (function(){
+
 /*  
 IMPORTANT:
 Constant, Player, and Group Information from oTree stored in the oTreeConstants objects
@@ -171,6 +139,7 @@ Socket Actions
     // Show a connected message when the WebSocket is opened.
     socketActions.socket.onopen = function (event) {
         console.log('Client has connected to django channels');
+        // Also Check if all files exist on the server
     };
 
     // Handle messages sent by the server.
@@ -179,14 +148,16 @@ Socket Actions
 
         var fund_price = document.querySelector('info-table').fp;
         var obj = jQuery.parseJSON(event.data);
+        var spread = document.querySelector("info-table").spread_value;
 
 
         if(obj.FPC != undefined){
             Spread_Graph.drawMySpreadLines({}, 0, {}, true);
-
-            var difference = fund_price - obj.FPC;
-            document.querySelector('info-table').fp = (obj.FPC*(1e-4)).toFixed(2);
             
+            var difference = fund_price - obj.FPC;
+            var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
+            document.querySelector('info-table').fp = FPCDollarAmount;
+            Spread_Graph.updateBidAndAsk(FPCDollarAmount,spread);
             Spread_Graph.clear();
             Spread_Graph.drawMySpreadLines({}, difference / 10);
             for(var key in Spread_Graph.spread_lines){
@@ -196,7 +167,7 @@ Socket Actions
                     Spread_Graph.spread_lines[key][token] -= parseInt(difference);
                 }
             }
-            setTimeout(function(){
+            window.setTimeout(function(){
                 Spread_Graph.clear();
                 Spread_Graph.drawMySpreadLines({}, 0);
             },500);
@@ -273,7 +244,6 @@ Socket Actions
             }else{
                 Spread_Graph.smallest_spread = false;
             }
-
             Spread_Graph.drawMySpreadLines(obj.SPRCHG);
             
         } else if(obj.SYNC != undefined){
@@ -310,25 +280,22 @@ Socket Actions
 
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
-
-
-            window.setTimeout(function(){
-                Profit_Graph.clear();
-                Spread_Graph.clear();
-                var msg = {
-                    type: 'advance_me',
-                };
-                oTreeConstants.end_msg = msg;    
-                if (socketActions.socket.readyState === socketActions.socket.OPEN) {
-                    socketActions.socket.send(JSON.stringify(msg));
-                }
-                document.querySelector(".overlay").style.opacity = 0.9;
-                document.querySelector(".overlay").style.pointerEvents = 'all';
-                document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold;'>End Session, calculating results!</h1>";
-            }, oTreeConstants.round_length * 1000);
-
-    
-
+                
+                window.setTimeout(function(){
+                    Profit_Graph.clear();
+                    Spread_Graph.clear();
+                    oTreeConstants.end_msg = "on";
+                    var msg = {
+                        type: 'advance_me',
+                    };
+                    oTreeConstants.end_msg = msg;    
+                    if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                        socketActions.socket.send(JSON.stringify(msg));
+                    }
+                    document.querySelector(".overlay").style.opacity = 0.9;
+                    document.querySelector(".overlay").style.pointerEvents = 'all';
+                    document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold;'>End Session, calculating results!</h1>";
+                }, oTreeConstants.round_length * 1000);
         }
     };
 
@@ -337,30 +304,32 @@ Socket Actions
         console.log('disconnected from oTree');
     };
 
-    window.setTimeout(function(){
-        console.log("Sending");
 
-        oTreeConstants.group_id = {{group.id}};
-        oTreeConstants.player_id = {{player.id}};
-        oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
-        oTreeConstants.speed_cost = {{Constants.long_delay}};
-        oTreeConstants.max_spread = {{player.max_spread}}; 
-        oTreeConstants.default_spread = {{player.spread}};
-        oTreeConstants.starting_wealth = {{player.profit}};
-        oTreeConstants.startFP = {{player.default_fp}}; 
-        oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
-        oTreeConstants.round_length = {{subsession.round_length}};
-        oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
-        console.log({{player.speed_cost}});
+    if(oTreeConstants.file_ready == true){
+        window.setTimeout(function(){
+            console.log("Sending");
+            
+            oTreeConstants.group_id = {{group.id}};
+            oTreeConstants.player_id = {{player.id}};
+            oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
+            oTreeConstants.speed_cost = {{Constants.long_delay}};
+            oTreeConstants.max_spread = {{player.max_spread}}; 
+            oTreeConstants.default_spread = {{player.spread}};
+            oTreeConstants.starting_wealth = {{player.profit}};
+            oTreeConstants.startFP = {{player.default_fp}}; 
+            oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
+            oTreeConstants.round_length = {{subsession.round_length}};
+            oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
 
-        var msg = {
-            type: 'player_ready',
-        };
-   
-        if (socketActions.socket.readyState === socketActions.socket.OPEN) {
-            socketActions.socket.send(JSON.stringify(msg));
-        }
-    },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
+            var msg = {
+                type: 'player_ready',
+            };
+    
+            if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                socketActions.socket.send(JSON.stringify(msg));
+            }
+        },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
+    }
 }());
 
 </script>
