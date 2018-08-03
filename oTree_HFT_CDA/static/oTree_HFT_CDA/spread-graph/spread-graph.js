@@ -484,11 +484,8 @@ class SpreadGraph extends PolymerElement {
       Spread_Graph.spread_svg.selectAll("rect").remove();
     }
     updateBidAndAsk(FPCDollarAmount,spread_value){
-        console.log(FPCDollarAmount);
         if(document.querySelector("info-table").player_role == "MAKER"){
-            console.log(spread_value + " Spread value");
             var sum = +FPCDollarAmount + +spread_value;
-            console.log(sum + " this is sum");
             document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
             document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
         } else {

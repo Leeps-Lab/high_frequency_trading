@@ -98,7 +98,6 @@ Constant, Player, and Group Information from oTree stored in the oTreeConstants 
     oTreeConstants.timeOffset = 0; 
     oTreeConstants.speed_cost = {{player.speed_cost}};
     oTreeConstants.end_msg = "off";
-    
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
@@ -121,7 +120,6 @@ In order for our Shadow DOM Elements to be acessable in javascript we must set t
     document.querySelector("spread-graph").attachShadow({mode: 'open'});
     document.querySelector("profit-graph").attachShadow({mode: 'open'});
     document.querySelector("input-section").attachShadow({mode: 'open'});
-
 
 /*
 Socket Actions
@@ -296,6 +294,14 @@ Socket Actions
                     document.querySelector(".overlay").style.pointerEvents = 'all';
                     document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Session, calculating results!</h1>";
                 }, oTreeConstants.round_length * 1000);
+        } else if(obj.TOTAL != undefined){// PLayer State Change message from the backend
+            console.log(obj.TOTAL);
+            var total_makers = obj.TOTAL.MAKER;
+            var total_snipers = obj.TOTAL.SNIPER;
+            var total_out = obj.TOTAL.OUT;
+            var total_traders = total_makers + total_snipers;
+            document.querySelector("info-table").num_traders = total_traders;
+            document.querySelector("info-table").num_makers = total_makers;
         }
     };
 
