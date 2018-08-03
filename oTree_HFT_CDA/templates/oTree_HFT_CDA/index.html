@@ -98,6 +98,7 @@ Constant, Player, and Group Information from oTree stored in the oTreeConstants 
     oTreeConstants.timeOffset = 0; 
     oTreeConstants.speed_cost = {{player.speed_cost}};
     oTreeConstants.end_msg = "off";
+    
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
@@ -277,7 +278,6 @@ Socket Actions
             document.querySelector('info-table').setAttribute("curr_ask","N/A");
             document.querySelector('info-table').setAttribute("group_id","{{player.group_id}}");
 
-
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
                 
@@ -292,9 +292,9 @@ Socket Actions
                     if (socketActions.socket.readyState === socketActions.socket.OPEN) {
                         socketActions.socket.send(JSON.stringify(msg));
                     }
-                    document.querySelector(".overlay").style.opacity = 0.9;
+                    document.querySelector(".overlay").style.opacity = 0.95;
                     document.querySelector(".overlay").style.pointerEvents = 'all';
-                    document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold;'>End Session, calculating results!</h1>";
+                    document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Session, calculating results!</h1>";
                 }, oTreeConstants.round_length * 1000);
         }
     };
