@@ -1,9 +1,11 @@
 import logging
 import time
-from . import hft_logging as hfl
+from .hft_logging import session_events as hfl
+
 log = logging.getLogger(__name__)
 
 author = 'hasan ali demirci'
+
 class OrderStore:
     def __init__(self, player_id, id_in_group):
         self.pid = player_id
@@ -27,7 +29,7 @@ class OrderStore:
         except KeyError:
             out = False
             log_dict = {'pid': self.pid, 'token': token}
-            hfl.logger.push(hfl.not_found, **log_dict)
+            hfl.events.push(hfl.not_found, **log_dict)
         return out
   
     def get_all(self, state):
@@ -42,7 +44,7 @@ class OrderStore:
             new_head = self.find_order(new_head.replace_token)
         if isinstance(new_head, Order):
             l = '%s head is %s.' % (order.token, new_head.token)
-            hfl.logger.push(hfl.order_head, **{ 'pid': self.pid, 'context': l})
+            hfl.events.push(hfl.order_head, **{ 'pid': self.pid, 'context': l})
         return new_head
 
     def is_replacing(self, order):
@@ -96,7 +98,7 @@ class Order:
         subject = str(chr(self.pid + 64))
         side = str(self.side)
         order_no = str(format(self.count, '09d'))
-        self.token = prefix + subject + side  + order_no
+        self.token = prefix + subject + side + order_no
         self.firm = prefix + subject
 
     def activate(self, time):

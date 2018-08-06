@@ -19,3 +19,5 @@ reset*
 !investors*.csv
 !jumps*.csv
 !__temp_static_root
+channels/
+otree-core-hft/

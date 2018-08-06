@@ -7,9 +7,7 @@ die() {
 
 USAGE="Script to run high frequency experiments in otree.
 Usage: $0 ... [option] [arg] ...
-REQUIRED
 -m  --markets NUM_MARKETS  Number of separete matching engines to run.
-OPTIONAL
 -b  --build    Recreates images.
 -p  --pull     Downloads updates from git repo. Useful if new configs are available.  
 -w  --workers NUM_WORKERS  Number of worker threads to start under main process.
@@ -62,7 +60,7 @@ export NUM_GROUPS="$num_markets"
 
 echo "starting HFT experiment.
 otree server will have $num_workers workers. 
-$num_markets markets will be trading. "
+$num_markets markets. "
 
 if [ "$pull" ]; then
     git pull origin master

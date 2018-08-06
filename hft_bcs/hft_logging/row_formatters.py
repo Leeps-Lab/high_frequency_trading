@@ -1,4 +1,4 @@
-from .utility import nanoseconds_since_midnight as labtime
+from ..utility import nanoseconds_since_midnight as labtime
 import os
 from datetime import datetime
 

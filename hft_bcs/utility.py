@@ -20,7 +20,7 @@ DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 #       be padded with 0's at the higher order
 def Integer_To_Unit8(integer, num_of_bytes=4):
     spliced = np.zeros(num_of_bytes, dtype=np.uint8)
-    for i in range(0,num_of_bytes):
+    for i in range(0, num_of_bytes):
         spliced[i] = np.uint8(np.bitwise_xor(spliced[i],integer))
         integer = integer >> 8
 
@@ -28,7 +28,7 @@ def Integer_To_Unit8(integer, num_of_bytes=4):
     
 def String_To_Unit8(string, num_of_bytes=4):
     spliced = np.zeros(num_of_bytes, dtype=np.uint8)
-    for i in range(0,num_of_bytes):
+    for i in range(0, num_of_bytes):
         try:
             spliced[i] = np.uint8(ord(string[i]))
         except IndexError:

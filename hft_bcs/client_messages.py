@@ -30,7 +30,7 @@ class ClientMessage:
     @staticmethod
     def execution(player_id, token, profit):
         key = "EXEC"
-        value = { "id": player_id, "token": token, "profit": profit  }
+        value = {"id": player_id, "token": token, "profit": profit}
         msg = {key: value}
         return msg
 
@@ -45,5 +45,12 @@ class ClientMessage:
     def total_role(totals_dict):
         key = "TOTAL"
         value = totals_dict
+        msg = {key: value}
+        return msg
+    
+    @staticmethod
+    def batch():
+        key = "BATCH"
+        value = 1
         msg = {key: value}
         return msg

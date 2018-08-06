@@ -1,4 +1,4 @@
-oTree_HFT_CDA
+hft_bcs
 =================
 
 oTree implementation of the High Frequency Trading Experiment using CDA.
