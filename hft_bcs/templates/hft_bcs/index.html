@@ -108,6 +108,7 @@ Graph_Features is an object that stores the features of the profit and spread gr
     Spread_Graph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
     Spread_Graph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
     Spread_Graph.spread_lines = {};
+    Spread_Graph.last_spread =  oTreeConstants.default_spread;
 
     //PROFIT GRAPH
     Profit_Graph.profit_width = document.querySelector("profit-graph").clientWidth;
@@ -215,6 +216,7 @@ Socket Actions
 
                 // process all new spreads  after the zeros have been removed
                 var spread = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"];
+                Spread_Graph.last_spread = spread;
                 if(spread < 0){
                     console.error("Invalid spread calculation from a SPRCHG msg", obj.SPRCHG);
                 }
@@ -279,23 +281,24 @@ Socket Actions
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
                 
-                window.setTimeout(function(){
-                    Profit_Graph.clear();
-                    Spread_Graph.clear();
-                    oTreeConstants.end_msg = "on";
-                    var msg = {
-                        type: 'advance_me',
-                    };
-                    oTreeConstants.end_msg = msg;    
-                    if (socketActions.socket.readyState === socketActions.socket.OPEN) {
-                        socketActions.socket.send(JSON.stringify(msg));
-                    }
-                    document.querySelector(".overlay").style.opacity = 0.95;
-                    document.querySelector(".overlay").style.pointerEvents = 'all';
-                    document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Session, calculating results!</h1>";
-                }, oTreeConstants.round_length * 1000);
-        } else if(obj.TOTAL != undefined){// PLayer State Change message from the backend
-            console.log(obj.TOTAL);
+            window.setTimeout(function(){
+                Profit_Graph.clear();
+                Spread_Graph.clear();
+                oTreeConstants.end_msg = "on";
+                var msg = {
+                    type: 'advance_me',
+                };
+                oTreeConstants.end_msg = msg;    
+                if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                    socketActions.socket.send(JSON.stringify(msg));
+                }
+                document.querySelector(".overlay").style.opacity = 0.95;
+                document.querySelector(".overlay").style.pointerEvents = 'all';
+                document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Session, calculating results!</h1>";
+            }, oTreeConstants.round_length * 1000);
+
+        } else if(obj.TOTAL != undefined){
+            // PLayer State Change message from the backend
             var total_makers = obj.TOTAL.MAKER;
             var total_snipers = obj.TOTAL.SNIPER;
             var total_out = obj.TOTAL.OUT;
