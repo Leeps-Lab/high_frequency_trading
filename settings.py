@@ -51,6 +51,16 @@ DATABASES = {
     )
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+    }
+}
+
 # AUTH_LEVEL:
 # this setting controls which parts of your site are freely accessible,
 # and which are password protected:
@@ -169,8 +179,8 @@ logging.custom_filter = custom_filter
 # configure logging in json style
 
 today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
-filename_soft = 'hft_bcs/hft_logging/logs/' + today + '.csv'
-filename_exp = 'hft_bcs/hft_logging/logs/exos/' + today + '.csv'
+filename_soft = 'hft_bcs/hft_logging/logs/' + today + '.txt'
+filename_exp = 'hft_bcs/hft_logging/logs/exos/' + today + '.txt'
 path = os.path.join(os.getcwd(), )
 
 LOGGING = {

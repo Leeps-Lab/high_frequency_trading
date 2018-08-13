@@ -75,6 +75,7 @@ class ProtocolMessageServer(object):
         while True:
             try:
                 header_bytes = (await client_reader.readexactly(header_size))
+                print(header_bytes)
             except asyncio.IncompleteReadError:
                 log.info('no more messages; connection terminated')
                 break

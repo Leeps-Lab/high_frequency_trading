@@ -186,14 +186,14 @@ def state_update(**kwargs):
     row = base_row(**kwargs)
     row['event'] = 'role change'
     row['player'] = kwargs['pid']
-    row['context'] = 'updating role to {}'.format(kwargs['state'])
+    row['context'] = 'done updating role to {}'.format(kwargs['state'])
     return row
 
 def spread_update(**kwargs):
     row = base_row(**kwargs)
     row['event'] = 'spread change'
     row['player'] = kwargs['pid']
-    row['context'] = 'Updating spread to {}'.format(kwargs['spread'])
+    row['context'] = 'updating spread to {}'.format(kwargs['spread'])
     return row
 
 def speed_update(**kwargs):
@@ -274,10 +274,11 @@ def profit(**kwargs):
     row['player'] = kwargs['pid']
     amount = kwargs['amount']
     profit = kwargs['profit']
+    side = kwargs['side']
     fp = kwargs['fp']
     price = kwargs['p']
-    row['context'] = 'make profit {}. <fp:{}|price:{}> <running profit: {}>'.format(
-        amount, fp, price, profit)
+    row['context'] = 'make profit {}. <fp:{}|price:{}|side:{}> <running profit: {}>'.format(
+        amount, fp, price, side, profit)
     return row
     
 def cost(**kwargs):
@@ -287,7 +288,7 @@ def cost(**kwargs):
     cost = kwargs['cost']
     delta = kwargs['delta']
     unit_cost = kwargs['nanocost']
-    row['context'] = 'take cost {}. <delta:{}|unitcost:{}>'.format(cost, delta, unit_cost)
+    row['context'] = 'take cost {:.2}. <delta:{}|unitcost:{:.2}>'.format(cost, delta, unit_cost)
     return row
 
 def no_orders(**kwargs):

@@ -6,9 +6,8 @@ from twisted.internet.protocol import Protocol, ClientFactory
 import numpy as np
 from twisted.internet import reactor
 from .hft_logging import session_events as hfl
+
 log.startLogging(sys.stdout)
-
-
 class OUCH(Protocol):
 
     def __init__(self):
@@ -20,6 +19,9 @@ class OUCH(Protocol):
         log.msg("Connection made")
       
     def dataReceived(self, data):
+        # TODO: get rid of else ifs.
+        # use some dispatch.
+        # just dont do this ever.
         if data[0] == ord('S'):
             self.bytes_needed.append(10)
         elif data[0] == ord('E'):
@@ -34,6 +36,9 @@ class OUCH(Protocol):
             raise ValueError('Invalid message header {}: {}'.format(chr(data[0]), data))
             
         if len(data) >= self.bytes_needed[0]:
+            # TODO: fix number of buffers.
+            self.buffers.append([])
+            print(data)
             remainder = self.bytes_needed.pop(0)
             self.buffers[0].extend(data[:remainder])
             buf = self.buffers.pop(0)
@@ -43,12 +48,15 @@ class OUCH(Protocol):
         if len(data):
             self.buffers.append([])
             self.dataReceived(data)
-            # self.bytes_needed[0] -= len(data)
+        #     # self.bytes_needed[0] -= len(data)
             # self.buffers[0].push(data)
 
     def sendMessage(self, msg, delay):
         msg = msg.tobytes()
-        self.buffers.append([])
+        # can receive a message back (accepted)
+        # can receive 2 messages (accepted, executed)
+        # can receive 0 (replace dying silently)
+        self.buffers.extend(([], []))
         reactor.callLater(delay, self.transport.write, msg)
 
 
@@ -97,4 +105,3 @@ def connect(group, host, port, wait_for_connection=False):
 def disconnect(group, host, port):
     addr = '{}:{}'.format(host, port)
     exchanges[addr].group = None
-
