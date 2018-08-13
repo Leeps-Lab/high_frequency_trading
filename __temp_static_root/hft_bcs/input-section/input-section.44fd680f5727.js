@@ -261,7 +261,7 @@ class InputSection extends PolymerElement {
        console.log(msg);
      Spread_Graph.clear();
     delete Spread_Graph.spread_lines[oTreeConstants.player_id]
-     document.querySelector('info-table').spread_value = 0;
+     document.querySelector('info-table').setAttribute("spread_value","0");
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      input_object.path[1].querySelector("#maker").className = "button-off";
      input_object.path[1].querySelector("#out").className = "button-off";
