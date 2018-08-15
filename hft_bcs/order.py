@@ -94,12 +94,9 @@ class OrderStore:
     def activate(self, time, order):
         if order.time_in_force != 0:
             order.update(time, 'active')
-            print('enter')
         else:
             order.update(time, 'sniper')
-            print('snipe')
         self.orders[order.token] = order
-        print('activate orderstore: ', self)
         return order
     
     def inactivate(self, order, reason):

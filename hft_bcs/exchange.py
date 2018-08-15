@@ -38,12 +38,14 @@ class OUCH(Protocol):
         if len(data) >= self.bytes_needed[0]:
             # TODO: fix number of buffers.
             self.buffers.append([])
-            print(data)
             remainder = self.bytes_needed.pop(0)
             self.buffers[0].extend(data[:remainder])
             buf = self.buffers.pop(0)
             data = data[remainder:]
-            self.factory.group.receive_from_exchange(bytes(buf))
+            try:
+                self.factory.group.receive_from_exchange(bytes(buf))
+            except AttributeError as e:
+                log.msg(e)
 
         if len(data):
             self.buffers.append([])

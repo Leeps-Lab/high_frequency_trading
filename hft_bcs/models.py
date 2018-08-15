@@ -28,22 +28,13 @@ import redis_lock
 from redis.lock import Lock, LuaLock
 from . import new_translator
 from .decorators import atomic
+from functools import partial
+
+
 log = logging.getLogger(__name__)
 
-author = 'LEEPS Lab UCSC'
-
-doc = """
-Your app description
-"""
-# redo = get_redis_connection("default")
-# lock = redis_lock.Lock(redis_client=redo, name='my_lock')
-# print(redo)
-# # lock = Lock('fia')
-# print(lock)
-# # with lock.acquire() as l:
-# #     print('acq')
-# lock.acquire()
-# lock.release()
+group_atomic = partial(atomic, 'group')
+player_atomic = partial(atomic, 'player')
 
 
 class Constants(BaseConstants):
@@ -70,7 +61,7 @@ def stop_investors(subs):
             try:
                 v.kill()
             except Exception as e:
-                raise e
+                log.info(e)
     else:
         log.warning('No subprocess found.')
 
@@ -230,7 +221,10 @@ class Group(BaseGroup):
         hfl.events.push(hfl.exchange, **log_dict)
 
     def connect_to_exchange(self):
-        exchange.connect(self, self.exch_host, self.exch_port, wait_for_connection=True)
+        try:
+            exchange.connect(self, self.exch_host, self.exch_port, wait_for_connection=True)
+        except ValueError as e:
+            log.warning(e)
         log.info('Group%d: Connected to exchange on port %d' % (self.id, self.exch_port))
 
     def disconnect_from_exchange(self):
@@ -265,7 +259,6 @@ class Group(BaseGroup):
             if event in ['B', 'P']:
                 self.broadcast(client_messages.batch(event=event))
             return
-        print(fields)
         token = fields.get('order_token')
         if token is None:
             token = fields.get('replacement_order_token')
@@ -520,6 +513,7 @@ class Group(BaseGroup):
         #     log.info('Group%d: No slow players.' % self.id)
         # log.info('-----------Jump End---------------')
 
+    @atomic
     def players_in_market(self, player_id):
         k = 'player_states'+ '_' + str(self.id)
         players_in_market = cache.get(k)
@@ -814,6 +808,7 @@ class Player(BasePlayer):
         cancel = {'root': order, 'head': False}
         orderstore = self.order_store()
         order_to_cancel = orderstore.find_head(order)
+        cancel['head'] = order_to_cancel
         if order_to_cancel is False:
             # better log this each time each happens
             # made possible by design tho
@@ -852,7 +847,7 @@ class Player(BasePlayer):
         hfl.events.push(hfl.orders, **orders_log)
         if len(orders) > 2:     # this has to hold if all works properly.
             self.group.loggy()
-            raise Exception('something is not right in the orderstore %s.' % orders)
+            log.warning('more than two enter orders: %s.' % orders)
         return orders
 
     # def orders_in_market(self):
@@ -956,7 +951,7 @@ class Player(BasePlayer):
         except KeyError as e:
             log.info(new_state)
             log.info('Player%d: Invalid state update.' % self.id)
-            raise e
+       #     raise e
         log_dict = {
                 'gid': self.group_id, 'pid': self.id, 'state': new_state
             }
@@ -1119,10 +1114,10 @@ class Player(BasePlayer):
         orderstore operations when confirm
         """
         orderstore = self.order_store()
-        order = orderstore.pop(token)
+        order = orderstore[token]
         if not order:
-            log.info('player %s: %d:%s:%s ' % (self.id, labtime(),stamp, token))
-            raise Exception('order is not in active orders.')
+            log.warning('player %s: order %s not in active orders' % (self.id, labtime(),stamp, token))
+    #        raise Exception('order is not in active orders.')
         self.group.loggy()
         # update order as active
         order = orderstore.activate(stamp, order)
@@ -1165,15 +1160,14 @@ class Player(BasePlayer):
         old_order = orderstore[ptoken]
         new_order = orderstore[token]
         if not old_order:
-            log.info('player %s: %d:%s:%s ' % (self.id, labtime(),ptoken, token))
-            raise Exception('old order: %s is not in active orders.' % old_order)
+            log.warning('player %s: order %s is not in active orders' % (self.id, ptoken))
+   #         raise Exception('old order: %s is not in active orders.' % old_order)
         if not new_order:
-            log.info('player %s: %d:%s:%s ' % (self.id, labtime(),ptoken, token))
-            raise Exception('new order: %s is not in active orders.' % token)
+            log.warning('player %s: order %s is not in active orders.' % (self.id, token))
+  #          raise Exception('new order: %s is not in active orders.' % token)
         self.group.loggy()
         old_order = orderstore.inactivate(old_order, 'replaced')
         new_order = orderstore.activate(stamp, new_order)
-        log.info('player %s: %s saving orderstore.: ' % (self.id, self._confirm_replace.__name__))
         self.save_order_store(orderstore)
         log_dict = {
             'gid': self.group_id, 'pid': self.id,
@@ -1201,7 +1195,8 @@ class Player(BasePlayer):
     def _confirm_cancel(self, stamp, token):
         orderstore = self.order_store()
         order = orderstore[token]
-        assert order
+        if not order:
+            log.warning('player %s : canceled order %s not found in active orders.', token)
         order = orderstore.inactivate(order, 'canceled')
         self.save_order_store(orderstore)
         log_dict = {'gid': self.group_id, 'pid': self.id, 'order': order}
@@ -1474,7 +1469,6 @@ class Player(BasePlayer):
         """
         k = str(self.id) + '_orders'
         cache.set(k, orderstore, timeout=None)
-        print(orderstore)
         
 
     def fp(self):
