@@ -96,6 +96,10 @@ class Subsession(BaseSubsession):
             # g.json = {
             #     "messages": [],
             # }
+            #
+            lock_key = str(self.id) + 'lock'
+            #
+            cache.set(lock_key, 'unlocked', timeout=None)
             first_price = self.session.config['fundamental_price'] * 1e4
             g.fp_push(first_price)
             g.save()
@@ -522,10 +526,11 @@ class Group(BaseGroup):
         players_in_market[player_id] = True
         cache.set(k, players_in_market, timeout=None)
         total = sum(players_in_market.values())
-        log.info('Group%d: %d players are in market.' % (self.id, total))
         if self.subsession.players_per_group == total:
             log.info('Group%d: All players are in market.' % self.id)
             self.subsession.groups_ready(self.id)
+        else:
+            log.info('Group%d: %d players are in market.' % (self.id, total))
 
     def loggy(self):
         hfl.events.convert()
