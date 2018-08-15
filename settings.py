@@ -7,9 +7,9 @@ from datetime import datetime
 import otree.settings
 import yaml
 import augment_configs
-from oTree_HFT_CDA.exp_logging import custom_filter
 
-CHANNEL_ROUTING = 'oTree_HFT_CDA.routing.channel_routing'
+
+CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # the environment variable OTREE_PRODUCTION controls whether Django runs in
@@ -49,6 +49,16 @@ DATABASES = {
         # fall back to SQLite if the DATABASE_URL env var is missing
         default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
     )
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+    }
 }
 
 # AUTH_LEVEL:
@@ -147,11 +157,21 @@ logging.EXP = logging.DEBUG - 5     # define new log level
 
 logging.addLevelName(logging.EXP, 'EXP')
 
+
 def experiment(self, message, *args, **kws):
     """
     sends log record to custom log level
     """
     self.log(logging.EXP, message, *args, **kws) 
+
+# define custom filter to filter out non-lab logs
+
+class custom_filter(object):
+    def __init__(self):
+        self.__level = 5    # lower than DEBUG
+
+    def filter(self, logRecord):
+        return logRecord.levelno == self.__level
 
 logging.Logger.experiment = experiment
 logging.custom_filter = custom_filter
@@ -159,6 +179,9 @@ logging.custom_filter = custom_filter
 # configure logging in json style
 
 today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
+filename_soft = 'hft_bcs/hft_logging/logs/' + today + '.txt'
+filename_exp = 'hft_bcs/hft_logging/logs/exos/' + today + '.txt'
+path = os.path.join(os.getcwd(), )
 
 LOGGING = {
     'version': 1,
@@ -180,7 +203,7 @@ LOGGING = {
 
     'filters': {
         'lablog': {
-            '()': 'oTree_HFT_CDA.exp_logging.custom_filter',
+            '()': custom_filter,
         }
     },
     'handlers': {
@@ -193,24 +216,23 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'level': 'DEBUG',
             'formatter': 'verbose',
-            'filename': os.path.join(os.getcwd(), ('logs/' + today  + '.txt'))
+            'filename': filename_soft,
         },
         'explogfile': {
             'class': 'logging.FileHandler',
             'level': 'EXP',
             'formatter': 'json',
             'filters': ['lablog'],
-            'filename': os.path.join(os.getcwd(), ('logs/exp_' + today + '.txt'))
+            'filename': filename_exp,
         }
     },
     'loggers': {
-        'oTree_HFT_CDA': {
+        'hft_bcs': {
             'handlers': ['console', 'logfile', 'explogfile'],
             'level': 'EXP',
             'propagate': False
         }
-    }
-    
+    }    
 }
 
 
@@ -223,7 +245,7 @@ SESSION_CONFIG_DEFAULTS = {
     'real_world_currency_per_point': 0.00,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
-    'app_sequence': ['oTree_HFT_CDA'],
+    'app_sequence': ['hft_bcs'],
     'exchange_host': '127.0.0.1',
     'speed_cost': 0.01,
     'fundamental_price': 100,
@@ -238,24 +260,24 @@ SESSION_CONFIG_DEFAULTS = {
 
 SESSION_CONFIGS = [
     {
-        'name': 'oTree_HFT_CDA_1',
+        'name': 'hft_bcs_1',
         'display_name': 'Continous Double Auction - 3 Players 1 Group',
         'num_demo_participants': 3,
         'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
         'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
-        'app_sequence': ['oTree_HFT_CDA'],
+        'app_sequence': ['hft_bcs'],
         'players_per_group': 3,
         'session_length': 240,
     },
     {
-        'name': 'oTree_HFT_CDA_2',
+        'name': 'hft_bcs_2',
         'display_name': 'Continous Double Auction - 3 Players 2 Groups',
         'num_demo_participants': 6,
         'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
         'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jump_stest.csv'),
         'investors_group_2': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
         'jumps_group_2': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
-        'app_sequence': ['oTree_HFT_CDA'],
+        'app_sequence': ['hft_bcs'],
         'players_per_group': 3,
         'session_length': 240,
     },

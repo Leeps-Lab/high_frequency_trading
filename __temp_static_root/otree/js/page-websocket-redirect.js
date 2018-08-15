@@ -9,10 +9,6 @@ $(document).ready(function () {
     var socketUrl = $currentScript.data('socketUrl');
     var isBrowserBot = $currentScript.data('isBrowserBot');
     var redirectUrl = $currentScript.data('redirectUrl');
-    console.log(socketUrl);
-    console.log(isBrowserBot);
-    console.log(redirectUrl);
-    console.log($currentScript.data( "lastValue" ));
 
     /*
     One user reported that with a 588 bot session,

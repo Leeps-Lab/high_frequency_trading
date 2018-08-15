@@ -21,7 +21,7 @@ parameters:
   initial-endowment: 20
   initial-spread: 1
   max-spread: 2
-  session-length: 60
+  session-length: 240
   speed-cost: 0.022
 session:
   display_name: CDA Production
