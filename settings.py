@@ -6,7 +6,6 @@ import dj_database_url
 from datetime import datetime
 import otree.settings
 import yaml
-import augment_configs
 from custom_otree_config import BCSConfig
 
 
