@@ -1,6 +1,6 @@
 
 """
-message types to communicate with
+messages to communicate with
 client browsers
 """
 

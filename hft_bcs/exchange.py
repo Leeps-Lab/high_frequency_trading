@@ -24,7 +24,7 @@ class OUCH(Protocol):
         self.buffer = deque()
 
     def connectionMade(self):
-        log.msg('Connection made.')
+        log.msg('connection made.')
       
     def dataReceived(self, data):
         cls = self.__class__
@@ -32,7 +32,7 @@ class OUCH(Protocol):
         try:
             bytes_needed = cls.bytes_needed[header]
         except KeyError:
-             raise ValueError('Unknown header %s.' % header)
+             raise ValueError('unknown header %s.' % header)
 
         if len(data) >= bytes_needed:
             remainder = bytes_needed
@@ -90,7 +90,7 @@ def connect(group, host, port, wait_for_connection=False):
         reactor.connectTCP(host, port, factory)
     else:
         if exchanges[addr].group != group:
-            raise ValueError('Exchange at {} already has a group'.format(addr))
+            raise ValueError('exchange at {} already has a group'.format(addr))
         exchanges[addr].group = group
     while not exchanges[addr].connection and wait_for_connection:
         log.msg('waiting for connection to %s...' % addr)

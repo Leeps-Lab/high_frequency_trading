@@ -7,6 +7,7 @@ from datetime import datetime
 import otree.settings
 import yaml
 import augment_configs
+from custom_otree_config import BCSConfig
 
 
 CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
@@ -255,7 +256,7 @@ SESSION_CONFIG_DEFAULTS = {
     'number_of_groups': 1,
     'players_per_group': 3,
     'max_spread': 1,
-    'doc': '',
+    'doc': ''
 }
 
 SESSION_CONFIGS = [
@@ -274,7 +275,7 @@ SESSION_CONFIGS = [
         'display_name': 'Continous Double Auction - 3 Players 2 Groups',
         'num_demo_participants': 6,
         'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
-        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jump_stest.csv'),
+        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
         'investors_group_2': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
         'jumps_group_2': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
         'app_sequence': ['hft_bcs'],
@@ -283,8 +284,8 @@ SESSION_CONFIGS = [
     },
 ]
 
-SESSION_CONFIGS = augment_configs.augment(SESSION_CONFIGS)
+bcs_configs = BCSConfig.get_all()
+config_fields = [cf.fields for cf in bcs_configs]
+SESSION_CONFIGS.extend(config_fields)
 
-# anything you put after the below line will override
-# oTree's default settings. Use with caution.
 otree.settings.augment_settings(globals())
