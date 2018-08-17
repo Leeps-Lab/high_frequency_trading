@@ -2,8 +2,10 @@ import os
 import logging
 import yaml
 import collect
+import sys
+from twisted.python import log
 
-log = logging.getLogger(__name__)
+log.startLogging(sys.stdout)
 
 class CustomOtreeConfig:
     yaml_map = ()
@@ -25,7 +27,7 @@ class CustomOtreeConfig:
             try:
                 config_value = self.yaml_conf[key_head][key_sub]
             except KeyError:
-                log.info('%s:%s is missing, set to None.' % (key_head, key_sub))
+                log.msg('%s:%s is missing, set to None.' % (key_head, key_sub))
                 config_value = None
             field = {config_key: config_value}
             self.fields.update(field)
@@ -44,7 +46,7 @@ class CustomOtreeConfig:
                 config = False
                 raise e
             else:
-                log.info('reading custom config: %s.' % path)
+                log.msg('reading custom config: %s.' % path)
         return config
     
     @classmethod
@@ -119,7 +121,6 @@ class BCSConfig(CustomOtreeConfig):
     
     def format_session_name(self):
         f = self.fields
-        print(f)
         name = 'HFT_CDA_{}'.format(f['folder'])
         name = name.replace('/', '_')
         self.fields['name'] = name
