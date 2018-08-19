@@ -46,22 +46,22 @@ parametersDict = {'fundamental-price':startingPrice,'max-spread':maxSpread,'init
 demoDict = {'number-of-participants':nGroups*nPlayersPerGroup}
 investorsDict = {}
 jumpsDict = {}
-filesDict = {'dir':'session_config','folder':dateStr+'/Period1/','investors':investorsDict,'jumps':jumpsDict}
+directoryDict = {}
 for ix,period in enumerate(range(1,nPeriods+1)):
     sessionDict = {'session_name': dateStr+'_'+exchangeType+'_period_'+str(period),'display_name':'CDA Production'}
     speedCost = speedCostList[ix]
     parametersDict['speed-cost'] = speedCost
-    filesDict['folder']  = filePath+'Period'+str(period)+'/'
-    if os.path.isdir(filesDict['folder'])==False:
-        os.mkdir(filesDict['folder'])
+    directoryDict['folder']  = filePath+'Period'+str(period)+'/'
+    if os.path.isdir(directoryDict['folder'])==False:
+        os.mkdir(directoryDict['folder'])
     for group in range(1,nGroups+1):
         marketEventsURL = configURLRoot+"Period"+str(period)+"/investors_period"+str(period)+"_group"+str(group)+".csv"
         priceChangesURL = configURLRoot+"Period"+str(period)+"/jumps_period"+str(period)+"_group"+str(group)+".csv"
         investorsDict['group_'+str(group)] = marketEventsURL
         jumpsDict['group_'+str(group)] = priceChangesURL
-    outputDict = {'session':sessionDict, 'market':marketDict,'group':groupDict,
-                  'parameters':parametersDict,'files':filesDict, 'demo':demoDict}
-    fileName = filesDict['folder']+dateStr+'_'+exchangeType+'_'+str(experimentLengthSeconds)+'s_'+str(nGroups)+'groups_'+str(nPlayersPerGroup)+'players_period'+str(period)+'.yaml'
+    outputDict = {'session':sessionDict, 'market':marketDict,'group':groupDict, 'investors':investorsDict,
+                  'jumps':jumpsDict, 'parameters':parametersDict,'directory':directoryDict, 'demo':demoDict}
+    fileName = directoryDict['folder']+dateStr+'_'+exchangeType+'_'+str(experimentLengthSeconds)+'s_'+str(nGroups)+'groups_'+str(nPlayersPerGroup)+'players_period'+str(period)+'.yaml'
     with open(fileName, 'w') as outfile:
         yaml.dump(outputDict, outfile, default_flow_style=False)
         os.system('cp '+fileName+' session_configs/')
