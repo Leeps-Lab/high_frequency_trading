@@ -249,12 +249,12 @@ SESSION_CONFIG_DEFAULTS = {
     'exchange_host': '127.0.0.1',
     'speed_cost': 0.01,
     'fundamental_price': 100,
-    'initial_spread': 2,
+    'initial_spread': 1,
     'initial_endowment': 20,
     'session_length': 240, 
     'number_of_groups': 1,
     'players_per_group': 3,
-    'max_spread': 1,
+    'max_spread': 2,
     'doc': ''
 }
 
@@ -269,6 +269,7 @@ SESSION_CONFIGS = [
         'players_per_group': 3,
         'session_length': 240,
         'design': 'CDA',
+        'group_matrix': [[1,2,3]],
         'batch_length': None
     },
     {
