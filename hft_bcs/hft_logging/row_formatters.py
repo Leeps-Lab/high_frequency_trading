@@ -164,7 +164,7 @@ def order_count(**kwargs):
     row['player'] = kwargs['pid']
     act_count = kwargs['act_count']
     s_count = kwargs.get('stg_count', 0)
-    row['context'] = 'orders counts: < active:{}|staged:{} >'.format(act_count, s_count)
+    row['context'] = 'orders count: < active:{}|staged:{} >'.format(act_count, s_count)
     return row
 
 def orders(**kwargs):

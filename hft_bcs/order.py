@@ -3,7 +3,6 @@ import time
 from .hft_logging import session_events as hfl
 import itertools
 from .utility import nanoseconds_since_midnight as labtime
-from collections import namedtuple
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +50,14 @@ class OrderStore:
         order_count = len(alles)
         return order_count
     
+    def counts(self):
+        cls = self.__class__
+        counts = {}
+        for status in cls.enter_status:
+            count = len(self.all_status(status))
+            counts[status] = count
+        return counts
+
     def __format__(self, spec='count'):
         cls = self.__class__
         out = ''

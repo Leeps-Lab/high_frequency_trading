@@ -1,5 +1,6 @@
 # revised for pep-8
 # august 4th 2018
+# TODO: implement __format__
 
 class Price_Node:
     def __init__(self, timestamp, fp):

@@ -268,6 +268,8 @@ SESSION_CONFIGS = [
         'app_sequence': ['hft_bcs'],
         'players_per_group': 3,
         'session_length': 240,
+        'design': 'CDA',
+        'batch_length': None
     },
     {
         'name': 'hft_bcs_2',
@@ -280,6 +282,8 @@ SESSION_CONFIGS = [
         'app_sequence': ['hft_bcs'],
         'players_per_group': 3,
         'session_length': 240,
+        'design': 'CDA',
+        'batch_length': None
     },
 ]
 

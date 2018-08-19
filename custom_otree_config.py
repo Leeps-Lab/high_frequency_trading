@@ -35,6 +35,8 @@ class CustomOtreeConfig:
         self.read_csv()
         self.format_display_name()
         self.format_session_name()
+        if hasattr(self, 'read_group_matrix'):
+            self.read_group_matrix()
 
     def read(self, filename):
         cls = self.__class__
@@ -48,6 +50,7 @@ class CustomOtreeConfig:
             else:
                 log.msg('reading custom config: %s.' % path)
         return config
+
     
     @classmethod
     def get_all(cls):
@@ -102,6 +105,7 @@ class BCSConfig(CustomOtreeConfig):
         ('max_spread', ('parameters', 'max-spread')),
         ('initial_endowment', ('parameters', 'initial-endowment')),
         ('session_length', ('parameters', 'session-length')),
+        ('group_matrix', ('group', 'group-assignments')),
         ('batch_length', ('parameters', 'batch-length')),
         # field below is mandatory
         # has to be last field in the map.
@@ -121,8 +125,14 @@ class BCSConfig(CustomOtreeConfig):
     
     def format_session_name(self):
         f = self.fields
-        name = 'HFT_CDA_{}'.format(f['folder'])
+        name = 'HFT_CDA_{}_{}'.format(f['design'], f['folder'])
         name = name.replace('/', '_')
         self.fields['name'] = name
 
-
+    def read_group_matrix(self):
+        f = self.fields
+        string_matrix = f['group_matrix']
+        group_matrix = eval(string_matrix)
+        f['group_matrix'] = group_matrix
+        self.fields = f
+        

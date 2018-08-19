@@ -100,4 +100,5 @@ def connect(group, host, port, wait_for_connection=False):
 
 def disconnect(group, host, port):
     addr = '{}:{}'.format(host, port)
+    exchanges[addr].connection.transport.loseConnection()
     exchanges[addr].group = None
