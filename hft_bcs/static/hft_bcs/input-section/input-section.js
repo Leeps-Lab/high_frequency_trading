@@ -127,10 +127,10 @@ class InputSection extends PolymerElement {
       <p style="text-align: center; font-size:16px; margin-left: 50%; margin-top:40px;">Speed</p>
 <label class="switch" style="margin-left: 50%; margin-top: -10px;" >
           <br>
-          <input id="speed_checkbox" type="checkbox" on-click="updatespeed">
+          <input id="speed_checkbox" type="checkbox" on-click="updateSpeed">
           <span class="slider round"></span>
 </label>
-
+<br>
     `;
   }
 
@@ -148,8 +148,13 @@ class InputSection extends PolymerElement {
     this.socket = socketActions.socket;
     //Start as speed false
     this.speed = false;
-    Input_Section.Button_Pressed = this.Button_Pressed;
-
+    inputSection.shadow_dom =  document.querySelector("input-section").shadowRoot;
+    inputSection.shadow_dom_D3 = d3.select(inputSection.shadow_dom);
+    //inputSection.shadow_dom_D3
+    console.log(inputSection.shadow_dom_D3);
+    console.log("THIs hee");
+    inputSection.Button_Pressed = this.Button_Pressed;
+    inputSection.startBatchTimer = this.startBatchTimer;
   }
 
   makerClick(input_object){
@@ -163,27 +168,27 @@ class InputSection extends PolymerElement {
         * the querySelector can then access each input and we can */
         input_object.path[0].className = "button-pressed";
 
-        var timeNow = Profit_Graph.getTime() - oTreeConstants.timeOffset;
-            Profit_Graph.profitSegments.push(
+        var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
+            profitGraph.profitSegments.push(
                 {
                     startTime:timeNow,
                     endTime:timeNow, 
-                    startProfit:Profit_Graph.profit, 
-                    endProfit:Profit_Graph.profit,
+                    startProfit:profitGraph.profit, 
+                    endProfit:profitGraph.profit,
                     state:"MAKER"
                 }
             );
 
         var msg = {
             type: 'role_change',
-            id: oTreeConstants.player_id ,
-            id_in_group: oTreeConstants.player_id_in_group,
+            id: otreeConstants.playerID ,
+            id_in_group: otreeConstants.playerIDInGroup,
             state: "MAKER"
         };
         var speed_msg = {
             type: 'speed_change',
-            id: oTreeConstants.player_id ,
-            id_in_group: oTreeConstants.player_id_in_group,
+            id: otreeConstants.playerID ,
+            id_in_group: otreeConstants.playerIDInGroup,
             speed: false 
         };
 
@@ -202,7 +207,7 @@ class InputSection extends PolymerElement {
      
      input_object.path[1].querySelector("#out").className = "button-off";
      input_object.path[1].querySelector("#sniper").className = "button-off";
-     document.querySelector('info-table').spread_value = (Spread_Graph.last_spread / 10000).toFixed(2);
+     document.querySelector('info-table').spread_value = (spreadGraph.last_spread / 10000).toFixed(2);
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      if(this.speed){
      this.speed = !this.speed;
@@ -224,27 +229,27 @@ class InputSection extends PolymerElement {
 
         input_object.path[0].className = "button-pressed";
 
-        var timeNow = Profit_Graph.getTime() - oTreeConstants.timeOffset;
-            Profit_Graph.profitSegments.push(
+        var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
+            profitGraph.profitSegments.push(
                 {
                     startTime:timeNow,
                     endTime:timeNow, 
-                    startProfit:Profit_Graph.profit, 
-                    endProfit:Profit_Graph.profit,
+                    startProfit:profitGraph.profit, 
+                    endProfit:profitGraph.profit,
                     state:"SNIPER"
                 }
             );
 
         var msg = {
             type: 'role_change',
-            id: oTreeConstants.player_id ,
-            id_in_group: oTreeConstants.player_id_in_group,
+            id: otreeConstants.playerID ,
+            id_in_group: otreeConstants.playerIDInGroup,
             state: "SNIPER"
         };
         var speed_msg = {
               type: 'speed_change',
-              id: oTreeConstants.player_id ,
-              id_in_group: oTreeConstants.player_id_in_group,
+              id: otreeConstants.playerID ,
+              id_in_group: otreeConstants.playerIDInGroup,
               speed: false 
           };
         if (this.socket.readyState === this.socket.OPEN) {
@@ -259,8 +264,8 @@ class InputSection extends PolymerElement {
        document.querySelector('info-table').setAttribute("player_role","SNIPER"); 
     }
        console.log(msg);
-     Spread_Graph.clear();
-    delete Spread_Graph.spread_lines[oTreeConstants.player_id]
+    spreadGraph.clear();
+    delete spreadGraph.spread_lines[otreeConstants.playerID]
      document.querySelector('info-table').spread_value = 0;
      input_object.path[1].querySelector("#speed_checkbox").checked = false;
      input_object.path[1].querySelector("#maker").className = "button-off";
@@ -282,27 +287,27 @@ class InputSection extends PolymerElement {
         * input_object.path[1] is the actual input-selection element (Shadow DOM that we create using Polymer 3.0), once we access this -
         * the querySelector can then access each input and we can */
         input_object.path[0].className = "button-on";
-        var timeNow = Profit_Graph.getTime() - oTreeConstants.timeOffset;
+        var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
 
-        Profit_Graph.profitSegments.push(
+        profitGraph.profitSegments.push(
                 {
                     startTime:timeNow,
                     endTime:timeNow, 
-                    startProfit:Profit_Graph.profit, 
-                    endProfit:Profit_Graph.profit,
+                    startProfit:profitGraph.profit, 
+                    endProfit:profitGraph.profit,
                     state:"OUT"
                 }
             );
         var msg = {
             type: 'role_change',
-            id: oTreeConstants.player_id ,
-            id_in_group: oTreeConstants.player_id_in_group,
+            id: otreeConstants.playerID ,
+            id_in_group: otreeConstants.playerIDInGroup,
             state: "Out"
         };
         var speed_msg = {
               type: 'speed_change',
-              id: oTreeConstants.player_id ,
-              id_in_group: oTreeConstants.player_id_in_group,
+              id: otreeConstants.playerID ,
+              id_in_group: otreeConstants.playerIDInGroup,
               speed: this.speed 
           };
 
@@ -328,8 +333,8 @@ class InputSection extends PolymerElement {
      this.speed = !this.speed;
      document.querySelector('info-table').setAttribute("speed_cost","0");
     }
-    Spread_Graph.clear();
-    delete Spread_Graph.spread_lines[oTreeConstants.player_id]
+    spreadGraph.clear();
+    delete spreadGraph.spread_lines[otreeConstants.playerID]
   }
 
    Button_Pressed(input_object){
@@ -347,31 +352,32 @@ class InputSection extends PolymerElement {
         }
 
     }
-    updatespeed(input_object){
+
+    updateSpeed(input_object){
       if(document.querySelector('info-table').getAttribute("player_role") != "OUT"){
           //If you arent out you can turn your speed on
 
           this.speed = !this.speed;
           if(this.speed){
-              document.querySelector('info-table').setAttribute("speed_cost",(oTreeConstants.speed_cost * (1e-4) * (1e9)).toFixed(3));
+              document.querySelector('info-table').setAttribute("speed_cost",(otreeConstants.speedCost * (1e-4) * (1e9)).toFixed(3));
           }else {
               document.querySelector('info-table').setAttribute("speed_cost",0);
           }
-        var timeNow = Profit_Graph.getTime() - Profit_Graph.timeOffset;
-        Profit_Graph.profitSegments.push(
+        var timeNow = profitGraph.getTime() - profitGraph.timeOffset;
+        profitGraph.profitSegments.push(
             {
                 startTime:timeNow,
                 endTime:timeNow, 
-                startProfit:Profit_Graph.profit, 
-                endProfit:Profit_Graph.profit,
+                startProfit:profitGraph.profit, 
+                endProfit:profitGraph.profit,
                 state:document.querySelector('info-table').player_role
             }
         );
 
           var msg = {
               type: 'speed_change',
-              id: oTreeConstants.player_id ,
-              id_in_group: oTreeConstants.player_id_in_group,
+              id: otreeConstants.playerID ,
+              id_in_group: otreeConstants.playerIDInGroup,
               speed: this.speed
           };
 
@@ -382,7 +388,6 @@ class InputSection extends PolymerElement {
       } else {
          input_object.path[0].checked = false;
       }
-
     }
 }
 window.customElements.define('input-section', InputSection);
