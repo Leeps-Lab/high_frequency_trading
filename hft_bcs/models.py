@@ -1043,8 +1043,8 @@ class Investor(Model):
     def invest(self, side):
         p = (2147483647 if side == 'B' else 0)
         order = Order(
-            pid= 0, count=self.order_count, status='s', 
-            side=side, price=p, time_in_force=0
+            pid= 0, count=self.order_count, status='stage', 
+            side=side, price=p, time_in_force=self.group.subsession.batch_length  # LOL
         )
         ouch = [translate.enter(order)]
         self.group.send_exchange([ouch])   # send exchange expects list of lists
