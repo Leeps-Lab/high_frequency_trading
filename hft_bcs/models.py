@@ -101,8 +101,6 @@ class Subsession(BaseSubsession):
         # set session fields
         for k, v in Constants.session_field_map.items():
             setattr(self, k, self.session.config[v])
-        print(self.design)
-        print(self.batch_length)
         lock_key = Constants.lock_key.format(self=self)
         cache.set(lock_key, 'unlocked', timeout=None)
         group_matrix = self.session.config['group_matrix']
