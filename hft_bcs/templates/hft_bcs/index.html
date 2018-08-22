@@ -100,8 +100,7 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.speedCost = {{player.speed_cost}};
     otreeConstants.endMsg = "off";
     otreeConstants.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
-    otreeConstants.design = {{subsession.design}}; //Design Variable to be pulled from the backend
-    console.log(otreeConstants.design)
+    otreeConstants.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
     otreeConstants.CDA = false; //Continuous Double Auction
     otreeConstants.FBA = false; //Frequent Batch Auction
     otreeConstants.FBAGraph = false;  //Turns to true when first batch comes in for FBA and the profit graph begins 
