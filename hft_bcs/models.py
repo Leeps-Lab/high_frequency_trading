@@ -93,7 +93,7 @@ class Subsession(BaseSubsession):
     next_available_exchange = models.IntegerField(initial=Constants.first_exchange_port)
     players_per_group = models.IntegerField()
     round_length = models.IntegerField()
-    batch_length = models.IntegerField()
+    batch_length = models.IntegerField(initial=0)
     trade_ended = models.BooleanField(initial=False)
     code = models.CharField(default=random_chars_8)
 
@@ -101,6 +101,8 @@ class Subsession(BaseSubsession):
         # set session fields
         for k, v in Constants.session_field_map.items():
             setattr(self, k, self.session.config[v])
+        print(self.design)
+        print(self.batch_length)
         lock_key = Constants.lock_key.format(self=self)
         cache.set(lock_key, 'unlocked', timeout=None)
         group_matrix = self.session.config['group_matrix']
@@ -1021,7 +1023,8 @@ class Player(BasePlayer):
         self.group.broadcast(
             client_messages.total_role(group_state)
         )
-        assert total == self.subsession.players_per_group
+        if total != self.subsession.players_per_group:
+            raise ValueError('total: %d, ppg: %d' % (total, ppg))
 
     def status_update(self, field, new_state):
         k = Constants.player_status_key.format(self=self)

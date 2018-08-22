@@ -13,7 +13,7 @@ group:
   number-of-groups: 2
   players-per-group: 6
 market:
-  design: CDA
+  design: "CDA"
   matching-engine-host: "127.0.0.1"
 parameters:
   fundamental-price: 100
@@ -22,6 +22,7 @@ parameters:
   max-spread: 2
   session-length: 120
   speed-cost: 0.022
+  batch-length: 0
 session:
-  display_name: CDA Production
+  display_name: FBA Production
   session_name: 20180723_cda_period_1

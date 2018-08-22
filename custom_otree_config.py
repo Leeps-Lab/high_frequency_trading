@@ -125,7 +125,7 @@ class BCSConfig(CustomOtreeConfig):
     
     def format_session_name(self):
         f = self.fields
-        name = 'HFT_CDA_{}_{}'.format(f['design'], f['folder'])
+        name = 'HFT_{}_{}'.format(f['design'], f['folder'])
         name = name.replace('/', '_')
         self.fields['name'] = name
 
