@@ -267,7 +267,7 @@ SESSION_CONFIGS = [
         'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
         'app_sequence': ['hft_bcs'],
         'players_per_group': 3,
-        'session_length': 240,
+        'session_length': 20,
         'design': 'CDA',
         'group_matrix': [[1,2,3]],
         'batch_length': None

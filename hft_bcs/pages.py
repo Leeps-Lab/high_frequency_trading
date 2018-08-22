@@ -29,12 +29,12 @@ class index(Page):
     pass
 
 
-
 class ResultsWaitPage(WaitPage):
+    pass
 
-    def after_all_players_arrive(self):
-        self.group.disconnect_from_exchange()
-        #  cache.clear()    #   this will go somewhere here dont forget !!
+    # def after_all_players_arrive(self):
+    #     self.group.disconnect_from_exchange()
+    #     #  cache.clear()    #   this will go somewhere here dont forget !!
 
 class Results(Page):
     
