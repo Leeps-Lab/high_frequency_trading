@@ -50,6 +50,7 @@ class Constants(BaseConstants):
     player_status_key = '{self.code}_status'
     groups_ready_key = '{self.code}_ready'
     players_in_market_key  = '{self.code}_in_market'
+    state_count_key = '{self.code}_states'
 
     investor_url = 'ws://127.0.0.1:8000/hft_investor/'
     jump_url = 'ws://127.0.0.1:8000/hft_jump/'
@@ -385,6 +386,25 @@ class Group(BaseGroup):
             self.subsession.groups_ready(self.id)
         else:
             log.info('Group%d: %d players are in market.' % (self.id, total))
+    
+    @atomic
+    def group_stats(self, old_state, new_state):
+        k = Constants.state_count_key.format(self=self)
+        group_state = cache.get(k)
+        ppg = self.subsession.players_per_group
+        if not group_state:
+            group_state = {
+                'MAKER': 0, 'SNIPER':0, 'OUT': ppg
+            }
+        group_state[old_state] -= 1
+        group_state[new_state] += 1
+        cache.set(k, group_state, timeout=None)
+        total = sum(group_state.values())
+        self.broadcast(
+            client_messages.total_role(group_state)
+        )
+        if total != ppg:
+            raise ValueError('total: %d, ppg: %d' % (total, ppg))
 
     def loggy(self):
         hfl.events.convert()
@@ -586,7 +606,6 @@ class Player(BasePlayer):
         old_state = self.status('state')
         new_state = message['state'].upper()
         # update dict that keeps totals for roles
-        self.group_stats(old_state, new_state)
         # update player status
         self.status_update('state', new_state)
         try:
@@ -596,6 +615,7 @@ class Player(BasePlayer):
             log.info(new_state)
             log.info('Player%d: Invalid state update.' % self.id)
        #     raise e
+        self.group.group_stats(old_state, new_state)
         log_dict = {
                 'gid': self.group_id, 'pid': self.id, 'state': new_state
             }
@@ -1005,24 +1025,6 @@ class Player(BasePlayer):
             raise ValueError('cache returned none status.')
         out = status[field]
         return out
-
-    def group_stats(self, old_state, new_state):
-        k = 'group_stats_' + str(self.group_id)
-        group_state = cache.get(k)
-        if not group_state:
-            group_state = {
-                'MAKER': 0, 'SNIPER':0, 'OUT':self.subsession.players_per_group
-            }
-        group_state[old_state] -= 1
-        group_state[new_state] += 1
-        cache.set(k, group_state, timeout=None)
-        total = sum(group_state.values())
-        # this is kind of odd to do it here.
-        self.group.broadcast(
-            client_messages.total_role(group_state)
-        )
-        if total != self.subsession.players_per_group:
-            raise ValueError('total: %d, ppg: %d' % (total, ppg))
 
     def status_update(self, field, new_state):
         k = Constants.player_status_key.format(self=self)
