@@ -166,15 +166,16 @@ Socket Actions
 
 
         if(obj.FPC != undefined){
+
             spreadGraph.drawMySpreadLines({}, 0, {}, true);
-            
-            var difference = fund_price - obj.FPC;
+            var difference = (obj.FPC - fund_price)/10;
+
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
             spreadGraph.updateBidAndAsk(FPCDollarAmount,spread);
-            spreadGraph.drawMySpreadLines({}, difference / 10);
-            for(var key in spreadGraph.spread_lines){
 
+            spreadGraph.drawMySpreadLines({}, (difference == NaN) ? 0 : difference);
+            for(var key in spreadGraph.spread_lines){
                 for(var token in spreadGraph.spread_lines[key]){
                     spreadGraph.spread_lines[key][token] -= parseInt(difference);
                     spreadGraph.spread_lines[key][token] -= parseInt(difference);
@@ -187,9 +188,8 @@ Socket Actions
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
 
-            //spreadGraph.clear();
             spreadGraph.drawMySpreadLines({}, 0, exec);
-          
+    
             if(obj.EXEC.id == otreeConstants.playerIDInGroup){         
                 profitGraph.profitJumps.push(
                     {
@@ -214,15 +214,13 @@ Socket Actions
             
             var player_id = parseInt(otreeConstants.playerIDInGroup);
             var smallest_spread = [-1, Number.MAX_SAFE_INTEGER];
-            //spreadGraph.clear();
-            
-            for(var key in obj.SPRCHG){
-                if(key != player_id){
-                    spreadGraph.spreadLinesFBA[key] = obj.SPRCHG;
-                } else {
-                    spreadGraph.last_spread = spread;
-                }
 
+            for(var key in obj.SPRCHG){
+                if(key == player_id && spread != 0){
+                    spreadGraph.last_spread = spread;
+                } 
+
+                spreadGraph.spreadLinesFBA[key] = obj.SPRCHG;
                 delete spreadGraph.spread_lines[key];
                 if(obj.SPRCHG[key] == 0){
                     // Maker has left the market, and needs to set the boolean
@@ -243,6 +241,7 @@ Socket Actions
             }
 
             for(var key in spreadGraph.spread_lines){
+                console.log(spreadGraph.spread_lines[key]["TOK"]);
                 // process all new spreads  after the zeros have been removed
                 var spread = spreadGraph.spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"];
                 
@@ -258,20 +257,20 @@ Socket Actions
             }else{
                 spreadGraph.smallest_spread = false;
             }
+
             //if FBA Experiment and its my key else CDA then do same thing
-            if(otreeConstants.FBA == true && obj.SPRCHG[player_id] != undefined){
-                    spreadGraph.drawMySpreadLines(obj.SPRCHG);
-            } else if(otreeConstants.FBA == false && otreeConstants.CDA == true){
-                    spreadGraph.drawMySpreadLines(obj.SPRCHG);
-            }
-
+            // if(otreeConstants.FBA == true && obj.SPRCHG[player_id] != undefined){
+            //         spreadGraph.drawMySpreadLines(obj.SPRCHG);
+            // } else if(otreeConstants.FBA == false && otreeConstants.CDA == true){
+            //         spreadGraph.drawMySpreadLines(obj.SPRCHG);
+            // }
+            
+            spreadGraph.drawMySpreadLines(obj.SPRCHG);
         } else if(obj.SYNC != undefined){
-
             otreeConstants.sync = true; 
             if(otreeConstants.CDA == true){
                 startExperiment();
             }
-
         } else if(obj.TOTAL != undefined){
 
             // Player State Change message from the backend
@@ -283,6 +282,7 @@ Socket Actions
             document.querySelector("info-table").num_makers = total_makers;
      
         } else if(obj.BATCH == "P"){
+
             spreadGraph.updateFBASpreadGraphLines();
             //Flash Spread Graph
             spreadGraph.drawBatchFlash();

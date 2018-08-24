@@ -67,7 +67,7 @@ document.getElementById("sniper").onclick = function () {
         }
         Button_Pressed("sniper");
 
-        Spread_Graph.clear();
+        spreadGraph.clear();
         delete spread_lines[parseInt($("#player_id").text())]
 
     }
@@ -112,7 +112,7 @@ document.getElementById("out").onclick = function () {
             document.getElementById("speed-btn").checked = false;
         }
 
-        Spread_Graph.clear();
+        spreadGraph.clear();
         delete spread_lines[parseInt($("#player_id").text())]
 
     }

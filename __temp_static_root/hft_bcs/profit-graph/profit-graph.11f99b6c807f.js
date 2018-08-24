@@ -11,7 +11,7 @@ class ProfitGraph extends PolymerElement {
 <style>
     .batch-line {
         stroke: #a7a7a7;
-        stroke-width: 1px;
+        stroke-width: 3px;
     }
 
     .batch-label-text {
@@ -553,10 +553,8 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         profitGraph.previousTime = 0;
         // nanoseconds per picxel 
         profitGraph.nanosecondPerPixel = profitGraph.timeInterval / (profitGraph.profitElementWidth - profitGraph.axisLabelWidth - profitGraph.graphPaddingRight);   
-        
         // the amount of nano taken up by the axisLabelWidth ad graphPadding right
         profitGraph.advanceTimeShown = profitGraph.nanosecondPerPixel * (profitGraph.axisLabelWidth + profitGraph.graphPaddingRight);
-
         // collect an array of price values where the horizontal lines will be drawn
         profitGraph.profitPriceLines = profitGraph.calcPriceGridLines(profitGraph.maxPriceProfit, profitGraph.minPriceProfit, profitGraph.profitPriceGridIncrement);
         var endTime = profitGraph.adminStartTime + profitGraph.timeInterval + profitGraph.advanceTimeShown;
