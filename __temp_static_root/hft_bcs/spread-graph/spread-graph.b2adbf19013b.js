@@ -496,7 +496,7 @@ class SpreadGraph extends PolymerElement {
 
  addOthersLineAnimation(lines, speed=500, width){
       //SETTING THE SPREAD TO THE LINE
-
+    console.log(lines);
       for(var i = 0; i < lines.length; i++){
         var add_animation = lines[i]
         .transition()

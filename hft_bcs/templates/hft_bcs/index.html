@@ -168,7 +168,7 @@ Socket Actions
         if(obj.FPC != undefined){
 
             spreadGraph.drawMySpreadLines({}, 0, {}, true);
-            var difference = (obj.FPC - fund_price)/10;
+            var difference = (obj.FPC - fund_price)/100000;
 
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
@@ -216,7 +216,8 @@ Socket Actions
             var smallest_spread = [-1, Number.MAX_SAFE_INTEGER];
 
             for(var key in obj.SPRCHG){
-                if(key == player_id && spread != 0){
+                if(key == player_id && spread > 0){
+                    console.log(spread);
                     spreadGraph.last_spread = spread;
                 } 
 
@@ -224,6 +225,8 @@ Socket Actions
                 delete spreadGraph.spread_lines[key];
                 if(obj.SPRCHG[key] == 0){
                     // Maker has left the market, and needs to set the boolean
+                    spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
+                    spreadGraph.spread_svg.selectAll(".others_line_bottom_" + key).remove();
                     delete obj.SPRCHG[key];
                 }
 
@@ -241,7 +244,7 @@ Socket Actions
             }
 
             for(var key in spreadGraph.spread_lines){
-                console.log(spreadGraph.spread_lines[key]["TOK"]);
+                
                 // process all new spreads  after the zeros have been removed
                 var spread = spreadGraph.spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"];
                 
@@ -264,7 +267,7 @@ Socket Actions
             // } else if(otreeConstants.FBA == false && otreeConstants.CDA == true){
             //         spreadGraph.drawMySpreadLines(obj.SPRCHG);
             // }
-            
+
             spreadGraph.drawMySpreadLines(obj.SPRCHG);
         } else if(obj.SYNC != undefined){
             otreeConstants.sync = true; 

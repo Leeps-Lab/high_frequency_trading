@@ -204,6 +204,7 @@ class InputSection extends PolymerElement {
 
        this.Button_Pressed(input_object);
        document.querySelector('info-table').setAttribute("player_role","MAKER"); 
+       console.log(spreadGraph.last_spread);
        document.querySelector('info-table').spread_value = (spreadGraph.last_spread / 10000).toFixed(2);
     }
      input_object.path[1].querySelector("#out").className = "button-off";

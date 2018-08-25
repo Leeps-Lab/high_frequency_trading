@@ -350,7 +350,7 @@ class SpreadGraph extends PolymerElement {
                 //Ratio between the distance and the mid
                 if(exec.player != key || exec.side != "S"){
 
-                    spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
+                    spreadGraph.spread_svg.selectAll(".others_line_top" + key).remove();
                     your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
                         .attr("x1", (spreadGraph.spread_width / 2) - 15)
                         .attr("y1", svg_middle_y - y_coordinate + offset)
@@ -452,7 +452,7 @@ class SpreadGraph extends PolymerElement {
                             .attr("x2", spreadGraph.spread_width - 15)
                             .attr("y2", svg_middle_y - y_coordinate)
                             .attr("stroke-width",1)
-                            .attr("class","others_line others_line_top_"+key);
+                            .attr("class","others_line others_line_top"+key);
                     
                         var your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1", spreadGraph.spread_width)
@@ -460,7 +460,7 @@ class SpreadGraph extends PolymerElement {
                             .attr("x2", spreadGraph.spread_width - 15)
                             .attr("y2", y_coordinate + svg_middle_y)
                             .attr("stroke-width",1)
-                            .attr("class","others_line others_line_bottom_"+key);
+                            .attr("class","others_line others_line_top"+key);
 
                         // for removing when a transation occurs
                         spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0, 15);
@@ -496,7 +496,7 @@ class SpreadGraph extends PolymerElement {
 
  addOthersLineAnimation(lines, speed=500, width){
       //SETTING THE SPREAD TO THE LINE
-
+    console.log(lines);
       for(var i = 0; i < lines.length; i++){
         var add_animation = lines[i]
         .transition()
