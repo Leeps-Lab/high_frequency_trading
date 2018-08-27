@@ -187,12 +187,12 @@ class SpreadGraph extends PolymerElement {
             }
             spreadGraph.sendSpreadChange(my_spread);
           } else if(role == "OUT"){
-             //  //Send in default order for maker
-             // document.querySelector('input-section').shadowRoot.querySelector("#maker").click();
+            //  //Send in default order for maker
+            // document.querySelector('input-section').shadowRoot.querySelector("#maker").click();
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
                     document.querySelector("input-section").shadowRoot.querySelector("#maker").className = "button-pressed";
 
-                    document.querySelector("info-table").player_role = "MAKER";
+                    document.querySelector("info-table").setAttribute("player_role","MAKER");
 
                     var timeNow = profitGraph.getTime() - profitGraph.timeOffset;
                     profitGraph.profitSegments.push(
@@ -216,8 +216,11 @@ class SpreadGraph extends PolymerElement {
                         socketActions.socket.send(JSON.stringify(msg));
                     }
 
-                    var button_timer = setTimeout(document.querySelector("input-section").shadowRoot.querySelector("#maker").className = "button-on",500);
-
+                    var button_timer = setTimeout(
+                                                function(){
+                                                    document.querySelector("input-section").shadowRoot.querySelector("#maker").className = "button-on";
+                                                },
+                                        500);
 
                     document.querySelector("input-section").shadowRoot.querySelector("#sniper").className = "button-off";
                     document.querySelector("input-section").shadowRoot.querySelector("#out").className = "button-off";
@@ -241,6 +244,7 @@ class SpreadGraph extends PolymerElement {
                     if(my_spread < otreeConstants.min_spread){
                         my_spread = otreeConstants.min_spread;
                     }
+                    
                     spreadGraph.sendSpreadChange(my_spread);
                 }
     });

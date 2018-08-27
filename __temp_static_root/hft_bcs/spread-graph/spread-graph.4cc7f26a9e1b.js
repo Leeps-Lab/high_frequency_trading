@@ -244,7 +244,6 @@ class SpreadGraph extends PolymerElement {
                     if(my_spread < otreeConstants.min_spread){
                         my_spread = otreeConstants.min_spread;
                     }
-                    
                     spreadGraph.sendSpreadChange(my_spread);
                 }
     });

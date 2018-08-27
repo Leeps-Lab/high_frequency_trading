@@ -344,7 +344,10 @@ class InputSection extends PolymerElement {
     }
 
     updateSpeed(input_object){
+      console.log("Called at least");
+      console.log(document.querySelector('info-table').getAttribute("player_role"));
       if(document.querySelector('info-table').getAttribute("player_role") != "OUT"){
+        console.log("Inside the if");
           //If you arent out you can turn your speed on
           this.speed = !this.speed;
           if(this.speed){
