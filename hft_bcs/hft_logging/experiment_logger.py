@@ -5,13 +5,31 @@ from datetime import datetime
 
 # define context dictionary for each different experiment event
 
+
+def header(**kwargs):
+    session_id = kwargs['session']
+    groups = kwargs['groups']
+    design = kwargs['design']
+    spread = kwargs['initial_spread']
+    out = {
+        'session': session_id,
+        'groups': groups,       
+        'design': design,
+        'spread': spread
+    }
+    return out
+
 def jump(**kwargs):
     return {'fp': kwargs['fp']}
-
 
 def investor(**kwargs):
     return {'side': kwargs['side']}
 
+def start(**kwargs):
+    return {}
+
+def end(**kwargs):
+    return {}
 
 def spread(**kwargs):
     pid = kwargs['pid']
@@ -92,6 +110,8 @@ def cancel(**kwargs):
 
 
 dispatch = {
+    'header': header,
+    'start': start,
     'jump': jump,
     'inv': investor,
     'spread': spread,
@@ -101,7 +121,8 @@ dispatch = {
     'exec': execution,
     'replace': replace,
     'cancel': cancel,
-    'profit': profit
+    'profit': profit,
+    'end': end
 }
 
 

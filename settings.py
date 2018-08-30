@@ -179,9 +179,11 @@ logging.custom_filter = custom_filter
 # configure logging in json style
 
 today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
-filename_soft = 'hft_bcs/hft_logging/logs/' + today + '.txt'
-filename_exp = 'hft_bcs/hft_logging/logs/exos/' + today + '.txt'
-path = os.path.join(os.getcwd(), )
+exp_logs_dir = 'hft_bcs/hft_logging/experiment/'
+logs_dir = 'hft_bcs/hft_logging/logs/'
+name_format = '{directory}_{kind}_{date}'
+filename_soft = name_format.format(directory=logs_dir, kind='soft', date=today)
+filename_exp = name_format.format(directory=logs_dir, kind='experiment', date=today)
 
 LOGGING = {
     'version': 1,
@@ -267,10 +269,10 @@ SESSION_CONFIGS = [
         'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
         'app_sequence': ['hft_bcs'],
         'players_per_group': 3,
-        'session_length': 240,
+        'session_length': 30,
         'design': 'CDA',
         'group_matrix': [[1,2,3]],
-        'batch_length': None
+        'batch_length': 0
     },
     {
         'name': 'hft_bcs_2',
@@ -284,7 +286,7 @@ SESSION_CONFIGS = [
         'players_per_group': 3,
         'session_length': 240,
         'design': 'CDA',
-        'batch_length': None
+        'batch_length': 0
     },
 ]
 

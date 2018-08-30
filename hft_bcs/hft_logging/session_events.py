@@ -6,7 +6,7 @@ from .row_formatters import *
 
 author = 'hasan ali demirci'
 
-# TODO: move this to redis. There are many good reasons to do that.
+# TODO: move this to redis.
 
 logs_folder = 'hft_bcs/hft_logging/logs/'
 

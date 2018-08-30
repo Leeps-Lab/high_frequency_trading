@@ -3,6 +3,7 @@ import sys
 import subprocess
 import os
 import logging
+from datetime import datetime
 import random
 import time
 import itertools
@@ -26,7 +27,7 @@ import time
 from . import new_translator
 from .decorators import atomic
 from otree.common_internal import random_chars_8
-
+from settings import exp_logs_dir
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class Constants(BaseConstants):
     short_delay = 0.1   # slow players delay
     long_delay = 0.5    # fast players delay
 
-    first_exchange_port = 9001
+    first_exchange_port = 9001  # make this configurable
 
     # cache keys
     lock_key = '{self.code}_redis_lock'
@@ -51,6 +52,9 @@ class Constants(BaseConstants):
     groups_ready_key = '{self.code}_ready'
     players_in_market_key  = '{self.code}_in_market'
     state_count_key = '{self.code}_states'
+
+    # log file
+    log_file_format = '{directory}{self.design}_{self.code}_{self.players_per_group}_{time}'
 
     investor_url = 'ws://127.0.0.1:8000/hft_investor/'
     jump_url = 'ws://127.0.0.1:8000/hft_jump/'
@@ -73,7 +77,10 @@ class Constants(BaseConstants):
         'max_spread': 'max_spread'
     }
 
-
+def lablog(filename, log):
+    with open(filename,'a') as f:
+        f.write(log)
+        f.write('\n')
 
 subprocesses = {}
 # TODO: refine this. add logging.
@@ -97,6 +104,7 @@ class Subsession(BaseSubsession):
     batch_length = models.IntegerField(initial=0)
     trade_ended = models.BooleanField(initial=False)
     code = models.CharField(default=random_chars_8)
+    log_file = models.StringField()
 
     def creating_session(self):
         # set session fields
@@ -104,20 +112,32 @@ class Subsession(BaseSubsession):
             setattr(self, k, self.session.config[v])
         lock_key = Constants.lock_key.format(self=self)
         cache.set(lock_key, 'unlocked', timeout=None)
+        today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
+        log_file = Constants.log_file_format.format(directory=exp_logs_dir, self=self, time=today)
+        self.log_file = log_file 
         group_matrix = self.session.config['group_matrix']
         self.set_group_matrix(group_matrix)
-        for ix, group in enumerate(self.get_groups()):
+        groups = self.get_groups()
+        for ix, group in enumerate(groups):
             group.creating_group(ix + 1)
+            group.log_file = log_file
         self.groups_ready('init')
-        for player in self.get_players():
+        players = self.get_players()
+        for player in players:
             for k, v in Constants.player_field_map.items():
                 v = self.session.config[v] * Constants.conversion_factor
                 setattr(player, k, v)
             player.order_store(init=True)
             player.status('init')
+            player.log_file = log_file
             k = Constants.lock_key.format(self=player)
             cache.set(k, 'unlocked', timeout=None)
             player.save()
+        group_players = {g.id: [p.id for p in g.get_players()] for g in groups}
+        l = prepare(group=0, level='header', typ='header', groups=group_players,
+            session=self.code, design=self.design, initial_spread=players[0].spread,
+            batch_length=self.batch_length, round_length=self.round_length)
+        lablog(self.log_file, l)
         self.save()
         self.session.save()
 
@@ -139,6 +159,8 @@ class Subsession(BaseSubsession):
             hfl.events.dump(header=True)
             for g in self.get_groups():
                 g.start()
+                l = prepare(group=g.id, level='exch', typ='start')
+                lablog(self.log_file, l)
         if total == 0 and self.trade_ended == False:
             log.info('session: advancing all players to results page.')
             self.trade_ended = True
@@ -175,6 +197,7 @@ class Group(BaseGroup):
     is_trading = models.BooleanField(initial=False)
     # ready_players = models.IntegerField(initial=0)
     code = models.CharField(default=random_chars_8)
+    log_file = models.StringField()
 
     def creating_group(self, id_in_session):
         self.exch_host = self.session.config['exchange_host']
@@ -221,6 +244,8 @@ class Group(BaseGroup):
             self.loggy()
             self.is_trading = False
             self.save()
+            l = prepare(group=self.id, level='exch', typ='end')
+            lablog(self.log_file, l)
             self.subsession.groups_ready(self.id, action='end')
         else:
             pass
@@ -425,6 +450,7 @@ class Player(BasePlayer):
     speed_cost = models.IntegerField()
     max_spread = models.IntegerField()
     code = models.CharField(default=random_chars_8)
+    log_file = models.StringField()
 
     
     def stage_enter(self, side=None, price=None, time_in_force=99999):
@@ -620,11 +646,11 @@ class Player(BasePlayer):
                 'gid': self.group_id, 'pid': self.id, 'state': new_state
             }
         hfl.events.push(hfl.state_update, **log_dict)
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='choice', typ='state',
-            pid=self.id_in_group, nstate=new_state
+            pid=self.id, nstate=new_state
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
 
     @atomic
     def update_spread(self, message):
@@ -640,11 +666,11 @@ class Player(BasePlayer):
         hfl.events.push(hfl.spread_update, **log_dict)
         msgs = self.makers_replace(1)  # replace orders, start from above
         self.group.send_exchange(msgs, delay=True, speed=self.speed)
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='choice', typ='spread',
-            pid=self.id_in_group, nspread=new_spread
+            pid=self.id, nspread=new_spread
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
 
     def update_speed(self, message):
         """
@@ -661,11 +687,11 @@ class Player(BasePlayer):
             self._calc_speed_cost(now)
         log_dict = {'gid': self.group_id, 'pid': self.id, 'speed': new_speed}
         hfl.events.push(hfl.speed_update, **log_dict)
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='choice', typ='speed',
-            pid=self.id_in_group, nspeed=new_speed
+            pid=self.id, nspeed=new_speed
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
 
     def in_market(self, msg):
         log.info('Group%d: Player%d: In market.' % (self.group_id, self.id))
@@ -743,12 +769,12 @@ class Player(BasePlayer):
         # TODO: make base roles point instead of hardcoding
         if current_state == 'MAKER':
             self.makers_broadcast(tok)
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='exch', typ='enter',
-            pid=self.id_in_group, token=order.token, stamp=order.timestamp,
+            pid=self.id, token=order.token, stamp=order.timestamp,
             side=order.side, tif=order.time_in_force, price=order.price
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
 
     def _confirm_enter(self, stamp, token):
         """
@@ -776,12 +802,12 @@ class Player(BasePlayer):
         current_state = self.status('state')
         if current_state == 'MAKER':
             self.makers_broadcast(token)
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='exch', typ='replace',
-            pid=self.id_in_group, old_token=old_order.token,
+            pid=self.id, old_token=old_order.token,
             new_token=new_order.token, stamp=new_order.timestamp,
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
 
 
     def _confirm_replace(self, stamp, ptoken, token):
@@ -812,11 +838,11 @@ class Player(BasePlayer):
         """
         stamp, tok = msg['timestamp'], msg['order_token']
         order = self._confirm_cancel(stamp, tok)
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='exch', typ='cancel',
-            pid=self.id_in_group, token=order.token, stamp=order.timestamp
+            pid=self.id, token=order.token, stamp=order.timestamp
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
 
     def _confirm_cancel(self, stamp, token):
         orderstore = self.order_store()
@@ -843,12 +869,12 @@ class Player(BasePlayer):
         self.group.broadcast(
             client_messages.execution(self.id_in_group, tok, profit)
         )
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='exch', typ='exec',
-            pid=self.id_in_group, token=order.token, price=order.price, 
+            pid=self.id, token=order.token, price=order.price, 
             stamp=order.timestamp
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
 
     def _confirm_exec(self, stamp, token):
         orderstore = self.order_store()
@@ -889,12 +915,12 @@ class Player(BasePlayer):
         hfl.events.push(hfl.profit, **log_dict)
         if self.status('speed'):
             self._calc_speed_cost(labtime())
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='market', typ='profit',
-            source='cross', pid=self.id_in_group, stamp=timestamp,
+            source='cross', pid=self.id, stamp=timestamp,
             endowment=updated_profit, profit=pi
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
         return pi
 
     def _calc_speed_cost(self, timestamp):
@@ -913,12 +939,12 @@ class Player(BasePlayer):
             'cost': cost, 'delta': delta, 'nanocost': nanocost
         }
         hfl.events.push(hfl.cost, **log_dict)
-        lablog = prepare(
+        l = prepare(
             group=self.group_id, level='market', typ='profit',
-            source='speed', pid=self.id_in_group, stamp=timestamp,
+            source='speed', pid=self.id, stamp=timestamp,
             endowment=new_profit, profit=-cost
         )
-        log.experiment(lablog)
+        lablog(self.log_file, l)
 
     @atomic
     def jump(self, new_price):
