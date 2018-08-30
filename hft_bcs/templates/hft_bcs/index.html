@@ -128,7 +128,6 @@ Graph_Features is an object that stores the features of the profit and spread gr
     profitGraph.profit_width = document.querySelector("profit-graph").clientWidth;
     profitGraph.profit_height = document.querySelector("profit-graph").clientHeight;
 
-
 /*
 In order for our Shadow DOM Elements to be acessable in javascript we must set the mode to 'open', 'closed' is the other option and would restrict access to the Shadow DOM Elements. Since they are now open we can access them with js in their corressponding .js files
 */
@@ -163,7 +162,7 @@ Socket Actions
         var fund_price = document.querySelector('info-table').fp;
         var obj = jQuery.parseJSON(event.data);
         var spread = document.querySelector("info-table").spread_value;
-        console.log(obj);
+       
         if(obj.FPC != undefined){
 
             spreadGraph.drawMySpreadLines({}, 0, {}, true);
@@ -279,7 +278,7 @@ Socket Actions
             //Flash Spread Graph
             spreadGraph.drawBatchFlash();
         } else if(obj.BATCH == "B"){
-
+            inputSection.startTimer();
             if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
                 startExperiment();
                 otreeConstants.FBAGraph = true;

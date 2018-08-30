@@ -150,7 +150,18 @@ class InputSection extends PolymerElement {
     this.speed = false;
     inputSection.shadow_dom =  document.querySelector("input-section").shadowRoot;
     inputSection.shadow_dom_D3 = d3.select(inputSection.shadow_dom);
-    //inputSection.shadow_dom_D3
+    
+
+    if(otreeConstants.FBA){
+            //INPUT SECTION
+        inputSection.shadow_dom_D3.append("svg").attr("id","timer_FBA");
+        inputSection.timerSVGDOM = inputSection.shadow_dom.querySelector("#timer_FBA");
+        inputSection.timerSVG = d3.select(inputSection.timerSVGDOM);
+        inputSection.drawTimer = this.drawTimer;
+        inputSection.startTimer = this.startTimer;
+        inputSection.drawTimer();
+    }
+
     inputSection.Button_Pressed = this.Button_Pressed;
     inputSection.startBatchTimer = this.startBatchTimer;
     inputSection.updateSpeed = this.updateSpeed;
@@ -204,7 +215,6 @@ class InputSection extends PolymerElement {
 
        this.Button_Pressed(input_object);
        document.querySelector('info-table').setAttribute("player_role","MAKER"); 
-       console.log(spreadGraph.last_spread);
        document.querySelector('info-table').spread_value = (spreadGraph.last_spread / 10000).toFixed(2);
     }
      input_object.path[1].querySelector("#out").className = "button-off";
@@ -326,6 +336,36 @@ class InputSection extends PolymerElement {
      spreadGraph.spread_svg.selectAll("rect").remove();
      spreadGraph.spread_svg.selectAll(".my_line").remove();
     delete spreadGraph.spread_lines[otreeConstants.playerID]
+  }
+
+  drawTimer(){
+    inputSection.inputWidth = document.querySelector("input-section").clientWidth*1.5;
+    inputSection.inputHeight = document.querySelector("input-section").clientHeight;
+    inputSection.timerSVGDOM.style.width = inputSection.inputWidth;
+    inputSection.timerSVGDOM.style.height = 7;
+    inputSection.timerSVGDOM.style.marginBottom = "20px";
+    inputSection.timerSVGDOM.style.marginLeft = "30px";
+    inputSection.timerSVGDOM.style.backgroundColor = "lightgrey";
+    inputSection.inputX = inputSection.shadow_dom.querySelector("#timer_FBA").getBoundingClientRect().left;
+    inputSection.inputY = inputSection.shadow_dom.querySelector("#timer_FBA").getBoundingClientRect().top;
+  }
+
+  startTimer(){
+    inputSection.timerSVG.selectAll("#timer-line").remove();
+    var timerLine = inputSection.timerSVG.append("svg:line")
+                       .attr("x1", 0)
+                       .attr("y1", 0)
+                       .attr("x2", 0)
+                       .attr("y2", 0)
+                       .attr("id","timer-line")
+                       .style("stroke", "purple")
+                       .style("stroke-width", 10);
+                       
+
+    timerLine.transition()
+            .duration(otreeConstants.batchLength*1100)
+            .attr("x2", inputSection.inputWidth); 
+
   }
 
    Button_Pressed(input_object){

@@ -102,7 +102,7 @@ class SpreadGraph extends PolymerElement {
     //d3 Selection of the SVG we will be using this variable from now on
     spreadGraph.spread_svg = d3.select(spreadGraph.spread_svg_dom);
     spreadGraph.timer_svg = d3.select(spreadGraph.timer_svg_dom);
-    
+
     /*
       Functions attached to the spreadGraph object
     */
@@ -244,7 +244,7 @@ class SpreadGraph extends PolymerElement {
                     if(my_spread < otreeConstants.min_spread){
                         my_spread = otreeConstants.min_spread;
                     }
-                    
+
                     spreadGraph.sendSpreadChange(my_spread);
                 }
     });
