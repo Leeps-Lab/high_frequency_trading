@@ -121,7 +121,8 @@ Graph_Features is an object that stores the features of the profit and spread gr
     spreadGraph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
     spreadGraph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
     spreadGraph.spread_lines = {};
-    spreadGraph.spreadLinesFBA = [];
+    spreadGraph.spreadLinesFBAConcurrent = []; //Holds a running map of the spread lines
+    spreadGraph.spreadLinesFBABatch = [];      //Holds all the lines from the last batch to figure out smallest spread
     spreadGraph.last_spread =  otreeConstants.defaultSpread;
 
     //PROFIT GRAPH
@@ -219,7 +220,7 @@ Socket Actions
                     var incomingSpread = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"];
                     spreadGraph.last_spread = incomingSpread;
                 } 
-                spreadGraph.spreadLinesFBA[key] = obj.SPRCHG;
+                spreadGraph.spreadLinesFBAConcurrent[key] = obj.SPRCHG;
                 delete spreadGraph.spread_lines[key];
 
                 if(obj.SPRCHG[key] == 0){
@@ -239,7 +240,7 @@ Socket Actions
             }
             var lineParser = spreadGraph.spread_lines;
             if(otreeConstants.FBA){
-                lineParser = spreadGraph.spreadLinesFBA;
+                lineParser = spreadGraph.spreadLinesFBABatch;
             }
             for(var key in lineParser){
                 // process all new spreads  after the zeros have been removed
@@ -248,12 +249,13 @@ Socket Actions
                     smallest_spread[0] = parseInt(key);
                     smallest_spread[1] = spread;
                 }
+                if(smallest_spread[0] == player_id){
+                    spreadGraph.smallest_spread = true;
+                }else{
+                    spreadGraph.smallest_spread = false;
+                }
             }
-            if(smallest_spread[0] == player_id){
-                spreadGraph.smallest_spread = true;
-            }else{
-                spreadGraph.smallest_spread = false;
-            }
+            
 
             spreadGraph.drawMySpreadLines(obj.SPRCHG);
 
@@ -273,11 +275,11 @@ Socket Actions
             document.querySelector("info-table").num_makers = total_makers;
      
         } else if(obj.BATCH == "P"){
-
             spreadGraph.updateFBASpreadGraphLines();
             //Flash Spread Graph
             spreadGraph.drawBatchFlash();
         } else if(obj.BATCH == "B"){
+            spreadGraph.spreadLinesFBABatch = [];
             inputSection.startTimer();
             if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
                 startExperiment();

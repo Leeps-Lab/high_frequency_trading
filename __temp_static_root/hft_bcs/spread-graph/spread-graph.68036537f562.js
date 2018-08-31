@@ -278,10 +278,12 @@ class SpreadGraph extends PolymerElement {
     var n = spreadGraph.spreadLinesFBAConcurrent.length - 1;
     for( n; n >= 0; n--){
         if(spreadGraph.spreadLinesFBAConcurrent[n+1] != undefined){
+            console.log(spreadGraph.spreadLinesFBAConcurrent[n+1]);
             spreadGraph.spreadLinesFBABatch[n+1] = spreadGraph.spreadLinesFBAConcurrent[n+1];
             spreadGraph.drawMySpreadLines(spreadGraph.spreadLinesFBAConcurrent[n+1]);
         }
     }
+    console.log(spreadGraph.spreadLinesFBABatch);
   }
 
   drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){
