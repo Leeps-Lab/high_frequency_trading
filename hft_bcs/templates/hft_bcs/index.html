@@ -121,13 +121,13 @@ Graph_Features is an object that stores the features of the profit and spread gr
     spreadGraph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
     spreadGraph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
     spreadGraph.spread_lines = {};
-    spreadGraph.spreadLinesFBA = [];
+    spreadGraph.spreadLinesFBAConcurrent = []; //Holds a running map of the spread lines
+    spreadGraph.spreadLinesFBABatch = [];      //Holds all the lines from the last batch to figure out smallest spread
     spreadGraph.last_spread =  otreeConstants.defaultSpread;
 
     //PROFIT GRAPH
     profitGraph.profit_width = document.querySelector("profit-graph").clientWidth;
     profitGraph.profit_height = document.querySelector("profit-graph").clientHeight;
-
 
 /*
 In order for our Shadow DOM Elements to be acessable in javascript we must set the mode to 'open', 'closed' is the other option and would restrict access to the Shadow DOM Elements. Since they are now open we can access them with js in their corressponding .js files
@@ -163,18 +163,18 @@ Socket Actions
         var fund_price = document.querySelector('info-table').fp;
         var obj = jQuery.parseJSON(event.data);
         var spread = document.querySelector("info-table").spread_value;
-
-
+       
         if(obj.FPC != undefined){
+
             spreadGraph.drawMySpreadLines({}, 0, {}, true);
-            
-            var difference = fund_price - obj.FPC;
+            var difference = (obj.FPC - fund_price)/100000;
+
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
             spreadGraph.updateBidAndAsk(FPCDollarAmount,spread);
-            spreadGraph.drawMySpreadLines({}, difference / 10);
-            for(var key in spreadGraph.spread_lines){
 
+            spreadGraph.drawMySpreadLines({}, (difference == NaN) ? 0 : difference);
+            for(var key in spreadGraph.spread_lines){
                 for(var token in spreadGraph.spread_lines[key]){
                     spreadGraph.spread_lines[key][token] -= parseInt(difference);
                     spreadGraph.spread_lines[key][token] -= parseInt(difference);
@@ -187,9 +187,8 @@ Socket Actions
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
 
-            //spreadGraph.clear();
             spreadGraph.drawMySpreadLines({}, 0, exec);
-          
+    
             if(obj.EXEC.id == otreeConstants.playerIDInGroup){         
                 profitGraph.profitJumps.push(
                     {
@@ -210,68 +209,61 @@ Socket Actions
                     }
                 )   
             } 
-        } else if(obj.SPRCHG != undefined) {
-            
+        }else if(obj.SPRCHG != undefined) {
+           
             var player_id = parseInt(otreeConstants.playerIDInGroup);
             var smallest_spread = [-1, Number.MAX_SAFE_INTEGER];
-            //spreadGraph.clear();
-            
+
             for(var key in obj.SPRCHG){
-                if(key != player_id){
-                    spreadGraph.spreadLinesFBA[key] = obj.SPRCHG;
-                } else {
-                    spreadGraph.last_spread = spread;
-                }
-
+                var incomingSpread;
+                if(key == player_id && obj.SPRCHG[key] != 0 ){
+                    var incomingSpread = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"];
+                    spreadGraph.last_spread = incomingSpread;
+                } 
+                spreadGraph.spreadLinesFBAConcurrent[key] = obj.SPRCHG;
                 delete spreadGraph.spread_lines[key];
-                if(obj.SPRCHG[key] == 0){
-                    // Maker has left the market, and needs to set the boolean
-                    delete obj.SPRCHG[key];
-                }
 
+                if(obj.SPRCHG[key] == 0){
+                    // Maker has left the market so remove that maker tick
+                    spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
+                    spreadGraph.spread_svg.selectAll(".others_line_bottom_" + key).remove();
+                    delete obj.SPRCHG[key];
+                } 
                 // process all new spreads  after the zeros have been removed
-                var spread = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"];
-                
                 if(spread < 0){
                     console.error("Invalid spread calculation from a SPRCHG msg", obj.SPRCHG);
                 }
-                
                 if(spread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
                     smallest_spread[1] = spread;
                 }
             }
-
-            for(var key in spreadGraph.spread_lines){
+            var lineParser = spreadGraph.spread_lines;
+            if(otreeConstants.FBA){
+                lineParser = spreadGraph.spreadLinesFBABatch;
+            }
+            for(var key in lineParser){
                 // process all new spreads  after the zeros have been removed
-                var spread = spreadGraph.spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"];
-                
+                var spread = lineParser[key]["A"] - lineParser[key]["B"];
                 if(spread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
                     smallest_spread[1] = spread;
                 }
-
+                if(smallest_spread[0] == player_id){
+                    spreadGraph.smallest_spread = true;
+                }else{
+                    spreadGraph.smallest_spread = false;
+                }
             }
+            
 
-            if(smallest_spread[0] == player_id){
-                spreadGraph.smallest_spread = true;
-            }else{
-                spreadGraph.smallest_spread = false;
-            }
-            //if FBA Experiment and its my key else CDA then do same thing
-            if(otreeConstants.FBA == true && obj.SPRCHG[player_id] != undefined){
-                    spreadGraph.drawMySpreadLines(obj.SPRCHG);
-            } else if(otreeConstants.FBA == false && otreeConstants.CDA == true){
-                    spreadGraph.drawMySpreadLines(obj.SPRCHG);
-            }
+            spreadGraph.drawMySpreadLines(obj.SPRCHG);
 
-        } else if(obj.SYNC != undefined){
-
+        }else if(obj.SYNC != undefined){
             otreeConstants.sync = true; 
             if(otreeConstants.CDA == true){
                 startExperiment();
             }
-
         } else if(obj.TOTAL != undefined){
 
             // Player State Change message from the backend
@@ -287,7 +279,8 @@ Socket Actions
             //Flash Spread Graph
             spreadGraph.drawBatchFlash();
         } else if(obj.BATCH == "B"){
-
+            spreadGraph.spreadLinesFBABatch = [];
+            inputSection.startTimer();
             if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
                 startExperiment();
                 otreeConstants.FBAGraph = true;

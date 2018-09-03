@@ -11,7 +11,7 @@ class ProfitGraph extends PolymerElement {
 <style>
     .batch-line {
         stroke: #a7a7a7;
-        stroke-width: 1px;
+        stroke-width: 3px;
     }
 
     .batch-label-text {

@@ -150,11 +150,21 @@ class InputSection extends PolymerElement {
     this.speed = false;
     inputSection.shadow_dom =  document.querySelector("input-section").shadowRoot;
     inputSection.shadow_dom_D3 = d3.select(inputSection.shadow_dom);
-    //inputSection.shadow_dom_D3
-    console.log(inputSection.shadow_dom_D3);
-    console.log("THIs hee");
+    
+
+    if(otreeConstants.FBA){
+            //INPUT SECTION
+        inputSection.shadow_dom_D3.append("svg").attr("id","timer_FBA");
+        inputSection.timerSVGDOM = inputSection.shadow_dom.querySelector("#timer_FBA");
+        inputSection.timerSVG = d3.select(inputSection.timerSVGDOM);
+        inputSection.drawTimer = this.drawTimer;
+        inputSection.startTimer = this.startTimer;
+        inputSection.drawTimer();
+    }
+
     inputSection.Button_Pressed = this.Button_Pressed;
     inputSection.startBatchTimer = this.startBatchTimer;
+    inputSection.updateSpeed = this.updateSpeed;
   }
 
   makerClick(input_object){
@@ -185,6 +195,7 @@ class InputSection extends PolymerElement {
             id_in_group: otreeConstants.playerIDInGroup,
             state: "MAKER"
         };
+
         var speed_msg = {
             type: 'speed_change',
             id: otreeConstants.playerID ,
@@ -196,24 +207,18 @@ class InputSection extends PolymerElement {
           this.socket.send(JSON.stringify(msg));
           if(this.speed){
             this.socket.send(JSON.stringify(speed_msg));
+            this.speed = !this.speed;
+            input_object.path[1].querySelector("#speed_checkbox").checked = false;
+            document.querySelector('info-table').setAttribute("speed_cost","0");
           }
         }
 
        this.Button_Pressed(input_object);
        document.querySelector('info-table').setAttribute("player_role","MAKER"); 
-
+       document.querySelector('info-table').spread_value = (spreadGraph.last_spread / 10000).toFixed(2);
     }
-      console.log(msg);
-     
      input_object.path[1].querySelector("#out").className = "button-off";
      input_object.path[1].querySelector("#sniper").className = "button-off";
-     document.querySelector('info-table').spread_value = (spreadGraph.last_spread / 10000).toFixed(2);
-     input_object.path[1].querySelector("#speed_checkbox").checked = false;
-     if(this.speed){
-     this.speed = !this.speed;
-     document.querySelector('info-table').setAttribute("speed_cost","0");
-    }
-
   }
 
   sniperClick(input_object){
@@ -256,26 +261,23 @@ class InputSection extends PolymerElement {
           this.socket.send(JSON.stringify(msg));
           if(this.speed){
             this.socket.send(JSON.stringify(speed_msg));
-            console.log(speed_msg);
+            this.speed = !this.speed;
+            input_object.path[1].querySelector("#speed_checkbox").checked = false;
+            document.querySelector('info-table').setAttribute("speed_cost","0");
           }
         }
 
        this.Button_Pressed(input_object);
        document.querySelector('info-table').setAttribute("player_role","SNIPER"); 
     }
-       console.log(msg);
-    spreadGraph.clear();
+    spreadGraph.spread_svg.selectAll("rect").remove();
+    spreadGraph.spread_svg.selectAll(".my_line").remove();
     delete spreadGraph.spread_lines[otreeConstants.playerID]
      document.querySelector('info-table').spread_value = 0;
-     input_object.path[1].querySelector("#speed_checkbox").checked = false;
      input_object.path[1].querySelector("#maker").className = "button-off";
      input_object.path[1].querySelector("#out").className = "button-off";
      document.querySelector('info-table').setAttribute("curr_bid","N/A");
      document.querySelector('info-table').setAttribute("curr_ask","N/A");
-     if(this.speed){
-     this.speed = !this.speed;
-     document.querySelector('info-table').setAttribute("speed_cost","0");
-    }
   }
 
   outClick(input_object){
@@ -315,8 +317,10 @@ class InputSection extends PolymerElement {
               this.socket.send(JSON.stringify(msg));
               if(this.speed){
                 this.socket.send(JSON.stringify(speed_msg));
+                this.speed = !this.speed;
+                input_object.path[1].querySelector("#speed_checkbox").checked = false;
+                document.querySelector('info-table').setAttribute("speed_cost","0");
               }
-              
           } 
        document.querySelector('info-table').setAttribute("player_role","OUT"); 
     }
@@ -324,17 +328,44 @@ class InputSection extends PolymerElement {
      input_object.path[1].querySelector("#sniper").className = "button-off";
      input_object.path[1].querySelector("#maker").className = "button-off";
      //Turn off Speed if it is on the front end
-     input_object.path[1].querySelector("#speed_checkbox").checked = false;
      document.querySelector('info-table').setAttribute("speed_cost",0);
      document.querySelector('info-table').setAttribute("spread_value","0");
      document.querySelector('info-table').setAttribute("curr_bid","N/A");
      document.querySelector('info-table').setAttribute("curr_ask","N/A");
-     if(this.speed){
-     this.speed = !this.speed;
-     document.querySelector('info-table').setAttribute("speed_cost","0");
-    }
-    spreadGraph.clear();
+
+     spreadGraph.spread_svg.selectAll("rect").remove();
+     spreadGraph.spread_svg.selectAll(".my_line").remove();
     delete spreadGraph.spread_lines[otreeConstants.playerID]
+  }
+
+  drawTimer(){
+    inputSection.inputWidth = document.querySelector("input-section").clientWidth*1.5;
+    inputSection.inputHeight = document.querySelector("input-section").clientHeight;
+    inputSection.timerSVGDOM.style.width = inputSection.inputWidth;
+    inputSection.timerSVGDOM.style.height = 7;
+    inputSection.timerSVGDOM.style.marginBottom = "20px";
+    inputSection.timerSVGDOM.style.marginLeft = "30px";
+    inputSection.timerSVGDOM.style.backgroundColor = "lightgrey";
+    inputSection.inputX = inputSection.shadow_dom.querySelector("#timer_FBA").getBoundingClientRect().left;
+    inputSection.inputY = inputSection.shadow_dom.querySelector("#timer_FBA").getBoundingClientRect().top;
+  }
+
+  startTimer(){
+    inputSection.timerSVG.selectAll("#timer-line").remove();
+    var timerLine = inputSection.timerSVG.append("svg:line")
+                       .attr("x1", 0)
+                       .attr("y1", 0)
+                       .attr("x2", 0)
+                       .attr("y2", 0)
+                       .attr("id","timer-line")
+                       .style("stroke", "purple")
+                       .style("stroke-width", 10);
+                       
+
+    timerLine.transition()
+            .duration(otreeConstants.batchLength*1100)
+            .attr("x2", inputSection.inputWidth); 
+
   }
 
    Button_Pressed(input_object){
@@ -350,13 +381,14 @@ class InputSection extends PolymerElement {
         } else {
           input_object.path[0].className = "button-on";
         }
-
     }
 
     updateSpeed(input_object){
+      console.log("Called at least");
+      console.log(document.querySelector('info-table').getAttribute("player_role"));
       if(document.querySelector('info-table').getAttribute("player_role") != "OUT"){
+        console.log("Inside the if");
           //If you arent out you can turn your speed on
-
           this.speed = !this.speed;
           if(this.speed){
               document.querySelector('info-table').setAttribute("speed_cost",(otreeConstants.speedCost * (1e-4) * (1e9)).toFixed(3));
@@ -384,7 +416,6 @@ class InputSection extends PolymerElement {
           if (this.socket.readyState === this.socket.OPEN) {
               this.socket.send(JSON.stringify(msg));
           } 
-          console.log(msg);   
       } else {
          input_object.path[0].checked = false;
       }
