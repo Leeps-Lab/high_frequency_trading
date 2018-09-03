@@ -260,38 +260,10 @@ SESSION_CONFIG_DEFAULTS = {
     'doc': ''
 }
 
-SESSION_CONFIGS = [
-    {
-        'name': 'hft_bcs_1',
-        'display_name': 'Continous Double Auction - 3 Players 1 Group',
-        'num_demo_participants': 3,
-        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
-        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
-        'app_sequence': ['hft_bcs'],
-        'players_per_group': 3,
-        'session_length': 30,
-        'design': 'CDA',
-        'group_matrix': [[1,2,3]],
-        'batch_length': 0
-    },
-    {
-        'name': 'hft_bcs_2',
-        'display_name': 'Continous Double Auction - 3 Players 2 Groups',
-        'num_demo_participants': 6,
-        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
-        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
-        'investors_group_2': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
-        'jumps_group_2': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
-        'app_sequence': ['hft_bcs'],
-        'players_per_group': 3,
-        'session_length': 240,
-        'design': 'CDA',
-        'batch_length': 0
-    },
-]
+SESSION_CONFIGS = []
 
 bcs_configs = BCSConfig.get_all()
-config_fields = [cf.fields for cf in bcs_configs]
+config_fields = [cf.json_format() for cf in bcs_configs]
 SESSION_CONFIGS.extend(config_fields)
 
 otree.settings.augment_settings(globals())

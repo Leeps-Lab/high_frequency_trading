@@ -61,6 +61,17 @@ def profit(**kwargs):
     }
     return result
 
+def cost(**kwargs):
+    pid = kwargs['pid']
+    cost = kwargs['cost']
+    source = kwargs['source']
+    stamp = kwargs['stamp']
+    result = {
+        'player_id': pid, 'cost': cost, 'source': source, 
+        'timestamp': stamp
+    }   
+    return result 
+
 
 def enter(**kwargs):
     pid = kwargs['pid']
@@ -122,6 +133,7 @@ dispatch = {
     'replace': replace,
     'cancel': cancel,
     'profit': profit,
+    'cost': cost,
     'end': end
 }
 

@@ -2,14 +2,6 @@ from ..utility import nanoseconds_since_midnight as labtime
 import os
 from datetime import datetime
 
-author = "hasan ali demirci"
-
-"""
-these will format logs as strings
-this module will change frequently
-"""
-
-
 def base_row(**kwargs):
     base_row = dict()
     # converting to milliseconds for readability
@@ -287,8 +279,7 @@ def cost(**kwargs):
     row['player'] = kwargs['pid']
     cost = kwargs['cost']
     delta = kwargs['delta']
-    unit_cost = kwargs['nanocost']
-    row['context'] = 'take cost {:.2}. <delta:{}|unitcost:{:.2}>'.format(cost, delta, unit_cost)
+    row['context'] = 'take cost {:.2}. <delta:{}>'.format(cost, delta)
     return row
 
 def no_orders(**kwargs):

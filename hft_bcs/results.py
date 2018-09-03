@@ -91,9 +91,14 @@ class BCSPlayer(Player):
 
     roles = ('slow_inside', 'slow_outside', 'slow_sniper', 'fast_inside', 
         'fast_outside', 'fast_sniper')
-
-    maker_roles = ('slow_in', 'slow_out', 'fast_in', 'fast_out')
-    
+    role_groups = ('three_role_group')
+    three_role_group = {
+        'slow_maker': ('slow_inside', 'slow_outside'),
+        'fast_maker': ('fast_inside', 'fast_outside'),
+        'slow_sniper': ('slow_sniper',),
+        'fast_sniper': ('fast_sniper',),
+        }
+ 
     maker_role = '{self.speed}_{self.position}'
     sniper_role = '{self.speed}_sniper'
 
@@ -141,7 +146,7 @@ class BCSPlayer(Player):
         else:
             pass
         return key
-    
+
     def speed_change(self, new_speed, time):
         self.speed = new_speed
         active_role = self.active_role()
@@ -162,13 +167,13 @@ class BCSPlayer(Player):
 class BCSMarket:
 
     active_roles = ('maker', 'sniper')
-    maker_roles = ('slow_in', 'slow_out', 'fast_in', 'fast_out')
     dispatch = {
         'profit': 'handle_profit',
         'speed': 'handle_speed',
         'spread': 'handle_spread',
         'state': 'handle_role_change',
         'start': 'handle_start',
+        'cost': 'handle_cost',
         'end': 'handle_end'
     }
 
@@ -184,11 +189,11 @@ class BCSMarket:
             if func_name:
                 func = getattr(self, func_name)
                 func(row)
-            else:
-                pass
 
     def inside_maker(self):        
         makers = [p for p in self.players.values() if p.current_role == 'maker']
+        if makers is None:
+            return
         fun = (lambda x: x.spread if x.spread is not None else self.events.spread)
         makers.sort(key=fun, reverse=True)
         inside_maker = makers.pop()
@@ -225,7 +230,12 @@ class BCSMarket:
         player_id = msg['context']['player_id']
         profit = msg['context']['profit']
         self.players[player_id].raw_make_profit(profit)
-    
+
+    def handle_cost(self, msg):
+        player_id = msg['context']['player_id']
+        cost = msg['context']['cost']  
+        self.players[player_id].take_cost(cost)     
+
     def handle_speed(self, msg):
         time = msg['time']
         player_id = msg['context']['player_id']
@@ -235,6 +245,8 @@ class BCSMarket:
 
     def arrange_makers(self, time):
         inside_maker = self.inside_maker()
+        if not inside_maker:
+            return
         players = self.players
         for k, p in players.items():
             if p.current_role == 'maker' and p != inside_maker:
@@ -273,6 +285,7 @@ class Role:
         out = '< Role {self.name}:{self.profit}:{self.duration:.2f}>'.format(self=self)
         return out
 
+                    
 def aggregate(market):
     cumul_dict = {'profit': 0,'duration': 0}
     results = {k: dict(cumul_dict) for k in BCSPlayer.roles}
@@ -291,6 +304,10 @@ def total_profit(results):
         cum_profit[role_name] += results[role_name]['profit'] * 1e-4
     return cum_profit
         
+def total_speed_cost(market):
+    total_cost = sum([player.cost for player in market.players.values()])
+    return total_cost
+
 def normal_duration(results):
     session_length = results['duration'] * results['num_players']
     all_others = 0
@@ -304,18 +321,36 @@ def normal_duration(results):
     out['fast_maker'] = out['fast_inside'] + out['fast_outside']
     return out
 
+def break_cost_by_role(market, results):
+    total_cost = total_speed_cost(market)
+    fast_roles = ('fast_inside', 'fast_outside', 'fast_sniper')
+    total_dur = 0
+    for role in fast_roles:
+        total_dur += results[role]['duration']
+    if not total_dur:
+        total_dur = 1
+    shares = {role: results[role]['duration'] / total_dur for role in fast_roles}
+    speed_cost_breakdown = {role: shares[role] * total_cost for role in fast_roles}
+    return speed_cost_breakdown
+
+def take_speed_cost(profits, speed_costs):
+    for role, cost in speed_costs.items():
+        profits[role] -= cost * 1e-4
+    return profits
+
+
 def BCS_results(market):
     results = aggregate(market)
+    speed_costs = break_cost_by_role(market, results)
     profits = total_profit(results)
+    profits = take_speed_cost(profits, speed_costs)
     durations = normal_duration(results)
     return (profits, durations)
 
 
 if __name__ == '__main__':
-    events = MarketEvents.init_many('hft_logging/experiment/CDA_xrlyy03a_6_2018-08-29_03-17')
+    events = MarketEvents.init_many('hft_logging/experiment/CDA_nlwehpop_3_2018-09-02_20-18')
     results = [BCSMarket(market) for market in events]
     for market in results:
         market.process()
         p, d = BCS_results(market)
-        print(p)
-        print(d)

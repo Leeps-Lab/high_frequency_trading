@@ -34,27 +34,55 @@ log = logging.getLogger(__name__)
 class Constants(BaseConstants):
     name_in_url = 'hft_bcs'
     players_per_group = None
-    num_rounds = 1
+    num_rounds = 2
 
     short_delay = 0.1   # slow players delay
     long_delay = 0.5    # fast players delay
 
     first_exchange_port = 9001  # make this configurable
 
+    speed_factor = 1e-9
+    player_state = ('state', 'fp', 'speed', 'spread', 'prev_speed_update')
+    player_accum = ('endowment', 'cost', 'speed_on')
+    player_fields = player_state + player_accum
+
+    group_role_counts = {'OUT': 'players_per_group', 'MAKER': 0, 'SNIPER': 0}
+
     # cache keys
-    lock_key = '{self.code}_redis_lock'
-    investor_file = 'investors_group_{id_in_session}'
-    jump_file = 'jumps_group_{id_in_session}'
+    lock_key = '{self.code}_lock'
+    investor_label = 'investors_group_{self.id_in_subsession}_round_{self.round_number}'
+    jump_label = 'jumps_group_{self.id_in_subsession}_round_{self.round_number}'
     player_fp_key = '{self.code}_fp'
     group_fp_key = 'group_{group_id}_fp'
     player_orderstore_key = '{self.code}_orders'
     player_status_key = '{self.code}_status'
     groups_ready_key = '{self.code}_ready'
     players_in_market_key  = '{self.code}_in_market'
-    state_count_key = '{self.code}_states'
+    role_count_key = '{self.code}_role_count'
+
+    unlock_value = 'unlocked'
+
+    player_role_update_map = {
+        'OUT': 'leave_market', 
+        'SNIPER': 'leave_market', 
+        'MAKER': 'enter_market'
+    }
+    player_action_map= {
+        'role_change': 'update_state',
+        'spread_change': 'update_spread',
+        'speed_change': 'update_speed',
+        'advance_me': 'session_finished',
+        'player_ready': 'in_market'
+    }
+    player_message_handle_map = {
+        'A': 'handle_enter',
+        'U': 'handle_replace',
+        'C': 'handle_cancel',
+        'E': 'handle_exec',
+    }
 
     # log file
-    log_file_format = '{directory}{self.design}_{self.code}_{self.players_per_group}_{time}'
+    log_file = '{dir}{self.design}_{self.code}_{self.players_per_group}_{time}'
 
     investor_url = 'ws://127.0.0.1:8000/hft_investor/'
     jump_url = 'ws://127.0.0.1:8000/hft_jump/'
@@ -70,10 +98,10 @@ class Constants(BaseConstants):
         'batch_length': 'batch_length'
     }
     player_field_map = {
-        'default_fp': 'fundamental_price',
+        'fp': 'fundamental_price',
         'spread': 'initial_spread',
-        'profit': 'initial_endowment',
-        'speed_cost': 'speed_cost',
+        'endowment': 'initial_endowment',
+        'speed_unit_cost': 'speed_cost',
         'max_spread': 'max_spread'
     }
 
@@ -106,33 +134,63 @@ class Subsession(BaseSubsession):
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
 
+    def init_cache(self):
+        pairs = {}
+        session_lock = Constants.lock_key.format(self=self)
+        pairs[session_lock] = Constants.unlock_value
+        ready_groups = Constants.groups_ready_key.format(self=self)
+        pairs[ready_groups] = {g.id: False for g in self.get_groups()}
+        for k, v in pairs.items():
+            cache.set(k, v, timeout=None)
+        print(pairs)
+
+    def set_payoff_round(self):
+        for player in self.get_players():
+            payoff_round = random.randint(1, Constants.num_rounds)
+            player.participant.vars['payoff_round'] = payoff_round
+            player.save()
+
+    def set_log_file(self):
+        now = datetime.now().strftime('%Y-%m-%d_%H-%M')
+        log_file = Constants.log_file.format(dir=exp_logs_dir, self=self, time=now)
+        self.log_file = log_file
+        for g in self.get_groups():
+            g.log_file = log_file
+            for p in g.get_players():
+                p.log_file = log_file
+                p.save()
+            g.save()
+        self.save()
+
+    def assign_groups(self):
+        group_matrix = self.session.config['group_matrix']
+        self.set_group_matrix(group_matrix)
+        self.save()
+
     def creating_session(self):
         # set session fields
         for k, v in Constants.session_field_map.items():
             setattr(self, k, self.session.config[v])
-        lock_key = Constants.lock_key.format(self=self)
-        cache.set(lock_key, 'unlocked', timeout=None)
-        today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
-        log_file = Constants.log_file_format.format(directory=exp_logs_dir, self=self, time=today)
-        self.log_file = log_file 
-        group_matrix = self.session.config['group_matrix']
-        self.set_group_matrix(group_matrix)
+        # set default values for cached session states
+        self.init_cache()
+        # set group matrix
+        self.assign_groups()
+        # set everyone to write to same log file
+        self.set_log_file()        
+        if self.round_number == 1:
+            # payoff from a random round will be paid.
+            self.set_payoff_round()
         groups = self.get_groups()
-        for ix, group in enumerate(groups):
-            group.creating_group(ix + 1)
-            group.log_file = log_file
-        self.groups_ready('init')
+        for group in groups:
+            group.creating_group()
         players = self.get_players()
         for player in players:
             for k, v in Constants.player_field_map.items():
                 v = self.session.config[v] * Constants.conversion_factor
                 setattr(player, k, v)
-            player.order_store(init=True)
-            player.status('init')
-            player.log_file = log_file
-            k = Constants.lock_key.format(self=player)
-            cache.set(k, 'unlocked', timeout=None)
-            player.save()
+            player.init_cache()
+
+        #TODO: wtf? make this smaller
         group_players = {g.id: [p.id for p in g.get_players()] for g in groups}
         l = prepare(group=0, level='header', typ='header', groups=group_players,
             session=self.code, design=self.design, initial_spread=players[0].spread,
@@ -145,12 +203,6 @@ class Subsession(BaseSubsession):
     def groups_ready(self, group_id, action='start'):
         k = Constants.groups_ready_key.format(self=self)
         session_state = cache.get(k)
-        if group_id == 'init':
-            session_state = {g.id: False for g in self.get_groups()}
-            cache.set(k, session_state, timeout=None)
-            return
-        if session_state is None:
-            raise ValueError('cache returned session state as none.')
         session_state[group_id] = True if action == 'start' else False
         cache.set(k, session_state, timeout=None)
         total = sum(session_state.values())
@@ -159,8 +211,6 @@ class Subsession(BaseSubsession):
             hfl.events.dump(header=True)
             for g in self.get_groups():
                 g.start()
-                l = prepare(group=g.id, level='exch', typ='start')
-                lablog(self.log_file, l)
         if total == 0 and self.trade_ended == False:
             log.info('session: advancing all players to results page.')
             self.trade_ended = True
@@ -195,33 +245,38 @@ class Group(BaseGroup):
     investor_file = models.StringField()
     jump_file = models.StringField()
     is_trading = models.BooleanField(initial=False)
-    # ready_players = models.IntegerField(initial=0)
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
 
-    def creating_group(self, id_in_session):
+    def init_cache(self):
+        pairs = {}
+        group_lock = Constants.lock_key.format(self=self)
+        pairs[group_lock] = Constants.unlock_value
+        in_market_key= Constants.players_in_market_key.format(self=self)   
+        pairs[in_market_key] = {p.id: False for p in self.get_players()}
+        role_count_key = Constants.role_count_key.format(self=self)
+        pairs[role_count_key] = {k: getattr(self.subsession, v) if isinstance(v, str) else v
+                                    for k, v in Constants.group_role_counts.items()} 
+        for k, v in pairs.items():
+            cache.set(k, v, timeout=None)
+        print(pairs)
+
+    def creating_group(self):
         self.exch_host = self.session.config['exchange_host']
         self.exch_port = self.subsession.next_available_exchange
         self.subsession.next_available_exchange += 1
-        investors = Constants.investor_file.format(id_in_session=id_in_session)
-        jumps = Constants.jump_file.format(id_in_session=id_in_session)
+        investors = Constants.investor_label.format(self=self)
+        jumps = Constants.jump_label.format(self=self)
         self.investor_file = self.session.config[investors]
         self.jump_file = self.session.config[jumps]
-        lock_key = Constants.lock_key.format(self=self)
-        cache.set(lock_key, 'unlocked', timeout=None)
         fp = self.session.config['fundamental_price'] * Constants.conversion_factor
-        self.players_in_market('init')
         self.fp_push(fp)
+        self.init_cache()
         subprocesses[self.id] = dict()
         self.save()
         self.subsession.save()
 
     def start(self):
-        self.connect_to_exchange()
-        self.start_exchange()
-        self.broadcast(
-            client_messages.start_session()
-        )
         self.spawn(
             Constants.investor_py,
             Constants.investor_url,
@@ -232,6 +287,13 @@ class Group(BaseGroup):
             Constants.jump_url,
             self.jump_file
         )
+        self.connect_to_exchange()
+        self.start_exchange()
+        self.broadcast(
+            client_messages.start_session()
+        )
+        l = prepare(group=self.id, level='exch', typ='start')
+        lablog(self.log_file, l)
         self.is_trading = True
         self.save()
 
@@ -343,6 +405,7 @@ class Group(BaseGroup):
         k = Constants.group_fp_key.format(group_id=self.id)
         group_fp = cache.get(k)
         if not group_fp:
+            # deque ?
             group_fp = Price_Log(100, price)
         group_fp.push(labtime(), price)
         cache.set(k, group_fp, timeout=None)
@@ -374,8 +437,9 @@ class Group(BaseGroup):
         self.loggy()
 
     def _collect_responses(self, players, price):
-        responses = [(p.id, p.jump(price), p.status('speed')) for p in players]
+        responses = [(p.id, p.jump(price), p.status(field='speed')) for p in players]
         return responses
+
 
     def _shuffle_and_send(self, responses):
         # index 1 is the the response an orders list of list
@@ -399,10 +463,6 @@ class Group(BaseGroup):
     def players_in_market(self, player_id):
         k = Constants.players_in_market_key.format(self=self)
         players_in_market = cache.get(k)
-        if player_id == 'init':
-            players_in_market = {p.id: False for p in self.get_players()}
-            cache.set(k, players_in_market, timeout=None)
-            return
         players_in_market[player_id] = True
         cache.set(k, players_in_market, timeout=None)
         total = sum(players_in_market.values())
@@ -411,16 +471,32 @@ class Group(BaseGroup):
             self.subsession.groups_ready(self.id)
         else:
             log.info('Group%d: %d players are in market.' % (self.id, total))
+
+    # @atomic
+    # def players_in_market(self, player_id=None, init=False):
+    #     k = Constants.players_in_market_key.format(self=self)
+    #     if init is True:
+    #         players = {p.id: False for p in self.get_players()}
+    #         cache.set(k, players, timeout=None)
+    #         return
+    #     elif player_id is not None:
+    #         players = cache.get(k)
+    #         players[player_id] = True
+    #         cache.set(k, players, timeout=None)
+    #         total = sum(players.values())
+    #     else:
+    #         raise ValueError('player id is none.')
+    #     if self.subsession.players_per_group == total:
+    #         log.info('Group%d: all players are in market.' % self.id)
+    #         self.subsession.groups_ready(self.id)
+    #     else:
+    #         log.info('Group%d: %d players are in market.' % (self.id, total))
     
     @atomic
     def group_stats(self, old_state, new_state):
-        k = Constants.state_count_key.format(self=self)
+        k = Constants.role_count_key.format(self=self)
         group_state = cache.get(k)
         ppg = self.subsession.players_per_group
-        if not group_state:
-            group_state = {
-                'MAKER': 0, 'SNIPER':0, 'OUT': ppg
-            }
         group_state[old_state] -= 1
         group_state[new_state] += 1
         cache.set(k, group_state, timeout=None)
@@ -430,6 +506,28 @@ class Group(BaseGroup):
         )
         if total != ppg:
             raise ValueError('total: %d, ppg: %d' % (total, ppg))
+
+    # @atomic
+    # def group_stats(self, old_state, new_state, init=False):
+    #     k = Constants.state_count_key.format(self=self)
+    #     if init:
+    #         ppg = self.subsession.players_per_group
+    #         group_state = {
+    #             'MAKER': 0, 'SNIPER':0, 'OUT': ppg
+    #         }
+    #         cache.set(k, group_state, timeout=None)
+    #         return
+    #     group_state = cache.get(k)
+    #     group_state[old_state] -= 1
+    #     group_state[new_state] += 1
+    #     cache.set(k, group_state, timeout=None)
+    #     total = sum(group_state.values())
+    #     self.broadcast(
+    #         client_messages.total_role(group_state)
+    #     )
+    #     if total != ppg:
+    #         raise ValueError('total: %d, ppg: %d' % (total, self.subsession.players_per_group))
+
 
     def loggy(self):
         hfl.events.convert()
@@ -443,33 +541,47 @@ class Player(BasePlayer):
     speed = models.BooleanField(initial=False)
     spread = models.IntegerField()
     channel = models.CharField(max_length=255)
- #  ready = models.BooleanField(initial=0)
-    default_fp = models.IntegerField()
-    profit = models.IntegerField()
-    time_of_speed_change = models.BigIntegerField()
-    speed_cost = models.IntegerField()
+    cost = models.IntegerField(initial=0)
+    fp = models.IntegerField()
+    endowment = models.IntegerField()
+    prev_speed_update = models.BigIntegerField(initial=0)
+    speed_on = models.IntegerField(initial=0)
+    speed_unit_cost = models.IntegerField()
     max_spread = models.IntegerField()
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
 
+    def init_cache(self):
+        pairs = {}
+        lock_key = Constants.lock_key.format(self=self)
+        pairs[lock_key] = Constants.unlock_value
+        orderstore_key = Constants.player_orderstore_key.format(self=self)
+        pairs[orderstore_key] = OrderStore(self.id, self.id_in_group)
+        state_key = Constants.player_status_key.format(self=self)
+        pairs[state_key] = {k: getattr(self, k, None) for k in Constants.player_fields}
+        for k, v in pairs.items():
+            cache.set(k, v, timeout=None)  
+        print(pairs)     
     
-    def stage_enter(self, side=None, price=None, time_in_force=99999):
+    def stage_enter(self, center='fp', side=None, price=None, time_in_force=99999):
         """
         create an enter order
         default to maker enter order
         return ouch message list
         """
-        current_spread = self.status('spread')
+        current_spread = self.status(field='spread')
+        if center == 'fp':
+            fp = self.status(field='fp')
         spread = current_spread if side == 'S' else - current_spread
-        price = int(self.fp() + spread / 2) if not price else price
+        price = int(fp + spread / 2) if not price else price
         orderstore = self.order_store()
         order = orderstore.create(
             status='stage', side=side, price=price, time_in_force=time_in_force
         )
         self.save_order_store(orderstore)
         log_dict = {
-            'gid': self.group_id, 'pid': self.id, 'state': self.status('state'),
-            'speed': self.status('speed'), 'order': order
+            'gid': self.group_id, 'pid': self.id, 'state': self.status(field='state'),
+            'speed': self.status(field='speed'), 'order': order
         }
         hfl.events.push(hfl.stage_enter, **log_dict)
         ouch = [translate.enter(order)]
@@ -483,10 +595,10 @@ class Player(BasePlayer):
         """
         new_order, replace = self._replace(order)
         msgs = [translate.replace(o, new_order) for o in replace.values() 
-                                                        if o is not False]
+                                                            if o is not False]
         log_dict = {
-            'gid': self.group_id, 'pid': self.id, 'state': self.status('state'),
-            'speed': self.status('speed'), 'head': replace['head'], 'new': new_order,
+            'gid': self.group_id, 'pid': self.id, 'state': self.status(field='state'),
+            'speed': self.status(field='speed'), 'head': replace['head'], 'new': new_order,
         }
         if len(msgs) > 1:
             log_dict['root'] = order
@@ -499,9 +611,9 @@ class Player(BasePlayer):
         operations, find the head order
         also replace the root if root is not head
         """
-        spread = self.status('spread')
+        spread = self.status(field='spread')
         d = spread / 2 if order.side == 'S' else - spread / 2
-        price = int(self.fp() + d)
+        price = int(self.status(field='fp') + d)
         orderstore = self.order_store()
         new_order = orderstore.create(
             status='replace', side=order.side, price=price, time_in_force=99999
@@ -538,8 +650,8 @@ class Player(BasePlayer):
         msgs = [translate.cancel(o.token) for o in cancel.values()
                                                 if o is not False]
         log_dict = {
-            'gid': self.group_id, 'pid': self.id, 'state': self.status('state'),
-            'speed': self.status('speed'), 'head': cancel['head'],
+            'gid': self.group_id, 'pid': self.id, 'state': self.status(field='state'),
+            'speed': self.status(field='speed'), 'head': cancel['head'],
         }
         if len(msgs) > 1:
             log_dict['root'] = order
@@ -561,7 +673,7 @@ class Player(BasePlayer):
             cancel['root'] = False
         return cancel
 
-    def _enter_market(self):
+    def enter_market(self):
         """
         enter market after switching role to maker
         send two enter ouch messages to exchange via group
@@ -586,7 +698,7 @@ class Player(BasePlayer):
             log.warning('more than two enter orders: %s.' % orders)
         return orders
 
-    def _leave_market(self):
+    def leave_market(self):
         """
         exit market after switching from maker
         pass two ouch messages to cancel active orders
@@ -624,23 +736,19 @@ class Player(BasePlayer):
         """
         switch between 3 roles (states): out, sniper and maker
         """
-        states = {
-            'OUT': self._leave_market,
-            'SNIPER': self._leave_market,
-            'MAKER': self._enter_market,
-        }
-        old_state = self.status('state')
+        states = Constants.player_role_update_map
+        old_state = self.status(field='state')
         new_state = message['state'].upper()
         # update dict that keeps totals for roles
         # update player status
-        self.status_update('state', new_state)
+        self.status_update(new_state, field='state')
         try:
             # new state determines the action.
-            states[new_state]()
+            methodname = states[new_state]
+            getattr(self, methodname)()
         except KeyError:
             log.info(new_state)
             log.info('Player%d: Invalid state update.' % self.id)
-       #     raise e
         self.group.group_stats(old_state, new_state)
         log_dict = {
                 'gid': self.group_id, 'pid': self.id, 'state': new_state
@@ -661,7 +769,7 @@ class Player(BasePlayer):
         replace existing orders with new price
         """
         new_spread = int(message['spread'])
-        self.status_update('spread', new_spread)
+        self.status_update(new_spread, field='spread')
         log_dict = {'gid': self.group_id, 'pid': self.id, 'spread': new_spread}
         hfl.events.push(hfl.spread_update, **log_dict)
         msgs = self.makers_replace(1)  # replace orders, start from above
@@ -678,13 +786,15 @@ class Player(BasePlayer):
         calculate cost if player turns off speed
         record time if player turns on speed
         """
-        new_speed = not self.status('speed')
-        self.status_update('speed', new_speed)
+        new_speed = not self.status(field='speed')
+        self.status_update(new_speed, field='speed')
         now = labtime()
         if new_speed:
-            self.status_update('speed_change_time', now)
+            self.status_update(now, field='prev_speed_update')
         else:
-            self._calc_speed_cost(now)
+            start = self.status(field='prev_speed_update')
+            total_time = now - start
+            self.status_update(total_time, field='speed_on')
         log_dict = {'gid': self.group_id, 'pid': self.id, 'speed': new_speed}
         hfl.events.push(hfl.speed_update, **log_dict)
         l = prepare(
@@ -702,36 +812,23 @@ class Player(BasePlayer):
         if self.subsession.trade_ended == False:
             self.group.end_trade(self.id)
 
-    """
-    there are 3 possible client actions:
-    role change, spread change and state change
-    """
-
     # Receive methods
+    # action starts here
+
     def receive_from_client(self, msg):
         """
         consumers call this when
         oTree receives a websocket frame
         from a client
         """
-
-        actions= {
-            'role_change': self.update_state,
-            'spread_change': self.update_spread,
-            'speed_change': self.update_speed,
-            'advance_me': self.session_finished,
-            'player_ready': self.in_market,
-        }
-        actions[msg['type']](msg)
+        actions = Constants.player_action_map
+        methodname = actions[msg['type']]
+        getattr(self, methodname)(msg)
 
     def receive_from_group(self, header, body):
-        events= {
-            'A': self.handle_enter,
-            'U': self.handle_replace,
-            'C': self.handle_cancel,
-            'E': self.handle_exec,
-        }
-        events[header](body)
+        handlers = Constants.player_message_handle_map
+        methodname = handlers[header]
+        getattr(self, methodname)(body)
         # this next line is just for debugging
         # I like it because it prints orderstore.
         # comes cheap since all the processing
@@ -747,8 +844,8 @@ class Player(BasePlayer):
     def makers_broadcast(self, token):
         # message front-ends so they can place ticks
         # what is my fundamental price and spread ?
-        fp  = self.fp()
-        spread = self.status('spread')
+        fp  = self.status(field='fp')
+        spread = self.status(field='spread')
         # then these are legs
         lo, hi = fp - spread / 2, fp + spread / 2
         self.group.broadcast(
@@ -765,7 +862,7 @@ class Player(BasePlayer):
         """
         stamp, tok = msg['timestamp'], msg['order_token']
         order = self._confirm_enter(stamp, tok)
-        current_state = self.status('state')
+        current_state = self.status(field='state')
         # TODO: make base roles point instead of hardcoding
         if current_state == 'MAKER':
             self.makers_broadcast(tok)
@@ -799,7 +896,7 @@ class Player(BasePlayer):
         ptoken, token = msg['previous_order_token'], msg['replacement_order_token']
         stamp = msg['timestamp']
         old_order, new_order = self._confirm_replace(stamp, ptoken, token)
-        current_state = self.status('state')
+        current_state = self.status(field='state')
         if current_state == 'MAKER':
             self.makers_broadcast(token)
         l = prepare(
@@ -865,10 +962,11 @@ class Player(BasePlayer):
         stamp, tok = msg['timestamp'], msg['order_token']
         order = self._confirm_exec(stamp, tok)
         price = msg['execution_price']
-        profit = self.calc_profit(price, order.side, stamp)
+        profit = self.profit(price, order.side, stamp)
         self.group.broadcast(
             client_messages.execution(self.id_in_group, tok, profit)
         )
+        self.post_execution(order)
         l = prepare(
             group=self.group_id, level='exch', typ='exec',
             pid=self.id, token=order.token, price=order.price, 
@@ -880,71 +978,144 @@ class Player(BasePlayer):
         orderstore = self.order_store()
         order = orderstore[token]
         order = orderstore.inactivate(order, 'executed')
-        current_state = self.status('state')
         self.save_order_store(orderstore)
         log_dict = {'gid': self.group_id, 'pid': self.id, 'order': order}
         hfl.events.push(hfl.confirm_exec, **log_dict)
-        if current_state == 'MAKER' and order.time_in_force != 0:
-            msgs = [self.stage_enter(order.side)]
-            self.group.send_exchange(msgs, delay=True, speed=self.speed)
         return order
+    
+    def post_execution(self, order, kind='bcs_post_execution'):
+        post_exec_func = getattr(self, kind)
+        assert post_exec_func
+        post_exec_func(order)
+    
+    def bcs_post_execution(self, order):
+        current_state = self.status(field='state')
+        if current_state == 'MAKER' and order.time_in_force != 0:
+            msgs = [self.stage_enter(side=order.side)]
+            self.group.send_exchange(msgs, delay=True, speed=self.speed)
 
-    def calc_profit(self, exec_price, side, timestamp):
-        """
-        find the distance btw fundamental and execution prices
-        order side determines profit sign
-        take speed cost along the way
-        """
+    def profit(self, exec_price, side, timestamp, kind='bcs_profit'):
+        profit_func = getattr(self, kind)
+        assert profit_func
+        pi = profit_func(exec_price, side, timestamp)
+        return pi
+
+    def bcs_profit(self, exec_price, side, timestamp):
         fp_key = Constants.group_fp_key.format(group_id=self.group_id)
         fp = cache.get(fp_key).get_FP(timestamp)
         d = abs(fp - exec_price)
-        profit = self.status('profit')
         if exec_price < fp:
             # buyer (seller) buys (sells) less than fp
             pi = d if side == 'B' else -d  
         else:
             # seller (buyer) sells (buys) higher than fp
             pi = d if side == 'S' else -d  
-        updated_profit = profit + pi
-        self.status_update('profit', updated_profit)
+        self.status_update(pi, field='endowment')
         log_dict = {
             'gid': self.group_id, 'pid': self.id, 'amount': pi,
-            'side': side, 'profit': updated_profit, 'fp': fp, 
+            'side': side, 'profit': self.status(field='endowment'), 'fp': fp, 
             'p': exec_price,
         }
         hfl.events.push(hfl.profit, **log_dict)
-        if self.status('speed'):
-            self._calc_speed_cost(labtime())
         l = prepare(
             group=self.group_id, level='market', typ='profit',
             source='cross', pid=self.id, stamp=timestamp,
-            endowment=updated_profit, profit=pi
+            endowment=self.status(field='endowment'), profit=pi
         )
         lablog(self.log_file, l)
-        return pi
+        return pi    
+   
+    # def calc_profit(self, exec_price, side, timestamp):
+    #     """
+    #     find the distance btw fundamental and execution prices
+    #     order side determines profit sign
+    #     take speed cost along the way
+    #     """
+    #     fp_key = Constants.group_fp_key.format(group_id=self.group_id)
+    #     fp = cache.get(fp_key).get_FP(timestamp)
+    #     d = abs(fp - exec_price)
+    #     profit = self.status('profit')
+    #     if exec_price < fp:
+    #         # buyer (seller) buys (sells) less than fp
+    #         pi = d if side == 'B' else -d  
+    #     else:
+    #         # seller (buyer) sells (buys) higher than fp
+    #         pi = d if side == 'S' else -d  
+    #     updated_profit = profit + pi
+    #     self.status_update('profit', updated_profit)
+    #     log_dict = {
+    #         'gid': self.group_id, 'pid': self.id, 'amount': pi,
+    #         'side': side, 'profit': updated_profit, 'fp': fp, 
+    #         'p': exec_price,
+    #     }
+    #     hfl.events.push(hfl.profit, **log_dict)
+    #     if self.status('speed'):
+    #         self._calc_speed_cost(labtime())
+    #     l = prepare(
+    #         group=self.group_id, level='market', typ='profit',
+    #         source='cross', pid=self.id, stamp=timestamp,
+    #         endowment=updated_profit, profit=pi
+    #     )
+    #     lablog(self.log_file, l)
+    #     return pi
 
-    def _calc_speed_cost(self, timestamp):
+    def take_cost(self, kind='bcs_speed_cost'):
+        now = labtime()
+        cost_func = getattr(self, kind)
+        cost_func(now)
+    
+    def bcs_speed_cost(self, timestamp):
         """
-        calculate speed cost since the previous calculation
+        this should only be called once at session end
+        can edit for different versions
         """
-        delta = timestamp - self.status('speed_change_time')
-        # TODO: move factor to somewhere else.
-        nanocost = self.speed_cost * 1e-9
-        cost = delta * nanocost
-        self.status_update('speed_change_time', timestamp)
-        new_profit = self.status('profit') - cost
-        self.status_update('profit', new_profit)
+        if self.status(field='speed') is True:
+            self.update_speed('')   # sorry 
+        delta = self.status(field='speed_on')
+        amount = self.speed_unit_cost * delta * Constants.speed_factor
+        self.status_update(amount, field='cost')
         log_dict = {
             'gid': self.group_id, 'pid': self.id,
-            'cost': cost, 'delta': delta, 'nanocost': nanocost
+            'amount': amount, 'delta': delta, 'cost': amount
         }
         hfl.events.push(hfl.cost, **log_dict)
         l = prepare(
-            group=self.group_id, level='market', typ='profit',
+            group=self.group_id, level='market', typ='cost',
             source='speed', pid=self.id, stamp=timestamp,
-            endowment=new_profit, profit=-cost
+            cost=amount
         )
         lablog(self.log_file, l)
+
+    def calc_payoff(self):
+        profit = self.status(field='endowment')
+        cost = self.status(field='cost')
+        payoff = profit - cost
+        return payoff
+        
+
+
+    # def _calc_speed_cost(self, timestamp):
+    #     """
+    #     calculate speed cost since the previous calculation
+    #     """
+    #     delta = timestamp - self.status('speed_change_time')
+    #     # TODO: move factor to somewhere else.
+    #     nanocost = self.speed_cost * 1e-9
+    #     cost = delta * nanocost
+    #     self.status_update('speed_change_time', timestamp)
+    #     new_profit = self.status('profit') - cost
+    #     self.status_update('profit', new_profit)
+    #     log_dict = {
+    #         'gid': self.group_id, 'pid': self.id,
+    #         'cost': cost, 'delta': delta, 'nanocost': nanocost
+    #     }
+    #     hfl.events.push(hfl.cost, **log_dict)
+    #     l = prepare(
+    #         group=self.group_id, level='market', typ='profit',
+    #         source='speed', pid=self.id, stamp=timestamp,
+    #         endowment=new_profit, profit=-cost
+    #     )
+    #     lablog(self.log_file, l)
 
     @atomic
     def jump(self, new_price):
@@ -953,14 +1124,14 @@ class Player(BasePlayer):
         update fundamental price
         return jump response to group.jump
         """
-        is_positive = new_price - self.fp() > 0.
-        self.fp_update(new_price)
+        is_positive = new_price - self.status(field='fp') > 0.
+        self.status_update(new_price, field='fp')
         response = False
-        current_role = self.status('state')
+        current_role = self.status(field='state')
 
         if current_role == 'SNIPER':
             side = 'B' if is_positive else 'S'
-            order = [self.stage_enter(side, price=self.fp(), time_in_force=0)]
+            order = [self.stage_enter(side=side, price=self.status(field='fp'), time_in_force=0)]
             response = order
         elif current_role == 'MAKER':
             flag = 1 if is_positive else 0
@@ -968,6 +1139,7 @@ class Player(BasePlayer):
             response = orders
         else:
             pass
+        
         return response
 
     """
@@ -996,67 +1168,75 @@ class Player(BasePlayer):
         lives in cache backend
         """
         k = Constants.player_orderstore_key.format(self=self)
-        orderstore = None
-        if init:
-            log.info('Group%d: Player%d: Initialize Order Store.' % (self.group_id, self.id))
-            orderstore = OrderStore(self.id, self.id_in_group)
-            cache.set(k, orderstore, timeout=None)
-            return orderstore
-        orderstore = cache.get(k, None)   
-        if orderstore is None:
-            raise ValueError('cache returned orderstore as none.')             
+        orderstore = cache.get(k, None)               
         return orderstore
 
     def save_order_store(self, orderstore):
         """
-        write to cache
+        write orderstore back to cache
         """
         k = Constants.player_orderstore_key.format(self=self)
         cache.set(k, orderstore, timeout=None)
         
 
-    def fp(self):
-        """
-        each player stores a fundamental price on cache
-        read from cache
-        return fp
-        """
-        k = Constants.player_fp_key.format(self=self)
-        fp = cache.get(k)
-        if not fp:
-            fp = self.default_fp
-            log.info(
-                'Group%d: Player%d: Initiate FP as %d .' % (self.group_id, self.id, fp)
-            )
-            cache.set(k, fp, timeout=None)
-        return fp
+    # def fp(self):
+    #     """
+    #     each player stores a fundamental price on cache
+    #     read from cache
+    #     return fp
+    #     """
+    #     k = Constants.player_fp_key.format(self=self)
+    #     fp = cache.get(k)
+    #     if not fp:
+    #         fp = self.default_fp
+    #         log.info(
+    #             'Group%d: Player%d: Initiate FP as %d .' % (self.group_id, self.id, fp)
+    #         )
+    #         cache.set(k, fp, timeout=None)
+    #     return fp
 
-    def fp_update(self, new_fp):
-        k = Constants.player_fp_key.format(self=self)
-        cache.set(k, new_fp, timeout=None)
+    # def fp_update(self, new_fp):
+    #     k = Constants.player_fp_key.format(self=self)
+    #     cache.set(k, new_fp, timeout=None)
         # log.info('Group%d: Player%d: Update FP: %d' % (self.group_id, self.id, new_fp))
+    
+    # def status(self, field=None, init=False):
+    #     if field is None:
+    #         raise ValueError
+    #     if init:
+    #         status = {k: getattr(self, k, None) for k in Constants.player_status_fields}
+    #         # TODO: also add accumulated fields
+    #         cache_key = Constants.player_status_key.format(self=self)
+    #         cache.set(k, status, timeout=None)
+    #     else:
+    #         status = cache.get(k, None)
+    #     assert status is not None
+    #     out = status.get(field)
+    #     assert out is not None
+    #     return out
 
-    def status(self, field):
+    def status(self, field=None):
         k = Constants.player_status_key.format(self=self)
-        if field == 'init':
-            log.info('Group%d: Player%d: Initiate status dict.' % (self.group_id, self.id))
-            status = {
-                'state': self.state, 'speed': self.speed, 'profit': self.profit,
-                'spread': self.spread, 'speed_change_time': 0
-            }
-            cache.set(k, status, timeout=None)
-            return
         status = cache.get(k, None)
-        if status is None:
-            raise ValueError('cache returned none status.')
         out = status[field]
         return out
 
-    def status_update(self, field, new_state):
+    def status_update(self, new, field=None):
         k = Constants.player_status_key.format(self=self)
         status = cache.get(k)
-        status[field] = new_state
+        if field in Constants.player_state:
+            status[field] = new
+        elif field in Constants.player_accum:
+            status[field] += new
+        else:
+            raise ValueError('invalid field.') 
         cache.set(k, status, timeout=None)
+
+    # def status_update(self, new_state, field=None):
+    #     k = Constants.player_status_key.format(self=self)
+    #     status = cache.get(k)
+    #     status[field] = new_state
+    #     cache.set(k, status, timeout=None)
 
 class Investor(Model):
 

@@ -91,13 +91,13 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
     otreeConstants.maxSpread = {{player.max_spread}}; 
     otreeConstants.defaultSpread = {{player.spread}};
-    otreeConstants.startingWealth = {{player.profit}};
-    otreeConstants.startFP = {{player.default_fp}}; 
+    otreeConstants.startingWealth = {{player.endowment}};
+    otreeConstants.startFP = {{player.fp}}; 
     otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
     otreeConstants.min_spread = 100;
     otreeConstants.roundLength = {{subsession.round_length}};
     otreeConstants.timeOffset = 0; 
-    otreeConstants.speedCost = {{player.speed_cost}};
+    otreeConstants.speedCost = {{player.speed_unit_cost}};
     otreeConstants.endMsg = "off";
     otreeConstants.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
     otreeConstants.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
@@ -358,11 +358,11 @@ Socket Actions
             otreeConstants.speedCost = {{Constants.long_delay}};
             otreeConstants.maxSpread = {{player.max_spread}}; 
             otreeConstants.defaultSpread = {{player.spread}};
-            otreeConstants.startingWealth = {{player.profit}};
-            otreeConstants.startFP = {{player.default_fp}}; 
+            otreeConstants.startingWealth = {{player.endowment}};
+            otreeConstants.startFP = {{player.fp}}; 
             otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
             otreeConstants.roundLength = {{subsession.round_length}};
-            otreeConstants.speedCost = {{player.speed_cost}} * (1e-9);
+            otreeConstants.speedCost = {{player.speed_unit_cost}} * (1e-9);
 
             var msg = {
                 type: 'player_ready',

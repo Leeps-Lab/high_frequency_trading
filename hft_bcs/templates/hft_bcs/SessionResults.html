@@ -1,0 +1,23 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block content %}
+
+    <p>Here are the results for the session:</p>
+
+    <p>
+        You have accumulated {{player.participant.payoff}} in experimental currency units.
+    </p>
+
+    <p>
+        Dollar payoff round is chosen randomly for each participant.
+        Yours were selected as round {{payoff_round}}.
+    </p>
+
+    <p> You will receive {{real_payoff}}. </p>
+
+{% endblock %}

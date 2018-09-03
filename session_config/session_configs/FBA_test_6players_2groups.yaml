@@ -1,13 +1,13 @@
 demo:
   number-of-participants: 12
 directory:
-  folder: 20180723/Period1/
+  folder: investors_jumps
 investors:
-  group_1: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/20180723/Period1/investors_period1_group1.csv
-  group_2: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/20180723/Period1/investors_period1_group2.csv
+  group_1: ['i01.csv', 'i02.csv']
+  group_2: ['j01.csv', 'j02.csv']
 jumps:
-  group_1: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/20180723/Period1/jumps_period1_group1.csv
-  group_2: https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/20180723/Period1/jumps_period1_group2.csv
+  group_1: ['i01.csv', 'i02.csv']
+  group_2: ['j01.csv', 'j02.csv']
 group:
   group-assignments: '[[1, 2, 3, 4, 5, 6],[7,8,9,10,11,12]]'
   number-of-groups: 2
@@ -25,4 +25,4 @@ parameters:
   batch-length: 3
 session:
   display_name: FBA Production
-  session_name: 20180723_fba_period_1
+  session_name: fba_test_config
