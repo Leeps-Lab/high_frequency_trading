@@ -39,7 +39,7 @@ class Constants(BaseConstants):
     short_delay = 0.1   # slow players delay
     long_delay = 0.5    # fast players delay
 
-    first_exchange_port = 9001  # make this configurable
+    first_exchange_port = {'CDA': 9001, 'FBA': 9101}  # make this configurable
 
     speed_factor = 1e-9
     player_state = ('state', 'fp', 'speed', 'spread', 'prev_speed_update')
@@ -120,13 +120,11 @@ def stop_exogenous(group_id):
                 v.kill()
             except Exception as e:
                 log.warning(e)
-    else:
-        log.warning('No subprocess found.')
 
 
 class Subsession(BaseSubsession):
     design = models.StringField()
-    next_available_exchange = models.IntegerField(initial=Constants.first_exchange_port)
+    next_available_exchange = models.IntegerField()
     players_per_group = models.IntegerField()
     round_length = models.IntegerField()
     batch_length = models.IntegerField(initial=0)
@@ -180,6 +178,8 @@ class Subsession(BaseSubsession):
         if self.round_number == 1:
             # payoff from a random round will be paid.
             self.set_payoff_round()
+        # set the exchange port start
+        self.next_available_exchange = Constants.first_exchange_port[self.design]
         groups = self.get_groups()
         for group in groups:
             group.creating_group()

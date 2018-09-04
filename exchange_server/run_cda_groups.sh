@@ -9,7 +9,6 @@ groups=$1
 timestamp=$(date +'%Y-%m-%d_%H:%M:%S')
 flag=$2
 
-./stop_all.sh
 
 if [ -z "$1" ];
 then

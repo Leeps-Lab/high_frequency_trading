@@ -190,8 +190,10 @@ class BCSMarket:
                 func = getattr(self, func_name)
                 func(row)
 
-    def inside_maker(self):        
+    def inside_maker(self):     
+        print(self.players.values())   
         makers = [p for p in self.players.values() if p.current_role == 'maker']
+        print(makers)
         if makers is None:
             return
         fun = (lambda x: x.spread if x.spread is not None else self.events.spread)

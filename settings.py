@@ -8,6 +8,7 @@ import otree.settings
 import yaml
 from custom_otree_config import BCSConfig
 
+USE_POINTS = True
 
 CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -244,7 +245,7 @@ LOGGING = {
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = {
-    'real_world_currency_per_point': 0.00,
+    'real_world_currency_per_point': 0.0001,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['hft_bcs'],

@@ -1,5 +1,6 @@
 from ._builtin import Page, WaitPage
 from .translator import system_start
+from otree.api import Currency as c
 from .models import Constants
 from .utility import GroupResult, nanoseconds_since_midnight as labtime
 from . import results
@@ -50,7 +51,7 @@ class SessionResults(Page):
     def vars_for_template(self):
         payoff_round = self.participant.vars['payoff_round']
         real_payoff = self.participant.vars['real_payoff']
-        return {'payoff_round': payoff_round, 'real_payoff': real_payoff}
+        return {'payoff_round': c(payoff_round), 'real_payoff': c(real_payoff)}
 
 
 page_sequence = [
