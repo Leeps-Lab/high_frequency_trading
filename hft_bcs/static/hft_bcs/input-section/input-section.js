@@ -168,7 +168,8 @@ class InputSection extends PolymerElement {
   }
 
   makerClick(input_object){
-    if ((input_object.path[0].className  == "button-off") && (input_object.path[0].className != "button-pressed")){
+
+    if ((input_object.path[0].className  == "button-off") && (input_object.path[0].className != "button-pressed") && (input_object.path[1].querySelector("#sniper").className != "button-pressed")){
     //     //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
 
         /* 
@@ -222,7 +223,7 @@ class InputSection extends PolymerElement {
   }
 
   sniperClick(input_object){
-    if ((input_object.path[0].className  == "button-off") && (input_object.path[0].className != "button-pressed")){
+    if ((input_object.path[0].className  == "button-off") && (input_object.path[0].className != "button-pressed") && (input_object.path[1].querySelector("#maker").className != "button-pressed")){
     //     //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
 
         /* 
@@ -282,7 +283,7 @@ class InputSection extends PolymerElement {
   }
 
   outClick(input_object){
-    if ((input_object.path[0].className  == "button-off") && (input_object.path[0].className != "button-pressed")){
+    if ((input_object.path[0].className  == "button-off") && (input_object.path[0].className != "button-pressed") && (input_object.path[1].querySelector("#maker").className != "button-pressed")&& (input_object.path[1].querySelector("#sniper").className != "button-pressed")){
         //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
         /* 
         * Some Wizadry to differentiate between the inputs inside of the input-selection DOM element

@@ -223,7 +223,7 @@ class InputSection extends PolymerElement {
   }
 
   sniperClick(input_object){
-    if ((input_object.path[0].className  == "button-off") && (input_object.path[0].className != "button-pressed") && (input_object.path[1].querySelector("#maker").className != "button-pressed")){
+    if ((input_object.path[0].className  == "button-off") && (input_object.path[0].className != "button-pressed")){
     //     //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
 
         /* 
