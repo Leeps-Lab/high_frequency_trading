@@ -293,6 +293,9 @@ class SpreadGraph extends PolymerElement {
         var exec_spread = "";
         var player_id = otreeConstants.playerIDInGroup;
         var lineParser = spreadGraph.spread_lines;
+        if(otreeConstants.FBA){
+            lineParser = spreadGraph.spreadLinesFBAConcurrent;
+        }
         for(var key in lineParser){
             if(key==player_id){ 
 
