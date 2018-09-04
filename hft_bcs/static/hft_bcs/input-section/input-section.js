@@ -273,6 +273,7 @@ class InputSection extends PolymerElement {
     spreadGraph.spread_svg.selectAll("rect").remove();
     spreadGraph.spread_svg.selectAll(".my_line").remove();
     delete spreadGraph.spread_lines[otreeConstants.playerID]
+    delete spreadGraph.spreadLinesFBAConcurrent[otreeConstants.playerID]
      document.querySelector('info-table').spread_value = 0;
      input_object.path[1].querySelector("#maker").className = "button-off";
      input_object.path[1].querySelector("#out").className = "button-off";
@@ -335,7 +336,9 @@ class InputSection extends PolymerElement {
 
      spreadGraph.spread_svg.selectAll("rect").remove();
      spreadGraph.spread_svg.selectAll(".my_line").remove();
-    delete spreadGraph.spread_lines[otreeConstants.playerID]
+    delete spreadGraph.spread_lines[otreeConstants.playerID];
+    delete spreadGraph.spreadLinesFBAConcurrent[otreeConstants.playerID];
+    
   }
 
   drawTimer(){

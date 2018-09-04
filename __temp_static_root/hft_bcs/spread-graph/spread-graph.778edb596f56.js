@@ -276,9 +276,11 @@ class SpreadGraph extends PolymerElement {
 
   updateFBASpreadGraphLines(){
     spreadGraph.spreadLinesFBABatch = {};
+    console.log(spreadGraph.spreadLinesFBAConcurrent);
     for(var key in spreadGraph.spreadLinesFBAConcurrent){
+        console.log(spreadGraph.spreadLinesFBAConcurrent[key]);
         spreadGraph.spreadLinesFBABatch[key] = spreadGraph.spreadLinesFBAConcurrent[key];
-        spreadGraph.drawMySpreadLines(spreadGraph.spreadLinesFBAConcurrent);
+        spreadGraph.drawMySpreadLines(spreadGraph.spreadLinesFBAConcurrent[key]);
     }
   }
 
@@ -292,12 +294,12 @@ class SpreadGraph extends PolymerElement {
         var exec_side = "";
         var exec_spread = "";
         var player_id = otreeConstants.playerIDInGroup;
-        var lineParser = spreadGraph.spread_lines;
-        for(var key in lineParser){
+
+        for(var key in spreadGraph.spread_lines){
             if(key==player_id){ 
 
                 var svg_middle_y = spreadGraph.spread_height/2;
-                var my_spread = parseInt(lineParser[key]["A"] - lineParser[key]["B"]);
+                var my_spread = parseInt(spreadGraph.spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"]);
                 var money_ratio =  otreeConstants.maxSpread/my_spread;
                 var y_coordinate = svg_middle_y/money_ratio;
                 var lines = []
@@ -347,7 +349,7 @@ class SpreadGraph extends PolymerElement {
                 var lines = [];
                 //Where the grey middle line is
                 var svg_middle_y = spreadGraph.spread_height/2;
-                my_spread = parseInt(lineParser[key]["A"] - lineParser[key]["B"]);
+                my_spread = parseInt(spreadGraph.spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"]);
                 money_ratio =  otreeConstants.maxSpread/my_spread;
                 y_coordinate = svg_middle_y/money_ratio;
                 //Ratio between the distance and the mid

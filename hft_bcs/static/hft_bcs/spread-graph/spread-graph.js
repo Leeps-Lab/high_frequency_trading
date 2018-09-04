@@ -275,12 +275,10 @@ class SpreadGraph extends PolymerElement {
   }
 
   updateFBASpreadGraphLines(){
-    var n = spreadGraph.spreadLinesFBAConcurrent.length - 1;
-    for( n; n >= 0; n--){
-        if(spreadGraph.spreadLinesFBAConcurrent[n+1] != undefined){
-            spreadGraph.spreadLinesFBABatch[n+1] = spreadGraph.spreadLinesFBAConcurrent[n+1];
-            spreadGraph.drawMySpreadLines(spreadGraph.spreadLinesFBAConcurrent[n+1]);
-        }
+    spreadGraph.spreadLinesFBABatch = {};
+    for(var key in spreadGraph.spreadLinesFBAConcurrent){
+        spreadGraph.spreadLinesFBABatch[key] = spreadGraph.spreadLinesFBAConcurrent[key];
+        spreadGraph.drawMySpreadLines(spreadGraph.spreadLinesFBAConcurrent);
     }
   }
 
@@ -294,12 +292,12 @@ class SpreadGraph extends PolymerElement {
         var exec_side = "";
         var exec_spread = "";
         var player_id = otreeConstants.playerIDInGroup;
-
-        for(var key in spreadGraph.spread_lines){
+        var lineParser = spreadGraph.spread_lines;
+        for(var key in lineParser){
             if(key==player_id){ 
 
                 var svg_middle_y = spreadGraph.spread_height/2;
-                var my_spread = parseInt(spreadGraph.spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"]);
+                var my_spread = parseInt(lineParser[key]["A"] - lineParser[key]["B"]);
                 var money_ratio =  otreeConstants.maxSpread/my_spread;
                 var y_coordinate = svg_middle_y/money_ratio;
                 var lines = []
@@ -349,7 +347,7 @@ class SpreadGraph extends PolymerElement {
                 var lines = [];
                 //Where the grey middle line is
                 var svg_middle_y = spreadGraph.spread_height/2;
-                my_spread = parseInt(spreadGraph.spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"]);
+                my_spread = parseInt(lineParser[key]["A"] - lineParser[key]["B"]);
                 money_ratio =  otreeConstants.maxSpread/my_spread;
                 y_coordinate = svg_middle_y/money_ratio;
                 //Ratio between the distance and the mid
@@ -471,6 +469,7 @@ class SpreadGraph extends PolymerElement {
                         spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0, 15);
                     }
                     spreadGraph.spread_lines[key] = newLines[key];
+                    //spreadGraph.spreadLinesFBAConcurrent[key] = newLines[key];
                 }
                 if(inv == true){
                 var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")

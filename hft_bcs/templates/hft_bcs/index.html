@@ -121,8 +121,8 @@ Graph_Features is an object that stores the features of the profit and spread gr
     spreadGraph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
     spreadGraph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
     spreadGraph.spread_lines = {};
-    spreadGraph.spreadLinesFBAConcurrent = []; //Holds a running map of the spread lines
-    spreadGraph.spreadLinesFBABatch = [];      //Holds all the lines from the last batch to figure out smallest spread
+    spreadGraph.spreadLinesFBAConcurrent = {}; //Holds a running map of the spread lines
+    spreadGraph.spreadLinesFBABatch = {};      //Holds all the lines from the last batch to figure out smallest spread
     spreadGraph.last_spread =  otreeConstants.defaultSpread;
 
     //PROFIT GRAPH
@@ -210,9 +210,9 @@ Socket Actions
                 )   
             } 
         }else if(obj.SPRCHG != undefined) {
-           
+            // Number.MAX_SAFE_INTEGER
             var player_id = parseInt(otreeConstants.playerIDInGroup);
-            var smallest_spread = [-1, Number.MAX_SAFE_INTEGER];
+            var smallest_spread = [-1,Infinity];
 
             for(var key in obj.SPRCHG){
                 var incomingSpread;
@@ -220,8 +220,8 @@ Socket Actions
                     var incomingSpread = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"];
                     spreadGraph.last_spread = incomingSpread;
                 } 
-                spreadGraph.spreadLinesFBAConcurrent[key] = obj.SPRCHG;
                 delete spreadGraph.spread_lines[key];
+                spreadGraph.spreadLinesFBAConcurrent[key] = obj.SPRCHG[key];
 
                 if(obj.SPRCHG[key] == 0){
                     // Maker has left the market so remove that maker tick
@@ -242,23 +242,31 @@ Socket Actions
             if(otreeConstants.FBA){
                 lineParser = spreadGraph.spreadLinesFBABatch;
             }
+            console.log("Line Parser");
+            console.log(lineParser);
             for(var key in lineParser){
                 // process all new spreads  after the zeros have been removed
-                var spread = lineParser[key]["A"] - lineParser[key]["B"];
+                var spread = (lineParser[key]["A"] - lineParser[key]["B"])/10000;
+                
+                console.log("Spread Below");
+                console.log(spread);
+                console.log("Smallest Spread Below");
+                console.log( smallest_spread[1]);
                 if(spread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
                     smallest_spread[1] = spread;
                 }
+               
                 if(smallest_spread[0] == player_id){
+                    console.log("These is the smallest spread " +spread);
                     spreadGraph.smallest_spread = true;
                 }else{
                     spreadGraph.smallest_spread = false;
                 }
             }
-            
-
+        if(otreeConstants.CDA == true || obj.SPRCHG[player_id] != undefined){
             spreadGraph.drawMySpreadLines(obj.SPRCHG);
-
+        }
         }else if(obj.SYNC != undefined){
             otreeConstants.sync = true; 
             if(otreeConstants.CDA == true){
@@ -275,17 +283,16 @@ Socket Actions
             document.querySelector("info-table").num_makers = total_makers;
      
         } else if(obj.BATCH == "P"){
+            //Plot the most current spread lines then update the saved batch lines
             spreadGraph.updateFBASpreadGraphLines();
             //Flash Spread Graph
             spreadGraph.drawBatchFlash();
         } else if(obj.BATCH == "B"){
-            spreadGraph.spreadLinesFBABatch = [];
             inputSection.startTimer();
             if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
                 startExperiment();
                 otreeConstants.FBAGraph = true;
             }
-            //Reset and Start Timer 
         }
     };
 
