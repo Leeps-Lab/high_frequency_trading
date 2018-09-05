@@ -34,6 +34,7 @@ class CustomOtreeConfig:
         if hasattr(self, 'read_group_matrix'):
             self.read_group_matrix()
 
+
     def read(self, filename):
         cls = self.__class__
         path = os.path.join(cls.sess_conf_dir, filename)
@@ -97,6 +98,9 @@ class BCSConfig(CustomOtreeConfig):
     yaml_map = (
         ('name', ('session', 'session_name')),
         ('display_name', ('market', 'design')),
+        ('trial', ('trial', 'run')),
+        ('trial_length', ('trial', 'trial-length')),
+        ('num_rounds', ('session', 'num-rounds')),
         ('design', ('market', 'design')),
         ('exchange_host', ('market', 'matching-engine-host')),
         ('number_of_groups', ('group', 'number-of-groups')),

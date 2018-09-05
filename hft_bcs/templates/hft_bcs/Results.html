@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-    Results in (Period {{ subsession.round_number }} of {{ Constants.num_rounds }})
+    Results in (Period {{ subsession.round_number }} of {{ subsession.last_round }})
 {% endblock %}
 
 {% block content %}
@@ -124,8 +124,5 @@
         chart.draw(data, options);
         }
     </script>
-
-{% next_button %}
-
 
 {% endblock %}

@@ -8,7 +8,7 @@ author = 'hasan ali demirci'
 
 # TODO: move this to redis.
 
-logs_folder = 'hft_bcs/hft_logging/logs/'
+logs_folder = 'hft_bcs/hft_logging/market_events/'
 
 class SessionEvents:
 

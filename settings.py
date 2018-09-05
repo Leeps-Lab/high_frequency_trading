@@ -152,39 +152,13 @@ mturk_hit_settings = {
     ]
 }
 
-# patch logging to add new level
-
-logging.EXP = logging.DEBUG - 5     # define new log level
-
-logging.addLevelName(logging.EXP, 'EXP')
-
-
-def experiment(self, message, *args, **kws):
-    """
-    sends log record to custom log level
-    """
-    self.log(logging.EXP, message, *args, **kws) 
-
-# define custom filter to filter out non-lab logs
-
-class custom_filter(object):
-    def __init__(self):
-        self.__level = 5    # lower than DEBUG
-
-    def filter(self, logRecord):
-        return logRecord.levelno == self.__level
-
-logging.Logger.experiment = experiment
-logging.custom_filter = custom_filter
-
 # configure logging in json style
 
 today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
-exp_logs_dir = 'hft_bcs/hft_logging/experiment/'
+exp_logs_dir = 'hft_bcs/hft_logging/experiment_data/'
 logs_dir = 'hft_bcs/hft_logging/logs/'
 name_format = '{directory}_{kind}_{date}'
 filename_soft = name_format.format(directory=logs_dir, kind='soft', date=today)
-filename_exp = name_format.format(directory=logs_dir, kind='experiment', date=today)
 
 LOGGING = {
     'version': 1,
@@ -203,12 +177,6 @@ LOGGING = {
             'fmt': '%(message)s',
         }
     },
-
-    'filters': {
-        'lablog': {
-            '()': custom_filter,
-        }
-    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
@@ -221,18 +189,11 @@ LOGGING = {
             'formatter': 'verbose',
             'filename': filename_soft,
         },
-        'explogfile': {
-            'class': 'logging.FileHandler',
-            'level': 'EXP',
-            'formatter': 'json',
-            'filters': ['lablog'],
-            'filename': filename_exp,
-        }
     },
     'loggers': {
         'hft_bcs': {
-            'handlers': ['console', 'logfile', 'explogfile'],
-            'level': 'EXP',
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
             'propagate': False
         }
     }    
