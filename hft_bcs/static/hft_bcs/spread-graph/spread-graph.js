@@ -582,7 +582,7 @@ class SpreadGraph extends PolymerElement {
     drawBatchFlash(){
         //Flash purple on border whenever a batch message is recieved from the exchange
         spreadGraph.spread_svg.transition().style("border","solid purple 3px").duration(0);
-        spreadGraph.spread_svg.transition().style("border","none").delay(500);
+        spreadGraph.spread_svg.transition().style("border","none").delay(400);
     }
   }
 

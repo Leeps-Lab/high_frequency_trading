@@ -216,8 +216,8 @@ Socket Actions
 
             for(var key in obj.SPRCHG){
                 var incomingSpread;
+                var incomingSpread = (obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"])/10000;
                 if(key == player_id && obj.SPRCHG[key] != 0 ){
-                    var incomingSpread = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"];
                     spreadGraph.last_spread = incomingSpread;
                 } 
                 delete spreadGraph.spread_lines[key];
@@ -227,43 +227,47 @@ Socket Actions
                     // Maker has left the market so remove that maker tick
                     spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
                     spreadGraph.spread_svg.selectAll(".others_line_bottom_" + key).remove();
+                    delete spreadGraph.spreadLinesFBAConcurrent[key];
                     delete obj.SPRCHG[key];
                 } 
                 // process all new spreads  after the zeros have been removed
-                if(spread < 0){
+                if(incomingSpread < 0){
                     console.error("Invalid spread calculation from a SPRCHG msg", obj.SPRCHG);
                 }
-                if(spread < smallest_spread[1]){
+                console.log(incomingSpread);
+                if(incomingSpread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
-                    smallest_spread[1] = spread;
+                    smallest_spread[1] = incomingSpread;
                 }
             }
+
+            console.log("Smallest Spread Before Line Parser");
+            console.log("key = "+smallest_spread[0]);
+            console.log(smallest_spread[1]);
+
             var lineParser = spreadGraph.spread_lines;
             if(otreeConstants.FBA){
-                lineParser = spreadGraph.spreadLinesFBABatch;
+                lineParser = spreadGraph.spreadLinesFBAConcurrent;
             }
-            console.log("Line Parser");
             console.log(lineParser);
             for(var key in lineParser){
                 // process all new spreads  after the zeros have been removed
                 var spread = (lineParser[key]["A"] - lineParser[key]["B"])/10000;
-                
-                console.log("Spread Below");
                 console.log(spread);
-                console.log("Smallest Spread Below");
-                console.log( smallest_spread[1]);
+                console.log(key);
                 if(spread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
                     smallest_spread[1] = spread;
                 }
-               
-                if(smallest_spread[0] == player_id){
-                    console.log("These is the smallest spread " +spread);
-                    spreadGraph.smallest_spread = true;
-                }else{
-                    spreadGraph.smallest_spread = false;
-                }
             }
+            if(smallest_spread[0] == player_id){
+                spreadGraph.smallest_spread = true;
+            }else{
+                spreadGraph.smallest_spread = false;
+            }
+            console.log("AFTER Line Parser");
+            console.log("key = "+smallest_spread[0]);
+            console.log(smallest_spread[1]);
         if(otreeConstants.CDA == true || obj.SPRCHG[player_id] != undefined){
             spreadGraph.drawMySpreadLines(obj.SPRCHG);
         }
