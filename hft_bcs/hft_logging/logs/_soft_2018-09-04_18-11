@@ -1,0 +1,240 @@
+[INFO|2018-09-04 18:11:16,028] [results.py:183 -             __init__()] {97: < BCSPlayer 97:out:None>, 98: < BCSPlayer 98:out:None>, 99: < BCSPlayer 99:out:None>, 100: < BCSPlayer 100:out:None>, 101: < BCSPlayer 101:out:None>, 102: < BCSPlayer 102:out:None>}
+[INFO|2018-09-04 18:11:38,743] [consumers.py:18 -              connect()] Player 121 is connected to Group 33 with in-group id 1.
+[INFO|2018-09-04 18:11:39,105] [consumers.py:18 -              connect()] Player 126 is connected to Group 33 with in-group id 6.
+[INFO|2018-09-04 18:11:40,024] [consumers.py:18 -              connect()] Player 132 is connected to Group 34 with in-group id 6.
+[INFO|2018-09-04 18:11:40,879] [models.py:807 -            in_market()] Group33: Player121: In market.
+[INFO|2018-09-04 18:11:40,885] [models.py:473 -    players_in_market()] Group33: 1 players are in market.
+[INFO|2018-09-04 18:11:41,028] [consumers.py:18 -              connect()] Player 131 is connected to Group 34 with in-group id 5.
+[INFO|2018-09-04 18:11:41,130] [consumers.py:18 -              connect()] Player 130 is connected to Group 34 with in-group id 4.
+[INFO|2018-09-04 18:11:41,391] [consumers.py:18 -              connect()] Player 127 is connected to Group 34 with in-group id 1.
+[INFO|2018-09-04 18:11:41,455] [consumers.py:18 -              connect()] Player 125 is connected to Group 33 with in-group id 5.
+[INFO|2018-09-04 18:11:41,563] [consumers.py:18 -              connect()] Player 128 is connected to Group 34 with in-group id 2.
+[INFO|2018-09-04 18:11:41,603] [consumers.py:18 -              connect()] Player 123 is connected to Group 33 with in-group id 3.
+[INFO|2018-09-04 18:11:41,666] [consumers.py:18 -              connect()] Player 122 is connected to Group 33 with in-group id 2.
+[INFO|2018-09-04 18:11:42,007] [consumers.py:18 -              connect()] Player 129 is connected to Group 34 with in-group id 3.
+[INFO|2018-09-04 18:11:42,837] [models.py:807 -            in_market()] Group34: Player131: In market.
+[INFO|2018-09-04 18:11:42,852] [models.py:473 -    players_in_market()] Group34: 1 players are in market.
+[INFO|2018-09-04 18:11:43,256] [consumers.py:18 -              connect()] Player 124 is connected to Group 33 with in-group id 4.
+[INFO|2018-09-04 18:11:44,085] [models.py:807 -            in_market()] Group33: Player125: In market.
+[INFO|2018-09-04 18:11:44,088] [models.py:473 -    players_in_market()] Group33: 2 players are in market.
+[INFO|2018-09-04 18:11:44,178] [models.py:807 -            in_market()] Group33: Player122: In market.
+[INFO|2018-09-04 18:11:44,183] [models.py:473 -    players_in_market()] Group33: 3 players are in market.
+[INFO|2018-09-04 18:11:44,184] [models.py:807 -            in_market()] Group34: Player127: In market.
+[INFO|2018-09-04 18:11:44,188] [models.py:473 -    players_in_market()] Group34: 2 players are in market.
+[INFO|2018-09-04 18:11:45,831] [models.py:807 -            in_market()] Group34: Player132: In market.
+[INFO|2018-09-04 18:11:45,835] [models.py:473 -    players_in_market()] Group34: 3 players are in market.
+[INFO|2018-09-04 18:11:45,838] [models.py:807 -            in_market()] Group33: Player126: In market.
+[INFO|2018-09-04 18:11:45,841] [models.py:473 -    players_in_market()] Group33: 4 players are in market.
+[INFO|2018-09-04 18:11:45,918] [models.py:807 -            in_market()] Group33: Player124: In market.
+[INFO|2018-09-04 18:11:45,921] [models.py:473 -    players_in_market()] Group33: 5 players are in market.
+[INFO|2018-09-04 18:11:47,041] [models.py:807 -            in_market()] Group34: Player130: In market.
+[INFO|2018-09-04 18:11:47,044] [models.py:473 -    players_in_market()] Group34: 4 players are in market.
+[INFO|2018-09-04 18:11:47,077] [models.py:807 -            in_market()] Group33: Player123: In market.
+[INFO|2018-09-04 18:11:47,080] [models.py:470 -    players_in_market()] Group33: all players are in market.
+[INFO|2018-09-04 18:11:47,112] [models.py:807 -            in_market()] Group34: Player129: In market.
+[INFO|2018-09-04 18:11:47,115] [models.py:473 -    players_in_market()] Group34: 5 players are in market.
+[INFO|2018-09-04 18:11:48,105] [models.py:807 -            in_market()] Group34: Player128: In market.
+[INFO|2018-09-04 18:11:48,108] [models.py:470 -    players_in_market()] Group34: all players are in market.
+[INFO|2018-09-04 18:11:48,111] [models.py:210 -         groups_ready()] session: starting trade, 120.
+[INFO|2018-09-04 18:11:48,115] [models.py:394 -                spawn()] Group33: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-04 18:11:48,122] [models.py:394 -                spawn()] Group33: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-04 18:11:48,251] [models.py:358 - receive_from_exchange()] Received system S
+[INFO|2018-09-04 18:11:48,254] [models.py:394 -                spawn()] Group34: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-04 18:11:48,274] [models.py:394 -                spawn()] Group34: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-04 18:11:48,411] [models.py:358 - receive_from_exchange()] Received system S
+[INFO|2018-09-04 18:11:49,812] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:11:49,813] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:11:49,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:11:49,814] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:11:52,422] [decorators.py:23 -              atomize()] 121: key y7gz6o3i_lock is locked.
+[INFO|2018-09-04 18:11:52,812] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:11:52,812] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:11:52,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:11:52,814] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:11:55,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:11:55,815] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:11:55,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:11:55,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:11:57,489] [decorators.py:23 -              atomize()] 122: key 7r4wyo8y_lock is locked.
+[INFO|2018-09-04 18:11:58,811] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:11:58,812] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:11:58,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:11:58,814] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:01,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:01,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:01,818] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:01,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:04,815] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:04,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:04,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:04,819] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:07,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:07,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:07,818] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:07,819] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:10,815] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:10,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:10,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:10,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:13,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:13,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:13,819] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:13,820] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:16,812] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:16,813] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:16,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:16,814] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:19,812] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:19,813] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:19,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:19,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:22,812] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:22,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:22,814] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:22,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:25,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:25,814] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:25,815] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:25,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:28,815] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:28,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:28,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:28,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:31,815] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:31,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:31,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:31,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:34,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:34,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:34,819] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:34,820] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:37,815] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:37,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:37,818] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:37,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:40,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:40,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:40,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:40,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:43,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:43,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:43,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:43,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:46,818] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:46,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:46,821] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:46,822] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:49,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:49,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:49,819] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:49,820] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:52,812] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:52,813] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:52,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:52,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:55,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:55,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:55,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:55,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:58,812] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:58,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:12:58,814] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:12:58,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:01,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:01,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:01,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:01,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:04,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:04,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:04,819] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:04,819] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:07,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:07,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:07,819] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:07,820] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:10,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:10,819] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:10,821] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:10,821] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:13,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:13,819] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:13,820] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:13,820] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:16,812] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:16,813] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:16,814] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:16,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:19,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:19,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:19,819] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:19,821] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:22,818] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:22,819] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:22,820] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:22,822] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:25,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:25,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:25,818] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:25,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:28,818] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:28,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:28,819] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:28,819] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:31,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:31,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:31,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:31,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:34,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:34,820] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:34,821] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:34,821] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:37,815] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:37,816] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:37,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:37,818] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:40,818] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:40,819] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:40,820] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:40,821] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:43,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:43,819] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:43,820] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:43,821] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:46,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:46,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:46,817] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:46,820] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:49,814] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:49,815] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:49,816] [models.py:358 - receive_from_exchange()] Received system B
+[INFO|2018-09-04 18:13:49,817] [models.py:358 - receive_from_exchange()] Received system P
+[INFO|2018-09-04 18:13:49,852] [models.py:811 -     session_finished()] Group34: Player131: Ready to advance.
+[INFO|2018-09-04 18:13:49,864] [models.py:303 -            end_trade()] Group34: Player131 flags session end.
+[INFO|2018-09-04 18:13:49,875] [models.py:811 -     session_finished()] Group34: Player132: Ready to advance.
+[INFO|2018-09-04 18:13:49,878] [models.py:811 -     session_finished()] Group33: Player121: Ready to advance.
+[INFO|2018-09-04 18:13:49,888] [models.py:303 -            end_trade()] Group33: Player121 flags session end.
+[INFO|2018-09-04 18:13:49,889] [decorators.py:23 -              atomize()] 34: key hsgpnjok_lock is locked.
+[INFO|2018-09-04 18:13:49,906] [decorators.py:23 -              atomize()] 11: key ptpn9hui_lock is locked.
+[INFO|2018-09-04 18:13:49,910] [models.py:215 -         groups_ready()] session: advancing all players to results page.
+[INFO|2018-09-04 18:13:51,335] [models.py:811 -     session_finished()] Group34: Player127: Ready to advance.
+[INFO|2018-09-04 18:13:51,337] [models.py:811 -     session_finished()] Group33: Player125: Ready to advance.
+[INFO|2018-09-04 18:13:51,338] [models.py:811 -     session_finished()] Group34: Player128: Ready to advance.
+[INFO|2018-09-04 18:13:51,397] [models.py:811 -     session_finished()] Group33: Player122: Ready to advance.
+[INFO|2018-09-04 18:13:51,400] [models.py:811 -     session_finished()] Group34: Player130: Ready to advance.
+[INFO|2018-09-04 18:13:51,403] [models.py:811 -     session_finished()] Group34: Player129: Ready to advance.
+[INFO|2018-09-04 18:13:51,453] [models.py:811 -     session_finished()] Group33: Player124: Ready to advance.
+[INFO|2018-09-04 18:13:51,456] [models.py:811 -     session_finished()] Group33: Player123: Ready to advance.
+[INFO|2018-09-04 18:13:51,459] [models.py:811 -     session_finished()] Group33: Player126: Ready to advance.
+[INFO|2018-09-04 18:13:51,971] [consumers.py:28 -       raw_disconnect()] Player 121 disconnected from Group 33.
+[INFO|2018-09-04 18:13:52,063] [consumers.py:28 -       raw_disconnect()] Player 122 disconnected from Group 33.
+[INFO|2018-09-04 18:13:52,415] [consumers.py:28 -       raw_disconnect()] Player 123 disconnected from Group 33.
+[INFO|2018-09-04 18:13:52,553] [consumers.py:28 -       raw_disconnect()] Player 124 disconnected from Group 33.
+[INFO|2018-09-04 18:13:52,740] [consumers.py:28 -       raw_disconnect()] Player 125 disconnected from Group 33.
+[INFO|2018-09-04 18:13:53,039] [results.py:183 -             __init__()] {121: < BCSPlayer 121:out:None>, 122: < BCSPlayer 122:out:None>, 123: < BCSPlayer 123:out:None>, 124: < BCSPlayer 124:out:None>, 125: < BCSPlayer 125:out:None>, 126: < BCSPlayer 126:out:None>}
+[INFO|2018-09-04 22:20:41,800] [consumers.py:28 -       raw_disconnect()] Player 128 disconnected from Group 34.
+[INFO|2018-09-04 22:20:41,843] [consumers.py:28 -       raw_disconnect()] Player 130 disconnected from Group 34.
+[INFO|2018-09-04 22:20:41,824] [consumers.py:28 -       raw_disconnect()] Player 126 disconnected from Group 33.
+[INFO|2018-09-04 22:20:41,847] [consumers.py:28 -       raw_disconnect()] Player 129 disconnected from Group 34.
+[INFO|2018-09-04 22:20:41,826] [consumers.py:28 -       raw_disconnect()] Player 131 disconnected from Group 34.
+[INFO|2018-09-04 22:20:41,867] [consumers.py:28 -       raw_disconnect()] Player 127 disconnected from Group 34.
+[INFO|2018-09-04 22:20:41,882] [consumers.py:28 -       raw_disconnect()] Player 132 disconnected from Group 34.

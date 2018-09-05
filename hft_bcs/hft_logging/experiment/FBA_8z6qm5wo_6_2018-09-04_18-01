@@ -1,0 +1,14 @@
+{"time": 64896426925000, "group": 0, "level": "header", "type": "header", "context": {"session": "8z6qm5wo", "groups": {"17": [61, 62, 63, 64, 65, 66], "18": [67, 68, 69, 70, 71, 72]}, "design": "FBA", "spread": 10000.0}}
+{"time": 65061023805000, "group": 17, "level": "exch", "type": "start", "context": {}}
+{"time": 65061206463000, "group": 18, "level": "exch", "type": "start", "context": {}}
+{"time": 65069007529000, "group": 17, "level": "choice", "type": "spread", "context": {"player_id": 62, "spread": 5200}}
+{"time": 65069024320000, "group": 17, "level": "choice", "type": "state", "context": {"player_id": 62, "state": "MAKER"}}
+{"time": 65069530786000, "group": 17, "level": "exch", "type": "enter", "context": {"player_id": 62, "order_token": "SUBBB000000001", "price": 997400, "timestamp": 65069521624000, "side": "B", "time_in_force": 99999}}
+{"time": 65069542609000, "group": 17, "level": "exch", "type": "enter", "context": {"player_id": 62, "order_token": "SUBBS000000002", "price": 1002600, "timestamp": 65069522427000, "side": "S", "time_in_force": 99999}}
+{"time": 65073597169000, "group": 17, "level": "choice", "type": "spread", "context": {"player_id": 61, "spread": 8600}}
+{"time": 65073615579000, "group": 17, "level": "choice", "type": "state", "context": {"player_id": 61, "state": "MAKER"}}
+{"time": 65074122612000, "group": 17, "level": "exch", "type": "enter", "context": {"player_id": 61, "order_token": "SUBAB000000001", "price": 995700, "timestamp": 65074112087000, "side": "B", "time_in_force": 99999}}
+{"time": 65074140674000, "group": 17, "level": "exch", "type": "enter", "context": {"player_id": 61, "order_token": "SUBAS000000002", "price": 1004300, "timestamp": 65074113669000, "side": "S", "time_in_force": 99999}}
+{"time": 65103908478000, "group": 17, "level": "choice", "type": "spread", "context": {"player_id": 62, "spread": 11533}}
+{"time": 65104416258000, "group": 17, "level": "exch", "type": "replace", "context": {"player_id": 62, "replaced_token": "SUBBS000000002", "new_token": "SUBBS000000003", "timestamp": 65104409558000}}
+{"time": 65104426024000, "group": 17, "level": "exch", "type": "replace", "context": {"player_id": 62, "replaced_token": "SUBBB000000001", "new_token": "SUBBB000000004", "timestamp": 65104411346000}}
