@@ -14,6 +14,8 @@ class PreWaitPage(WaitPage):
 class index(Page):
     pass
 
+class Instructions(Page):
+    pass
 
 test = {}
 class ResultsWaitPage(WaitPage):
