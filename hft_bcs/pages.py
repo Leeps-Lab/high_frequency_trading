@@ -7,7 +7,7 @@ from . import results
 from django.core.cache import cache
 from django.conf import settings
 
-class Instruct(Page):
+class Instructions(Page):
     def is_displayed(self):
         return self.subsession.is_trial or (self.subsession.first_round == self.round_number)
 
@@ -56,7 +56,7 @@ class SessionResults(Page):
 
 
 page_sequence = [
-    Instruct,
+    Instructions,
     PreWaitPage,
     index,
     ResultsWaitPage,

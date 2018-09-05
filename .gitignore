@@ -16,7 +16,7 @@ __pycache__/
 *.log
 *.vscode
 reset*
-hft_bcs/hft_logging/experiment/?
+hft_bcs/hft_logging/experiment_data/?
 hft_bcs/hft_logging/market_events/?
 hft_bcs/hft_logging/logs/?
 !investors*.csv
