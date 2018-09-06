@@ -181,9 +181,7 @@ class SpreadGraph extends PolymerElement {
             var ratio = distance_from_middle / (spreadGraph.spread_height/2);
 
             var my_spread = (ratio*otreeConstants.maxSpread).toFixed(0);
-            console.log(my_spread + " =  my_spread");
             if(my_spread < otreeConstants.min_spread){
-                
                 my_spread = otreeConstants.min_spread;
             }
             spreadGraph.sendSpreadChange(my_spread);
