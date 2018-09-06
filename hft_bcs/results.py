@@ -194,7 +194,7 @@ class BCSMarket:
         print(self.players.values())   
         makers = [p for p in self.players.values() if p.current_role == 'maker']
         print(makers)
-        if makers is None:
+        if not makers:
             return
         fun = (lambda x: x.spread if x.spread is not None else self.events.spread)
         makers.sort(key=fun, reverse=True)

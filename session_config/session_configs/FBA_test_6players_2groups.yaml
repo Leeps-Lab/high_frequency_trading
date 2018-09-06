@@ -2,6 +2,9 @@ demo:
   number-of-participants: 12
 directory:
   folder: investors_jumps
+trial:
+  run: 0
+  trial-length: 20
 investors:
   group_1: ['i01.csv', 'i02.csv']
   group_2: ['j01.csv', 'j02.csv']
@@ -24,5 +27,6 @@ parameters:
   speed-cost: 0.022
   batch-length: 3
 session:
+  num-rounds: 3
   display_name: FBA Production
   session_name: fba_test_config

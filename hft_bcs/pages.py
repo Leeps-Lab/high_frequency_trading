@@ -7,15 +7,17 @@ from . import results
 from django.core.cache import cache
 from django.conf import settings
 
+class Instructions(Page):
+    def is_displayed(self):
+        return self.subsession.is_trial or (self.subsession.first_round == self.round_number)
 
 class PreWaitPage(WaitPage):
-    pass
+    def after_all_players_arrive(self):
+        pass
 
 class index(Page):
     pass
 
-class Instructions(Page):
-    pass
 
 test = {}
 class ResultsWaitPage(WaitPage):
@@ -41,22 +43,22 @@ class ResultsWaitPage(WaitPage):
         test[gid]['duration'] = GroupResult(duration)
 
 class Results(Page):
-    timeout_seconds = 10
     def vars_for_template(self):
         gid = self.group.id
         return test[gid]
 
 class SessionResults(Page):
     def is_displayed(self):
-        return self.round_number == Constants.num_rounds
+        return self.round_number == self.subsession.last_round
 
     def vars_for_template(self):
         payoff_round = self.participant.vars['payoff_round']
         real_payoff = self.participant.vars['real_payoff']
-        return {'payoff_round': c(payoff_round), 'real_payoff': c(real_payoff)}
+        return {'payoff_round': payoff_round, 'real_payoff': c(real_payoff)}
 
 
 page_sequence = [
+    Instructions,
     PreWaitPage,
     index,
     ResultsWaitPage,

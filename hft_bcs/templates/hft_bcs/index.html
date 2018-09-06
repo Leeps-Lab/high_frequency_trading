@@ -94,7 +94,7 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.startingWealth = {{player.endowment}};
     otreeConstants.startFP = {{player.fp}}; 
     otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
-    otreeConstants.min_spread = 100;
+    otreeConstants.min_spread = 1000;
     otreeConstants.roundLength = {{subsession.round_length}};
     otreeConstants.timeOffset = 0; 
     otreeConstants.speedCost = {{player.speed_unit_cost}};
@@ -234,27 +234,22 @@ Socket Actions
                 if(incomingSpread < 0){
                     console.error("Invalid spread calculation from a SPRCHG msg", obj.SPRCHG);
                 }
-                console.log(incomingSpread);
+
                 if(incomingSpread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
                     smallest_spread[1] = incomingSpread;
                 }
             }
 
-            console.log("Smallest Spread Before Line Parser");
-            console.log("key = "+smallest_spread[0]);
-            console.log(smallest_spread[1]);
 
             var lineParser = spreadGraph.spread_lines;
             if(otreeConstants.FBA){
                 lineParser = spreadGraph.spreadLinesFBAConcurrent;
             }
-            console.log(lineParser);
+
             for(var key in lineParser){
                 // process all new spreads  after the zeros have been removed
                 var spread = (lineParser[key]["A"] - lineParser[key]["B"])/10000;
-                console.log(spread);
-                console.log(key);
                 if(spread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
                     smallest_spread[1] = spread;
@@ -265,9 +260,7 @@ Socket Actions
             }else{
                 spreadGraph.smallest_spread = false;
             }
-            console.log("AFTER Line Parser");
-            console.log("key = "+smallest_spread[0]);
-            console.log(smallest_spread[1]);
+
         if(otreeConstants.CDA == true || obj.SPRCHG[player_id] != undefined){
             spreadGraph.drawMySpreadLines(obj.SPRCHG);
         }

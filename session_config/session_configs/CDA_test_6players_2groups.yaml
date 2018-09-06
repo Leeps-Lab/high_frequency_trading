@@ -2,6 +2,9 @@ demo:
   number-of-participants: 12
 directory:
   folder: investors_jumps
+trial:
+  run: 0
+  trial-length: 20
 investors:
   group_1: ['i01.csv', 'i02.csv']
   group_2: ['i01.csv', 'i02.csv']
@@ -24,5 +27,6 @@ parameters:
   speed-cost: 0.022
   batch-length: 0
 session:
+  num-rounds: 4
   display_name: CDA Production
   session_name: cda_test_config

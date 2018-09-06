@@ -34,7 +34,7 @@ log = logging.getLogger(__name__)
 class Constants(BaseConstants):
     name_in_url = 'hft_bcs'
     players_per_group = None
-    num_rounds = 2
+    num_rounds = 10
 
     short_delay = 0.1   # slow players delay
     long_delay = 0.5    # fast players delay
@@ -50,8 +50,8 @@ class Constants(BaseConstants):
 
     # cache keys
     lock_key = '{self.code}_lock'
-    investor_label = 'investors_group_{self.id_in_subsession}_round_{self.round_number}'
-    jump_label = 'jumps_group_{self.id_in_subsession}_round_{self.round_number}'
+    investor_label = 'investors_group_{self.id_in_subsession}_round_{round_number}'
+    jump_label = 'jumps_group_{self.id_in_subsession}_round_{round_number}'
     player_fp_key = '{self.code}_fp'
     group_fp_key = 'group_{group_id}_fp'
     player_orderstore_key = '{self.code}_orders'
@@ -95,7 +95,10 @@ class Constants(BaseConstants):
         'players_per_group': 'players_per_group',
         'round_length': 'session_length',
         'design': 'design',
-        'batch_length': 'batch_length'
+        'batch_length': 'batch_length',
+        'has_trial': 'trial',
+        'trial_length': 'trial_length',
+        'total_rounds': 'num_rounds'
     }
     player_field_map = {
         'fp': 'fundamental_price',
@@ -130,7 +133,13 @@ class Subsession(BaseSubsession):
     batch_length = models.IntegerField(initial=0)
     trade_ended = models.BooleanField(initial=False)
     code = models.CharField(default=random_chars_8)
+    has_trial = models.BooleanField(initial=True)
+    is_trial = models.BooleanField(initial=False)
+    trial_length = models.IntegerField(initial=0)
     log_file = models.StringField()
+    first_round = models.IntegerField(initial=1)
+    last_round = models.IntegerField(initial=0)
+    total_rounds = models.IntegerField(initial=0)
 
     def init_cache(self):
         pairs = {}
@@ -144,7 +153,7 @@ class Subsession(BaseSubsession):
 
     def set_payoff_round(self):
         for player in self.get_players():
-            payoff_round = random.randint(1, Constants.num_rounds)
+            payoff_round = random.randint(self.first_round, self.last_round)
             player.participant.vars['payoff_round'] = payoff_round
             player.save()
 
@@ -169,18 +178,26 @@ class Subsession(BaseSubsession):
         # set session fields
         for k, v in Constants.session_field_map.items():
             setattr(self, k, self.session.config[v])
-        # set default values for cached session states
+        # determine if this is a special round
+        self.first_round = 1 + self.has_trial
+        self.last_round = self.total_rounds + self.has_trial
+        if self.has_trial and self.round_number == 1:
+            self.is_trial = True
+            log.info('session is trial.')
+            self.round_length = self.trial_length
+        # set default values for cached session states       
         self.init_cache()
         # set group matrix
         self.assign_groups()
         # set everyone to write to same log file
-        self.set_log_file()        
+        self.set_log_file()      
         if self.round_number == 1:
             # payoff from a random round will be paid.
             self.set_payoff_round()
         # set the exchange port start
         self.next_available_exchange = Constants.first_exchange_port[self.design]
         groups = self.get_groups()
+        print(groups)
         for group in groups:
             group.creating_group()
         players = self.get_players()
@@ -265,8 +282,12 @@ class Group(BaseGroup):
         self.exch_host = self.session.config['exchange_host']
         self.exch_port = self.subsession.next_available_exchange
         self.subsession.next_available_exchange += 1
-        investors = Constants.investor_label.format(self=self)
-        jumps = Constants.jump_label.format(self=self)
+            # otree wants to create all objects at session start
+            # so actual round number is different than Constants.num_rounds
+            # default to trial
+        rnd = 1 if self.round_number > self.subsession.total_rounds else self.round_number
+        investors = Constants.investor_label.format(self=self, round_number=rnd)
+        jumps = Constants.jump_label.format(self=self, round_number=rnd)
         self.investor_file = self.session.config[investors]
         self.jump_file = self.session.config[jumps]
         fp = self.session.config['fundamental_price'] * Constants.conversion_factor

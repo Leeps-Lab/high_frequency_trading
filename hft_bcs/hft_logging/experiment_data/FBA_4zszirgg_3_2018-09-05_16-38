@@ -1,0 +1,23 @@
+{"time": 59933126371000, "group": 0, "level": "header", "type": "header", "context": {"session": "4zszirgg", "groups": {"71": [121, 122, 123], "72": [124, 125, 126]}, "design": "FBA", "spread": 10000.0}}
+{"time": 59945772031000, "group": 71, "level": "exch", "type": "start", "context": {}}
+{"time": 59945935079000, "group": 72, "level": "exch", "type": "start", "context": {}}
+{"time": 59954253398000, "group": 71, "level": "choice", "type": "state", "context": {"player_id": 121, "state": "MAKER"}}
+{"time": 59954764888000, "group": 71, "level": "exch", "type": "enter", "context": {"player_id": 121, "order_token": "SUBAB000000001", "price": 995000, "timestamp": 59954749419000, "side": "B", "time_in_force": 99999}}
+{"time": 59954778784000, "group": 71, "level": "exch", "type": "enter", "context": {"player_id": 121, "order_token": "SUBAS000000002", "price": 1005000, "timestamp": 59954750541000, "side": "S", "time_in_force": 99999}}
+{"time": 59958490401000, "group": 71, "level": "choice", "type": "spread", "context": {"player_id": 121, "spread": 1600}}
+{"time": 59959001600000, "group": 71, "level": "exch", "type": "replace", "context": {"player_id": 121, "replaced_token": "SUBAS000000002", "new_token": "SUBAS000000003", "timestamp": 59958992370000}}
+{"time": 59959012615000, "group": 71, "level": "exch", "type": "replace", "context": {"player_id": 121, "replaced_token": "SUBAB000000001", "new_token": "SUBAB000000004", "timestamp": 59958995655000}}
+{"time": 59964296969000, "group": 71, "level": "choice", "type": "spread", "context": {"player_id": 121, "spread": 1067}}
+{"time": 59964805221000, "group": 71, "level": "exch", "type": "replace", "context": {"player_id": 121, "replaced_token": "SUBAS000000003", "new_token": "SUBAS000000005", "timestamp": 59964797768000}}
+{"time": 59964817403000, "group": 71, "level": "exch", "type": "replace", "context": {"player_id": 121, "replaced_token": "SUBAB000000004", "new_token": "SUBAB000000006", "timestamp": 59964799650000}}
+{"time": 59968518355000, "group": 71, "level": "choice", "type": "spread", "context": {"player_id": 121, "spread": 467}}
+{"time": 59969025905000, "group": 71, "level": "exch", "type": "replace", "context": {"player_id": 121, "replaced_token": "SUBAS000000005", "new_token": "SUBAS000000007", "timestamp": 59969019250000}}
+{"time": 59969051455000, "group": 71, "level": "exch", "type": "replace", "context": {"player_id": 121, "replaced_token": "SUBAB000000006", "new_token": "SUBAB000000008", "timestamp": 59969042073000}}
+{"time": 59970578027000, "group": 71, "level": "exch", "type": "end", "context": {}}
+{"time": 59971603313000, "group": 72, "level": "exch", "type": "end", "context": {}}
+{"time": 59975473818000, "group": 71, "level": "market", "type": "cost", "context": {"player_id": 121, "cost": 0.0, "source": "speed", "timestamp": 59975463045000}}
+{"time": 59975505593000, "group": 71, "level": "market", "type": "cost", "context": {"player_id": 122, "cost": 0.0, "source": "speed", "timestamp": 59975497555000}}
+{"time": 59975520192000, "group": 71, "level": "market", "type": "cost", "context": {"player_id": 123, "cost": 0.0, "source": "speed", "timestamp": 59975513544000}}
+{"time": 59976563867000, "group": 72, "level": "market", "type": "cost", "context": {"player_id": 124, "cost": 0.0, "source": "speed", "timestamp": 59976555353000}}
+{"time": 59976589222000, "group": 72, "level": "market", "type": "cost", "context": {"player_id": 125, "cost": 0.0, "source": "speed", "timestamp": 59976587348000}}
+{"time": 59976603954000, "group": 72, "level": "market", "type": "cost", "context": {"player_id": 126, "cost": 0.0, "source": "speed", "timestamp": 59976595454000}}

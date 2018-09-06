@@ -1,0 +1,53 @@
+{"time": 66519636247000, "group": 0, "level": "header", "type": "header", "context": {"session": "5eq83drs", "groups": {"71": [121, 122, 123], "72": [124, 125, 126]}, "design": "FBA", "spread": 10000.0}}
+{"time": 66531071060000, "group": 71, "level": "exch", "type": "start", "context": {}}
+{"time": 66531255516000, "group": 72, "level": "exch", "type": "start", "context": {}}
+{"time": 66534093275000, "group": 71, "level": "choice", "type": "state", "context": {"player_id": 123, "state": "MAKER"}}
+{"time": 66534109254000, "group": 71, "level": "choice", "type": "spread", "context": {"player_id": 123, "spread": 11867}}
+{"time": 66534605940000, "group": 71, "level": "exch", "type": "enter", "context": {"player_id": 123, "order_token": "SUBCB000000001", "price": 995000, "timestamp": 66534590617000, "side": "B", "time_in_force": 99999}}
+{"time": 66534616257000, "group": 71, "level": "exch", "type": "enter", "context": {"player_id": 123, "order_token": "SUBCS000000002", "price": 1005000, "timestamp": 66534591699000, "side": "S", "time_in_force": 99999}}
+{"time": 66534626968000, "group": 71, "level": "exch", "type": "replace", "context": {"player_id": 123, "replaced_token": "SUBCS000000002", "new_token": "SUBCS000000003", "timestamp": 66534619250000}}
+{"time": 66534643095000, "group": 71, "level": "exch", "type": "replace", "context": {"player_id": 123, "replaced_token": "SUBCB000000001", "new_token": "SUBCB000000004", "timestamp": 66534620983000}}
+{"time": 66536107403000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66537340544000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66537349753000, "group": 71, "level": "choice", "type": "state", "context": {"player_id": 123, "state": "SNIPER"}}
+{"time": 66537855382000, "group": 71, "level": "exch", "type": "cancel", "context": {"player_id": 123, "order_token": "SUBCS000000003", "timestamp": 66534619250000}}
+{"time": 66537863320000, "group": 71, "level": "exch", "type": "cancel", "context": {"player_id": 123, "order_token": "SUBCB000000004", "timestamp": 66534620983000}}
+{"time": 66538041000000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66539541834000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66539542503000, "group": 71, "level": "choice", "type": "state", "context": {"player_id": 123, "state": "OUT"}}
+{"time": 66540686169000, "group": 71, "level": "choice", "type": "state", "context": {"player_id": 123, "state": "MAKER"}}
+{"time": 66541193177000, "group": 71, "level": "exch", "type": "enter", "context": {"player_id": 123, "order_token": "SUBCB000000005", "price": 994066, "timestamp": 66541184895000, "side": "B", "time_in_force": 99999}}
+{"time": 66541206994000, "group": 71, "level": "exch", "type": "enter", "context": {"player_id": 123, "order_token": "SUBCS000000006", "price": 1005933, "timestamp": 66541187003000, "side": "S", "time_in_force": 99999}}
+{"time": 66541640129000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66543325543000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66543333332000, "group": 71, "level": "choice", "type": "state", "context": {"player_id": 123, "state": "OUT"}}
+{"time": 66543838409000, "group": 71, "level": "exch", "type": "cancel", "context": {"player_id": 123, "order_token": "SUBCB000000005", "timestamp": 66541184895000}}
+{"time": 66543844216000, "group": 71, "level": "exch", "type": "cancel", "context": {"player_id": 123, "order_token": "SUBCS000000006", "timestamp": 66541187003000}}
+{"time": 66544504000000, "group": 71, "level": "choice", "type": "state", "context": {"player_id": 123, "state": "SNIPER"}}
+{"time": 66545295379000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66545550716000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66545813844000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66546061652000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66546329937000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66546573802000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66546907605000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66547326783000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66547681025000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66548030485000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66548473696000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66548896907000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66549728091000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66550933883000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66553045536000, "group": 71, "level": "choice", "type": "state", "context": {"player_id": 123, "state": "MAKER"}}
+{"time": 66553548011000, "group": 71, "level": "exch", "type": "enter", "context": {"player_id": 123, "order_token": "SUBCB000000007", "price": 994066, "timestamp": 66553537817000, "side": "B", "time_in_force": 99999}}
+{"time": 66553557660000, "group": 71, "level": "exch", "type": "enter", "context": {"player_id": 123, "order_token": "SUBCS000000008", "price": 1005933, "timestamp": 66553539361000, "side": "S", "time_in_force": 99999}}
+{"time": 66554360531000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": true}}
+{"time": 66555733511000, "group": 71, "level": "exch", "type": "end", "context": {}}
+{"time": 66557178229000, "group": 72, "level": "exch", "type": "end", "context": {}}
+{"time": 66561041545000, "group": 71, "level": "market", "type": "cost", "context": {"player_id": 121, "cost": 0.0, "source": "speed", "timestamp": 66561038676000}}
+{"time": 66561072604000, "group": 71, "level": "market", "type": "cost", "context": {"player_id": 122, "cost": 0.0, "source": "speed", "timestamp": 66561049876000}}
+{"time": 66561106268000, "group": 71, "level": "choice", "type": "speed", "context": {"player_id": 123, "speed": false}}
+{"time": 66561113997000, "group": 71, "level": "market", "type": "cost", "context": {"player_id": 123, "cost": 3331.03056, "source": "speed", "timestamp": 66561077689000}}
+{"time": 66561975261000, "group": 72, "level": "market", "type": "cost", "context": {"player_id": 124, "cost": 0.0, "source": "speed", "timestamp": 66561973798000}}
+{"time": 66561988411000, "group": 72, "level": "market", "type": "cost", "context": {"player_id": 125, "cost": 0.0, "source": "speed", "timestamp": 66561986188000}}
+{"time": 66561994595000, "group": 72, "level": "market", "type": "cost", "context": {"player_id": 126, "cost": 0.0, "source": "speed", "timestamp": 66561992022000}}

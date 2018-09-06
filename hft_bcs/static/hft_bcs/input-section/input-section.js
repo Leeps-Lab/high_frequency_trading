@@ -369,7 +369,6 @@ class InputSection extends PolymerElement {
     timerLine.transition()
             .duration(otreeConstants.batchLength*1100)
             .attr("x2", inputSection.inputWidth); 
-
   }
 
    Button_Pressed(input_object){
