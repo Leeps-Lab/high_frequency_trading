@@ -1,3 +1,4 @@
+import sys
 import asyncio
 import configargparse
 import logging as log
@@ -23,7 +24,10 @@ p.add('--interval', default = None, type=float, help="(FBA) Interval between bat
 options, args = p.parse_known_args()
 
 
-def main():    
+def main():
+    if not options.debug:
+        sys.tracebacklimit = 0
+
     log.basicConfig(level= log.DEBUG if options.debug else log.INFO,
         format = "[%(asctime)s.%(msecs)03d] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
         datefmt = '%H:%M:%S',
@@ -54,6 +58,8 @@ def main():
 
     try:
         loop.run_forever()
+    except KeyboardInterrupt:
+        loop.close()
     finally:
         loop.close()
 

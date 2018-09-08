@@ -7,13 +7,17 @@ from . import results
 from django.core.cache import cache
 from django.conf import settings
 
-class Instructions_FBA(Page):
+class InstructionsFBA(Page):
     def is_displayed(self):
-        return self.subsession.is_trial or (self.subsession.first_round == self.round_number)
+        is_instructed = self.subsession.is_trial or (self.subsession.first_round == self.round_number)
+        is_cda = True if self.subsession.design == 'CDA' else False
+        return is_instructed and is_cda
 
-class Instructions_CDA(Page):
+class InstructionsCDA(Page):
     def is_displayed(self):
-        return self.subsession.is_trial or (self.subsession.first_round == self.round_number)
+        is_instructed = self.subsession.is_trial or (self.subsession.first_round == self.round_number)
+        is_fba = True if self.subsession.design == 'FBA' else False
+        return is_instructed and is_fba
 
 class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
@@ -62,7 +66,8 @@ class SessionResults(Page):
 
 
 page_sequence = [
-    Instructions_FBA,
+    InstructionsCDA,
+    InstructionsFBA,
     PreWaitPage,
     index,
     ResultsWaitPage,

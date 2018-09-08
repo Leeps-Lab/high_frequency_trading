@@ -17,7 +17,7 @@ fi
 
 for i in `seq $groups`;
 do
-	mkdir -p fba_data
+	mkdir -p FBA_DATA
 	python3 run_exchange_server.py --host 0.0.0.0 --port 910$i --mechanism fba \
-    --interval ${interval} --book_log CDA_DATA/${timestamp}_group_$i.log &
+    --interval ${interval} --book_log FBA_DATA/${timestamp}_group_$i.log --debug &
 done

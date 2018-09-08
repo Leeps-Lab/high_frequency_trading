@@ -1,5 +1,0 @@
-{"time": 64597799655000, "group": 0, "level": "header", "type": "header", "context": {"session": "eb57qsbt", "groups": {"1207": [2551, 2552, 2553]}, "design": "FBA", "spread": 10000.0}}
-{"time": 64613652321000, "group": 1207, "level": "exch", "type": "start", "context": {}}
-{"time": 64618316868000, "group": 1207, "level": "choice", "type": "state", "context": {"player_id": 2551, "state": "MAKER"}}
-{"time": 64618836161000, "group": 1207, "level": "exch", "type": "enter", "context": {"player_id": 2551, "order_token": "SUBAB000000001", "price": 995000, "timestamp": 64618812432000, "side": "B", "time_in_force": 99999}}
-{"time": 64618845855000, "group": 1207, "level": "exch", "type": "enter", "context": {"player_id": 2551, "order_token": "SUBAS000000002", "price": 1005000, "timestamp": 64618813823000, "side": "S", "time_in_force": 99999}}

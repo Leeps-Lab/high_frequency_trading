@@ -41,7 +41,7 @@ class Constants(BaseConstants):
 
     exchange_host_label = '{self.subsession.design}_{host}'
 
-    first_exchange_port = {'CDA': 9001, 'FBA': 9001}  # make this configurable
+    first_exchange_port = {'CDA': 9001, 'FBA': 9101}  # make this configurable
 
     speed_factor = 1e-9
     player_state = ('state', 'fp', 'speed', 'spread', 'prev_speed_update')
@@ -280,14 +280,14 @@ class Group(BaseGroup):
             cache.set(k, v, timeout=None)
         print(pairs)
     
-    def set_exchange_host(self):
-        if EXCHANGE_HOST_NO is not "127.0.0.1":
-            self.exch_host = Constants.exchange_host_label.format(
-                self=self, host=EXCHANGE_HOST_NO
-            )
-        else:
-            self.exch_host = self.session.conifg['exchange_host']
-        log.info('exchange host is {}'.format(self.exch_host))
+    # def set_exchange_host(self):
+    #     if EXCHANGE_HOST_NO is not "127.0.0.1":
+    #         self.exch_host = Constants.exchange_host_label.format(
+    #             self=self, host=EXCHANGE_HOST_NO
+    #         )
+    #     else:
+    #         self.exch_host = self.session.conifg['exchange_host']
+    #     log.info('exchange host is {}'.format(self.exch_host))
 
     def creating_group(self):
         self.exch_host =  "127.0.0.1"

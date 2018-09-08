@@ -1,3 +1,0 @@
-[INFO|2018-09-05 18:43:16,959] [consumers.py:18 -              connect()] Player 121 is connected to Group 71 with in-group id 1.
-[INFO|2018-09-05 18:43:22,918] [models.py:828 -            in_market()] Group71: Player121: In market.
-[INFO|2018-09-05 18:43:22,924] [models.py:494 -    players_in_market()] Group71: 1 players are in market.

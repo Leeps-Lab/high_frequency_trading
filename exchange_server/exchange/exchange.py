@@ -31,6 +31,7 @@ class Exchange:
                 context
             and does whatever we need to get that info back to order sender                             
         '''
+        log.debug('Initializing exchange')
         self.order_store = OrderStore()
         self.order_book = order_book
         self.order_reply = order_reply
@@ -150,7 +151,11 @@ class Exchange:
             enter_into_book = True if time_in_force > 0 else False    
             if time_in_force > 0 and time_in_force < 99998:     #schedule a cancellation at some point in the future
                 cancel_order_message = self.cancel_order_from_enter_order( enter_order_message )
-                self.loop.call_later(time_in_force, partial(self.cancel_order_atomic, cancel_order_message))
+                # cancel_order_atomic has 2 args, timestamp is missing. but
+                # adding timestamp here will result cancel order to have an 
+                # incorrect timestamp. 
+                # will go with old timestamp, for now.  - ali
+                self.loop.call_later(time_in_force, partial(self.cancel_order_atomic, cancel_order_message, timestamp))
             
             enter_order_func = self.order_book.enter_buy if enter_order_message['buy_sell_indicator'] == b'B' else self.order_book.enter_sell
             (crossed_orders, entered_order) = enter_order_func(
@@ -180,6 +185,7 @@ class Exchange:
                 buy_sell_indicator = store_entry.original_enter_message['buy_sell_indicator'])
             cancel_messages = [  self.order_cancelled_from_cancel(cancel_order_message, timestamp, amount_canceled, reason)
                         for (id, amount_canceled) in cancelled_orders ]
+
             self.outgoing_messages.extend(cancel_messages) 
 
       # """
@@ -200,7 +206,6 @@ class Exchange:
         #         either a Replaced Message or an Atomically Replaced and Canceled Message.
         # """
     def replace_order_atomic(self, replace_order_message, timestamp):
-        print("In replace")
         if replace_order_message['existing_order_token'] not in self.order_store.orders:
             log.debug('Existing token %s unknown, siliently ignoring', replace_order_message['existing_order_token'])
             return []
@@ -208,7 +213,6 @@ class Exchange:
             log.debug('Replacement token %s unknown, siliently ignoring', replace_order_message['existing_order_token'])
             return []
         else:
-            print('else 1')
             store_entry = self.order_store.orders[replace_order_message['existing_order_token']]
             log.debug('store_entry: %s', store_entry)
             cancelled_orders = self.order_book.cancel_order(
@@ -221,7 +225,6 @@ class Exchange:
                 log.debug('No orders cancelled, siliently ignoring')
                 return []
             else:
-                print('else 2')
                 (id_cancelled, amount_cancelled) = cancelled_orders[0]
                 original_enter_message = store_entry.original_enter_message
                 first_message = store_entry.first_message
@@ -231,7 +234,6 @@ class Exchange:
                     log.debug('No remaining liable shares on the book to replace')
                     #send cancel
                 else:
-                    print("else 3")
                     self.order_store.store_order(
                             id = replace_order_message['replacement_order_token'], 
                             message = replace_order_message,
@@ -239,7 +241,6 @@ class Exchange:
                     time_in_force = replace_order_message['time_in_force']
                     enter_into_book = True if time_in_force > 0 else False    
                     if time_in_force > 0 and time_in_force < 99998:     #schedule a cancellation at some point in the future
-                        print('if 4')
                         cancel_order_message = cancel_order_from_replace_order( replace_order_message )
                         self.loop.call_later(time_in_force, partial(self.cancel_order_atomic, cancel_order_message))
                     
@@ -271,7 +272,6 @@ class Exchange:
                             bbo_weight_indicator=b'*'
                             )
                     r.meta = replace_order_message.meta
-                    print(r)
                     self.outgoing_messages.append(r)
                     self.order_store.add_to_order(r['replacement_order_token'], r)        
                     cross_messages = [m for ((id, fulfilling_order_id), price, volume) in crossed_orders 
