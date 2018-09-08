@@ -31,7 +31,6 @@ class Exchange:
                 context
             and does whatever we need to get that info back to order sender                             
         '''
-        log.debug('Initializing exchange')
         self.order_store = OrderStore()
         self.order_book = order_book
         self.order_reply = order_reply

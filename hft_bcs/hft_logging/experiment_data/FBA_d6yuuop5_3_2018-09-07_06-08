@@ -1,0 +1,8 @@
+{"time": 83325917832000, "group": 0, "level": "header", "type": "header", "context": {"session": "d6yuuop5", "groups": {"1627": [3181, 3182, 3183]}, "design": "FBA", "spread": 10000.0}}
+{"time": 83338616367000, "group": 1627, "level": "exch", "type": "start", "context": {}}
+{"time": 83341034004000, "group": 1627, "level": "choice", "type": "state", "context": {"player_id": 3181, "state": "MAKER"}}
+{"time": 83341466783000, "group": 1627, "level": "choice", "type": "spread", "context": {"player_id": 3181, "spread": 3200}}
+{"time": 83341549632000, "group": 1627, "level": "exch", "type": "enter", "context": {"player_id": 3181, "order_token": "SUBAB000000001", "price": 995000, "timestamp": 83341531632000, "side": "B", "time_in_force": 99999}}
+{"time": 83341556431000, "group": 1627, "level": "exch", "type": "enter", "context": {"player_id": 3181, "order_token": "SUBAS000000002", "price": 1005000, "timestamp": 83341532758000, "side": "S", "time_in_force": 99999}}
+{"time": 83341984538000, "group": 1627, "level": "exch", "type": "replace", "context": {"player_id": 3181, "replaced_token": "SUBAS000000002", "new_token": "SUBAS000000003", "timestamp": 83341970139000}}
+{"time": 83341991430000, "group": 1627, "level": "exch", "type": "replace", "context": {"player_id": 3181, "replaced_token": "SUBAB000000001", "new_token": "SUBAB000000004", "timestamp": 83341974488000}}

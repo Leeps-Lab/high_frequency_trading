@@ -1,0 +1,32 @@
+[INFO|2018-09-07 00:32:34,941] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 00:32:47,525] [consumers.py:18 -              connect()] Player 2161 is connected to Group 1007 with in-group id 1.
+[INFO|2018-09-07 00:32:47,687] [consumers.py:18 -              connect()] Player 2162 is connected to Group 1007 with in-group id 2.
+[INFO|2018-09-07 00:32:47,988] [consumers.py:18 -              connect()] Player 2163 is connected to Group 1007 with in-group id 3.
+[INFO|2018-09-07 00:32:48,230] [consumers.py:18 -              connect()] Player 2165 is connected to Group 1008 with in-group id 2.
+[INFO|2018-09-07 00:32:48,319] [consumers.py:18 -              connect()] Player 2166 is connected to Group 1008 with in-group id 3.
+[INFO|2018-09-07 00:32:48,990] [consumers.py:18 -              connect()] Player 2164 is connected to Group 1008 with in-group id 1.
+[INFO|2018-09-07 00:32:49,556] [models.py:828 -            in_market()] Group1007: Player2163: In market.
+[INFO|2018-09-07 00:32:49,557] [models.py:828 -            in_market()] Group1008: Player2166: In market.
+[INFO|2018-09-07 00:32:49,566] [models.py:494 -    players_in_market()] Group1007: 1 players are in market.
+[INFO|2018-09-07 00:32:49,567] [models.py:494 -    players_in_market()] Group1008: 1 players are in market.
+[INFO|2018-09-07 00:32:50,554] [models.py:828 -            in_market()] Group1007: Player2162: In market.
+[INFO|2018-09-07 00:32:50,560] [models.py:494 -    players_in_market()] Group1007: 2 players are in market.
+[INFO|2018-09-07 00:32:50,977] [models.py:828 -            in_market()] Group1007: Player2161: In market.
+[INFO|2018-09-07 00:32:50,982] [models.py:491 -    players_in_market()] Group1007: all players are in market.
+[INFO|2018-09-07 00:32:51,548] [models.py:828 -            in_market()] Group1008: Player2164: In market.
+[INFO|2018-09-07 00:32:51,554] [models.py:494 -    players_in_market()] Group1008: 2 players are in market.
+[INFO|2018-09-07 00:32:53,547] [models.py:828 -            in_market()] Group1008: Player2165: In market.
+[INFO|2018-09-07 00:32:53,553] [models.py:491 -    players_in_market()] Group1008: all players are in market.
+[INFO|2018-09-07 00:32:53,556] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 00:32:53,562] [models.py:415 -                spawn()] Group1007: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:32:53,567] [models.py:415 -                spawn()] Group1007: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:32:53,876] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1007.
+[INFO|2018-09-07 00:32:53,876] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1007.
+[INFO|2018-09-07 00:32:57,761] [models.py:448 -           jump_event()] Group1007: jump to 993348 !!
+[INFO|2018-09-07 00:32:59,946] [models.py:448 -           jump_event()] Group1007: jump to 991874 !!
+[INFO|2018-09-07 00:33:01,674] [models.py:1269 - receive_from_consumer()] Group1007: investor1: buy.
+[INFO|2018-09-07 00:33:01,843] [models.py:1269 - receive_from_consumer()] Group1007: investor1: buy.
+[INFO|2018-09-07 00:33:02,497] [models.py:1269 - receive_from_consumer()] Group1007: investor1: sell.
+[INFO|2018-09-07 00:33:03,709] [models.py:448 -           jump_event()] Group1007: jump to 991183 !!
+[INFO|2018-09-07 00:33:04,170] [models.py:1269 - receive_from_consumer()] Group1007: investor1: buy.
+[INFO|2018-09-07 00:33:05,308] [models.py:448 -           jump_event()] Group1007: jump to 991180 !!

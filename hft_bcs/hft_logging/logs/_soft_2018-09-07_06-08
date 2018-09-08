@@ -1,0 +1,25 @@
+[INFO|2018-09-07 06:08:45,847] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 06:08:54,370] [consumers.py:18 -              connect()] Player 3181 is connected to Group 1627 with in-group id 1.
+[INFO|2018-09-07 06:08:54,493] [consumers.py:18 -              connect()] Player 3183 is connected to Group 1627 with in-group id 3.
+[INFO|2018-09-07 06:08:54,511] [consumers.py:18 -              connect()] Player 3182 is connected to Group 1627 with in-group id 2.
+[INFO|2018-09-07 06:08:55,672] [models.py:828 -            in_market()] Group1627: Player3181: In market.
+[INFO|2018-09-07 06:08:55,678] [models.py:494 -    players_in_market()] Group1627: 1 players are in market.
+[INFO|2018-09-07 06:08:56,478] [models.py:828 -            in_market()] Group1627: Player3182: In market.
+[INFO|2018-09-07 06:08:56,485] [models.py:494 -    players_in_market()] Group1627: 2 players are in market.
+[INFO|2018-09-07 06:08:58,485] [models.py:828 -            in_market()] Group1627: Player3183: In market.
+[INFO|2018-09-07 06:08:58,492] [models.py:491 -    players_in_market()] Group1627: all players are in market.
+[INFO|2018-09-07 06:08:58,495] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 06:08:58,502] [models.py:415 -                spawn()] Group1627: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 06:08:58,506] [models.py:415 -                spawn()] Group1627: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 06:08:58,624] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 06:08:58,824] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1627.
+[INFO|2018-09-07 06:08:58,826] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1627.
+[INFO|2018-09-07 06:09:00,469] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:09:00,470] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 06:09:03,470] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:09:03,473] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 06:09:03,846] [models.py:1269 - receive_from_consumer()] Group1627: investor1: buy.
+[INFO|2018-09-07 06:09:06,469] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:09:08,849] [models.py:1269 - receive_from_consumer()] Group1627: investor2: buy.
+[INFO|2018-09-07 06:09:11,852] [models.py:1269 - receive_from_consumer()] Group1627: investor3: sell.
+[INFO|2018-09-07 06:09:12,858] [models.py:1269 - receive_from_consumer()] Group1627: investor4: buy.

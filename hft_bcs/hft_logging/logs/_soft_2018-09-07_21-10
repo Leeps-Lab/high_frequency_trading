@@ -1,0 +1,134 @@
+[INFO|2018-09-07 21:11:02,417] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 21:11:16,451] [consumers.py:18 -              connect()] Player 4111 is connected to Group 2247 with in-group id 1.
+[INFO|2018-09-07 21:11:16,573] [consumers.py:18 -              connect()] Player 4113 is connected to Group 2247 with in-group id 3.
+[INFO|2018-09-07 21:11:16,688] [consumers.py:18 -              connect()] Player 4112 is connected to Group 2247 with in-group id 2.
+[INFO|2018-09-07 21:11:19,130] [models.py:828 -            in_market()] Group2247: Player4113: In market.
+[INFO|2018-09-07 21:11:19,137] [models.py:494 -    players_in_market()] Group2247: 1 players are in market.
+[INFO|2018-09-07 21:11:19,529] [models.py:828 -            in_market()] Group2247: Player4111: In market.
+[INFO|2018-09-07 21:11:19,535] [models.py:494 -    players_in_market()] Group2247: 2 players are in market.
+[INFO|2018-09-07 21:11:22,137] [models.py:828 -            in_market()] Group2247: Player4112: In market.
+[INFO|2018-09-07 21:11:22,144] [models.py:491 -    players_in_market()] Group2247: all players are in market.
+[INFO|2018-09-07 21:11:22,147] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 21:11:22,153] [models.py:415 -                spawn()] Group2247: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 21:11:22,158] [models.py:415 -                spawn()] Group2247: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 21:11:22,274] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 21:11:22,464] [consumers.py:55 -          raw_connect()] Jump is connected to Group 2247.
+[INFO|2018-09-07 21:11:22,465] [consumers.py:36 -          raw_connect()] Investor is connected to Group 2247.
+[INFO|2018-09-07 21:11:23,112] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:11:23,113] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:11:26,114] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:11:26,116] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:11:27,487] [models.py:1269 - receive_from_consumer()] Group2247: investor1: buy.
+[INFO|2018-09-07 21:11:29,113] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:11:29,116] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:11:32,115] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:11:32,116] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:11:32,492] [models.py:1269 - receive_from_consumer()] Group2247: investor2: buy.
+[INFO|2018-09-07 21:11:35,116] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:11:35,118] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:11:35,494] [models.py:1269 - receive_from_consumer()] Group2247: investor3: sell.
+[INFO|2018-09-07 21:11:35,700] [models.py:1269 - receive_from_consumer()] Group2247: investor4: buy.
+[INFO|2018-09-07 21:11:38,113] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:11:38,115] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:11:38,802] [models.py:1269 - receive_from_consumer()] Group2247: investor5: buy.
+[INFO|2018-09-07 21:11:38,908] [models.py:1269 - receive_from_consumer()] Group2247: investor6: buy.
+[INFO|2018-09-07 21:11:39,011] [models.py:1269 - receive_from_consumer()] Group2247: investor7: buy.
+[INFO|2018-09-07 21:11:39,062] [models.py:1269 - receive_from_consumer()] Group2247: investor8: buy.
+[INFO|2018-09-07 21:11:39,268] [models.py:1269 - receive_from_consumer()] Group2247: investor9: buy.
+[INFO|2018-09-07 21:11:41,112] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:11:41,114] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:11:43,146] [models.py:832 -     session_finished()] Group2247: Player4111: Ready to advance.
+[INFO|2018-09-07 21:11:43,152] [models.py:324 -            end_trade()] Group2247: Player4111 flags session end.
+[INFO|2018-09-07 21:11:43,160] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 2247.
+[INFO|2018-09-07 21:11:43,160] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 2247.
+[INFO|2018-09-07 21:11:43,166] [models.py:232 -         groups_ready()] session: advancing all players to results page.
+[INFO|2018-09-07 21:11:44,123] [models.py:832 -     session_finished()] Group2247: Player4113: Ready to advance.
+[INFO|2018-09-07 21:11:44,124] [models.py:832 -     session_finished()] Group2247: Player4112: Ready to advance.
+[INFO|2018-09-07 21:11:44,968] [results.py:183 -             __init__()] {4111: < BCSPlayer 4111:out:None>, 4112: < BCSPlayer 4112:out:None>, 4113: < BCSPlayer 4113:out:None>}
+[DEBUG|2018-09-07 21:11:44,970] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 21:11:44,970] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 21:11:44,970] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 21:11:44,970] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 21:11:44,971] [results.py:273 -                  off()] fast_sniper role is already off.
+[INFO|2018-09-07 21:11:45,098] [consumers.py:28 -       raw_disconnect()] Player 4111 disconnected from Group 2247.
+[INFO|2018-09-07 21:11:45,166] [consumers.py:28 -       raw_disconnect()] Player 4112 disconnected from Group 2247.
+[INFO|2018-09-07 21:11:45,244] [consumers.py:28 -       raw_disconnect()] Player 4113 disconnected from Group 2247.
+[INFO|2018-09-07 21:12:34,407] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 21:12:43,380] [consumers.py:18 -              connect()] Player 4141 is connected to Group 2267 with in-group id 1.
+[INFO|2018-09-07 21:12:43,449] [consumers.py:18 -              connect()] Player 4142 is connected to Group 2267 with in-group id 2.
+[INFO|2018-09-07 21:12:43,580] [consumers.py:18 -              connect()] Player 4143 is connected to Group 2267 with in-group id 3.
+[INFO|2018-09-07 21:12:45,124] [models.py:828 -            in_market()] Group2267: Player4142: In market.
+[INFO|2018-09-07 21:12:45,130] [models.py:494 -    players_in_market()] Group2267: 1 players are in market.
+[INFO|2018-09-07 21:12:49,242] [models.py:828 -            in_market()] Group2267: Player4141: In market.
+[INFO|2018-09-07 21:12:49,247] [models.py:494 -    players_in_market()] Group2267: 2 players are in market.
+[INFO|2018-09-07 21:12:49,362] [models.py:828 -            in_market()] Group2267: Player4143: In market.
+[INFO|2018-09-07 21:12:49,368] [models.py:491 -    players_in_market()] Group2267: all players are in market.
+[INFO|2018-09-07 21:12:49,371] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 21:12:49,378] [models.py:415 -                spawn()] Group2267: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 21:12:49,383] [models.py:415 -                spawn()] Group2267: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 21:12:49,506] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 21:12:49,732] [consumers.py:55 -          raw_connect()] Jump is connected to Group 2267.
+[INFO|2018-09-07 21:12:49,732] [consumers.py:36 -          raw_connect()] Investor is connected to Group 2267.
+[INFO|2018-09-07 21:12:50,114] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:12:50,114] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:12:53,111] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:12:53,113] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:12:54,750] [models.py:1269 - receive_from_consumer()] Group2267: investor1: buy.
+[INFO|2018-09-07 21:12:56,112] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:12:56,115] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:12:59,111] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:12:59,112] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:12:59,750] [models.py:1269 - receive_from_consumer()] Group2267: investor2: buy.
+[INFO|2018-09-07 21:13:02,113] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:13:02,115] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:13:02,761] [models.py:1269 - receive_from_consumer()] Group2267: investor3: sell.
+[INFO|2018-09-07 21:13:02,961] [models.py:1269 - receive_from_consumer()] Group2267: investor4: buy.
+[INFO|2018-09-07 21:13:05,110] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:13:05,114] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:13:06,060] [models.py:1269 - receive_from_consumer()] Group2267: investor5: buy.
+[INFO|2018-09-07 21:13:06,161] [models.py:1269 - receive_from_consumer()] Group2267: investor6: buy.
+[INFO|2018-09-07 21:13:06,259] [models.py:1269 - receive_from_consumer()] Group2267: investor7: buy.
+[INFO|2018-09-07 21:13:06,313] [models.py:1269 - receive_from_consumer()] Group2267: investor8: buy.
+[INFO|2018-09-07 21:13:06,518] [models.py:1269 - receive_from_consumer()] Group2267: investor9: buy.
+[INFO|2018-09-07 21:13:08,110] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 21:13:08,114] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 21:13:10,144] [models.py:832 -     session_finished()] Group2267: Player4143: Ready to advance.
+[INFO|2018-09-07 21:13:10,153] [models.py:324 -            end_trade()] Group2267: Player4143 flags session end.
+[INFO|2018-09-07 21:13:10,158] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 2267.
+[INFO|2018-09-07 21:13:10,161] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 2267.
+[INFO|2018-09-07 21:13:10,165] [models.py:232 -         groups_ready()] session: advancing all players to results page.
+[INFO|2018-09-07 21:13:11,380] [models.py:832 -     session_finished()] Group2267: Player4142: Ready to advance.
+[INFO|2018-09-07 21:13:11,403] [models.py:832 -     session_finished()] Group2267: Player4141: Ready to advance.
+[INFO|2018-09-07 21:13:11,987] [results.py:183 -             __init__()] {4141: < BCSPlayer 4141:out:None>, 4142: < BCSPlayer 4142:out:None>, 4143: < BCSPlayer 4143:out:None>}
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 21:13:11,988] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 21:13:11,989] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 21:13:11,989] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 21:13:11,989] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 21:13:11,989] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 21:13:11,989] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 21:13:11,989] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 21:13:11,989] [results.py:273 -                  off()] fast_sniper role is already off.
+[INFO|2018-09-07 21:13:12,132] [consumers.py:28 -       raw_disconnect()] Player 4141 disconnected from Group 2267.
+[INFO|2018-09-07 21:13:12,149] [consumers.py:28 -       raw_disconnect()] Player 4142 disconnected from Group 2267.
+[INFO|2018-09-07 21:13:12,284] [consumers.py:28 -       raw_disconnect()] Player 4143 disconnected from Group 2267.

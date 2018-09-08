@@ -1,0 +1,35 @@
+[INFO|2018-09-07 06:10:13,819] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 06:10:21,445] [consumers.py:18 -              connect()] Player 3212 is connected to Group 1647 with in-group id 2.
+[INFO|2018-09-07 06:10:21,487] [consumers.py:18 -              connect()] Player 3213 is connected to Group 1647 with in-group id 3.
+[INFO|2018-09-07 06:10:21,623] [consumers.py:18 -              connect()] Player 3211 is connected to Group 1647 with in-group id 1.
+[INFO|2018-09-07 06:10:26,473] [models.py:828 -            in_market()] Group1647: Player3212: In market.
+[INFO|2018-09-07 06:10:26,474] [models.py:828 -            in_market()] Group1647: Player3213: In market.
+[INFO|2018-09-07 06:10:26,481] [models.py:494 -    players_in_market()] Group1647: 1 players are in market.
+[INFO|2018-09-07 06:10:26,481] [decorators.py:23 -              atomize()] 1647: key tm8s85i2_lock is locked.
+[INFO|2018-09-07 06:10:26,487] [models.py:494 -    players_in_market()] Group1647: 2 players are in market.
+[INFO|2018-09-07 06:10:27,358] [models.py:828 -            in_market()] Group1647: Player3211: In market.
+[INFO|2018-09-07 06:10:27,364] [models.py:491 -    players_in_market()] Group1647: all players are in market.
+[INFO|2018-09-07 06:10:27,368] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 06:10:27,372] [models.py:415 -                spawn()] Group1647: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 06:10:27,376] [models.py:415 -                spawn()] Group1647: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 06:10:27,467] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:10:27,467] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 06:10:27,494] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 06:10:27,605] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1647.
+[INFO|2018-09-07 06:10:27,609] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1647.
+[INFO|2018-09-07 06:10:30,468] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:10:30,469] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 06:10:32,627] [models.py:1269 - receive_from_consumer()] Group1647: investor1: buy.
+[INFO|2018-09-07 06:10:33,464] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:10:33,467] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 06:10:36,463] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:10:36,465] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 06:10:37,641] [models.py:1269 - receive_from_consumer()] Group1647: investor2: buy.
+[INFO|2018-09-07 06:10:39,467] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:10:39,469] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 06:10:40,636] [models.py:1269 - receive_from_consumer()] Group1647: investor3: sell.
+[INFO|2018-09-07 06:10:41,640] [models.py:1269 - receive_from_consumer()] Group1647: investor4: buy.
+[INFO|2018-09-07 06:10:42,146] [models.py:1269 - receive_from_consumer()] Group1647: investor5: buy.
+[INFO|2018-09-07 06:10:42,465] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 06:10:42,476] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 06:10:42,630] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 1647.

@@ -27,7 +27,7 @@ import time
 from . import new_translator
 from .decorators import atomic
 from otree.common_internal import random_chars_8
-from settings import exp_logs_dir
+from settings import exp_logs_dir, EXCHANGE_HOST_NO
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +39,9 @@ class Constants(BaseConstants):
     short_delay = 0.1   # slow players delay
     long_delay = 0.5    # fast players delay
 
-    first_exchange_port = {'CDA': 9001, 'FBA': 9101}  # make this configurable
+    exchange_host_label = '{self.subsession.design}_{host}'
+
+    first_exchange_port = {'CDA': 9001, 'FBA': 9001}  # make this configurable
 
     speed_factor = 1e-9
     player_state = ('state', 'fp', 'speed', 'spread', 'prev_speed_update')
@@ -84,8 +86,8 @@ class Constants(BaseConstants):
     # log file
     log_file = '{dir}{self.design}_{self.code}_{self.players_per_group}_{time}'
 
-    investor_url = 'ws://127.0.0.1:8000/hft_investor/'
-    jump_url = 'ws://127.0.0.1:8000/hft_jump/'
+    investor_url = 'ws://127.0.0.1:80/hft_investor/'
+    jump_url = 'ws://127.0.0.1:80/hft_jump/'
 
     investor_py = os.path.join(os.getcwd(), 'hft_bcs/exos/investor.py')
     jump_py = os.path.join(os.getcwd(), 'hft_bcs/exos/jump.py')
@@ -277,9 +279,19 @@ class Group(BaseGroup):
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
         print(pairs)
+    
+    def set_exchange_host(self):
+        if EXCHANGE_HOST_NO is not "127.0.0.1":
+            self.exch_host = Constants.exchange_host_label.format(
+                self=self, host=EXCHANGE_HOST_NO
+            )
+        else:
+            self.exch_host = self.session.conifg['exchange_host']
+        log.info('exchange host is {}'.format(self.exch_host))
 
     def creating_group(self):
-        self.exch_host = self.session.config['exchange_host']
+        self.exch_host =  "127.0.0.1"
+  #      self.set_exchange_host()
         self.exch_port = self.subsession.next_available_exchange
         self.subsession.next_available_exchange += 1
             # otree wants to create all objects at session start

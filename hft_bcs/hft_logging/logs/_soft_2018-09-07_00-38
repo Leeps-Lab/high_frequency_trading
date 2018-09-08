@@ -1,0 +1,604 @@
+[INFO|2018-09-07 00:38:43,192] [consumers.py:18 -              connect()] Player 2341 is connected to Group 1097 with in-group id 1.
+[INFO|2018-09-07 00:38:43,208] [consumers.py:18 -              connect()] Player 2342 is connected to Group 1097 with in-group id 2.
+[INFO|2018-09-07 00:38:43,514] [consumers.py:18 -              connect()] Player 2343 is connected to Group 1097 with in-group id 3.
+[INFO|2018-09-07 00:38:43,882] [consumers.py:18 -              connect()] Player 2344 is connected to Group 1098 with in-group id 1.
+[INFO|2018-09-07 00:38:43,981] [consumers.py:18 -              connect()] Player 2345 is connected to Group 1098 with in-group id 2.
+[INFO|2018-09-07 00:38:43,990] [consumers.py:18 -              connect()] Player 2346 is connected to Group 1098 with in-group id 3.
+[INFO|2018-09-07 00:38:44,550] [models.py:828 -            in_market()] Group1097: Player2342: In market.
+[INFO|2018-09-07 00:38:44,560] [models.py:494 -    players_in_market()] Group1097: 1 players are in market.
+[INFO|2018-09-07 00:38:45,544] [models.py:828 -            in_market()] Group1098: Player2345: In market.
+[INFO|2018-09-07 00:38:45,550] [models.py:494 -    players_in_market()] Group1098: 1 players are in market.
+[INFO|2018-09-07 00:38:46,538] [models.py:828 -            in_market()] Group1098: Player2344: In market.
+[INFO|2018-09-07 00:38:46,546] [models.py:494 -    players_in_market()] Group1098: 2 players are in market.
+[INFO|2018-09-07 00:38:48,064] [models.py:828 -            in_market()] Group1097: Player2341: In market.
+[INFO|2018-09-07 00:38:48,070] [models.py:494 -    players_in_market()] Group1097: 2 players are in market.
+[INFO|2018-09-07 00:38:48,539] [models.py:828 -            in_market()] Group1098: Player2346: In market.
+[INFO|2018-09-07 00:38:48,545] [models.py:491 -    players_in_market()] Group1098: all players are in market.
+[INFO|2018-09-07 00:38:49,539] [models.py:828 -            in_market()] Group1097: Player2343: In market.
+[INFO|2018-09-07 00:38:49,544] [models.py:491 -    players_in_market()] Group1097: all players are in market.
+[INFO|2018-09-07 00:38:49,548] [models.py:227 -         groups_ready()] session: starting trade, 24.
+[INFO|2018-09-07 00:38:49,555] [models.py:415 -                spawn()] Group1097: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:38:49,561] [models.py:415 -                spawn()] Group1097: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:38:49,676] [models.py:415 -                spawn()] Group1098: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:38:49,682] [models.py:415 -                spawn()] Group1098: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:38:49,686] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 00:38:49,810] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 00:38:49,883] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1097.
+[INFO|2018-09-07 00:38:49,888] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1097.
+[INFO|2018-09-07 00:38:49,927] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1098.
+[INFO|2018-09-07 00:38:49,935] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1098.
+[INFO|2018-09-07 00:38:52,526] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:38:52,527] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:38:52,527] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:38:52,528] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:38:53,774] [models.py:448 -           jump_event()] Group1097: jump to 993348 !!
+[INFO|2018-09-07 00:38:53,828] [models.py:448 -           jump_event()] Group1098: jump to 993348 !!
+[INFO|2018-09-07 00:38:55,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:38:55,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:38:55,526] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:38:55,528] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:38:55,977] [models.py:448 -           jump_event()] Group1097: jump to 991874 !!
+[INFO|2018-09-07 00:38:56,020] [models.py:448 -           jump_event()] Group1098: jump to 991874 !!
+[INFO|2018-09-07 00:38:57,699] [models.py:1269 - receive_from_consumer()] Group1097: investor1: buy.
+[INFO|2018-09-07 00:38:57,728] [models.py:1269 - receive_from_consumer()] Group1098: investor1: buy.
+[INFO|2018-09-07 00:38:57,864] [models.py:1269 - receive_from_consumer()] Group1097: investor2: buy.
+[INFO|2018-09-07 00:38:57,907] [models.py:1269 - receive_from_consumer()] Group1098: investor2: buy.
+[INFO|2018-09-07 00:38:58,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:38:58,526] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:38:58,526] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:38:58,527] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:38:58,539] [models.py:1269 - receive_from_consumer()] Group1097: investor3: sell.
+[INFO|2018-09-07 00:38:58,570] [models.py:1269 - receive_from_consumer()] Group1098: investor3: sell.
+[INFO|2018-09-07 00:38:59,731] [models.py:448 -           jump_event()] Group1097: jump to 991183 !!
+[INFO|2018-09-07 00:38:59,773] [models.py:448 -           jump_event()] Group1098: jump to 991183 !!
+[INFO|2018-09-07 00:39:00,202] [models.py:1269 - receive_from_consumer()] Group1097: investor4: buy.
+[INFO|2018-09-07 00:39:00,232] [models.py:1269 - receive_from_consumer()] Group1098: investor4: buy.
+[INFO|2018-09-07 00:39:01,341] [models.py:448 -           jump_event()] Group1097: jump to 991180 !!
+[INFO|2018-09-07 00:39:01,382] [models.py:448 -           jump_event()] Group1098: jump to 991180 !!
+[INFO|2018-09-07 00:39:01,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:01,526] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:01,526] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:01,527] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:04,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:04,527] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:04,527] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:04,527] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:06,880] [models.py:448 -           jump_event()] Group1097: jump to 989347 !!
+[INFO|2018-09-07 00:39:06,912] [models.py:448 -           jump_event()] Group1098: jump to 989347 !!
+[INFO|2018-09-07 00:39:07,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:07,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:07,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:07,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:07,966] [models.py:1269 - receive_from_consumer()] Group1097: investor5: buy.
+[INFO|2018-09-07 00:39:08,002] [models.py:1269 - receive_from_consumer()] Group1098: investor5: buy.
+[INFO|2018-09-07 00:39:09,310] [models.py:448 -           jump_event()] Group1097: jump to 991795 !!
+[INFO|2018-09-07 00:39:09,350] [models.py:448 -           jump_event()] Group1098: jump to 991795 !!
+[INFO|2018-09-07 00:39:09,427] [models.py:448 -           jump_event()] Group1097: jump to 997045 !!
+[INFO|2018-09-07 00:39:09,460] [models.py:448 -           jump_event()] Group1098: jump to 997045 !!
+[INFO|2018-09-07 00:39:10,528] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:10,528] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:10,537] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:10,537] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:11,218] [models.py:448 -           jump_event()] Group1097: jump to 997345 !!
+[INFO|2018-09-07 00:39:11,251] [models.py:448 -           jump_event()] Group1098: jump to 997345 !!
+[INFO|2018-09-07 00:39:11,917] [models.py:1269 - receive_from_consumer()] Group1097: investor6: buy.
+[INFO|2018-09-07 00:39:11,956] [models.py:1269 - receive_from_consumer()] Group1098: investor6: buy.
+[INFO|2018-09-07 00:39:12,322] [models.py:448 -           jump_event()] Group1097: jump to 1001299 !!
+[INFO|2018-09-07 00:39:12,353] [models.py:448 -           jump_event()] Group1098: jump to 1001299 !!
+[INFO|2018-09-07 00:39:13,527] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:13,528] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:13,528] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:13,529] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:13,912] [models.py:448 -           jump_event()] Group1097: jump to 994130 !!
+[INFO|2018-09-07 00:39:13,947] [models.py:448 -           jump_event()] Group1098: jump to 994130 !!
+[INFO|2018-09-07 00:39:16,471] [models.py:448 -           jump_event()] Group1097: jump to 990854 !!
+[INFO|2018-09-07 00:39:16,504] [models.py:448 -           jump_event()] Group1098: jump to 990854 !!
+[INFO|2018-09-07 00:39:16,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:16,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:16,526] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:16,526] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:16,559] [models.py:832 -     session_finished()] Group1097: Player2342: Ready to advance.
+[INFO|2018-09-07 00:39:16,564] [models.py:832 -     session_finished()] Group1097: Player2341: Ready to advance.
+[INFO|2018-09-07 00:39:16,567] [models.py:324 -            end_trade()] Group1097: Player2342 flags session end.
+[INFO|2018-09-07 00:39:16,576] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 1097.
+[INFO|2018-09-07 00:39:16,579] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 1097.
+[INFO|2018-09-07 00:39:16,579] [decorators.py:23 -              atomize()] 1097: key slomdg1h_lock is locked.
+[INFO|2018-09-07 00:39:17,142] [models.py:448 -           jump_event()] Group1098: jump to 991970 !!
+[INFO|2018-09-07 00:39:17,360] [models.py:448 -           jump_event()] Group1098: jump to 989935 !!
+[INFO|2018-09-07 00:39:17,538] [models.py:832 -     session_finished()] Group1098: Player2345: Ready to advance.
+[INFO|2018-09-07 00:39:17,539] [models.py:832 -     session_finished()] Group1098: Player2346: Ready to advance.
+[INFO|2018-09-07 00:39:17,540] [models.py:832 -     session_finished()] Group1098: Player2344: Ready to advance.
+[INFO|2018-09-07 00:39:17,544] [models.py:832 -     session_finished()] Group1097: Player2343: Ready to advance.
+[INFO|2018-09-07 00:39:17,546] [models.py:324 -            end_trade()] Group1098: Player2345 flags session end.
+[INFO|2018-09-07 00:39:17,552] [decorators.py:23 -              atomize()] 1098: key q6192w3f_lock is locked.
+[INFO|2018-09-07 00:39:17,553] [decorators.py:23 -              atomize()] 1098: key q6192w3f_lock is locked.
+[INFO|2018-09-07 00:39:17,554] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 1098.
+[INFO|2018-09-07 00:39:17,555] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 1098.
+[INFO|2018-09-07 00:39:17,562] [models.py:232 -         groups_ready()] session: advancing all players to results page.
+[INFO|2018-09-07 00:39:19,766] [results.py:183 -             __init__()] {2341: < BCSPlayer 2341:out:None>, 2342: < BCSPlayer 2342:out:None>, 2343: < BCSPlayer 2343:out:None>}
+[DEBUG|2018-09-07 00:39:19,768] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:39:19,768] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:39:19,768] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:39:19,768] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:39:19,769] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 00:39:19,769] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:39:19,769] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:39:19,769] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:39:19,769] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:39:19,769] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:39:19,772] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 00:39:19,772] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:39:19,772] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:39:19,772] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:39:19,772] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:39:19,772] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:39:19,773] [results.py:273 -                  off()] fast_sniper role is already off.
+[INFO|2018-09-07 00:39:19,957] [consumers.py:28 -       raw_disconnect()] Player 2341 disconnected from Group 1097.
+[INFO|2018-09-07 00:39:20,002] [consumers.py:28 -       raw_disconnect()] Player 2342 disconnected from Group 1097.
+[INFO|2018-09-07 00:39:20,141] [consumers.py:28 -       raw_disconnect()] Player 2343 disconnected from Group 1097.
+[INFO|2018-09-07 00:39:20,197] [consumers.py:28 -       raw_disconnect()] Player 2344 disconnected from Group 1098.
+[INFO|2018-09-07 00:39:20,234] [results.py:183 -             __init__()] {2344: < BCSPlayer 2344:out:None>, 2345: < BCSPlayer 2345:out:None>, 2346: < BCSPlayer 2346:out:None>}
+[DEBUG|2018-09-07 00:39:20,237] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:39:20,237] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:39:20,237] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 00:39:20,238] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:39:20,239] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:39:20,239] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:39:20,239] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:39:20,239] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:39:20,239] [results.py:273 -                  off()] fast_sniper role is already off.
+[INFO|2018-09-07 00:39:20,348] [models.py:324 -            end_trade()] Group1098: Player2346 flags session end.
+[INFO|2018-09-07 00:39:20,449] [consumers.py:28 -       raw_disconnect()] Player 2345 disconnected from Group 1098.
+[INFO|2018-09-07 00:39:20,503] [consumers.py:28 -       raw_disconnect()] Player 2346 disconnected from Group 1098.
+[INFO|2018-09-07 00:39:37,178] [consumers.py:18 -              connect()] Player 2347 is connected to Group 1099 with in-group id 1.
+[INFO|2018-09-07 00:39:37,356] [consumers.py:18 -              connect()] Player 2348 is connected to Group 1099 with in-group id 2.
+[INFO|2018-09-07 00:39:37,587] [consumers.py:18 -              connect()] Player 2349 is connected to Group 1099 with in-group id 3.
+[INFO|2018-09-07 00:39:37,780] [consumers.py:18 -              connect()] Player 2351 is connected to Group 1100 with in-group id 2.
+[INFO|2018-09-07 00:39:37,879] [consumers.py:18 -              connect()] Player 2352 is connected to Group 1100 with in-group id 3.
+[INFO|2018-09-07 00:39:38,064] [consumers.py:18 -              connect()] Player 2350 is connected to Group 1100 with in-group id 1.
+[INFO|2018-09-07 00:39:41,136] [models.py:828 -            in_market()] Group1099: Player2347: In market.
+[INFO|2018-09-07 00:39:41,141] [models.py:494 -    players_in_market()] Group1099: 1 players are in market.
+[INFO|2018-09-07 00:39:42,535] [models.py:828 -            in_market()] Group1100: Player2350: In market.
+[INFO|2018-09-07 00:39:42,535] [models.py:828 -            in_market()] Group1100: Player2352: In market.
+[INFO|2018-09-07 00:39:42,540] [decorators.py:23 -              atomize()] 1100: key f0dhywge_lock is locked.
+[INFO|2018-09-07 00:39:42,541] [models.py:494 -    players_in_market()] Group1100: 1 players are in market.
+[INFO|2018-09-07 00:39:42,545] [models.py:494 -    players_in_market()] Group1100: 2 players are in market.
+[INFO|2018-09-07 00:39:43,535] [models.py:828 -            in_market()] Group1099: Player2349: In market.
+[INFO|2018-09-07 00:39:43,536] [models.py:828 -            in_market()] Group1100: Player2351: In market.
+[INFO|2018-09-07 00:39:43,542] [models.py:494 -    players_in_market()] Group1099: 2 players are in market.
+[INFO|2018-09-07 00:39:43,542] [models.py:491 -    players_in_market()] Group1100: all players are in market.
+[INFO|2018-09-07 00:39:43,579] [models.py:828 -            in_market()] Group1099: Player2348: In market.
+[INFO|2018-09-07 00:39:43,583] [models.py:491 -    players_in_market()] Group1099: all players are in market.
+[INFO|2018-09-07 00:39:43,586] [models.py:227 -         groups_ready()] session: starting trade, 24.
+[INFO|2018-09-07 00:39:43,592] [models.py:415 -                spawn()] Group1099: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:39:43,596] [models.py:415 -                spawn()] Group1099: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:39:43,714] [models.py:415 -                spawn()] Group1100: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:39:43,726] [models.py:415 -                spawn()] Group1100: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:39:43,735] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 00:39:43,861] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 00:39:43,966] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1099.
+[INFO|2018-09-07 00:39:43,974] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1099.
+[INFO|2018-09-07 00:39:44,011] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1100.
+[INFO|2018-09-07 00:39:44,019] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1100.
+[INFO|2018-09-07 00:39:44,131] [models.py:448 -           jump_event()] Group1099: jump to 997451 !!
+[INFO|2018-09-07 00:39:44,176] [models.py:448 -           jump_event()] Group1100: jump to 997451 !!
+[INFO|2018-09-07 00:39:45,199] [models.py:448 -           jump_event()] Group1099: jump to 1001901 !!
+[INFO|2018-09-07 00:39:45,243] [models.py:448 -           jump_event()] Group1100: jump to 1001901 !!
+[INFO|2018-09-07 00:39:46,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:46,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:46,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:46,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:47,062] [models.py:448 -           jump_event()] Group1099: jump to 998047 !!
+[INFO|2018-09-07 00:39:47,098] [models.py:448 -           jump_event()] Group1100: jump to 998047 !!
+[INFO|2018-09-07 00:39:47,440] [models.py:448 -           jump_event()] Group1099: jump to 1000920 !!
+[INFO|2018-09-07 00:39:47,483] [models.py:448 -           jump_event()] Group1100: jump to 1000920 !!
+[INFO|2018-09-07 00:39:48,716] [models.py:448 -           jump_event()] Group1099: jump to 1005641 !!
+[INFO|2018-09-07 00:39:48,755] [models.py:448 -           jump_event()] Group1100: jump to 1005641 !!
+[INFO|2018-09-07 00:39:49,526] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:49,527] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:49,528] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:49,528] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:50,105] [models.py:1269 - receive_from_consumer()] Group1099: investor1: buy.
+[INFO|2018-09-07 00:39:50,147] [models.py:1269 - receive_from_consumer()] Group1100: investor1: buy.
+[INFO|2018-09-07 00:39:52,138] [models.py:448 -           jump_event()] Group1099: jump to 1009019 !!
+[INFO|2018-09-07 00:39:52,182] [models.py:448 -           jump_event()] Group1100: jump to 1009019 !!
+[INFO|2018-09-07 00:39:52,539] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:52,540] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:52,550] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:52,551] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:53,299] [models.py:448 -           jump_event()] Group1099: jump to 1003656 !!
+[INFO|2018-09-07 00:39:53,359] [models.py:448 -           jump_event()] Group1100: jump to 1003656 !!
+[INFO|2018-09-07 00:39:54,124] [models.py:1269 - receive_from_consumer()] Group1099: investor2: sell.
+[INFO|2018-09-07 00:39:54,155] [models.py:1269 - receive_from_consumer()] Group1100: investor2: sell.
+[INFO|2018-09-07 00:39:54,885] [models.py:448 -           jump_event()] Group1099: jump to 996924 !!
+[INFO|2018-09-07 00:39:54,922] [models.py:448 -           jump_event()] Group1100: jump to 996924 !!
+[INFO|2018-09-07 00:39:55,059] [models.py:448 -           jump_event()] Group1099: jump to 997985 !!
+[INFO|2018-09-07 00:39:55,092] [models.py:448 -           jump_event()] Group1100: jump to 997985 !!
+[INFO|2018-09-07 00:39:55,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:55,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:55,526] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:55,537] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:55,665] [models.py:448 -           jump_event()] Group1099: jump to 1004315 !!
+[INFO|2018-09-07 00:39:55,709] [models.py:448 -           jump_event()] Group1100: jump to 1004315 !!
+[INFO|2018-09-07 00:39:56,099] [models.py:1269 - receive_from_consumer()] Group1099: investor3: sell.
+[INFO|2018-09-07 00:39:56,136] [models.py:1269 - receive_from_consumer()] Group1100: investor3: sell.
+[INFO|2018-09-07 00:39:57,488] [models.py:448 -           jump_event()] Group1099: jump to 1006281 !!
+[INFO|2018-09-07 00:39:57,523] [models.py:448 -           jump_event()] Group1100: jump to 1006281 !!
+[INFO|2018-09-07 00:39:58,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:58,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:39:58,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:58,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:39:58,853] [models.py:448 -           jump_event()] Group1099: jump to 1004718 !!
+[INFO|2018-09-07 00:39:58,889] [models.py:448 -           jump_event()] Group1100: jump to 1004718 !!
+[INFO|2018-09-07 00:39:59,744] [models.py:448 -           jump_event()] Group1099: jump to 1001572 !!
+[INFO|2018-09-07 00:39:59,781] [models.py:448 -           jump_event()] Group1100: jump to 1001572 !!
+[INFO|2018-09-07 00:40:01,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:01,526] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:01,527] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:01,527] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:04,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:04,526] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:04,526] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:04,526] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:05,280] [models.py:1269 - receive_from_consumer()] Group1099: investor4: buy.
+[INFO|2018-09-07 00:40:05,324] [models.py:1269 - receive_from_consumer()] Group1100: investor4: buy.
+[INFO|2018-09-07 00:40:07,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:07,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:07,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:07,532] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:07,921] [models.py:1269 - receive_from_consumer()] Group1099: investor5: buy.
+[INFO|2018-09-07 00:40:07,973] [models.py:1269 - receive_from_consumer()] Group1100: investor5: buy.
+[INFO|2018-09-07 00:40:09,307] [models.py:1269 - receive_from_consumer()] Group1099: investor6: sell.
+[INFO|2018-09-07 00:40:09,342] [models.py:1269 - receive_from_consumer()] Group1100: investor6: sell.
+[INFO|2018-09-07 00:40:10,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:10,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:10,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:10,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:10,540] [models.py:448 -           jump_event()] Group1099: jump to 1001188 !!
+[INFO|2018-09-07 00:40:10,557] [models.py:832 -     session_finished()] Group1099: Player2349: Ready to advance.
+[INFO|2018-09-07 00:40:10,569] [models.py:324 -            end_trade()] Group1099: Player2349 flags session end.
+[INFO|2018-09-07 00:40:10,578] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 1099.
+[INFO|2018-09-07 00:40:10,581] [models.py:448 -           jump_event()] Group1100: jump to 1001188 !!
+[INFO|2018-09-07 00:40:10,585] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 1099.
+[INFO|2018-09-07 00:40:10,768] [models.py:448 -           jump_event()] Group1100: jump to 1005309 !!
+[INFO|2018-09-07 00:40:11,534] [models.py:832 -     session_finished()] Group1100: Player2352: Ready to advance.
+[INFO|2018-09-07 00:40:11,536] [models.py:832 -     session_finished()] Group1100: Player2351: Ready to advance.
+[INFO|2018-09-07 00:40:11,538] [models.py:832 -     session_finished()] Group1100: Player2350: Ready to advance.
+[INFO|2018-09-07 00:40:11,542] [models.py:324 -            end_trade()] Group1100: Player2351 flags session end.
+[INFO|2018-09-07 00:40:11,545] [decorators.py:23 -              atomize()] 1100: key f0dhywge_lock is locked.
+[INFO|2018-09-07 00:40:11,547] [decorators.py:23 -              atomize()] 1100: key f0dhywge_lock is locked.
+[INFO|2018-09-07 00:40:11,553] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 1100.
+[INFO|2018-09-07 00:40:11,553] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 1100.
+[INFO|2018-09-07 00:40:11,554] [models.py:232 -         groups_ready()] session: advancing all players to results page.
+[INFO|2018-09-07 00:40:11,723] [models.py:832 -     session_finished()] Group1099: Player2348: Ready to advance.
+[INFO|2018-09-07 00:40:11,727] [models.py:832 -     session_finished()] Group1099: Player2347: Ready to advance.
+[INFO|2018-09-07 00:40:13,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:13,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:13,981] [results.py:183 -             __init__()] {2347: < BCSPlayer 2347:out:None>, 2348: < BCSPlayer 2348:out:None>, 2349: < BCSPlayer 2349:out:None>}
+[DEBUG|2018-09-07 00:40:13,983] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:40:13,983] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:40:13,984] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:40:13,985] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:40:13,985] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:40:13,985] [results.py:273 -                  off()] fast_sniper role is already off.
+[INFO|2018-09-07 00:40:14,160] [consumers.py:28 -       raw_disconnect()] Player 2347 disconnected from Group 1099.
+[INFO|2018-09-07 00:40:14,216] [consumers.py:28 -       raw_disconnect()] Player 2348 disconnected from Group 1099.
+[INFO|2018-09-07 00:40:14,360] [consumers.py:28 -       raw_disconnect()] Player 2349 disconnected from Group 1099.
+[INFO|2018-09-07 00:40:14,418] [consumers.py:28 -       raw_disconnect()] Player 2350 disconnected from Group 1100.
+[INFO|2018-09-07 00:40:14,499] [results.py:183 -             __init__()] {2350: < BCSPlayer 2350:out:None>, 2351: < BCSPlayer 2351:out:None>, 2352: < BCSPlayer 2352:out:None>}
+[DEBUG|2018-09-07 00:40:14,500] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:40:14,500] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:40:14,500] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-07 00:40:14,501] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-07 00:40:14,502] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-07 00:40:14,502] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-07 00:40:14,502] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-07 00:40:14,502] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-07 00:40:14,502] [results.py:273 -                  off()] fast_sniper role is already off.
+[INFO|2018-09-07 00:40:14,602] [models.py:324 -            end_trade()] Group1100: Player2352 flags session end.
+[INFO|2018-09-07 00:40:14,696] [consumers.py:28 -       raw_disconnect()] Player 2351 disconnected from Group 1100.
+[INFO|2018-09-07 00:40:14,786] [consumers.py:28 -       raw_disconnect()] Player 2352 disconnected from Group 1100.
+[INFO|2018-09-07 00:40:16,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:16,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:19,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:19,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:22,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:22,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:25,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:25,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:28,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:28,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:31,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:31,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:34,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:34,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:37,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:37,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:40,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:40,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:43,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:43,521] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:46,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:46,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:49,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:49,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:52,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:52,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:55,512] [consumers.py:18 -              connect()] Player 2353 is connected to Group 1101 with in-group id 1.
+[INFO|2018-09-07 00:40:55,530] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:55,544] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:55,560] [consumers.py:18 -              connect()] Player 2354 is connected to Group 1101 with in-group id 2.
+[INFO|2018-09-07 00:40:55,962] [consumers.py:18 -              connect()] Player 2355 is connected to Group 1101 with in-group id 3.
+[INFO|2018-09-07 00:40:56,128] [consumers.py:18 -              connect()] Player 2357 is connected to Group 1102 with in-group id 2.
+[INFO|2018-09-07 00:40:56,211] [consumers.py:18 -              connect()] Player 2358 is connected to Group 1102 with in-group id 3.
+[INFO|2018-09-07 00:40:56,900] [consumers.py:18 -              connect()] Player 2356 is connected to Group 1102 with in-group id 1.
+[INFO|2018-09-07 00:40:58,460] [models.py:828 -            in_market()] Group1101: Player2353: In market.
+[INFO|2018-09-07 00:40:58,464] [models.py:494 -    players_in_market()] Group1101: 1 players are in market.
+[INFO|2018-09-07 00:40:58,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:40:58,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:40:58,790] [models.py:828 -            in_market()] Group1101: Player2354: In market.
+[INFO|2018-09-07 00:40:58,794] [models.py:494 -    players_in_market()] Group1101: 2 players are in market.
+[INFO|2018-09-07 00:40:59,534] [models.py:828 -            in_market()] Group1102: Player2356: In market.
+[INFO|2018-09-07 00:40:59,538] [models.py:494 -    players_in_market()] Group1102: 1 players are in market.
+[INFO|2018-09-07 00:41:00,533] [models.py:828 -            in_market()] Group1102: Player2357: In market.
+[INFO|2018-09-07 00:41:00,537] [models.py:494 -    players_in_market()] Group1102: 2 players are in market.
+[INFO|2018-09-07 00:41:01,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:01,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:01,533] [models.py:828 -            in_market()] Group1102: Player2358: In market.
+[INFO|2018-09-07 00:41:01,538] [models.py:491 -    players_in_market()] Group1102: all players are in market.
+[INFO|2018-09-07 00:41:01,699] [models.py:828 -            in_market()] Group1101: Player2355: In market.
+[INFO|2018-09-07 00:41:01,704] [models.py:491 -    players_in_market()] Group1101: all players are in market.
+[INFO|2018-09-07 00:41:01,707] [models.py:227 -         groups_ready()] session: starting trade, 24.
+[INFO|2018-09-07 00:41:01,712] [models.py:415 -                spawn()] Group1101: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:41:01,719] [models.py:415 -                spawn()] Group1101: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[WARNING|2018-09-07 00:41:01,724] [models.py:350 -  connect_to_exchange()] exchange at 127.0.0.1:9101 already has a group
+[INFO|2018-09-07 00:41:02,001] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1101.
+[INFO|2018-09-07 00:41:02,002] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1101.
+[INFO|2018-09-07 00:41:04,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:04,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:05,885] [models.py:448 -           jump_event()] Group1101: jump to 993348 !!
+[INFO|2018-09-07 00:41:07,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:07,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:08,069] [models.py:448 -           jump_event()] Group1101: jump to 991874 !!
+[INFO|2018-09-07 00:41:09,798] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:09,972] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:10,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:10,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:10,627] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:41:11,823] [models.py:448 -           jump_event()] Group1101: jump to 991183 !!
+[INFO|2018-09-07 00:41:12,301] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:13,430] [models.py:448 -           jump_event()] Group1101: jump to 991180 !!
+[INFO|2018-09-07 00:41:13,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:13,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:16,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:16,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:18,970] [models.py:448 -           jump_event()] Group1101: jump to 989347 !!
+[INFO|2018-09-07 00:41:19,520] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:19,521] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:20,069] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:21,408] [models.py:448 -           jump_event()] Group1101: jump to 991795 !!
+[INFO|2018-09-07 00:41:21,521] [models.py:448 -           jump_event()] Group1101: jump to 997045 !!
+[INFO|2018-09-07 00:41:22,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:22,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:23,295] [models.py:448 -           jump_event()] Group1101: jump to 997345 !!
+[INFO|2018-09-07 00:41:24,020] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:24,412] [models.py:448 -           jump_event()] Group1101: jump to 1001299 !!
+[INFO|2018-09-07 00:41:25,520] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:25,520] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:25,992] [models.py:448 -           jump_event()] Group1101: jump to 994130 !!
+[INFO|2018-09-07 00:41:28,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:28,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:28,570] [models.py:448 -           jump_event()] Group1101: jump to 990854 !!
+[INFO|2018-09-07 00:41:29,196] [models.py:448 -           jump_event()] Group1101: jump to 991970 !!
+[INFO|2018-09-07 00:41:29,406] [models.py:448 -           jump_event()] Group1101: jump to 989935 !!
+[INFO|2018-09-07 00:41:30,770] [models.py:448 -           jump_event()] Group1101: jump to 993781 !!
+[INFO|2018-09-07 00:41:31,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:31,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:32,507] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:41:32,955] [models.py:448 -           jump_event()] Group1101: jump to 995579 !!
+[INFO|2018-09-07 00:41:33,718] [models.py:448 -           jump_event()] Group1101: jump to 994552 !!
+[INFO|2018-09-07 00:41:34,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:34,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:35,031] [models.py:448 -           jump_event()] Group1101: jump to 997229 !!
+[INFO|2018-09-07 00:41:36,137] [models.py:448 -           jump_event()] Group1101: jump to 1000158 !!
+[INFO|2018-09-07 00:41:37,520] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:37,521] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:37,687] [models.py:448 -           jump_event()] Group1101: jump to 993374 !!
+[INFO|2018-09-07 00:41:39,324] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:40,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:40,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:43,497] [models.py:448 -           jump_event()] Group1101: jump to 993716 !!
+[INFO|2018-09-07 00:41:43,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:43,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:45,622] [models.py:448 -           jump_event()] Group1101: jump to 998196 !!
+[INFO|2018-09-07 00:41:46,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:46,521] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:46,993] [models.py:448 -           jump_event()] Group1101: jump to 992808 !!
+[INFO|2018-09-07 00:41:48,011] [models.py:448 -           jump_event()] Group1101: jump to 993848 !!
+[INFO|2018-09-07 00:41:48,607] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:49,519] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:49,520] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:52,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:52,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:55,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:55,523] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:55,835] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:41:56,485] [models.py:448 -           jump_event()] Group1101: jump to 996254 !!
+[INFO|2018-09-07 00:41:57,722] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:58,173] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:41:58,205] [models.py:448 -           jump_event()] Group1101: jump to 992822 !!
+[INFO|2018-09-07 00:41:58,519] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:41:58,519] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:41:59,394] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:42:01,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:01,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:02,434] [models.py:448 -           jump_event()] Group1101: jump to 998946 !!
+[INFO|2018-09-07 00:42:02,595] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:42:04,220] [models.py:448 -           jump_event()] Group1101: jump to 995966 !!
+[INFO|2018-09-07 00:42:04,235] [models.py:448 -           jump_event()] Group1101: jump to 998276 !!
+[INFO|2018-09-07 00:42:04,525] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:04,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:04,631] [consumers.py:28 -       raw_disconnect()] Player 2353 disconnected from Group 1101.
+[INFO|2018-09-07 00:42:04,870] [consumers.py:28 -       raw_disconnect()] Player 2354 disconnected from Group 1101.
+[INFO|2018-09-07 00:42:05,046] [consumers.py:28 -       raw_disconnect()] Player 2355 disconnected from Group 1101.
+[INFO|2018-09-07 00:42:05,224] [consumers.py:28 -       raw_disconnect()] Player 2356 disconnected from Group 1102.
+[INFO|2018-09-07 00:42:05,369] [consumers.py:28 -       raw_disconnect()] Player 2357 disconnected from Group 1102.
+[INFO|2018-09-07 00:42:05,695] [consumers.py:28 -       raw_disconnect()] Player 2358 disconnected from Group 1102.
+[INFO|2018-09-07 00:42:07,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:07,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:08,755] [models.py:448 -           jump_event()] Group1101: jump to 994489 !!
+[INFO|2018-09-07 00:42:10,524] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:10,525] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:11,025] [models.py:448 -           jump_event()] Group1101: jump to 988527 !!
+[INFO|2018-09-07 00:42:11,193] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:11,892] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:42:13,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:13,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:16,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:16,522] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:19,022] [models.py:448 -           jump_event()] Group1101: jump to 982178 !!
+[INFO|2018-09-07 00:42:19,520] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:19,521] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:20,010] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:42:22,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:22,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:22,557] [models.py:448 -           jump_event()] Group1101: jump to 988230 !!
+[INFO|2018-09-07 00:42:23,508] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:25,520] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:25,520] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:25,551] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:42:28,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:28,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:29,483] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:30,023] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:30,797] [models.py:448 -           jump_event()] Group1101: jump to 985607 !!
+[INFO|2018-09-07 00:42:31,519] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:31,519] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:31,653] [models.py:448 -           jump_event()] Group1101: jump to 982906 !!
+[INFO|2018-09-07 00:42:34,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:34,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:34,771] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:35,173] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:42:35,441] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:42:37,142] [models.py:448 -           jump_event()] Group1101: jump to 988258 !!
+[INFO|2018-09-07 00:42:37,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:37,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:40,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:40,521] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:40,829] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:40,967] [models.py:448 -           jump_event()] Group1101: jump to 990753 !!
+[INFO|2018-09-07 00:42:40,979] [models.py:448 -           jump_event()] Group1101: jump to 997822 !!
+[INFO|2018-09-07 00:42:42,164] [models.py:448 -           jump_event()] Group1101: jump to 1004919 !!
+[INFO|2018-09-07 00:42:42,558] [models.py:448 -           jump_event()] Group1101: jump to 1000480 !!
+[INFO|2018-09-07 00:42:42,577] [models.py:448 -           jump_event()] Group1101: jump to 1003420 !!
+[INFO|2018-09-07 00:42:42,973] [models.py:448 -           jump_event()] Group1101: jump to 1004789 !!
+[INFO|2018-09-07 00:42:43,523] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:43,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:46,522] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:46,524] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:46,581] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:47,098] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:47,786] [models.py:448 -           jump_event()] Group1101: jump to 1008484 !!
+[INFO|2018-09-07 00:42:48,269] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:42:49,311] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:49,433] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:49,521] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:42:49,521] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:42:53,603] [models.py:448 -           jump_event()] Group1101: jump to 1006381 !!
+[INFO|2018-09-07 00:42:54,683] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:54,785] [models.py:448 -           jump_event()] Group1101: jump to 1007188 !!
+[INFO|2018-09-07 00:42:55,544] [models.py:448 -           jump_event()] Group1101: jump to 1010920 !!
+[INFO|2018-09-07 00:42:57,099] [models.py:448 -           jump_event()] Group1101: jump to 1013855 !!
+[INFO|2018-09-07 00:42:58,046] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:58,224] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:42:59,612] [models.py:448 -           jump_event()] Group1101: jump to 999342 !!
+[INFO|2018-09-07 00:43:00,462] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:43:00,734] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:43:01,142] [models.py:448 -           jump_event()] Group1101: jump to 991121 !!
+[INFO|2018-09-07 00:43:01,591] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:43:02,039] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:43:08,614] [models.py:448 -           jump_event()] Group1101: jump to 998791 !!
+[INFO|2018-09-07 00:43:08,970] [models.py:448 -           jump_event()] Group1101: jump to 999274 !!
+[INFO|2018-09-07 00:43:09,145] [models.py:448 -           jump_event()] Group1101: jump to 1005813 !!
+[INFO|2018-09-07 00:43:09,701] [models.py:448 -           jump_event()] Group1101: jump to 1004259 !!
+[INFO|2018-09-07 00:43:10,105] [models.py:448 -           jump_event()] Group1101: jump to 998268 !!
+[INFO|2018-09-07 00:43:11,621] [models.py:448 -           jump_event()] Group1101: jump to 996467 !!
+[INFO|2018-09-07 00:43:12,836] [models.py:448 -           jump_event()] Group1101: jump to 996134 !!
+[INFO|2018-09-07 00:43:14,623] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:43:16,342] [models.py:448 -           jump_event()] Group1101: jump to 987983 !!
+[INFO|2018-09-07 00:43:16,756] [models.py:448 -           jump_event()] Group1101: jump to 991238 !!
+[INFO|2018-09-07 00:43:19,941] [models.py:448 -           jump_event()] Group1101: jump to 988033 !!
+[INFO|2018-09-07 00:43:20,951] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:43:26,026] [consumers.py:18 -              connect()] Player 2401 is connected to Group 1127 with in-group id 1.
+[INFO|2018-09-07 00:43:26,204] [consumers.py:18 -              connect()] Player 2402 is connected to Group 1127 with in-group id 2.
+[INFO|2018-09-07 00:43:26,419] [consumers.py:18 -              connect()] Player 2403 is connected to Group 1127 with in-group id 3.
+[INFO|2018-09-07 00:43:26,823] [consumers.py:18 -              connect()] Player 2405 is connected to Group 1128 with in-group id 2.
+[INFO|2018-09-07 00:43:26,943] [consumers.py:18 -              connect()] Player 2406 is connected to Group 1128 with in-group id 3.
+[INFO|2018-09-07 00:43:26,968] [models.py:448 -           jump_event()] Group1101: jump to 976904 !!
+[INFO|2018-09-07 00:43:26,986] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:43:27,305] [consumers.py:18 -              connect()] Player 2404 is connected to Group 1128 with in-group id 1.
+[INFO|2018-09-07 00:43:29,532] [models.py:828 -            in_market()] Group1128: Player2404: In market.
+[INFO|2018-09-07 00:43:29,537] [models.py:494 -    players_in_market()] Group1128: 1 players are in market.
+[INFO|2018-09-07 00:43:30,718] [models.py:448 -           jump_event()] Group1101: jump to 975112 !!
+[INFO|2018-09-07 00:43:30,815] [models.py:828 -            in_market()] Group1127: Player2401: In market.
+[INFO|2018-09-07 00:43:30,819] [models.py:494 -    players_in_market()] Group1127: 1 players are in market.
+[INFO|2018-09-07 00:43:31,529] [models.py:828 -            in_market()] Group1128: Player2405: In market.
+[INFO|2018-09-07 00:43:31,532] [models.py:828 -            in_market()] Group1128: Player2406: In market.
+[INFO|2018-09-07 00:43:31,536] [models.py:494 -    players_in_market()] Group1128: 2 players are in market.
+[INFO|2018-09-07 00:43:31,537] [decorators.py:23 -              atomize()] 1128: key 7dj3nt96_lock is locked.
+[INFO|2018-09-07 00:43:31,539] [models.py:491 -    players_in_market()] Group1128: all players are in market.
+[INFO|2018-09-07 00:43:31,847] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:43:32,200] [models.py:1269 - receive_from_consumer()] Group1101: investor1: sell.
+[INFO|2018-09-07 00:43:32,531] [models.py:828 -            in_market()] Group1127: Player2403: In market.
+[INFO|2018-09-07 00:43:32,531] [models.py:828 -            in_market()] Group1127: Player2402: In market.
+[INFO|2018-09-07 00:43:32,536] [models.py:494 -    players_in_market()] Group1127: 2 players are in market.
+[INFO|2018-09-07 00:43:32,537] [decorators.py:23 -              atomize()] 1127: key s4xv1w3j_lock is locked.
+[INFO|2018-09-07 00:43:32,540] [models.py:491 -    players_in_market()] Group1127: all players are in market.
+[INFO|2018-09-07 00:43:32,543] [models.py:227 -         groups_ready()] session: starting trade, 24.
+[INFO|2018-09-07 00:43:32,549] [models.py:415 -                spawn()] Group1127: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:43:32,556] [models.py:415 -                spawn()] Group1127: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[WARNING|2018-09-07 00:43:32,562] [models.py:350 -  connect_to_exchange()] exchange at 127.0.0.1:9101 already has a group
+[INFO|2018-09-07 00:43:32,736] [models.py:448 -           jump_event()] Group1101: jump to 974782 !!
+[INFO|2018-09-07 00:43:32,848] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1127.
+[INFO|2018-09-07 00:43:32,848] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1127.
+[INFO|2018-09-07 00:43:33,528] [models.py:448 -           jump_event()] Group1101: jump to 970076 !!
+[INFO|2018-09-07 00:43:33,928] [models.py:448 -           jump_event()] Group1101: jump to 971561 !!
+[INFO|2018-09-07 00:43:34,477] [models.py:448 -           jump_event()] Group1101: jump to 975825 !!
+[INFO|2018-09-07 00:43:34,761] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:43:35,530] [models.py:448 -           jump_event()] Group1101: jump to 978945 !!
+[INFO|2018-09-07 00:43:36,498] [models.py:448 -           jump_event()] Group1101: jump to 980631 !!
+[INFO|2018-09-07 00:43:36,722] [models.py:448 -           jump_event()] Group1127: jump to 993348 !!
+[INFO|2018-09-07 00:43:38,926] [models.py:448 -           jump_event()] Group1127: jump to 991874 !!
+[INFO|2018-09-07 00:43:38,963] [models.py:1269 - receive_from_consumer()] Group1101: investor1: buy.
+[INFO|2018-09-07 00:43:39,303] [models.py:448 -           jump_event()] Group1101: jump to 981554 !!
+[INFO|2018-09-07 00:43:40,642] [models.py:1269 - receive_from_consumer()] Group1127: investor1: buy.
+[INFO|2018-09-07 00:43:40,820] [models.py:1269 - receive_from_consumer()] Group1127: investor1: buy.
+[INFO|2018-09-07 00:43:41,474] [models.py:1269 - receive_from_consumer()] Group1127: investor1: sell.
+[INFO|2018-09-07 00:43:41,925] [models.py:448 -           jump_event()] Group1101: jump to 977706 !!

@@ -1,0 +1,10 @@
+{"time": 25234481486000, "group": 0, "level": "header", "type": "header", "context": {"session": "poavd49l", "groups": {"1707": [3301, 3302, 3303]}, "design": "FBA", "spread": 10000.0}}
+{"time": 25247047767000, "group": 1707, "level": "exch", "type": "start", "context": {}}
+{"time": 25249850624000, "group": 1707, "level": "choice", "type": "state", "context": {"player_id": 3301, "state": "MAKER"}}
+{"time": 25250371180000, "group": 1707, "level": "choice", "type": "spread", "context": {"player_id": 3301, "spread": 5867}}
+{"time": 25250376552000, "group": 1707, "level": "exch", "type": "enter", "context": {"player_id": 3301, "order_token": "SUBAB000000001", "price": 995000, "timestamp": 25250347202000, "side": "B", "time_in_force": 99999}}
+{"time": 25250386913000, "group": 1707, "level": "exch", "type": "enter", "context": {"player_id": 3301, "order_token": "SUBAS000000002", "price": 1005000, "timestamp": 25250350989000, "side": "S", "time_in_force": 99999}}
+{"time": 25269089088000, "group": 1707, "level": "exch", "type": "end", "context": {}}
+{"time": 25270838906000, "group": 1707, "level": "market", "type": "cost", "context": {"player_id": 3301, "cost": 0.0, "source": "speed", "timestamp": 25270837827000}}
+{"time": 25270845142000, "group": 1707, "level": "market", "type": "cost", "context": {"player_id": 3302, "cost": 0.0, "source": "speed", "timestamp": 25270844280000}}
+{"time": 25270849149000, "group": 1707, "level": "market", "type": "cost", "context": {"player_id": 3303, "cost": 0.0, "source": "speed", "timestamp": 25270847349000}}

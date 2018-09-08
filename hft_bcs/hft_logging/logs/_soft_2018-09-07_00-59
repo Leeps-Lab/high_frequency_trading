@@ -1,0 +1,20 @@
+[INFO|2018-09-07 00:59:30,098] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 00:59:38,406] [consumers.py:18 -              connect()] Player 2611 is connected to Group 1247 with in-group id 1.
+[INFO|2018-09-07 00:59:38,500] [consumers.py:18 -              connect()] Player 2612 is connected to Group 1247 with in-group id 2.
+[INFO|2018-09-07 00:59:38,623] [consumers.py:18 -              connect()] Player 2613 is connected to Group 1247 with in-group id 3.
+[INFO|2018-09-07 00:59:40,522] [models.py:828 -            in_market()] Group1247: Player2612: In market.
+[INFO|2018-09-07 00:59:40,528] [models.py:494 -    players_in_market()] Group1247: 1 players are in market.
+[INFO|2018-09-07 00:59:42,515] [models.py:828 -            in_market()] Group1247: Player2613: In market.
+[INFO|2018-09-07 00:59:42,520] [models.py:494 -    players_in_market()] Group1247: 2 players are in market.
+[INFO|2018-09-07 00:59:43,975] [models.py:828 -            in_market()] Group1247: Player2611: In market.
+[INFO|2018-09-07 00:59:43,981] [models.py:491 -    players_in_market()] Group1247: all players are in market.
+[INFO|2018-09-07 00:59:43,984] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 00:59:43,988] [models.py:415 -                spawn()] Group1247: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:59:43,994] [models.py:415 -                spawn()] Group1247: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:59:44,109] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 00:59:44,190] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1247.
+[INFO|2018-09-07 00:59:44,196] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1247.
+[INFO|2018-09-07 00:59:46,500] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:59:46,501] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-07 00:59:49,498] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-07 00:59:49,500] [models.py:379 - receive_from_exchange()] Received system P

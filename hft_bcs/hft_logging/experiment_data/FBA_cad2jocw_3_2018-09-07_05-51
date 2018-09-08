@@ -1,0 +1,17 @@
+{"time": 82264176105000, "group": 0, "level": "header", "type": "header", "context": {"session": "cad2jocw", "groups": {"1567": [3091, 3092, 3093]}, "design": "FBA", "spread": 10000.0}}
+{"time": 82278633936000, "group": 1567, "level": "exch", "type": "start", "context": {}}
+{"time": 82282461109000, "group": 1567, "level": "choice", "type": "state", "context": {"player_id": 3091, "state": "MAKER"}}
+{"time": 82282979378000, "group": 1567, "level": "exch", "type": "enter", "context": {"player_id": 3091, "order_token": "SUBAB000000001", "price": 995000, "timestamp": 82282959805000, "side": "B", "time_in_force": 99999}}
+{"time": 82282986883000, "group": 1567, "level": "exch", "type": "enter", "context": {"player_id": 3091, "order_token": "SUBAS000000002", "price": 1005000, "timestamp": 82282961924000, "side": "S", "time_in_force": 99999}}
+{"time": 82283030977000, "group": 1567, "level": "choice", "type": "spread", "context": {"player_id": 3091, "spread": 4600}}
+{"time": 82283548343000, "group": 1567, "level": "exch", "type": "replace", "context": {"player_id": 3091, "replaced_token": "SUBAS000000002", "new_token": "SUBAS000000003", "timestamp": 82283534438000}}
+{"time": 82283557844000, "group": 1567, "level": "exch", "type": "replace", "context": {"player_id": 3091, "replaced_token": "SUBAB000000001", "new_token": "SUBAB000000004", "timestamp": 82283538521000}}
+{"time": 82284504608000, "group": 1567, "level": "market", "type": "profit", "context": {"player_id": 3091, "profit": 2300.0, "source": "cross", "timestamp": 82284490134000, "endowment": 202300.0}}
+{"time": 82284506860000, "group": 1567, "level": "exch", "type": "exec", "context": {"player_id": 3091, "order_token": "SUBAS000000003", "price": 1002300, "timestamp": 82283534438000}}
+{"time": 82285020293000, "group": 1567, "level": "exch", "type": "enter", "context": {"player_id": 3091, "order_token": "SUBAS000000005", "price": 1002300, "timestamp": 82285008534000, "side": "S", "time_in_force": 99999}}
+{"time": 82287498315000, "group": 1567, "level": "market", "type": "profit", "context": {"player_id": 3091, "profit": 2300.0, "source": "cross", "timestamp": 82287487560000, "endowment": 204600.0}}
+{"time": 82287507611000, "group": 1567, "level": "exch", "type": "exec", "context": {"player_id": 3091, "order_token": "SUBAS000000005", "price": 1002300, "timestamp": 82285008534000}}
+{"time": 82288016574000, "group": 1567, "level": "exch", "type": "enter", "context": {"player_id": 3091, "order_token": "SUBAS000000006", "price": 1002300, "timestamp": 82288009807000, "side": "S", "time_in_force": 99999}}
+{"time": 82290505743000, "group": 1567, "level": "market", "type": "profit", "context": {"player_id": 3091, "profit": 2300.0, "source": "cross", "timestamp": 82290489496000, "endowment": 206900.0}}
+{"time": 82290507992000, "group": 1567, "level": "exch", "type": "exec", "context": {"player_id": 3091, "order_token": "SUBAS000000006", "price": 1002300, "timestamp": 82288009807000}}
+{"time": 82291022850000, "group": 1567, "level": "exch", "type": "enter", "context": {"player_id": 3091, "order_token": "SUBAS000000007", "price": 1002300, "timestamp": 82291008911000, "side": "S", "time_in_force": 99999}}

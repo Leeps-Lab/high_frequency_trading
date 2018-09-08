@@ -1,0 +1,35 @@
+  
+version: "3"
+
+services:
+
+  cda:
+    build: 
+      context: ./
+      dockerfile: cda_dockerfile
+    container_name: cda
+    image: cda_exchanges
+    environment:
+      NUM_GROUPS: ${NUM_GROUPS}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    read_only: false
+  
+  fba:
+    build:
+      context: ./    
+      dockerfile: fba_dockerfile
+    container_name: fba
+    image: fba_exchanges
+    environment:
+      NUM_GROUPS: ${NUM_GROUPS} 
+      BATCH_LENGTH: ${BATCH_LENGTH}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    read_only: false

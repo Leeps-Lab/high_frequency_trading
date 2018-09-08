@@ -1,0 +1,16 @@
+[INFO|2018-09-07 00:58:39,705] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 00:58:47,155] [consumers.py:18 -              connect()] Player 2581 is connected to Group 1227 with in-group id 1.
+[INFO|2018-09-07 00:58:47,165] [consumers.py:18 -              connect()] Player 2582 is connected to Group 1227 with in-group id 2.
+[INFO|2018-09-07 00:58:47,331] [consumers.py:18 -              connect()] Player 2583 is connected to Group 1227 with in-group id 3.
+[INFO|2018-09-07 00:58:51,523] [models.py:828 -            in_market()] Group1227: Player2582: In market.
+[INFO|2018-09-07 00:58:51,524] [models.py:828 -            in_market()] Group1227: Player2583: In market.
+[INFO|2018-09-07 00:58:51,531] [models.py:494 -    players_in_market()] Group1227: 1 players are in market.
+[INFO|2018-09-07 00:58:51,531] [decorators.py:23 -              atomize()] 1227: key y1vlgps7_lock is locked.
+[INFO|2018-09-07 00:58:51,534] [models.py:494 -    players_in_market()] Group1227: 2 players are in market.
+[INFO|2018-09-07 00:58:53,020] [models.py:828 -            in_market()] Group1227: Player2581: In market.
+[INFO|2018-09-07 00:58:53,027] [models.py:491 -    players_in_market()] Group1227: all players are in market.
+[INFO|2018-09-07 00:58:53,030] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 00:58:53,038] [models.py:415 -                spawn()] Group1227: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:58:53,042] [models.py:415 -                spawn()] Group1227: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:58:53,157] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-07 00:58:53,254] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1227.

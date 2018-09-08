@@ -1,0 +1,43 @@
+[INFO|2018-09-07 01:48:59,249] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 01:49:08,867] [consumers.py:18 -              connect()] Player 2701 is connected to Group 1307 with in-group id 1.
+[INFO|2018-09-07 01:49:08,987] [consumers.py:18 -              connect()] Player 2702 is connected to Group 1307 with in-group id 2.
+[INFO|2018-09-07 01:49:08,998] [consumers.py:18 -              connect()] Player 2703 is connected to Group 1307 with in-group id 3.
+[INFO|2018-09-07 01:49:11,449] [models.py:828 -            in_market()] Group1307: Player2703: In market.
+[INFO|2018-09-07 01:49:11,453] [models.py:494 -    players_in_market()] Group1307: 1 players are in market.
+[INFO|2018-09-07 01:49:12,453] [models.py:828 -            in_market()] Group1307: Player2701: In market.
+[INFO|2018-09-07 01:49:12,458] [models.py:494 -    players_in_market()] Group1307: 2 players are in market.
+[INFO|2018-09-07 01:49:15,463] [models.py:828 -            in_market()] Group1307: Player2702: In market.
+[INFO|2018-09-07 01:49:15,470] [models.py:491 -    players_in_market()] Group1307: all players are in market.
+[INFO|2018-09-07 01:49:15,473] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 01:49:15,478] [models.py:415 -                spawn()] Group1307: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 01:49:15,484] [models.py:415 -                spawn()] Group1307: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 01:49:15,768] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1307.
+[INFO|2018-09-07 01:49:15,773] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1307.
+[INFO|2018-09-07 01:49:20,789] [models.py:1269 - receive_from_consumer()] Group1307: investor1: buy.
+[INFO|2018-09-07 01:49:25,792] [models.py:1269 - receive_from_consumer()] Group1307: investor2: buy.
+[INFO|2018-09-07 01:49:28,798] [models.py:1269 - receive_from_consumer()] Group1307: investor3: sell.
+[INFO|2018-09-07 01:49:29,803] [models.py:1269 - receive_from_consumer()] Group1307: investor4: buy.
+[INFO|2018-09-07 01:49:30,314] [models.py:1269 - receive_from_consumer()] Group1307: investor5: buy.
+[INFO|2018-09-07 01:49:30,805] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 1307.
+[INFO|2018-09-07 01:49:45,804] [models.py:448 -           jump_event()] Group1307: jump to 100000 !!
+[INFO|2018-09-07 01:49:46,286] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 1307.
+[INFO|2018-09-07 01:50:05,626] [consumers.py:28 -       raw_disconnect()] Player 2701 disconnected from Group 1307.
+[INFO|2018-09-07 01:50:05,791] [consumers.py:28 -       raw_disconnect()] Player 2702 disconnected from Group 1307.
+[INFO|2018-09-07 01:50:05,941] [consumers.py:28 -       raw_disconnect()] Player 2703 disconnected from Group 1307.
+[INFO|2018-09-07 04:47:34,710] [models.py:186 -     creating_session()] session is trial.
+[INFO|2018-09-07 04:47:44,257] [consumers.py:18 -              connect()] Player 2731 is connected to Group 1327 with in-group id 1.
+[INFO|2018-09-07 04:47:44,273] [consumers.py:18 -              connect()] Player 2732 is connected to Group 1327 with in-group id 2.
+[INFO|2018-09-07 04:47:44,286] [consumers.py:18 -              connect()] Player 2733 is connected to Group 1327 with in-group id 3.
+[INFO|2018-09-07 04:47:47,577] [models.py:828 -            in_market()] Group1327: Player2732: In market.
+[INFO|2018-09-07 04:47:47,583] [models.py:494 -    players_in_market()] Group1327: 1 players are in market.
+[INFO|2018-09-07 04:47:47,637] [models.py:828 -            in_market()] Group1327: Player2731: In market.
+[INFO|2018-09-07 04:47:47,644] [models.py:494 -    players_in_market()] Group1327: 2 players are in market.
+[INFO|2018-09-07 04:47:49,585] [models.py:828 -            in_market()] Group1327: Player2733: In market.
+[INFO|2018-09-07 04:47:49,592] [models.py:491 -    players_in_market()] Group1327: all players are in market.
+[INFO|2018-09-07 04:47:49,595] [models.py:227 -         groups_ready()] session: starting trade, 20.
+[INFO|2018-09-07 04:47:49,602] [models.py:415 -                spawn()] Group1327: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 04:47:49,607] [models.py:415 -                spawn()] Group1327: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[WARNING|2018-09-07 04:47:49,614] [models.py:350 -  connect_to_exchange()] exchange at 127.0.0.1:9101 already has a group
+[INFO|2018-09-07 04:47:49,923] [consumers.py:36 -          raw_connect()] Investor is connected to Group 1327.
+[INFO|2018-09-07 04:47:49,924] [consumers.py:55 -          raw_connect()] Jump is connected to Group 1327.
+[INFO|2018-09-07 04:47:54,934] [models.py:1269 - receive_from_consumer()] Group1327: investor1: buy.

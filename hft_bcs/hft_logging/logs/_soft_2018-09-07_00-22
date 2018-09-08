@@ -1,0 +1,376 @@
+[INFO|2018-09-07 00:24:31,995] [consumers.py:18 -              connect()] Player 2042 is connected to Group 947 with in-group id 2.
+[INFO|2018-09-07 00:24:32,029] [consumers.py:18 -              connect()] Player 2045 is connected to Group 948 with in-group id 2.
+[INFO|2018-09-07 00:24:32,051] [consumers.py:18 -              connect()] Player 2041 is connected to Group 947 with in-group id 1.
+[INFO|2018-09-07 00:24:32,082] [consumers.py:18 -              connect()] Player 2043 is connected to Group 947 with in-group id 3.
+[INFO|2018-09-07 00:24:32,087] [consumers.py:18 -              connect()] Player 2044 is connected to Group 948 with in-group id 1.
+[INFO|2018-09-07 00:24:32,197] [consumers.py:18 -              connect()] Player 2046 is connected to Group 948 with in-group id 3.
+[INFO|2018-09-07 00:24:34,560] [models.py:828 -            in_market()] Group947: Player2043: In market.
+[INFO|2018-09-07 00:24:34,562] [models.py:828 -            in_market()] Group948: Player2046: In market.
+[INFO|2018-09-07 00:24:34,570] [models.py:494 -    players_in_market()] Group947: 1 players are in market.
+[INFO|2018-09-07 00:24:34,572] [models.py:494 -    players_in_market()] Group948: 1 players are in market.
+[INFO|2018-09-07 00:24:35,550] [models.py:828 -            in_market()] Group947: Player2041: In market.
+[INFO|2018-09-07 00:24:35,551] [models.py:828 -            in_market()] Group947: Player2042: In market.
+[INFO|2018-09-07 00:24:35,556] [decorators.py:23 -              atomize()] 947: key di4c8ysr_lock is locked.
+[INFO|2018-09-07 00:24:35,558] [models.py:494 -    players_in_market()] Group947: 2 players are in market.
+[INFO|2018-09-07 00:24:35,562] [models.py:491 -    players_in_market()] Group947: all players are in market.
+[INFO|2018-09-07 00:24:36,561] [models.py:828 -            in_market()] Group948: Player2045: In market.
+[INFO|2018-09-07 00:24:36,563] [models.py:828 -            in_market()] Group948: Player2044: In market.
+[INFO|2018-09-07 00:24:36,568] [models.py:494 -    players_in_market()] Group948: 2 players are in market.
+[INFO|2018-09-07 00:24:36,569] [decorators.py:23 -              atomize()] 948: key qpj98gp7_lock is locked.
+[INFO|2018-09-07 00:24:36,572] [models.py:491 -    players_in_market()] Group948: all players are in market.
+[INFO|2018-09-07 00:24:36,574] [models.py:227 -         groups_ready()] session: starting trade, 24.
+[INFO|2018-09-07 00:24:36,582] [models.py:415 -                spawn()] Group947: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:24:36,586] [models.py:415 -                spawn()] Group947: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:24:36,704] [models.py:415 -                spawn()] Group948: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:24:36,709] [models.py:415 -                spawn()] Group948: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-07 00:24:36,912] [consumers.py:55 -          raw_connect()] Jump is connected to Group 947.
+[INFO|2018-09-07 00:24:36,912] [consumers.py:36 -          raw_connect()] Investor is connected to Group 947.
+[INFO|2018-09-07 00:24:36,935] [consumers.py:36 -          raw_connect()] Investor is connected to Group 948.
+[INFO|2018-09-07 00:24:36,946] [consumers.py:55 -          raw_connect()] Jump is connected to Group 948.
+[INFO|2018-09-07 00:24:40,797] [models.py:448 -           jump_event()] Group947: jump to 993348 !!
+[INFO|2018-09-07 00:24:40,839] [models.py:448 -           jump_event()] Group948: jump to 993348 !!
+[INFO|2018-09-07 00:24:42,998] [models.py:448 -           jump_event()] Group947: jump to 991874 !!
+[INFO|2018-09-07 00:24:43,016] [models.py:448 -           jump_event()] Group948: jump to 991874 !!
+[INFO|2018-09-07 00:24:44,717] [models.py:1269 - receive_from_consumer()] Group947: investor1: buy.
+[INFO|2018-09-07 00:24:44,732] [models.py:1269 - receive_from_consumer()] Group948: investor1: buy.
+[INFO|2018-09-07 00:24:44,886] [models.py:1269 - receive_from_consumer()] Group947: investor2: buy.
+[INFO|2018-09-07 00:24:44,901] [models.py:1269 - receive_from_consumer()] Group948: investor2: buy.
+[INFO|2018-09-07 00:24:45,545] [models.py:1269 - receive_from_consumer()] Group947: investor3: sell.
+[INFO|2018-09-07 00:24:45,560] [models.py:1269 - receive_from_consumer()] Group948: investor3: sell.
+[INFO|2018-09-07 00:24:46,752] [models.py:448 -           jump_event()] Group947: jump to 991183 !!
+[INFO|2018-09-07 00:24:46,774] [models.py:448 -           jump_event()] Group948: jump to 991183 !!
+[INFO|2018-09-07 00:24:47,212] [models.py:1269 - receive_from_consumer()] Group947: investor4: buy.
+[INFO|2018-09-07 00:24:47,233] [models.py:1269 - receive_from_consumer()] Group948: investor4: buy.
+[INFO|2018-09-07 00:24:48,353] [models.py:448 -           jump_event()] Group947: jump to 991180 !!
+[INFO|2018-09-07 00:24:48,384] [models.py:448 -           jump_event()] Group948: jump to 991180 !!
+[INFO|2018-09-07 00:24:53,897] [models.py:448 -           jump_event()] Group947: jump to 989347 !!
+[INFO|2018-09-07 00:24:53,916] [models.py:448 -           jump_event()] Group948: jump to 989347 !!
+[INFO|2018-09-07 00:24:54,985] [models.py:1269 - receive_from_consumer()] Group947: investor5: buy.
+[INFO|2018-09-07 00:24:55,007] [models.py:1269 - receive_from_consumer()] Group948: investor5: buy.
+[INFO|2018-09-07 00:24:56,322] [models.py:448 -           jump_event()] Group947: jump to 991795 !!
+[INFO|2018-09-07 00:24:56,343] [models.py:448 -           jump_event()] Group948: jump to 991795 !!
+[INFO|2018-09-07 00:24:56,445] [models.py:448 -           jump_event()] Group947: jump to 997045 !!
+[INFO|2018-09-07 00:24:56,464] [models.py:448 -           jump_event()] Group948: jump to 997045 !!
+[INFO|2018-09-07 00:24:58,224] [models.py:448 -           jump_event()] Group947: jump to 997345 !!
+[INFO|2018-09-07 00:24:58,244] [models.py:448 -           jump_event()] Group948: jump to 997345 !!
+[INFO|2018-09-07 00:24:58,950] [models.py:1269 - receive_from_consumer()] Group947: investor6: buy.
+[INFO|2018-09-07 00:24:58,960] [models.py:1269 - receive_from_consumer()] Group948: investor6: buy.
+[INFO|2018-09-07 00:24:59,342] [models.py:448 -           jump_event()] Group947: jump to 1001299 !!
+[INFO|2018-09-07 00:24:59,363] [models.py:448 -           jump_event()] Group948: jump to 1001299 !!
+[INFO|2018-09-07 00:25:00,929] [models.py:448 -           jump_event()] Group947: jump to 994130 !!
+[INFO|2018-09-07 00:25:00,941] [models.py:448 -           jump_event()] Group948: jump to 994130 !!
+[INFO|2018-09-07 00:25:03,478] [models.py:448 -           jump_event()] Group947: jump to 990854 !!
+[INFO|2018-09-07 00:25:03,499] [models.py:448 -           jump_event()] Group948: jump to 990854 !!
+[INFO|2018-09-07 00:25:04,134] [models.py:448 -           jump_event()] Group947: jump to 991970 !!
+[INFO|2018-09-07 00:25:04,145] [models.py:448 -           jump_event()] Group948: jump to 991970 !!
+[INFO|2018-09-07 00:25:04,350] [models.py:448 -           jump_event()] Group947: jump to 989935 !!
+[INFO|2018-09-07 00:25:04,363] [models.py:448 -           jump_event()] Group948: jump to 989935 !!
+[INFO|2018-09-07 00:25:05,696] [models.py:448 -           jump_event()] Group947: jump to 993781 !!
+[INFO|2018-09-07 00:25:05,707] [models.py:448 -           jump_event()] Group948: jump to 993781 !!
+[INFO|2018-09-07 00:25:07,440] [models.py:1269 - receive_from_consumer()] Group947: investor7: sell.
+[INFO|2018-09-07 00:25:07,451] [models.py:1269 - receive_from_consumer()] Group948: investor7: sell.
+[INFO|2018-09-07 00:25:07,882] [models.py:448 -           jump_event()] Group947: jump to 995579 !!
+[INFO|2018-09-07 00:25:07,896] [models.py:448 -           jump_event()] Group948: jump to 995579 !!
+[INFO|2018-09-07 00:25:08,648] [models.py:448 -           jump_event()] Group947: jump to 994552 !!
+[INFO|2018-09-07 00:25:08,660] [models.py:448 -           jump_event()] Group948: jump to 994552 !!
+[INFO|2018-09-07 00:25:09,983] [models.py:448 -           jump_event()] Group947: jump to 997229 !!
+[INFO|2018-09-07 00:25:09,993] [models.py:448 -           jump_event()] Group948: jump to 997229 !!
+[INFO|2018-09-07 00:25:11,087] [models.py:448 -           jump_event()] Group947: jump to 1000158 !!
+[INFO|2018-09-07 00:25:11,098] [models.py:448 -           jump_event()] Group948: jump to 1000158 !!
+[INFO|2018-09-07 00:25:12,623] [models.py:448 -           jump_event()] Group947: jump to 993374 !!
+[INFO|2018-09-07 00:25:12,635] [models.py:448 -           jump_event()] Group948: jump to 993374 !!
+[INFO|2018-09-07 00:25:14,246] [models.py:1269 - receive_from_consumer()] Group947: investor8: buy.
+[INFO|2018-09-07 00:25:14,260] [models.py:1269 - receive_from_consumer()] Group948: investor8: buy.
+[INFO|2018-09-07 00:25:18,446] [models.py:448 -           jump_event()] Group947: jump to 993716 !!
+[INFO|2018-09-07 00:25:18,458] [models.py:448 -           jump_event()] Group948: jump to 993716 !!
+[INFO|2018-09-07 00:25:20,565] [models.py:448 -           jump_event()] Group947: jump to 998196 !!
+[INFO|2018-09-07 00:25:20,578] [models.py:448 -           jump_event()] Group948: jump to 998196 !!
+[INFO|2018-09-07 00:25:21,934] [models.py:448 -           jump_event()] Group947: jump to 992808 !!
+[INFO|2018-09-07 00:25:21,941] [models.py:448 -           jump_event()] Group948: jump to 992808 !!
+[INFO|2018-09-07 00:25:22,948] [models.py:448 -           jump_event()] Group947: jump to 993848 !!
+[INFO|2018-09-07 00:25:22,959] [models.py:448 -           jump_event()] Group948: jump to 993848 !!
+[INFO|2018-09-07 00:25:23,535] [models.py:1269 - receive_from_consumer()] Group947: investor9: buy.
+[INFO|2018-09-07 00:25:23,546] [models.py:1269 - receive_from_consumer()] Group948: investor9: buy.
+[INFO|2018-09-07 00:25:30,772] [models.py:1269 - receive_from_consumer()] Group947: investor10: sell.
+[INFO|2018-09-07 00:25:30,785] [models.py:1269 - receive_from_consumer()] Group948: investor10: sell.
+[INFO|2018-09-07 00:25:31,431] [models.py:448 -           jump_event()] Group947: jump to 996254 !!
+[INFO|2018-09-07 00:25:31,432] [models.py:448 -           jump_event()] Group948: jump to 996254 !!
+[INFO|2018-09-07 00:25:32,662] [models.py:1269 - receive_from_consumer()] Group947: investor11: buy.
+[INFO|2018-09-07 00:25:32,675] [models.py:1269 - receive_from_consumer()] Group948: investor11: buy.
+[INFO|2018-09-07 00:25:33,112] [models.py:1269 - receive_from_consumer()] Group947: investor12: buy.
+[INFO|2018-09-07 00:25:33,117] [models.py:1269 - receive_from_consumer()] Group948: investor12: buy.
+[INFO|2018-09-07 00:25:33,148] [models.py:448 -           jump_event()] Group947: jump to 992822 !!
+[INFO|2018-09-07 00:25:33,159] [models.py:448 -           jump_event()] Group948: jump to 992822 !!
+[INFO|2018-09-07 00:25:34,326] [models.py:1269 - receive_from_consumer()] Group947: investor13: buy.
+[INFO|2018-09-07 00:25:34,336] [models.py:1269 - receive_from_consumer()] Group948: investor13: buy.
+[INFO|2018-09-07 00:25:37,377] [models.py:448 -           jump_event()] Group947: jump to 998946 !!
+[INFO|2018-09-07 00:25:37,386] [models.py:448 -           jump_event()] Group948: jump to 998946 !!
+[INFO|2018-09-07 00:25:37,526] [models.py:1269 - receive_from_consumer()] Group947: investor14: buy.
+[INFO|2018-09-07 00:25:37,537] [models.py:1269 - receive_from_consumer()] Group948: investor14: buy.
+[INFO|2018-09-07 00:25:39,160] [models.py:448 -           jump_event()] Group947: jump to 995966 !!
+[INFO|2018-09-07 00:25:39,187] [models.py:448 -           jump_event()] Group947: jump to 998276 !!
+[INFO|2018-09-07 00:25:39,188] [models.py:448 -           jump_event()] Group948: jump to 995966 !!
+[INFO|2018-09-07 00:25:39,196] [models.py:448 -           jump_event()] Group948: jump to 998276 !!
+[INFO|2018-09-07 00:25:43,695] [models.py:448 -           jump_event()] Group947: jump to 994489 !!
+[INFO|2018-09-07 00:25:43,708] [models.py:448 -           jump_event()] Group948: jump to 994489 !!
+[INFO|2018-09-07 00:25:45,977] [models.py:448 -           jump_event()] Group947: jump to 988527 !!
+[INFO|2018-09-07 00:25:45,984] [models.py:448 -           jump_event()] Group948: jump to 988527 !!
+[INFO|2018-09-07 00:25:46,132] [models.py:1269 - receive_from_consumer()] Group947: investor15: sell.
+[INFO|2018-09-07 00:25:46,135] [models.py:1269 - receive_from_consumer()] Group948: investor15: sell.
+[INFO|2018-09-07 00:25:46,822] [models.py:1269 - receive_from_consumer()] Group947: investor16: buy.
+[INFO|2018-09-07 00:25:46,833] [models.py:1269 - receive_from_consumer()] Group948: investor16: buy.
+[INFO|2018-09-07 00:25:53,966] [models.py:448 -           jump_event()] Group947: jump to 982178 !!
+[INFO|2018-09-07 00:25:53,974] [models.py:448 -           jump_event()] Group948: jump to 982178 !!
+[INFO|2018-09-07 00:25:54,940] [models.py:1269 - receive_from_consumer()] Group947: investor17: buy.
+[INFO|2018-09-07 00:25:54,953] [models.py:1269 - receive_from_consumer()] Group948: investor17: buy.
+[INFO|2018-09-07 00:25:57,497] [models.py:448 -           jump_event()] Group947: jump to 988230 !!
+[INFO|2018-09-07 00:25:57,503] [models.py:448 -           jump_event()] Group948: jump to 988230 !!
+[INFO|2018-09-07 00:25:58,435] [models.py:1269 - receive_from_consumer()] Group947: investor18: sell.
+[INFO|2018-09-07 00:25:58,440] [models.py:1269 - receive_from_consumer()] Group948: investor18: sell.
+[INFO|2018-09-07 00:26:00,489] [models.py:1269 - receive_from_consumer()] Group947: investor19: buy.
+[INFO|2018-09-07 00:26:00,490] [models.py:1269 - receive_from_consumer()] Group948: investor19: buy.
+[INFO|2018-09-07 00:26:04,409] [models.py:1269 - receive_from_consumer()] Group947: investor20: sell.
+[INFO|2018-09-07 00:26:04,418] [models.py:1269 - receive_from_consumer()] Group948: investor20: sell.
+[INFO|2018-09-07 00:26:04,957] [models.py:1269 - receive_from_consumer()] Group947: investor21: sell.
+[INFO|2018-09-07 00:26:04,968] [models.py:1269 - receive_from_consumer()] Group948: investor21: sell.
+[INFO|2018-09-07 00:26:05,751] [models.py:448 -           jump_event()] Group947: jump to 985607 !!
+[INFO|2018-09-07 00:26:05,751] [models.py:448 -           jump_event()] Group948: jump to 985607 !!
+[INFO|2018-09-07 00:26:06,609] [models.py:448 -           jump_event()] Group948: jump to 982906 !!
+[INFO|2018-09-07 00:26:06,612] [models.py:448 -           jump_event()] Group947: jump to 982906 !!
+[INFO|2018-09-07 00:26:09,717] [models.py:1269 - receive_from_consumer()] Group947: investor22: sell.
+[INFO|2018-09-07 00:26:09,719] [models.py:1269 - receive_from_consumer()] Group948: investor22: sell.
+[INFO|2018-09-07 00:26:10,107] [models.py:1269 - receive_from_consumer()] Group947: investor23: buy.
+[INFO|2018-09-07 00:26:10,108] [models.py:1269 - receive_from_consumer()] Group948: investor23: buy.
+[INFO|2018-09-07 00:26:10,387] [models.py:1269 - receive_from_consumer()] Group947: investor24: buy.
+[INFO|2018-09-07 00:26:10,389] [models.py:1269 - receive_from_consumer()] Group948: investor24: buy.
+[INFO|2018-09-07 00:26:12,080] [models.py:448 -           jump_event()] Group948: jump to 988258 !!
+[INFO|2018-09-07 00:26:12,082] [models.py:448 -           jump_event()] Group947: jump to 988258 !!
+[INFO|2018-09-07 00:26:15,763] [models.py:1269 - receive_from_consumer()] Group947: investor25: sell.
+[INFO|2018-09-07 00:26:15,765] [models.py:1269 - receive_from_consumer()] Group948: investor25: sell.
+[INFO|2018-09-07 00:26:15,908] [models.py:448 -           jump_event()] Group948: jump to 990753 !!
+[INFO|2018-09-07 00:26:15,914] [models.py:448 -           jump_event()] Group947: jump to 990753 !!
+[INFO|2018-09-07 00:26:15,927] [models.py:448 -           jump_event()] Group947: jump to 997822 !!
+[INFO|2018-09-07 00:26:15,928] [models.py:448 -           jump_event()] Group948: jump to 997822 !!
+[INFO|2018-09-07 00:26:17,112] [models.py:448 -           jump_event()] Group947: jump to 1004919 !!
+[INFO|2018-09-07 00:26:17,114] [models.py:448 -           jump_event()] Group948: jump to 1004919 !!
+[INFO|2018-09-07 00:26:17,501] [models.py:448 -           jump_event()] Group948: jump to 1000480 !!
+[INFO|2018-09-07 00:26:17,505] [models.py:448 -           jump_event()] Group947: jump to 1000480 !!
+[INFO|2018-09-07 00:26:17,526] [models.py:448 -           jump_event()] Group948: jump to 1003420 !!
+[INFO|2018-09-07 00:26:17,527] [models.py:448 -           jump_event()] Group947: jump to 1003420 !!
+[INFO|2018-09-07 00:26:17,911] [models.py:448 -           jump_event()] Group948: jump to 1004789 !!
+[INFO|2018-09-07 00:26:17,912] [models.py:448 -           jump_event()] Group947: jump to 1004789 !!
+[INFO|2018-09-07 00:26:19,143] [consumers.py:28 -       raw_disconnect()] Player 2041 disconnected from Group 947.
+[INFO|2018-09-07 00:26:19,345] [consumers.py:28 -       raw_disconnect()] Player 2042 disconnected from Group 947.
+[INFO|2018-09-07 00:26:19,502] [consumers.py:28 -       raw_disconnect()] Player 2043 disconnected from Group 947.
+[INFO|2018-09-07 00:26:19,660] [consumers.py:28 -       raw_disconnect()] Player 2044 disconnected from Group 948.
+[INFO|2018-09-07 00:26:20,320] [consumers.py:28 -       raw_disconnect()] Player 2046 disconnected from Group 948.
+[INFO|2018-09-07 00:26:20,480] [consumers.py:28 -       raw_disconnect()] Player 2045 disconnected from Group 948.
+[INFO|2018-09-07 00:26:21,517] [models.py:1269 - receive_from_consumer()] Group947: investor26: sell.
+[INFO|2018-09-07 00:26:21,532] [models.py:1269 - receive_from_consumer()] Group948: investor26: sell.
+[INFO|2018-09-07 00:26:22,032] [models.py:1269 - receive_from_consumer()] Group947: investor27: sell.
+[INFO|2018-09-07 00:26:22,040] [models.py:1269 - receive_from_consumer()] Group948: investor27: sell.
+[INFO|2018-09-07 00:26:22,729] [models.py:448 -           jump_event()] Group948: jump to 1008484 !!
+[INFO|2018-09-07 00:26:22,730] [models.py:448 -           jump_event()] Group947: jump to 1008484 !!
+[INFO|2018-09-07 00:26:23,206] [models.py:1269 - receive_from_consumer()] Group947: investor28: buy.
+[INFO|2018-09-07 00:26:23,209] [models.py:1269 - receive_from_consumer()] Group948: investor28: buy.
+[INFO|2018-09-07 00:26:24,242] [models.py:1269 - receive_from_consumer()] Group947: investor29: sell.
+[INFO|2018-09-07 00:26:24,251] [models.py:1269 - receive_from_consumer()] Group948: investor29: sell.
+[INFO|2018-09-07 00:26:24,379] [models.py:1269 - receive_from_consumer()] Group947: investor30: sell.
+[INFO|2018-09-07 00:26:24,380] [models.py:1269 - receive_from_consumer()] Group948: investor30: sell.
+[INFO|2018-09-07 00:26:28,554] [models.py:448 -           jump_event()] Group948: jump to 1006381 !!
+[INFO|2018-09-07 00:26:28,554] [models.py:448 -           jump_event()] Group947: jump to 1006381 !!
+[INFO|2018-09-07 00:26:29,629] [models.py:1269 - receive_from_consumer()] Group947: investor31: sell.
+[INFO|2018-09-07 00:26:29,642] [models.py:1269 - receive_from_consumer()] Group948: investor31: sell.
+[INFO|2018-09-07 00:26:29,728] [models.py:448 -           jump_event()] Group948: jump to 1007188 !!
+[INFO|2018-09-07 00:26:29,729] [models.py:448 -           jump_event()] Group947: jump to 1007188 !!
+[INFO|2018-09-07 00:26:30,486] [models.py:448 -           jump_event()] Group948: jump to 1010920 !!
+[INFO|2018-09-07 00:26:30,487] [models.py:448 -           jump_event()] Group947: jump to 1010920 !!
+[INFO|2018-09-07 00:26:32,043] [models.py:448 -           jump_event()] Group947: jump to 1013855 !!
+[INFO|2018-09-07 00:26:32,044] [models.py:448 -           jump_event()] Group948: jump to 1013855 !!
+[INFO|2018-09-07 00:26:32,979] [models.py:1269 - receive_from_consumer()] Group947: investor32: sell.
+[INFO|2018-09-07 00:26:32,980] [models.py:1269 - receive_from_consumer()] Group948: investor32: sell.
+[INFO|2018-09-07 00:26:33,168] [models.py:1269 - receive_from_consumer()] Group947: investor33: sell.
+[INFO|2018-09-07 00:26:33,169] [models.py:1269 - receive_from_consumer()] Group948: investor33: sell.
+[INFO|2018-09-07 00:26:34,555] [models.py:448 -           jump_event()] Group947: jump to 999342 !!
+[INFO|2018-09-07 00:26:34,556] [models.py:448 -           jump_event()] Group948: jump to 999342 !!
+[INFO|2018-09-07 00:26:35,401] [models.py:1269 - receive_from_consumer()] Group947: investor34: sell.
+[INFO|2018-09-07 00:26:35,404] [models.py:1269 - receive_from_consumer()] Group948: investor34: sell.
+[INFO|2018-09-07 00:26:35,675] [models.py:1269 - receive_from_consumer()] Group947: investor35: buy.
+[INFO|2018-09-07 00:26:35,688] [models.py:1269 - receive_from_consumer()] Group948: investor35: buy.
+[INFO|2018-09-07 00:26:36,090] [models.py:448 -           jump_event()] Group948: jump to 991121 !!
+[INFO|2018-09-07 00:26:36,090] [models.py:448 -           jump_event()] Group947: jump to 991121 !!
+[INFO|2018-09-07 00:26:36,527] [models.py:1269 - receive_from_consumer()] Group947: investor36: sell.
+[INFO|2018-09-07 00:26:36,539] [models.py:1269 - receive_from_consumer()] Group948: investor36: sell.
+[INFO|2018-09-07 00:26:36,972] [models.py:1269 - receive_from_consumer()] Group947: investor37: sell.
+[INFO|2018-09-07 00:26:36,984] [models.py:1269 - receive_from_consumer()] Group948: investor37: sell.
+[INFO|2018-09-07 00:26:43,551] [models.py:448 -           jump_event()] Group948: jump to 998791 !!
+[INFO|2018-09-07 00:26:43,551] [models.py:448 -           jump_event()] Group947: jump to 998791 !!
+[INFO|2018-09-07 00:26:43,912] [models.py:448 -           jump_event()] Group948: jump to 999274 !!
+[INFO|2018-09-07 00:26:43,913] [models.py:448 -           jump_event()] Group947: jump to 999274 !!
+[INFO|2018-09-07 00:26:44,077] [models.py:448 -           jump_event()] Group948: jump to 1005813 !!
+[INFO|2018-09-07 00:26:44,077] [models.py:448 -           jump_event()] Group947: jump to 1005813 !!
+[INFO|2018-09-07 00:26:44,637] [models.py:448 -           jump_event()] Group947: jump to 1004259 !!
+[INFO|2018-09-07 00:26:44,638] [models.py:448 -           jump_event()] Group948: jump to 1004259 !!
+[INFO|2018-09-07 00:26:45,025] [models.py:448 -           jump_event()] Group948: jump to 998268 !!
+[INFO|2018-09-07 00:26:45,033] [models.py:448 -           jump_event()] Group947: jump to 998268 !!
+[INFO|2018-09-07 00:26:46,560] [models.py:448 -           jump_event()] Group948: jump to 996467 !!
+[INFO|2018-09-07 00:26:46,561] [models.py:448 -           jump_event()] Group947: jump to 996467 !!
+[INFO|2018-09-07 00:26:47,756] [models.py:448 -           jump_event()] Group948: jump to 996134 !!
+[INFO|2018-09-07 00:26:47,756] [models.py:448 -           jump_event()] Group947: jump to 996134 !!
+[INFO|2018-09-07 00:26:49,559] [models.py:1269 - receive_from_consumer()] Group947: investor38: buy.
+[INFO|2018-09-07 00:26:49,568] [models.py:1269 - receive_from_consumer()] Group948: investor38: buy.
+[INFO|2018-09-07 00:26:51,268] [models.py:448 -           jump_event()] Group948: jump to 987983 !!
+[INFO|2018-09-07 00:26:51,268] [models.py:448 -           jump_event()] Group947: jump to 987983 !!
+[INFO|2018-09-07 00:26:51,680] [models.py:448 -           jump_event()] Group947: jump to 991238 !!
+[INFO|2018-09-07 00:26:51,681] [models.py:448 -           jump_event()] Group948: jump to 991238 !!
+[INFO|2018-09-07 00:26:54,871] [models.py:448 -           jump_event()] Group947: jump to 988033 !!
+[INFO|2018-09-07 00:26:54,872] [models.py:448 -           jump_event()] Group948: jump to 988033 !!
+[INFO|2018-09-07 00:26:55,886] [models.py:1269 - receive_from_consumer()] Group947: investor39: sell.
+[INFO|2018-09-07 00:26:55,896] [models.py:1269 - receive_from_consumer()] Group948: investor39: sell.
+[INFO|2018-09-07 00:27:01,861] [models.py:448 -           jump_event()] Group948: jump to 976904 !!
+[INFO|2018-09-07 00:27:01,871] [models.py:448 -           jump_event()] Group947: jump to 976904 !!
+[INFO|2018-09-07 00:27:01,905] [models.py:1269 - receive_from_consumer()] Group947: investor40: buy.
+[INFO|2018-09-07 00:27:01,916] [models.py:1269 - receive_from_consumer()] Group948: investor40: buy.
+[INFO|2018-09-07 00:27:05,656] [models.py:448 -           jump_event()] Group948: jump to 975112 !!
+[INFO|2018-09-07 00:27:05,657] [models.py:448 -           jump_event()] Group947: jump to 975112 !!
+[INFO|2018-09-07 00:27:06,784] [models.py:1269 - receive_from_consumer()] Group947: investor41: sell.
+[INFO|2018-09-07 00:27:06,795] [models.py:1269 - receive_from_consumer()] Group948: investor41: sell.
+[INFO|2018-09-07 00:27:07,132] [models.py:1269 - receive_from_consumer()] Group947: investor42: sell.
+[INFO|2018-09-07 00:27:07,142] [models.py:1269 - receive_from_consumer()] Group948: investor42: sell.
+[INFO|2018-09-07 00:27:07,670] [models.py:448 -           jump_event()] Group948: jump to 974782 !!
+[INFO|2018-09-07 00:27:07,671] [models.py:448 -           jump_event()] Group947: jump to 974782 !!
+[INFO|2018-09-07 00:27:08,456] [models.py:448 -           jump_event()] Group948: jump to 970076 !!
+[INFO|2018-09-07 00:27:08,457] [models.py:448 -           jump_event()] Group947: jump to 970076 !!
+[INFO|2018-09-07 00:27:08,875] [models.py:448 -           jump_event()] Group948: jump to 971561 !!
+[INFO|2018-09-07 00:27:08,876] [models.py:448 -           jump_event()] Group947: jump to 971561 !!
+[INFO|2018-09-07 00:27:09,419] [models.py:448 -           jump_event()] Group948: jump to 975825 !!
+[INFO|2018-09-07 00:27:09,420] [models.py:448 -           jump_event()] Group947: jump to 975825 !!
+[INFO|2018-09-07 00:27:09,698] [models.py:1269 - receive_from_consumer()] Group947: investor43: buy.
+[INFO|2018-09-07 00:27:09,702] [models.py:1269 - receive_from_consumer()] Group948: investor43: buy.
+[INFO|2018-09-07 00:27:10,471] [models.py:448 -           jump_event()] Group948: jump to 978945 !!
+[INFO|2018-09-07 00:27:10,472] [models.py:448 -           jump_event()] Group947: jump to 978945 !!
+[INFO|2018-09-07 00:27:11,388] [models.py:448 -           jump_event()] Group948: jump to 980631 !!
+[INFO|2018-09-07 00:27:11,388] [models.py:448 -           jump_event()] Group947: jump to 980631 !!
+[INFO|2018-09-07 00:27:13,901] [models.py:1269 - receive_from_consumer()] Group947: investor44: buy.
+[INFO|2018-09-07 00:27:13,910] [models.py:1269 - receive_from_consumer()] Group948: investor44: buy.
+[INFO|2018-09-07 00:27:14,239] [models.py:448 -           jump_event()] Group947: jump to 981554 !!
+[INFO|2018-09-07 00:27:14,240] [models.py:448 -           jump_event()] Group948: jump to 981554 !!
+[INFO|2018-09-07 00:27:16,861] [models.py:448 -           jump_event()] Group948: jump to 977706 !!
+[INFO|2018-09-07 00:27:16,863] [models.py:448 -           jump_event()] Group947: jump to 977706 !!
+[INFO|2018-09-07 00:27:18,018] [models.py:448 -           jump_event()] Group948: jump to 978149 !!
+[INFO|2018-09-07 00:27:18,019] [models.py:448 -           jump_event()] Group947: jump to 978149 !!
+[INFO|2018-09-07 00:27:22,591] [models.py:448 -           jump_event()] Group948: jump to 972469 !!
+[INFO|2018-09-07 00:27:22,592] [models.py:448 -           jump_event()] Group947: jump to 972469 !!
+[INFO|2018-09-07 00:27:22,761] [models.py:1269 - receive_from_consumer()] Group947: investor45: buy.
+[INFO|2018-09-07 00:27:22,763] [models.py:1269 - receive_from_consumer()] Group948: investor45: buy.
+[INFO|2018-09-07 00:27:23,290] [models.py:1269 - receive_from_consumer()] Group947: investor46: buy.
+[INFO|2018-09-07 00:27:23,301] [models.py:1269 - receive_from_consumer()] Group948: investor46: buy.
+[INFO|2018-09-07 00:27:23,928] [models.py:1269 - receive_from_consumer()] Group947: investor47: buy.
+[INFO|2018-09-07 00:27:23,939] [models.py:1269 - receive_from_consumer()] Group948: investor47: buy.
+[INFO|2018-09-07 00:27:27,968] [models.py:1269 - receive_from_consumer()] Group947: investor48: buy.
+[INFO|2018-09-07 00:27:27,977] [models.py:1269 - receive_from_consumer()] Group948: investor48: buy.
+[INFO|2018-09-07 00:27:28,015] [models.py:1269 - receive_from_consumer()] Group947: investor49: buy.
+[INFO|2018-09-07 00:27:28,022] [models.py:1269 - receive_from_consumer()] Group948: investor49: buy.
+[INFO|2018-09-07 00:27:33,749] [models.py:448 -           jump_event()] Group948: jump to 980256 !!
+[INFO|2018-09-07 00:27:33,750] [models.py:448 -           jump_event()] Group947: jump to 980256 !!
+[INFO|2018-09-07 00:27:36,258] [models.py:448 -           jump_event()] Group947: jump to 988578 !!
+[INFO|2018-09-07 00:27:36,259] [models.py:448 -           jump_event()] Group948: jump to 988578 !!
+[INFO|2018-09-07 00:27:36,643] [models.py:1269 - receive_from_consumer()] Group947: investor50: buy.
+[INFO|2018-09-07 00:27:36,650] [models.py:1269 - receive_from_consumer()] Group948: investor50: buy.
+[INFO|2018-09-07 00:27:37,484] [models.py:448 -           jump_event()] Group948: jump to 986570 !!
+[INFO|2018-09-07 00:27:37,485] [models.py:448 -           jump_event()] Group947: jump to 986570 !!
+[INFO|2018-09-07 00:27:39,259] [models.py:1269 - receive_from_consumer()] Group947: investor51: sell.
+[INFO|2018-09-07 00:27:39,261] [models.py:1269 - receive_from_consumer()] Group948: investor51: sell.
+[INFO|2018-09-07 00:27:39,994] [models.py:1269 - receive_from_consumer()] Group947: investor52: sell.
+[INFO|2018-09-07 00:27:39,995] [models.py:1269 - receive_from_consumer()] Group948: investor52: sell.
+[INFO|2018-09-07 00:27:46,192] [models.py:448 -           jump_event()] Group948: jump to 981634 !!
+[INFO|2018-09-07 00:27:46,193] [models.py:448 -           jump_event()] Group947: jump to 981634 !!
+[INFO|2018-09-07 00:27:46,510] [models.py:448 -           jump_event()] Group948: jump to 978633 !!
+[INFO|2018-09-07 00:27:46,510] [models.py:448 -           jump_event()] Group947: jump to 978633 !!
+[INFO|2018-09-07 00:27:46,859] [models.py:448 -           jump_event()] Group948: jump to 989324 !!
+[INFO|2018-09-07 00:27:46,860] [models.py:448 -           jump_event()] Group947: jump to 989324 !!
+[INFO|2018-09-07 00:27:47,150] [models.py:1269 - receive_from_consumer()] Group947: investor53: buy.
+[INFO|2018-09-07 00:27:47,151] [models.py:1269 - receive_from_consumer()] Group948: investor53: buy.
+[INFO|2018-09-07 00:27:47,651] [models.py:448 -           jump_event()] Group948: jump to 987830 !!
+[INFO|2018-09-07 00:27:47,651] [models.py:448 -           jump_event()] Group947: jump to 987830 !!
+[INFO|2018-09-07 00:27:48,101] [models.py:448 -           jump_event()] Group948: jump to 981557 !!
+[INFO|2018-09-07 00:27:48,102] [models.py:448 -           jump_event()] Group947: jump to 981557 !!
+[INFO|2018-09-07 00:27:49,402] [models.py:448 -           jump_event()] Group947: jump to 983703 !!
+[INFO|2018-09-07 00:27:49,403] [models.py:448 -           jump_event()] Group948: jump to 983703 !!
+[INFO|2018-09-07 00:27:50,197] [models.py:1269 - receive_from_consumer()] Group947: investor54: sell.
+[INFO|2018-09-07 00:27:50,198] [models.py:1269 - receive_from_consumer()] Group948: investor54: sell.
+[INFO|2018-09-07 00:27:53,949] [models.py:1269 - receive_from_consumer()] Group947: investor55: sell.
+[INFO|2018-09-07 00:27:53,951] [models.py:1269 - receive_from_consumer()] Group948: investor55: sell.
+[INFO|2018-09-07 00:27:58,727] [models.py:448 -           jump_event()] Group948: jump to 983749 !!
+[INFO|2018-09-07 00:27:58,728] [models.py:448 -           jump_event()] Group947: jump to 983749 !!
+[INFO|2018-09-07 00:27:59,065] [models.py:448 -           jump_event()] Group948: jump to 982216 !!
+[INFO|2018-09-07 00:27:59,066] [models.py:448 -           jump_event()] Group947: jump to 982216 !!
+[INFO|2018-09-07 00:28:02,397] [models.py:1269 - receive_from_consumer()] Group947: investor56: buy.
+[INFO|2018-09-07 00:28:02,397] [models.py:1269 - receive_from_consumer()] Group948: investor56: buy.
+[INFO|2018-09-07 00:28:02,432] [models.py:1269 - receive_from_consumer()] Group947: investor57: buy.
+[INFO|2018-09-07 00:28:02,433] [models.py:1269 - receive_from_consumer()] Group948: investor57: buy.
+[INFO|2018-09-07 00:28:03,017] [models.py:448 -           jump_event()] Group948: jump to 981877 !!
+[INFO|2018-09-07 00:28:03,018] [models.py:448 -           jump_event()] Group947: jump to 981877 !!
+[INFO|2018-09-07 00:28:05,556] [models.py:448 -           jump_event()] Group947: jump to 978960 !!
+[INFO|2018-09-07 00:28:05,557] [models.py:448 -           jump_event()] Group948: jump to 978960 !!
+[INFO|2018-09-07 00:28:11,523] [models.py:1269 - receive_from_consumer()] Group947: investor58: buy.
+[INFO|2018-09-07 00:28:11,525] [models.py:1269 - receive_from_consumer()] Group948: investor58: buy.
+[INFO|2018-09-07 00:28:12,236] [models.py:448 -           jump_event()] Group947: jump to 983474 !!
+[INFO|2018-09-07 00:28:12,237] [models.py:448 -           jump_event()] Group948: jump to 983474 !!
+[INFO|2018-09-07 00:28:13,755] [models.py:1269 - receive_from_consumer()] Group947: investor59: buy.
+[INFO|2018-09-07 00:28:13,756] [models.py:1269 - receive_from_consumer()] Group948: investor59: buy.
+[INFO|2018-09-07 00:28:15,557] [models.py:448 -           jump_event()] Group947: jump to 985527 !!
+[INFO|2018-09-07 00:28:15,558] [models.py:448 -           jump_event()] Group948: jump to 985527 !!
+[INFO|2018-09-07 00:28:19,171] [models.py:448 -           jump_event()] Group948: jump to 979565 !!
+[INFO|2018-09-07 00:28:19,172] [models.py:448 -           jump_event()] Group947: jump to 979565 !!
+[INFO|2018-09-07 00:28:19,749] [models.py:448 -           jump_event()] Group948: jump to 990154 !!
+[INFO|2018-09-07 00:28:19,749] [models.py:448 -           jump_event()] Group947: jump to 990154 !!
+[INFO|2018-09-07 00:28:26,270] [models.py:1269 - receive_from_consumer()] Group947: investor60: sell.
+[INFO|2018-09-07 00:28:26,272] [models.py:1269 - receive_from_consumer()] Group948: investor60: sell.
+[INFO|2018-09-07 00:28:27,059] [models.py:448 -           jump_event()] Group948: jump to 993778 !!
+[INFO|2018-09-07 00:28:27,068] [models.py:448 -           jump_event()] Group947: jump to 993778 !!
+[INFO|2018-09-07 00:28:28,758] [models.py:1269 - receive_from_consumer()] Group948: investor61: sell.
+[INFO|2018-09-07 00:28:28,759] [models.py:1269 - receive_from_consumer()] Group947: investor61: sell.
+[INFO|2018-09-07 00:28:38,603] [models.py:1269 - receive_from_consumer()] Group948: investor62: buy.
+[INFO|2018-09-07 00:28:38,605] [models.py:1269 - receive_from_consumer()] Group947: investor62: buy.
+[INFO|2018-09-07 00:28:39,096] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 948.
+[INFO|2018-09-07 00:28:39,097] [consumers.py:49 -       raw_disconnect()] Investor disconnected from Group 947.
+[INFO|2018-09-07 00:28:43,774] [models.py:448 -           jump_event()] Group948: jump to 982641 !!
+[INFO|2018-09-07 00:28:43,775] [models.py:448 -           jump_event()] Group947: jump to 982641 !!
+[INFO|2018-09-07 00:28:44,254] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 948.
+[INFO|2018-09-07 00:28:44,255] [consumers.py:63 -       raw_disconnect()] Jump disconnected from Group 947.
+[INFO|2018-09-07 00:31:10,705] [consumers.py:18 -              connect()] Player 2101 is connected to Group 977 with in-group id 1.
+[INFO|2018-09-07 00:31:10,858] [consumers.py:18 -              connect()] Player 2102 is connected to Group 977 with in-group id 2.
+[INFO|2018-09-07 00:31:10,892] [consumers.py:18 -              connect()] Player 2103 is connected to Group 977 with in-group id 3.
+[INFO|2018-09-07 00:31:11,362] [consumers.py:18 -              connect()] Player 2104 is connected to Group 978 with in-group id 1.
+[INFO|2018-09-07 00:31:11,496] [consumers.py:18 -              connect()] Player 2105 is connected to Group 978 with in-group id 2.
+[INFO|2018-09-07 00:31:11,623] [consumers.py:18 -              connect()] Player 2106 is connected to Group 978 with in-group id 3.
+[INFO|2018-09-07 00:31:12,848] [models.py:828 -            in_market()] Group977: Player2101: In market.
+[INFO|2018-09-07 00:31:12,854] [models.py:494 -    players_in_market()] Group977: 1 players are in market.
+[INFO|2018-09-07 00:31:13,554] [models.py:828 -            in_market()] Group978: Player2106: In market.
+[INFO|2018-09-07 00:31:13,558] [models.py:494 -    players_in_market()] Group978: 1 players are in market.
+[INFO|2018-09-07 00:31:14,556] [models.py:828 -            in_market()] Group978: Player2104: In market.
+[INFO|2018-09-07 00:31:14,562] [models.py:494 -    players_in_market()] Group978: 2 players are in market.
+[INFO|2018-09-07 00:31:15,546] [models.py:828 -            in_market()] Group977: Player2102: In market.
+[INFO|2018-09-07 00:31:15,547] [models.py:828 -            in_market()] Group977: Player2103: In market.
+[INFO|2018-09-07 00:31:15,548] [models.py:828 -            in_market()] Group978: Player2105: In market.
+[INFO|2018-09-07 00:31:15,553] [decorators.py:23 -              atomize()] 977: key w7m3bpdl_lock is locked.
+[INFO|2018-09-07 00:31:15,555] [models.py:494 -    players_in_market()] Group977: 2 players are in market.
+[INFO|2018-09-07 00:31:15,555] [models.py:491 -    players_in_market()] Group978: all players are in market.
+[INFO|2018-09-07 00:31:15,559] [models.py:491 -    players_in_market()] Group977: all players are in market.
+[INFO|2018-09-07 00:31:15,562] [models.py:227 -         groups_ready()] session: starting trade, 24.
+[INFO|2018-09-07 00:31:15,570] [models.py:415 -                spawn()] Group977: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-07 00:31:15,575] [models.py:415 -                spawn()] Group977: Fire /Users/HAD/Desktop/work/leeps/wtf/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[WARNING|2018-09-07 00:31:15,581] [models.py:350 -  connect_to_exchange()] exchange at 127.0.0.1:9101 already has a group
+[INFO|2018-09-07 00:31:15,879] [consumers.py:36 -          raw_connect()] Investor is connected to Group 977.
+[INFO|2018-09-07 00:31:15,879] [consumers.py:55 -          raw_connect()] Jump is connected to Group 977.
+[INFO|2018-09-07 00:31:19,760] [models.py:448 -           jump_event()] Group977: jump to 993348 !!
+[INFO|2018-09-07 00:31:21,966] [models.py:448 -           jump_event()] Group977: jump to 991874 !!
+[INFO|2018-09-07 00:31:23,688] [models.py:1269 - receive_from_consumer()] Group977: investor1: buy.
+[INFO|2018-09-07 00:31:23,850] [models.py:1269 - receive_from_consumer()] Group977: investor1: buy.
+[INFO|2018-09-07 00:31:24,510] [models.py:1269 - receive_from_consumer()] Group977: investor1: sell.
+[INFO|2018-09-07 00:31:25,718] [models.py:448 -           jump_event()] Group977: jump to 991183 !!
+[INFO|2018-09-07 00:31:26,183] [models.py:1269 - receive_from_consumer()] Group977: investor1: buy.
+[INFO|2018-09-07 00:31:27,323] [models.py:448 -           jump_event()] Group977: jump to 991180 !!
+[INFO|2018-09-07 00:31:32,848] [models.py:448 -           jump_event()] Group977: jump to 989347 !!
+[INFO|2018-09-07 00:31:33,954] [models.py:1269 - receive_from_consumer()] Group977: investor1: buy.
