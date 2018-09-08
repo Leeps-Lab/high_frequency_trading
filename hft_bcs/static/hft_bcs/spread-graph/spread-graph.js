@@ -181,7 +181,6 @@ class SpreadGraph extends PolymerElement {
             var ratio = distance_from_middle / (spreadGraph.spread_height/2);
 
             var my_spread = (ratio*otreeConstants.maxSpread).toFixed(0);
-
             if(my_spread < otreeConstants.min_spread){
                 my_spread = otreeConstants.min_spread;
             }
@@ -501,13 +500,17 @@ class SpreadGraph extends PolymerElement {
  addOthersLineAnimation(lines, speed=500, width){
       //SETTING THE SPREAD TO THE LINE
 
-      for(var i = 0; i < lines.length; i++){
+    for(var i = 0; i < lines.length; i++){
         var add_animation = lines[i]
         .transition()
         .duration(speed)
         .attr("x1", (spreadGraph.spread_width / 2) + width)
         .attr("x2", (spreadGraph.spread_width / 2) - width);
-    }      
+    }   
+    if(document.querySelector("info-table").player_role != "MAKER"){
+        spreadGraph.spread_svg.selectAll("rect").remove();
+        spreadGraph.spread_svg.selectAll(".my_line").remove();
+    }   
   }
 
   drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, id){

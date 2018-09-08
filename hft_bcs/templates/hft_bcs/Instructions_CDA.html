@@ -1,0 +1,176 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% block content %}
+<style>
+    h1{
+        text-align:center;
+    }
+    h2{
+        text-align:center;
+    }
+    #container{
+        margin-left:30px;
+        margin-right:30px;
+        margin-top:50px;
+    }
+    #image{
+        text-align: center;
+    }
+</style>
+<div id="container">
+<h1>
+    Welcome, and thank you for participating!
+</h1>
+<br>
+<p>
+    From now until the end of the experiment, please turn off your phone and do not communicate with other participants. If you have any questions, please raise your hand; an experimenter will come and answer your question. Please pay careful attention to the instructions as real money is at stake. 
+    During the experiment you will earn Experimental Currency Units (ECUs) and at the end of the experiment all your earnings will be converted to US dollars at the rate written on the whiteboard. You are guaranteed a show up fee of $7.00 but can earn considerably more.   
+</p>
+<br>
+
+<h2>
+    Basic Ideas
+</h2>
+
+<p>
+    In this experiment you will participate in a simple automated financial market. Using information displayed on your screen as in Figure 1, you will set and adjust trading algorithms (bots) so as to earn as many ECUs as you can.  As explained below, your earnings will depend on the settings you choose and on the choices of the {{subsession.players_per_group}} total participants in your group. There will be eight trading periods, each lasting {{subsession.round_length}} minutes, after which the experiment will end and you will be paid.
+</p>
+<div id="image">
+<img src="{% static 'hft_bcs/instruction_images/CDA_screenshot.png' %}" width="655px" height="400px" style="text-align: center; vertical-align: middle;">
+</div>
+
+<p>
+    <strong>Stock value.</strong>  There is just one stock traded in your financial market. The stock has a value (henceforth “V”) that will jump up or down by a random amount at random times. The average time between jumps is about 4 seconds, but shorter or much longer times are possible. The Choice Box on your screen will always center on the current value of V, depicted by a horizontal gray line (see Figure 1). Every time there is a jump in V, there will be a yellow flash around the center line, and all other prices (described below) will appear to shift until they adjust to the new value of V. 
+</p>
+
+<p>
+        <strong>Buy Orders, Sell Orders, and Spreads.</strong> All participants control algorithms (bots) that submit buy orders and sell orders. Submitting a buy order for 99, for example, means that you are willing to pay 99 ECUs or less to buy a share of the stock. Similarly, if you submit a sell order for 101, you are willing to receive 101 ECUs or more to sell a share of the stock. The price difference between your buy and sell orders is referred to as your spread. In the 99/101 example, your spread is 2. 
+</p>
+
+<p>
+    <strong>Investor arrivals.</strong> At random times an automated investor arrives in the market to buy or to sell a share of the stock. Investors transact immediately at the best price they find in the market upon arrival. In today’s experiment, the average time between investor arrivals is about 3 seconds, but again shorter or much longer times are possible. 
+</p>
+
+<p>
+    The <strong>clearing price</strong> of the last auction will be depicted by a short red tick in the choice box (See Figure 1). Unfilled orders are automatically carried over into the next auction, but of course you can cancel or reprice your orders if you wish.
+</p>
+<br>
+<h2>
+    Your Choices and Earnings
+</h2>
+
+<p>
+    Participants choose among three possible roles: maker, sniper and out. You can change your role at any time of the trading period, using the buttons on the right side of the choice box (see GIF 1a).
+</p>
+<p>
+   <strong>MAKER</strong> As a maker, you post both a buy order below V and a sell order above V using the computer program (henceforth, “your bot”).  These orders are symmetrically located around V and are represented by the horizontal blue marks above and below the center line representing V. Your spread is the difference between your sell and buy marks (depicted by the light green or light blue shaded region between those marks). To adjust your orders (and spread), simply click at the desired point in the choice box (see GIF 1b). Your bot will cancel your old buy and sell orders and send new orders to the market with the spread that you just chose. Since it takes time for the new orders to travel to the market, your new orders are initially represented as horizontal lines at the right side of the choice box which slide toward the center of the box, at which time they replace the old orders (see GIF 1b).
+</p>
+<p>
+    You can make a profit at the moment of an auction when more “buy” investors arrived for that action than “sell” investors or vice versa. (When the same number of buy and sell investor arrive, they transact amongst themselves.) If your buy order is above the clearing price P, you buy at P and your bot automatically sells the unit at V. You earn a profit of V - P (see GIF 1c). However, if your buy order is below the clearing price, it just gets carried over into the next auction. Similarly, if you have a sell order below the clearing price P, you will sell at that price and earn P - V, because your bot buys a replacement unit at the value V. These profits are represented by flashing green lines in the choice box, and are also displayed as vertical green lines in the profit box (see GIF 1c). 
+</p>
+<p>
+    You can also lose money (earn a negative profit) while in the maker role. When V jumps, your bot sends updated orders to the market with prices that are centered on the new value of V. Your new orders take half a second to get to the market (or one tenth of a second if you have your speed switch on) and there are three seconds between each auction. In only one out of ten jumps, if you have speed off, (and, in one out of 100 jumps, if you have speed on) your new orders will not arrive to the market on time for the auction. If your orders do not make it to the market, the auction will use your previous orders and there is a chance you will earn a negative profit. 
+</p>
+
+<p>
+For example, suppose that V=100 and your current spread as a maker is 2 (that is you have a buy order at 99 and sell order at 101). If V jumped to 105 just one tenth of a second before the auction time, your bot will send messages to the market updating your buy and sell orders to prices 104 and 106, respectively. But because this jump by chance happened very close to the auction time, you are still committed to sell for 101 (cheap!). When this happens, we say that your orders are “stale”. If another participant’s bot places a buy order and her order does make it to the market before the auction (this could happen if she is has speed on), she will possibly buy cheap from you and make a profit. And because you sold too cheap compared to the value V you will lose money. When this happens we say you have been “sniped”; and your loss is represented by the vertical distance between V and the clearing price. Losses from snipes are represented by flashing red lines between V and the corresponding clearing price in the choice box. 
+</p>
+
+<div class="row center-block">
+        <div  class="col-xs-4" style="text-align:center; margin-left:auto;">
+            <img src="{% static 'hft_bcs/instruction_images/gif1a_CDA.gif' %}" width="260px" height="410px">
+            <p>
+                GIF 1a: Role Choice
+            </p>
+            </div>
+            <div  class="col-xs-4" style="text-align:center; margin:10px;">
+            <img src="{% static 'hft_bcs/instruction_images/gif1b_CDA.gif' %}" width="260px" height="410px">
+            <p>
+                GIF 1b: Changing Spread
+            </p>
+            </div>
+            <div  class="col-xs-4" style="text-align:center; margin-right:auto;">
+                <img src="{% static 'hft_bcs/instruction_images/gif1c_CDA.gif' %}" width="260px" height="410px">
+            <p>
+                GIF 1c: Investor Arrival
+            </p>
+        </div>
+</div>
+
+<p>
+    <strong>SNIPER</strong> If you choose to be a sniper, your bot attempts to transact with stale orders. Whenever there is an jump in V, your bot will send an order that tries to buy cheap from a stale sell order (for an up jump in V) or tries to sell at a high price to a stale buy order (for a down jump). As with maker orders, it takes time for sniper orders to reach the market. You will be able to snipe stale orders only in the cases where jumps happen a fraction of a second before the auction, makers’ bots are not able to get their updates to the market on time, and your own order does arrive before the auction. When you transact, your choice box will flash green to indicate your profit (see GIF 2c).
+</p>
+
+<p>
+    <strong>OUT</strong> If you choose to be out, you do not participate in the market. In this role you never earn profits nor take losses.
+</p>
+<br>
+<h2>
+    Choosing Speed
+</h2>
+
+<p>
+    As a maker or a sniper, it takes time to send your orders to the market. At normal speed (the default option) it takes half of a second to update orders. Alternatively, you can choose fast speed to reduce the update time to one tenth of a second, but it costs {{player.speed_unit_cost}} ECU per second for the faster service. You can activate or deactivate the speed option at any time. For example, if you activate speed now and deactivate it 30 seconds later, you are charged 0.6 ECU, as you will see in the Profit Box. 
+</p>
+
+<div class="row center-block">
+        <div  class="col-xs-4" style="text-align:center; margin-left:auto;">
+        <img src="{% static 'hft_bcs/instruction_images/gif2a_CDA.gif' %}" width="260px" height="410px">
+        <p>
+            GIF 2a: Value Change
+        </p>
+        </div>
+        <div  class="col-xs-4" style="text-align:center; margin:10px;">
+        <img src="{% static 'hft_bcs/instruction_images/gif2b_CDA.gif' %}" width="260px" height="410px">
+        <p>
+            GIF 2b: Value Change Getting Sniped
+        </p>
+        </div>
+        <div  class="col-xs-4" style="text-align:center; margin-right:auto;">
+            <img src="{% static 'hft_bcs/instruction_images/gif2c_CDA.gif' %}" width="260px" height="410px">
+        <p>
+            GIF 2c: Value Change, Sniping
+        </p>
+        </div>
+    </div>
+
+<p>
+    <strong>Trading Period Payoffs.</strong> You begin each trading period with an endowment of {{player.endowment}} ECUs. Gains and losses from the trading period will be added to and subtracted from your endowment to form your profits for the period. 
+</p>
+
+<p>
+    <strong>Interim Screens.</strong> In between trading periods, your screen will display a summary of role and strategy choices as well as profits made in the last period (See Figure 3). On the left side of the screen, you will see the average profits per minute of a player with certain strategy. For example, there will be a bar indicating the profit per minute of choosing the role of a Maker with the lowest spread and with speed ON, another bar indicating the profit per minute of choosing the role of a Maker with the lowest spread and with speed OFF, and so on. On the right side of the screen, you will see a pie chart that summarizes the frequency of the main role and speed choices in the last period. For example, if the Maker-Fast strategy makes up 20% of the pie, it means that, on average (during the whole duration of the trading period), 20% of players chose the role of a Maker and had speed switched to ON.
+</p>
+
+<div id="image">
+        <img src="{% static 'hft_bcs/instruction_images/session_end_page.png' %}" width="860px" height="333px" style="text-align: center; vertical-align: middle;">
+</div>
+
+<p>
+    <strong>Session Earnings.</strong> Your final earnings for the session will be the sum of your show up fee ($7.00) and the profits of one randomly chosen trading period, converted into US dollars.
+</p>
+<br>
+<h2>
+    <strong>FAQ</strong>
+</h2>
+<ol>
+    <li>
+        Do I face the same five participants every period, or do they change?
+        <br>
+        Yes, it is always the same five, chosen randomly at the beginning of the session.
+    </li> 
+    <br>   
+    <li>
+        If some other market maker has a narrower spread than mine, can I make money? 
+        <br>
+        Unlikely. When investors arrive, the makers with narrower spreads get to trade first. Other makers never get to trade profitably. (They will trade unprofitably if they get sniped, which can happen occasionally.)
+    </li>
+    <br>
+    <li>
+        Is this experiment a test of how fast I can react?
+        <br>
+        No. The competition is intended to focus on which role to pick, whether to invest in speed and (if a market maker) what spread to choose. Since there is no way to predict the exact time of investor arrivals or jumps in V, what matters is your average choice, not how fast you react.
+    </li>
+</ol>
+</div>
+{% endblock %}
