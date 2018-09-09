@@ -86,8 +86,8 @@ class Constants(BaseConstants):
     # log file
     log_file = '{dir}{self.design}_{self.code}_{self.players_per_group}_{time}'
 
-    investor_url = 'ws://127.0.0.1:80/hft_investor/'
-    jump_url = 'ws://127.0.0.1:80/hft_jump/'
+    investor_url = 'ws://127.0.0.1:8000/hft_investor/'
+    jump_url = 'ws://127.0.0.1:8000/hft_jump/'
 
     investor_py = os.path.join(os.getcwd(), 'hft_bcs/exos/investor.py')
     jump_py = os.path.join(os.getcwd(), 'hft_bcs/exos/jump.py')

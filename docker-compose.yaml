@@ -49,6 +49,8 @@ services:
 
   otree-1:
     build: ./
+    depends_on:
+      - database-1
     image: otree:hft
     environment:
       DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database-1/${POSTGRES_DATABASE}"
@@ -74,6 +76,8 @@ services:
 
   otree-2:
     build: ./
+    depends_on:
+      - database-2
     image: otree:hft
     environment:
       DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database-2/${POSTGRES_DATABASE}"

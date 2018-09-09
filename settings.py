@@ -11,6 +11,8 @@ from custom_otree_config import BCSConfig
 CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+POINTS_DECIMAL_PLACES = 2
+
 # the environment variable OTREE_PRODUCTION controls whether Django runs in
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
 if environ.get('OTREE_PRODUCTION') not in {None, '', '0'}:

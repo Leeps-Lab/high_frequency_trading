@@ -91,21 +91,13 @@ class BCSPlayer(Player):
 
     roles = ('slow_inside', 'slow_outside', 'slow_sniper', 'fast_inside', 
         'fast_outside', 'fast_sniper')
-    role_groups = ('three_role_group')
-    three_role_group = {
-        'slow_maker': ('slow_inside', 'slow_outside'),
-        'fast_maker': ('fast_inside', 'fast_outside'),
-        'slow_sniper': ('slow_sniper',),
-        'fast_sniper': ('fast_sniper',),
-        }
  
     maker_role = '{self.speed}_{self.position}'
     sniper_role = '{self.speed}_sniper'
 
     def __init__(self, player_id):
         super().__init__(player_id)
-        cls = self.__class__
-        self.roles = {role_name: Role(role_name) for role_name in cls.roles}
+        self.roles = {role_name: Role(role_name) for role_name in self.__class__.roles}
         self.speed = 'slow'
         self.spread = None
         self.position = 'outside'
@@ -165,7 +157,7 @@ class BCSPlayer(Player):
         return out
 
 class BCSMarket:
-
+  
     active_roles = ('maker', 'sniper')
     dispatch = {
         'profit': 'handle_profit',
@@ -180,6 +172,7 @@ class BCSMarket:
     def __init__(self, events):
         self.players = {p: BCSPlayer(p) for p in events.players}
         self.events = events
+        self.duration = 0
         log.info(self.players)
     
     def process(self):
@@ -191,9 +184,7 @@ class BCSMarket:
                 func(row)
 
     def inside_maker(self):     
-        print(self.players.values())   
         makers = [p for p in self.players.values() if p.current_role == 'maker']
-        print(makers)
         if not makers:
             return
         fun = (lambda x: x.spread if x.spread is not None else self.events.spread)
@@ -273,7 +264,7 @@ class Role:
              log.debug('%s role is already off.' % self.name)
              return
         delta = timestamp - self.start
-        self.duration += delta * 1e-9
+        self.duration += delta
         self.active = False
 
     def on(self, timestamp):
@@ -287,72 +278,219 @@ class Role:
         out = '< Role {self.name}:{self.profit}:{self.duration:.2f}>'.format(self=self)
         return out
 
-                    
-def aggregate(market):
-    cumul_dict = {'profit': 0,'duration': 0}
-    results = {k: dict(cumul_dict) for k in BCSPlayer.roles}
-    print(market.players)
-    for player in market.players.values():
-        for role_name, role in player.roles.items():
-            for k in cumul_dict.keys():
-                results[role_name][k] += getattr(role, k)
-    results['duration'] = getattr(market, 'duration', None) * 1e-9
-    results['num_players'] = getattr(market, 'players', None).__len__()
-    return results
+class AggregateOutcome:
 
-def total_profit(results):
-    cum_profit = {role_name: 0 for role_name in BCSPlayer.roles}
-    for role_name in BCSPlayer.roles:
-        cum_profit[role_name] += results[role_name]['profit'] * 1e-4
-    return cum_profit
+    field_name = ''
+    role_map = {
+        'slow_inside': ['slow_inside', 'slow_maker'],
+        'slow_outside': ['slow_outside', 'slow_maker'],
+        'slow_sniper': ['slow_sniper'],
+        'fast_sniper': ['fast_sniper'],
+        'fast_inside': ['fast_inside', 'fast_maker'],
+        'fast_outside': ['fast_outside', 'fast_maker']
+    }
+    role_groups = {
+        'base': role_map.keys(),
+        'four_roles': ['slow_maker', 'slow_sniper', 'fast_maker', 'fast_sniper'],
+        'fast_roles': ['fast_inside', 'fast_outside', 'fast_sniper']
+    }
+
+    def __init__(self, market):
+        self.market = market
+        self.role_totals = {}
+        self.grouped_role_totals = {}
+        self.sum_attr_per_role()
+        self.group_roles()
         
+    def sum_attr_per_role(self):
+        cls = self.__class__
+        for k, v in cls.role_map.items():
+            for role_name in v:
+                current = self.role_totals.get(role_name, 0)
+                current += self.sum(k)
+                self.role_totals[role_name] = current 
+
+    def sum(self, role_name):
+        cls = self.__class__
+        total = 0
+        for player in self.market.players.values():
+            role = player.roles[role_name]
+            amount = getattr(role, cls.field_name, None)
+            if amount is None:
+                log.debug('{} attr {} returned none'.format(role.name, cls.field_name))
+                amount = 0
+            total += amount
+        return total    
+    
+    def group_roles(self):
+        cls = self.__class__
+        for group_name, role_group in cls.role_groups.items():
+            group_sums = {role_name: self.role_totals[role_name] for role_name in role_group}
+            self.grouped_role_totals[group_name] = group_sums
+
+
+class Profit(AggregateOutcome):
+    field_name = 'profit'
+
+    def __init__(self, market):
+        super().__init__(market)
+
+class Duration(AggregateOutcome):
+    field_name = 'duration'
+
+    def __init__(self, market):
+        super().__init__(market)
+        self.session_length = market.duration * len(market.players)
+        self.append_inactive_time(self.get_inactive_time())
+    
+    def get_inactive_time(self):
+        inactive_time = 0
+        role_total_dict = self.grouped_role_totals.get('base', None)
+        if role_total_dict is None:
+            return inactive_time
+        active_time = sum(role_total_dict.values())
+        inactive_time = self.session_length - active_time
+        return inactive_time
+    
+    def append_inactive_time(self, inactive_time):
+        self.grouped_role_totals['base']['out'] = inactive_time
+        self.grouped_role_totals['four_roles']['out'] = inactive_time
+
+def normalize(raw, factor=None):
+    total = sum(raw.values())
+    if total == 0:
+        log.debug('total is 0.')
+        return raw
+    out = {k: v / total for k, v in raw.items()}
+    return out
+
+def scale(sum_dict, factor, rounded=None):
+    out = {}
+    for k, v in sum_dict.items():
+        scaled = v * factor
+        if rounded is not None:
+            scaled = round(scaled, rounded)
+        out[k] = scaled
+    return out
+
 def total_speed_cost(market):
     total_cost = sum([player.cost for player in market.players.values()])
     return total_cost
 
-def normal_duration(results):
-    session_length = results['duration'] * results['num_players']
-    all_others = 0
-    out = {role_name: 0 for role_name in BCSPlayer.roles}
-    for role_name in BCSPlayer.roles:
-        dur = results[role_name]['duration']
-        all_others += dur
-        out[role_name] = dur / session_length
-    out['out'] = (session_length - all_others)/ session_length
-    out['slow_maker'] = out['slow_inside'] + out['slow_outside']
-    out['fast_maker'] = out['fast_inside'] + out['fast_outside']
+def take_speed_cost(profit, duration, market):
+    fast_dur_dict = duration.grouped_role_totals['fast_roles']
+    normal_dur = normalize(fast_dur_dict)
+    total_cost = total_speed_cost(market)
+    for k, v in profit.role_totals.items():
+        if k in profit.__class__.role_groups['fast_roles']:
+            costed = v - normal_dur[k] * total_cost
+            profit.role_totals[k] = costed
+    return profit
+    
+def BCS_results(market):
+    profit = Profit(market)
+    duration = Duration(market)
+    profit_costed = take_speed_cost(profit, duration, market)
+    normal_durations = normalize(duration.grouped_role_totals['four_roles'])
+    durations_to_display = scale(normal_durations, 1, rounded=2)
+    per_second_factor = 1e-4 * 60 * 1e9 / market.duration 
+    base_roles_profits = profit_costed.grouped_role_totals['base']
+    profits_to_display = scale(base_roles_profits, per_second_factor, rounded=2)
+    return (profits_to_display, durations_to_display)
+
+def bcs_empty_results():
+    base_roles = AggregateOutcome.role_groups['base']
+    profit = {role: 0  for role in base_roles}
+    profit['out'] = 0
+    role_group = AggregateOutcome.role_groups['four_roles']
+    dur = {role: 0  for role in role_group}
+    dur['out'] = 1
+    return (profit, dur)
+
+class GroupResult:
+    def __init__(self, results):
+        for key, value in results.items():
+            setattr(self, key, value)
+
+def BCS_process(log_file, group_id):
+    out = {'profit': None, 'duration': None}
+    try:
+        session_events = MarketEvents.init_many(log_file)
+        for market in session_events:
+            if market.group == str(group_id):
+                m = BCSMarket(market)
+                m.process()
+                profit, duration = BCS_results(m)
+    except Exception as e:
+        log.info('processing results failed, returning empty results.')
+        profit, duration = bcs_empty_results()
+        log.exception(e)
+    out['profit'] = GroupResult(profit)
+    out['duration'] = GroupResult(duration)
     return out
 
-def break_cost_by_role(market, results):
-    total_cost = total_speed_cost(market)
-    fast_roles = ('fast_inside', 'fast_outside', 'fast_sniper')
-    total_dur = 0
-    for role in fast_roles:
-        total_dur += results[role]['duration']
-    if not total_dur:
-        total_dur = 1
-    shares = {role: results[role]['duration'] / total_dur for role in fast_roles}
-    speed_cost_breakdown = {role: shares[role] * total_cost for role in fast_roles}
-    return speed_cost_breakdown
-
-def take_speed_cost(profits, speed_costs):
-    for role, cost in speed_costs.items():
-        profits[role] -= cost * 1e-4
-    return profits
-
-
-def BCS_results(market):
-    results = aggregate(market)
-    speed_costs = break_cost_by_role(market, results)
-    profits = total_profit(results)
-    profits = take_speed_cost(profits, speed_costs)
-    durations = normal_duration(results)
-    return (profits, durations)
-
-
+            
 if __name__ == '__main__':
-    events = MarketEvents.init_many('hft_logging/experiment/CDA_nlwehpop_3_2018-09-02_20-18')
-    results = [BCSMarket(market) for market in events]
-    for market in results:
-        market.process()
-        p, d = BCS_results(market)
+    out = BCS_process('hft_logging/experiment_data/CDA_hcqywgt4_3_2018-09-09_19-09', 2427)
+# def aggregate(market):
+#     cumul_dict = {'profit': 0,'duration': 0}
+#     results = {k: dict(cumul_dict) for k in BCSPlayer.roles}
+#     print(market.players)
+#     for player in market.players.values():
+#         for role_name, role in player.roles.items():
+#             for k in cumul_dict.keys():
+#                 results[role_name][k] += getattr(role, k)
+#     results['duration'] = getattr(market, 'duration', None) * 1e-9
+#     results['num_players'] = getattr(market, 'players', None).__len__()
+#     return results
+
+# def total_profit(results):
+#     cum_profit = {role_name: 0 for role_name in BCSPlayer.roles}
+#     for role_name in BCSPlayer.roles:
+#         cum_profit[role_name] += results[role_name]['profit'] * 1e-4
+#     return cum_profit
+        
+# def total_speed_cost(market):
+#     total_cost = sum([player.cost for player in market.players.values()])
+#     return total_cost
+
+# def normal_duration(results):
+#     session_length = results['duration'] * results['num_players']
+#     if not session_length:
+#         return
+#     all_others = 0
+#     out = {role_name: 0 for role_name in BCSPlayer.roles}
+#     for role_name in BCSPlayer.roles:
+#         dur = results[role_name]['duration']
+#         all_others += dur
+#         out[role_name] = dur / session_length
+#     out['out'] = (session_length - all_others)/ session_length
+#     out['slow_maker'] = out['slow_inside'] + out['slow_outside']
+#     out['fast_maker'] = out['fast_inside'] + out['fast_outside']
+#     return out
+
+# def break_cost_by_role(market, results):
+#     total_cost = total_speed_cost(market)
+#     fast_roles = ('fast_inside', 'fast_outside', 'fast_sniper')
+#     total_dur = 0
+#     for role in fast_roles:
+#         total_dur += results[role]['duration']
+#     if not total_dur:
+#         total_dur = 1
+#     shares = {role: results[role]['duration'] / total_dur for role in fast_roles}
+#     speed_cost_breakdown = {role: shares[role] * total_cost for role in fast_roles}
+#     return speed_cost_breakdown
+
+# def take_speed_cost(profits, speed_costs):
+#     for role, cost in speed_costs.items():
+#         profits[role] -= cost * 1e-4
+#     return profits
+
+
+# def BCS_results(market):
+#     results = aggregate(market)
+#     speed_costs = break_cost_by_role(market, results)
+#     profits = total_profit(results)
+#     profits = take_speed_cost(profits, speed_costs)
+#     durations = normal_duration(results)
+#     return (profits, durations)

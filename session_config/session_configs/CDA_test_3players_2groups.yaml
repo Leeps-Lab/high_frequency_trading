@@ -2,7 +2,7 @@ demo:
   number-of-participants: 6
 trial:
   run: 1
-  trial-length: 20
+  trial-length: 15
 directory:
   folder: investors_jumps
 investors:
@@ -23,7 +23,7 @@ parameters:
   initial-endowment: 20
   initial-spread: 1
   max-spread: 2
-  session-length: 40
+  session-length: 30
   speed-cost: 0.022
   batch-length: 0
 session:
