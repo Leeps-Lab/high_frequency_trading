@@ -11,7 +11,7 @@
     #container{
         margin-left:30px;
         margin-right:30px;
-        margin-top:50px;
+        margin-top:40px;
     }
     #image{
         text-align: center;
@@ -36,7 +36,7 @@
 </h2>
 
 <p>
-    In this experiment you will participate in a simple automated financial market. Using information displayed on your screen as in Figure 1, you will set and adjust trading algorithms (bots) so as to earn as many ECUs as you can.  As explained below, your earnings will depend on the settings you choose and on the choices of the {{subsession.players_per_group}} total participants in your group. There will be eight trading periods, each lasting {{subsession.round_length}} minutes, after which the experiment will end and you will be paid.
+    In this experiment you will participate in a simple automated financial market. Using information displayed on your screen as in Figure 1, you will set and adjust trading algorithms (bots) so as to earn as many ECUs as you can.  As explained below, your earnings will depend on the settings you choose and on the choices of the <span id="num_other_players"></span> other participants in your group. There will be eight trading periods, each lasting <span id="round_length"></span>, after which the experiment will end and you will be paid.
 </p>
 <div id="image">
 <img src="{% static 'hft_bcs/instruction_images/CDA_screenshot.png' %}" width="655px" height="400px" style="text-align: center; vertical-align: middle;">
@@ -130,7 +130,7 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 </h2>
 
 <p>
-    As a maker or a sniper, it takes time to send your orders to the market. At normal speed (the default option) it takes half of a second to update orders. Alternatively, you can choose fast speed to reduce the update time to one tenth of a second, but it costs {{player.speed_unit_cost}} ECU per second for the faster service. You can activate or deactivate the speed option at any time. For example, if you activate speed now and deactivate it 30 seconds later, you are charged 0.6 ECU, as you will see in the Profit Box. 
+    As a maker or a sniper, it takes time to send your orders to the market. At normal speed (the default option) it takes half of a second to update orders. Alternatively, you can choose fast speed to reduce the update time to one tenth of a second, but it costs <strong><span id="speed_cost"></span> ECU </strong> per second for the faster service. You can activate or deactivate the speed option at any time. For example, if you activate speed now and deactivate it 30 seconds later, you are charged <strong><span id="speed_overall"></span> ECU </strong>, as you will see in the Profit Box. 
 </p>
 
 <div class="row center-block">
@@ -155,11 +155,11 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 </div>
 
 <p>
-    <strong>Trading Period Payoffs. You begin each trading period with an endowment of {{player.endowment}} ECUs. Gains and losses from the trading period will be added to and subtracted from your endowment to form your profits for the period. 
+    <strong>Trading Period Payoffs.</strong> You begin each trading period with an endowment of <strong><span id="initial_endowment"></span> ECUs</strong>. Gains and losses from the trading period will be added to and subtracted from your endowment to form your profits for the period. 
 </p>
 
 <p>
-    Interim Screens. In between trading periods, your screen will display a summary of role and strategy choices as well as profits made in the last period (See Figure 3). On the left side of the screen, you will see the average profits per minute of a player with certain strategy. For example, there will be a bar indicating the profit per minute of choosing the role of a Maker with the lowest spread and with speed ON, another bar indicating the profit per minute of choosing the role of a Maker with the lowest spread and with speed OFF, and so on. On the right side of the screen, you will see a pie chart that summarizes the frequency of the main role and speed choices in the last period. For example, if the Maker-Fast strategy makes up 20% of the pie, it means that, on average (during the whole duration of the trading period), 20% of players chose the role of a Maker and had speed switched to ON.
+    <strong>Interim Screens.</strong> In between trading periods, your screen will display a summary of role and strategy choices as well as profits made in the last period (See Figure 3). On the left side of the screen, you will see the average profits per minute of a player with certain strategy. For example, there will be a bar indicating the profit per minute of choosing the role of a Maker with the lowest spread and with speed ON, another bar indicating the profit per minute of choosing the role of a Maker with the lowest spread and with speed OFF, and so on. On the right side of the screen, you will see a pie chart that summarizes the frequency of the main role and speed choices in the last period. For example, if the Maker-Fast strategy makes up 20% of the pie, it means that, on average (during the whole duration of the trading period), 20% of players chose the role of a Maker and had speed switched to ON.
 </p>
 
 <div id="image">
@@ -167,7 +167,7 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 </div>
 
 <p>
-    Session Earnings.  Your final earnings for the session will be the sum of your show up fee ($7.00) and the profits of one randomly chosen trading period, converted into US dollars.
+    <strong>Session Earnings.</strong>  Your final earnings for the session will be the sum of your show up fee ($7.00) and the profits of one randomly chosen trading period, converted into US dollars.
 </p>
 <br>
 <h2>
@@ -175,9 +175,9 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 </h2>
 <ol>
     <li>
-        Do I face the same five participants every period, or do they change?
+        Do I face the same <span id="players_per_group"></span> participants every period, or do they change?
         <br>
-        Yes, it is always the same five, chosen randomly at the beginning of the session.
+        Yes, the same <span id="players_per_group2"></span> players interact in the market, chosen randomly at the beginning of the session.
     </li> 
     <br>   
     <li>
@@ -193,4 +193,27 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
     </li>
 </ol>
 </div>
+{% endblock %}
+
+{% block scripts%}
+
+<script>
+        window.onload = function plugIn(){
+            var actualSpeed = {{player.speed_unit_cost}}/10000;
+            var realEndowment = {{player.endowment}}/10000;
+            var playersPerGroup = {{subsession.players_per_group}};
+            var roundLength = {{subsession.round_length}};
+            if(roundLength >= 60){
+                document.getElementById("round_length").innerHTML = (roundLength/60).toFixed(2) + " minutes"
+            } else {
+                document.getElementById("round_length").innerHTML = roundLength + " seconds"
+            }
+            document.getElementById("speed_cost").innerHTML = actualSpeed;
+            document.getElementById("speed_overall").innerHTML = (actualSpeed*60).toFixed(2);
+            document.getElementById("initial_endowment").innerHTML = realEndowment.toFixed(2);
+            document.getElementById("players_per_group").innerHTML = playersPerGroup - 1;
+            document.getElementById("players_per_group2").innerHTML = playersPerGroup;
+            document.getElementById("num_other_players").innerHTML = playersPerGroup - 1;
+        };
+</script>
 {% endblock %}

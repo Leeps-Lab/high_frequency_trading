@@ -30,9 +30,9 @@
     let otreeConstants = {};
 
     (function(){
-
+        var origin = window.location.origin;
         var Static_Files = {
-            polymer: "/static/hft_bcs/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
+           //polymer: "/static/hft_bcs/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
             input_section: "/static/hft_bcs/input-section/input-section.js",
             spread_graph: "/static/hft_bcs/spread-graph/spread-graph.js",
             profitGraph: "/static/hft_bcs/profit-graph/profit-graph.js",
@@ -41,11 +41,21 @@
 
         var static_file;
         for(var key in Static_Files){
-            static_file = Static_Files[key];
-            $.get(static_file)
-                .done(function() { 
-                }).fail(function() { 
-                    location.reload();
+            temp = Static_Files[key];
+            var static_file = origin + temp;
+            $.ajax({
+                type: 'GET',
+                url:static_file,
+                success: function(data){
+                    console.log(static_file + " has been loaded");
+                    // $(data).find("a:contains('.js')").each(function(){
+                    //     // will loop through
+                    //     console.log("second data");
+                    //     console.log(this);
+                    //     listed_files.push(this);
+                    // });
+       
+                }
             });
         }
 
@@ -263,6 +273,7 @@ Socket Actions
             spreadGraph.drawMySpreadLines(obj.SPRCHG);
         }
         }else if(obj.SYNC != undefined){
+            console.log("Recieved SYNC");
             otreeConstants.sync = true; 
             if(otreeConstants.CDA == true){
                 startExperiment();
@@ -285,6 +296,7 @@ Socket Actions
         } else if(obj.BATCH == "B"){
             inputSection.startTimer();
             if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
+                console
                 startExperiment();
                 otreeConstants.FBAGraph = true;
             }
@@ -297,6 +309,8 @@ Socket Actions
     };
 
     function startExperiment(){
+
+            console.log("This is getting called");
             profitGraph.adminStartTime = profitGraph.getTime();
             profitGraph.profitSegments = [
                 {
@@ -334,6 +348,7 @@ Socket Actions
                 var msg = {
                     type: 'advance_me',
                 };
+                console.log("Advance to results");
                 otreeConstants.endMsg = msg;    
                 if (socketActions.socket.readyState === socketActions.socket.OPEN) {
                     socketActions.socket.send(JSON.stringify(msg));
@@ -347,10 +362,14 @@ Socket Actions
 
     if(otreeConstants.fileReady == true){
         window.setTimeout(function(){
+                playerReady();  
+        },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
+    }
+
+    function playerReady(){
             otreeConstants.groupID = {{group.id}};
             otreeConstants.playerID = {{player.id}};
             otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
-        //    otreeConstants.speedCost = {{Constants.long_delay}};
             otreeConstants.maxSpread = {{player.max_spread}}; 
             otreeConstants.defaultSpread = {{player.spread}};
             otreeConstants.startingWealth = {{player.endowment}};
@@ -362,11 +381,10 @@ Socket Actions
             var msg = {
                 type: 'player_ready',
             };
-    
+            console.log("Sending Player Ready");
             if (socketActions.socket.readyState === socketActions.socket.OPEN) {
                 socketActions.socket.send(JSON.stringify(msg));
             }
-        },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
     }
 
 }());

@@ -1,0 +1,15 @@
+[INFO|2018-09-09 14:13:29,678] [consumers.py:18 -              connect()] Player 1142 is connected to Group 581 with in-group id 2.
+[INFO|2018-09-09 14:13:29,745] [consumers.py:18 -              connect()] Player 1141 is connected to Group 581 with in-group id 1.
+[INFO|2018-09-09 14:13:29,791] [consumers.py:18 -              connect()] Player 1143 is connected to Group 581 with in-group id 3.
+[INFO|2018-09-09 14:13:30,568] [consumers.py:18 -              connect()] Player 1144 is connected to Group 582 with in-group id 1.
+[INFO|2018-09-09 14:13:30,719] [consumers.py:18 -              connect()] Player 1145 is connected to Group 582 with in-group id 2.
+[INFO|2018-09-09 14:13:33,003] [models.py:828 -            in_market()] Group581: Player1143: In market.
+[INFO|2018-09-09 14:13:33,007] [models.py:494 -    players_in_market()] Group581: 1 players are in market.
+[INFO|2018-09-09 14:13:34,151] [models.py:828 -            in_market()] Group582: Player1145: In market.
+[INFO|2018-09-09 14:13:34,154] [models.py:494 -    players_in_market()] Group582: 1 players are in market.
+[INFO|2018-09-09 14:13:34,998] [models.py:828 -            in_market()] Group581: Player1141: In market.
+[INFO|2018-09-09 14:13:35,001] [models.py:494 -    players_in_market()] Group581: 2 players are in market.
+[INFO|2018-09-09 14:13:35,080] [models.py:828 -            in_market()] Group582: Player1144: In market.
+[INFO|2018-09-09 14:13:35,083] [models.py:494 -    players_in_market()] Group582: 2 players are in market.
+[INFO|2018-09-09 14:13:35,450] [models.py:828 -            in_market()] Group581: Player1142: In market.
+[INFO|2018-09-09 14:13:35,454] [models.py:491 -    players_in_market()] Group581: all players are in market.

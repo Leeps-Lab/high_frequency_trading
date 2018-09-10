@@ -6,18 +6,36 @@
 {% endblock %}
 
 {% block content %}
-
-    <p>Here are the results for the session:</p>
+<style>
+    h1{
+        text-align:center;
+    }
+    h3{
+        text-align:center;
+    }
+    #container{
+        margin-left:30px;
+        margin-right:30px;
+        margin-top:50px;
+    
+    }
+</style>
+<div id="container">
+    <h1>
+        Your session has completed!
+    </h1>
+    <p>Here are your results, player <strong>{{player.id_in_group}}</strong>:</p>
 
     <p>
-        You have accumulated {{player.participant.payoff}} in experimental currency units.
+        You have accumulated <strong>{{player.participant.payoff}}</strong> in experimental currency units (ECU).
     </p>
-
+    <!-- maybe some statistics of everyone elses payoff how you did? -->
     <p>
         Dollar payoff round is chosen randomly for each participant.
         Yours were selected as round {{payoff_round}}.
     </p>
 
-    <p> You will receive {{real_payoff}}. </p>
-
+    <h3> Congratulations, you will receive <strong>{{real_payoff}}</strong> dollars! </h3>
+    <p>Follow furthur instructions </p>
+</div>
 {% endblock %}

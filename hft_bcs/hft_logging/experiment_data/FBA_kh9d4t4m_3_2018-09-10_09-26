@@ -1,0 +1,3 @@
+{"time": 33966914059000, "group": 0, "level": "header", "type": "header", "context": {"session": "kh9d4t4m", "groups": {"11": [1, 2, 3], "12": [4, 5, 6]}, "design": "FBA", "spread": 10000.0}}
+{"time": 34778770226000, "group": 11, "level": "exch", "type": "start", "context": {}}
+{"time": 34778969820000, "group": 12, "level": "exch", "type": "start", "context": {}}

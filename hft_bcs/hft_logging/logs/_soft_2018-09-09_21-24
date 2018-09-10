@@ -1,0 +1,6 @@
+[INFO|2018-09-09 21:24:51,174] [consumers.py:18 -              connect()] Player 1682 is connected to Group 851 with in-group id 2.
+[INFO|2018-09-09 21:24:51,581] [consumers.py:18 -              connect()] Player 1683 is connected to Group 851 with in-group id 3.
+[INFO|2018-09-09 21:24:52,429] [consumers.py:18 -              connect()] Player 1685 is connected to Group 852 with in-group id 2.
+[INFO|2018-09-09 21:24:52,589] [consumers.py:18 -              connect()] Player 1681 is connected to Group 851 with in-group id 1.
+[INFO|2018-09-09 21:24:52,594] [consumers.py:18 -              connect()] Player 1686 is connected to Group 852 with in-group id 3.
+[INFO|2018-09-09 21:24:53,026] [consumers.py:18 -              connect()] Player 1684 is connected to Group 852 with in-group id 1.

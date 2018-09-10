@@ -1,0 +1,3 @@
+{"time": 34932982031000, "group": 0, "level": "header", "type": "header", "context": {"session": "nucl26lj", "groups": {"41": [61, 62, 63], "42": [64, 65, 66]}, "design": "FBA", "spread": 10000.0}}
+{"time": 34957700237000, "group": 41, "level": "exch", "type": "start", "context": {}}
+{"time": 34957872559000, "group": 42, "level": "exch", "type": "start", "context": {}}

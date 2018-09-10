@@ -1,0 +1,11 @@
+{"time": 49089151189000, "group": 0, "level": "header", "type": "header", "context": {"session": "xnuht19t", "groups": {"311": [601, 602, 603], "312": [604, 605, 606]}, "design": "FBA", "spread": 10000.0}}
+{"time": 49111335723000, "group": 311, "level": "exch", "type": "start", "context": {}}
+{"time": 49111511667000, "group": 312, "level": "exch", "type": "start", "context": {}}
+{"time": 49137945153000, "group": 312, "level": "exch", "type": "end", "context": {}}
+{"time": 49137985853000, "group": 311, "level": "exch", "type": "end", "context": {}}
+{"time": 49140480061000, "group": 311, "level": "market", "type": "cost", "context": {"player_id": 601, "cost": 0.0, "source": "speed", "timestamp": 49140477923000}}
+{"time": 49140490937000, "group": 311, "level": "market", "type": "cost", "context": {"player_id": 602, "cost": 0.0, "source": "speed", "timestamp": 49140486543000}}
+{"time": 49140498109000, "group": 311, "level": "market", "type": "cost", "context": {"player_id": 603, "cost": 0.0, "source": "speed", "timestamp": 49140496002000}}
+{"time": 49141241959000, "group": 312, "level": "market", "type": "cost", "context": {"player_id": 604, "cost": 0.0, "source": "speed", "timestamp": 49141237632000}}
+{"time": 49141258245000, "group": 312, "level": "market", "type": "cost", "context": {"player_id": 605, "cost": 0.0, "source": "speed", "timestamp": 49141253982000}}
+{"time": 49141267682000, "group": 312, "level": "market", "type": "cost", "context": {"player_id": 606, "cost": 0.0, "source": "speed", "timestamp": 49141265782000}}
