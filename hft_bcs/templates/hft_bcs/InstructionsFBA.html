@@ -36,7 +36,7 @@
 </h2>
 
 <p>
-    In this experiment you will participate in a simple automated financial market. Using information displayed on your screen as in Figure 1, you will set and adjust trading algorithms (bots) so as to earn as many ECUs as you can.  As explained below, your earnings will depend on the settings you choose and on the choices of the <span id="num_other_players"></span> other participants in your group. There will be eight trading periods, each lasting <span id="round_length"></span>, after which the experiment will end and you will be paid.
+    In this experiment you will participate in a simple automated financial market. Using information displayed on your screen as in Figure 1, you will set and adjust trading algorithms (bots) so as to earn as many ECUs as you can.  As explained below, your earnings will depend on the settings you choose and on the choices of the <span id="num_other_players"></span> other participants in your group. There will be <span id="num_rounds"></span> trading periods, each lasting <span id="round_length"></span>, after which the experiment will end and you will be paid.
 </p>
 <div id="image">
 <img src="{% static 'hft_bcs/instruction_images/CDA_screenshot.png' %}" width="655px" height="400px" style="text-align: center; vertical-align: middle;">
@@ -203,12 +203,14 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
             var realEndowment = {{player.endowment}}/10000;
             var playersPerGroup = {{subsession.players_per_group}};
             var roundLength = {{subsession.round_length}};
+            var numRounds = {{subsession.total_rounds}}
             if(roundLength >= 60){
                 document.getElementById("round_length").innerHTML = (roundLength/60).toFixed(2) + " minutes"
             } else {
                 document.getElementById("round_length").innerHTML = roundLength + " seconds"
             }
             document.getElementById("speed_cost").innerHTML = actualSpeed;
+            document.getElementById("num_rounds").innerHTML = numRounds;
             document.getElementById("speed_overall").innerHTML = (actualSpeed*60).toFixed(2);
             document.getElementById("initial_endowment").innerHTML = realEndowment.toFixed(2);
             document.getElementById("players_per_group").innerHTML = playersPerGroup - 1;
