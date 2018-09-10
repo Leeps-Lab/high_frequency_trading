@@ -275,9 +275,8 @@ Socket Actions
         }else if(obj.SYNC != undefined){
             console.log("Recieved SYNC");
             otreeConstants.sync = true; 
-            if(otreeConstants.CDA == true){
-                startExperiment();
-            }
+            startExperiment();
+            
         } else if(obj.TOTAL != undefined){
 
             // Player State Change message from the backend
@@ -296,8 +295,18 @@ Socket Actions
         } else if(obj.BATCH == "B"){
             inputSection.startTimer();
             if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
-                console
-                startExperiment();
+                profitGraph.adminStartTime = profitGraph.getTime();
+                profitGraph.profitSegments = [
+                    {
+                        startTime:profitGraph.adminStartTime,
+                        endTime:profitGraph.adminStartTime, 
+                        startProfit:profitGraph.profit, 
+                        endProfit:profitGraph.profit,
+                        state:"OUT"
+                    }
+                ];
+                profitGraph.init(otreeConstants.startFP, profitGraph.startingWealth, "secondTick");
+                requestAnimationFrame(profitGraph.draw);
                 otreeConstants.FBAGraph = true;
             }
         }
@@ -309,20 +318,21 @@ Socket Actions
     };
 
     function startExperiment(){
-
-            console.log("This is getting called");
-            profitGraph.adminStartTime = profitGraph.getTime();
-            profitGraph.profitSegments = [
-                {
-                    startTime:profitGraph.adminStartTime,
-                    endTime:profitGraph.adminStartTime, 
-                    startProfit:profitGraph.profit, 
-                    endProfit:profitGraph.profit,
-                    state:"OUT"
-                }
-            ];
-            profitGraph.init(otreeConstants.startFP, profitGraph.startingWealth, "secondTick");
-            requestAnimationFrame(profitGraph.draw);
+            if(otreeConstants.CDA == true && otreeConstants.FBA == false){
+                profitGraph.adminStartTime = profitGraph.getTime();
+                profitGraph.profitSegments = [
+                    {
+                        startTime:profitGraph.adminStartTime,
+                        endTime:profitGraph.adminStartTime, 
+                        startProfit:profitGraph.profit, 
+                        endProfit:profitGraph.profit,
+                        state:"OUT"
+                    }
+                ];
+                profitGraph.init(otreeConstants.startFP, profitGraph.startingWealth, "secondTick");
+                requestAnimationFrame(profitGraph.draw);
+            }
+            
             /** Initializing all info table values **/
             document.querySelector('info-table').setAttribute("player_id","{{player.id_in_group}}");
             document.querySelector('info-table').setAttribute("period_id","1"); 
