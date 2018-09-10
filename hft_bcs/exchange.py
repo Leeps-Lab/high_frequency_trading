@@ -89,7 +89,7 @@ def connect(group, host, port, wait_for_connection=False):
         reactor.connectTCP(host, port, factory)
     else:
         if exchanges[addr].group != group:
-            raise ValueError('exchange at {} already has a group'.format(addr))
+            log.msg('exchange at {} already has a group: {}'.format(addr, exchanges))
         exchanges[addr].group = group
     while not exchanges[addr].connection and wait_for_connection:
         log.msg('waiting for connection to %s...' % addr)

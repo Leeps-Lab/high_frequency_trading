@@ -1,8 +1,9 @@
+
 demo:
   number-of-participants: 6
 trial:
   run: 1
-  trial-length: 15
+  trial-length: 20
 directory:
   folder: investors_jumps
 investors:
@@ -17,16 +18,16 @@ group:
   players-per-group: 3
 market:
   design: "CDA"
-  matching-engine-host: "127.0.0.1"
+  matching-engine-host: "cda"
 parameters:
   fundamental-price: 100
   initial-endowment: 20
   initial-spread: 1
   max-spread: 2
-  session-length: 30
+  session-length: 40
   speed-cost: 0.022
   batch-length: 0
 session:
   num-rounds: 2
   display_name: CDA Production
-  session_name: cda_3_2_test
+  session_name: docker_cda_3_2_test

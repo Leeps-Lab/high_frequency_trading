@@ -1,0 +1,16 @@
+FROM python:3.6-alpine
+
+ADD ./ /opt/cda_exc
+
+ARG NUM_GROUPS=1
+
+ENV NUM_GROUPS $NUM_GROUPS
+
+RUN apk -U add --no-cache bash \
+    && pip install ConfigArgParse \ 
+    && pip install pytz
+
+WORKDIR /opt/cda_exc
+VOLUME /data
+ENTRYPOINT ./cda-entrypoint.sh "$NUM_GROUPS"
+EXPOSE 9000-9050

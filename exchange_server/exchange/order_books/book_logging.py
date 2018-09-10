@@ -1,8 +1,9 @@
-
+import os
 
 class BookLogger():
     def __init__(self, book_logfile):
-        self.book_logfile = book_logfile
+        booklog = os.path.join(os.getcwd(), book_logfile)
+        self.book_logfile = booklog
 
     def book_to_dict(self, book, order_store):
         return {'Bids':[{'price':b.price, 

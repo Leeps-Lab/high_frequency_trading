@@ -25,6 +25,42 @@ services:
     networks:
       db-net-1:
 
+  otree-1:
+    build: ./
+    image: otree:hft
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/${POSTGRES_DATABASE}"
+      OTREE_ADMIN_PASSWORD: ${OTREE_ADMIN_PASSWORD}
+      OTREE_AUTH_LEVEL: ${OTREE_AUTH_LEVEL}
+      NUM_WORKERS: ${NUM_WORKERS}
+    ports:
+      - 8000:80
+    volumes:
+      - "otree-resetdb-1:/opt/init"
+    # Uncomment for live editing
+    #  - ./:/opt/otree
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - db-net-1
+      - redis-net-1
+      - exch-net-1
+
+  redis-1:
+    image: redis
+    command: "redis-server"
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    read_only: true
+    networks:
+      - redis-net-1
+
   database-2:
     image: postgres:9.5
     environment:
@@ -46,48 +82,16 @@ services:
     networks:
       db-net-2:
 
-
-  otree-1:
-    build: ./
-    depends_on:
-      - database-1
-    image: otree:hft
-    environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database-1/${POSTGRES_DATABASE}"
-      REDIS_INS: "redis://redis-1:6379/1"
-  #    EXCHANGE_GROUP: "1"
-      OTREE_ADMIN_PASSWORD: ${OTREE_ADMIN_PASSWORD}
-      OTREE_AUTH_LEVEL: ${OTREE_AUTH_LEVEL}
-      NUM_WORKERS: ${NUM_WORKERS}
-    ports:
-      - 8000:80
-    volumes:
-      - "otree-resetdb-1:/opt/init"
-    # Uncomment for live editing
-    #  - ./:/opt/otree
-    restart: always
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "3"
-    networks:
-      - db-net-1
-      - redis-net-1
-
   otree-2:
     build: ./
-    depends_on:
-      - database-2
     image: otree:hft
     environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database-2/${POSTGRES_DATABASE}"
-      REDIS_INS: "redis://redis-2:6379/1"
-  #    EXCHANGE_GROUP: "2"
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database/${POSTGRES_DATABASE}"
       OTREE_ADMIN_PASSWORD: ${OTREE_ADMIN_PASSWORD}
       OTREE_AUTH_LEVEL: ${OTREE_AUTH_LEVEL}
       NUM_WORKERS: ${NUM_WORKERS}
     ports:
-      - 8001:80
+      - 8001:81
     volumes:
       - "otree-resetdb-2:/opt/init"
     # Uncomment for live editing
@@ -100,18 +104,7 @@ services:
     networks:
       - db-net-2
       - redis-net-2
-
-  redis-1:
-    image: redis
-    command: "redis-server"
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "3"
-    restart: always
-    read_only: true
-    networks:
-      - redis-net-1
+      - exch-net-2
 
   redis-2:
     image: redis
@@ -125,16 +118,17 @@ services:
     networks:
       - redis-net-2
 
+
 volumes:
   database-1:
-  database-2:    
   otree-resetdb-1:
+  database-2:
   otree-resetdb-2:
-
 
 networks:
   db-net-1:
-  db-net-2:
   redis-net-1:
+  exch-net-1:
+  db-net-2:
   redis-net-2:
-  
+  exch-net-2:

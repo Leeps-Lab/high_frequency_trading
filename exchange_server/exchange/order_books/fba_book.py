@@ -74,6 +74,8 @@ class FBABook:
         for id in list(self.bids.index):
                     self.bids.remove(id)
 
+
+
     def cancel_order(self, id, price, volume, buy_sell_indicator):
         '''
         Cancel all or part of an order. Volume refers to the desired remaining shares to be executed: if it is 0, the order is
@@ -205,7 +207,9 @@ class FBABook:
                 #iterate over bids starting with highest
                 for bid_node in self.bids.ascending_items():
                     bid_price = bid_node.price
+                    log.info('bid price {}, ask price {}, clearing price {}'.format(bid_price, ask_price, clearing_price))
                     if bid_price<clearing_price or ask_price>clearing_price:
+                        log.debug('no cross at {}'.format(ask_price))
                         break
                     else:
                         for (bid_id, volume) in list(bid_node.order_q.items()):
@@ -214,19 +218,32 @@ class FBABook:
                                 (filled, fulfilling_orders) = ask_node.fill_order(volume-volume_filled)
                                 volume_filled += filled
                                 matches.extend([((bid_id, ask_id), clearing_price, volume) for (ask_id, volume) in fulfilling_orders])
+                                log.debug('matches: {}'.format(matches))
                                 if volume_filled <= volume:
+                                    log.info('volume filled: {}, volume:{} at {}'.format(volume_filled, volume, ask_price))
                                     self.asks.remove(ask_price)
-                                    ask_node = next(ask_it)
-                                    ask_price = ask_node.price
+                                    try: 
+                                        ask_node = next(ask_it)
+                                        ask_price = ask_node.price
+                                    except StopIteration as e:
+                                        log.debug('stopped iteration at {}'.format(ask_price)) 
+                                        break
                             #update bid in book
                             assert volume_filled<=volume
                             if volume_filled==volume:
+                                log.debug('filled {} out of {}: bid id {} '.format(volume_filled, volume, bid_id))
                                 bid_node.cancel_order(bid_id)
                                 if bid_node.interest == 0:
                                     self.bids.remove(bid_node.price)
                             elif volume_filled >0:
+                                log.debug('reducing {} out of {}, bid id: {}'.format(volume_filled, volume, bid_id))
                                 bid_node.reduce_order(bid_id, volume - volume_filled)
-            except StopIteration:
+            except StopIteration as e:
+                log.debug(e)
+                # this is a terrible idea. why didn't you even log it ?
+                # there are many iterations that can throw this inside here.
+                # this let an exception pass silently, before bid node is updated
+                # after line 224 throws StopIteration.
                 pass
         return matches
 

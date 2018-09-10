@@ -8,10 +8,10 @@ import otree.settings
 import yaml
 from custom_otree_config import BCSConfig
 
-USE_POINTS = True
-
 CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+POINTS_DECIMAL_PLACES = 2
 
 # the environment variable OTREE_PRODUCTION controls whether Django runs in
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
@@ -26,6 +26,9 @@ INTERNAL_IPS = (
     '0.0.0.0',
     '127.0.0.1',
 )
+EXCHANGE_HOST_NO = os.environ.get("EXCHANGE_GROUP")
+if EXCHANGE_HOST_NO in {None, ''}:
+    EXCHANGE_HOST_NO = "127.0.0.1"
 
 # don't share this with anybody.
 # SECRET_KEY = '{{ secret_key }}'
@@ -52,10 +55,11 @@ DATABASES = {
     )
 }
 
+redis_at = os.environ.get('REDIS_INS', "redis://127.0.0.1:6379/1")
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": redis_at,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },

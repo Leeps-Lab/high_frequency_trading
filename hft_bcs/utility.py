@@ -11,10 +11,6 @@ import pytz
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
-class GroupResult:
-    def __init__(self, results):
-        for key, value in results.items():
-            setattr(self, key, value)
 
 
 # returns a numpy array representing each
