@@ -113,6 +113,7 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
     otreeConstants.CDA = false; //Continuous Double Auction
     otreeConstants.FBA = false; //Frequent Batch Auction
+    otreeConstants.IEX = false; //Continuous Double Auction
     otreeConstants.FBAGraph = false;  //Turns to true when first batch comes in for FBA and the profit graph begins 
     otreeConstants.sync = false;      //When player syncs at beginning  of expirement this is turned to true
 
@@ -120,6 +121,8 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
         otreeConstants.CDA  = true; 
     } else if(otreeConstants.design == "FBA"){
         otreeConstants.FBA = true;
+    } else if(otreeConstants.design == "IEX"){
+        otreeConstants.IEX = true;
     }
 /*
 IMPORTANT:
