@@ -161,9 +161,9 @@ class SpreadGraph extends PolymerElement {
                             .style("stroke", "grey")
                             .style("stroke-width", 3);
     }   
-    if(otreeConstants.FBA == true){
+    //if(otreeConstants.IEX == true){
        spreadGraph.drawPossibleSpreadTicks();
-    }                    
+    //}                    
   }
 
   listen(){
@@ -192,17 +192,10 @@ class SpreadGraph extends PolymerElement {
             if(my_spread < otreeConstants.min_spread){
                 my_spread = otreeConstants.min_spread;
             }   
-            if(otreeConstants.FBA == true){
-
-                
-                for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
-                    if(my_spread < spreadGraph.possibleSpreadLines[i]){
-                        my_spread = spreadGraph.possibleSpreadLines[i-1];
-                        break;
-                    }
-                }
+            console.log("here");
+            for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){
+                console.log(spreadGraph.possibleSpreadLines[i]);
             }
-
             spreadGraph.sendSpreadChange(my_spread);
           } else if(role == "OUT"){
             //  //Send in default order for maker

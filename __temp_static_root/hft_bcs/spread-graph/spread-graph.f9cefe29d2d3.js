@@ -161,7 +161,7 @@ class SpreadGraph extends PolymerElement {
                             .style("stroke", "grey")
                             .style("stroke-width", 3);
     }   
-    if(otreeConstants.FBA == true){
+    if(otreeConstants.FBA == false){
        spreadGraph.drawPossibleSpreadTicks();
     }                    
   }
@@ -192,7 +192,7 @@ class SpreadGraph extends PolymerElement {
             if(my_spread < otreeConstants.min_spread){
                 my_spread = otreeConstants.min_spread;
             }   
-            if(otreeConstants.FBA == true){
+            if(otreeConstants.FBA == false){
 
                 
                 for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                

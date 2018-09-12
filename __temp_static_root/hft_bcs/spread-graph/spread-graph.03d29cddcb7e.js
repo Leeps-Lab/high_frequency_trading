@@ -161,9 +161,10 @@ class SpreadGraph extends PolymerElement {
                             .style("stroke", "grey")
                             .style("stroke-width", 3);
     }   
-    if(otreeConstants.FBA == true){
+    //if(otreeConstants.IEX == true){
        spreadGraph.drawPossibleSpreadTicks();
-    }                    
+
+    //}                    
   }
 
   listen(){
@@ -191,18 +192,7 @@ class SpreadGraph extends PolymerElement {
             var my_spread = (ratio*otreeConstants.maxSpread).toFixed(0);
             if(my_spread < otreeConstants.min_spread){
                 my_spread = otreeConstants.min_spread;
-            }   
-            if(otreeConstants.FBA == true){
-
-                
-                for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
-                    if(my_spread < spreadGraph.possibleSpreadLines[i]){
-                        my_spread = spreadGraph.possibleSpreadLines[i-1];
-                        break;
-                    }
-                }
             }
-
             spreadGraph.sendSpreadChange(my_spread);
           } else if(role == "OUT"){
             //  //Send in default order for maker
@@ -270,15 +260,15 @@ class SpreadGraph extends PolymerElement {
 
   drawPossibleSpreadTicks(){
       console.log("Called!");
-      var temp = parseInt(otreeConstants.min_spread);
+      var temp = otreeConstants.min_spread
       var svg_middle_y = spreadGraph.spread_height/2;
-      var maxSpread = parseInt(otreeConstants.maxSpread);
-      spreadGraph.possibleSpreadLines = [];
-    for(;temp < maxSpread;){
-        
-        var money_ratio =  maxSpread/temp;
-        var y_coordinate = svg_middle_y/money_ratio;
-        
+    
+    for(;temp < otreeConstants.maxSpread;){
+        console.log(temp);
+        money_ratio =  otreeConstants.maxSpread/temp;
+        console.log(money_ratio);
+        y_coordinate = svg_middle_y/money_ratio;
+        console.log(y_coordinate);
         spreadGraph.spread_svg.append("svg:line")
             .attr("x1", (spreadGraph.spread_width / 2) - 15)
             .attr("y1", svg_middle_y - y_coordinate)
@@ -294,11 +284,12 @@ class SpreadGraph extends PolymerElement {
             .attr("y2", svg_middle_y + y_coordinate)
             .attr("stroke-width",1)
             .attr("class","possible-spread-ticks");
-        
-        spreadGraph.possibleSpreadLines.push(temp);
 
         temp = otreeConstants.min_spread + temp;
     }
+    console.log("after");
+
+
   }
 
   sendSpreadChange(my_spread = otreeConstants.defaultSpread){
