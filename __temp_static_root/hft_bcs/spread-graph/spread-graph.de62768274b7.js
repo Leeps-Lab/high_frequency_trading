@@ -32,10 +32,6 @@ class SpreadGraph extends PolymerElement {
     stroke:steelblue;
     stroke-width:2px;
     }
-    .possible-spread-ticks{
-        stroke: grey;
-        stroke-width: 1;
-    }
 
     .others_line{
     stroke:lightgrey;
@@ -125,7 +121,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
     spreadGraph.drawBatchFlash = this.drawBatchFlash;
     spreadGraph.startBatchTimer = this.startBatchTimer;
-    spreadGraph.drawPossibleSpreadTicks = this.drawPossibleSpreadTicks;
+    spreadGraph.possibleSpreadTicks = this.possibleSpreadTicks;
     spreadGraph.updateFBASpreadGraphLines = this.updateFBASpreadGraphLines;
     //Creating the start state
     spreadGraph.start();
@@ -161,9 +157,10 @@ class SpreadGraph extends PolymerElement {
                             .style("stroke", "grey")
                             .style("stroke-width", 3);
     }   
-    if(otreeConstants.FBA == true){
-       spreadGraph.drawPossibleSpreadTicks();
-    }                    
+    //if(otreeConstants.IEX == true){
+        var possibleSpreadTicks = spreadGraph.possibleSpreadTicks();
+
+    //}                    
   }
 
   listen(){
@@ -191,18 +188,7 @@ class SpreadGraph extends PolymerElement {
             var my_spread = (ratio*otreeConstants.maxSpread).toFixed(0);
             if(my_spread < otreeConstants.min_spread){
                 my_spread = otreeConstants.min_spread;
-            }   
-            if(otreeConstants.FBA == true){
-
-                
-                for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
-                    if(my_spread < spreadGraph.possibleSpreadLines[i]){
-                        my_spread = spreadGraph.possibleSpreadLines[i-1];
-                        break;
-                    }
-                }
             }
-
             spreadGraph.sendSpreadChange(my_spread);
           } else if(role == "OUT"){
             //  //Send in default order for maker
@@ -268,36 +254,12 @@ class SpreadGraph extends PolymerElement {
     });
   }
 
-  drawPossibleSpreadTicks(){
+  possibleSpreadTicks(){
       console.log("Called!");
-      var temp = parseInt(otreeConstants.min_spread);
-      var svg_middle_y = spreadGraph.spread_height/2;
-      var maxSpread = parseInt(otreeConstants.maxSpread);
-      spreadGraph.possibleSpreadLines = [];
-    for(;temp < maxSpread;){
-        
-        var money_ratio =  maxSpread/temp;
-        var y_coordinate = svg_middle_y/money_ratio;
-        
-        spreadGraph.spread_svg.append("svg:line")
-            .attr("x1", (spreadGraph.spread_width / 2) - 15)
-            .attr("y1", svg_middle_y - y_coordinate)
-            .attr("x2", (spreadGraph.spread_width / 2) + 15)
-            .attr("y2", svg_middle_y - y_coordinate)
-            .attr("stroke-width",1)
-            .attr("class","possible-spread-ticks");
-        
-        spreadGraph.spread_svg.append("svg:line")
-            .attr("x1", (spreadGraph.spread_width / 2) - 15)
-            .attr("y1", svg_middle_y + y_coordinate)
-            .attr("x2", (spreadGraph.spread_width / 2) + 15)
-            .attr("y2", svg_middle_y + y_coordinate)
-            .attr("stroke-width",1)
-            .attr("class","possible-spread-ticks");
-        
-        spreadGraph.possibleSpreadLines.push(temp);
-
-        temp = otreeConstants.min_spread + temp;
+      var temp = otreeConstants.min_spread
+    for(;  temp < otreeConstants.maxSpread; ){
+        console.log(temp);
+        temp+=otreeConstants.min_spread;
     }
   }
 
