@@ -159,7 +159,7 @@ class InputSection extends PolymerElement {
         inputSection.timerSVG = d3.select(inputSection.timerSVGDOM);
         inputSection.drawTimer = this.drawTimer;
         inputSection.startTimer = this.startTimer;
-        console.log(document.querySelector("#maker"));
+        console.log(document.querySelectorAll("button"));
         inputSection.drawTimer();
     }
 

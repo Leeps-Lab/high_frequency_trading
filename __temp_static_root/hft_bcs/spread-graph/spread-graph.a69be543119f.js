@@ -22,12 +22,6 @@ class SpreadGraph extends PolymerElement {
         stroke-width: 3.5px;
         fill: none;
     }
-    .price-grid-line-text {
-        fill: rgb(150, 150, 150);
-        font-size: 10px;
-        -webkit-user-select: none;
-        cursor: default;
-    }
     g{
         color:  grey;
         stroke-width: 2px;
@@ -167,7 +161,7 @@ class SpreadGraph extends PolymerElement {
                             .style("stroke", "grey")
                             .style("stroke-width", 3);
     }   
-    if(otreeConstants.FBA == true){
+    if(otreeConstants.IEX == true){
        spreadGraph.drawPossibleSpreadTicks();
     }                    
   }
@@ -198,7 +192,9 @@ class SpreadGraph extends PolymerElement {
             if(my_spread < otreeConstants.min_spread){
                 my_spread = otreeConstants.min_spread;
             }   
-            if(otreeConstants.FBA == true){  
+            if(otreeConstants.IEX == true){
+
+                
                 for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
                     if(my_spread < spreadGraph.possibleSpreadLines[i]){
                         my_spread = spreadGraph.possibleSpreadLines[i-1];
@@ -266,14 +262,7 @@ class SpreadGraph extends PolymerElement {
                     if(my_spread < otreeConstants.min_spread){
                         my_spread = otreeConstants.min_spread;
                     }
-                    if(otreeConstants.FBA == true){  
-                        for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
-                            if(my_spread < spreadGraph.possibleSpreadLines[i]){
-                                my_spread = spreadGraph.possibleSpreadLines[i-1];
-                                break;
-                            }
-                        }
-                    }
+
                     spreadGraph.sendSpreadChange(my_spread);
                 }
     });
@@ -304,27 +293,12 @@ class SpreadGraph extends PolymerElement {
             .attr("x2", (spreadGraph.spread_width / 2) + 15)
             .attr("y2", svg_middle_y + y_coordinate)
             .attr("stroke-width",1)
-            .attr("class","possible-spread-ticks");        
-        
-        console.log(document.querySelector('info-table').fp);
-        spreadGraph.spread_svg.append("text")
-            .attr("text-anchor", "start")
-            .attr("x", (spreadGraph.spread_width / 2) + 17)  
-            .attr("y",  svg_middle_y + y_coordinate  + 3)
-            .attr("class", "price-grid-line-text")
-            .text((temp/10000).toFixed(2));
-
-        spreadGraph.spread_svg.append("text")
-            .attr("text-anchor", "start")
-            .attr("x", (spreadGraph.spread_width / 2) + 17)  
-            .attr("y",  svg_middle_y - y_coordinate + 3)
-            .attr("class", "price-grid-line-text")
-            .text((temp/10000).toFixed(2));
+            .attr("class","possible-spread-ticks");
         
         spreadGraph.possibleSpreadLines.push(temp);
+
         temp = otreeConstants.min_spread + temp;
     }
-    console.log(document);
   }
 
   sendSpreadChange(my_spread = otreeConstants.defaultSpread){

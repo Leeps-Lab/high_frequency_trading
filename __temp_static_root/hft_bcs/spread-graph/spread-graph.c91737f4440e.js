@@ -266,14 +266,7 @@ class SpreadGraph extends PolymerElement {
                     if(my_spread < otreeConstants.min_spread){
                         my_spread = otreeConstants.min_spread;
                     }
-                    if(otreeConstants.FBA == true){  
-                        for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
-                            if(my_spread < spreadGraph.possibleSpreadLines[i]){
-                                my_spread = spreadGraph.possibleSpreadLines[i-1];
-                                break;
-                            }
-                        }
-                    }
+
                     spreadGraph.sendSpreadChange(my_spread);
                 }
     });
@@ -312,14 +305,14 @@ class SpreadGraph extends PolymerElement {
             .attr("x", (spreadGraph.spread_width / 2) + 17)  
             .attr("y",  svg_middle_y + y_coordinate  + 3)
             .attr("class", "price-grid-line-text")
-            .text((temp/10000).toFixed(2));
+            .text((temp/10000));
 
         spreadGraph.spread_svg.append("text")
             .attr("text-anchor", "start")
             .attr("x", (spreadGraph.spread_width / 2) + 17)  
             .attr("y",  svg_middle_y - y_coordinate + 3)
             .attr("class", "price-grid-line-text")
-            .text((temp/10000).toFixed(2));
+            .text((temp/10000));
         
         spreadGraph.possibleSpreadLines.push(temp);
         temp = otreeConstants.min_spread + temp;

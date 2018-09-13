@@ -136,7 +136,7 @@ Graph_Features is an object that stores the features of the profit and spread gr
     spreadGraph.spread_lines = {};
     spreadGraph.spreadLinesFBAConcurrent = {}; //Holds a running map of the spread lines
     spreadGraph.spreadLinesFBABatch = {};      //Holds all the lines from the last batch to figure out smallest spread
-    spreadGraph.last_spread =  otreeConstants.defaultSpread;
+    spreadGraph.last_spread =  otreeConstants.defaultSpread/10000;
 
     //PROFIT GRAPH
     profitGraph.profit_width = document.querySelector("profit-graph").clientWidth;
@@ -232,7 +232,7 @@ Socket Actions
                 var incomingSpread = (obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"])/10000;
                 if(key == player_id && obj.SPRCHG[key] != 0 ){
                     spreadGraph.last_spread = incomingSpread;
-                } 
+                }
                 delete spreadGraph.spread_lines[key];
                 spreadGraph.spreadLinesFBAConcurrent[key] = obj.SPRCHG[key];
 
@@ -298,6 +298,7 @@ Socket Actions
         } else if(obj.BATCH == "B"){
             inputSection.startTimer();
             if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
+                document.querySelector(".overlay").style.pointerEvents = 'none';
                 profitGraph.adminStartTime = profitGraph.getTime();
                 profitGraph.profitSegments = [
                     {
@@ -352,8 +353,9 @@ Socket Actions
             document.querySelector('info-table').setAttribute("group_id","{{player.group_id}}");
 
             document.querySelector(".overlay").style.opacity = 0;
-            document.querySelector(".overlay").style.pointerEvents = 'none';
-                
+            if(!otreeConstants.FBA){
+                document.querySelector(".overlay").style.pointerEvents = 'none';
+            }
             window.setTimeout(function(){
                 profitGraph.clear();
                 spreadGraph.clear();
