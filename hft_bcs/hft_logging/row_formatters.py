@@ -16,9 +16,12 @@ def base_row(**kwargs):
     return base_row
 
 def _timestamp(round_start):
-    ts = (labtime() - round_start) / 1e6
-    ts_str = str(timedelta(milliseconds=ts))
-    return ts_str
+    delta = labtime() - round_start
+    ms, _ = divmod(delta, 1e6)
+    s, ms = divmod(ms, 1e3)
+    m, s = divmod(s, 60)
+    ts = '{}:{}.{}'.format(int(m), int(s), int(ms))
+    return ts
 
 def exchange(**kwargs):
     row = base_row(**kwargs)

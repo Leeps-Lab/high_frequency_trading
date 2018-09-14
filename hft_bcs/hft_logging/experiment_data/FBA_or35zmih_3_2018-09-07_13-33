@@ -1,3 +1,0 @@
-{"time": 48821126528000, "group": 0, "level": "header", "type": "header", "context": {"session": "or35zmih", "groups": {"971": [1921, 1922, 1923], "972": [1924, 1925, 1926]}, "design": "FBA", "spread": 10000.0}}
-{"time": 48838033226000, "group": 971, "level": "exch", "type": "start", "context": {}}
-{"time": 48838322645000, "group": 972, "level": "exch", "type": "start", "context": {}}

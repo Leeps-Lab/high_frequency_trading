@@ -1,8 +1,0 @@
-{"time": 38287725045000, "group": 0, "level": "header", "type": "header", "context": {"session": "3atykrbf", "groups": {"1841": [3661, 3662, 3663], "1842": [3664, 3665, 3666]}, "design": "FBA", "spread": 10000.0}}
-{"time": 38303092562000, "group": 1841, "level": "exch", "type": "start", "context": {}}
-{"time": 38303260470000, "group": 1842, "level": "exch", "type": "start", "context": {}}
-{"time": 38328916951000, "group": 1841, "level": "exch", "type": "end", "context": {}}
-{"time": 38329967512000, "group": 1842, "level": "exch", "type": "end", "context": {}}
-{"time": 38333483880000, "group": 1841, "level": "market", "type": "cost", "context": {"player_id": 3661, "cost": 0.0, "source": "speed", "timestamp": 38333480328000}}
-{"time": 38333502900000, "group": 1841, "level": "market", "type": "cost", "context": {"player_id": 3662, "cost": 0.0, "source": "speed", "timestamp": 38333500039000}}
-{"time": 38333515398000, "group": 1841, "level": "market", "type": "cost", "context": {"player_id": 3663, "cost": 0.0, "source": "speed", "timestamp": 38333508541000}}

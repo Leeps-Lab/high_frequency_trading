@@ -1,5 +1,0 @@
-{"time": 48153388481000, "group": 0, "level": "header", "type": "header", "context": {"session": "wbws7i8o", "groups": {"71": [121, 122, 123], "72": [124, 125, 126]}, "design": "FBA", "spread": 10000.0}}
-{"time": 48173199147000, "group": 71, "level": "exch", "type": "start", "context": {}}
-{"time": 48173343381000, "group": 72, "level": "exch", "type": "start", "context": {}}
-{"time": 48197974844000, "group": 72, "level": "exch", "type": "end", "context": {}}
-{"time": 48198948755000, "group": 71, "level": "exch", "type": "end", "context": {}}

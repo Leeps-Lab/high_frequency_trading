@@ -1,8 +1,0 @@
-{"time": 38865646701000, "group": 0, "level": "header", "type": "header", "context": {"session": "6qd0xdgf", "groups": {"1931": [3841, 3842, 3843], "1932": [3844, 3845, 3846]}, "design": "FBA", "spread": 10000.0}}
-{"time": 38888178345000, "group": 1931, "level": "exch", "type": "start", "context": {}}
-{"time": 38888417759000, "group": 1932, "level": "exch", "type": "start", "context": {}}
-{"time": 38914981563000, "group": 1932, "level": "exch", "type": "end", "context": {}}
-{"time": 38914990151000, "group": 1931, "level": "exch", "type": "end", "context": {}}
-{"time": 38917909377000, "group": 1931, "level": "market", "type": "cost", "context": {"player_id": 3841, "cost": 0.0, "source": "speed", "timestamp": 38917905897000}}
-{"time": 38917921961000, "group": 1931, "level": "market", "type": "cost", "context": {"player_id": 3842, "cost": 0.0, "source": "speed", "timestamp": 38917919764000}}
-{"time": 38917934231000, "group": 1931, "level": "market", "type": "cost", "context": {"player_id": 3843, "cost": 0.0, "source": "speed", "timestamp": 38917930033000}}

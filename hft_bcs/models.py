@@ -391,7 +391,7 @@ class Group(BaseGroup):
         if msg_type == 'S':
             event = fields['event_code']
             if event in ['B', 'P']:
-                events.push(hfl.batch)
+                events.push(hfl.batch, **{'gid': self.id})
                 self.broadcast(client_messages.batch(event=event))
             return
         token = fields.get('order_token')
