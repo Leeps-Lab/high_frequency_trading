@@ -3,7 +3,7 @@ import json
 import datetime
 import pytz
 """
-this will replace current logging
+this will replace current experiment data logging
 """
 author = 'hasan ali demirci'
 

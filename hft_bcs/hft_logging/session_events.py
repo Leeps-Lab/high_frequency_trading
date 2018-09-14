@@ -23,20 +23,37 @@ class SessionEvents:
         'orders in market': format_orders,
     }
 
-    def __init__(self, design):
+    filename = ('{timestamp}_design_{subsession.design}_players_per_group_'
+        '{subsession.players_per_group}_round_{subsession.round_number}.csv')
+
+    def __init__(self, subsession=None):
+        """
+        this will be called only once
+        at startup, then will change save
+        path at each round
+        """
         self.backup = list()
         self.raw_logs = list()
         self.string_logs = list()
         self.columns = ['time', 'group', 'player', 'event', 'context']
-        self.prefix = design
-        self.set_dump_path()
+        self.path = None
+        self.subsession = subsession
+        self.round_start = labtime()
+
+    @classmethod
+    def new_round(cls, subsession=None):
+        round_logger = cls(subsession)
+        round_logger.set_dump_path()
+        return round_logger
     
     def set_dump_path(self):
-        today = datetime.now().strftime('%Y-%m-%d_%H-%M')
-        filename = logs_folder + self.prefix + '_' + today + '.csv'
-        self.path = os.path.join(os.getcwd(), filename)
+        cls = self.__class__
+        now = datetime.now().strftime('%Y-%m-%d_%H-%M')
+        filename = cls.filename.format(timestamp=now, subsession=self.subsession)
+        self.path = os.path.join(logs_folder, filename)
 
     def push(self, processor, **kwargs):
+        kwargs['round_start'] = self.round_start
         raw_log = processor(**kwargs)
         self.raw_logs.append(raw_log)
 
@@ -59,4 +76,4 @@ class SessionEvents:
                 writer.writeheader()
             writer.writerows(self.string_logs)
 
-events = SessionEvents('cda')
+events = SessionEvents()

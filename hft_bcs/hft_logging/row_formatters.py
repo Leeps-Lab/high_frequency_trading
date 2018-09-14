@@ -1,17 +1,24 @@
 from ..utility import nanoseconds_since_midnight as labtime
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
+
+round_start = 0
 
 def base_row(**kwargs):
     base_row = dict()
     # converting to milliseconds for readability
-    base_row['time'] = int(labtime() / 1e6)
+    round_start = kwargs.get('round_start', 0)
+    base_row['time'] = _timestamp(round_start)
     base_row['group'] = kwargs.get('gid', '00')
     base_row['event'] = ''
     base_row['player'] = '00'
     base_row['context'] = ''
     return base_row
 
+def _timestamp(round_start):
+    ts = (labtime() - round_start) / 1e6
+    ts_str = str(timedelta(milliseconds=ts))
+    return ts_str
 
 def exchange(**kwargs):
     row = base_row(**kwargs)
@@ -19,6 +26,23 @@ def exchange(**kwargs):
     row['context'] = kwargs['context']
     return row
 
+def start(**kwargs):
+    row = base_row(**kwargs)
+    row['event'] = 'session start'
+    row['context'] = 'sent start message to clients.'
+    return row
+
+def end(**kwargs):
+    row = base_row(**kwargs)
+    row['event'] = 'session end'
+    row['context'] = 'advancing players to next page.'
+    return row
+
+def batch(**kwargs):
+    row = base_row(**kwargs)
+    row['event'] = 'batch'
+    row['context'] = 'batch message'
+    return row
 
 def group_delay(**kwargs):
     row = base_row(**kwargs)
@@ -30,7 +54,8 @@ def inv_trans(**kwargs):
     row = base_row(**kwargs)
     row['event'] = 'transaction'
     row['player'] = '@'
-    row['context'] = 'investor transacted.'
+    token = kwargs['token']
+    row['context'] = 'investor order {} transacted.'.format(token)
     return row
 
 def jump(**kwargs):

@@ -151,7 +151,7 @@ class Subsession(BaseSubsession):
         pairs[ready_groups] = {g.id: False for g in self.get_groups()}
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
-        print(pairs)
+
 
     def set_payoff_round(self):
         for player in self.get_players():
@@ -185,7 +185,6 @@ class Subsession(BaseSubsession):
         self.last_round = self.total_rounds + self.has_trial
         if self.has_trial and self.round_number == 1:
             self.is_trial = True
-            log.info('session is trial.')
             self.round_length = self.trial_length
         # set default values for cached session states       
         self.init_cache()
@@ -199,7 +198,6 @@ class Subsession(BaseSubsession):
         # set the exchange port start
         self.next_available_exchange = Constants.first_exchange_port[self.design]
         groups = self.get_groups()
-        print(groups)
         for group in groups:
             group.creating_group()
         players = self.get_players()
@@ -227,14 +225,17 @@ class Subsession(BaseSubsession):
         total = sum(session_state.values())
         if total == self.session.num_participants / self.players_per_group:
             log.info('session: starting trade, %d.' % self.round_length)
-            hfl.events.dump(header=True)
+            global events
+            events = hfl.events.new_round(self)
+            events.dump(header=True)
             for g in self.get_groups():
                 g.start()
         if total == 0 and self.trade_ended == False:
             log.info('session: advancing all players to results page.')
             self.trade_ended = True
             self.save()
-            hfl.events.dump(header=True)
+            events.push(hfl.end)
+            events.dump()
             self.session.advance_last_place_participants()
 
     def save(self, *args, **kwargs):
@@ -278,7 +279,6 @@ class Group(BaseGroup):
                                     for k, v in Constants.group_role_counts.items()} 
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
-        print(pairs)
     
     # def set_exchange_host(self):
     #     if EXCHANGE_HOST_NO is not "127.0.0.1":
@@ -325,6 +325,8 @@ class Group(BaseGroup):
         self.broadcast(
             client_messages.start_session()
         )
+        log_dict = {'gid': self.id}
+        events.push(hfl.start, **log_dict)
         l = prepare(group=self.id, level='exch', typ='start')
         lablog(self.log_file, l)
         self.is_trading = True
@@ -353,7 +355,7 @@ class Group(BaseGroup):
         start_ouch = translate.system_start('S')
         self.send_exchange(start_ouch)
         log_dict = {'gid': self.id, 'context': 'sent system start message'}
-        hfl.events.push(hfl.exchange, **log_dict)
+        events.push(hfl.exchange, **log_dict)
 
     def connect_to_exchange(self):
         try:
@@ -388,8 +390,8 @@ class Group(BaseGroup):
         msg_type, fields = translator.decode(msg)
         if msg_type == 'S':
             event = fields['event_code']
-            log.info('Received system {event}'.format(event=event))
             if event in ['B', 'P']:
+                events.push(hfl.batch)
                 self.broadcast(client_messages.batch(event=event))
             return
         token = fields.get('order_token')
@@ -400,7 +402,7 @@ class Group(BaseGroup):
         if subject == '@':
             if msg_type == 'E':
                 # log investor execution
-                hfl.events.push(hfl.inv_trans, **{'gid': self.id})
+                events.push(hfl.inv_trans, **{'gid': self.id, 'token': token})
             else:
                 # we really do not care about
                 # investor confirm at this point.
@@ -424,10 +426,10 @@ class Group(BaseGroup):
         fires exogenous investors and jumps
         as subprocesses
         """
-        log.info('Group%d: Fire %s.' % (self.id, name))
         cmd = ['python', name, str(self.id), url, data]
         p = subprocess.Popen(cmd)
         subprocesses[self.id][name] = p
+        log.debug('Group%d: Fire %s.' % (self.id, name))
 
     def fp_push(self, price):
         """
@@ -457,9 +459,9 @@ class Group(BaseGroup):
         players = self.get_players()
         # each player will respond to the
         # new fundamental price information.
-        log.info('Group%d: jump to %d !!' % (self.id, new_price))
+        log.debug('Group%d: jump to %d !!' % (self.id, new_price))
         log_dict = {'gid': self.id, 'np': new_price}
-        hfl.events.push(hfl.jump, **log_dict)
+        events.push(hfl.jump, **log_dict)
         
         responses = self._collect_responses(players, new_price)
         # then we shuffle responses and send to the exchange
@@ -490,7 +492,7 @@ class Group(BaseGroup):
             # index 0 is the player id
             move_order = [r[0] for r in true_responses if r[2] is speed]
             log_dict = {'gid': self.id, 'speed':speed, 'move_order': move_order}
-            hfl.events.push(hfl.move_order, **log_dict)
+            events.push(hfl.move_order, **log_dict)
 
     @atomic
     def players_in_market(self, player_id):
@@ -503,7 +505,7 @@ class Group(BaseGroup):
             log.info('Group%d: all players are in market.' % self.id)
             self.subsession.groups_ready(self.id)
         else:
-            log.info('Group%d: %d players are in market.' % (self.id, total))
+            log.debug('Group%d: %d players are in market.' % (self.id, total))
 
     # @atomic
     # def players_in_market(self, player_id=None, init=False):
@@ -563,8 +565,8 @@ class Group(BaseGroup):
 
 
     def loggy(self):
-        hfl.events.convert()
-        hfl.events.dump()
+        events.convert()
+        events.dump()
 
 
 class Player(BasePlayer):
@@ -593,8 +595,7 @@ class Player(BasePlayer):
         state_key = Constants.player_status_key.format(self=self)
         pairs[state_key] = {k: getattr(self, k, None) for k in Constants.player_fields}
         for k, v in pairs.items():
-            cache.set(k, v, timeout=None)  
-        print(pairs)     
+            cache.set(k, v, timeout=None)   
     
     def stage_enter(self, center='fp', side=None, price=None, time_in_force=99999):
         """
@@ -616,7 +617,7 @@ class Player(BasePlayer):
             'gid': self.group_id, 'pid': self.id, 'state': self.status(field='state'),
             'speed': self.status(field='speed'), 'order': order
         }
-        hfl.events.push(hfl.stage_enter, **log_dict)
+        events.push(hfl.stage_enter, **log_dict)
         ouch = [translate.enter(order)]
         return ouch
 
@@ -635,7 +636,7 @@ class Player(BasePlayer):
         }
         if len(msgs) > 1:
             log_dict['root'] = order
-        hfl.events.push(hfl.stage_replace, **log_dict)
+        events.push(hfl.stage_replace, **log_dict)
         return msgs
 
     def _replace(self, order):
@@ -688,7 +689,7 @@ class Player(BasePlayer):
         }
         if len(msgs) > 1:
             log_dict['root'] = order
-        hfl.events.push(hfl.stage_cancel, **log_dict)
+        events.push(hfl.stage_cancel, **log_dict)
         return msgs
 
     def _cancel(self, order):
@@ -725,8 +726,8 @@ class Player(BasePlayer):
         orders_log = {
             'gid': self.group_id, 'pid': self.id, 'orders': orders
         }
-        hfl.events.push(hfl.order_count, **count_log)
-        hfl.events.push(hfl.orders, **orders_log)
+        events.push(hfl.order_count, **count_log)
+        events.push(hfl.orders, **orders_log)
         if len(orders) > 2:     # this has to hold if all works properly.
             log.warning('more than two enter orders: %s.' % orders)
         return orders
@@ -742,7 +743,7 @@ class Player(BasePlayer):
             self.group.send_exchange(msgs, delay=True, speed=self.speed)
         else:
             log_dict = {'gid': self.group_id, 'pid': self.id}
-            hfl.events.push(hfl.no_orders, **log_dict)
+            events.push(hfl.no_orders, **log_dict)
         self.group.broadcast(
             client_messages.spread_change(self.id_in_group)
         )
@@ -780,13 +781,12 @@ class Player(BasePlayer):
             methodname = states[new_state]
             getattr(self, methodname)()
         except KeyError:
-            log.info(new_state)
-            log.info('Player%d: Invalid state update.' % self.id)
+            log.warning('Player%d: Invalid state update: %s' % (self.id, new_state))
         self.group.group_stats(old_state, new_state)
         log_dict = {
                 'gid': self.group_id, 'pid': self.id, 'state': new_state
             }
-        hfl.events.push(hfl.state_update, **log_dict)
+        events.push(hfl.state_update, **log_dict)
         l = prepare(
             group=self.group_id, level='choice', typ='state',
             pid=self.id, nstate=new_state
@@ -804,7 +804,7 @@ class Player(BasePlayer):
         new_spread = int(message['spread'])
         self.status_update(new_spread, field='spread')
         log_dict = {'gid': self.group_id, 'pid': self.id, 'spread': new_spread}
-        hfl.events.push(hfl.spread_update, **log_dict)
+        events.push(hfl.spread_update, **log_dict)
         msgs = self.makers_replace(1)  # replace orders, start from above
         self.group.send_exchange(msgs, delay=True, speed=self.speed)
         l = prepare(
@@ -829,7 +829,7 @@ class Player(BasePlayer):
             total_time = now - start
             self.status_update(total_time, field='speed_on')
         log_dict = {'gid': self.group_id, 'pid': self.id, 'speed': new_speed}
-        hfl.events.push(hfl.speed_update, **log_dict)
+        events.push(hfl.speed_update, **log_dict)
         l = prepare(
             group=self.group_id, level='choice', typ='speed',
             pid=self.id, nspeed=new_speed
@@ -837,11 +837,11 @@ class Player(BasePlayer):
         lablog(self.log_file, l)
 
     def in_market(self, msg):
-        log.info('Group%d: Player%d: In market.' % (self.group_id, self.id))
+        log.debug('Group%d: Player%d: In market.' % (self.group_id, self.id))
         self.group.players_in_market(self.id)
 
     def session_finished(self, msg):
-        log.info('Group%d: Player%d: Ready to advance.' % (self.group_id, self.id))
+        log.debug('Group%d: Player%d: Ready to advance.' % (self.group_id, self.id))
         if self.subsession.trade_ended == False:
             self.group.end_trade(self.id)
 
@@ -918,7 +918,7 @@ class Player(BasePlayer):
         order = orderstore.activate(stamp, order)
         self.save_order_store(orderstore)
         log_dict = {'gid': self.group_id, 'pid': self.id, 'order': order}
-        hfl.events.push(hfl.confirm_enter, **log_dict)
+        events.push(hfl.confirm_enter, **log_dict)
         return order
 
     @atomic
@@ -955,7 +955,7 @@ class Player(BasePlayer):
             'gid': self.group_id, 'pid': self.id,
             'replaced': old_order, 'replacing': new_order,
         }
-        hfl.events.push(hfl.confirm_replace, **log_dict)
+        events.push(hfl.confirm_replace, **log_dict)
         return (old_order, new_order)
 
     @atomic
@@ -982,7 +982,7 @@ class Player(BasePlayer):
         order = orderstore.inactivate(order, 'canceled')
         self.save_order_store(orderstore)
         log_dict = {'gid': self.group_id, 'pid': self.id, 'order': order}
-        hfl.events.push(hfl.confirm_cancel, **log_dict)
+        events.push(hfl.confirm_cancel, **log_dict)
         return order
 
     @atomic
@@ -1013,7 +1013,7 @@ class Player(BasePlayer):
         order = orderstore.inactivate(order, 'executed')
         self.save_order_store(orderstore)
         log_dict = {'gid': self.group_id, 'pid': self.id, 'order': order}
-        hfl.events.push(hfl.confirm_exec, **log_dict)
+        events.push(hfl.confirm_exec, **log_dict)
         return order
     
     def post_execution(self, order, kind='bcs_post_execution'):
@@ -1049,7 +1049,7 @@ class Player(BasePlayer):
             'side': side, 'profit': self.status(field='endowment'), 'fp': fp, 
             'p': exec_price,
         }
-        hfl.events.push(hfl.profit, **log_dict)
+        events.push(hfl.profit, **log_dict)
         l = prepare(
             group=self.group_id, level='market', typ='profit',
             source='cross', pid=self.id, stamp=timestamp,
@@ -1111,7 +1111,7 @@ class Player(BasePlayer):
             'gid': self.group_id, 'pid': self.id,
             'amount': amount, 'delta': delta, 'cost': amount
         }
-        hfl.events.push(hfl.cost, **log_dict)
+        events.push(hfl.cost, **log_dict)
         l = prepare(
             group=self.group_id, level='market', typ='cost',
             source='speed', pid=self.id, stamp=timestamp,
@@ -1278,7 +1278,7 @@ class Investor(Model):
 
     def receive_from_consumer(self, side):
         s = ('buy' if side=='B' else 'sell')
-        log.info('Group%d: investor%d: %s.' % (self.group.id, self.order_count, s))
+        log.debug('Group%d: investor%d: %s.' % (self.group.id, self.order_count, s))
         self.invest(side)
 
     def invest(self, side):
