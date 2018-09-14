@@ -159,7 +159,7 @@ class InputSection extends PolymerElement {
         inputSection.timerSVG = d3.select(inputSection.timerSVGDOM);
         inputSection.drawTimer = this.drawTimer;
         inputSection.startTimer = this.startTimer;
-        console.log(document.querySelector("#maker"));
+        console.log(inputSection.shadow_dom);
         inputSection.drawTimer();
     }
 
@@ -366,10 +366,11 @@ class InputSection extends PolymerElement {
                        .attr("id","timer-line")
                        .style("stroke", "purple")
                        .style("stroke-width", 10);
+                       
 
     timerLine.transition()
             .duration(otreeConstants.batchLength*1100)
-            .attr("x2", inputSection.inputWidth);
+            .attr("x2", inputSection.inputWidth); 
   }
 
    Button_Pressed(input_object){

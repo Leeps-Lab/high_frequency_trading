@@ -127,6 +127,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.addOthersLineAnimation = this.addOthersLineAnimation;
     spreadGraph.drawTransactionBar = this.drawTransactionBar;    
     spreadGraph.drawSpreadBar = this.drawSpreadBar;
+    spreadGraph.updateSmallest = this.updateSmallest;
     spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
     spreadGraph.drawBatchFlash = this.drawBatchFlash;
     spreadGraph.startBatchTimer = this.startBatchTimer;
@@ -148,7 +149,6 @@ class SpreadGraph extends PolymerElement {
                        .style("stroke", "lightgrey")
                        .style("stroke-width", 5);
 
-    // Grey Line in the middle of the spread graph
     var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
                        .attr("x1", 60)
                        .attr("y1", spreadGraph.spread_height/2 )
@@ -158,7 +158,7 @@ class SpreadGraph extends PolymerElement {
                        .style("stroke-width", 3);
 
     if(otreeConstants.FBA == true){
-        //Only draw the batch timer if FBA is true
+
         var batch_timer = spreadGraph.timer_svg.append("svg:line")
                             .attr("x1", 0)
                             .attr("y1", spreadGraph.spread_height - 10)
@@ -167,7 +167,7 @@ class SpreadGraph extends PolymerElement {
                             .style("stroke", "grey")
                             .style("stroke-width", 3);
     }   
-    if(otreeConstants.IEX == true){
+    if(otreeConstants.FBA == true){
        spreadGraph.drawPossibleSpreadTicks();
     }                    
   }
@@ -177,25 +177,28 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.svg_y_offset = spreadGraph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top;
       var role = document.querySelector('info-table').player_role;
         if(role == "MAKER"){
+
+        
             var svg_middle_x = spreadGraph.spread_width / 2;
             var fp_line_y = spreadGraph.spread_height / 2;
-            
+
             var clicked_point = {
-                x:(d3.event.clientX ),
-                y:(d3.event.clientY - spreadGraph.svg_y_offset)
+
+            x:(d3.event.clientX ),
+            y:(d3.event.clientY - spreadGraph.svg_y_offset)
+
             };
 
-            var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
-            var ratio = distance_from_middle / (spreadGraph.spread_height/2);
-            var my_spread = (ratio*otreeConstants.maxSpread).toFixed(0);
 
+            var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
+
+            var ratio = distance_from_middle / (spreadGraph.spread_height/2);
+
+            var my_spread = (ratio*otreeConstants.maxSpread).toFixed(0);
             if(my_spread < otreeConstants.min_spread){
-                //enforce a minimum spread
                 my_spread = otreeConstants.min_spread;
             }   
-
-            if(otreeConstants.IEX == true){
-                //Choose one of the spread lines that
+            if(otreeConstants.FBA == true){  
                 for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
                     if(my_spread < spreadGraph.possibleSpreadLines[i]){
                         my_spread = spreadGraph.possibleSpreadLines[i-1];
@@ -210,7 +213,9 @@ class SpreadGraph extends PolymerElement {
             // document.querySelector('input-section').shadowRoot.querySelector("#maker").click();
             //IF BUTTON IS NOT PRESSED OR ON THEN TURN IT ON AFTER DELAD (Button_Pressed())
                     document.querySelector("input-section").shadowRoot.querySelector("#maker").className = "button-pressed";
+
                     document.querySelector("info-table").setAttribute("player_role","MAKER");
+
                     var timeNow = profitGraph.getTime() - profitGraph.timeOffset;
                     profitGraph.profitSegments.push(
                         {
@@ -261,81 +266,73 @@ class SpreadGraph extends PolymerElement {
                     if(my_spread < otreeConstants.min_spread){
                         my_spread = otreeConstants.min_spread;
                     }
-                    if(otreeConstants.IEX == true){  
-                        for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
-                            if(my_spread < spreadGraph.possibleSpreadLines[i]){
-                                my_spread = spreadGraph.possibleSpreadLines[i-1];
-                                break;
-                            }
-                        }
-                    }
+
                     spreadGraph.sendSpreadChange(my_spread);
                 }
     });
   }
 
   drawPossibleSpreadTicks(){
-    //Draws the possible spread ticks for IEX
-    var temp = parseInt(otreeConstants.min_spread);
-    var svg_middle_y = spreadGraph.spread_height/2;
-    var maxSpread = parseInt(otreeConstants.maxSpread);
-    spreadGraph.possibleSpreadLines = [];
-        for(;temp < maxSpread;){
-            //Every spread price is drawn and so is the price
-            var money_ratio =  maxSpread/temp;
-            var y_coordinate = svg_middle_y/money_ratio;
-            
-            spreadGraph.spread_svg.append("svg:line")
-                .attr("x1", (spreadGraph.spread_width / 2) - 15)
-                .attr("y1", svg_middle_y - y_coordinate)
-                .attr("x2", (spreadGraph.spread_width / 2) + 15)
-                .attr("y2", svg_middle_y - y_coordinate)
-                .attr("stroke-width",1)
-                .attr("class","possible-spread-ticks");
-            
-            spreadGraph.spread_svg.append("svg:line")
-                .attr("x1", (spreadGraph.spread_width / 2) - 15)
-                .attr("y1", svg_middle_y + y_coordinate)
-                .attr("x2", (spreadGraph.spread_width / 2) + 15)
-                .attr("y2", svg_middle_y + y_coordinate)
-                .attr("stroke-width",1)
-                .attr("class","possible-spread-ticks");        
-            
-            spreadGraph.spread_svg.append("text")
-                .attr("text-anchor", "start")
-                .attr("x", (spreadGraph.spread_width / 2) + 17)  
-                .attr("y",  svg_middle_y + y_coordinate  + 3)
-                .attr("class", "price-grid-line-text")
-                .text((temp/10000).toFixed(2));
+      console.log("Called!");
+      var temp = parseInt(otreeConstants.min_spread);
+      var svg_middle_y = spreadGraph.spread_height/2;
+      var maxSpread = parseInt(otreeConstants.maxSpread);
+      spreadGraph.possibleSpreadLines = [];
+    for(;temp < maxSpread;){
+        
+        var money_ratio =  maxSpread/temp;
+        var y_coordinate = svg_middle_y/money_ratio;
+        
+        spreadGraph.spread_svg.append("svg:line")
+            .attr("x1", (spreadGraph.spread_width / 2) - 15)
+            .attr("y1", svg_middle_y - y_coordinate)
+            .attr("x2", (spreadGraph.spread_width / 2) + 15)
+            .attr("y2", svg_middle_y - y_coordinate)
+            .attr("stroke-width",1)
+            .attr("class","possible-spread-ticks");
+        
+        spreadGraph.spread_svg.append("svg:line")
+            .attr("x1", (spreadGraph.spread_width / 2) - 15)
+            .attr("y1", svg_middle_y + y_coordinate)
+            .attr("x2", (spreadGraph.spread_width / 2) + 15)
+            .attr("y2", svg_middle_y + y_coordinate)
+            .attr("stroke-width",1)
+            .attr("class","possible-spread-ticks");        
 
-            spreadGraph.spread_svg.append("text")
-                .attr("text-anchor", "start")
-                .attr("x", (spreadGraph.spread_width / 2) + 17)  
-                .attr("y",  svg_middle_y - y_coordinate + 3)
-                .attr("class", "price-grid-line-text")
-                .text((temp/10000).toFixed(2));
-            
-            spreadGraph.possibleSpreadLines.push(temp);
-            temp = otreeConstants.min_spread + temp;
-        }
+        spreadGraph.spread_svg.append("text")
+            .attr("text-anchor", "start")
+            .attr("x", (spreadGraph.spread_width / 2) + 17)  
+            .attr("y",  svg_middle_y + y_coordinate)
+            .attr("class", "price-grid-line-text")
+            .text((temp/10000) + document.querySelector('info-table').fp);
+
+        spreadGraph.spread_svg.append("text")
+            .attr("text-anchor", "start")
+            .attr("x", (spreadGraph.spread_width / 2) + 17)  
+            .attr("y",  svg_middle_y - y_coordinate)
+            .attr("class", "price-grid-line-text")
+            .text((temp/10000) - document.querySelector('info-table').fp);
+        
+        spreadGraph.possibleSpreadLines.push(temp);
+        temp = otreeConstants.min_spread + temp;
+    }
+    console.log(document);
   }
 
   sendSpreadChange(my_spread = otreeConstants.defaultSpread){
-    //Sending Spread Change over socket 
-    var msg = {
-        type: 'spread_change',
-        id: otreeConstants.playerID ,
-        id_in_group: otreeConstants.playerIDInGroup,
-        spread: my_spread
-    };
-    if (socketActions.socket.readyState === socketActions.socket.OPEN) {
-        socketActions.socket.send(JSON.stringify(msg));
-    }
-    document.querySelector('info-table').spread_value = (my_spread / 10000).toFixed(2);
+      var msg = {
+                type: 'spread_change',
+                id: otreeConstants.playerID ,
+                id_in_group: otreeConstants.playerIDInGroup,
+                spread: my_spread
+            };
+            if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                socketActions.socket.send(JSON.stringify(msg));
+            }
+            document.querySelector('info-table').spread_value = (my_spread / 10000).toFixed(2);
   }
 
   startBatchTimer(){
-      //Batch Timer for FBA
       spreadGraph.spread_svg.append("rect")
         .attr("id", "remove")
         .attr("x", 0)
@@ -347,7 +344,6 @@ class SpreadGraph extends PolymerElement {
   }
 
   updateFBASpreadGraphLines(){
-    //Updating Spread Lines on the spread graph at a time of a batch processed
     spreadGraph.spreadLinesFBABatch = {};
     for(var key in spreadGraph.spreadLinesFBAConcurrent){
         spreadGraph.spreadLinesFBABatch[key] = spreadGraph.spreadLinesFBAConcurrent[key];
@@ -356,6 +352,7 @@ class SpreadGraph extends PolymerElement {
   }
 
   drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){
+
    if(offset == NaN){
     offset = 0;
    }
@@ -627,6 +624,17 @@ class SpreadGraph extends PolymerElement {
             spreadGraph.spread_svg.selectAll("." + bar_color).remove();
         },400);
     }
+    updateSmallest(key){
+      console.log(key +  " this is the key");
+            delete otreeConstants.smallestSpread[key];
+            smallest_spread[-1] = otreeConstants.maxSpread;
+            for(var key in spread_lines){
+                if((spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"]) < smallest_spread["spread"]){
+                    smallest_spread["key"] = key;
+                    smallest_spread["spread"] = spreadGraph.spread_lines[key]["A"] - spreadGraph.spread_lines[key]["B"]
+                }
+            }
+        }
 
     clear(){
       spreadGraph.spread_svg.selectAll(".my_line").remove();
@@ -634,7 +642,6 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
     updateBidAndAsk(FPCDollarAmount,spread_value){
-        //Updating the bid and ask on the info table
         if(document.querySelector("info-table").player_role == "MAKER"){
             var sum = +FPCDollarAmount + +spread_value;
             document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);

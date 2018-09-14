@@ -159,7 +159,6 @@ class InputSection extends PolymerElement {
         inputSection.timerSVG = d3.select(inputSection.timerSVGDOM);
         inputSection.drawTimer = this.drawTimer;
         inputSection.startTimer = this.startTimer;
-        console.log(document.querySelector("#maker"));
         inputSection.drawTimer();
     }
 
@@ -217,7 +216,7 @@ class InputSection extends PolymerElement {
 
        this.Button_Pressed(input_object);
        document.querySelector('info-table').setAttribute("player_role","MAKER"); 
-       document.querySelector('info-table').setAttribute("spread_value",spreadGraph.last_spread.toFixed(2));
+       document.querySelector('info-table').setAttribute("spread_value",spreadGraph.last_spread);
     }
      input_object.path[1].querySelector("#out").className = "button-off";
      input_object.path[1].querySelector("#sniper").className = "button-off";
@@ -366,10 +365,11 @@ class InputSection extends PolymerElement {
                        .attr("id","timer-line")
                        .style("stroke", "purple")
                        .style("stroke-width", 10);
+                       
 
     timerLine.transition()
             .duration(otreeConstants.batchLength*1100)
-            .attr("x2", inputSection.inputWidth);
+            .attr("x2", inputSection.inputWidth); 
   }
 
    Button_Pressed(input_object){
@@ -424,7 +424,5 @@ class InputSection extends PolymerElement {
          input_object.path[0].checked = false;
       }
     }
-
-
 }
 window.customElements.define('input-section', InputSection);
