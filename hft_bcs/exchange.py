@@ -99,6 +99,11 @@ def connect(group, host, port, wait_for_connection=False):
 
 def disconnect(group, host, port):
     addr = '{}:{}'.format(host, port)
-    conn = exchanges[addr].connection
-    del exchanges[addr]
-    conn.transport.loseConnection()
+    try:
+        conn = exchanges[addr].connection
+    except KeyError as e:
+        log.debug('connection already closed.')
+        return
+    else:
+        del exchanges[addr]
+        conn.transport.loseConnection()

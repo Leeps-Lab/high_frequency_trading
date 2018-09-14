@@ -20,7 +20,7 @@ def atomic(func):
             time.sleep(sleep_len)
             c += sleep_len
             if c and printed is False:
-                log.info('%s: key %s is locked.' % (self.id, lock_key))
+                log.info('{}:{}:{} another has the lock.'.format(self, self.id, func.__name__))
                 printed = True
             continue
         out = func(self, *args, **kwargs)
