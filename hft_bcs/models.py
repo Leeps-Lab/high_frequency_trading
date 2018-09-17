@@ -456,7 +456,12 @@ class Group(BaseGroup):
         """
         cmd = ['python', name, str(self.id), url, data]
         p = subprocess.Popen(cmd)
-        subprocesses[self.id][name] = p
+        try:
+            subprocesses[self.id][name] = p
+        except KeyError as e:
+            log.exception(e)
+            subprocesses[self.id] = {}
+            subprocesses[self.id][name] = p
         log.debug('Group%d: Fire %s.' % (self.id, name))
 
     def fp_push(self, price):
