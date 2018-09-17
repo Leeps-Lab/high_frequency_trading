@@ -33,13 +33,17 @@ class index(Page):
 test = {}
 class ResultsWaitPage(WaitPage):
     def after_all_players_arrive(self):
+        subsession = self.subsession
         # take speed cost
         for player in self.group.get_players():
             player.take_cost()
             payoff_for_round = player.calc_payoff()
-            player.participant.payoff += payoff_for_round
-            if player.participant.vars['payoff_round'] == self.round_number:
-                player.participant.vars['real_payoff'] = payoff_for_round
+            if subsession.is_trial is False:
+                if subsession.restore is True and (subsession.first_round == self.round_number):
+                    subsession.restore_payoffs()
+                player.participant.payoff += payoff_for_round
+                if player.participant.vars['payoff_round'] == self.round_number:
+                    player.participant.vars['real_payoff'] = payoff_for_round
         # process output to display
         session_log_file = self.subsession.log_file
         gid = self.group.id

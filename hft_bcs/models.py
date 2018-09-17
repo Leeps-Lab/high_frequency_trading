@@ -19,6 +19,7 @@ from otree.db.models import Model, ForeignKey
 from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
+from otree.models import Session
 from . import client_messages 
 import json
 from django.core.cache import cache
@@ -89,8 +90,8 @@ class Constants(BaseConstants):
     investor_url = 'ws://127.0.0.1:8000/hft_investor/'
     jump_url = 'ws://127.0.0.1:8000/hft_jump/'
 
-    investor_py = os.path.join(os.getcwd(), 'hft_bcs/exos/investor.py')
-    jump_py = os.path.join(os.getcwd(), 'hft_bcs/exos/jump.py')
+    investor_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_events/investor.py')
+    jump_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_events/jump.py')
     
     conversion_factor = 1e4
     session_field_map = {
@@ -100,7 +101,9 @@ class Constants(BaseConstants):
         'batch_length': 'batch_length',
         'has_trial': 'trial',
         'trial_length': 'trial_length',
-        'total_rounds': 'num_rounds'
+        'total_rounds': 'num_rounds',
+        'restore_from': 'restore_from',
+        'restore': 'restore'
     }
     player_field_map = {
         'fp': 'fundamental_price',
@@ -142,6 +145,8 @@ class Subsession(BaseSubsession):
     first_round = models.IntegerField(initial=1)
     last_round = models.IntegerField(initial=0)
     total_rounds = models.IntegerField(initial=0)
+    restore_from = models.CharField()
+    restore = models.BooleanField(initial=False)
 
     def init_cache(self):
         pairs = {}
@@ -181,6 +186,7 @@ class Subsession(BaseSubsession):
         for k, v in Constants.session_field_map.items():
             setattr(self, k, self.session.config[v])
         # determine if this is a special round
+        # trial or last round
         self.first_round = 1 + self.has_trial
         self.last_round = self.total_rounds + self.has_trial
         if self.has_trial and self.round_number == 1:
@@ -237,6 +243,28 @@ class Subsession(BaseSubsession):
             events.push(hfl.end)
             events.dump()
             self.session.advance_last_place_participants()
+    
+    def restore_payoffs(self):
+        """
+        session is otree session objects
+        look up db by session_code
+        set participants' payoffs equal
+        by pairing participant labels
+        """
+        session_to_restore = Session.objects.get(code=self.restore_from)
+        participants = self.session.get_participants()
+        old_participants = session_to_restore.get_participants()
+        for new_p in participants:
+            for old_p in old_participants:
+                try:
+                    if new_p.label == old_p.label:
+                        new_p.payoff = old_p.payoff
+                        new_p.save()
+                except AttributeError:
+                    log.exception('participant label is not set. {}'.format(e))
+                    continue      
+        for p in self.session.get_participants():
+            print(p.payoff)
 
     def save(self, *args, **kwargs):
         """
@@ -455,7 +483,6 @@ class Group(BaseGroup):
         self.fp_push(new_price)
         # broadcast new price to clients
         self.broadcast(client_messages.fp_change(new_price))
-        # wish there was a way to not to do this db query.
         players = self.get_players()
         # each player will respond to the
         # new fundamental price information.

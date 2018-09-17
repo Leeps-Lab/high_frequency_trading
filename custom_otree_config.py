@@ -42,7 +42,6 @@ class CustomOtreeConfig:
             try:
                 config = yaml.load(f)
             except yaml.YAMLError as e:
-                config = False
                 raise e
             else:
                 log.msg('reading custom config: %s.' % path)
@@ -51,6 +50,9 @@ class CustomOtreeConfig:
     
     @classmethod
     def get_all(cls):
+        """
+        reads all files in config folder
+        """
         dirc = cls.sess_conf_dir
         all_files = os.listdir(dirc)
         config_files = [f for f in all_files if f.endswith('.yaml')]
@@ -77,11 +79,10 @@ class CustomOtreeConfig:
     def json_format(self):
         cls = self.__class__
         out = {k[0]: getattr(self, k[0]) for k in cls.yaml_map}
-        constant = {k: v for k, v in cls.constant_required.items()}
         out.update(self.csv_labels)
+        constant = {k: v for k, v in cls.constant_required.items()}
         out.update(constant)
         return out
-
 
     def format_display_name(self):
         pass
@@ -101,6 +102,8 @@ class BCSConfig(CustomOtreeConfig):
         ('trial', ('trial', 'run')),
         ('trial_length', ('trial', 'trial-length')),
         ('num_rounds', ('session', 'num-rounds')),
+        ('restore', ('session', 'restore')),
+        ('restore_from', ('session', 'restore-from')),
         ('design', ('market', 'design')),
         ('exchange_host', ('market', 'matching-engine-host')),
         ('number_of_groups', ('group', 'number-of-groups')),

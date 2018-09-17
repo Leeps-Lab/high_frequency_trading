@@ -29,6 +29,7 @@ parameters:
   speed-cost: 0.022
   batch-length: 3
 session:
+  restore-from: ~
   num-rounds: 4
   display_name: FBA Production
   session_name: fba_3_2_test
