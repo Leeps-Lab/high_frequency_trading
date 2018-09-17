@@ -74,7 +74,6 @@ class OUCHConnectionFactory(ClientFactory):
         l = 'lost connection to exchange at %s: %s' % (self.addr, reason)
         log.msg(l)
         hfl.events.push(hfl.exchange, **{'context': l})
-        connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
         log.msg('failed to connect to exchange at %s: %s' % (self.addr, reason))
@@ -90,7 +89,7 @@ def connect(group, host, port, wait_for_connection=False):
         reactor.connectTCP(host, port, factory)
     else:
         if exchanges[addr].group != group:
-            raise ValueError('exchange at {} already has a group'.format(addr))
+            log.msg('exchange at {} already has a group: {}'.format(addr, exchanges))
         exchanges[addr].group = group
     while not exchanges[addr].connection and wait_for_connection:
         log.msg('waiting for connection to %s...' % addr)
@@ -100,5 +99,11 @@ def connect(group, host, port, wait_for_connection=False):
 
 def disconnect(group, host, port):
     addr = '{}:{}'.format(host, port)
-    exchanges[addr].connection.transport.loseConnection()
-    exchanges[addr].group = None
+    try:
+        conn = exchanges[addr].connection
+    except KeyError as e:
+        log.debug('connection already closed.')
+        return
+    else:
+        del exchanges[addr]
+        conn.transport.loseConnection()

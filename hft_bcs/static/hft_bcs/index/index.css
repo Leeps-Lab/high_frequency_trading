@@ -19,17 +19,20 @@
     .row {
         padding: 0px;
         margin: 0px;
+        width:100%;
     }
     spread-graph{
         width: 20%;
         height:600px;
         margin-left:10px;
         background-color:white;
+        position: static;
     }
     profit-graph{
         width:70%; 
         height:600px; 
-        background-color: white; 
+        background-color: white;
+        position: static;
     }
     input-section{
         margin-top:160px;

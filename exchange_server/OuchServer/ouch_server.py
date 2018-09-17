@@ -75,7 +75,6 @@ class ProtocolMessageServer(object):
         while True:
             try:
                 header_bytes = (await client_reader.readexactly(header_size))
-                print(header_bytes)
             except asyncio.IncompleteReadError:
                 log.info('no more messages; connection terminated')
                 break
@@ -94,7 +93,12 @@ class ProtocolMessageServer(object):
             
     async def send_server_response(self, server_msg):
         client_token = server_msg.meta
-        client_writer = self.clients[client_token].writer
+        try:
+            client_writer = self.clients[client_token].writer
+        except KeyError as e:
+            log.exception(e)
+            log.info('client connection not found.')
+            return
         client_writer.write(bytes(server_msg))
         await client_writer.drain()
 

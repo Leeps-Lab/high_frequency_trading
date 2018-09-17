@@ -9,7 +9,6 @@ groups=$1
 timestamp=$(date +'%Y-%m-%d_%H:%M:%S')
 flag=$2
 
-./stop_all.sh
 
 if [ -z "$1" ];
 then
@@ -18,6 +17,6 @@ fi
 
 for i in `seq $groups`;
 do
-	mkdir -p CDA_DATA
-	python3 run_exchange_server.py --host 0.0.0.0 --port 900$i --mechanism cda  --book_log CDA_DATA/${timestamp}_group_$i.log --${flag} &
+	mkdir -p cda_data
+	python3 run_exchange_server.py --host 0.0.0.0 --port 900$i --mechanism cda  --book_log cda_data/${timestamp}_group_$i.log --${flag} &
 done

@@ -8,9 +8,10 @@ import otree.settings
 import yaml
 from custom_otree_config import BCSConfig
 
-
 CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+POINTS_DECIMAL_PLACES = 2
 
 # the environment variable OTREE_PRODUCTION controls whether Django runs in
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
@@ -25,6 +26,9 @@ INTERNAL_IPS = (
     '0.0.0.0',
     '127.0.0.1',
 )
+EXCHANGE_HOST_NO = os.environ.get("EXCHANGE_GROUP")
+if EXCHANGE_HOST_NO in {None, ''}:
+    EXCHANGE_HOST_NO = "127.0.0.1"
 
 # don't share this with anybody.
 # SECRET_KEY = '{{ secret_key }}'
@@ -51,10 +55,11 @@ DATABASES = {
     )
 }
 
+redis_at = os.environ.get('REDIS_INS', "redis://127.0.0.1:6379/1")
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
+        "LOCATION": redis_at,
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
@@ -151,37 +156,13 @@ mturk_hit_settings = {
     ]
 }
 
-# patch logging to add new level
-
-logging.EXP = logging.DEBUG - 5     # define new log level
-
-logging.addLevelName(logging.EXP, 'EXP')
-
-
-def experiment(self, message, *args, **kws):
-    """
-    sends log record to custom log level
-    """
-    self.log(logging.EXP, message, *args, **kws) 
-
-# define custom filter to filter out non-lab logs
-
-class custom_filter(object):
-    def __init__(self):
-        self.__level = 5    # lower than DEBUG
-
-    def filter(self, logRecord):
-        return logRecord.levelno == self.__level
-
-logging.Logger.experiment = experiment
-logging.custom_filter = custom_filter
-
 # configure logging in json style
 
 today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
-filename_soft = 'hft_bcs/hft_logging/logs/' + today + '.txt'
-filename_exp = 'hft_bcs/hft_logging/logs/exos/' + today + '.txt'
-path = os.path.join(os.getcwd(), )
+exp_logs_dir = 'hft_bcs/hft_logging/experiment_data/'
+logs_dir = 'hft_bcs/hft_logging/logs/'
+name_format = '{directory}_{kind}_{date}'
+filename_soft = name_format.format(directory=logs_dir, kind='soft', date=today)
 
 LOGGING = {
     'version': 1,
@@ -200,16 +181,10 @@ LOGGING = {
             'fmt': '%(message)s',
         }
     },
-
-    'filters': {
-        'lablog': {
-            '()': custom_filter,
-        }
-    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'simple'
         },
         'logfile': {
@@ -218,18 +193,11 @@ LOGGING = {
             'formatter': 'verbose',
             'filename': filename_soft,
         },
-        'explogfile': {
-            'class': 'logging.FileHandler',
-            'level': 'EXP',
-            'formatter': 'json',
-            'filters': ['lablog'],
-            'filename': filename_exp,
-        }
     },
     'loggers': {
         'hft_bcs': {
-            'handlers': ['console', 'logfile', 'explogfile'],
-            'level': 'EXP',
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
             'propagate': False
         }
     }    
@@ -242,7 +210,7 @@ LOGGING = {
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = {
-    'real_world_currency_per_point': 0.00,
+    'real_world_currency_per_point': 0.0001,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['hft_bcs'],
@@ -258,38 +226,10 @@ SESSION_CONFIG_DEFAULTS = {
     'doc': ''
 }
 
-SESSION_CONFIGS = [
-    {
-        'name': 'hft_bcs_1',
-        'display_name': 'Continous Double Auction - 3 Players 1 Group',
-        'num_demo_participants': 3,
-        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
-        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
-        'app_sequence': ['hft_bcs'],
-        'players_per_group': 3,
-        'session_length': 20,
-        'design': 'CDA',
-        'group_matrix': [[1,2,3]],
-        'batch_length': None
-    },
-    {
-        'name': 'hft_bcs_2',
-        'display_name': 'Continous Double Auction - 3 Players 2 Groups',
-        'num_demo_participants': 6,
-        'investors_group_1': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
-        'jumps_group_1': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
-        'investors_group_2': os.path.join(os.getcwd(), 'session_config/test/investors_test.csv'),
-        'jumps_group_2': os.path.join(os.getcwd(), 'session_config/test/jumps_test.csv'),
-        'app_sequence': ['hft_bcs'],
-        'players_per_group': 3,
-        'session_length': 240,
-        'design': 'CDA',
-        'batch_length': None
-    },
-]
+SESSION_CONFIGS = []
 
 bcs_configs = BCSConfig.get_all()
-config_fields = [cf.fields for cf in bcs_configs]
+config_fields = [cf.json_format() for cf in bcs_configs]
 SESSION_CONFIGS.extend(config_fields)
 
 otree.settings.augment_settings(globals())

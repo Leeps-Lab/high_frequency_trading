@@ -19,7 +19,6 @@ class CustomOtreeConfig:
     def __init__(self, filename):
         self.yaml_conf = self.read(filename)
         cls = self.__class__
-        self.fields = {}
         for pair in cls.yaml_map:
             config_key = pair[0]
             key_head = pair[1][0]
@@ -29,14 +28,12 @@ class CustomOtreeConfig:
             except KeyError:
                 log.msg('%s:%s is missing, set to None.' % (key_head, key_sub))
                 config_value = None
-            field = {config_key: config_value}
-            self.fields.update(field)
-        self.fields.update(cls.constant_required)
+            setattr(self, config_key, config_value)
         self.read_csv()
         self.format_display_name()
-        self.format_session_name()
         if hasattr(self, 'read_group_matrix'):
             self.read_group_matrix()
+
 
     def read(self, filename):
         cls = self.__class__
@@ -45,7 +42,6 @@ class CustomOtreeConfig:
             try:
                 config = yaml.load(f)
             except yaml.YAMLError as e:
-                config = False
                 raise e
             else:
                 log.msg('reading custom config: %s.' % path)
@@ -54,30 +50,39 @@ class CustomOtreeConfig:
     
     @classmethod
     def get_all(cls):
+        """
+        reads all files in config folder
+        """
         dirc = cls.sess_conf_dir
         all_files = os.listdir(dirc)
         config_files = [f for f in all_files if f.endswith('.yaml')]
         custom_configs = [cls(f) for f in config_files]
         return custom_configs
-    
-    def get_fields(self):
-        return self.fields
-    
+
     def read_csv(self):
         cls = self.__class__
         dir_field = cls.yaml_map[-1][0] # last field in map
-        folder = self.fields.get(dir_field, None)
+        folder = getattr(self, dir_field)
         if folder is None:
             raise ValueError('session folder name is missing.')
         dirc = os.path.join(cls.conf_dir, folder)
-        fields = {}
+        self.csv_labels = {}
         for field in cls.exogenous_input:
             for k, v in self.yaml_conf[field].items():
-                label = '{field}_{key}'.format(field=field, key=k)
-                csv_name = collect.extract_name(v)
-                csv_path = os.path.join(dirc, csv_name)
-                fields.update({label: csv_path})
-        self.fields.update(fields)
+                for r, f in enumerate(v):
+                    label = '{field}_{key}_round_{round}'.format(field=field, key=k, round=r+1)
+                    csv_name= os.path.join(dirc, f)
+                    self.csv_labels[label] = csv_name
+                    
+               # csv_list = os.path.join(dirc, v)
+    
+    def json_format(self):
+        cls = self.__class__
+        out = {k[0]: getattr(self, k[0]) for k in cls.yaml_map}
+        out.update(self.csv_labels)
+        constant = {k: v for k, v in cls.constant_required.items()}
+        out.update(constant)
+        return out
 
     def format_display_name(self):
         pass
@@ -92,8 +97,13 @@ class BCSConfig(CustomOtreeConfig):
     sess_conf_dir = os.path.join(conf_dir, 'session_configs')
     token = 'fd97e675ca58325e88ea7339ec641bb4a1193548'
     yaml_map = (
-        ('name', ('market', 'design')),
+        ('name', ('session', 'session_name')),
         ('display_name', ('market', 'design')),
+        ('trial', ('trial', 'run')),
+        ('trial_length', ('trial', 'trial-length')),
+        ('num_rounds', ('session', 'num-rounds')),
+        ('restore', ('session', 'restore')),
+        ('restore_from', ('session', 'restore-from')),
         ('design', ('market', 'design')),
         ('exchange_host', ('market', 'matching-engine-host')),
         ('number_of_groups', ('group', 'number-of-groups')),
@@ -115,24 +125,14 @@ class BCSConfig(CustomOtreeConfig):
     exogenous_input = ('investors', 'jumps')
 
     def format_display_name(self):
-        f = self.fields
-        name = """High Frequency Trading - BCS - {}
-            length: {}, groups: {}, players per group: {}, speed cost: {},
-            folder: {} """.format( f['design'], f['session_length'], 
-            f['number_of_groups'], f['players_per_group'], f['speed_cost'], 
-            f['folder'])
-        self.fields['display_name'] = name
-    
-    def format_session_name(self):
-        f = self.fields
-        name = 'HFT_CDA_{}_{}'.format(f['design'], f['folder'])
-        name = name.replace('/', '_')
-        self.fields['name'] = name
+        name = """High Frequency Trading - BCS - {self.design} \n
+            length: {self.session_length}, groups: {self.number_of_groups}, 
+            players per group: {self.players_per_group}, speed cost: {self.speed_cost},
+            folder: {self.folder} """.format(self=self)
+        setattr(self, 'display_name', name)
 
     def read_group_matrix(self):
-        f = self.fields
-        string_matrix = f['group_matrix']
+        string_matrix = getattr(self, 'group_matrix')
         group_matrix = eval(string_matrix)
-        f['group_matrix'] = group_matrix
-        self.fields = f
+        setattr(self, 'group_matrix', group_matrix)
         

@@ -74,7 +74,11 @@ class SortedIndexedDefaultList:
 			return self.index[index].data	
 
 	def remove(self, index):
-		node = self.index[index]
+		try:
+			node = self.index[index]
+		except KeyError as e:
+			log.debug('node at {} already removed'.format(index))
+			return
 		if node == self.start:
 			self.start = node.next
 		else:

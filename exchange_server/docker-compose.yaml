@@ -1,0 +1,67 @@
+  
+version: "3"
+
+services:
+
+  cda-1:
+    build: 
+      context: ./
+      dockerfile: cda_dockerfile
+    container_name: CDA_1
+    image: cda_exchanges
+    environment:
+      NUM_GROUPS: ${NUM_GROUPS}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    read_only: false
+  
+  fba-1:
+    build:
+      context: ./    
+      dockerfile: fba_dockerfile
+    container_name: FBA_1
+    image: fba_exchanges
+    environment:
+      NUM_GROUPS: ${NUM_GROUPS} 
+      BATCH_LENGTH: ${BATCH_LENGTH}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    read_only: false
+
+  cda-2:
+    build: 
+      context: ./
+      dockerfile: cda_dockerfile
+    container_name: CDA_2
+    image: cda_exchanges
+    environment:
+      NUM_GROUPS: ${NUM_GROUPS}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    read_only: false
+  
+  fba-2:
+    build:
+      context: ./    
+      dockerfile: fba_dockerfile
+    container_name: FBA_2
+    image: fba_exchanges
+    environment:
+      NUM_GROUPS: ${NUM_GROUPS} 
+      BATCH_LENGTH: ${BATCH_LENGTH}
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    read_only: false
+

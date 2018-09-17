@@ -1,0 +1,133 @@
+[INFO|2018-09-10 09:42:30,146] [consumers.py:18 -              connect()] Player 62 is connected to Group 41 with in-group id 2.
+[INFO|2018-09-10 09:42:30,214] [consumers.py:18 -              connect()] Player 63 is connected to Group 41 with in-group id 3.
+[INFO|2018-09-10 09:42:31,192] [consumers.py:18 -              connect()] Player 61 is connected to Group 41 with in-group id 1.
+[INFO|2018-09-10 09:42:31,631] [consumers.py:18 -              connect()] Player 65 is connected to Group 42 with in-group id 2.
+[INFO|2018-09-10 09:42:31,757] [consumers.py:18 -              connect()] Player 66 is connected to Group 42 with in-group id 3.
+[INFO|2018-09-10 09:42:31,937] [consumers.py:18 -              connect()] Player 64 is connected to Group 42 with in-group id 1.
+[INFO|2018-09-10 09:42:33,401] [models.py:828 -            in_market()] Group41: Player63: In market.
+[INFO|2018-09-10 09:42:33,406] [models.py:494 -    players_in_market()] Group41: 1 players are in market.
+[INFO|2018-09-10 09:42:34,387] [models.py:828 -            in_market()] Group41: Player62: In market.
+[INFO|2018-09-10 09:42:34,393] [models.py:494 -    players_in_market()] Group41: 2 players are in market.
+[INFO|2018-09-10 09:42:36,440] [models.py:828 -            in_market()] Group42: Player66: In market.
+[INFO|2018-09-10 09:42:36,465] [models.py:494 -    players_in_market()] Group42: 1 players are in market.
+[INFO|2018-09-10 09:42:36,676] [models.py:828 -            in_market()] Group42: Player64: In market.
+[INFO|2018-09-10 09:42:36,683] [models.py:494 -    players_in_market()] Group42: 2 players are in market.
+[INFO|2018-09-10 09:42:37,426] [models.py:828 -            in_market()] Group41: Player61: In market.
+[INFO|2018-09-10 09:42:37,436] [models.py:491 -    players_in_market()] Group41: all players are in market.
+[INFO|2018-09-10 09:42:37,453] [models.py:828 -            in_market()] Group42: Player65: In market.
+[INFO|2018-09-10 09:42:37,460] [models.py:491 -    players_in_market()] Group42: all players are in market.
+[INFO|2018-09-10 09:42:37,469] [models.py:227 -         groups_ready()] session: starting trade, 24.
+[INFO|2018-09-10 09:42:37,479] [models.py:415 -                spawn()] Group41: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-10 09:42:37,502] [models.py:415 -                spawn()] Group41: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-10 09:42:37,706] [models.py:415 -                spawn()] Group42: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-10 09:42:37,719] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-10 09:42:37,726] [models.py:415 -                spawn()] Group42: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-10 09:42:37,876] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-10 09:42:38,399] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:38,400] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:38,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:38,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:41,399] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:41,400] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:41,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:41,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:44,399] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:44,400] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:44,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:44,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:47,399] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:47,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:47,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:47,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:50,399] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:50,400] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:50,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:50,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:53,399] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:53,400] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:53,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:53,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:56,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:56,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:56,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:56,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:59,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:59,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:42:59,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:42:59,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:02,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:02,400] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:02,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:02,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:05,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:05,404] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:05,405] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:05,406] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:08,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:08,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:08,404] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:08,405] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:11,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:11,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:11,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:11,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:14,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:14,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:14,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:14,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:17,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:17,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:17,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:17,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:20,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:20,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:20,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:20,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:23,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:23,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:23,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:23,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:26,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:26,404] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:26,405] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:26,406] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:29,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:29,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:29,404] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:29,405] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:32,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:32,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:32,403] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:32,404] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:35,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:35,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:35,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:35,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:38,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:38,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:38,405] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:38,405] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:41,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:41,401] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:41,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:41,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:44,400] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:44,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:44,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:44,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:47,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:47,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:47,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:47,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:50,403] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:50,404] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:50,404] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:50,405] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:53,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:53,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:53,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:53,403] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:56,401] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:56,402] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-10 09:43:56,402] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-10 09:43:56,403] [models.py:379 - receive_from_exchange()] Received system P

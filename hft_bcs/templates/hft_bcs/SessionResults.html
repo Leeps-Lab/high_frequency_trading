@@ -1,0 +1,41 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block content %}
+<style>
+    h1{
+        text-align:center;
+    }
+    h3{
+        text-align:center;
+    }
+    #container{
+        margin-left:30px;
+        margin-right:30px;
+        margin-top:50px;
+    
+    }
+</style>
+<div id="container">
+    <h1>
+        Your session has completed!
+    </h1>
+    <br>
+    <p>Here are your results, player <strong>{{player.id_in_group}}</strong>:</p>
+
+    <p>
+        You have accumulated <strong>{{player.participant.payoff}}</strong> in experimental currency units (ECU).
+    </p>
+    <!-- maybe some statistics of everyone elses payoff how you did? -->
+    <p>
+        Dollar payoff round is chosen randomly for each participant.
+        Yours were selected as round {{payoff_round}}.
+    </p>
+    <br>
+    <h3> Congratulations, you will receive <strong>{{real_payoff}}</strong> dollars! </h3>
+</div>
+{% endblock %}

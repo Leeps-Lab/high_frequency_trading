@@ -1,0 +1,119 @@
+[INFO|2018-09-09 20:39:19,561] [consumers.py:18 -              connect()] Player 1502 is connected to Group 761 with in-group id 2.
+[INFO|2018-09-09 20:39:19,795] [consumers.py:18 -              connect()] Player 1503 is connected to Group 761 with in-group id 3.
+[INFO|2018-09-09 20:39:20,644] [consumers.py:18 -              connect()] Player 1501 is connected to Group 761 with in-group id 1.
+[INFO|2018-09-09 20:39:20,716] [consumers.py:18 -              connect()] Player 1505 is connected to Group 762 with in-group id 2.
+[INFO|2018-09-09 20:39:20,971] [consumers.py:18 -              connect()] Player 1506 is connected to Group 762 with in-group id 3.
+[INFO|2018-09-09 20:39:21,445] [consumers.py:18 -              connect()] Player 1504 is connected to Group 762 with in-group id 1.
+[INFO|2018-09-09 20:39:22,205] [models.py:828 -            in_market()] Group761: Player1503: In market.
+[INFO|2018-09-09 20:39:22,212] [models.py:494 -    players_in_market()] Group761: 1 players are in market.
+[INFO|2018-09-09 20:39:23,365] [models.py:828 -            in_market()] Group762: Player1505: In market.
+[INFO|2018-09-09 20:39:23,380] [models.py:494 -    players_in_market()] Group762: 1 players are in market.
+[INFO|2018-09-09 20:39:24,304] [models.py:828 -            in_market()] Group761: Player1501: In market.
+[INFO|2018-09-09 20:39:24,311] [models.py:494 -    players_in_market()] Group761: 2 players are in market.
+[INFO|2018-09-09 20:39:25,263] [models.py:828 -            in_market()] Group761: Player1502: In market.
+[INFO|2018-09-09 20:39:25,267] [models.py:491 -    players_in_market()] Group761: all players are in market.
+[INFO|2018-09-09 20:39:26,520] [models.py:828 -            in_market()] Group762: Player1506: In market.
+[INFO|2018-09-09 20:39:26,523] [models.py:494 -    players_in_market()] Group762: 2 players are in market.
+[INFO|2018-09-09 20:39:26,649] [models.py:828 -            in_market()] Group762: Player1504: In market.
+[INFO|2018-09-09 20:39:26,653] [models.py:491 -    players_in_market()] Group762: all players are in market.
+[INFO|2018-09-09 20:39:26,657] [models.py:227 -         groups_ready()] session: starting trade, 24.
+[INFO|2018-09-09 20:39:26,661] [models.py:415 -                spawn()] Group761: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-09 20:39:26,667] [models.py:415 -                spawn()] Group761: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-09 20:39:26,788] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-09 20:39:26,789] [models.py:415 -                spawn()] Group762: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/investor.py.
+[INFO|2018-09-09 20:39:26,816] [models.py:415 -                spawn()] Group762: Fire /Users/tatrickporal/Desktop/LEEPS/otree/oTree_HFT_CDA/hft_bcs/exos/jump.py.
+[INFO|2018-09-09 20:39:26,951] [models.py:379 - receive_from_exchange()] Received system S
+[INFO|2018-09-09 20:39:29,194] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:29,195] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:29,195] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:29,196] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:32,200] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:32,201] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:32,203] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:32,203] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:35,197] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:35,198] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:35,199] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:35,199] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:38,197] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:38,198] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:38,199] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:38,199] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:41,195] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:41,196] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:41,197] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:41,198] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:44,199] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:44,200] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:44,201] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:44,201] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:47,195] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:47,196] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:47,196] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:47,199] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:50,195] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:50,196] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:50,197] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:50,198] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:53,199] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:53,200] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:53,201] [models.py:379 - receive_from_exchange()] Received system B
+[INFO|2018-09-09 20:39:53,202] [models.py:379 - receive_from_exchange()] Received system P
+[INFO|2018-09-09 20:39:54,247] [models.py:832 -     session_finished()] Group762: Player1504: Ready to advance.
+[INFO|2018-09-09 20:39:54,249] [models.py:832 -     session_finished()] Group762: Player1506: Ready to advance.
+[INFO|2018-09-09 20:39:54,251] [models.py:832 -     session_finished()] Group761: Player1502: Ready to advance.
+[INFO|2018-09-09 20:39:54,253] [models.py:832 -     session_finished()] Group761: Player1503: Ready to advance.
+[INFO|2018-09-09 20:39:54,258] [models.py:324 -            end_trade()] Group762: Player1504 flags session end.
+[INFO|2018-09-09 20:39:54,260] [models.py:324 -            end_trade()] Group761: Player1502 flags session end.
+[INFO|2018-09-09 20:39:54,262] [decorators.py:23 -              atomize()] 762: key q718o3ut_lock is locked.
+[INFO|2018-09-09 20:39:54,266] [decorators.py:23 -              atomize()] 761: key 3niw7s9z_lock is locked.
+[INFO|2018-09-09 20:39:54,282] [decorators.py:23 -              atomize()] 251: key n8q7dit9_lock is locked.
+[INFO|2018-09-09 20:39:54,283] [models.py:324 -            end_trade()] Group761: Player1503 flags session end.
+[INFO|2018-09-09 20:39:54,289] [models.py:232 -         groups_ready()] session: advancing all players to results page.
+[INFO|2018-09-09 20:39:54,291] [models.py:832 -     session_finished()] Group762: Player1505: Ready to advance.
+[INFO|2018-09-09 20:39:54,301] [models.py:832 -     session_finished()] Group761: Player1501: Ready to advance.
+[INFO|2018-09-09 20:39:57,352] [consumers.py:28 -       raw_disconnect()] Player 1501 disconnected from Group 761.
+[INFO|2018-09-09 20:39:57,413] [results.py:183 -             __init__()] {1501: < BCSPlayer 1501:out:None>, 1502: < BCSPlayer 1502:out:None>, 1503: < BCSPlayer 1503:out:None>}
+[DEBUG|2018-09-09 20:39:57,414] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-09 20:39:57,414] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-09 20:39:57,414] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-09 20:39:57,415] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-09 20:39:57,415] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-09 20:39:57,415] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-09 20:39:57,415] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-09 20:39:57,416] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-09 20:39:57,416] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-09 20:39:57,416] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-09 20:39:57,416] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-09 20:39:57,417] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-09 20:39:57,417] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-09 20:39:57,418] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-09 20:39:57,418] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-09 20:39:57,418] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-09 20:39:57,419] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-09 20:39:57,419] [results.py:273 -                  off()] fast_sniper role is already off.
+[INFO|2018-09-09 20:39:57,723] [consumers.py:28 -       raw_disconnect()] Player 1502 disconnected from Group 761.
+[INFO|2018-09-09 20:39:57,965] [consumers.py:28 -       raw_disconnect()] Player 1503 disconnected from Group 761.
+[INFO|2018-09-09 20:39:58,184] [consumers.py:28 -       raw_disconnect()] Player 1504 disconnected from Group 762.
+[INFO|2018-09-09 20:39:58,599] [results.py:183 -             __init__()] {1504: < BCSPlayer 1504:out:None>, 1505: < BCSPlayer 1505:out:None>, 1506: < BCSPlayer 1506:out:None>}
+[DEBUG|2018-09-09 20:39:58,600] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-09 20:39:58,600] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-09 20:39:58,600] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-09 20:39:58,600] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-09 20:39:58,603] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-09 20:39:58,604] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-09 20:39:58,604] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-09 20:39:58,604] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-09 20:39:58,606] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-09 20:39:58,606] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-09 20:39:58,606] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-09 20:39:58,607] [results.py:273 -                  off()] fast_sniper role is already off.
+[DEBUG|2018-09-09 20:39:58,607] [results.py:273 -                  off()] slow_inside role is already off.
+[DEBUG|2018-09-09 20:39:58,607] [results.py:273 -                  off()] slow_outside role is already off.
+[DEBUG|2018-09-09 20:39:58,607] [results.py:273 -                  off()] slow_sniper role is already off.
+[DEBUG|2018-09-09 20:39:58,607] [results.py:273 -                  off()] fast_inside role is already off.
+[DEBUG|2018-09-09 20:39:58,607] [results.py:273 -                  off()] fast_outside role is already off.
+[DEBUG|2018-09-09 20:39:58,607] [results.py:273 -                  off()] fast_sniper role is already off.
+[INFO|2018-09-09 20:39:58,935] [consumers.py:28 -       raw_disconnect()] Player 1505 disconnected from Group 762.
+[INFO|2018-09-09 20:39:59,015] [models.py:324 -            end_trade()] Group762: Player1506 flags session end.
+[INFO|2018-09-09 20:39:59,283] [consumers.py:28 -       raw_disconnect()] Player 1506 disconnected from Group 762.

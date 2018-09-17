@@ -1,25 +1,27 @@
 from ..utility import nanoseconds_since_midnight as labtime
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
-author = "hasan ali demirci"
-
-"""
-these will format logs as strings
-this module will change frequently
-"""
-
+round_start = 0
 
 def base_row(**kwargs):
     base_row = dict()
     # converting to milliseconds for readability
-    base_row['time'] = int(labtime() / 1e6)
+    round_start = kwargs.get('round_start', 0)
+    base_row['time'] = _timestamp(round_start)
     base_row['group'] = kwargs.get('gid', '00')
     base_row['event'] = ''
     base_row['player'] = '00'
     base_row['context'] = ''
     return base_row
 
+def _timestamp(round_start):
+    delta = labtime() - round_start
+    ms, _ = divmod(delta, 1e6)
+    s, ms = divmod(ms, 1e3)
+    m, s = divmod(s, 60)
+    ts = '{}:{}.{}'.format(int(m), int(s), int(ms))
+    return ts
 
 def exchange(**kwargs):
     row = base_row(**kwargs)
@@ -27,6 +29,23 @@ def exchange(**kwargs):
     row['context'] = kwargs['context']
     return row
 
+def start(**kwargs):
+    row = base_row(**kwargs)
+    row['event'] = 'session start'
+    row['context'] = 'sent start message to clients.'
+    return row
+
+def end(**kwargs):
+    row = base_row(**kwargs)
+    row['event'] = 'session end'
+    row['context'] = 'advancing players to next page.'
+    return row
+
+def batch(**kwargs):
+    row = base_row(**kwargs)
+    row['event'] = 'batch'
+    row['context'] = 'batch message'
+    return row
 
 def group_delay(**kwargs):
     row = base_row(**kwargs)
@@ -38,7 +57,8 @@ def inv_trans(**kwargs):
     row = base_row(**kwargs)
     row['event'] = 'transaction'
     row['player'] = '@'
-    row['context'] = 'investor transacted.'
+    token = kwargs['token']
+    row['context'] = 'investor order {} transacted.'.format(token)
     return row
 
 def jump(**kwargs):
@@ -287,8 +307,7 @@ def cost(**kwargs):
     row['player'] = kwargs['pid']
     cost = kwargs['cost']
     delta = kwargs['delta']
-    unit_cost = kwargs['nanocost']
-    row['context'] = 'take cost {:.2}. <delta:{}|unitcost:{:.2}>'.format(cost, delta, unit_cost)
+    row['context'] = 'take cost {:.2}. <delta:{}>'.format(cost, delta)
     return row
 
 def no_orders(**kwargs):

@@ -16,8 +16,8 @@ __pycache__/
 *.log
 *.vscode
 reset*
-!investors*.csv
-!jumps*.csv
+hft_bcs/hft_logging/experiment_data/*
+hft_bcs/hft_logging/market_events/*
+hft_bcs/hft_logging/logs/*
+!session_config/*.csv
 !__temp_static_root
-channels/
-otree-core-hft/

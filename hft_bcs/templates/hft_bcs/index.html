@@ -27,29 +27,39 @@
     <div class="overlay"></div>
 <script>
     //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
-    let oTreeConstants = {};
+    let otreeConstants = {};
 
     (function(){
-
+        var origin = window.location.origin;
         var Static_Files = {
-            polymer: "/static/hft_bcs/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
+           //polymer: "/static/hft_bcs/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
             input_section: "/static/hft_bcs/input-section/input-section.js",
             spread_graph: "/static/hft_bcs/spread-graph/spread-graph.js",
-            profit_graph: "/static/hft_bcs/profit-graph/profit-graph.js",
+            profitGraph: "/static/hft_bcs/profit-graph/profit-graph.js",
             info_table: "/static/hft_bcs/info-table/info-table.js"
         };
 
         var static_file;
         for(var key in Static_Files){
-            static_file = Static_Files[key];
-            $.get(static_file)
-                .done(function() { 
-                }).fail(function() { 
-                    location.reload();
+            temp = Static_Files[key];
+            var static_file = origin + temp;
+            $.ajax({
+                type: 'GET',
+                url:static_file,
+                success: function(data){
+                    console.log(static_file + " has been loaded");
+                    // $(data).find("a:contains('.js')").each(function(){
+                    //     // will loop through
+                    //     console.log("second data");
+                    //     console.log(this);
+                    //     listed_files.push(this);
+                    // });
+       
+                }
             });
         }
-        console.log("All files loaded");
-        oTreeConstants.file_ready = true;
+
+        otreeConstants.fileReady = true;
         
     }());
 </script>
@@ -74,47 +84,63 @@
 //All socket actions are stored in this object to be used in the seperated js files
 let socketActions = {};
 
-let Spread_Graph = {};
+let spreadGraph = {};
 
-let Profit_Graph = {};
+let profitGraph = {};
 
-let Input_Section = {};
+let inputSection = {};
 
 (function(){
 
 /*  
 IMPORTANT:
-Constant, Player, and Group Information from oTree stored in the oTreeConstants objects
+Constant, Player, and Group Information from oTree stored in the otreeConstants objects
 */
-    oTreeConstants.group_id = {{group.id}};
-    oTreeConstants.player_id = {{player.id}};
-    oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
-    oTreeConstants.max_spread = {{player.max_spread}}; 
-    oTreeConstants.default_spread = {{player.spread}};
-    oTreeConstants.starting_wealth = {{player.profit}};
-    oTreeConstants.startFP = {{player.default_fp}}; 
-    oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
-    oTreeConstants.round_length = {{subsession.round_length}};
-    oTreeConstants.timeOffset = 0; 
-    oTreeConstants.speed_cost = {{player.speed_cost}};
-    oTreeConstants.end_msg = "off";
-    
+    otreeConstants.groupID = {{group.id}};
+    otreeConstants.playerID = {{player.id}};
+    otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
+    otreeConstants.maxSpread = {{player.max_spread}}; 
+    otreeConstants.defaultSpread = {{player.spread}};
+    otreeConstants.startingWealth = {{player.endowment}};
+    otreeConstants.startFP = {{player.fp}}; 
+    otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
+    otreeConstants.min_spread = 1000;
+    otreeConstants.roundLength = {{subsession.round_length}};
+    otreeConstants.timeOffset = 0; 
+    otreeConstants.speedCost = {{player.speed_unit_cost}};
+    otreeConstants.endMsg = "off";
+    otreeConstants.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
+    otreeConstants.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
+    otreeConstants.CDA = false; //Continuous Double Auction
+    otreeConstants.FBA = false; //Frequent Batch Auction
+    otreeConstants.IEX = false; //Continuous Double Auction
+    otreeConstants.FBAGraph = false;  //Turns to true when first batch comes in for FBA and the profit graph begins 
+    otreeConstants.sync = false;      //When player syncs at beginning  of expirement this is turned to true
+
+    if(otreeConstants.design == "CDA"){
+        otreeConstants.CDA  = true; 
+    } else if(otreeConstants.design == "FBA"){
+        otreeConstants.FBA = true;
+    } else if(otreeConstants.design == "IEX"){
+        otreeConstants.IEX = true;
+    }
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
 */
     //SPREAD GRAPH
-    Spread_Graph.spread_width = document.querySelector("spread-graph").clientWidth;
-    Spread_Graph.spread_height = document.querySelector("spread-graph").clientHeight;
-    Spread_Graph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
-    Spread_Graph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
-    Spread_Graph.spread_lines = {};
-    Spread_Graph.last_spread =  oTreeConstants.default_spread;
+    spreadGraph.spread_width = document.querySelector("spread-graph").clientWidth;
+    spreadGraph.spread_height = document.querySelector("spread-graph").clientHeight;
+    spreadGraph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
+    spreadGraph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
+    spreadGraph.spread_lines = {};
+    spreadGraph.spreadLinesFBAConcurrent = {}; //Holds a running map of the spread lines
+    spreadGraph.spreadLinesFBABatch = {};      //Holds all the lines from the last batch to figure out smallest spread
+    spreadGraph.last_spread =  otreeConstants.defaultSpread/10000;
 
     //PROFIT GRAPH
-    Profit_Graph.profit_width = document.querySelector("profit-graph").clientWidth;
-    Profit_Graph.profit_height = document.querySelector("profit-graph").clientHeight;
-
+    profitGraph.profit_width = document.querySelector("profit-graph").clientWidth;
+    profitGraph.profit_height = document.querySelector("profit-graph").clientHeight;
 
 /*
 In order for our Shadow DOM Elements to be acessable in javascript we must set the mode to 'open', 'closed' is the other option and would restrict access to the Shadow DOM Elements. Since they are now open we can access them with js in their corressponding .js files
@@ -150,162 +176,143 @@ Socket Actions
         var fund_price = document.querySelector('info-table').fp;
         var obj = jQuery.parseJSON(event.data);
         var spread = document.querySelector("info-table").spread_value;
-
-
+       
         if(obj.FPC != undefined){
-            Spread_Graph.drawMySpreadLines({}, 0, {}, true);
-            
-            var difference = fund_price - obj.FPC;
+
+            spreadGraph.drawMySpreadLines({}, 0, {}, true);
+            var difference = (obj.FPC - fund_price)/100000;
+
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
-            Spread_Graph.updateBidAndAsk(FPCDollarAmount,spread);
-            Spread_Graph.clear();
-            Spread_Graph.drawMySpreadLines({}, difference / 10);
-            for(var key in Spread_Graph.spread_lines){
+            spreadGraph.updateBidAndAsk(FPCDollarAmount,spread);
 
-                for(var token in Spread_Graph.spread_lines[key]){
-                    Spread_Graph.spread_lines[key][token] -= parseInt(difference);
-                    Spread_Graph.spread_lines[key][token] -= parseInt(difference);
+            spreadGraph.drawMySpreadLines({}, (difference == NaN) ? 0 : difference);
+            for(var key in spreadGraph.spread_lines){
+                for(var token in spreadGraph.spread_lines[key]){
+                    spreadGraph.spread_lines[key][token] -= parseInt(difference);
+                    spreadGraph.spread_lines[key][token] -= parseInt(difference);
                 }
             }
-            window.setTimeout(function(){
-                Spread_Graph.clear();
-                Spread_Graph.drawMySpreadLines({}, 0);
-            },500);
         }else if(obj.EXEC != undefined){
-            var timeNow = Profit_Graph.getTime() - oTreeConstants.timeOffset;
+            var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
             var exec = {};
             exec["player"] = obj.EXEC.id;
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
 
-            Spread_Graph.clear();
-            Spread_Graph.drawMySpreadLines({}, 0, exec);
-          
-            if(obj.EXEC.id == oTreeConstants.player_id_in_group){
-                
-                Profit_Graph.profitJumps.push(
+            spreadGraph.drawMySpreadLines({}, 0, exec);
+    
+            if(obj.EXEC.id == otreeConstants.playerIDInGroup){         
+                profitGraph.profitJumps.push(
                     {
                         timestamp:timeNow,
-                        oldProfit:Profit_Graph.profit,
-                        newProfit:Profit_Graph.profit + obj.EXEC.profit, 
+                        oldProfit:profitGraph.profit,
+                        newProfit:profitGraph.profit + obj.EXEC.profit, 
                     }
                 );
 
-                Profit_Graph.profit += obj.EXEC.profit;
-                Profit_Graph.profitSegments.push(
+                profitGraph.profit += obj.EXEC.profit;
+                profitGraph.profitSegments.push(
                     {
                         startTime:timeNow,
                         endTime:timeNow, 
-                        startProfit:Profit_Graph.profit, 
-                        endProfit:Profit_Graph.profit,
+                        startProfit:profitGraph.profit, 
+                        endProfit:profitGraph.profit,
                         state:document.querySelector('info-table').player_role
                     }
                 )   
-            }
-        } else if(obj.SPRCHG != undefined) {
-            var player_id = parseInt(oTreeConstants.player_id_in_group);
-            var smallest_spread = [-1, Number.MAX_SAFE_INTEGER];
-            Spread_Graph.clear();
+            } 
+        }else if(obj.SPRCHG != undefined) {
+            // Number.MAX_SAFE_INTEGER
+            var player_id = parseInt(otreeConstants.playerIDInGroup);
+            var smallest_spread = [-1,Infinity];
+
             for(var key in obj.SPRCHG){
-
-                delete Spread_Graph.spread_lines[key];
-                if(obj.SPRCHG[key] == 0){
-                    // Maker has left the market, and needs to set the boolean
-                    delete obj.SPRCHG[key];
+                var incomingSpread;
+                var incomingSpread = (obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"])/10000;
+                if(key == player_id && obj.SPRCHG[key] != 0 ){
+                    spreadGraph.last_spread = incomingSpread;
                 }
+                delete spreadGraph.spread_lines[key];
+                spreadGraph.spreadLinesFBAConcurrent[key] = obj.SPRCHG[key];
 
+                if(obj.SPRCHG[key] == 0){
+                    // Maker has left the market so remove that maker tick
+                    spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
+                    spreadGraph.spread_svg.selectAll(".others_line_bottom_" + key).remove();
+                    delete spreadGraph.spreadLinesFBAConcurrent[key];
+                    delete obj.SPRCHG[key];
+                } 
                 // process all new spreads  after the zeros have been removed
-                var spread = obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"];
-                Spread_Graph.last_spread = spread;
-                if(spread < 0){
+                if(incomingSpread < 0){
                     console.error("Invalid spread calculation from a SPRCHG msg", obj.SPRCHG);
                 }
-                
-                if(spread < smallest_spread[1]){
+
+                if(incomingSpread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
-                    smallest_spread[1] = spread;
+                    smallest_spread[1] = incomingSpread;
                 }
-
-
+            }
+            var lineParser = spreadGraph.spread_lines;
+            if(otreeConstants.FBA){
+                lineParser = spreadGraph.spreadLinesFBAConcurrent;
             }
 
-            for(var key in Spread_Graph.spread_lines){
+            for(var key in lineParser){
                 // process all new spreads  after the zeros have been removed
-                var spread = Spread_Graph.spread_lines[key]["A"] - Spread_Graph.spread_lines[key]["B"];
-                
+                var spread = (lineParser[key]["A"] - lineParser[key]["B"])/10000;
                 if(spread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
                     smallest_spread[1] = spread;
                 }
-
             }
-
             if(smallest_spread[0] == player_id){
-                Spread_Graph.smallest_spread = true;
+                spreadGraph.smallest_spread = true;
             }else{
-                Spread_Graph.smallest_spread = false;
+                spreadGraph.smallest_spread = false;
             }
-            Spread_Graph.drawMySpreadLines(obj.SPRCHG);
+
+        if(otreeConstants.CDA == true || obj.SPRCHG[player_id] != undefined){
+            spreadGraph.drawMySpreadLines(obj.SPRCHG);
+        }
+        }else if(obj.SYNC != undefined){
+            console.log("Recieved SYNC");
+            otreeConstants.sync = true; 
+            startExperiment();
             
-        } else if(obj.SYNC != undefined){
-            Profit_Graph.adminStartTime = Profit_Graph.getTime();
-
-            Profit_Graph.profitSegments = [
-                {
-                    startTime:Profit_Graph.adminStartTime,
-                    endTime:Profit_Graph.adminStartTime, 
-                    startProfit:Profit_Graph.profit, 
-                    endProfit:Profit_Graph.profit,
-                    state:"OUT"
-                }
-            ];
-
-            Profit_Graph.init(oTreeConstants.startFP, Profit_Graph.startingWealth, "secondTick");
-            requestAnimationFrame(Profit_Graph.draw);
-
-                /** Initializing all info table values **/
-            document.querySelector('info-table').setAttribute("player_id","{{player.id_in_group}}");
-            document.querySelector('info-table').setAttribute("period_id","1"); 
-            document.querySelector('info-table').setAttribute("speed_cost","0"); 
-            document.querySelector('info-table').setAttribute("num_traders","0"); 
-            document.querySelector('info-table').setAttribute("player_role","OUT"); 
-            document.querySelector('info-table').setAttribute("spread_value","N/A");     
-            document.querySelector('info-table').setAttribute("num_makers","0"); 
-            document.querySelector('info-table').setAttribute("num_snipers","0"); 
-            document.querySelector('info-table').setAttribute("profit",oTreeConstants.starting_wealth*(1-4)); 
-            document.querySelector('info-table').setAttribute("fp"," "+ {{player.fp}} * (1e-4) + " "); 
-            document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
-            document.querySelector('info-table').setAttribute("curr_ask","N/A");
-            document.querySelector('info-table').setAttribute("group_id","{{player.group_id}}");
-
-            document.querySelector(".overlay").style.opacity = 0;
-            document.querySelector(".overlay").style.pointerEvents = 'none';
-                
-            window.setTimeout(function(){
-                Profit_Graph.clear();
-                Spread_Graph.clear();
-                oTreeConstants.end_msg = "on";
-                var msg = {
-                    type: 'advance_me',
-                };
-                oTreeConstants.end_msg = msg;    
-                if (socketActions.socket.readyState === socketActions.socket.OPEN) {
-                    socketActions.socket.send(JSON.stringify(msg));
-                }
-                document.querySelector(".overlay").style.opacity = 0.95;
-                document.querySelector(".overlay").style.pointerEvents = 'all';
-                document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Session, calculating results!</h1>";
-            }, oTreeConstants.round_length * 1000);
-
         } else if(obj.TOTAL != undefined){
-            // PLayer State Change message from the backend
+
+            // Player State Change message from the backend
             var total_makers = obj.TOTAL.MAKER;
             var total_snipers = obj.TOTAL.SNIPER;
             var total_out = obj.TOTAL.OUT;
             var total_traders = total_makers + total_snipers;
             document.querySelector("info-table").num_traders = total_traders;
             document.querySelector("info-table").num_makers = total_makers;
+     
+        } else if(obj.BATCH == "P"){
+            //Plot the most current spread lines then update the saved batch lines
+            spreadGraph.updateFBASpreadGraphLines();
+            //Flash Spread Graph
+            spreadGraph.drawBatchFlash();
+        } else if(obj.BATCH == "B"){
+            inputSection.startTimer();
+            if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
+                document.querySelector(".overlay").style.pointerEvents = 'none';
+                profitGraph.adminStartTime = profitGraph.getTime();
+                profitGraph.profitSegments = [
+                    {
+                        startTime:profitGraph.adminStartTime,
+                        endTime:profitGraph.adminStartTime, 
+                        startProfit:profitGraph.profit, 
+                        endProfit:profitGraph.profit,
+                        state:"OUT"
+                    }
+                ];
+                profitGraph.init(otreeConstants.startFP, profitGraph.startingWealth, "secondTick");
+                requestAnimationFrame(profitGraph.draw);
+                otreeConstants.FBAGraph = true;
+            }
         }
     };
 
@@ -314,32 +321,87 @@ Socket Actions
         console.log('disconnected from oTree');
     };
 
-
-    if(oTreeConstants.file_ready == true){
-        window.setTimeout(function(){
-            console.log("Sending");
+    function startExperiment(){
+            if(otreeConstants.CDA == true && otreeConstants.FBA == false){
+                profitGraph.adminStartTime = profitGraph.getTime();
+                profitGraph.profitSegments = [
+                    {
+                        startTime:profitGraph.adminStartTime,
+                        endTime:profitGraph.adminStartTime, 
+                        startProfit:profitGraph.profit, 
+                        endProfit:profitGraph.profit,
+                        state:"OUT"
+                    }
+                ];
+                profitGraph.init(otreeConstants.startFP, profitGraph.startingWealth, "secondTick");
+                requestAnimationFrame(profitGraph.draw);
+            }
             
-            oTreeConstants.group_id = {{group.id}};
-            oTreeConstants.player_id = {{player.id}};
-            oTreeConstants.player_id_in_group = {{player.id_in_group}}; 
-            oTreeConstants.speed_cost = {{Constants.long_delay}};
-            oTreeConstants.max_spread = {{player.max_spread}}; 
-            oTreeConstants.default_spread = {{player.spread}};
-            oTreeConstants.starting_wealth = {{player.profit}};
-            oTreeConstants.startFP = {{player.default_fp}}; 
-            oTreeConstants.smallest_spread = {"key":-1, "spread":oTreeConstants.max_spread};
-            oTreeConstants.round_length = {{subsession.round_length}};
-            oTreeConstants.speed_cost = {{player.speed_cost}} * (1e-9);
+            /** Initializing all info table values **/
+            document.querySelector('info-table').setAttribute("player_id","{{player.id_in_group}}");
+            document.querySelector('info-table').setAttribute("period_id","1"); 
+            document.querySelector('info-table').setAttribute("speed_cost","0"); 
+            document.querySelector('info-table').setAttribute("num_traders","0"); 
+            document.querySelector('info-table').setAttribute("player_role","OUT"); 
+            document.querySelector('info-table').setAttribute("spread_value","N/A");     
+            document.querySelector('info-table').setAttribute("num_makers","0"); 
+            document.querySelector('info-table').setAttribute("num_snipers","0"); 
+            document.querySelector('info-table').setAttribute("profit",otreeConstants.startingWealth*(1-4)); 
+            document.querySelector('info-table').setAttribute("fp"," "+ {{player.fp}} * (1e-4) + " "); 
+            document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
+            document.querySelector('info-table').setAttribute("curr_ask","N/A");
+            document.querySelector('info-table').setAttribute("group_id","{{player.group_id}}");
+
+            document.querySelector(".overlay").style.opacity = 0;
+            if(!otreeConstants.FBA){
+                document.querySelector(".overlay").style.pointerEvents = 'none';
+            }
+            window.setTimeout(function(){
+                profitGraph.clear();
+                spreadGraph.clear();
+                otreeConstants.endMsg = "on";
+                var msg = {
+                    type: 'advance_me',
+                };
+                console.log("Advance to results");
+                otreeConstants.endMsg = msg;    
+                if (socketActions.socket.readyState === socketActions.socket.OPEN) {
+                    socketActions.socket.send(JSON.stringify(msg));
+                }
+                document.querySelector(".overlay").style.opacity = 0.95;
+                document.querySelector(".overlay").style.pointerEvents = 'all';
+                document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Session, calculating results!</h1>";
+            }, otreeConstants.roundLength * 1000);
+    }
+
+
+    if(otreeConstants.fileReady == true){
+        window.setTimeout(function(){
+                playerReady();  
+        },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
+    }
+
+    function playerReady(){
+            otreeConstants.groupID = {{group.id}};
+            otreeConstants.playerID = {{player.id}};
+            otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
+            otreeConstants.maxSpread = {{player.max_spread}}; 
+            otreeConstants.defaultSpread = {{player.spread}};
+            otreeConstants.startingWealth = {{player.endowment}};
+            otreeConstants.startFP = {{player.fp}}; 
+            otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
+            otreeConstants.roundLength = {{subsession.round_length}};
+            otreeConstants.speedCost = {{player.speed_unit_cost}} * (1e-9);
 
             var msg = {
                 type: 'player_ready',
             };
-    
+            console.log("Sending Player Ready");
             if (socketActions.socket.readyState === socketActions.socket.OPEN) {
                 socketActions.socket.send(JSON.stringify(msg));
             }
-        },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
     }
+
 }());
 
 </script>
