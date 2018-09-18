@@ -284,11 +284,11 @@ class ProfitGraph extends PolymerElement {
             profitGraph.profitPriceLines = profitGraph.calcPriceGridLines(profitGraph.maxPriceProfit, profitGraph.minPriceProfit, profitGraph.profitPriceGridIncrement);
             //adjust per frame what the max and min should be
             if (profitGraph.centerPriceProfit > curCenterProfit) {
-               var diff =  (profitGraph.centerPriceProfit - curCenterProfit)/10000;
-           
+               var diff = (profitGraph.centerPriceProfit - curCenterProfit)/10000;
                profitGraph.maxPriceProfit += profitGraph.graphAdjustSpeedProfit * diff;
                profitGraph.minPriceProfit += profitGraph.graphAdjustSpeedProfit * diff;
             } else {
+                var diff =  Math.abs(profitGraph.centerPriceProfit - curCenterProfit)/10000;
                profitGraph.maxPriceProfit -= profitGraph.graphAdjustSpeedProfit * diff;
                profitGraph.minPriceProfit -= profitGraph.graphAdjustSpeedProfit * diff;
             }

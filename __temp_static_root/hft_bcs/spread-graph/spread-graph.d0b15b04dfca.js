@@ -447,11 +447,11 @@ class SpreadGraph extends PolymerElement {
                     spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
                     your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
                         .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", svg_middle_y + y_coordinate + offset)
+                        .attr("y1", svg_middle_y + y_coordinate)
                         .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", svg_middle_y + y_coordinate + offset)
+                        .attr("y2", svg_middle_y + y_coordinate)
                         .attr("stroke-width",3)
-                        .attr("class","my_line my_line_bottom");
+                        .attr("class","my_line my_line_top");
 
                     lines.push(your_spread_line_top);
                 } else if(exec.player == key && exec.side == "S") {
@@ -464,11 +464,11 @@ class SpreadGraph extends PolymerElement {
                     spreadGraph.spread_svg.selectAll(".my_line_top").remove();       
                     your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
                         .attr("x1", spreadGraph.spread_width)
-                        .attr("y1",  svg_middle_y - y_coordinate + offset)
+                        .attr("y1",  svg_middle_y - y_coordinate )
                         .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2",  svg_middle_y - y_coordinate + offset)
+                        .attr("y2",  svg_middle_y - y_coordinate )
                         .attr("stroke-width",3)
-                        .attr("class","my_line my_line_top");
+                        .attr("class","my_line my_line_bottom");
                     
                     lines.push(your_spread_line_bottom);
                 }else if(exec.player == key && exec.side == "B"){
@@ -490,9 +490,9 @@ class SpreadGraph extends PolymerElement {
                 var lines = [];
                 //Where the grey middle line is
                 var svg_middle_y = spreadGraph.spread_height/2;
-                var my_spread = parseInt(lineParser[key]["A"] - lineParser[key]["B"]);
-                var money_ratio =  otreeConstants.maxSpread/my_spread;
-                var y_coordinate = svg_middle_y/money_ratio;
+                my_spread = parseInt(lineParser[key]["A"] - lineParser[key]["B"]);
+                money_ratio =  otreeConstants.maxSpread/my_spread;
+                y_coordinate = svg_middle_y/money_ratio;
                 //Ratio between the distance and the mid
 
 
