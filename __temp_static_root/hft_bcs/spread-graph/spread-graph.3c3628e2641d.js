@@ -436,10 +436,13 @@ class SpreadGraph extends PolymerElement {
         var lineParser = spreadGraph.spread_lines;
         for(var key in lineParser){
             if(key==player_id){ 
-                var  transaction_speed = 500;
+
                 if(offset != 0 && offset != NaN){
+                    console.log("CALLLEDDD");
                     if(document.querySelector("info-table").speed_cost != 0){
                         transaction_speed = 100;
+                    } else { 
+                        transaction_speed = 500;
                     }
                 }
 
@@ -452,10 +455,10 @@ class SpreadGraph extends PolymerElement {
 
                     spreadGraph.spread_svg.selectAll(".my_line_top").remove();
                     your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", svg_middle_y - y_coordinate)
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", svg_middle_y - y_coordinate)
+                        .attr("x1", (spreadGraph.spread_width / 2) - 25)
+                        .attr("y1", svg_middle_y - y_coordinate + offset)
+                        .attr("x2", (spreadGraph.spread_width / 2) + 25)
+                        .attr("y2", svg_middle_y - y_coordinate + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_top");
 
@@ -469,10 +472,10 @@ class SpreadGraph extends PolymerElement {
 
                     spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();       
                     your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", y_coordinate + svg_middle_y )
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", y_coordinate + svg_middle_y )
+                        .attr("x1", (spreadGraph.spread_width / 2) - 25)
+                        .attr("y1", y_coordinate + svg_middle_y + offset)
+                        .attr("x2", (spreadGraph.spread_width / 2) + 25)
+                        .attr("y2", y_coordinate + svg_middle_y + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_bottom");
                     
@@ -484,7 +487,7 @@ class SpreadGraph extends PolymerElement {
 
                 var role = document.querySelector('info-table').player_role;
                 if(role == "MAKER"){
-                    spreadGraph.addOthersLineAnimation(lines, transaction_speed, 25);
+                    spreadGraph.addOthersLineAnimation(lines, 0, 25);
                     spreadGraph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
                 }
                 if(exec_side != ""){

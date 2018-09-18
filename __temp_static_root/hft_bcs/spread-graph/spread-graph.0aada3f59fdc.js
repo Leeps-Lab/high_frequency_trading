@@ -452,10 +452,10 @@ class SpreadGraph extends PolymerElement {
 
                     spreadGraph.spread_svg.selectAll(".my_line_top").remove();
                     your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", svg_middle_y - y_coordinate)
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", svg_middle_y - y_coordinate)
+                        .attr("x1", (spreadGraph.spread_width / 2) - 25)
+                        .attr("y1", svg_middle_y - y_coordinate + offset)
+                        .attr("x2", (spreadGraph.spread_width / 2) + 25)
+                        .attr("y2", svg_middle_y - y_coordinate + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_top");
 
@@ -470,9 +470,9 @@ class SpreadGraph extends PolymerElement {
                     spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();       
                     your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
                         .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", y_coordinate + svg_middle_y )
+                        .attr("y1", y_coordinate + svg_middle_y + offset)
                         .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", y_coordinate + svg_middle_y )
+                        .attr("y2", y_coordinate + svg_middle_y + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_bottom");
                     

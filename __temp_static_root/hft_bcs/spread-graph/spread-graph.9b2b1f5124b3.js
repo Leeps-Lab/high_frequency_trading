@@ -188,10 +188,9 @@ class SpreadGraph extends PolymerElement {
             var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
             var ratio = distance_from_middle / (spreadGraph.spread_height/2);
             var my_spread = (ratio*otreeConstants.maxSpread).toFixed(0);
-            var svg_middle_y = spreadGraph.spread_height/2;
-
+            console.log(my_spread);
             var money_ratio =  otreeConstants.maxSpread/my_spread;
-            var y_coordinate = svg_middle_y/money_ratio;
+            y_coordinate = svg_middle_y/money_ratio;
             if(my_spread < otreeConstants.min_spread){
                 //enforce a minimum spread
                 my_spread = otreeConstants.min_spread;
@@ -199,9 +198,9 @@ class SpreadGraph extends PolymerElement {
             
             var your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
                 .attr("x1", spreadGraph.spread_width)
-                .attr("y1", svg_middle_y - y_coordinate)
+                .attr("y1", svg_middle_y - y_coordinate + offset)
                 .attr("x2", spreadGraph.spread_width - 25)
-                .attr("y2", svg_middle_y - y_coordinate)
+                .attr("y2", svg_middle_y - y_coordinate + offset)
                 .attr("stroke-width",3)
                 .attr("class","my_line my_line_top");
     
@@ -212,17 +211,8 @@ class SpreadGraph extends PolymerElement {
                 .attr("y2", y_coordinate + svg_middle_y)
                 .attr("stroke-width",3)
                 .attr("class","my_line my_line_bottom");
-            
-                var transaction_speed = 0;
-                if(document.querySelector("info-table").speed_cost != 0){
-                    transaction_speed = 100;
-                } else { 
-                    transaction_speed = 500;
-                }
 
-
-
-            spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], transaction_speed, 15);
+            spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 500, 15);
 
             if(otreeConstants.IEX == true){
                 //Choose one of the spread lines that
@@ -288,45 +278,6 @@ class SpreadGraph extends PolymerElement {
                     var ratio = distance_from_middle / (spreadGraph.spread_height / 2);
 
                     var my_spread = (ratio * otreeConstants.maxSpread).toFixed(0);
-
-                    var svg_middle_y = spreadGraph.spread_height/2;
-
-                    var money_ratio =  otreeConstants.maxSpread/my_spread;
-                    var y_coordinate = svg_middle_y/money_ratio;
-                    if(my_spread < otreeConstants.min_spread){
-                        //enforce a minimum spread
-                        my_spread = otreeConstants.min_spread;
-                    }   
-                    
-                    var your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", svg_middle_y - y_coordinate)
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", svg_middle_y - y_coordinate)
-                        .attr("stroke-width",3)
-                        .attr("class","my_line my_line_top");
-            
-                    var your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", y_coordinate + svg_middle_y)
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", y_coordinate + svg_middle_y)
-                        .attr("stroke-width",3)
-                        .attr("class","my_line my_line_bottom");
-                    
-                        var transaction_speed = 0;
-                        if(document.querySelector("info-table").speed_cost != 0){
-                            transaction_speed = 100;
-                        } else { 
-                            transaction_speed = 500;
-                        }
-        
-        
-        
-                    spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], transaction_speed, 15);
-        
-
-
                     if(my_spread < otreeConstants.min_spread){
                         my_spread = otreeConstants.min_spread;
                     }
@@ -436,12 +387,6 @@ class SpreadGraph extends PolymerElement {
         var lineParser = spreadGraph.spread_lines;
         for(var key in lineParser){
             if(key==player_id){ 
-                var  transaction_speed = 500;
-                if(offset != 0 && offset != NaN){
-                    if(document.querySelector("info-table").speed_cost != 0){
-                        transaction_speed = 100;
-                    }
-                }
 
                 var svg_middle_y = spreadGraph.spread_height/2;
                 var my_spread = parseInt(lineParser[key]["A"] - lineParser[key]["B"]);
@@ -452,10 +397,10 @@ class SpreadGraph extends PolymerElement {
 
                     spreadGraph.spread_svg.selectAll(".my_line_top").remove();
                     your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", svg_middle_y - y_coordinate)
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", svg_middle_y - y_coordinate)
+                        .attr("x1", (spreadGraph.spread_width / 2) - 25)
+                        .attr("y1", svg_middle_y - y_coordinate + offset)
+                        .attr("x2", (spreadGraph.spread_width / 2) + 25)
+                        .attr("y2", svg_middle_y - y_coordinate + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_top");
 
@@ -469,10 +414,10 @@ class SpreadGraph extends PolymerElement {
 
                     spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();       
                     your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", y_coordinate + svg_middle_y )
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", y_coordinate + svg_middle_y )
+                        .attr("x1", (spreadGraph.spread_width / 2) - 25)
+                        .attr("y1", y_coordinate + svg_middle_y + offset)
+                        .attr("x2", (spreadGraph.spread_width / 2) + 25)
+                        .attr("y2", y_coordinate + svg_middle_y + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_bottom");
                     
@@ -484,7 +429,7 @@ class SpreadGraph extends PolymerElement {
 
                 var role = document.querySelector('info-table').player_role;
                 if(role == "MAKER"){
-                    spreadGraph.addOthersLineAnimation(lines, transaction_speed, 25);
+                    spreadGraph.addOthersLineAnimation(lines, 0, 25);
                     spreadGraph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
                 }
                 if(exec_side != ""){
@@ -498,9 +443,6 @@ class SpreadGraph extends PolymerElement {
                 money_ratio =  otreeConstants.maxSpread/my_spread;
                 y_coordinate = svg_middle_y/money_ratio;
                 //Ratio between the distance and the mid
-
-
-
                 if(exec.player != key || exec.side != "S"){
 
                     spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
@@ -577,17 +519,11 @@ class SpreadGraph extends PolymerElement {
                             } else { 
                                 transaction_speed = 500;
                             }
-                            
-                            var transaction_speed = 0;
-
-                            
-            
                             if(newLines[key]["TOK"][4] == "B"){
-                                
                                 spreadGraph.addOthersLineAnimation([your_spread_line_bottom], transaction_speed, 25);
-                                spreadGraph.addOthersLineAnimation([your_spread_line_top], transaction_speed, 25); 
+                                spreadGraph.addOthersLineAnimation([your_spread_line_top], 0, 25); 
                             }else if(newLines[key]["TOK"][4] == "S"){
-                                spreadGraph.addOthersLineAnimation([your_spread_line_bottom], transaction_speed, 25);
+                                spreadGraph.addOthersLineAnimation([your_spread_line_bottom], 0, 25);
                                 spreadGraph.addOthersLineAnimation([your_spread_line_top], transaction_speed, 25); 
                             }else{
                                 console.log("Unrecognizeable token");
@@ -693,7 +629,6 @@ class SpreadGraph extends PolymerElement {
         var bar_color = color;
         //if not other maker within the spread
         if(side == "B"){
-            spreadGraph.spread_svg.select(".my_line_bottom").remove()
             var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                 .attr("x", (spreadGraph.spread_width / 2) - 5)
                 .attr("y", svg_middle_y)
@@ -701,8 +636,6 @@ class SpreadGraph extends PolymerElement {
                 .attr("height",y_coordinate)
                 .attr("class",bar_color);
         } else if(side == "S"){
-           
-            spreadGraph.spread_svg.select(".my_line_top").remove()
             var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                     .attr("x", (spreadGraph.spread_width / 2) - 5)
                     .attr("y", svg_middle_y - y_coordinate)
