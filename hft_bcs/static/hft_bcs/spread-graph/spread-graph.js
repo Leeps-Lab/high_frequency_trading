@@ -603,17 +603,17 @@ class SpreadGraph extends PolymerElement {
                         y_coordinate = svg_middle_y/money_ratio;
                         var your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1",spreadGraph.spread_width)
-                            .attr("y1", svg_middle_y - y_coordinate)
+                            .attr("y1", svg_middle_y - y_coordinate + offset)
                             .attr("x2", spreadGraph.spread_width - 15)
-                            .attr("y2", svg_middle_y - y_coordinate)
+                            .attr("y2", svg_middle_y - y_coordinate + offset)
                             .attr("stroke-width",1)
                             .attr("class","others_line others_line_top_"+key);
                     
                         var your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1", spreadGraph.spread_width)
-                            .attr("y1", y_coordinate + svg_middle_y)
+                            .attr("y1", y_coordinate + svg_middle_y + offset)
                             .attr("x2", spreadGraph.spread_width - 15)
-                            .attr("y2", y_coordinate + svg_middle_y)
+                            .attr("y2", y_coordinate + svg_middle_y + offset)
                             .attr("stroke-width",1)
                             .attr("class","others_line others_line_bottom_"+key);
 
@@ -626,9 +626,9 @@ class SpreadGraph extends PolymerElement {
                 if(inv == true){
                 var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
                         .attr("x1", 0 + 50)
-                        .attr("y1", spreadGraph.spread_height/2)
+                        .attr("y1", spreadGraph.spread_height/2 + offset )
                         .attr("x2", spreadGraph.spread_width - 50)
-                        .attr("y2", spreadGraph.spread_height/2)
+                        .attr("y2", spreadGraph.spread_height/2 + offset)
                         .style("stroke", "yellow")
                         .style("stroke-width", 10)
                         .attr("class", "inv-line");
@@ -640,9 +640,9 @@ class SpreadGraph extends PolymerElement {
 
                 var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
                     .attr("x1", 0 + 60)
-                    .attr("y1", spreadGraph.spread_height/2)
+                    .attr("y1", spreadGraph.spread_height/2 +  offset)
                     .attr("x2", spreadGraph.spread_width - 60)
-                    .attr("y2", spreadGraph.spread_height/2)
+                    .attr("y2", spreadGraph.spread_height/2 + offset)
                     .style("stroke", "grey")
                     .style("stroke-width", 3);
                     //Updating table values with half the dollar value of the spread given above 
