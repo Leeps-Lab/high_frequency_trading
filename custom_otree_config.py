@@ -117,6 +117,7 @@ class BCSConfig(CustomOtreeConfig):
         ('session_length', ('parameters', 'session-length')),
         ('group_matrix', ('group', 'group-assignments')),
         ('batch_length', ('parameters', 'batch-length')),
+        ('random_round_payment', ('session', 'random-round-payment')),
         # field below is mandatory
         # has to be last field in the map.
         # it is used in reading csvs.

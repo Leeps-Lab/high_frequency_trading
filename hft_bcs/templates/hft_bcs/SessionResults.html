@@ -28,14 +28,22 @@
     <p>Here are your results, player <strong>{{player.id_in_group}}</strong>:</p>
 
     <p>
-        You have accumulated <strong>{{player.participant.payoff}}</strong> in experimental currency units (ECU).
+        You have accumulated <strong>{{total_payoff}}</strong> in experimental currency units (ECU).
     </p>
     <!-- maybe some statistics of everyone elses payoff how you did? -->
+    {% if random_round_pay %}
     <p>
         Dollar payoff round is chosen randomly for each participant.
         Yours were selected as round {{payoff_round}}.
     </p>
+    {% endif %}
     <br>
-    <h3> Congratulations, you will receive <strong>{{real_payoff}}</strong> dollars! </h3>
+    <h3> You will receive 
+        {% if random_round_pay %} 
+        <strong>{{round_payoff}}</strong>  
+        {% else %} 
+        <strong>{{total_payoff}}.</strong>  
+        {% endif %}
+    </h3>
 </div>
 {% endblock %}

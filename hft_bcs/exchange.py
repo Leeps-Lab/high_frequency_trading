@@ -102,7 +102,7 @@ def disconnect(group, host, port):
     try:
         conn = exchanges[addr].connection
     except KeyError as e:
-        log.msg('connection already closed.')
+        log.msg('key not found, connection already deleted.')
         return
     else:
         del exchanges[addr]

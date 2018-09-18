@@ -9,7 +9,6 @@ investors:
   group_1: ['FBAtest5.csv', 'FBAtest5.csv', 'FBAtest5.csv', 'FBAtest5.csv']
 jumps:
   group_1: ['FBAtestJump5.csv', 'FBAtestJump5.csv', 'FBAtestJump5.csv', 'FBAtestJump5.csv']
-
 group:
   group-assignments: '[[1, 2, 3]]'
   number-of-groups: 1
@@ -28,6 +27,7 @@ parameters:
 session:
   restore: off
   restore-from: none
-  num-rounds: 4
+  random-round-payment: off
+  num-rounds: 1
   display_name: FBA Production
   session_name: fba_3_1_test
