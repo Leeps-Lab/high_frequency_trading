@@ -31,6 +31,12 @@ class Event(object):
                 times.append(row[0])
                 events.append(row[1])
         events = events[1:]
+        out = (times, events)
+        out = self.post_read(out)
+        return out
+
+    def post_read(self, time_event_pairs):
+        (times, events) = time_event_pairs
         first_arrival = float(times[1])
         times = np.asarray(times[1:], dtype = np.float)
         times = np.ediff1d(times)
