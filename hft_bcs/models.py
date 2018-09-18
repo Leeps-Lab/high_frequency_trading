@@ -110,8 +110,10 @@ class Constants(BaseConstants):
         'spread': 'initial_spread',
         'endowment': 'initial_endowment',
         'speed_unit_cost': 'speed_cost',
-        'max_spread': 'max_spread'
+        'max_spread': 'max_spread',
+        'design': 'design'
     }
+    player_scaled_fields = ('fp', 'spread', 'endowment', 'speed_unit_cost', 'max_spread')
 
 def lablog(filename, log):
     with open(filename,'a') as f:
@@ -209,8 +211,12 @@ class Subsession(BaseSubsession):
         players = self.get_players()
         for player in players:
             for k, v in Constants.player_field_map.items():
-                v = self.session.config[v] * Constants.conversion_factor
-                setattr(player, k, v)
+                attr = self.session.config[v]
+                if k in Constants.player_scaled_fields:
+                    print(k, attr)
+                    attr = attr * Constants.conversion_factor
+                print(attr)
+                setattr(player, k, attr)
             player.init_cache()
 
         #TODO: wtf? make this smaller
@@ -456,7 +462,12 @@ class Group(BaseGroup):
         """
         cmd = ['python', name, str(self.id), url, data]
         p = subprocess.Popen(cmd)
-        subprocesses[self.id][name] = p
+        try:
+            subprocesses[self.id][name] = p
+        except KeyError as e:
+            log.exception(e)
+            subprocesses[self.id] = {}
+            subprocesses[self.id][name] = p
         log.debug('Group%d: Fire %s.' % (self.id, name))
 
     def fp_push(self, price):
@@ -533,26 +544,6 @@ class Group(BaseGroup):
             self.subsession.groups_ready(self.id)
         else:
             log.debug('Group%d: %d players are in market.' % (self.id, total))
-
-    # @atomic
-    # def players_in_market(self, player_id=None, init=False):
-    #     k = Constants.players_in_market_key.format(self=self)
-    #     if init is True:
-    #         players = {p.id: False for p in self.get_players()}
-    #         cache.set(k, players, timeout=None)
-    #         return
-    #     elif player_id is not None:
-    #         players = cache.get(k)
-    #         players[player_id] = True
-    #         cache.set(k, players, timeout=None)
-    #         total = sum(players.values())
-    #     else:
-    #         raise ValueError('player id is none.')
-    #     if self.subsession.players_per_group == total:
-    #         log.info('Group%d: all players are in market.' % self.id)
-    #         self.subsession.groups_ready(self.id)
-    #     else:
-    #         log.info('Group%d: %d players are in market.' % (self.id, total))
     
     @atomic
     def group_stats(self, old_state, new_state):
@@ -568,28 +559,6 @@ class Group(BaseGroup):
         )
         if total != ppg:
             raise ValueError('total: %d, ppg: %d' % (total, ppg))
-
-    # @atomic
-    # def group_stats(self, old_state, new_state, init=False):
-    #     k = Constants.state_count_key.format(self=self)
-    #     if init:
-    #         ppg = self.subsession.players_per_group
-    #         group_state = {
-    #             'MAKER': 0, 'SNIPER':0, 'OUT': ppg
-    #         }
-    #         cache.set(k, group_state, timeout=None)
-    #         return
-    #     group_state = cache.get(k)
-    #     group_state[old_state] -= 1
-    #     group_state[new_state] += 1
-    #     cache.set(k, group_state, timeout=None)
-    #     total = sum(group_state.values())
-    #     self.broadcast(
-    #         client_messages.total_role(group_state)
-    #     )
-    #     if total != ppg:
-    #         raise ValueError('total: %d, ppg: %d' % (total, self.subsession.players_per_group))
-
 
     def loggy(self):
         events.convert()
@@ -612,6 +581,7 @@ class Player(BasePlayer):
     max_spread = models.IntegerField()
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
+    design =  models.CharField()
 
     def init_cache(self):
         pairs = {}
@@ -1084,40 +1054,6 @@ class Player(BasePlayer):
         )
         lablog(self.log_file, l)
         return pi    
-   
-    # def calc_profit(self, exec_price, side, timestamp):
-    #     """
-    #     find the distance btw fundamental and execution prices
-    #     order side determines profit sign
-    #     take speed cost along the way
-    #     """
-    #     fp_key = Constants.group_fp_key.format(group_id=self.group_id)
-    #     fp = cache.get(fp_key).get_FP(timestamp)
-    #     d = abs(fp - exec_price)
-    #     profit = self.status('profit')
-    #     if exec_price < fp:
-    #         # buyer (seller) buys (sells) less than fp
-    #         pi = d if side == 'B' else -d  
-    #     else:
-    #         # seller (buyer) sells (buys) higher than fp
-    #         pi = d if side == 'S' else -d  
-    #     updated_profit = profit + pi
-    #     self.status_update('profit', updated_profit)
-    #     log_dict = {
-    #         'gid': self.group_id, 'pid': self.id, 'amount': pi,
-    #         'side': side, 'profit': updated_profit, 'fp': fp, 
-    #         'p': exec_price,
-    #     }
-    #     hfl.events.push(hfl.profit, **log_dict)
-    #     if self.status('speed'):
-    #         self._calc_speed_cost(labtime())
-    #     l = prepare(
-    #         group=self.group_id, level='market', typ='profit',
-    #         source='cross', pid=self.id, stamp=timestamp,
-    #         endowment=updated_profit, profit=pi
-    #     )
-    #     lablog(self.log_file, l)
-    #     return pi
 
     def take_cost(self, kind='bcs_speed_cost'):
         now = labtime()
@@ -1151,31 +1087,6 @@ class Player(BasePlayer):
         cost = self.status(field='cost')
         payoff = profit - cost
         return payoff
-        
-
-
-    # def _calc_speed_cost(self, timestamp):
-    #     """
-    #     calculate speed cost since the previous calculation
-    #     """
-    #     delta = timestamp - self.status('speed_change_time')
-    #     # TODO: move factor to somewhere else.
-    #     nanocost = self.speed_cost * 1e-9
-    #     cost = delta * nanocost
-    #     self.status_update('speed_change_time', timestamp)
-    #     new_profit = self.status('profit') - cost
-    #     self.status_update('profit', new_profit)
-    #     log_dict = {
-    #         'gid': self.group_id, 'pid': self.id,
-    #         'cost': cost, 'delta': delta, 'nanocost': nanocost
-    #     }
-    #     hfl.events.push(hfl.cost, **log_dict)
-    #     l = prepare(
-    #         group=self.group_id, level='market', typ='profit',
-    #         source='speed', pid=self.id, stamp=timestamp,
-    #         endowment=new_profit, profit=-cost
-    #     )
-    #     lablog(self.log_file, l)
 
     @atomic
     def jump(self, new_price):
@@ -1191,7 +1102,8 @@ class Player(BasePlayer):
 
         if current_role == 'SNIPER':
             side = 'B' if is_positive else 'S'
-            order = [self.stage_enter(side=side, price=self.status(field='fp'), time_in_force=0)]
+            tif = 0 if self.design == 'CDA' else 1   # Constants.long_delay # no floats allowed
+            order = [self.stage_enter(side=side, price=self.status(field='fp'), time_in_force=tif)]
             response = order
         elif current_role == 'MAKER':
             flag = 1 if is_positive else 0
@@ -1238,43 +1150,6 @@ class Player(BasePlayer):
         k = Constants.player_orderstore_key.format(self=self)
         cache.set(k, orderstore, timeout=None)
         
-
-    # def fp(self):
-    #     """
-    #     each player stores a fundamental price on cache
-    #     read from cache
-    #     return fp
-    #     """
-    #     k = Constants.player_fp_key.format(self=self)
-    #     fp = cache.get(k)
-    #     if not fp:
-    #         fp = self.default_fp
-    #         log.info(
-    #             'Group%d: Player%d: Initiate FP as %d .' % (self.group_id, self.id, fp)
-    #         )
-    #         cache.set(k, fp, timeout=None)
-    #     return fp
-
-    # def fp_update(self, new_fp):
-    #     k = Constants.player_fp_key.format(self=self)
-    #     cache.set(k, new_fp, timeout=None)
-        # log.info('Group%d: Player%d: Update FP: %d' % (self.group_id, self.id, new_fp))
-    
-    # def status(self, field=None, init=False):
-    #     if field is None:
-    #         raise ValueError
-    #     if init:
-    #         status = {k: getattr(self, k, None) for k in Constants.player_status_fields}
-    #         # TODO: also add accumulated fields
-    #         cache_key = Constants.player_status_key.format(self=self)
-    #         cache.set(k, status, timeout=None)
-    #     else:
-    #         status = cache.get(k, None)
-    #     assert status is not None
-    #     out = status.get(field)
-    #     assert out is not None
-    #     return out
-
     def status(self, field=None):
         k = Constants.player_status_key.format(self=self)
         status = cache.get(k, None)
@@ -1291,12 +1166,6 @@ class Player(BasePlayer):
         else:
             raise ValueError('invalid field.') 
         cache.set(k, status, timeout=None)
-
-    # def status_update(self, new_state, field=None):
-    #     k = Constants.player_status_key.format(self=self)
-    #     status = cache.get(k)
-    #     status[field] = new_state
-    #     cache.set(k, status, timeout=None)
 
 class Investor(Model):
 
