@@ -215,11 +215,11 @@ class InputSection extends PolymerElement {
           }
         }
 
-
-        var money_ratio =  otreeConstants.maxSpread/(spreadGraph.last_spread * 10000);
+        console.log("spreadGraph.last_spread = " + spreadGraph.last_spread);
+        var money_ratio =  otreeConstants.maxSpread/(spreadGraph.last_spread);
         var svg_middle_y = spreadGraph.spread_height/2;
         var y_coordinate = svg_middle_y/money_ratio;
-        
+
         spreadGraph.drawLineAttempt(y_coordinate);
 
        this.Button_Pressed(input_object);

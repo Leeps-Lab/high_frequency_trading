@@ -215,6 +215,13 @@ class InputSection extends PolymerElement {
           }
         }
 
+
+        var money_ratio =  otreeConstants.maxSpread/(spreadGraph.last_spread * 10000);
+        var svg_middle_y = spreadGraph.spread_height/2;
+        var y_coordinate = svg_middle_y/money_ratio;
+        
+        spreadGraph.drawLineAttempt(y_coordinate);
+
        this.Button_Pressed(input_object);
        document.querySelector('info-table').setAttribute("player_role","MAKER"); 
        document.querySelector('info-table').setAttribute("spread_value",spreadGraph.last_spread.toFixed(2));
