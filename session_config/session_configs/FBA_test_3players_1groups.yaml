@@ -6,9 +6,9 @@ trial:
   run: 0
   trial-length: 10
 investors:
-  group_1: ['test_inv.csv', 'test_inv.csv', 'test_inv.csv', 'test_inv.csv']
+  group_1: ['FBAtest5.csv', 'FBAtest5.csv', 'FBAtest5.csv', 'FBAtest5.csv']
 jumps:
-  group_1: ['test_jump.csv', 'test_jump.csv', 'test_jump.csv', 'test_jump.csv']
+  group_1: ['FBAtestJump5.csv', 'FBAtestJump5.csv', 'FBAtestJump5.csv', 'FBAtestJump5.csv']
 
 group:
   group-assignments: '[[1, 2, 3]]'
