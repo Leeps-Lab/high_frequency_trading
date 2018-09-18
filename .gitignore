@@ -19,5 +19,5 @@ reset*
 hft_bcs/hft_logging/experiment_data/*
 hft_bcs/hft_logging/market_events/*
 hft_bcs/hft_logging/logs/*
-!session_config/*.csv
+!session_config/*
 !__temp_static_root

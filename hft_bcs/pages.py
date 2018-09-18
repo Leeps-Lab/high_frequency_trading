@@ -29,7 +29,6 @@ class PreWaitPage(WaitPage):
 class index(Page):
     pass
 
-
 test = {}
 class ResultsWaitPage(WaitPage):
     def after_all_players_arrive(self):
@@ -43,7 +42,7 @@ class ResultsWaitPage(WaitPage):
                     subsession.restore_payoffs()
                 player.participant.payoff += payoff_for_round
                 if player.participant.vars['payoff_round'] == self.round_number:
-                    player.participant.vars['real_payoff'] = payoff_for_round
+                    player.participant.vars['round_payoff'] = payoff_for_round
         # process output to display
         session_log_file = self.subsession.log_file
         gid = self.group.id
@@ -60,12 +59,14 @@ class SessionResults(Page):
         return self.round_number == self.subsession.last_round
 
     def vars_for_template(self):
+        random_round_pay = self.session.config['random_round_payment']
         payoff_round = self.participant.vars['payoff_round']
         total_payoff = round(self.participant.payoff * 1e-4, 4)
-        real_payoff = round(self.participant.vars['real_payoff'] * 1e-4, 4)
+        round_payoff = round(self.participant.vars['round_payoff'] * 1e-4, 4)
         out = {
+            'random_round_pay': random_round_pay,
             'payoff_round': payoff_round, 
-            'real_payoff': c(real_payoff),
+            'round_payoff': c(round_payoff),
             'total_payoff': c(total_payoff)
         }
         return out
