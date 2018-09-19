@@ -529,7 +529,7 @@ class SpreadGraph extends PolymerElement {
 
                 spreadGraph.addOthersLineAnimation(lines, 0, 15);
                 if(exec_side != ""){
-                    spreadGraph.drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"),-10);
+                    spreadGraph.drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"),-10);
                 }
             }
         }
@@ -688,7 +688,7 @@ class SpreadGraph extends PolymerElement {
             var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                 .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
                 .attr("y", svg_middle_y)
-                .attr("width", 10)
+                .attr("width", 5)
                 .attr("height",y_coordinate)
                 .attr("class",bar_color);
         } else if(side == "S"){
@@ -697,7 +697,7 @@ class SpreadGraph extends PolymerElement {
             var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                     .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
                     .attr("y", svg_middle_y - y_coordinate)
-                    .attr("width", 10)
+                    .attr("width", 5)
                     .attr("height", y_coordinate)
                     .attr("class",bar_color);
         }
