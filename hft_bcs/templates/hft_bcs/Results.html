@@ -52,18 +52,8 @@
     
     <script type="text/javascript">      
            google.charts.load('visualization', '1', {packages:['corechart'], callback: drawStuff});
-        // google.charts.load('current', {'packages':['bar']});
-        // google.charts.setOnLoadCallback(drawStuff);
 
         function drawStuff() {
-            // var data = google.visualization.arrayToDataTable([
-            //     ['Role', 'Fast', { role: 'style' }, { role: 'annotation' }, 'Slow', { role: 'style' }, { role: 'annotation' }],
-            //     ['Inside Maker', {{profit.fast_inside}}, '#0033FF', 'Fast' {{profit.slow_inside}}, '#0099FF', 'slow'],
-            //     ['Outside Maker',  {{profit.fast_outside}},'#0033FF', 'Fast', {{profit.slow_outside}}, '#0099FF', 'slow'],
-            //     ['Sniper', {{profit.fast_sniper}},'#0033FF', 'Fast', {{profit.slow_sniper}}, '#0099FF', 'slow']
-
-            // ]);
-
             var data = new google.visualization.DataTable();
                 data.addColumn('string', 'Type');
                 data.addColumn('number', 'Fast');
@@ -73,9 +63,9 @@
                 data.addColumn({type: 'string', role: 'style'});
                 data.addColumn({type: 'string', role: 'annotation'});
                 data.addRows([
-                    ['Inside Maker', .75, 'color: #0033FF', 'Fast', .8, 'color: #0099FF', 'Slow'],
-                    ['Outside Maker', .5,'color: #6633FF',  'Fast', -.4, 'color: #6699FF', 'Slow'],
-                    ['Sniper', .2,'color: #FF9900',  'Fast', -.6, 'color: #FFCC66', 'Slow']
+                    ['Inside Maker', {{profit.fast_inside}}, 'color: #0033FF', 'Fast', {{profit.slow_inside}}, 'color: #0099FF', 'Slow'],
+                    ['Outside Maker', {{profit.fast_outside}},'color: #6633FF',  'Fast', {{profit.slow_outside}}, 'color: #6699FF', 'Slow'],
+                    ['Sniper', {{profit.fast_sniper}},'color: #FF9900',  'Fast', {{profit.slow_sniper}}, 'color: #FFCC66', 'Slow']
             
                 ]);
         var options = {
@@ -116,9 +106,6 @@
 
       var chart = new google.visualization.ColumnChart(document.getElementById('dual_x_div'));
       chart.draw(data, options);
-
-    // var chart = new google.charts.Bar(document.getElementById('dual_x_div'));
-    // chart.draw(data, google.charts.Bar.convertOptions(options));    
     };
     </script>
 
