@@ -575,9 +575,9 @@ class SpreadGraph extends PolymerElement {
                             if(newLines[key]["TOK"][4] == "B"){
                                 spreadGraph.spread_svg.selectAll(".my_line_attempt").remove(); 
                                 spreadGraph.addOthersLineAnimation([your_spread_line_bottom], transaction_speed, 25);
-                                spreadGraph.addOthersLineAnimation([your_spread_line_top], 0, 25); 
+                                spreadGraph.addOthersLineAnimation([your_spread_line_top], transaction_speed, 25); 
                             }else if(newLines[key]["TOK"][4] == "S"){
-                                spreadGraph.addOthersLineAnimation([your_spread_line_bottom], 0, 25);
+                                spreadGraph.addOthersLineAnimation([your_spread_line_bottom], transaction_speed, 25);
                                 spreadGraph.addOthersLineAnimation([your_spread_line_top], transaction_speed, 25); 
                             }else{
                                 console.log("Unrecognizeable token");

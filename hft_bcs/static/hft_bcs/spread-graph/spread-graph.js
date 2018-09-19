@@ -322,12 +322,10 @@ class SpreadGraph extends PolymerElement {
         .attr("class","my_line_attempt");
 
     
-        var transaction_speed = 0;
+        var transaction_speed = 500;
         if(document.querySelector("info-table").speed_cost != 0){
             transaction_speed = 100;
-        } else { 
-            transaction_speed = 500;
-        }
+        } 
 
         spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], transaction_speed, 15);
         your_spread_line_top.transition().delay(transaction_speed).remove();
@@ -469,7 +467,6 @@ class SpreadGraph extends PolymerElement {
                         .attr("y2",  svg_middle_y - y_coordinate + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_top");
-                    
                     lines.push(your_spread_line_bottom);
                 }else if(exec.player == key && exec.side == "B"){
                     exec_side = "B";
@@ -483,7 +480,7 @@ class SpreadGraph extends PolymerElement {
                     spreadGraph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
                 }
                 if(exec_side != ""){
-                    spreadGraph.spread_svg.selectAll(".my_line_attempt").remove();
+               
                     spreadGraph.drawTransactionBar(exec_spread, svg_middle_y,y_coordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"));
                 }
             } else {
@@ -567,23 +564,20 @@ class SpreadGraph extends PolymerElement {
                
                         var role = document.querySelector('info-table').player_role;
                         if(role == "MAKER"){
-                            var transaction_speed = 0;
+                            var transaction_speed = 500;
                             if(document.querySelector("info-table").speed_cost != 0){
                                 transaction_speed = 100;
-                            } else { 
-                                transaction_speed = 500;
                             }
-                            
-                            var transaction_speed = 0;
+
 
                             
             
                             if(newLines[key]["TOK"][4] == "B"){
                                 spreadGraph.spread_svg.selectAll(".my_line_attempt").remove(); 
                                 spreadGraph.addOthersLineAnimation([your_spread_line_bottom], transaction_speed, 25);
-                                spreadGraph.addOthersLineAnimation([your_spread_line_top], transaction_speed, 25); 
+                                spreadGraph.addOthersLineAnimation([your_spread_line_top], 0, 25); 
                             }else if(newLines[key]["TOK"][4] == "S"){
-                                spreadGraph.addOthersLineAnimation([your_spread_line_bottom], transaction_speed, 25);
+                                spreadGraph.addOthersLineAnimation([your_spread_line_bottom], 0, 25);
                                 spreadGraph.addOthersLineAnimation([your_spread_line_top], transaction_speed, 25); 
                             }else{
                                 console.log("Unrecognizeable token");
@@ -652,7 +646,7 @@ class SpreadGraph extends PolymerElement {
 
  addOthersLineAnimation(lines, speed=500, width){
       //SETTING THE SPREAD TO THE LINE
-    
+    console.log(lines);
     for(var i = 0; i < lines.length; i++){
         var add_animation = lines[i]
         .transition()
