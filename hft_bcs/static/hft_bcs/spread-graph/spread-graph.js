@@ -481,7 +481,7 @@ class SpreadGraph extends PolymerElement {
                 }
                 if(exec_side != ""){
                
-                    spreadGraph.drawTransactionBar(exec_spread, svg_middle_y,y_coordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"));
+                    spreadGraph.drawTransactionBar(exec_spread, svg_middle_y,y_coordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
                 }
             } else {
                 var lines = [];
@@ -529,7 +529,7 @@ class SpreadGraph extends PolymerElement {
 
                 spreadGraph.addOthersLineAnimation(lines, 0, 15);
                 if(exec_side != ""){
-                    spreadGraph.drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"));
+                    spreadGraph.drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"),-10);
                 }
             }
         }
@@ -679,14 +679,14 @@ class SpreadGraph extends PolymerElement {
                    .attr("class",bar_color);
 }
   
-    drawTransactionBar(my_spread,svg_middle_y,y_coordinate, side, color){
+    drawTransactionBar(my_spread,svg_middle_y,y_coordinate, side, color, xOffset){
         //take into account
         var bar_color = color;
         //if not other maker within the spread
         if(side == "B"){
             spreadGraph.spread_svg.select(".my_line_bottom").remove()
             var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
-                .attr("x", (spreadGraph.spread_width / 2) - 5)
+                .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
                 .attr("y", svg_middle_y)
                 .attr("width", 10)
                 .attr("height",y_coordinate)
@@ -695,7 +695,7 @@ class SpreadGraph extends PolymerElement {
            
             spreadGraph.spread_svg.select(".my_line_top").remove()
             var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
-                    .attr("x", (spreadGraph.spread_width / 2) - 5)
+                    .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
                     .attr("y", svg_middle_y - y_coordinate)
                     .attr("width", 10)
                     .attr("height", y_coordinate)

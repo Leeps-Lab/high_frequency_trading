@@ -481,7 +481,7 @@ class SpreadGraph extends PolymerElement {
                 }
                 if(exec_side != ""){
                
-                    spreadGraph.drawTransactionBar(exec_spread, svg_middle_y,y_coordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
+                    spreadGraph.drawTransactionBar(exec_spread, svg_middle_y,y_coordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 5);
                 }
             } else {
                 var lines = [];
@@ -529,7 +529,7 @@ class SpreadGraph extends PolymerElement {
 
                 spreadGraph.addOthersLineAnimation(lines, 0, 15);
                 if(exec_side != ""){
-                    spreadGraph.drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"),-10);
+                    spreadGraph.drawTransactionBar(my_spread,svg_middle_y,y_coordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_dark_green" : "transaction_bar_dark_red"),-5);
                 }
             }
         }
