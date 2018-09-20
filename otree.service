@@ -2,8 +2,8 @@ Description=oTree Experiment Server
 After=redis.service
 
 [Service]
-User=leeps
-Group=leeps
+User=leepslab
+Group=leepslab
 Environment=OTREE_PRODUCTION=1
 Environment=OTREE_AUTH_LEVEL=STUDY
 Environment=OTREE_ADMIN_PASSWORD=leepslab
