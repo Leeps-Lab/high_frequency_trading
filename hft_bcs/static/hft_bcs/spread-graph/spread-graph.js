@@ -460,6 +460,9 @@ class SpreadGraph extends PolymerElement {
             }
         }
         //new new
+
+        /*CONSTRUCTION IN PROGRESS AFTER KOLN*/
+
         for(var key in newLines){
                     if(key == player_id){
     
@@ -568,6 +571,7 @@ class SpreadGraph extends PolymerElement {
                     //Updating table values with half the dollar value of the spread given above 
                     spreadGraph.updateBidAndAsk(document.querySelector("info-table").fp,((my_spread/20000).toFixed(2)));
     }
+     /*CONSTRUCTION IN PROGRESS AFTER KOLN*/
   }
 
  addOthersLineAnimation(lines, speed=500, width){
