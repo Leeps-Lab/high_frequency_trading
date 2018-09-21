@@ -4,7 +4,7 @@ directory:
   folder: investors_jumps
 trial:
   run: 0
-  trial-length: 20
+  trial-length: 180
 investors:
   group_1: ['i01.csv', 'i02.csv']
   group_2: ['i01.csv', 'i02.csv']
@@ -23,7 +23,7 @@ parameters:
   initial-endowment: 20
   initial-spread: 1
   max-spread: 2
-  session-length: 24
+  session-length: 180
   speed-cost: 0.022
   batch-length: 0
 session:

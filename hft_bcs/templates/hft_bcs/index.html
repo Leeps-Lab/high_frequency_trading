@@ -185,8 +185,9 @@ Socket Actions
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
             spreadGraph.updateBidAndAsk(FPCDollarAmount,spread);
-
+            
             spreadGraph.drawMySpreadLines({}, (difference == NaN) ? 0 : difference);
+
             for(var key in spreadGraph.spread_lines){
                 for(var token in spreadGraph.spread_lines[key]){
                     spreadGraph.spread_lines[key][token] -= parseInt(difference);
@@ -199,7 +200,6 @@ Socket Actions
             exec["player"] = obj.EXEC.id;
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
-
             spreadGraph.drawMySpreadLines({}, 0, exec);
     
             if(obj.EXEC.id == otreeConstants.playerIDInGroup){         
@@ -394,7 +394,7 @@ Socket Actions
             otreeConstants.speedCost = {{player.speed_unit_cost}} * (1e-9);
 
             var msg = {
-                type: 'player_ready',
+                 type: 'player_ready',
             };
             console.log("Sending Player Ready");
             if (socketActions.socket.readyState === socketActions.socket.OPEN) {
