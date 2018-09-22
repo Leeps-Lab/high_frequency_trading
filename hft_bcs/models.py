@@ -410,6 +410,12 @@ class Group(BaseGroup):
         for m in true_msgs:
             conn.sendMessage(m, dur)
     
+    """
+    once I complete the translation module
+    receive function will change to use polymorphism
+    and get rid of if else statements
+    """
+    
     def receive_from_exchange(self, msg):
         """
         handles messages coming from the exchange
@@ -578,6 +584,7 @@ class Player(BasePlayer):
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
     design =  models.CharField()
+    consent = models.BooleanField()
 
     def init_cache(self):
         pairs = {}
