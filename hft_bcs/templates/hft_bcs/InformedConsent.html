@@ -1,0 +1,39 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Informed Consent
+{% endblock %}
+{% block content %}
+    <p>
+        Study title: HFT<br />
+        Supervisors: Axel Ockenfels and Peter Cramton
+    </p>
+
+<p><b>Description</b>: You participate in a research study on individual decision-making. You will
+be asked to read instructions on screen, answer questions, and make several choices which determine the amount you are going to be paid.
+</p>
+<p><b>Participant rights</b>: If you have read this form and have decided to participate in this project,
+please understand that your participation is voluntary and that you have the right to discontinue
+participation at any time without penalty or loss of benefits to which you are otherwise entitled. Your right to receive a show-up fee of 4€ is preserved even when discontinuing the experiment.
+</p>
+<p><b>Payoff</b>: You must answer questions and make decisions in full to receive your payoff.</p>
+<p><b>Data protection</b>: All statements are made anonymously, and your individual privacy is maintained in all published data
+resulting from the study. Data generated will be analyzed by researchers of the Cologne Laboratory for Economic Research (CLER)
+as well as further authorized researchers, and are stored on a secure server to which only authorized people have access. </p></br>
+
+ <p>I understand that I may contact the supervisor of this experiment if I require further information about the research,
+and that I may contact the supervisor of this experiment or the Ethics Commission in charge if I wish to make a complaint
+ related to my involvement in the research.</p></br>
+
+ <div>
+        <button name="consent" value="True" class="btn btn-primary btn-large">Yes, I participate.</button>
+        <button name="consent" value="False" class="btn btn-primary btn-large">No, I do not participate.</button>
+    </div></br>
+
+
+<p><small>Contact information:<br />
+Supervisor Assistant: Viola Ackfeld, ackfeld@wiso.uni-koeln.de<br />
+Ethics Commission: Michael Otten, otten@wiso.uni-koeln.de</small></p>
+
+{% endblock %}
