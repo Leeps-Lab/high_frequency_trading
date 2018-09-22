@@ -5,7 +5,6 @@ After=redis.service
 [Service]
 User=leepslab
 Group=leepslab
-Environment=OTREE_PRODUCTION=1
 Environment=OTREE_AUTH_LEVEL=STUDY
 Environment=OTREE_ADMIN_PASSWORD=leepslab
 Environment=DATABASE_URL=postgres://otree_user:mydbpassword@localhost:5432/django_db
