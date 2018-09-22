@@ -213,9 +213,7 @@ class Subsession(BaseSubsession):
             for k, v in Constants.player_field_map.items():
                 attr = self.session.config[v]
                 if k in Constants.player_scaled_fields:
-                    print(k, attr)
                     attr = attr * Constants.conversion_factor
-                print(attr)
                 setattr(player, k, attr)
             player.init_cache()
 
@@ -269,8 +267,6 @@ class Subsession(BaseSubsession):
                 except AttributeError:
                     log.exception('participant label is not set. {}'.format(e))
                     continue      
-        for p in self.session.get_participants():
-            print(p.payoff)
 
     def save(self, *args, **kwargs):
         """
