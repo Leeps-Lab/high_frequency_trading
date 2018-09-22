@@ -1,3 +1,4 @@
+[Unit]
 Description=oTree Experiment Server
 After=redis.service
 
@@ -10,7 +11,7 @@ Environment=OTREE_ADMIN_PASSWORD=leepslab
 Environment=DATABASE_URL=postgres://otree_user:mydbpassword@localhost:5432/django_db
 Environment=PATH=/home/leepslab/leeps-games/environments/leeps-otree-hft/bin:$PATH
 WorkingDirectory=/home/leepslab/leeps-games/oTree_HFT_CDA
-ExecStart=/home/leeps/otree/oTree/venv/bin/otree runserver 0:8000 --num_workers=12
+ExecStart=/home/leepslab/leeps-games/environments/leeps-otree-hft/bin/otree runserver
 ExecStop=/bin/kill -INT $MAINPID
 Restart=always
 
