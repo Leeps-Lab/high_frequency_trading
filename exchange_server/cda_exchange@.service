@@ -1,0 +1,12 @@
+[Unit]
+Description=Continous Double Auctioneer at %i
+[Service]
+User=leepslab
+Group=leepslab
+WorkingDirectory=/home/leepslab/leeps-games/oTree_HFT_CDA/exchange_server
+ExecStart=/home/leepslab/leeps-games/oTree_HFT_CDA/exchange_server sh run_cda.sh %i
+ExecStop=/bin/kill -INT $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
