@@ -201,7 +201,7 @@ Socket Actions
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
             spreadGraph.drawMySpreadLines({}, 0, exec);
-    
+            console.log(exec);
             if(obj.EXEC.id == otreeConstants.playerIDInGroup){         
                 profitGraph.profitJumps.push(
                     {

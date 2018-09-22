@@ -451,7 +451,7 @@ class SpreadGraph extends PolymerElement {
                     exec_spread = otherPlayerSpread;
                 }
                 spreadGraph.addOthersLineAnimation(lines, 0, 15);
-                if(exec_side != ""){
+                if(exec_side != "" && exec.player == otherPlayer){
                     spreadGraph.drawTransactionBar(otherPlayerSpread,svgMiddleY,otherYCoordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"),-10);
                 }
          
@@ -584,13 +584,12 @@ class SpreadGraph extends PolymerElement {
         //take into account
         var bar_color = "";
         //if not other maker within the spread
-       
+        spreadGraph.spread_svg.selectAll("rect").remove();
         if(spreadGraph.smallest_spread == true){
             bar_color = "green_bar";
         }else{
             bar_color = "blue_bar";
         }
-        spreadGraph.spread_svg.selectAll("." + bar_color).remove();
         var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                    .attr("x", (spreadGraph.spread_width / 2) - 25)
                    .attr("y", spreadGraph.spread_height/2 - y_coordinate + offset)

@@ -338,6 +338,7 @@ class SpreadGraph extends PolymerElement {
   }
 
   drawMySpreadLines(newLines={}, offset=0, exec={}, inv=false){
+
     if(otreeConstants.endMsg == "off"){
         var exec_side = "";
         var exec_spread = "";
@@ -451,7 +452,7 @@ class SpreadGraph extends PolymerElement {
                     exec_spread = otherPlayerSpread;
                 }
                 spreadGraph.addOthersLineAnimation(lines, 0, 15);
-                if(exec_side != ""){
+                if(exec_side != "" && exec.player == otherPlayer){
                     spreadGraph.drawTransactionBar(otherPlayerSpread,svgMiddleY,otherYCoordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"),-10);
                 }
          
@@ -533,35 +534,119 @@ class SpreadGraph extends PolymerElement {
             }
             spreadGraph.spread_lines[key] = newLines[key];
         }
+        //new new
+        
+        /*CONSTRUCTION IN PROGRESS AFTER KOLN*/
 
-        if(inv == true){
-            //Price Jump (FPC) Offset is the price
-            var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
-                .attr("x1", 0 + 50)
-                .attr("y1", spreadGraph.spread_height/2 )
-                .attr("x2", spreadGraph.spread_width - 50)
-                .attr("y2", spreadGraph.spread_height/2 ) 
-                .style("stroke", "yellow")
-                .style("stroke-width", 10)
-                .attr("class", "inv-line");
-            window.setTimeout(function(){
-                spreadGraph.spread_svg.select(".inv-line").remove();
-            },400);
-        } 
+        // for(var key in newLines){
+        //             if(key == player_id){
+    
+        //                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();
+        //                 spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
+        //                 //Where the grey middle line is
+        //                 var svg_middle_y = spreadGraph.spread_height / 2;
+                        
+        //                 var my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
+        //                 var money_ratio =  otreeConstants.maxSpread/my_spread;
+        //                 var y_coordinate = svg_middle_y/money_ratio;
+        //                 //Ratio between the distance and the mid
+        //                 var your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
+        //                     .attr("x1", spreadGraph.spread_width)
+        //                     .attr("y1", svg_middle_y - y_coordinate)
+        //                     .attr("x2", spreadGraph.spread_width - 25)
+        //                     .attr("y2", svg_middle_y - y_coordinate)
+        //                     .attr("stroke-width",3)
+        //                     .attr("class","my_line my_line_top");
+                    
+        //                 var your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
+        //                     .attr("x1", spreadGraph.spread_width)
+        //                     .attr("y1", y_coordinate + svg_middle_y )
+        //                     .attr("x2", spreadGraph.spread_width - 25)
+        //                     .attr("y2", y_coordinate + svg_middle_y )
+        //                     .attr("stroke-width",3)
+        //                     .attr("class","my_line my_line_bottom");
+               
+        //                 var role = document.querySelector('info-table').player_role;
+        //                 if(role == "MAKER"){
+        //                     var transaction_speed = 500;
+        //                     if(document.querySelector("info-table").speed_cost != 0){
+        //                         transaction_speed = 100;
+        //                     }
+   
+        //                     if(newLines[key]["TOK"][4] == "B"){
+        //                         spreadGraph.spread_svg.selectAll(".my_line_attempt").remove(); 
+        //                         spreadGraph.addOthersLineAnimation([your_spread_line_bottom], transaction_speed, 25);
+        //                         spreadGraph.addOthersLineAnimation([your_spread_line_top], 0, 25); 
+        //                     }else if(newLines[key]["TOK"][4] == "S"){
+        //                         spreadGraph.spread_svg.selectAll(".my_line_attempt").remove(); 
+        //                         spreadGraph.addOthersLineAnimation([your_spread_line_bottom], 0, 25);
+        //                         spreadGraph.addOthersLineAnimation([your_spread_line_top], transaction_speed, 25); 
+        //                     }else{
+        //                         console.log("Unrecognizeable token");
+        //                         console.log(newLines[key]);
+        //                     }
+        //                     spreadGraph.drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, key);
+        //                 }
+        //             }else{
+    
+        //                 spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
+        //                 spreadGraph.spread_svg.selectAll(".others_line_bottom_" + key).remove();
+        //                 //Where the grey middle line is
+        //                 svg_middle_y = spreadGraph.spread_height/2;
+        //                 my_spread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
+        //                 money_ratio =  otreeConstants.maxSpread/my_spread;
+        //                 y_coordinate = svg_middle_y/money_ratio;
 
-        var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
-            .attr("x1", 0 + 60)
-            .attr("y1", spreadGraph.spread_height/2 )
-            .attr("x2", spreadGraph.spread_width - 60)
-            .attr("y2", spreadGraph.spread_height/2)
-            .attr("class", "fund-price")
-            .style("stroke", "grey")
-            .style("stroke-width", 3);
+        //                 var your_spread_line_top = spreadGraph.spread_svg.append("svg:line")
+        //                     .attr("x1",spreadGraph.spread_width)
+        //                     .attr("y1", svg_middle_y - y_coordinate)
+        //                     .attr("x2", spreadGraph.spread_width - 15)
+        //                     .attr("y2", svg_middle_y - y_coordinate + offset)
+        //                     .attr("stroke-width",1)
+        //                     .attr("class","others_line others_line_top_"+key);
+                    
+        //                 var your_spread_line_bottom = spreadGraph.spread_svg.append("svg:line")
+        //                     .attr("x1", spreadGraph.spread_width)
+        //                     .attr("y1", y_coordinate + svg_middle_y )
+        //                     .attr("x2", spreadGraph.spread_width - 15)
+        //                     .attr("y2", y_coordinate + svg_middle_y )
+        //                     .attr("stroke-width",1)
+        //                     .attr("class","others_line others_line_bottom_"+key);
 
-        //Updating table values with half the dollar value of the spread given above 
-        spreadGraph.updateBidAndAsk(document.querySelector("info-table").fp,((userSpread/20000).toFixed(2)));
+        //                 // for removing when a transation occurs
+        //                 spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], 0, 15);
+        //             }
+        //             spreadGraph.spread_lines[key] = newLines[key];
+        //         }
+
+                if(inv == true){
+                    //Price Jump (FPC) Offset is the price
+                    var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
+                        .attr("x1", 0 + 50)
+                        .attr("y1", spreadGraph.spread_height/2 )
+                        .attr("x2", spreadGraph.spread_width - 50)
+                        .attr("y2", spreadGraph.spread_height/2 ) 
+                        .style("stroke", "yellow")
+                        .style("stroke-width", 10)
+                        .attr("class", "inv-line");
+                    window.setTimeout(function(){
+                        spreadGraph.spread_svg.select(".inv-line").remove();
+                    },400);
+                } 
+
+                var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
+                    .attr("x1", 0 + 60)
+                    .attr("y1", spreadGraph.spread_height/2 )
+                    .attr("x2", spreadGraph.spread_width - 60)
+                    .attr("y2", spreadGraph.spread_height/2)
+                    .attr("class", "fund-price")
+                    .style("stroke", "grey")
+                    .style("stroke-width", 3);
+
+                    //Updating table values with half the dollar value of the spread given above 
+                    spreadGraph.updateBidAndAsk(document.querySelector("info-table").fp,((my_spread/20000).toFixed(2)));
     }
-
+     /*CONSTRUCTION IN PROGRESS AFTER KOLN*/
   }
 
  addOthersLineAnimation(lines, speed=500, width){
@@ -584,13 +669,12 @@ class SpreadGraph extends PolymerElement {
         //take into account
         var bar_color = "";
         //if not other maker within the spread
-       
+        spreadGraph.spread_svg.selectAll("rect").remove();
         if(spreadGraph.smallest_spread == true){
             bar_color = "green_bar";
         }else{
             bar_color = "blue_bar";
         }
-        spreadGraph.spread_svg.selectAll("." + bar_color).remove();
         var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                    .attr("x", (spreadGraph.spread_width / 2) - 25)
                    .attr("y", spreadGraph.spread_height/2 - y_coordinate + offset)
