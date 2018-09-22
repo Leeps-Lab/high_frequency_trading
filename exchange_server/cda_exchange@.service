@@ -4,7 +4,7 @@ Description=Continous Double Auctioneer at %i
 User=leepslab
 Group=leepslab
 WorkingDirectory=/home/leepslab/leeps-games/oTree_HFT_CDA/exchange_server
-ExecStart=/home/leepslab/leeps-games/oTree_HFT_CDA/exchange_server sh run_cda.sh %i
+ExecStart=/home/leepslab/leeps-games/oTree_HFT_CDA/exchange_server/run_cda.sh %i
 ExecStop=/bin/kill -INT $MAINPID
 Restart=always
 
