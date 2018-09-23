@@ -11,11 +11,13 @@ def header(**kwargs):
     groups = kwargs['groups']
     design = kwargs['design']
     spread = kwargs['initial_spread']
+    round_no = kwargs['round_no']
     out = {
         'session': session_id,
         'groups': groups,       
         'design': design,
-        'spread': spread
+        'spread': spread,
+        'round': round_no
     }
     return out
 

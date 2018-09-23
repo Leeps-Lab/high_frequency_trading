@@ -85,8 +85,9 @@ class Constants(BaseConstants):
     }
 
     # log file
-    log_file = '{dir}{self.design}_{self.code}_{self.players_per_group}_{time}'
+    log_file = '{dir}{self.design}_{self.code}_{self.players_per_group}_{time}_round_{self.round_number}'
 
+    # you may wanna change this if you run otree on different ports.
     investor_url = 'ws://127.0.0.1:8000/hft_investor/'
     jump_url = 'ws://127.0.0.1:8000/hft_jump/'
 
@@ -159,7 +160,6 @@ class Subsession(BaseSubsession):
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
 
-
     def set_payoff_round(self):
         for player in self.get_players():
             payoff_round = random.randint(self.first_round, self.last_round)
@@ -221,7 +221,7 @@ class Subsession(BaseSubsession):
         group_players = {g.id: [p.id for p in g.get_players()] for g in groups}
         l = prepare(group=0, level='header', typ='header', groups=group_players,
             session=self.code, design=self.design, initial_spread=players[0].spread,
-            batch_length=self.batch_length, round_length=self.round_length)
+            batch_length=self.batch_length, round_length=self.round_length, round_no=self.round_number)
         lablog(self.log_file, l)
         self.save()
         self.session.save()
@@ -339,6 +339,9 @@ class Group(BaseGroup):
         self.save()
         self.subsession.save()
 
+    # TODO: we will add some buttons to 
+    # session monitor page and trigger 
+    # each of these events from the admin page
     def start(self):
         self.spawn(
             Constants.investor_py,
@@ -1105,7 +1108,9 @@ class Player(BasePlayer):
 
         if current_role == 'SNIPER':
             side = 'B' if is_positive else 'S'
-            tif = 0 if self.design == 'CDA' else Constants.long_delay
+            # next line is not the correct implementation 
+            # we have not yet decided how to handle
+            tif = 0 if self.design == 'CDA' else 1
             order = [self.stage_enter(side=side, price=self.status(field='fp'), time_in_force=tif)]
             response = order
         elif current_role == 'MAKER':

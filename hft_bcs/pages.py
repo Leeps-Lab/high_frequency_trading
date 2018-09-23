@@ -14,7 +14,7 @@ class InformedConsent(Page):
     form_model = 'player'
     form_fields = ['consent']
     def is_displayed(self):
-        is_first_round = (self.subsession.first_round == self.round_number)
+        is_first_round = self.round_number == 1
         return is_first_round
 
 class NoParticipation(Page):
@@ -24,38 +24,27 @@ class NoParticipation(Page):
 
 class InstructionsFBA(Page):
     def is_displayed(self):
-        consented = self.player.consent
         round_is_instructed = self.subsession.is_trial or (
             self.subsession.first_round == self.round_number)
         round_is_fba = True if self.subsession.design == 'FBA' else False
-        return consented and round_is_instructed and round_is_fba
+        return round_is_instructed and round_is_fba
 
 class InstructionsCDA(Page):
     def is_displayed(self):
-        consented = self.player.consent
         round_is_instructed = self.subsession.is_trial or (
             self.subsession.first_round == self.round_number)
         round_is_cda = True if self.subsession.design == 'CDA' else False
-        return consented and round_is_instructed and round_is_cda
+        return round_is_instructed and round_is_cda
 
 class PreWaitPage(WaitPage):
-    def is_displayed(self):
-        consented = self.player.consent
-        return consented
-
     def after_all_players_arrive(self):
         pass
 
 class index(Page):
-    def is_displayed(self):
-        consented = self.player.consent
-        return consented
+    pass
 
 round_results = {}
 class ResultsWaitPage(WaitPage):
-    def is_displayed(self):
-        consented = self.player.consent
-        return consented
 
     def after_all_players_arrive(self):
         subsession = self.subsession
@@ -76,19 +65,14 @@ class ResultsWaitPage(WaitPage):
         round_results[gid] = results_for_group
 
 class Results(Page):
-    def is_displayed(self):
-        consented = self.player.consent
-        return consented
-
     def vars_for_template(self):
         gid = self.group.id
-        return test[gid]
+        return round_results[gid]
 
 class SessionResults(Page):
     def is_displayed(self):
         round_is_final = self.round_number == self.subsession.last_round
-        consented = self.player.consent
-        return consented and round_is_final
+        return round_is_final
 
     def vars_for_template(self):
         random_round_pay = self.session.config['random_round_payment']
