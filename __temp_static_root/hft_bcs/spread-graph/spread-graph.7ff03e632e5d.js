@@ -388,6 +388,7 @@ class SpreadGraph extends PolymerElement {
                         .attr("y2",  svgMiddleY - yCoordinate + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_top");
+
                     lines.push(your_spread_line_top);
                 }else if(exec.player == userPlayerID && exec.side == "B"){
                     exec_side = "B";
@@ -450,12 +451,14 @@ class SpreadGraph extends PolymerElement {
                     exec_spread = otherPlayerSpread;
                 }
                 spreadGraph.addOthersLineAnimation(lines, 0, 15);
-                if(exec_side != "" && exec.player == otherPlayer){
+                if(exec_side != ""){
                     spreadGraph.drawTransactionBar(otherPlayerSpread,svgMiddleY,otherYCoordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"),-10);
                 }
          
             }
         }
+        //new new
+        //new new
         for(var key in newLines){
             if(key == userPlayerID){
                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();
@@ -556,10 +559,7 @@ class SpreadGraph extends PolymerElement {
             .style("stroke-width", 3);
 
         //Updating table values with half the dollar value of the spread given above 
-        if(userSpread != undefined){
-            console.log(userSpread);
-            spreadGraph.updateBidAndAsk(document.querySelector("info-table").fp,((userSpread/20000).toFixed(2)));
-        }
+        spreadGraph.updateBidAndAsk(document.querySelector("info-table").fp,((userSpread/20000).toFixed(2)));
     }
 
   }

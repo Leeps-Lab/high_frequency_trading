@@ -556,8 +556,7 @@ class SpreadGraph extends PolymerElement {
             .style("stroke-width", 3);
 
         //Updating table values with half the dollar value of the spread given above 
-        if(userSpread != undefined){
-            console.log(userSpread);
+        if(userSpread != NaN){
             spreadGraph.updateBidAndAsk(document.querySelector("info-table").fp,((userSpread/20000).toFixed(2)));
         }
     }

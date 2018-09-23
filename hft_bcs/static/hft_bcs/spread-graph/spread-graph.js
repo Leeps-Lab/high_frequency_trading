@@ -388,7 +388,6 @@ class SpreadGraph extends PolymerElement {
                         .attr("y2",  svgMiddleY - yCoordinate + offset)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_top");
-
                     lines.push(your_spread_line_top);
                 }else if(exec.player == userPlayerID && exec.side == "B"){
                     exec_side = "B";
@@ -451,14 +450,12 @@ class SpreadGraph extends PolymerElement {
                     exec_spread = otherPlayerSpread;
                 }
                 spreadGraph.addOthersLineAnimation(lines, 0, 15);
-                if(exec_side != ""){
+                if(exec_side != "" && exec.player == otherPlayer){
                     spreadGraph.drawTransactionBar(otherPlayerSpread,svgMiddleY,otherYCoordinate,exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"),-10);
                 }
          
             }
         }
-        //new new
-        //new new
         for(var key in newLines){
             if(key == userPlayerID){
                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();
@@ -559,7 +556,10 @@ class SpreadGraph extends PolymerElement {
             .style("stroke-width", 3);
 
         //Updating table values with half the dollar value of the spread given above 
-        spreadGraph.updateBidAndAsk(document.querySelector("info-table").fp,((userSpread/20000).toFixed(2)));
+        if(userSpread != undefined){
+            console.log(userSpread);
+            spreadGraph.updateBidAndAsk(document.querySelector("info-table").fp,((userSpread/20000).toFixed(2)));
+        }
     }
 
   }
@@ -590,7 +590,8 @@ class SpreadGraph extends PolymerElement {
         }else{
             bar_color = "blue_bar";
         }
-        spreadGraph.spread_svg.selectAll("." + bar_color).remove();
+        spreadGraph.spread_svg.selectAll(".green_bar").remove();
+        spreadGraph.spread_svg.selectAll(".blue_bar").remove();
         var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                    .attr("x", (spreadGraph.spread_width / 2) - 25)
                    .attr("y", spreadGraph.spread_height/2 - y_coordinate + offset)
