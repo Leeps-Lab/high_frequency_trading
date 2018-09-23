@@ -27,6 +27,9 @@ parameters:
   speed-cost: 0.022
   batch-length: 4
 session:
+  restore: off
+  restore-from: none
+  random-round-payment: off
   num-rounds: 4
   display_name: FBA Production
-  session_name: docker_fba_3_2_test
+  session_name: fba_3_22_test
