@@ -159,17 +159,7 @@ class Subsession(BaseSubsession):
         pairs[ready_groups] = {g.id: False for g in self.get_groups()}
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
-    
-    def group_by_participant_label(self):
-        group_matrix_conf= self.session.config['group_matrix']
-        group_matrix = [list() for group in group_matrix_conf]
-        for player in self.get_players():
-            int_label = get_label_as_int(player)
-            for ix, group in enumerate(group_matrix_conf):
-                if int_label in group:
-                    group_matrix[ix].append(player)
-                    break
-        return group_matrix
+
 
     def set_payoff_round(self):
         for player in self.get_players():
@@ -191,12 +181,10 @@ class Subsession(BaseSubsession):
 
     def assign_groups(self):
         try:
-            group_matrix = self.group_by_participant_label()
-        except Exception as e:
-            log.exception(e)
-            log.info('failed to set groups from config.') 
-        else:
-            self.set_group_matrix(group_matrix)
+            group_matrix = self.session.config['group_matrix']
+        except KeyError as e:
+            raise KeyError('Group assignments not found. You must to pass in a list of list.')
+        self.set_group_matrix(group_matrix)
         self.save()
 
     def creating_session(self):
