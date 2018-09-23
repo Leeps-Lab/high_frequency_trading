@@ -43,7 +43,7 @@
 </div>
 
 <p>
-    <strong>Stock value.</strong> There is just one stock traded in your financial market. The stock has a value (henceforth “V”) that will jump up or down by a random amount at random times. The average time between jumps is about 4 seconds, much shorter or longer times are possible. The Choice Box on your screen will always center on the current value of V, depicted by a horizontal gray line (see Figure 1). Every time there is a jump in V, there will be a yellow flash around the center line, and all other prices (described below) will appear to shift until they adjust to the new value of V. 
+    <strong>Stock value.</strong> There is just one stock traded in your financial market. The stock has a value (henceforth “V”) that will jump up or down by a random amount at random times. The average time between jumps is about <strong><span style="background-color: #FFFF00" id="jump_average"></span> </strong> seconds, much shorter or longer times are possible. The Choice Box on your screen will always center on the current value of V, depicted by a horizontal gray line (see Figure 1). Every time there is a jump in V, there will be a yellow flash around the center line, and all other prices (described below) will appear to shift until they adjust to the new value of V. 
 </p>
 
 <p>
@@ -51,7 +51,7 @@
 </p>
 
 <p>
-    <strong>Investor arrivals.</strong> At random times an automated investor arrives in the market to buy or to sell a share of the stock. Investors transact immediately at the best price they find in the market upon arrival. In today’s experiment, the average time between investor arrivals is about 3 seconds, but again shorter or much longer times are possible. 
+    <strong>Investor arrivals.</strong> At random times an automated investor arrives in the market to buy or to sell a share of the stock. Investors transact immediately at the best price they find in the market upon arrival. In today’s experiment, the average time between investor arrivals is about <strong><span style="background-color: #FFFF00" id="investor_arrival_average"></span> </strong> seconds, but again shorter or much longer times are possible. 
 </p>
 
 <p>
@@ -212,6 +212,9 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
             document.getElementById("players_per_group").innerHTML = playersPerGroup - 1;
             document.getElementById("players_per_group2").innerHTML = playersPerGroup;
             document.getElementById("num_other_players").innerHTML = playersPerGroup - 1;
+            document.getElementById("investor_arrival_average").innerHTML = 3;
+            document.getElementById("jump_average").innerHTML = 4;
+
         };
 </script>
 {% endblock %}
