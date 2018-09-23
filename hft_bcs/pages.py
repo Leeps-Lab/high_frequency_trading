@@ -10,17 +10,31 @@ from django.conf import settings
 
 log = logging.getLogger(__name__)
 
+class InformedConsent(Page):
+    form_model = 'player'
+    form_fields = ['consent']
+    def is_displayed(self):
+        is_first_round = self.round_number == 1
+        return is_first_round
+
+class NoParticipation(Page):
+    def is_displayed(self):
+        consented = self.player.consent
+        return not consented
+
 class InstructionsFBA(Page):
     def is_displayed(self):
-        is_instructed = self.subsession.is_trial or (self.subsession.first_round == self.round_number)
-        is_fba = True if self.subsession.design == 'FBA' else False
-        return is_instructed and is_fba
+        round_is_instructed = self.subsession.is_trial or (
+            self.subsession.first_round == self.round_number)
+        round_is_fba = True if self.subsession.design == 'FBA' else False
+        return round_is_instructed and round_is_fba
 
 class InstructionsCDA(Page):
     def is_displayed(self):
-        is_instructed = self.subsession.is_trial or (self.subsession.first_round == self.round_number)
-        is_cda = True if self.subsession.design == 'CDA' else False
-        return is_instructed and is_cda
+        round_is_instructed = self.subsession.is_trial or (
+            self.subsession.first_round == self.round_number)
+        round_is_cda = True if self.subsession.design == 'CDA' else False
+        return round_is_instructed and round_is_cda
 
 class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
@@ -29,8 +43,9 @@ class PreWaitPage(WaitPage):
 class index(Page):
     pass
 
-test = {}
+round_results = {}
 class ResultsWaitPage(WaitPage):
+
     def after_all_players_arrive(self):
         subsession = self.subsession
         # take speed cost
@@ -47,16 +62,17 @@ class ResultsWaitPage(WaitPage):
         session_log_file = self.subsession.log_file
         gid = self.group.id
         results_for_group = results.BCS_process(session_log_file, gid)
-        test[gid] = results_for_group
+        round_results[gid] = results_for_group
 
 class Results(Page):
     def vars_for_template(self):
         gid = self.group.id
-        return test[gid]
+        return round_results[gid]
 
 class SessionResults(Page):
     def is_displayed(self):
-        return self.round_number == self.subsession.last_round
+        round_is_final = self.round_number == self.subsession.last_round
+        return round_is_final
 
     def vars_for_template(self):
         random_round_pay = self.session.config['random_round_payment']
@@ -71,8 +87,9 @@ class SessionResults(Page):
         }
         return out
 
-
 page_sequence = [
+    InformedConsent,
+    NoParticipation,
     InstructionsCDA,
     InstructionsFBA,
     PreWaitPage,

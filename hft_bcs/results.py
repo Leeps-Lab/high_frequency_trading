@@ -1,22 +1,26 @@
 
 import json
 import logging
+import csv
+import os
+from settings import results_dir
 
 author = 'hasan ali demirci'
 
 log = logging.getLogger(__name__)
-
+#results_dir = os.path.join(os.getcwd(), 'experiment_results/')
 class MarketEvents:
 
-    def __init__(self, group, players, events, **kwargs):
+    def __init__(self, group, players, events, filename, **kwargs):
         self.group = group
         self.players = players
         self.events = events
+        self.filename = filename.split('/')[-1]
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    @classmethod    
-    def read(cls, filename):
+    @staticmethod
+    def read(filename):
         f = open(filename, 'r').read()
         # -1 since we split by a new line
         out = f.split('\n')[:-1]
@@ -39,7 +43,7 @@ class MarketEvents:
             if events.get(group) is None:
                 events[group] = []
             events[group].append(record)
-        out = [cls(group, players, events[group], **instance_vars) 
+        out = [cls(group, players, events[group], filename, **instance_vars) 
                                 for group, players in groups.items()]
         return out
 
@@ -150,6 +154,8 @@ class BCSPlayer(Player):
                 sub_role_name = self.__class__.sniper_role.format(self=self)
             elif self.current_role == 'maker':
                 sub_role_name = self.__class__.maker_role.format(self=self)
+        else:
+            return
         self.roles[sub_role_name].on(time)
 
     def __repr__(self):
@@ -168,13 +174,20 @@ class BCSMarket:
         'cost': 'handle_cost',
         'end': 'handle_end'
     }
+    result_filename = '{result_type}_{self.events.filename}_group_{self.events.group}.csv'
 
     def __init__(self, events):
         self.players = {p: BCSPlayer(p) for p in events.players}
         self.events = events
-        self.duration = 0
-        log.info(self.players)
+        self.duration = 1
+        self.role_counter = RoleCounter(len(self.players))
     
+    # add func dump data
+    def dump_role_counts(self):
+        filename = self.__class__.result_filename.format(result_type='role_percent', self=self)
+        path = os.path.join(results_dir, filename)
+        self.role_counter.write(path)
+
     def process(self):
         for row in self.events:
             typ = row['type']
@@ -182,6 +195,10 @@ class BCSMarket:
             if func_name:
                 func = getattr(self, func_name)
                 func(row)
+        # TODO: this is just here for we are rushing for a protype
+        # many better ways to do this
+        self.role_counter.edit_start_time(self.start)
+        self.dump_role_counts()
 
     def inside_maker(self):     
         makers = [p for p in self.players.values() if p.current_role == 'maker']
@@ -202,6 +219,7 @@ class BCSMarket:
     def handle_start(self, msg):
         time = msg['time']
         self.start = time
+ 
     
     def handle_end(self, msg):
         time = msg['time']
@@ -218,6 +236,9 @@ class BCSMarket:
         self.players[player_id].role_change(new_role, time)
         if old_role == 'maker' or new_role == 'maker':
             self.arrange_makers(time)
+        role_counter_dict = {'new_role': new_role, 'old_role': old_role, 'time': time,
+            'player_id': player_id}
+        self.role_counter.update(**role_counter_dict)
 
     def handle_profit(self, msg):
         player_id = msg['context']['player_id']
@@ -277,6 +298,80 @@ class Role:
     def __repr__(self):
         out = '< Role {self.name}:{self.profit}:{self.duration:.2f}>'.format(self=self)
         return out
+
+class MarketState():
+
+    def __init__(self):
+        self.initial_state = None
+        self.columns = []
+        self.history = []
+    
+    def update(self, **kwargs):
+        raise NotImplementedError()
+    
+    def handle(self, msg):
+        pass
+    
+    def write(self, path):
+        with open(path, 'w') as f:
+            writer = csv.DictWriter(f, self.columns)
+            writer.writeheader()
+            writer.writerows(self.history)
+
+class RoleCounter(MarketState):
+
+    def __init__(self, num_players, **kwargs):
+        super().__init__()
+        self.columns = ['time', 'switcher', 'maker', 'sniper', 'out']
+        self.num_players = num_players
+        self.initial_state = {'time': 0, 'switcher': 0, 'maker': 0, 
+            'sniper': 0, 'out': self.num_players}
+        self.history = [self.normalize(self.initial_state)]
+        self.current_state = self.initial_state
+        self.round = kwargs.get('round_no')
+    
+    def update(self, **kwargs):
+        new_role = kwargs.pop('new_role')
+        pid = kwargs.pop('player_id')
+        time = kwargs.pop('time')
+        old_role = kwargs.pop('old_role')
+        state = self.current_state
+        state[new_role] += 1
+        state[old_role] -= 1
+        state['switcher'] = pid
+        state['time'] = time
+        self.current_state = state
+        self.history.append(self.normalize(state))
+
+    def normalize(self, state):
+        normal_state = dict(state)
+        for role in ('maker', 'sniper', 'out'):
+            normal_state[role] = round(state[role] / self.num_players, 2)
+        return normal_state
+
+    def edit_start_time(self, time):
+        self.history[0]['time'] = time
+        print(self.history)
+        self.normalize_time()
+    
+    def normalize_time(self):
+        normalised = []
+        start_time = 0
+        for ix, row in enumerate(self.history):
+            normal_row = row
+            if ix is 0:
+                start_time = int(row['time'])
+                normal_row['time'] = 0
+            else:
+                event_time = row['time'] - start_time
+                normal_row['time'] = event_time
+            normal_row['time'] = round(normal_row['time'] * 1e-9, 2)
+            normalised.append(normal_row)
+        self.history = normalised
+                
+
+
+        
 
 class AggregateOutcome:
 
@@ -431,66 +526,4 @@ def BCS_process(log_file, group_id):
 
             
 if __name__ == '__main__':
-    out = BCS_process('hft_logging/experiment_data/CDA_hcqywgt4_3_2018-09-09_19-09', 2427)
-# def aggregate(market):
-#     cumul_dict = {'profit': 0,'duration': 0}
-#     results = {k: dict(cumul_dict) for k in BCSPlayer.roles}
-#     print(market.players)
-#     for player in market.players.values():
-#         for role_name, role in player.roles.items():
-#             for k in cumul_dict.keys():
-#                 results[role_name][k] += getattr(role, k)
-#     results['duration'] = getattr(market, 'duration', None) * 1e-9
-#     results['num_players'] = getattr(market, 'players', None).__len__()
-#     return results
-
-# def total_profit(results):
-#     cum_profit = {role_name: 0 for role_name in BCSPlayer.roles}
-#     for role_name in BCSPlayer.roles:
-#         cum_profit[role_name] += results[role_name]['profit'] * 1e-4
-#     return cum_profit
-        
-# def total_speed_cost(market):
-#     total_cost = sum([player.cost for player in market.players.values()])
-#     return total_cost
-
-# def normal_duration(results):
-#     session_length = results['duration'] * results['num_players']
-#     if not session_length:
-#         return
-#     all_others = 0
-#     out = {role_name: 0 for role_name in BCSPlayer.roles}
-#     for role_name in BCSPlayer.roles:
-#         dur = results[role_name]['duration']
-#         all_others += dur
-#         out[role_name] = dur / session_length
-#     out['out'] = (session_length - all_others)/ session_length
-#     out['slow_maker'] = out['slow_inside'] + out['slow_outside']
-#     out['fast_maker'] = out['fast_inside'] + out['fast_outside']
-#     return out
-
-# def break_cost_by_role(market, results):
-#     total_cost = total_speed_cost(market)
-#     fast_roles = ('fast_inside', 'fast_outside', 'fast_sniper')
-#     total_dur = 0
-#     for role in fast_roles:
-#         total_dur += results[role]['duration']
-#     if not total_dur:
-#         total_dur = 1
-#     shares = {role: results[role]['duration'] / total_dur for role in fast_roles}
-#     speed_cost_breakdown = {role: shares[role] * total_cost for role in fast_roles}
-#     return speed_cost_breakdown
-
-# def take_speed_cost(profits, speed_costs):
-#     for role, cost in speed_costs.items():
-#         profits[role] -= cost * 1e-4
-#     return profits
-
-
-# def BCS_results(market):
-#     results = aggregate(market)
-#     speed_costs = break_cost_by_role(market, results)
-#     profits = total_profit(results)
-#     profits = take_speed_cost(profits, speed_costs)
-#     durations = normal_duration(results)
-#     return (profits, durations)
+    out = BCS_process('hft_logging/experiment_data/FBA_dm0r0vdy_3_2018-09-23_10-53_round_1', 421)

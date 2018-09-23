@@ -1,6 +1,6 @@
 
 import sys
-from twisted.python import log
+import logging
 import time
 from twisted.internet.protocol import Protocol, ClientFactory
 import numpy as np
@@ -8,7 +8,7 @@ from twisted.internet import reactor
 from .hft_logging import session_events as hfl
 from collections import deque
 
-log.startLogging(sys.stdout)
+log = logging.getLogger(__name__)
 
 class OUCH(Protocol):
     bytes_needed = {
@@ -24,7 +24,7 @@ class OUCH(Protocol):
         self.buffer = deque()
 
     def connectionMade(self):
-        log.msg('connection made.')
+        log.debug('connection made.')
       
     def dataReceived(self, data):
         cls = self.__class__
@@ -72,11 +72,11 @@ class OUCHConnectionFactory(ClientFactory):
 
     def clientConnectionLost(self, connector, reason):
         l = 'lost connection to exchange at %s: %s' % (self.addr, reason)
-        log.msg(l)
+        log.debug(l)
         hfl.events.push(hfl.exchange, **{'context': l})
 
     def clientConnectionFailed(self, connector, reason):
-        log.msg('failed to connect to exchange at %s: %s' % (self.addr, reason))
+        log.debug('failed to connect to exchange at %s: %s' % (self.addr, reason))
 
 
 exchanges = {}
@@ -89,10 +89,10 @@ def connect(group, host, port, wait_for_connection=False):
         reactor.connectTCP(host, port, factory)
     else:
         if exchanges[addr].group != group:
-            log.msg('exchange at {} already has a group: {}'.format(addr, exchanges))
+            log.info('exchange at {} already has a group: {}'.format(addr, exchanges))
         exchanges[addr].group = group
     while not exchanges[addr].connection and wait_for_connection:
-        log.msg('waiting for connection to %s...' % addr)
+        log.info('waiting for connection to %s...' % addr)
         time.sleep(0.1)
     return exchanges[addr]
 
@@ -102,7 +102,7 @@ def disconnect(group, host, port):
     try:
         conn = exchanges[addr].connection
     except KeyError as e:
-        log.msg('key not found, connection already deleted.')
+        log.warning('key not found, maybe connection already deleted.')
         return
     else:
         del exchanges[addr]

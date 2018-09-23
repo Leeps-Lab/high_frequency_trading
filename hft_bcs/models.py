@@ -11,7 +11,7 @@ from jsonfield import JSONField
 from . import translator as translate
 from .hft_logging.experiment_logger import prepare
 from .hft_logging import session_events as hfl
-from .utility import nanoseconds_since_midnight as labtime
+from .utility import get_label_as_int, nanoseconds_since_midnight as labtime
 from . import exchange
 from .profit import Price_Log, Price_Node
 from channels import Group as CGroup, Channel
@@ -85,8 +85,9 @@ class Constants(BaseConstants):
     }
 
     # log file
-    log_file = '{dir}{self.design}_{self.code}_{self.players_per_group}_{time}'
+    log_file = '{dir}{self.design}_{self.code}_{self.players_per_group}_{time}_round_{self.round_number}'
 
+    # you may wanna change this if you run otree on different ports.
     investor_url = 'ws://127.0.0.1:8000/hft_investor/'
     jump_url = 'ws://127.0.0.1:8000/hft_jump/'
 
@@ -158,7 +159,17 @@ class Subsession(BaseSubsession):
         pairs[ready_groups] = {g.id: False for g in self.get_groups()}
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
-
+    
+    def group_by_participant_label(self):
+        group_matrix_conf= self.session.config['group_matrix']
+        group_matrix = [list() for group in group_matrix_conf]
+        for player in self.get_players():
+            int_label = get_label_as_int(player)
+            for ix, group in enumerate(group_matrix_conf):
+                if int_label in group:
+                    group_matrix[ix].append(player)
+                    break
+        return group_matrix
 
     def set_payoff_round(self):
         for player in self.get_players():
@@ -179,8 +190,13 @@ class Subsession(BaseSubsession):
         self.save()
 
     def assign_groups(self):
-        group_matrix = self.session.config['group_matrix']
-        self.set_group_matrix(group_matrix)
+        try:
+            group_matrix = self.group_by_participant_label()
+        except Exception as e:
+            log.exception(e)
+            log.info('failed to set groups from config.') 
+        else:
+            self.set_group_matrix(group_matrix)
         self.save()
 
     def creating_session(self):
@@ -213,9 +229,7 @@ class Subsession(BaseSubsession):
             for k, v in Constants.player_field_map.items():
                 attr = self.session.config[v]
                 if k in Constants.player_scaled_fields:
-                    print(k, attr)
                     attr = attr * Constants.conversion_factor
-                print(attr)
                 setattr(player, k, attr)
             player.init_cache()
 
@@ -223,7 +237,7 @@ class Subsession(BaseSubsession):
         group_players = {g.id: [p.id for p in g.get_players()] for g in groups}
         l = prepare(group=0, level='header', typ='header', groups=group_players,
             session=self.code, design=self.design, initial_spread=players[0].spread,
-            batch_length=self.batch_length, round_length=self.round_length)
+            batch_length=self.batch_length, round_length=self.round_length, round_no=self.round_number)
         lablog(self.log_file, l)
         self.save()
         self.session.save()
@@ -269,8 +283,6 @@ class Subsession(BaseSubsession):
                 except AttributeError:
                     log.exception('participant label is not set. {}'.format(e))
                     continue      
-        for p in self.session.get_participants():
-            print(p.payoff)
 
     def save(self, *args, **kwargs):
         """
@@ -314,6 +326,8 @@ class Group(BaseGroup):
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
     
+
+    
     # def set_exchange_host(self):
     #     if EXCHANGE_HOST_NO is not "127.0.0.1":
     #         self.exch_host = Constants.exchange_host_label.format(
@@ -324,6 +338,7 @@ class Group(BaseGroup):
     #     log.info('exchange host is {}'.format(self.exch_host))
 
     def creating_group(self):
+        # TODO:this is hardcoded temporarily.
         self.exch_host =  "127.0.0.1"
   #      self.set_exchange_host()
         self.exch_port = self.subsession.next_available_exchange
@@ -343,6 +358,9 @@ class Group(BaseGroup):
         self.save()
         self.subsession.save()
 
+    # TODO: we will add some buttons to 
+    # session monitor page and trigger 
+    # each of these events from the admin page
     def start(self):
         self.spawn(
             Constants.investor_py,
@@ -413,6 +431,12 @@ class Group(BaseGroup):
         conn = exchange.connect(self, self.exch_host, self.exch_port).connection
         for m in true_msgs:
             conn.sendMessage(m, dur)
+    
+    """
+    once I complete the translation module
+    receive function will change to use polymorphism
+    and get rid of if else statements
+    """
     
     def receive_from_exchange(self, msg):
         """
@@ -582,6 +606,7 @@ class Player(BasePlayer):
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
     design =  models.CharField()
+    consent = models.BooleanField()
 
     def init_cache(self):
         pairs = {}
@@ -1102,7 +1127,9 @@ class Player(BasePlayer):
 
         if current_role == 'SNIPER':
             side = 'B' if is_positive else 'S'
-            tif = 0 if self.design == 'CDA' else 1   # Constants.long_delay # no floats allowed
+            # next line is not the correct implementation 
+            # we have not yet decided how to handle
+            tif = 0 if self.design == 'CDA' else 1
             order = [self.stage_enter(side=side, price=self.status(field='fp'), time_in_force=tif)]
             response = order
         elif current_role == 'MAKER':

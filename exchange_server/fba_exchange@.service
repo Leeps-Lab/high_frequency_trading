@@ -1,0 +1,13 @@
+[Unit]
+Description=Frequent Batch Auctioneer at %i
+[Service]
+User=leepslab
+Group=leepslab
+EnvironmentFile=/home/leepslab/leeps-games/oTree_HFT_CDA/exchange_server/exchange.env
+WorkingDirectory=/home/leepslab/leeps-games/oTree_HFT_CDA/exchange_server
+ExecStart=/home/leepslab/leeps-games/oTree_HFT_CDA/exchange_server/run_fba.sh %i ${INTERVAL}
+ExecStop=/bin/kill -INT $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
