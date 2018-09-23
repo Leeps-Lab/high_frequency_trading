@@ -11,7 +11,7 @@ from jsonfield import JSONField
 from . import translator as translate
 from .hft_logging.experiment_logger import prepare
 from .hft_logging import session_events as hfl
-from .utility import nanoseconds_since_midnight as labtime
+from .utility import get_label_as_int, nanoseconds_since_midnight as labtime
 from . import exchange
 from .profit import Price_Log, Price_Node
 from channels import Group as CGroup, Channel
@@ -159,6 +159,17 @@ class Subsession(BaseSubsession):
         pairs[ready_groups] = {g.id: False for g in self.get_groups()}
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
+    
+    def group_by_participant_label(self):
+        group_matrix_conf= self.session.config['group_matrix']
+        group_matrix = [list() for group in group_matrix_conf]
+        for player in self.get_players():
+            int_label = get_label_as_int(player)
+            for ix, group in enumerate(group_matrix_conf):
+                if int_label in group:
+                    group_matrix[ix].append(player)
+                    break
+        return group_matrix
 
     def set_payoff_round(self):
         for player in self.get_players():
@@ -179,8 +190,13 @@ class Subsession(BaseSubsession):
         self.save()
 
     def assign_groups(self):
-        group_matrix = self.session.config['group_matrix']
-        self.set_group_matrix(group_matrix)
+        try:
+            group_matrix = self.group_by_participant_label()
+        except Exception as e:
+            log.exception(e)
+            log.info('failed to set groups from config.') 
+        else:
+            self.set_group_matrix(group_matrix)
         self.save()
 
     def creating_session(self):
@@ -310,6 +326,8 @@ class Group(BaseGroup):
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
     
+
+    
     # def set_exchange_host(self):
     #     if EXCHANGE_HOST_NO is not "127.0.0.1":
     #         self.exch_host = Constants.exchange_host_label.format(
@@ -320,6 +338,7 @@ class Group(BaseGroup):
     #     log.info('exchange host is {}'.format(self.exch_host))
 
     def creating_group(self):
+        # TODO:this is hardcoded temporarily.
         self.exch_host =  "127.0.0.1"
   #      self.set_exchange_host()
         self.exch_port = self.subsession.next_available_exchange

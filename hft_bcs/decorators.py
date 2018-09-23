@@ -5,6 +5,7 @@ import itertools
 
 log = logging.getLogger(__name__)
 
+author = 'hasan ali demirci'
 
 # TODO: fix this. circular reference being a problem. use partial maybe ?
 

@@ -11,7 +11,34 @@ import pytz
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
+def get_label_as_int(player):
+    """
+    this strictly expects a label ends with an integer
+    and seperated by _ (underscore)
+    LEEPS_1 
+    """
+    label = player.participant.participant_label
+    splitted_label = label.split('_')
+    int_label = int(splitted_label[-1])
+    return int_label
 
+def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
+    now = datetime.datetime.now(tz=tz)
+    timestamp = 0  # since midnight
+    timestamp += now.hour
+    timestamp *= 60  # hours -> minutes
+    timestamp += now.minute
+    timestamp *= 60  # minutes -> seconds
+    timestamp += now.second
+    timestamp *= 10**6  # seconds -> microsecnds
+    timestamp += now.microsecond
+    timestamp *= 10**3  # microseconds -> nanoseconds
+    return timestamp
+
+"""
+after here is legacy code
+we will use struct module
+"""
 
 # returns a numpy array representing each
 # consecutive byte in an num_of_bytes long integer
@@ -63,17 +90,3 @@ def Byte_Array_To_String(source, start, offset= 4):
         new_string = new_string + chr(source[source_index])
 
     return new_string
-
-
-def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
-    now = datetime.datetime.now(tz=tz)
-    timestamp = 0  # since midnight
-    timestamp += now.hour
-    timestamp *= 60  # hours -> minutes
-    timestamp += now.minute
-    timestamp *= 60  # minutes -> seconds
-    timestamp += now.second
-    timestamp *= 10**6  # seconds -> microsecnds
-    timestamp += now.microsecond
-    timestamp *= 10**3  # microseconds -> nanoseconds
-    return timestamp
