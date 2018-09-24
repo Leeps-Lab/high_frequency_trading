@@ -402,9 +402,7 @@ class SpreadGraph extends PolymerElement {
 
                 if(exec_side != "" && exec.player == userPlayerID){
                     spreadGraph.drawTransactionBar(exec_spread, svgMiddleY,yCoordinate, exec_side,((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
-                } else if(exec.player != userPlayerID){
-                    console.log(exec.player);
-                }
+                } 
             //End userPlayerId
             } else if(player != userPlayerID) {
                 var otherPlayer = player;
@@ -479,7 +477,7 @@ class SpreadGraph extends PolymerElement {
                             .attr("x2", spreadGraph.spread_width - 25)
                             .attr("y2", svgMiddleY + newLineYCoordinate)
                             .attr("stroke-width",3)
-                            .attr("class","my_line my_line_top");
+                            .attr("class","my_line my_line_bottom");
                 if(role == "MAKER"){
                     var transactionSpeed = 500;
                     if(document.querySelector("info-table").speed_cost != 0){
