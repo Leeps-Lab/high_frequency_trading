@@ -1,5 +1,5 @@
 demo:
-  number-of-participants: 15
+  number-of-participants: 18
 directory:
   folder: investors_jumps
 trial:
@@ -14,9 +14,9 @@ jumps:
   group_2: ['j01.csv', 'j02.csv', 'j01.csv', 'j02.csv']
   group_3: ['j01.csv', 'j02.csv', 'j01.csv', 'j02.csv']
 group:
-  group-assignments: '[[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15]]'
+  group-assignments: '[[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12], [13, 14, 15, 16, 17, 18]]'
   number-of-groups: 3
-  players-per-group: 5
+  players-per-group: 6
 market:
   design: "FBA"
   matching-engine-host: "127.0.0.1"
@@ -34,4 +34,4 @@ session:
   random-round-payment: off
   num-rounds: 4
   display_name: FBA Production
-  session_name: fba_3_2_test
+  session_name: fba_3_6_test
