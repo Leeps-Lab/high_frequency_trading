@@ -128,7 +128,12 @@ ROOMS = [
     {
         'name': 'leeps',
         'display_name': 'LEEPS Lab',
-        'participant_label_file': 'leeps_room_labels.txt',
+        'participant_label_file': 'leeps_room_labels.txt'
+    },
+    {
+        'name': 'cologne',
+        'display_name': 'COLOGNE Lab',
+        'participant_label_file': 'cologne_room_labels.txt',
     }
 ]
 
