@@ -96,6 +96,7 @@ let inputSection = {};
 IMPORTANT:
 Constant, Player, and Group Information from oTree stored in the otreeConstants objects
 */
+    otreeConstants.groupIDInfoTable = {{group.id_in_subsession}};
     otreeConstants.groupID = {{group.id}};
     otreeConstants.playerID = {{player.id}};
     otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
@@ -354,7 +355,7 @@ Socket Actions
             document.querySelector('info-table').setAttribute("fp"," "+ {{player.fp}} * (1e-4) + " "); 
             document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
             document.querySelector('info-table').setAttribute("curr_ask","N/A");
-            document.querySelector('info-table').setAttribute("group_id","{{player.group_id}}");
+            document.querySelector('info-table').setAttribute("group_id",otreeConstants.groupIDInfoTable);
 
             document.querySelector(".overlay").style.opacity = 0;
             if(!otreeConstants.FBA){
@@ -386,7 +387,6 @@ Socket Actions
     }
 
     function playerReady(){
-            otreeConstants.groupID = {{group.id}};
             otreeConstants.playerID = {{player.id}};
             otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
             otreeConstants.maxSpread = {{player.max_spread}}; 
