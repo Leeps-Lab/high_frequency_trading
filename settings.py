@@ -128,7 +128,12 @@ ROOMS = [
     {
         'name': 'leeps',
         'display_name': 'LEEPS Lab',
-        'participant_label_file': 'leeps_room_labels.txt',
+        'participant_label_file': 'leeps_room_labels.txt'
+    },
+    {
+        'name': 'cologne',
+        'display_name': 'COLOGNE Lab',
+        'participant_label_file': 'cologne_room_labels.txt',
     }
 ]
 
@@ -161,14 +166,14 @@ mturk_hit_settings = {
 today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
 exp_logs_dir = 'hft_bcs/hft_logging/experiment_data/'
 logs_dir = 'hft_bcs/hft_logging/logs/'
-name_format = '{directory}_{kind}_{date}'
-filename_soft = name_format.format(directory=logs_dir, kind='soft', date=today)
+results_dir = 'hft_bcs/experiment_results/'
+logfile_name_format = '{directory}_{kind}_{date}'
+filename_soft = logfile_name_format.format(directory=logs_dir, kind='otree_console', date=today)
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-
         'verbose': {
             'format': '[%(levelname)s|%(asctime)s] [%(filename)s:%(lineno)s - %(funcName)20s()] %(message)s'
         },
@@ -176,15 +181,11 @@ LOGGING = {
         'simple': {
             'format': '[%(asctime)s] %(message)s'
         },
-
-        'json': {
-            'fmt': '%(message)s',
-        }
     },
     'handlers': {
         'console': {
-            'class': 'logging.StreamHandler',
             'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
         'logfile': {
@@ -195,10 +196,15 @@ LOGGING = {
         },
     },
     'loggers': {
+        'django.channels':{
+            'handlers': ['logfile'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
         'hft_bcs': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
-            'propagate': False
+            'propagate': False,
         }
     }    
 }

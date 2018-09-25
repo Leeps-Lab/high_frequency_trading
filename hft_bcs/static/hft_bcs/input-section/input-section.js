@@ -159,7 +159,6 @@ class InputSection extends PolymerElement {
         inputSection.timerSVG = d3.select(inputSection.timerSVGDOM);
         inputSection.drawTimer = this.drawTimer;
         inputSection.startTimer = this.startTimer;
-        console.log(document.querySelector("#maker"));
         inputSection.drawTimer();
     }
 
@@ -214,6 +213,13 @@ class InputSection extends PolymerElement {
             document.querySelector('info-table').setAttribute("speed_cost","0");
           }
         }
+
+
+        var money_ratio =  otreeConstants.maxSpread/(spreadGraph.last_spread * 10000);
+        var svg_middle_y = spreadGraph.spread_height/2;
+        var y_coordinate = svg_middle_y/money_ratio;
+        
+        spreadGraph.drawLineAttempt(y_coordinate);
 
        this.Button_Pressed(input_object);
        document.querySelector('info-table').setAttribute("player_role","MAKER"); 

@@ -1,8 +1,9 @@
 from channels import Group, Channel
 from channels.generic.websockets import JsonWebsocketConsumer
-from .models import Player, Investor, Group as OGroup
+from .models import stop_exogenous, Player, Investor, Group as OGroup
 import json
 import logging
+
 
 log = logging.getLogger(__name__)
 
@@ -61,3 +62,17 @@ class JumpConsumer(JsonWebsocketConsumer):
 
     def raw_disconnect(self, message, group_id):
         log.info('Jump disconnected from Group %s.' % group_id)
+
+
+class Stop(JsonWebsocketConsumer):
+
+    def raw_connect(self, message):
+        pass
+
+    def raw_receive(self, message):
+        log.info('received stop investor & jumps signal..')
+        stop_exogenous()
+
+
+    def raw_disconnect(self, message):
+        pass

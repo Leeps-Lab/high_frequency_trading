@@ -3,9 +3,9 @@ import logging
 import yaml
 import collect
 import sys
-from twisted.python import log
+import logging
 
-log.startLogging(sys.stdout)
+log = logging.getLogger(__name__)
 
 class CustomOtreeConfig:
     yaml_map = ()
@@ -26,7 +26,7 @@ class CustomOtreeConfig:
             try:
                 config_value = self.yaml_conf[key_head][key_sub]
             except KeyError:
-                log.msg('%s:%s is missing, set to None.' % (key_head, key_sub))
+                log.debug('%s:%s is missing, set to None.' % (key_head, key_sub))
                 config_value = None
             setattr(self, config_key, config_value)
         self.read_csv()
@@ -44,7 +44,7 @@ class CustomOtreeConfig:
             except yaml.YAMLError as e:
                 raise e
             else:
-                log.msg('reading custom config: %s.' % path)
+                log.debug('reading custom config: %s.' % path)
         return config
 
     

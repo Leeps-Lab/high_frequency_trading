@@ -3,31 +3,32 @@
 {% load staticfiles %}
 
 {% block title %}
-    Results in (Period {{ subsession.round_number }} of {{ subsession.last_round }})
+    Results in Period {{ subsession.round_number }} of {{ subsession.last_round }}
 {% endblock %}
 
 {% block content %}
-<div id="dual_x_div" style="width: 50%; height: 500px; float: left;"></div>
-<div id="piechart" style="width: 50%; height: 500px; float: right; "></div>
+<h3>Player <strong>{{player.id_in_group}}</strong> in Group <strong>{{group.id_in_subsession}}</strong>:</h3>
+<div id="dual_x_div" style="width: 55%; height: 500px; float: left;"></div>
+<div id="piechart" style="width: 45%; height: 400px; float: right;"></div>
 
 
 
 
-<ul class="legend">
+<!-- <ul class="legend">
     <li><span class="fastinside"></span> Fast Inside Maker Profit/Min</li>
     <li><span class="slowinside"></span> Slow Inside Maker Profit/Min</li>
     <li><span class="fastoutside"></span> Fast Outside Maker Profit/Min</li>
     <li><span class="slowoutside"></span> Slow Outside Maker Profit/Min</li>
     <li><span class="fastsniper"></span> Fast Sniper Profit/Min</li>
     <li><span class="slowsniper"></span> Slow Sniper Profit/Min</li>
-</ul>
+</ul> -->
 
 {% endblock %}
 
 
 {% block app_styles %}
 
-<style type="text/css">
+<!-- <style type="text/css">
     /* basic positioning */
     .legend {font-family: Arial; font-size: 14px; float: left; }
     .legend { list-style: none; }
@@ -40,7 +41,7 @@
     .legend .slowoutside { background-color: #6699FF; }
     .legend .fastsniper { background-color: #FF9900; }
     .legend .slowsniper { background-color: #FFCC66; }
-</style>
+</style> -->
 
 {% endblock %}
 
@@ -58,15 +59,18 @@
                 data.addColumn('string', 'Type');
                 data.addColumn('number', 'Fast');
                 data.addColumn({type: 'string', role: 'style'});
+                data.addColumn({type: 'string', role: 'annotation'});
                 data.addColumn('number', 'Slow');
                 data.addColumn({type: 'string', role: 'style'});
+                data.addColumn({type: 'string', role: 'annotation'});
                 data.addRows([
-                ['InsideMaker', {{profit.fast_inside}},'color: #0033FF', {{profit.slow_inside}},  'color: #0099FF'],
-                ['OutsideMaker', {{profit.fast_outside}},'color: #6633FF', {{profit.slow_outside}},  'color: #6699FF'],
-                ['Sniper', {{profit.fast_sniper}},'color: #FF9900', {{profit.slow_sniper}},  'color: #FFCC66'],
-        ]);
+                    ['Inside Maker', {{profit.fast_inside}}, 'color: #0033FF', 'Fast', {{profit.slow_inside}}, 'color: #0099FF', 'Slow'],
+                    ['Outside Maker', {{profit.fast_outside}},'color: #6633FF',  'Fast', {{profit.slow_outside}}, 'color: #6699FF', 'Slow'],
+                    ['Sniper', {{profit.fast_sniper}},'color: #FF9900',  'Fast', {{profit.slow_sniper}}, 'color: #FFCC66', 'Slow']
+            
+                ]);
         var options = {
-          "title":"Profit by Strategy",
+          "title":"Profit by Strategy (ECUs)",
           bars: 'vertical', 
           series: {
             0: { axis: 'distance' }, 
@@ -87,14 +91,24 @@
                   // fontName: 'Arial Black',
                    fontSize: 14,
                    // bold:true
-               }
-          }
+               },
+               slantedText: true,
+          },
+          annotations: {
+            alwaysOutside: true,
+            textStyle: {
+                fontSize: 10,
+                color: '#000',
+                auraColor: 'none'
+            }
+        },
 
         };
 
       var chart = new google.visualization.ColumnChart(document.getElementById('dual_x_div'));
       chart.draw(data, options);
-    };</script>
+    };
+    </script>
 
 
     
@@ -106,17 +120,32 @@
 
         var data = google.visualization.arrayToDataTable([
           ['Type', 'Time per session'],
-          ['OutTime', {{duration.out}}],
-          ['FastSniperTime', {{duration.fast_sniper}}],
-          ['SlowSniperTime', {{duration.slow_sniper}}],
-          ['FastMakerTime', {{duration.fast_maker}}],
-          ['SlowMakerTime', {{duration.slow_maker}}]
+          ['Out Time', {{duration.out}}],
+          ['Fast Sniper', {{duration.fast_sniper}}],
+          ['Slow Sniper', {{duration.slow_sniper}}],
+          ['Fast Maker', {{duration.fast_maker}}],
+          ['Slow Maker', {{duration.slow_maker}}]
         ]);
 
         var options = {
-          title: 'Frequency of Strategies',
-          pieHole: 0.4,
-          colors: ['#C2C2D6', '#FF9900', '#FFCC66', '#0033FF', '#0099FF']
+            title: 'Time Spent per Strategy (Percentage)',
+            pieHole: 0.4,
+            pieSliceText: 'none',
+            chartArea: {width: '100%'},
+            colors: ['#C2C2D6', '#FF9900', '#FFCC66', '#0033FF', '#0099FF'],
+           
+            legend: {
+                        position: 'labeled',
+                        textStyle: { fontSize: 10 }
+            },
+            annotations: {
+                alwaysOutside: true,
+                textStyle: {
+                    fontSize: 14,
+                    color: '#000',
+                    auraColor: 'none'
+                }
+            },
         };
 
         var chart = new google.visualization.PieChart(document.getElementById('piechart'));

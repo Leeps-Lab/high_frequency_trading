@@ -122,15 +122,29 @@ def lablog(filename, log):
         f.write('\n')
 
 subprocesses = {}
-# TODO: refine this. add logging.
+# TODO: that is still a bit weird.
+# not really know subprocess module
+# in detail.
 
-def stop_exogenous(group_id):
-    if subprocesses[group_id]:
-        for v in subprocesses[group_id].values():
-            try:
-                v.kill()
-            except Exception as e:
-                log.warning(e)
+def stop_exogenous(group_id=None):
+    if group_id: 
+        if subprocesses[group_id]:
+            for process in subprocesses[group_id].values():
+                try:
+                    process.kill()
+                except Exception as e:
+                    log.exception(e)
+    else:
+        for _, process_dict in subprocesses.items():
+            if process_dict:
+                print(process_dict)
+                for process in process_dict.values():
+                    try:
+                        process.kill()
+                    except Exception as e:
+                        log.exception(e)
+
+
 
 
 class Subsession(BaseSubsession):
@@ -159,7 +173,7 @@ class Subsession(BaseSubsession):
         pairs[ready_groups] = {g.id: False for g in self.get_groups()}
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
-    
+
     def group_by_participant_label(self):
         """
         will use this after cologne
@@ -194,12 +208,10 @@ class Subsession(BaseSubsession):
 
     def assign_groups(self):
         try:
-            group_matrix = self.group_by_participant_label()
-        except Exception as e:
-            log.exception(e)
-            log.info('failed to set groups from config.') 
-        else:
-            self.set_group_matrix(group_matrix)
+            group_matrix = self.session.config['group_matrix']
+        except KeyError:
+            raise KeyError('Group assignments not found. You must pass in a list of list.')
+        self.set_group_matrix(group_matrix)
         self.save()
 
     def creating_session(self):
@@ -391,7 +403,7 @@ class Group(BaseGroup):
     def end_trade(self, player_id):
         if self.is_trading == True:
             log.info('Group%d: Player%d flags session end.' % (self.id, player_id))
-            stop_exogenous(self.id)
+            stop_exogenous(group_id=self.id)
             self.disconnect_from_exchange()
             self.loggy()
             self.is_trading = False
@@ -609,7 +621,7 @@ class Player(BasePlayer):
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
     design =  models.CharField()
-    consent = models.BooleanField()
+    consent = models.BooleanField(initial=True)
 
     def init_cache(self):
         pairs = {}

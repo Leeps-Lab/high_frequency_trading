@@ -19,7 +19,11 @@ class InformedConsent(Page):
 
 class NoParticipation(Page):
     def is_displayed(self):
-        consented = self.player.consent
+        if self.round_number == 1:
+            consented = self.player.consent
+        else:
+            # since you already consented in the first round
+            consented = True
         return not consented
 
 class InstructionsFBA(Page):
