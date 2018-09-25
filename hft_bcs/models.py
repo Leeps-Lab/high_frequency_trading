@@ -179,9 +179,10 @@ class Subsession(BaseSubsession):
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
 
-    # def convert_lambdas(self):
-    #     lambda_i = round(1 / lambda_i, 2)
-    #     lambda_j = 
+    def convert_lambdas(self):
+        self.lambda_i = round(1 / self.lambda_i, 1)
+        self.lambda_j = round(1 / self.lambda_j, 1)
+        self.save()
 
     def set_payoff_round(self):
         for player in self.get_players():
@@ -242,6 +243,7 @@ class Subsession(BaseSubsession):
                     attr = attr * Constants.conversion_factor
                 setattr(player, k, attr)
             player.init_cache()
+        self.convert_lambdas()
 
         #TODO: wtf? make this smaller
         group_players = {g.id: [p.id for p in g.get_players()] for g in groups}

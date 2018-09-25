@@ -3,7 +3,7 @@ demo:
 directory:
   folder: investors_jumps
 trial:
-  run: 0
+  run: 1
   trial-length: 10
 investors:
   group_1: ['i01.csv', 'i02.csv', 'i01.csv', 'i02.csv']
@@ -21,9 +21,11 @@ parameters:
   initial-endowment: 20
   initial-spread: 1
   max-spread: 2
-  session-length: 25
+  session-length: 40
   speed-cost: 0.022
   batch-length: 3
+  lambda-i: 0.25
+  lambda-j: 0.3333333333333333
 session:
   currency: EUR
   exchange-rate: 2
@@ -31,6 +33,6 @@ session:
   restore: off
   restore-from: none
   random-round-payment: off
-  num-rounds: 1
+  num-rounds: 4
   display_name: FBA Production
   session-name: fba_3_1_test

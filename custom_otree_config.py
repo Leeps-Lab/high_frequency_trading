@@ -18,7 +18,6 @@ class CustomOtreeConfig:
 
     def __init__(self, filename):
         self.yaml_conf = self.read(filename)
-        print(self.yaml_conf)
         cls = self.__class__
         for pair in cls.yaml_map:
             config_key = pair[0]
@@ -27,7 +26,7 @@ class CustomOtreeConfig:
             try:
                 config_value = self.yaml_conf[key_head][key_sub]
             except KeyError:
-                log.debug('%s:%s is missing, set to None.' % (key_head, key_sub))
+                print('%s:%s is missing, set to None.' % (key_head, key_sub))
                 config_value = None
             setattr(self, config_key, config_value)
         self.read_csv()
@@ -122,8 +121,8 @@ class BCSConfig(CustomOtreeConfig):
         ('random_round_payment', ('session', 'random-round-payment')),
         ('participation_fee', ('session', 'participation-fee')),
         ('real_world_currency_per_point', ('session', 'exchange-rate')),
-        ('lambda_i', ('session', 'lambda-i')),
-        ('lambda_j', ('session', 'lambda-j')),
+        ('lambda_i', ('parameters', 'lambda-i')),
+        ('lambda_j', ('parameters', 'lambda-j')),
         # ('currency', ('session', 'currency')),
         # field below is mandatory
         # has to be last field in the map.

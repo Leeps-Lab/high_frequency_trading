@@ -27,7 +27,7 @@
 <br>
 <p>
     From now until the end of the experiment, please turn off your phone and do not communicate with other participants. If you have any questions, please raise your hand; an experimenter will come and answer your question. Please pay careful attention to the instructions as real money is at stake. 
-    During the experiment you will earn Experimental Currency Units (ECUs) and at the end of the experiment all your earnings will be converted to real world currency at the rate indicated by the expirementer. You are guaranteed a show up fee of {{session.config.participation_fee | c}} but can earn considerably more.   
+    During the experiment you will earn Experimental Currency Units (ECUs) and at the end of the experiment all your earnings will be converted to real world currency at the rate indicated by the expirementer. You are guaranteed a show up fee of 4 Euros but can earn considerably more.   
 </p>
 <br>
 
@@ -198,7 +198,7 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
             var actualSpeed = {{player.speed_unit_cost}}/10000;
             var realEndowment = {{player.endowment}}/10000;
             var playersPerGroup = {{subsession.players_per_group}};
-            var roundLength = {{subsession.round_length}};
+            var roundLength = {{session.config.session_length}};
             var numRounds = {{subsession.total_rounds}}
             if(roundLength >= 60){
                 document.getElementById("round_length").innerHTML = (roundLength/60).toFixed(2) + " minutes"
@@ -212,8 +212,8 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
             document.getElementById("players_per_group").innerHTML = playersPerGroup - 1;
             document.getElementById("players_per_group2").innerHTML = playersPerGroup;
             document.getElementById("num_other_players").innerHTML = playersPerGroup - 1;
-            document.getElementById("investor_arrival_average").innerHTML = 3;
-            document.getElementById("jump_average").innerHTML = 4;
+            document.getElementById("investor_arrival_average").innerHTML = {{subsession.lambda_i}};
+            document.getElementById("jump_average").innerHTML = {{subsession.lambda_j}};
 
         };
 </script>

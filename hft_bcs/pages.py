@@ -79,6 +79,7 @@ class SessionResults(Page):
         return round_is_final
 
     def vars_for_template(self):
+        divisor = self.subsession.total_rounds - 1
         random_round_pay = self.session.config['random_round_payment']
         payoff_round = self.participant.vars['payoff_round']
         total_payoff = round(self.participant.payoff * 1e-4, 4)
@@ -87,7 +88,7 @@ class SessionResults(Page):
             'random_round_pay': random_round_pay,
             'payoff_round': payoff_round, 
             'round_payoff': c(round_payoff),
-            'total_payoff': c(total_payoff)
+            'total_payoff': c(total_payoff / divisor)
         }
         return out
 

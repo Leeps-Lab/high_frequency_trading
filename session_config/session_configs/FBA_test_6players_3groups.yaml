@@ -28,6 +28,8 @@ parameters:
   session-length: 150
   speed-cost: 0.022
   batch-length: 3
+  lambda-i: 0.25
+  lambda-j: 0.3333333333333333
 session:
   currency: EUR
   exchange-rate: 2
