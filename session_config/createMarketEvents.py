@@ -18,9 +18,9 @@ def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,filePath,lamb
     buyProb = 0.5
   
     # Simulate times and sizes
-    jumpTimes = np.cumsum(np.around(np.random.exponential(1/lambdaJ,nSimJ)))
+    jumpTimes = np.cumsum(np.random.exponential(1/lambdaJ,nSimJ))
     jumpTimes = np.hstack((jumpTimes[jumpTimes < periodLength], jumpTimes[jumpTimes >= periodLength][0]))
-    jumpTimes = np.around(jumpTimes/1000.0,3)
+    jumpTimes = np.around(jumpTimes,3)
     nJump = len(jumpTimes)
     jumpSizes = startPrice + np.cumsum(np.random.normal(muJump,sigJump,nJump))
     jumpSizes = (10000*jumpSizes).astype(int)
@@ -34,9 +34,9 @@ def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,filePath,lamb
     jumpData.to_csv(rootPath+'/'+jumpFile,index=False)
 
     # Simulate investor arrivals and directions
-    investorTimes = np.cumsum(np.around(np.random.exponential(1/lambdaI,nSimI)))
+    investorTimes = np.cumsum(np.random.exponential(1/lambdaI,nSimI))
     investorTimes = np.hstack((investorTimes[investorTimes < periodLength], investorTimes[investorTimes >= periodLength][0]))
-    investorTimes = np.around(investorTimes/1000.0,3)
+    investorTimes = np.around(investorTimes,3)
     nInvestor = len(investorTimes)
     investorDirections = np.random.binomial(1,buyProb,nInvestor)
     investorDirections = investorDirections.astype(str)

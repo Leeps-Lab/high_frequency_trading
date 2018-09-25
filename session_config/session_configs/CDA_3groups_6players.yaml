@@ -3,8 +3,8 @@ demo:
 directory:
   folder: Pilot
 group:
-  group-assignments: '[[9, 8, 16, 15, 17, 6], [11, 18, 13, 3, 1, 2], [7, 4, 12, 14,
-    10, 5]]'
+  group-assignments: '[[2, 1, 14, 3, 6, 13], [10, 16, 17, 11, 5, 18], [12, 8, 7, 15,
+    9, 4]]'
   number-of-groups: 3
   players-per-group: 6
 investors:
