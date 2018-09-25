@@ -486,7 +486,6 @@ class SpreadGraph extends PolymerElement {
 
                     if(newLines[userPlayerID]["TOK"][4] == "B"){
                         spreadGraph.spread_svg.selectAll(".my_line_attempt").remove(); 
-     
                         spreadGraph.addOthersLineAnimation([newLineBottom], transactionSpeed, 25);
                         spreadGraph.addOthersLineAnimation([newLineTop], 0, 25); 
                     }else if(newLines[userPlayerID]["TOK"][4] == "S"){
