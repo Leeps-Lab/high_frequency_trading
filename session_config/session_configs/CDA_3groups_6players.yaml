@@ -3,8 +3,8 @@ demo:
 directory:
   folder: Pilot
 group:
-  group-assignments: '[[12, 11, 10, 8, 5, 2], [6, 16, 7, 13, 1, 15], [17, 3, 14, 9,
-    4, 18]]'
+  group-assignments: '[[9, 14, 15, 17, 11, 7], [6, 2, 1, 8, 5, 4], [18, 3, 13, 10,
+    12, 16]]'
   number-of-groups: 3
   players-per-group: 6
 investors:
@@ -67,6 +67,7 @@ market:
   design: CDA
   matching-engine-host: localhost
 parameters:
+  batch-length: 0
   fundamental-price: 100
   initial-endowment: 20
   initial-spread: 1
@@ -76,7 +77,7 @@ parameters:
 session:
   currency: EUR
   display-name: CDA Production
-  exchange-rate: 2
+  exchange-rate: 1.5
   num-rounds: 8
   participation-fee: 4
   random-round-payment: false

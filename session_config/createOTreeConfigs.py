@@ -12,7 +12,7 @@ periodLengthSeconds = 240 #int(sys.argv[4])
 trialLengthSeconds = 90 #int(sys.argv[5])
 participationFee = 4
 currency = 'EUR'
-exchangeRate = 2
+exchangeRate = 1.5
 randomRoundPayment = False
 sessionKey = 'ColognePilot'
 
@@ -31,6 +31,7 @@ startingWealth = 20
 
 # Economic variables
 nPlayersPerGroup = 6 #int(sys.argv[2])
+batchLength = 3
 exchangeType = "CDA"
 startingPrice = 100
 sigJump = 0.5
@@ -43,6 +44,8 @@ if trialLengthSeconds==0:
     trialFlag = 0
 else:
     trialFlag = 1
+if exchangeType == 'CDA':
+    batchLength = 0
     
 # Create file names for investors and jumps
 investorFiles = list()
@@ -89,8 +92,10 @@ for group in range(nGroups):
 marketDict = {'matching-engine-host': str(exchangeURI),'design':exchangeType.upper()}
 groupDict = {'number-of-groups':nGroups,'players-per-group':nPlayersPerGroup,'group-assignments':str(groupList)}
 trialDict = {'run':trialFlag,'trial-Length':trialLengthSeconds}
-parametersDict = {'fundamental-price':startingPrice,'max-spread':maxSpread,'initial-spread':initialSpread,
-                  'initial-endowment':startingWealth,'speed-cost':speedCost,'session-length':periodLengthSeconds}
+parametersDict = {'fundamental-price':startingPrice,'max-spread':maxSpread,
+                  'initial-spread':initialSpread,'initial-endowment':startingWealth,
+                  'speed-cost':speedCost,'lambda_i':lambdaI,'lambda_j':lambdaJ,
+                  'session-length':periodLengthSeconds,'batch-length':batchLength}
 demoDict = {'number-of-participants':'nan'}
 directoryDict = {'folder':filePath}
 sessionDict = {'session-name': sessionKey,'display-name':'CDA Production',
