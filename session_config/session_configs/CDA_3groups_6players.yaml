@@ -3,8 +3,8 @@ demo:
 directory:
   folder: Pilot
 group:
-  group-assignments: '[[2, 1, 14, 3, 6, 13], [10, 16, 17, 11, 5, 18], [12, 8, 7, 15,
-    9, 4]]'
+  group-assignments: '[[10, 4, 8, 11, 2, 15], [16, 17, 3, 14, 6, 9], [7, 5, 18, 12,
+    1, 13]]'
   number-of-groups: 3
   players-per-group: 6
 investors:
@@ -92,4 +92,4 @@ session:
   session-name: ColognePilot
 trial:
   run: 1
-  trial-Length: 90
+  trial-length: 90

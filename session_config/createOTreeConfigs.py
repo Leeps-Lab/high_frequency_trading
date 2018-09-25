@@ -96,7 +96,7 @@ for group in range(nGroups):
 # Create the yaml file
 marketDict = {'matching-engine-host': str(exchangeURI),'design':exchangeType.upper()}
 groupDict = {'number-of-groups':nGroups,'players-per-group':nPlayersPerGroup,'group-assignments':str(groupList)}
-trialDict = {'run':trialFlag,'trial-Length':trialLengthSeconds}
+trialDict = {'run':trialFlag,'trial-length':trialLengthSeconds}
 parametersDict = {'fundamental-price':startingPrice,'max-spread':maxSpread,
                   'initial-spread':initialSpread,'initial-endowment':startingWealth,
                   'speed-cost':speedCost,'lambda-i':lambdaI,'lambda-j':lambdaJ,
