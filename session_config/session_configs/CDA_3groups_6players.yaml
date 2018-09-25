@@ -1,38 +1,71 @@
 demo:
-  number-of-participants: .nan
+  number-of-participants: nan
 directory:
-  folder: ../Pilot/
+  folder: Pilot
 group:
-  group-assignments: '[[13, 7, 16, 12, 6, 1], [15, 8, 10, 2, 5, 11], [3, 4, 14, 17,
-    9, 18]]'
+  group-assignments: '[[12, 11, 10, 8, 5, 2], [6, 16, 7, 13, 1, 15], [17, 3, 14, 9,
+    4, 18]]'
   number-of-groups: 3
   players-per-group: 6
 investors:
-  group_1: '[''../Pilot/Draw1/investors_period1.csv'', ''../Pilot/Draw1/investors_period2.csv'',
-    ''../Pilot/Draw1/investors_period3.csv'', ''../Pilot/Draw1/investors_period4.csv'',
-    ''../Pilot/Draw1/investors_period5.csv'', ''../Pilot/Draw1/investors_period6.csv'',
-    ''../Pilot/Draw1/investors_period7.csv'', ''../Pilot/Draw1/investors_period8.csv'']'
-  group_2: '[''../Pilot/Draw2/investors_period1.csv'', ''../Pilot/Draw2/investors_period2.csv'',
-    ''../Pilot/Draw2/investors_period3.csv'', ''../Pilot/Draw2/investors_period4.csv'',
-    ''../Pilot/Draw2/investors_period5.csv'', ''../Pilot/Draw2/investors_period6.csv'',
-    ''../Pilot/Draw2/investors_period7.csv'', ''../Pilot/Draw2/investors_period8.csv'']'
-  group_3: '[''../Pilot/Draw3/investors_period1.csv'', ''../Pilot/Draw3/investors_period2.csv'',
-    ''../Pilot/Draw3/investors_period3.csv'', ''../Pilot/Draw3/investors_period4.csv'',
-    ''../Pilot/Draw3/investors_period5.csv'', ''../Pilot/Draw3/investors_period6.csv'',
-    ''../Pilot/Draw3/investors_period7.csv'', ''../Pilot/Draw3/investors_period8.csv'']'
+  group_1:
+  - Draw1/investors_period1.csv
+  - Draw1/investors_period2.csv
+  - Draw1/investors_period3.csv
+  - Draw1/investors_period4.csv
+  - Draw1/investors_period5.csv
+  - Draw1/investors_period6.csv
+  - Draw1/investors_period7.csv
+  - Draw1/investors_period8.csv
+  group_2:
+  - Draw2/investors_period1.csv
+  - Draw2/investors_period2.csv
+  - Draw2/investors_period3.csv
+  - Draw2/investors_period4.csv
+  - Draw2/investors_period5.csv
+  - Draw2/investors_period6.csv
+  - Draw2/investors_period7.csv
+  - Draw2/investors_period8.csv
+  group_3:
+  - Draw3/investors_period1.csv
+  - Draw3/investors_period2.csv
+  - Draw3/investors_period3.csv
+  - Draw3/investors_period4.csv
+  - Draw3/investors_period5.csv
+  - Draw3/investors_period6.csv
+  - Draw3/investors_period7.csv
+  - Draw3/investors_period8.csv
 jumps:
-  group_1: '[''../Pilot/Draw1/jumps_period1.csv'', ''../Pilot/Draw1/jumps_period2.csv'',
-    ''../Pilot/Draw1/jumps_period3.csv'', ''../Pilot/Draw1/jumps_period4.csv'', ''../Pilot/Draw1/jumps_period5.csv'',
-    ''../Pilot/Draw1/jumps_period6.csv'', ''../Pilot/Draw1/jumps_period7.csv'', ''../Pilot/Draw1/jumps_period8.csv'']'
-  group_2: '[''../Pilot/Draw2/jumps_period1.csv'', ''../Pilot/Draw2/jumps_period2.csv'',
-    ''../Pilot/Draw2/jumps_period3.csv'', ''../Pilot/Draw2/jumps_period4.csv'', ''../Pilot/Draw2/jumps_period5.csv'',
-    ''../Pilot/Draw2/jumps_period6.csv'', ''../Pilot/Draw2/jumps_period7.csv'', ''../Pilot/Draw2/jumps_period8.csv'']'
-  group_3: '[''../Pilot/Draw3/jumps_period1.csv'', ''../Pilot/Draw3/jumps_period2.csv'',
-    ''../Pilot/Draw3/jumps_period3.csv'', ''../Pilot/Draw3/jumps_period4.csv'', ''../Pilot/Draw3/jumps_period5.csv'',
-    ''../Pilot/Draw3/jumps_period6.csv'', ''../Pilot/Draw3/jumps_period7.csv'', ''../Pilot/Draw3/jumps_period8.csv'']'
+  group_1:
+  - Draw1/jumps_period1.csv
+  - Draw1/jumps_period2.csv
+  - Draw1/jumps_period3.csv
+  - Draw1/jumps_period4.csv
+  - Draw1/jumps_period5.csv
+  - Draw1/jumps_period6.csv
+  - Draw1/jumps_period7.csv
+  - Draw1/jumps_period8.csv
+  group_2:
+  - Draw2/jumps_period1.csv
+  - Draw2/jumps_period2.csv
+  - Draw2/jumps_period3.csv
+  - Draw2/jumps_period4.csv
+  - Draw2/jumps_period5.csv
+  - Draw2/jumps_period6.csv
+  - Draw2/jumps_period7.csv
+  - Draw2/jumps_period8.csv
+  group_3:
+  - Draw3/jumps_period1.csv
+  - Draw3/jumps_period2.csv
+  - Draw3/jumps_period3.csv
+  - Draw3/jumps_period4.csv
+  - Draw3/jumps_period5.csv
+  - Draw3/jumps_period6.csv
+  - Draw3/jumps_period7.csv
+  - Draw3/jumps_period8.csv
 market:
   design: CDA
-  matching-engine-host: exchanges
+  matching-engine-host: localhost
 parameters:
   fundamental-price: 100
   initial-endowment: 20
@@ -41,7 +74,10 @@ parameters:
   session-length: 240
   speed-cost: 0.022
 session:
-  display_name: CDA Production
-  num_rounds: 8
-  random-round-payment: 'off'
-  session_name: ColognePilot
+  currency: EUR
+  display-name: CDA Production
+  exchange-rate: 2
+  num-rounds: 8
+  participation-fee: 4
+  random-round-payment: false
+  session-name: ColognePilot
