@@ -78,19 +78,19 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 <!-- IMAGES -->
 <div class="row center-block">
         <div  class="col-xs-4" style="text-align:center; margin-left:auto;">
-                <img src="{% static 'hft_bcs/instruction_images/gif1a.gif' %}" width="260px" height="410px">
+                <img src="{% static 'hft_bcs/instruction_images/gif1a_CDA.gif' %}" width="260px" height="410px">
                 <p>
                     GIF 1a: Role Choice
                 </p>
                 </div>
                 <div  class="col-xs-4" style="text-align:center; margin:10px;">
-                <img src="{% static 'hft_bcs/instruction_images/gif1b.gif' %}" width="260px" height="410px">
+                <img src="{% static 'hft_bcs/instruction_images/gif1b_CDA.gif' %}" width="260px" height="410px">
                 <p>
                     GIF 1b: Changing Spread
                 </p>
                 </div>
                 <div  class="col-xs-4" style="text-align:center; margin-right:auto;">
-                    <img src="{% static 'hft_bcs/instruction_images/gif1c.gif' %}" width="260px" height="410px">
+                    <img src="{% static 'hft_bcs/instruction_images/gif1c_CDA.gif' %}" width="260px" height="410px">
                 <p>
                     GIF 1c: Investor Arrival
                 </p>
@@ -115,19 +115,19 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 
 <div class="row center-block">
     <div  class="col-xs-4" style="text-align:center; margin-left:auto;">
-    <img src="{% static 'hft_bcs/instruction_images/gif2a.gif' %}" width="260px" height="410px">
+    <img src="{% static 'hft_bcs/instruction_images/gif2a_CDA.gif' %}" width="260px" height="410px">
     <p>
         GIF 2a: Value Change
     </p>
     </div>
     <div  class="col-xs-4" style="text-align:center; margin:10px;">
-    <img src="{% static 'hft_bcs/instruction_images/gif2b.gif' %}" width="260px" height="410px">
+    <img src="{% static 'hft_bcs/instruction_images/gif2b_CDA.gif' %}" width="260px" height="410px">
     <p>
         GIF 2b: Value Change Getting Sniped
     </p>
     </div>
     <div  class="col-xs-4" style="text-align:center; margin-right:auto;">
-        <img src="{% static 'hft_bcs/instruction_images/gif2c.gif' %}" width="260px" height="410px">
+        <img src="{% static 'hft_bcs/instruction_images/gif2c_CDA.gif' %}" width="260px" height="410px">
     <p>
         GIF 2c: Value Change, Sniping
     </p>
@@ -196,7 +196,7 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
             document.getElementById("players_per_group").innerHTML = playersPerGroup - 1;
             document.getElementById("players_per_group2").innerHTML = playersPerGroup;
             document.getElementById("num_other_players").innerHTML = playersPerGroup - 1;
-            document.getElementById("investor_arrival_average").innerHTML = {{subsession.lambda_i}}
+            document.getElementById("investor_arrival_average").innerHTML = {{subsession.lambda_i}};
             document.getElementById("jump_average").innerHTML = {{subsession.lambda_j}};
         };
 </script>

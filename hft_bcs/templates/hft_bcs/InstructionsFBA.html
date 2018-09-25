@@ -27,7 +27,7 @@
 <br>
 <p>
     From now until the end of the experiment, please turn off your phone and do not communicate with other participants. If you have any questions, please raise your hand; an experimenter will come and answer your question. Please pay careful attention to the instructions as real money is at stake. 
-    During the experiment you will earn Experimental Currency Units (ECUs) and at the end of the experiment all your earnings will be converted to real world currency at the rate indicated by the expirementer. You are guaranteed a show up fee of 4 Euros but can earn considerably more.   
+    During the experiment you will earn Experimental Currency Units (ECUs) and at the end of the experiment your earnings will be converted to EUR at the rate indicated by the experimenter. You are guaranteed a show up fee of 4 EUR but can earn considerably more.   
 </p>
 <br>
 
@@ -36,14 +36,14 @@
 </h2>
 
 <p>
-    In this experiment you will participate in a simple automated financial market. Using information displayed on your screen as in Figure 1, you will set and adjust trading algorithms (bots) so as to earn as many ECUs as you can.  As explained below, your earnings will depend on the settings you choose and on the choices of the <span style="background-color: #FFFF00" id="num_other_players"></span> other participants in your group. There will be <span style="background-color: #FFFF00" id="num_rounds"></span> trading periods, each lasting <span style="background-color: #FFFF00" id="round_length"></span>, after which the experiment will end and you will be paid.
+    In this experiment you will participate in a simple automated financial market. Using information displayed on your screen as in Figure 1, you will set and adjust trading algorithms (bots). As explained below, your earnings will depend on the settings you choose and on the choices of the <span style="background-color: #FFFF00" id="num_other_players"></span> other participants in your group. There will be <span style="background-color: #FFFF00" id="num_rounds"></span> trading periods, each lasting <span style="background-color: #FFFF00" id="round_length"></span>, after which the experiment will end and you will be paid.
 </p>
 <div id="image">
 <img src="{% static 'hft_bcs/instruction_images/FBA_Update.png' %}" width="696px" height="447px" style="text-align: center; vertical-align: middle;">
 </div>
 
 <p>
-    <strong>Stock value.</strong> There is just one stock traded in your financial market. The stock has a value (henceforth “V”) that will jump up or down by a random amount at random times. The average time between jumps is about <strong><span style="background-color: #FFFF00" id="jump_average"></span> </strong> seconds, much shorter or longer times are possible. The Choice Box on your screen will always center on the current value of V, depicted by a horizontal gray line (see Figure 1). Every time there is a jump in V, there will be a yellow flash around the center line, and all other prices (described below) will appear to shift until they adjust to the new value of V. 
+    <strong>Stock value.</strong> There is just one stock traded in your financial market. The stock has a value (henceforth “V”) that will jump up or down by a random amount at random times. The average time between jumps is about <strong><span style="background-color: #FFFF00" id="jump_average"></span> </strong> seconds, but much shorter or longer times are possible. The Choice Box on your screen will always center on the current value of V, depicted by a horizontal gray line (see Figure 1). Every time there is a jump in V, there will be a yellow flash around the center line, and all other prices (described below) will appear to shift until they adjust to the new value of V. 
 </p>
 
 <p>
@@ -75,7 +75,7 @@ Filled buy orders pay the clearing price P, and filled sell orders get paid the 
 </h2>
 
 <p>
-    Participants choose among three possible roles: maker, sniper and out. You can change your role during the trading period, using the buttons on the right side of the choice box (see GIF 1a).
+    Participants choose among three possible roles: maker, sniper and out. You can change your role at any time during the trading period, using the buttons on the right side of the choice box (see GIF 1a).
 </p>
 <p>
    <strong>MAKER</strong> As a maker, you post both a buy order below V and a sell order above V using the computer algorithm (henceforth, “your bot”).  These orders are symmetrically located around V and are represented by the horizontal blue marks above and below the center line representing V. Your spread is the difference between your sell and buy marks (depicted by the light green or light blue shaded region between those marks). To adjust your orders (and spread), simply click at the desired point in the choice box (see GIF 1b). Your bot will cancel your old buy and sell orders and send new orders to the market with the spread that you just chose. Since it takes time for the new orders to travel to the market, your new orders are initially represented as horizontal lines at the right side of the choice box which slide toward the center of the box, at which time they replace the old orders (see GIF 1b).
@@ -185,7 +185,7 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
     <li>
         Is this experiment a test of how fast I can react?
         <br>
-        Competition among players is intended to focus on which role to pick, whether to invest in speed and (if a market maker) what spread to choose. Since there is no way to predict the exact time of investor arrivals or jumps in V, what matters is your average choice, not how fast you react.
+        No, competition among players is intended to focus on which role to pick, whether to invest in speed and (if a market maker) what spread to choose. Since there is no way to predict the exact time of investor arrivals or jumps in V, what matters is your average choice, not how fast you react.
     </li>
 </ol>
 </div>
