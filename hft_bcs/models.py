@@ -161,6 +161,9 @@ class Subsession(BaseSubsession):
             cache.set(k, v, timeout=None)
     
     def group_by_participant_label(self):
+        """
+        will use this after cologne
+        """
         group_matrix_conf= self.session.config['group_matrix']
         group_matrix = [list() for group in group_matrix_conf]
         for player in self.get_players():

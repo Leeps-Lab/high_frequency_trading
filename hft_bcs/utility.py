@@ -17,7 +17,7 @@ def get_label_as_int(player):
     and seperated by _ (underscore)
     LEEPS_1 
     """
-    label = player.participant.participant_label
+    label = player.participant.label
     splitted_label = label.split('_')
     int_label = int(splitted_label[-1])
     return int_label
