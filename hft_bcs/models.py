@@ -179,6 +179,9 @@ class Subsession(BaseSubsession):
         for k, v in pairs.items():
             cache.set(k, v, timeout=None)
 
+    # def convert_lambdas(self):
+    #     lambda_i = round(1 / lambda_i, 2)
+    #     lambda_j = 
 
     def set_payoff_round(self):
         for player in self.get_players():

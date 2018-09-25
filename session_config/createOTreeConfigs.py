@@ -12,13 +12,13 @@ periodLengthSeconds = 240 #int(sys.argv[4])
 trialLengthSeconds = 90 #int(sys.argv[5])
 participationFee = 4
 currency = 'EUR'
-exchangeRate = 2
+exchangeRate = 1.5
 randomRoundPayment = False
 sessionKey = 'ColognePilot'
 
 # Configuration variables
 differentDrawsForGroups = True
-createDraws = False
+createDraws = True
 filePath = 'Pilot' #sys.argv[6]+"/"
 configURLRoot = "https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/"
 exchangeURI = "localhost"
@@ -31,6 +31,7 @@ startingWealth = 20
 
 # Economic variables
 nPlayersPerGroup = 6 #int(sys.argv[2])
+batchLength = 3
 exchangeType = "CDA"
 startingPrice = 100
 sigJump = 0.5
@@ -43,6 +44,8 @@ if trialLengthSeconds==0:
     trialFlag = 0
 else:
     trialFlag = 1
+if exchangeType == 'CDA':
+    batchLength = 0
     
 # Create file names for investors and jumps
 investorFiles = list()
@@ -54,6 +57,9 @@ for group in range(1,nGroups+1):
         draw = group
     else:
         draw = 1
+    if trialFlag:
+        investorFilesGroup.append("Trial"+str(draw)+"/investors_trial.csv")
+        jumpFilesGroup.append("Trial"+str(draw)+"/jumps_trial.csv")
     for period in range(1,nPeriods+1):
         investorFilesGroup.append("Draw"+str(draw)+"/investors_period"+str(period)+".csv")
         jumpFilesGroup.append("Draw"+str(draw)+"/jumps_period"+str(period)+".csv")
@@ -65,15 +71,17 @@ if differentDrawsForGroups:
     nDraws = nGroups
 else:
     nDraws = 1
+nPeriodsWithTrial = nPeriods
+if trialFlag:
+    nPeriodWithTrial = nPeriodsWithTrial+1;
 for draw in range(nDraws):
     investorFilesForGroup = investorFiles[draw]
     jumpFilesForGroup = jumpFiles[draw]
-    for period in range(nPeriods):
+    for period in range(nPeriodsWithTrial):
         if createDraws == True:
             createMarketEvents(rootPath,investorFilesForGroup[period],jumpFilesForGroup[period],
                                periodLengthSeconds,filePath,lambdaJ,lambdaI,startingPrice,sigJump)
         else:
-            #pdb.set_trace()
             if ((os.path.isfile(rootPath+'/'+jumpFilesForGroup[period])==False)| 
                 (os.path.isfile(rootPath+'/'+investorFilesForGroup[period])==False)):
                 raise OSError('File does not exist.')
@@ -89,8 +97,10 @@ for group in range(nGroups):
 marketDict = {'matching-engine-host': str(exchangeURI),'design':exchangeType.upper()}
 groupDict = {'number-of-groups':nGroups,'players-per-group':nPlayersPerGroup,'group-assignments':str(groupList)}
 trialDict = {'run':trialFlag,'trial-Length':trialLengthSeconds}
-parametersDict = {'fundamental-price':startingPrice,'max-spread':maxSpread,'initial-spread':initialSpread,
-                  'initial-endowment':startingWealth,'speed-cost':speedCost,'session-length':periodLengthSeconds}
+parametersDict = {'fundamental-price':startingPrice,'max-spread':maxSpread,
+                  'initial-spread':initialSpread,'initial-endowment':startingWealth,
+                  'speed-cost':speedCost,'lambda-i':lambdaI,'lambda-j':lambdaJ,
+                  'session-length':periodLengthSeconds,'batch-length':batchLength}
 demoDict = {'number-of-participants':'nan'}
 directoryDict = {'folder':filePath}
 sessionDict = {'session-name': sessionKey,'display-name':'CDA Production',
@@ -102,7 +112,7 @@ for group in range(nGroups):
     investorsDict['group_'+str(group+1)] = investorFiles[group]
     jumpsDict['group_'+str(group+1)] = jumpFiles[group]
 outputDict = {'session':sessionDict, 'market':marketDict,'group':groupDict, 'investors':investorsDict,
-              'jumps':jumpsDict, 'parameters':parametersDict,'directory':directoryDict, 'demo':demoDict}
+              'jumps':jumpsDict, 'parameters':parametersDict,'directory':directoryDict, 'demo':demoDict,'trial':trialDict}
 fileName = 'session_configs/'+exchangeType+'_'+str(nGroups)+'groups_'+str(nPlayersPerGroup)+'players.yaml'
 with open(fileName, 'w') as outfile:
     yaml.dump(outputDict, outfile, default_flow_style=False)
