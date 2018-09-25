@@ -2,12 +2,9 @@ demo:
   number-of-participants: 18
 directory:
   folder: Pilot
-trial:
-  run: 1
-  trial-length: 90
 group:
-  group-assignments: '[[9, 8, 16, 15, 17, 6], [11, 18, 13, 3, 1, 2], [7, 4, 12, 14,
-    10, 5]]'
+  group-assignments: '[[10, 4, 8, 11, 2, 15], [16, 17, 3, 14, 6, 9], [7, 5, 18, 12,
+    1, 13]]'
   number-of-groups: 3
   players-per-group: 6
 investors:
@@ -95,3 +92,6 @@ session:
   participation-fee: 4
   random-round-payment: off
   session-name: ColognePilot
+trial:
+  run: 1
+  trial-length: 90
