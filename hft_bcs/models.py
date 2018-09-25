@@ -28,7 +28,8 @@ import time
 from . import new_translator
 from .decorators import atomic
 from otree.common_internal import random_chars_8
-from settings import exp_logs_dir, EXCHANGE_HOST_NO
+from settings import (
+    exp_logs_dir, EXCHANGE_HOST_NO, REAL_WORLD_CURRENCY_CODE )
 
 log = logging.getLogger(__name__)
 
@@ -104,7 +105,9 @@ class Constants(BaseConstants):
         'trial_length': 'trial_length',
         'total_rounds': 'num_rounds',
         'restore_from': 'restore_from',
-        'restore': 'restore'
+        'restore': 'restore',
+        'lambda_i': 'lambda_i',
+        'lambda_j': 'lambda_j',
     }
     player_field_map = {
         'fp': 'fundamental_price',
@@ -164,6 +167,8 @@ class Subsession(BaseSubsession):
     total_rounds = models.IntegerField(initial=0)
     restore_from = models.CharField()
     restore = models.BooleanField(initial=False)
+    lambda_i = models.FloatField()
+    lambda_j = models.FloatField()
 
     def init_cache(self):
         pairs = {}

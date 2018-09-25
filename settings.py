@@ -90,8 +90,8 @@ AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY')
 
 
 # e.g. EUR, CAD, GBP, CHF, CNY, JPY
-REAL_WORLD_CURRENCY_CODE = 'USD'
-USE_POINTS = True
+REAL_WORLD_CURRENCY_CODE = 'EUR'
+USE_POINTS = False
 
 
 # e.g. en, de, fr, it, ja, zh-hans
@@ -216,7 +216,7 @@ LOGGING = {
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = {
-    'real_world_currency_per_point': 0.0001,
+    'real_world_currency_per_point': 1,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['hft_bcs'],
@@ -237,5 +237,7 @@ SESSION_CONFIGS = []
 bcs_configs = BCSConfig.get_all()
 config_fields = [cf.json_format() for cf in bcs_configs]
 SESSION_CONFIGS.extend(config_fields)
+
+
 
 otree.settings.augment_settings(globals())

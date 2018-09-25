@@ -27,6 +27,9 @@ parameters:
   speed-cost: 0.022
   batch-length: 3
 session:
+  currency: EUR
+  exchange-rate: 2
+  participation-fee: 4
   num-rounds: 3
   display_name: FBA Production
-  session_name: fba_test_config
+  session-name: fba_test_config

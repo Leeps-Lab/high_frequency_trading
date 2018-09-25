@@ -18,6 +18,7 @@ class CustomOtreeConfig:
 
     def __init__(self, filename):
         self.yaml_conf = self.read(filename)
+        print(self.yaml_conf)
         cls = self.__class__
         for pair in cls.yaml_map:
             config_key = pair[0]
@@ -57,6 +58,7 @@ class CustomOtreeConfig:
         all_files = os.listdir(dirc)
         config_files = [f for f in all_files if f.endswith('.yaml')]
         custom_configs = [cls(f) for f in config_files]
+        print(custom_configs)
         return custom_configs
 
     def read_csv(self):
@@ -97,7 +99,7 @@ class BCSConfig(CustomOtreeConfig):
     sess_conf_dir = os.path.join(conf_dir, 'session_configs')
     token = 'fd97e675ca58325e88ea7339ec641bb4a1193548'
     yaml_map = (
-        ('name', ('session', 'session_name')),
+        ('name', ('session', 'session-name')),
         ('display_name', ('market', 'design')),
         ('trial', ('trial', 'run')),
         ('trial_length', ('trial', 'trial-length')),
@@ -118,6 +120,11 @@ class BCSConfig(CustomOtreeConfig):
         ('group_matrix', ('group', 'group-assignments')),
         ('batch_length', ('parameters', 'batch-length')),
         ('random_round_payment', ('session', 'random-round-payment')),
+        ('participation_fee', ('session', 'participation-fee')),
+        ('real_world_currency_per_point', ('session', 'exchange-rate')),
+        ('lambda_i', ('session', 'lambda-i')),
+        ('lambda_j', ('session', 'lambda-j')),
+        # ('currency', ('session', 'currency')),
         # field below is mandatory
         # has to be last field in the map.
         # it is used in reading csvs.

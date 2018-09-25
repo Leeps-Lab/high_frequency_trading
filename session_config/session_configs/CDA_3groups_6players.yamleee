@@ -1,7 +1,10 @@
 demo:
-  number-of-participants: nan
+  number-of-participants: 0
 directory:
   folder: Pilot
+trial:
+  run: 1
+  trial-length: 30
 group:
   group-assignments: '[[12, 11, 10, 8, 5, 2], [6, 16, 7, 13, 1, 15], [17, 3, 14, 9,
     4, 18]]'
@@ -76,8 +79,10 @@ parameters:
 session:
   currency: EUR
   display-name: CDA Production
+  restore: off
+  restore-from: none
   exchange-rate: 2
   num-rounds: 8
   participation-fee: 4
-  random-round-payment: false
+  random-round-payment: off
   session-name: ColognePilot
