@@ -90,7 +90,7 @@ session:
   num-rounds: 3
   participation-fee: 4
   random-round-payment: off
-  session-name: ColognePilotCDA
+  session-name: Cologe3in1
 trial:
   run: 1
   trial-length: 10
