@@ -88,7 +88,7 @@ class SessionResults(Page):
             'random_round_pay': random_round_pay,
             'payoff_round': payoff_round, 
             'round_payoff': c(round_payoff),
-            'total_payoff': c(total_payoff / divisor)
+            'average_payoff': c(total_payoff / divisor)
         }
         return out
 

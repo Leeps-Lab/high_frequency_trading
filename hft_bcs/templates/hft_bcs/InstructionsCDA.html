@@ -22,12 +22,14 @@
 </style>
 <div id="container">
 <h1>
-    Welcome, and thank you for participating!
+    Instructions
 </h1>
 <br>
 <p>
-    From now until the end of the experiment, please turn off your phone and do not communicate with other participants. If you have any questions, please raise your hand; an experimenter will come and answer your question. Please pay careful attention to the instructions as real money is at stake. 
-    During the experiment you will earn Experimental Currency Units (ECUs) and at the end of the experiment your earnings will be converted to EUR at the rate indicated by the experimenter. You are guaranteed a show up fee of 4 EUR but can earn considerably more.   
+    Welcome, and thank you for participating. From now until the end of the experiment, please turn off your phone and do not communicate with other participants. If you have any questions, please raise your hand; an experimenter will come and answer your question. Please pay careful attention to the instructions as real money is at stake. 
+</p>
+<p>   
+    During the experiment you will earn Experimental Currency Units (ECUs) and, at the end of the experiment, your earnings will be converted to EUR at the rate indicated by the experimenter. You are guaranteed a show up fee of 4 EUR but can earn considerably more.   
 </p>
 <br>
 
@@ -78,19 +80,19 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 <!-- IMAGES -->
 <div class="row center-block">
         <div  class="col-xs-4" style="text-align:center; margin-left:auto;">
-                <img src="{% static 'hft_bcs/instruction_images/gif1a.gif' %}" width="260px" height="410px">
+                <img src="{% static 'hft_bcs/instruction_images/gif1a_CDA.gif' %}" width="260px" height="410px">
                 <p>
                     GIF 1a: Role Choice
                 </p>
                 </div>
                 <div  class="col-xs-4" style="text-align:center; margin:10px;">
-                <img src="{% static 'hft_bcs/instruction_images/gif1b.gif' %}" width="260px" height="410px">
+                <img src="{% static 'hft_bcs/instruction_images/gif1b_CDA.gif' %}" width="260px" height="410px">
                 <p>
                     GIF 1b: Changing Spread
                 </p>
                 </div>
                 <div  class="col-xs-4" style="text-align:center; margin-right:auto;">
-                    <img src="{% static 'hft_bcs/instruction_images/gif1c.gif' %}" width="260px" height="410px">
+                    <img src="{% static 'hft_bcs/instruction_images/gif1c_CDA.gif' %}" width="260px" height="410px">
                 <p>
                     GIF 1c: Investor Arrival
                 </p>
@@ -115,19 +117,19 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 
 <div class="row center-block">
     <div  class="col-xs-4" style="text-align:center; margin-left:auto;">
-    <img src="{% static 'hft_bcs/instruction_images/gif2a.gif' %}" width="260px" height="410px">
+    <img src="{% static 'hft_bcs/instruction_images/gif2a_CDA.gif' %}" width="260px" height="410px">
     <p>
         GIF 2a: Value Change
     </p>
     </div>
     <div  class="col-xs-4" style="text-align:center; margin:10px;">
-    <img src="{% static 'hft_bcs/instruction_images/gif2b.gif' %}" width="260px" height="410px">
+    <img src="{% static 'hft_bcs/instruction_images/gif2b_CDA.gif' %}" width="260px" height="410px">
     <p>
         GIF 2b: Value Change Getting Sniped
     </p>
     </div>
     <div  class="col-xs-4" style="text-align:center; margin-right:auto;">
-        <img src="{% static 'hft_bcs/instruction_images/gif2c.gif' %}" width="260px" height="410px">
+        <img src="{% static 'hft_bcs/instruction_images/gif2c_CDA.gif' %}" width="260px" height="410px">
     <p>
         GIF 2c: Value Change, Sniping
     </p>
@@ -147,7 +149,7 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
 </div>
 
 <p>
-    <strong>Session Earnings.</strong>  Your final earnings for the session will be the sum of your show up fee and the profits of one randomly chosen trading period, converted into US dollars.
+    <strong>Session Earnings.</strong>  Your final earnings for the session will be the your show up fee (4 EUR) plus the average of your profits of all trading periods, converted into EUR.
 </p>
 <br>
 <h2>
@@ -196,7 +198,7 @@ For example, suppose that V=100 and your current spread as a maker is 2 (that is
             document.getElementById("players_per_group").innerHTML = playersPerGroup - 1;
             document.getElementById("players_per_group2").innerHTML = playersPerGroup;
             document.getElementById("num_other_players").innerHTML = playersPerGroup - 1;
-            document.getElementById("investor_arrival_average").innerHTML = {{subsession.lambda_i}}
+            document.getElementById("investor_arrival_average").innerHTML = {{subsession.lambda_i}};
             document.getElementById("jump_average").innerHTML = {{subsession.lambda_j}};
         };
 </script>
