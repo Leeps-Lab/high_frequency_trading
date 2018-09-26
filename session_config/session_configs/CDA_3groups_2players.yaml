@@ -79,7 +79,7 @@ parameters:
   lambda-i: 0.25
   lambda-j: 0.3333333333333333
   max-spread: 2
-  session-length: 240
+  session-length: 30
   speed-cost: 0.022
 session:
   currency: EUR
@@ -87,7 +87,7 @@ session:
   restore: off
   restore-from: none
   exchange-rate: 1.5
-  num-rounds: 8
+  num-rounds: 2
   participation-fee: 4
   random-round-payment: off
   session-name: TEST

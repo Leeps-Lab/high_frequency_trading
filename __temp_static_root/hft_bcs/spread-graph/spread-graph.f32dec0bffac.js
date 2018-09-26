@@ -363,7 +363,7 @@ class SpreadGraph extends PolymerElement {
             var yCoordinate = svgMiddleY/moneyRatio;
             exec_spread = userSpread;
             spreadGraph.drawTransactionBar(exec_spread, svgMiddleY, yCoordinate, exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
-            if(exec_side == "B"){
+            if(exec_side == "B" && exec.player == userPlayerID){
                 spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
                 var yourSpreadLineBottom = spreadGraph.spread_svg.append("svg:line")
                     .attr("x1", spreadGraph.spread_width)
@@ -374,7 +374,7 @@ class SpreadGraph extends PolymerElement {
                     .attr("class","my_line my_line_bottom");
                 
                 spreadGraph.addOthersLineAnimation([yourSpreadLineBottom], transactionSpeed, 25);
-            } else if(exec_side == "S"){
+            } else if(exec_side == "S" && exec.player == userPlayerID){
                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();       
                 var yourSpreadLineTop = spreadGraph.spread_svg.append("svg:line")
                     .attr("x1", spreadGraph.spread_width)
@@ -536,10 +536,9 @@ class SpreadGraph extends PolymerElement {
                 var newLineOtherSpread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
                 var newLineOtherMoneyRatio =  otreeConstants.maxSpread/newLineOtherSpread;
                 var newLineOtherYCoordinate = svgMiddleY/newLineOtherMoneyRatio;
-                
-                var updateLineMoneyRatio = otreeConstants.maxSpread/(spreadGraph.last_spread*10000);
-                var updateLineYCoordinate = svgMiddleY/updateLineMoneyRatio;
-                spreadGraph.drawSpreadBar(spreadGraph.last_spread*10000,svgMiddleY,updateLineYCoordinate, offset, userPlayerID);
+                console.log("asfk");
+                console.log(spreadGraph.last_spread);
+                console.log(newLineOtherSpread);
 
                 var newLineOtherTop = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1",spreadGraph.spread_width)

@@ -363,6 +363,7 @@ class SpreadGraph extends PolymerElement {
             var yCoordinate = svgMiddleY/moneyRatio;
             exec_spread = userSpread;
             spreadGraph.drawTransactionBar(exec_spread, svgMiddleY, yCoordinate, exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
+            console.log(exec_side);
             if(exec_side == "B"){
                 spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
                 var yourSpreadLineBottom = spreadGraph.spread_svg.append("svg:line")
