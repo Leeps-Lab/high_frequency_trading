@@ -427,20 +427,12 @@ class SpreadGraph extends PolymerElement {
         transactionSpeed = 100;
     }
         
-    var bar_color = "";
-    //if not other maker within the spread
-    if(spreadGraph.smallest_spread == true){
-        bar_color = "green_bar";
-    }else{
-        bar_color = "blue_bar";
-    }
 
     if(otreeConstants.endMsg == "off"){
         for(var player in spreadGraph.spread_lines){
             if(player == userPlayerID){ 
                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();  
                 spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();  
-                spreadGraph.spread_svg.selectAll(".spread_bar").remove();  
 
                 var userSpread = parseInt(spreadGraph.spread_lines[userPlayerID]["A"] - spreadGraph.spread_lines[userPlayerID]["B"]);
                 var moneyRatio =  otreeConstants.maxSpread/userSpread;
@@ -462,15 +454,10 @@ class SpreadGraph extends PolymerElement {
                     .attr("y2",  svgMiddleY - yCoordinate - offset)
                     .attr("stroke-width",3)
                     .attr("class","my_line my_line_top");
-                
-                var yourBarRect = spreadGraph.spread_svg.append("svg:rect")
-                    .attr("x", (spreadGraph.spread_width / 2) - 25)
-                    .attr("y", spreadGraph.spread_height/2 - yCoordinate - offset)
-                    .attr("width", 50)
-                    .attr("height", 2*yCoordinate)
-                    .attr("class",bar_color + " spread_bar");
 
-              
+                //spreadGraph.select(".spread_bar");
+                console.log(spreadGraph.spread_svg.select(".spread_bar"));
+
                 
                 spreadGraph.addOthersLineAnimation([yourOffsetTop,yourOffsetBottom], transactionSpeed, 25);
 

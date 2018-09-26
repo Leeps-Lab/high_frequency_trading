@@ -182,7 +182,16 @@ Socket Actions
         if(obj.FPC != undefined){
             
 
-            var difference = (obj.FPC - fund_price)/100000;
+            var difference = Math.abs(fund_price - (obj.FPC/10000));
+       
+            console.log("difference = " + difference);
+
+            if((obj.FPC/10000) > fund_price){
+                difference = difference*-1;
+            }
+            difference = difference*100;
+            console.log("difference = " + difference);
+
             spreadGraph.drawFPC((difference == NaN) ? 0 : difference);
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
@@ -201,7 +210,7 @@ Socket Actions
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
 
-            spreadGraph.executionHandler(exec);
+            //spreadGraph.executionHandler(exec);
             if(obj.EXEC.id == otreeConstants.playerIDInGroup){   
                 if(timeNow > otreeConstants.batch && otreeConstants.FBA == true){
                     timeNow = otreeConstants.batch;
