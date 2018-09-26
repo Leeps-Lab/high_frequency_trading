@@ -1,12 +1,11 @@
 demo:
-  number-of-participants: 18
+  number-of-participants: 6
 directory:
   folder: Pilot
 group:
-  group-assignments: '[[10, 4, 8, 11, 2, 15], [16, 17, 3, 14, 6, 9], [7, 5, 18, 12,
-    1, 13]]'
+  group-assignments: '[[1,2], [3,4], [5,6]]'
   number-of-groups: 3
-  players-per-group: 6
+  players-per-group: 2
 investors:
   group_1:
   - Trial1/investors_trial.csv
@@ -91,7 +90,7 @@ session:
   num-rounds: 8
   participation-fee: 4
   random-round-payment: off
-  session-name: ColognePilotCDA
+  session-name: TEST
 trial:
   run: 1
   trial-length: 90

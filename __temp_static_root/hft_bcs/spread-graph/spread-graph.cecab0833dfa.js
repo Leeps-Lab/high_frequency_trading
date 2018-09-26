@@ -336,7 +336,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.spreadLinesFBABatch = {};
     for(var key in spreadGraph.spreadLinesFBAConcurrent){
         spreadGraph.spreadLinesFBABatch[key] = spreadGraph.spreadLinesFBAConcurrent[key];
-        spreadGraph.drawSpreadChange(spreadGraph.spreadLinesFBAConcurrent);
+        spreadGraph.drawMySpreadLines(spreadGraph.spreadLinesFBAConcurrent);
     }
   }
 

@@ -91,7 +91,7 @@ session:
   num-rounds: 8
   participation-fee: 4
   random-round-payment: off
-  session-name: ColognePilot
+  session-name: ColognePilotFBA
 trial:
   run: 1
   trial-length: 90
