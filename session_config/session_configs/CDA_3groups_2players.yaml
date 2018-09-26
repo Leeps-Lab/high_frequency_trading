@@ -1,12 +1,11 @@
 demo:
-  number-of-participants: 18
+  number-of-participants: 6
 directory:
   folder: Pilot
 group:
-  group-assignments: '[[10, 4, 8, 11, 2, 15], [16, 17, 3, 14, 6, 9], [7, 5, 18, 12,
-    1, 13]]'
+  group-assignments: '[[1,2], [3,4], [5,6]]'
   number-of-groups: 3
-  players-per-group: 6
+  players-per-group: 2
 investors:
   group_1:
   - Trial1/investors_trial.csv
@@ -80,7 +79,7 @@ parameters:
   lambda-i: 0.25
   lambda-j: 0.3333333333333333
   max-spread: 2
-  session-length: 240
+  session-length: 30
   speed-cost: 0.022
 session:
   currency: EUR
@@ -88,10 +87,10 @@ session:
   restore: off
   restore-from: none
   exchange-rate: 1.5
-  num-rounds: 8
+  num-rounds: 2
   participation-fee: 4
   random-round-payment: off
-  session-name: ColognePilotCDA
+  session-name: TEST
 trial:
   run: 1
   trial-length: 90

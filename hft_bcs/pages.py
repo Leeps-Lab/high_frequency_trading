@@ -82,13 +82,14 @@ class SessionResults(Page):
         divisor = self.subsession.total_rounds - 1
         random_round_pay = self.session.config['random_round_payment']
         payoff_round = self.participant.vars['payoff_round']
-        total_payoff = round(self.participant.payoff * 1e-4, 4)
+        self.participant.payoff = self.participant.payoff * 1e-4 / divisor
+        average_payoff = round(self.participant.payoff, 4)
         round_payoff = round(self.participant.vars['round_payoff'] * 1e-4, 4)
         out = {
             'random_round_pay': random_round_pay,
             'payoff_round': payoff_round, 
             'round_payoff': c(round_payoff),
-            'total_payoff': c(total_payoff / divisor)
+            'average_payoff': c(average_payoff)
         }
         return out
 

@@ -22,14 +22,16 @@
 </style>
 <div id="container">
     <h1>
-        The session has completed.
+       Thank you. The session has completed.
     </h1>
     <br>
     <p>Here are your results, player <strong>{{player.id_in_group}}</strong>:</p>
 
     <p>
-        You have accumulated <strong>{{total_payoff}}</strong> in experimental currency units (ECU).
+        Your average profit is <strong>{{average_payoff}}</strong> ECUs. 
+        This amount will be converted to EUR and added to your show up fee. 
     </p>
+
     <!-- maybe some statistics of everyone elses payoff how you did? -->
     {% if random_round_pay %}
     <p>

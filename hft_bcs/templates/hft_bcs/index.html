@@ -180,15 +180,13 @@ Socket Actions
         var spread = document.querySelector("info-table").spread_value;
        
         if(obj.FPC != undefined){
+            
 
-            spreadGraph.drawMySpreadLines({}, 0, {}, true);
             var difference = (obj.FPC - fund_price)/100000;
-
+            spreadGraph.drawFPC((difference == NaN) ? 0 : difference);
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
             spreadGraph.updateBidAndAsk(FPCDollarAmount,spread);
-            
-            spreadGraph.drawMySpreadLines({}, (difference == NaN) ? 0 : difference);
 
             for(var key in spreadGraph.spread_lines){
                 for(var token in spreadGraph.spread_lines[key]){
@@ -202,7 +200,8 @@ Socket Actions
             exec["player"] = obj.EXEC.id;
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
-            spreadGraph.drawMySpreadLines({}, 0, exec);
+
+            spreadGraph.executionHandler(exec);
             if(obj.EXEC.id == otreeConstants.playerIDInGroup){   
                 if(timeNow > otreeConstants.batch && otreeConstants.FBA == true){
                     timeNow = otreeConstants.batch;
@@ -277,7 +276,8 @@ Socket Actions
             }
 
         if(otreeConstants.CDA == true || obj.SPRCHG[player_id] != undefined){
-            spreadGraph.drawMySpreadLines(obj.SPRCHG);
+            //spreadGraph.drawMySpreadLines(obj.SPRCHG);
+            spreadGraph.drawSpreadChange(obj.SPRCHG);
         }
         }else if(obj.SYNC != undefined){
             console.log("Recieved SYNC");
