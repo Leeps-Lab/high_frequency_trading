@@ -6,7 +6,7 @@ import yaml
 from createMarketEvents import *
 
 # Session variables
-nGroups = 1 #int(sys.argv[1])
+nGroups = 5 #int(sys.argv[1])
 nPeriods = 2 #int(sys.argv[3])
 periodLengthSeconds = 240 #int(sys.argv[4])
 trialLengthSeconds = 0 #int(sys.argv[5])
@@ -14,12 +14,12 @@ participationFee = 4
 currency = 'EUR'
 exchangeRate = 1.5
 randomRoundPayment = False
-sessionKey = 'CologneTest32'
+sessionKey = 'CologneTest6x5'
 
 # Configuration variables
 differentDrawsForGroups = True
 createDraws = True
-filePath = 'CologneTest32' #sys.argv[6]+"/"
+filePath = sessionKey #sys.argv[6]+"/"
 configURLRoot = "https://raw.githubusercontent.com/Leeps-Lab/oTree_HFT_CDA/master/session_config/"
 exchangeURI = "localhost"
 rootPath = os.getcwd()+'/'+filePath
@@ -30,7 +30,7 @@ initialSpread = maxSpread/2
 startingWealth = 20
 
 # Economic variables
-nPlayersPerGroup = 32 #int(sys.argv[2])
+nPlayersPerGroup = 6 #int(sys.argv[2])
 batchLength = 3
 exchangeType = "FBA"
 startingPrice = 100
@@ -101,7 +101,7 @@ parametersDict = {'fundamental-price':startingPrice,'max-spread':maxSpread,
                   'initial-spread':initialSpread,'initial-endowment':startingWealth,
                   'speed-cost':speedCost,'lambda-i':lambdaI,'lambda-j':lambdaJ,
                   'session-length':periodLengthSeconds,'batch-length':batchLength}
-demoDict = {'number-of-participants':'nan'}
+demoDict = {'number-of-participants':nPlayers*nGroups}
 directoryDict = {'folder':filePath}
 sessionDict = {'session-name': sessionKey,'display-name':'CDA Production',
                'num-rounds':nPeriods,'currency':currency,'exchange-rate':exchangeRate,

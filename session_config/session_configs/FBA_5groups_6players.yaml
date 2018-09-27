@@ -1,10 +1,10 @@
 demo:
-  number-of-participants: nan
+  number-of-participants: 150
 directory:
   folder: CologneTest6x5
 group:
-  group-assignments: '[[30, 19, 1, 21, 9, 7], [17, 22, 26, 25, 8, 23], [15, 18, 16,
-    5, 29, 12], [14, 20, 24, 6, 10, 13], [2, 4, 28, 11, 3, 27]]'
+  group-assignments: '[[18, 15, 13, 30, 27, 19], [8, 9, 22, 29, 26, 14], [6, 25, 16,
+    1, 10, 7], [23, 28, 3, 2, 4, 21], [17, 5, 12, 20, 24, 11]]'
   number-of-groups: 5
   players-per-group: 6
 investors:
