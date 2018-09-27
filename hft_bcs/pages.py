@@ -96,7 +96,6 @@ class SessionEnd(WaitPage):
             player.total_payoff = float(player.participant.payoff)
             fx = 1 / self.session.config['real_world_currency_per_point']
             player.participant.payoff = fx * payoff * 1 / Constants.conversion_factor
-            print('session end participant payoff', player.participant.payoff)
 
 class SessionResults(Page):
     def is_displayed(self):
@@ -111,7 +110,6 @@ class SessionResults(Page):
             out = {'payoff_round': payoff_round}
         points_payoff = self.player.total_payoff * 1 / Constants.conversion_factor / self.subsession.total_rounds
         payoff_plus_participation = self.player.participant.payoff + self.session.config['participation_fee']
-        print('p p p', payoff_plus_participation)
         points_payoff = SessionPayoff.round(points_payoff)  
         out['payoff'] = points_payoff
         out['payoff_plus_participation'] = payoff_plus_participation

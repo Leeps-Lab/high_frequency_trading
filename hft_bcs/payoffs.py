@@ -20,17 +20,17 @@ class SessionPayoff:
 
     def average_payoff(self):
         total = self.session_total
-        print('tot', total)
         assert self.player.subsession.total_rounds
         average_payoff = total / self.player.subsession.total_rounds
-        print('average payoff', average_payoff)
         self.player.final_payoff = average_payoff
-        print('self.page.player.final_payoff', self.player.final_payoff)
         self.player.save()
         return average_payoff
 
     @classmethod
     def round(cls, payoff):
+        """
+        use for nice prints
+        """
         num_decimals  = cls.round_factor
         scaled_payoff = round(payoff, num_decimals)
         return scaled_payoff
