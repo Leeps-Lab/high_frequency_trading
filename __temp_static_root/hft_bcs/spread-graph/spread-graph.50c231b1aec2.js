@@ -350,7 +350,6 @@ class SpreadGraph extends PolymerElement {
         var userPlayerID = otreeConstants.playerIDInGroup;
         var svgMiddleY = spreadGraph.spread_height/2;
         var role = document.querySelector('info-table').player_role;
-        var sniper = false;
 
         var  transactionSpeed = 500;
         if(document.querySelector("info-table").speed_cost != 0){
@@ -359,21 +358,16 @@ class SpreadGraph extends PolymerElement {
         if(spreadGraph.spread_lines[exec.player] == undefined){
             console.log("sniper in the midst");
             offset = otreeConstants.offset
-            sniper = true;
-            console.log(offset);
-            exec.profit = -1;
         }
 
-        if(exec.player == userPlayerID || sniper == true){
-            if(spreadGraph.spread_lines[userPlayerID] != undefined){
+        if(exec.player == userPlayerID){
+            if(spreadGraph.spread_lines[exec.player] != undefined){
                 var userSpread = parseInt(spreadGraph.spread_lines[userPlayerID]["A"] - spreadGraph.spread_lines[userPlayerID]["B"]);
                 var moneyRatio =  otreeConstants.maxSpread/userSpread;
                 var yCoordinate = svgMiddleY/moneyRatio;
                 exec_spread = userSpread;
-                console.log("offset = " + offset);
-                spreadGraph.drawTransactionBar(exec_spread, svgMiddleY, yCoordinate , exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
-                //spreadGraph.drawTransactionBar(exec_spread, svgMiddleY, Math.abs(yCoordinate - offset) , exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
-                if(exec_side == "B" && sniper == false){
+                spreadGraph.drawTransactionBar(exec_spread, svgMiddleY, yCoordinate - offset , exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
+                if(exec_side == "B"){
                     spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
                     var yourSpreadLineBottom = spreadGraph.spread_svg.append("svg:line")
                         .attr("x1", spreadGraph.spread_width)
@@ -384,7 +378,7 @@ class SpreadGraph extends PolymerElement {
                         .attr("class","my_line my_line_bottom");
                     
                     spreadGraph.addOthersLineAnimation([yourSpreadLineBottom], transactionSpeed, 25);
-                } else if(exec_side == "S" && sniper == false){
+                } else if(exec_side == "S"){
                     spreadGraph.spread_svg.selectAll(".my_line_top").remove();       
                     var yourSpreadLineTop = spreadGraph.spread_svg.append("svg:line")
                         .attr("x1", spreadGraph.spread_width)
@@ -854,8 +848,6 @@ class SpreadGraph extends PolymerElement {
         //take into account
         var bar_color = color;
         //if not other maker within the spread
-
-
         if(side == "B"){
             var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                 .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
