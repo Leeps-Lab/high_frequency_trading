@@ -104,7 +104,7 @@ class SessionResults(Page):
 
     def vars_for_template(self):
         random_round_pay = self.session.config['random_round_payment']
-        out = {}
+        out = {'payoff_round': False}
         if random_round_pay:
             payoff_round = self.player.participant.vars['payoff_round']
             out = {'payoff_round': payoff_round}
