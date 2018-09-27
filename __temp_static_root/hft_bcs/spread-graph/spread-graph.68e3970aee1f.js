@@ -361,7 +361,6 @@ class SpreadGraph extends PolymerElement {
             offset = otreeConstants.offset
             sniper = true;
             console.log(offset);
-            exec.profit = -1;
         }
 
         if(exec.player == userPlayerID || sniper == true){
@@ -371,8 +370,7 @@ class SpreadGraph extends PolymerElement {
                 var yCoordinate = svgMiddleY/moneyRatio;
                 exec_spread = userSpread;
                 console.log("offset = " + offset);
-                spreadGraph.drawTransactionBar(exec_spread, svgMiddleY, yCoordinate , exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
-                //spreadGraph.drawTransactionBar(exec_spread, svgMiddleY, Math.abs(yCoordinate - offset) , exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
+                spreadGraph.drawTransactionBar(exec_spread, svgMiddleY, Math.abs(yCoordinate - offset) , exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
                 if(exec_side == "B" && sniper == false){
                     spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
                     var yourSpreadLineBottom = spreadGraph.spread_svg.append("svg:line")
@@ -854,8 +852,6 @@ class SpreadGraph extends PolymerElement {
         //take into account
         var bar_color = color;
         //if not other maker within the spread
-
-
         if(side == "B"){
             var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                 .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
