@@ -1,0 +1,41 @@
+demo:
+  number-of-participants: nan
+directory:
+  folder: CologneTest32
+group:
+  group-assignments: '[[5, 26, 24, 11, 17, 7, 4, 13, 14, 6, 8, 16, 29, 10, 19, 2,
+    1, 9, 12, 32, 18, 21, 27, 30, 23, 20, 25, 28, 15, 22, 3, 31]]'
+  number-of-groups: 1
+  players-per-group: 32
+investors:
+  group_1:
+  - Draw1/investors_period1.csv
+  - Draw1/investors_period2.csv
+jumps:
+  group_1:
+  - Draw1/jumps_period1.csv
+  - Draw1/jumps_period2.csv
+market:
+  design: FBA
+  matching-engine-host: localhost
+parameters:
+  batch-length: 3
+  fundamental-price: 100
+  initial-endowment: 20
+  initial-spread: 1
+  lambda-i: 0.25
+  lambda-j: 0.3333333333333333
+  max-spread: 2
+  session-length: 240
+  speed-cost: 0.022
+session:
+  currency: EUR
+  display-name: CDA Production
+  exchange-rate: 1.5
+  num-rounds: 2
+  participation-fee: 4
+  random-round-payment: false
+  session-name: CologneTest32
+trial:
+  run: 0
+  trial-length: 0
