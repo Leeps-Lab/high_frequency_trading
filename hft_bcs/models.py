@@ -619,6 +619,8 @@ class Player(BasePlayer):
     log_file = models.StringField()
     design =  models.CharField()
     consent = models.BooleanField(initial=True)
+    final_payoff = models.IntegerField()
+    total_payoff = models.IntegerField()
 
     def init_cache(self):
         pairs = {}

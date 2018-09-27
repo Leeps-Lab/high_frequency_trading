@@ -32,7 +32,7 @@ parameters:
   lambda-j: 0.3333333333333333
 session:
   currency: EUR
-  exchange-rate: 2
+  exchange-rate: 1.5
   participation-fee: 4
   restore: off
   restore-from: none
