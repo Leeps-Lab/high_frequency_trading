@@ -119,6 +119,10 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.sync = false;      //When player syncs at beginning  of expirement this is turned to true
     otreeConstants.batch = 0;
     otreeConstants.offset = 0;  
+    otreeConstants.mostRecentSniper = {};
+    otreeConstants.mostRecentSniper.playerID = 0;
+    otreeConstants.mostRecentSniper.side = 0;
+    otreeConstants.mostRecentSniper.profit = 0;
     if(otreeConstants.design == "CDA"){
         otreeConstants.CDA  = true; 
     } else if(otreeConstants.design == "FBA"){
@@ -208,7 +212,7 @@ Socket Actions
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
             
-            //spreadGraph.executionHandler(exec);
+            spreadGraph.executionHandler(exec);
 
             if(obj.EXEC.id == otreeConstants.playerIDInGroup){   
                 

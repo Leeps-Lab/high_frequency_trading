@@ -351,7 +351,6 @@ class SpreadGraph extends PolymerElement {
         var svgMiddleY = spreadGraph.spread_height/2;
         var role = document.querySelector('info-table').player_role;
         var sniper = false; 
-        
 
         var  transactionSpeed = 500;
         if(document.querySelector("info-table").speed_cost != 0){

@@ -1,0 +1,65 @@
+demo:
+  number-of-participants: 150
+directory:
+  folder: CologneTest6x5
+group:
+  group-assignments: '[[18, 15, 13, 30, 27, 19], [8, 9, 22, 29, 26, 14], [6, 25, 16,
+    1, 10, 7], [23, 28, 3, 2, 4, 21], [17, 5, 12, 20, 24, 11]]'
+  number-of-groups: 5
+  players-per-group: 6
+investors:
+  group_1:
+  - Draw1/investors_period1.csv
+  - Draw1/investors_period2.csv
+  group_2:
+  - Draw2/investors_period1.csv
+  - Draw2/investors_period2.csv
+  group_3:
+  - Draw3/investors_period1.csv
+  - Draw3/investors_period2.csv
+  group_4:
+  - Draw4/investors_period1.csv
+  - Draw4/investors_period2.csv
+  group_5:
+  - Draw5/investors_period1.csv
+  - Draw5/investors_period2.csv
+jumps:
+  group_1:
+  - Draw1/jumps_period1.csv
+  - Draw1/jumps_period2.csv
+  group_2:
+  - Draw2/jumps_period1.csv
+  - Draw2/jumps_period2.csv
+  group_3:
+  - Draw3/jumps_period1.csv
+  - Draw3/jumps_period2.csv
+  group_4:
+  - Draw4/jumps_period1.csv
+  - Draw4/jumps_period2.csv
+  group_5:
+  - Draw5/jumps_period1.csv
+  - Draw5/jumps_period2.csv
+market:
+  design: FBA
+  matching-engine-host: localhost
+parameters:
+  batch-length: 3
+  fundamental-price: 100
+  initial-endowment: 20
+  initial-spread: 1
+  lambda-i: 0.25
+  lambda-j: 0.3333333333333333
+  max-spread: 2
+  session-length: 240
+  speed-cost: 0.022
+session:
+  currency: EUR
+  display-name: CDA Production
+  exchange-rate: 1.5
+  num-rounds: 2
+  participation-fee: 4
+  random-round-payment: false
+  session-name: CologneTest6x5
+trial:
+  run: 0
+  trial-length: 0

@@ -351,7 +351,6 @@ class SpreadGraph extends PolymerElement {
         var svgMiddleY = spreadGraph.spread_height/2;
         var role = document.querySelector('info-table').player_role;
         var sniper = false; 
-        
 
         var  transactionSpeed = 500;
         if(document.querySelector("info-table").speed_cost != 0){
@@ -373,7 +372,7 @@ class SpreadGraph extends PolymerElement {
                 var moneyRatio =  otreeConstants.maxSpread/userSpread;
                 var yCoordinate = svgMiddleY/moneyRatio;
                 exec_spread = userSpread;
-                
+                console.log("Sniper id = " + otreeConstants.mostRecentSniper.playerID + ", exec id = " + exec.player);
                 if((otreeConstants.mostRecentSniper.profit == exec.profit) && (otreeConstants.mostRecentSniper.playerID != exec.player)){
                     //do something to offset the most recent snipe and reset the object
                     console.log(otreeConstants.mostRecentSniper.profit == exec.profit);
