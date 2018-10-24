@@ -1,3 +1,5 @@
+from channels import Group as CGroup, Channel
+import json
 
 """
 messages to communicate with
@@ -45,3 +47,11 @@ def batch(event):
     value = event
     msg = {key: value}
     return msg
+
+
+def broadcast(group_id, msg):
+    """
+    broadcast via channel layer
+    """
+    message = json.dumps(msg)
+    CGroup(str(group_id)).send({"text": message}) 

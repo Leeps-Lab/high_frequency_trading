@@ -34,7 +34,7 @@ class OrderStore:
         out = self.orders.get(token, False)
         if out is False:
             log_dict = {'pid': self.pid, 'token': token}
-            hfl.events.push(hfl.not_found, **log_dict)
+            hfl.log_events.push(hfl.not_found, **log_dict)
         return out
     
     def __setitem__(self, token, order):
@@ -95,7 +95,7 @@ class OrderStore:
             head = self.orders[head.replacer_token]
         if isinstance(head, Order):
             l = '%s head is %s.' % (order.token, head.token)
-            hfl.events.push(hfl.order_head, **{'pid': self.pid, 'context': l})
+            hfl.log_events.push(hfl.order_head, **{'pid': self.pid, 'context': l})
         return head
 
     def activate(self, time, order):

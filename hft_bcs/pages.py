@@ -56,7 +56,7 @@ class ResultsWaitPage(WaitPage):
         # take speed cost
         for player in self.group.get_players():
             player.take_cost()
-            payoff_for_round = player.calc_payoff()
+            payoff_for_round = player.do_payoff()
             print('payoff for round', payoff_for_round)
             if subsession.is_trial is False:
                 if subsession.restore is True and (subsession.first_round == self.round_number):

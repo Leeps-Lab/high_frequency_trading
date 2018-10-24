@@ -66,14 +66,14 @@ class OUCHConnectionFactory(ClientFactory):
 
     def buildProtocol(self, addr):
         l = 'connecting to exchange server at %s' % addr
-        hfl.events.push(hfl.exchange, **{'context': l})
+        hfl.log_events.push(hfl.exchange, **{'context': l})
         self.connection = ClientFactory.buildProtocol(self, addr)
         return self.connection
 
     def clientConnectionLost(self, connector, reason):
         l = 'lost connection to exchange at %s: %s' % (self.addr, reason)
         log.debug(l)
-        hfl.events.push(hfl.exchange, **{'context': l})
+        hfl.log_events.push(hfl.exchange, **{'context': l})
 
     def clientConnectionFailed(self, connector, reason):
         log.debug('failed to connect to exchange at %s: %s' % (self.addr, reason))

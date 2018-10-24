@@ -12,9 +12,10 @@ from random import randrange
 import itertools
 
 from OuchServer.ouch_messages import OuchClientMessages, OuchServerMessages
+from OuchServer.test_orders import test_case_orders
 
 p = configargparse.ArgParser()
-p.add('--port', default=12345)
+p.add('--port', default=9101)
 p.add('--host', default='127.0.0.1', help="Address of server")
 options, args = p.parse_known_args()
 
@@ -56,14 +57,14 @@ def main():
         while True:
             message_type = OuchClientMessages.EnterOrder
             
-            for index in itertools.count():
+            for ix, order in enumerate(test_case_orders):
                 request = message_type(
-                    order_token='{:014d}'.format(index).encode('ascii'),
-                    buy_sell_indicator=b'B',
-                    shares=randrange(1,10**6-1),
+                    order_token='{:014d}'.format(ix).encode('ascii'),
+                    buy_sell_indicator=order.side,
+                    shares=1,
                     stock=b'AMAZGOOG',
-                    price=randrange(1,10**9-100),
-                    time_in_force=randrange(0,99999),
+                    price=order.price,
+                    time_in_force=order.time_in_force,
                     firm=b'OUCH',
                     display=b'N',
                     capacity=b'O',
@@ -71,13 +72,11 @@ def main():
                     minimum_quantity=1,
                     cross_type=b'N',
                     customer_type=b' ')
-                print('send message: ', request)
                 log.info("Sending Ouch message: %s", request)
                 await send(request)
                 response = await recv()
-                print('recv message: ', response)
                 log.info("Received response Ouch message: %s", response)    
-                await asyncio.sleep(4.0)
+                await asyncio.sleep(order.sleep_time)
             
         writer.close()
         await asyncio.sleep(0.5)
