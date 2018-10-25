@@ -382,32 +382,10 @@ class SpreadGraph extends PolymerElement {
                 var yCoordinate = svgMiddleY/moneyRatio;
           
                 
-                console.log(priceOfTransaction);
 
-                if(exec_side == "B"){
-                    spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
-                    var yourSpreadLineBottom = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1", svgMiddleY + transactionYCoordinate)
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2", svgMiddleY + transactionYCoordinate)
-                        .attr("stroke-width",3)
-                        .attr("class","my_line my_line_bottom");
-                    
-                    spreadGraph.addOthersLineAnimation([yourSpreadLineBottom], transactionSpeed, 25);
-                } else if(exec_side == "S"){
-                    spreadGraph.spread_svg.selectAll(".my_line_top").remove();       
-                    var yourSpreadLineTop = spreadGraph.spread_svg.append("svg:line")
-                        .attr("x1", spreadGraph.spread_width)
-                        .attr("y1",  svgMiddleY - transactionYCoordinate)
-                        .attr("x2", spreadGraph.spread_width - 25)
-                        .attr("y2",  svgMiddleY - transactionYCoordinate)
-                        .attr("stroke-width",3)
-                        .attr("class","my_line my_line_top");
-                    console.log(yourSpreadLineTop);
-                    spreadGraph.addOthersLineAnimation([yourSpreadLineTop], transactionSpeed, 25);
-                }
+
                 spreadGraph.drawTransactionBar(exec_spread, svgMiddleY,transactionYCoordinate , (exec_side == "S") ? "A" : exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
+
 
                 exec_spread = userSpread;
             } else {
@@ -736,13 +714,6 @@ class SpreadGraph extends PolymerElement {
                 .attr("width", 5)
                 .attr("height",y_coordinate - svg_middle_y)
                 .attr("class",bar_color);
-      } else { 
-        var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
-            .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
-            .attr("y", y_coordinate)
-            .attr("width", 5)
-            .attr("height",svg_middle_y - y_coordinate)
-            .attr("class",bar_color);
       }
         // if(side == "B"){
         //     var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")

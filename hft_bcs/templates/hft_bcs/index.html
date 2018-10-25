@@ -123,6 +123,7 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.mostRecentSniper.playerID = 0;
     otreeConstants.mostRecentSniper.side = 0;
     otreeConstants.mostRecentSniper.profit = 0;
+
     if(otreeConstants.design == "CDA"){
         otreeConstants.CDA  = true; 
     } else if(otreeConstants.design == "FBA"){
@@ -134,6 +135,7 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
 */
+
     //SPREAD GRAPH
     spreadGraph.spread_width = document.querySelector("spread-graph").clientWidth;
     spreadGraph.spread_height = document.querySelector("spread-graph").clientHeight;
@@ -184,21 +186,18 @@ Socket Actions
         var spread = document.querySelector("info-table").spread_value;
        
         if(obj.FPC != undefined){
-            
+            var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
+            document.querySelector('info-table').fp = FPCDollarAmount;
+            var difference = Math.abs(fund_price - (obj.FPC/10000));     
+            spreadGraph.updateBidAndAsk(FPCDollarAmount,spread);
 
-            var difference = Math.abs(fund_price - (obj.FPC/10000));
-       
             if((obj.FPC/10000) > fund_price){
                 difference = difference*-1;
             }
-            
-            difference = difference*100;
-           
+            difference = difference*10000;
             spreadGraph.drawFPC((difference == NaN) ? 0 : difference);
-            var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
-            document.querySelector('info-table').fp = FPCDollarAmount;
-            spreadGraph.updateBidAndAsk(FPCDollarAmount,spread);
-
+            
+            
             for(var key in spreadGraph.spread_lines){
                 for(var token in spreadGraph.spread_lines[key]){
                     spreadGraph.spread_lines[key][token] -= parseInt(difference);

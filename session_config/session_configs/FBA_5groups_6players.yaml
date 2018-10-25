@@ -56,6 +56,8 @@ session:
   currency: EUR
   display-name: CDA Production
   exchange-rate: 1.5
+  restore: off
+  restore-from: none
   num-rounds: 2
   participation-fee: 4
   random-round-payment: false

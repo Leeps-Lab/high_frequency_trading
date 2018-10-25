@@ -404,10 +404,11 @@ class SpreadGraph extends PolymerElement {
                         .attr("y2",  svgMiddleY - transactionYCoordinate)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_top");
-                    console.log(yourSpreadLineTop);
+                    console.log(yourSpreadLine);
                     spreadGraph.addOthersLineAnimation([yourSpreadLineTop], transactionSpeed, 25);
                 }
                 spreadGraph.drawTransactionBar(exec_spread, svgMiddleY,transactionYCoordinate , (exec_side == "S") ? "A" : exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
+
 
                 exec_spread = userSpread;
             } else {
