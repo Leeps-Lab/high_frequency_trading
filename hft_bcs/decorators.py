@@ -3,6 +3,9 @@ import time
 import logging
 import itertools
 
+from .hft_logging.session_events import log_events
+from .hft_logging import row_formatters as hfl
+
 log = logging.getLogger(__name__)
 
 author = 'hasan ali demirci'
@@ -24,8 +27,10 @@ def atomic(func):
                 log.info('{}:{}:{} another thread has the lock.'.format(self, self.id, func.__name__))
                 printed = True
             continue
+        log_events.push(hfl.db_lock, **{'pid': self.id, 'f': func.__name__, 'state': 'locked'})    
         out = func(self, *args, **kwargs)
         cache.set(lock_key, 'unlocked', timeout=None)
+        log_events.push(hfl.db_lock, **{'pid': self.id, 'f': func.__name__, 'state': 'unlocked'})  
         return out
     return atomize
 

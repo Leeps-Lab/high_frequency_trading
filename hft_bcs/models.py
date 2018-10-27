@@ -32,7 +32,7 @@ from settings import (
     exp_logs_dir, EXCHANGE_HOST_NO, REAL_WORLD_CURRENCY_CODE )
 
 from .subject_state import BCSSubjectState
-from .trader import CDATraderFactory
+from .trader import CDATraderFactory, FBATraderFactory
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
@@ -131,7 +131,7 @@ class Constants(BaseConstants):
     #   #   #   #   #   #
 
     trader_factory_map = {
-        'CDA': CDATraderFactory
+        'CDA': CDATraderFactory, 'FBA': FBATraderFactory
     }
 
     player_action_map = {
@@ -550,28 +550,13 @@ class Group(BaseGroup):
         # broadcast new price to clients
         self.broadcast(client_messages.fp_change(new_price))
         players = self.get_players()
-        traders = [p.get_trader() for p in players]
         # each player will respond to the
         # new fundamental price information.
         log.debug('Group%d: jump to %d !!' % (self.id, new_price))
         log_events.push(hfl.jump, **{'gid': self.id, 'np': new_price})        
-        responses = self._collect_responses(traders, new_price)
+        responses = [p.jump(new_price) for p in players]
         # then we shuffle responses and send to the exchange
-        self._shuffle_and_send(responses)
-        # this is here since we are still debugging,
-        # most of the action happen within this function
-        # and some checks raise flags here.
-        for ix, p in enumerate(players):
-            p.save_trader(traders[ix])
-        self.loggy()
-
-    def _collect_responses(self, traders, price):
-        responses = [(t.id, t.jump(price), t.speed) for t in traders]
-        return responses
-
-
-    def _shuffle_and_send(self, responses):
-        # index 1 is the the response an orders list of list
+        # index 1 is an orders list of list
         true_responses = list(filter(lambda x: x[1] is not False, responses))
         random.shuffle(true_responses)
         # index 2 is speed bool
@@ -579,13 +564,24 @@ class Group(BaseGroup):
             orders, speed = r[1], r[2]
             if orders:
                 self.send_exchange(orders, delay=True, speed=speed)
-        # we really want to log response ordering
         for speed in True, False:
-            # this looks odd right now but what if
-            # there were N gears.
             # index 0 is the player id
             move_order = [r[0] for r in true_responses if r[2] is speed]
             log_events.push(hfl.move_order, **{'gid': self.id, 'speed':speed, 'move_order': move_order})
+        # this is here since we are still debugging,
+        self.loggy()
+
+    # def _collect_responses(self, players, price):
+    #     responses = []
+    #     for p in players:
+    #         t = p.get_trader()
+    #         orders = t.jump(price)
+    #         response = (t.id, orders, t.speed) 
+    #         responses.append(response)
+    #         p.save_trader(t)
+    #     return responses
+
+
 
     @atomic
     def players_in_market(self, player_id):
@@ -667,7 +663,6 @@ class Player(BasePlayer):
         role_name = self.get_role()
         TraderFactory = Constants.trader_factory_map[self.design]
         trader = TraderFactory.get_trader(subject_state, orderstore, role_name)
-
         return trader
     
     def save_trader(self, trader):
@@ -675,6 +670,15 @@ class Player(BasePlayer):
         self.save_state(subject_state)
         orderstore = trader.get_orderstore()
         self.save_order_store(orderstore)
+    
+    @atomic
+    def jump(self, price):
+        response = None
+        trader = self.get_trader()
+        orders = trader.jump(price)
+        self.save_trader(trader)
+        response = (trader.id, orders, trader.speed)
+        return response
 
     # def stage_enter(self, center='fp', side=None, price=None, time_in_force=99999):
     #     """
@@ -961,9 +965,7 @@ class Player(BasePlayer):
         msg_type = msg['type']
         if msg_type in Constants.trader_messages:
             trader = self.get_trader()
-            t = time.time()
             trader.receive_from_client(msg)
-            print(' trader receive c %f' % (time.time() - t))
             self.save_trader(trader)
         else:
             methodname = Constants.player_action_map[msg_type]
@@ -972,9 +974,7 @@ class Player(BasePlayer):
     @atomic
     def receive_from_group(self, header, body):
         trader = self.get_trader()
-        t = time.time()
         trader.receive_from_group(header, body)
-        print(' trader receive g %f' % (time.time() - t))
         self.save_trader(trader)
 
 

@@ -116,10 +116,10 @@ class SessionResults(Page):
         return out
 
 page_sequence = [
-    InformedConsent,
-    NoParticipation,
-    InstructionsCDA,
-    InstructionsFBA,
+    # InformedConsent,
+    # NoParticipation,
+    # InstructionsCDA,
+    # InstructionsFBA,
     PreWaitPage,
     index,
     ResultsWaitPage,

@@ -33,6 +33,19 @@ class CDATraderFactory(TraderFactory):
         else:
             log.warning('unknown role: %s' % role_name)
 
+class FBATraderFactory(TraderFactory):
+
+    @staticmethod
+    def get_trader(subject_state, orderstore, role_name):
+        if role_name == 'sniper':
+            return BCSFbaSniper(subject_state, orderstore)
+        elif role_name == 'maker':
+            return BCSMaker(subject_state, orderstore)
+        elif role_name == 'out':
+            return BCSOut(subject_state, orderstore)
+        else:
+            log.warning('unknown role: %s' % role_name)
+
 class BaseTrader:
 
     state_spec = None
@@ -449,8 +462,7 @@ class BCSMaker(BCSTrader):
         self.send_exchange(msgs, delay=True, speed=self.speed)
         log_events.push(hfl.spread_update, ** {'gid': self.group_id, 'pid': self.id, 'spread': new_spread})
         experiment_logger.log(SpreadLog(model=self))
-
-    @atomic    
+  
     def jump(self, new_price):
         """
         player's response to jump
@@ -468,15 +480,22 @@ class BCSOut(BCSMaker):
 
     def first_move(self):
         self.leave_market()    
+    
+    def jump(self, new_price):
+        self.fp = new_price
 
 class BCSSniper(BCSTrader):
 
     def first_move(self):
         self.leave_market()
 
+class BCSFbaSniper(BCSSniper):
+
+    def jump(self, new_price):
+        self.fp = new_price
+
 class BCSCdaSniper(BCSSniper):
 
-    @atomic
     def jump(self, new_price):
         """
         player's response to jump
