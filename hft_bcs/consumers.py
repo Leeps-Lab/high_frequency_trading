@@ -44,7 +44,7 @@ class InvestorConsumer(JsonWebsocketConsumer):
     def raw_receive(self, message, group_id):
         msg = json.loads(message.content['text'])
         investor = Investor.objects.get(group_id=group_id)
-        investor.receive_from_consumer(msg['side'])
+        investor.receive_from_consumer(msg)
 
     def raw_disconnect(self, message, group_id):
         log.info('Investor disconnected from Group %s.' % group_id)
@@ -58,7 +58,7 @@ class JumpConsumer(JsonWebsocketConsumer):
     def raw_receive(self, message, group_id):
         msg = json.loads(message.content['text'])
         group = OGroup.objects.get(id=group_id)
-        group.jump_event(msg['price'])
+        group.jump_event(msg)
 
     def raw_disconnect(self, message, group_id):
         log.info('Jump disconnected from Group %s.' % group_id)

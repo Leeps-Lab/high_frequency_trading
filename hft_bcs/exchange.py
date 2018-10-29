@@ -42,7 +42,7 @@ class OUCH(Protocol):
                 self.factory.group.receive_from_exchange(bytes(self.buffer))
                 self.buffer.clear()
             except AttributeError as e:
-                log.msg(e)
+                log.exception(e)
 
         if len(data):
             self.dataReceived(data)

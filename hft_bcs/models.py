@@ -100,8 +100,8 @@ class Constants(BaseConstants):
     investor_url = 'ws://127.0.0.1:8000/hft_investor/'
     jump_url = 'ws://127.0.0.1:8000/hft_jump/'
 
-    investor_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_events/investor.py')
-    jump_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_events/jump.py')
+    investor_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_event.py')
+    jump_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_event.py')
     
     conversion_factor = 1e4
     session_field_map = {
@@ -155,16 +155,17 @@ subprocesses = {}
 def stop_exogenous(group_id=None):
     if group_id: 
         if subprocesses[group_id]:
-            for process in subprocesses[group_id].values():
+            for process in subprocesses[group_id]:
                 try:
+                    print(group_id)
+                    print(process)
                     process.kill()
                 except Exception as e:
                     log.exception(e)
     else:
-        for _, process_dict in subprocesses.items():
-            if process_dict:
-                print(process_dict)
-                for process in process_dict.values():
+        for _, process_list in subprocesses.items():
+            if process_list:
+                for process in process_list:
                     try:
                         process.kill()
                     except Exception as e:
@@ -389,7 +390,7 @@ class Group(BaseGroup):
         fp = self.session.config['fundamental_price'] * Constants.conversion_factor
         # self.fp_push(fp)
         self.init_cache()
-        subprocesses[self.id] = dict()
+        subprocesses[self.id] = list()
         self.save()
         self.subsession.save()
 
@@ -518,11 +519,12 @@ class Group(BaseGroup):
         cmd = ['python', name, str(self.id), url, data]
         p = subprocess.Popen(cmd)
         try:
-            subprocesses[self.id][name] = p
+            subprocesses[self.id].append(p)
         except KeyError as e:
             log.exception(e)
-            subprocesses[self.id] = {}
-            subprocesses[self.id][name] = p
+            subprocesses[self.id] = []
+            subprocesses[self.id].append(p)
+        print(subprocesses)
         log.debug('Group%d: Fire %s.' % (self.id, name))
 
     # def fp_push(self, price):
@@ -539,13 +541,14 @@ class Group(BaseGroup):
     #     group_fp.push(labtime(), price)
     #     cache.set(k, group_fp, timeout=None)
 
-    def jump_event(self, new_price):
+    def jump_event(self, msg):
         """
         this is the fundamental price jump
         let all client know the new price
         get automated responses
         randomize and send to exchange
         """
+        new_price = int(msg['size'])
         # self.fp_push(new_price)
         # broadcast new price to clients
         self.broadcast(client_messages.fp_change(new_price))
@@ -1299,7 +1302,8 @@ class Investor(Model):
     group = ForeignKey(Group)
     order_count = models.IntegerField(initial=1)
 
-    def receive_from_consumer(self, side):
+    def receive_from_consumer(self, msg):
+        side = msg['direction']
         s = ('buy' if side=='B' else 'sell')
         log.debug('Group%d: investor%d: %s.' % (self.group.id, self.order_count, s))
         self.invest(side)
