@@ -48,7 +48,8 @@ class OUCH(Protocol):
             self.dataReceived(data)
 
     def sendMessage(self, msg, delay):
-        msg = msg.tobytes()
+        if not isinstance(msg, bytes):
+            msg = msg.tobytes()
         # can receive a message back (accepted),
         # can receive 2 messages (accepted, executed),
         # can receive 0 message (replace dying silently).

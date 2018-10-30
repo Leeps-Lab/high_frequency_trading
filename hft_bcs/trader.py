@@ -12,6 +12,7 @@ from .subject_state import *
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
+from .new_translator import BCSTranslator
 
 log = logging.getLogger(__name__)
 
@@ -167,7 +168,9 @@ class BCSTrader(BaseTrader):
             'speed': self.speed, 'order': order
         }
         log_events.push(hfl.stage_enter, **log_dict)
-        ouch = translate.enter(order)
+        kwargs = {'order_token': bytes(order.token, "utf-8"), 'buy_sell_indicator': bytes(order.side, "utf-8"),
+            'price': order.price, 'time_in_force': order.time_in_force}
+        ouch = BCSTranslator.encode('enter', **kwargs)
         return [ouch]
     
     def stage_replace(self, order):
