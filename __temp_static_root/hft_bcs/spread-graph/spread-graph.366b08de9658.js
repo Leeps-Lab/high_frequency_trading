@@ -366,11 +366,8 @@ class SpreadGraph extends PolymerElement {
         }
 
         if(exec.player == userPlayerID){
-
             if(spreadGraph.spread_lines[userPlayerID] != undefined){
                 //you are a maker 
-
-                //Price to be pulled from backedn messaging
                 var priceOfTransaction = spreadGraph.spread_lines[exec.player][(exec_side == "S") ? "A" : exec_side];
                 
                 var upperPriceBound = (otreeConstants.maxSpread/2) +  +currentFP;
@@ -536,9 +533,7 @@ class SpreadGraph extends PolymerElement {
             if(player == userPlayerID){ 
                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();  
                 spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();  
-                spreadGraph.spread_svg.selectAll(".spread_bar").remove();
-                spreadGraph.spread_svg.selectAll(".transactionBar").remove();
-
+                spreadGraph.spread_svg.selectAll(".spread_bar").remove();  
 
                 var userSpread = parseInt(spreadGraph.spread_lines[userPlayerID]["A"] - spreadGraph.spread_lines[userPlayerID]["B"]);
                 var moneyRatio =  otreeConstants.maxSpread/userSpread;
@@ -691,7 +686,6 @@ class SpreadGraph extends PolymerElement {
  addOthersLineAnimation(lines, speed=500, width){
       //SETTING THE SPREAD TO THE LINE
     for(var i = 0; i < lines.length; i++){
-        console.log(lines[i]);
         var add_animation = lines[i]
         .transition()
         .duration(speed)
@@ -736,14 +730,14 @@ class SpreadGraph extends PolymerElement {
                 .attr("y", svg_middle_y)
                 .attr("width", 5)
                 .attr("height",y_coordinate - svg_middle_y)
-                .attr("class","transactionBar " + bar_color);
+                .attr("class",bar_color);
       } else { 
         var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
             .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
             .attr("y", y_coordinate)
             .attr("width", 5)
             .attr("height",svg_middle_y - y_coordinate)
-            .attr("class", "transactionBar " + bar_color);
+            .attr("class",bar_color);
       }
         // if(side == "B"){
         //     var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")

@@ -253,13 +253,13 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke-width",3)
         .attr("class","my_line_attempt");
 
-        console.log(your_spread_line_bottom);
+    
         var transaction_speed = 500;
         if(document.querySelector("info-table").speed_cost != 0){
             transaction_speed = 100;
         } 
 
-        spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], transaction_speed, 25);
+        spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], transaction_speed, 15);
         your_spread_line_top.transition().delay(transaction_speed).remove();
 
         your_spread_line_bottom.transition().delay(transaction_speed).remove();
@@ -366,11 +366,8 @@ class SpreadGraph extends PolymerElement {
         }
 
         if(exec.player == userPlayerID){
-
             if(spreadGraph.spread_lines[userPlayerID] != undefined){
                 //you are a maker 
-
-                //Price to be pulled from backedn messaging
                 var priceOfTransaction = spreadGraph.spread_lines[exec.player][(exec_side == "S") ? "A" : exec_side];
                 
                 var upperPriceBound = (otreeConstants.maxSpread/2) +  +currentFP;
@@ -384,6 +381,9 @@ class SpreadGraph extends PolymerElement {
                 var moneyRatio =  otreeConstants.maxSpread/userSpread;
                 var yCoordinate = svgMiddleY/moneyRatio;
           
+                
+                console.log(priceOfTransaction);
+
                 if(exec_side == "B"){
                     spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
                     var yourSpreadLineBottom = spreadGraph.spread_svg.append("svg:line")
@@ -393,7 +393,7 @@ class SpreadGraph extends PolymerElement {
                         .attr("y2", svgMiddleY + transactionYCoordinate)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_bottom");
-                     
+                    
                     spreadGraph.addOthersLineAnimation([yourSpreadLineBottom], transactionSpeed, 25);
                 } else if(exec_side == "S"){
                     spreadGraph.spread_svg.selectAll(".my_line_top").remove();       
@@ -404,7 +404,7 @@ class SpreadGraph extends PolymerElement {
                         .attr("y2",  svgMiddleY - transactionYCoordinate)
                         .attr("stroke-width",3)
                         .attr("class","my_line my_line_top");
-                
+                    console.log(yourSpreadLineTop);
                     spreadGraph.addOthersLineAnimation([yourSpreadLineTop], transactionSpeed, 25);
                 }
                 spreadGraph.drawTransactionBar(exec_spread, svgMiddleY,transactionYCoordinate , (exec_side == "S") ? "A" : exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
@@ -536,9 +536,7 @@ class SpreadGraph extends PolymerElement {
             if(player == userPlayerID){ 
                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();  
                 spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();  
-                spreadGraph.spread_svg.selectAll(".spread_bar").remove();
-                spreadGraph.spread_svg.selectAll(".transactionBar").remove();
-
+                spreadGraph.spread_svg.selectAll(".spread_bar").remove();  
 
                 var userSpread = parseInt(spreadGraph.spread_lines[userPlayerID]["A"] - spreadGraph.spread_lines[userPlayerID]["B"]);
                 var moneyRatio =  otreeConstants.maxSpread/userSpread;
@@ -691,7 +689,6 @@ class SpreadGraph extends PolymerElement {
  addOthersLineAnimation(lines, speed=500, width){
       //SETTING THE SPREAD TO THE LINE
     for(var i = 0; i < lines.length; i++){
-        console.log(lines[i]);
         var add_animation = lines[i]
         .transition()
         .duration(speed)
@@ -729,21 +726,23 @@ class SpreadGraph extends PolymerElement {
         //take into account
         var bar_color = color;
         //if not other maker within the spread
-        
+        console.log("In DTB");
+        console.log("svg_middle_y = " + svg_middle_y);
+        console.log("y_coordinate = " + y_coordinate);
       if(svg_middle_y <= y_coordinate){
         var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                 .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
                 .attr("y", svg_middle_y)
                 .attr("width", 5)
                 .attr("height",y_coordinate - svg_middle_y)
-                .attr("class","transactionBar " + bar_color);
+                .attr("class",bar_color);
       } else { 
         var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
             .attr("x", (spreadGraph.spread_width / 2) - 5 + xOffset)
             .attr("y", y_coordinate)
             .attr("width", 5)
             .attr("height",svg_middle_y - y_coordinate)
-            .attr("class", "transactionBar " + bar_color);
+            .attr("class",bar_color);
       }
         // if(side == "B"){
         //     var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
