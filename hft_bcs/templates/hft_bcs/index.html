@@ -56,7 +56,7 @@
                     // });
        
                 }
-            });
+            }); 
         }
 
         otreeConstants.fileReady = true;
@@ -177,14 +177,21 @@ Socket Actions
         // Also Check if all files exist on the server
     };
 
-    // Handle messages sent by the server.
-
+    /*
+    * Handle messages sent by the server.
+    */
      socketActions.socket.onmessage = function (event) {
-
+        
         var fund_price = document.querySelector('info-table').fp;
         var obj = jQuery.parseJSON(event.data);
         var spread = document.querySelector("info-table").spread_value;
        
+        /*
+        * FPC message: NASDAQ pricing changes
+        * Update FP on info-table
+        * Update bid and ansk on info-table
+        * Draw FPC based on the difference of the current FPC and the new FPC
+        */
         if(obj.FPC != undefined){
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
@@ -204,6 +211,10 @@ Socket Actions
                     spreadGraph.spread_lines[key][token] -= parseInt(difference);
                 }
             }
+        /*
+        * Draw Execution on the spread-graph
+        * Draw Execution on the profit-graph
+        */
         }else if(obj.EXEC != undefined){
             var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
             var exec = {};
@@ -212,7 +223,8 @@ Socket Actions
             exec["profit"] = obj.EXEC.profit;
             
             spreadGraph.executionHandler(exec);
-
+            console.log(exec);
+            
             if(obj.EXEC.id == otreeConstants.playerIDInGroup){   
                 
                 if(timeNow > otreeConstants.batch && otreeConstants.FBA == true){
@@ -237,6 +249,12 @@ Socket Actions
                     }
                 )   
             } 
+        /*
+        * Update spread_lines for CDA, spreadLinesFBAConcurrent for FBA
+        * Remove maker spread if they left the market
+        * Find smallest spread, if player is then spread bar blue green otherwise
+        * Draw maker lines on the spread-graph as they come in for CDA not if FBA draw on batch processed obj.BATCH == "P"
+        */
         }else if(obj.SPRCHG != undefined) {
             // Number.MAX_SAFE_INTEGER
             var player_id = parseInt(otreeConstants.playerIDInGroup);
@@ -291,11 +309,18 @@ Socket Actions
             //spreadGraph.drawMySpreadLines(obj.SPRCHG);
             spreadGraph.drawSpreadChange(obj.SPRCHG);
         }
+        /*
+        * Recieved on sync message sent from the backend, sent from backend when they recieved all player_ready
+        * Start experiment (remove grey overlay)
+        */
         }else if(obj.SYNC != undefined){
             console.log("Recieved SYNC");
             otreeConstants.sync = true; 
             startExperiment();
-            
+        
+        /*
+        * Recieved when number of trader enters or leaves the market, update the info-table accordingly
+        */
         } else if(obj.TOTAL != undefined){
 
             // Player State Change message from the backend
@@ -305,13 +330,27 @@ Socket Actions
             var total_traders = total_makers + total_snipers;
             document.querySelector("info-table").num_traders = total_traders;
             document.querySelector("info-table").num_makers = total_makers;
-     
+        
+        /*
+        * FBA Specific
+        * Batch has just been processed
+        * save the exact time when the batch occured for client use
+        * Update the FBA maker lines with the spreadLinesFBAConcurrent maintained in obj.SPRCHG
+        * Draw the batch flash on the spread-graph
+        */
         } else if(obj.BATCH == "P"){
             otreeConstants.batch = profitGraph.getTime();
             //Plot the most current spread lines then update the saved batch lines
             spreadGraph.updateFBASpreadGraphLines();
             //Flash Spread Graph
             spreadGraph.drawBatchFlash();
+
+        /*
+        * FBA Specific
+        * Batch has just started
+        * Start Batch Timer with startTimer() which resets and starts timer
+        * If this is the first batch message after the obj.SYNC message then start expirement, start profit-graph
+        */
         } else if(obj.BATCH == "B"){
             inputSection.startTimer();
             if(otreeConstants.sync == true && otreeConstants.FBAGraph == false){
@@ -338,6 +377,11 @@ Socket Actions
         console.log('disconnected from oTree');
     };
 
+    /*
+    * If CDA start the profit-graph
+    * Initialize the info-table
+    * Set experiment timer on experiment based on the round length set by the configs
+    */
     function startExperiment(){
             if(otreeConstants.CDA == true && otreeConstants.FBA == false){
                 profitGraph.adminStartTime = profitGraph.getTime();
@@ -392,6 +436,7 @@ Socket Actions
     }
 
 
+    //Send player ready messages to backend between 1-5 seconds after player loads screen (wait for all other players)
     if(otreeConstants.fileReady == true){
         window.setTimeout(function(){
                 playerReady();  
