@@ -108,6 +108,8 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.min_spread = 100;
     otreeConstants.roundLength = {{subsession.round_length}};
     otreeConstants.timeOffset = 0; 
+    otreeConstants.speedLongDelay = {{Constants.long_delay}} * (1e3);
+    otreeConstants.speedShortDelay = {{Constants.short_delay}} * (1e3);
     otreeConstants.speedCost = {{player.speed_unit_cost}};
     otreeConstants.endMsg = "off";
     otreeConstants.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise

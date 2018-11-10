@@ -375,11 +375,11 @@ class SpreadGraph extends PolymerElement {
             var sniper = false; 
             var currentFP =  ((document.querySelector('info-table').fp)*10000).toFixed(0);      
 
-            var  transactionSpeed = 500;
+            var  transactionSpeed = otreeConstants.speedLongDelay ;
             if(document.querySelector("info-table").speed_cost != 0){
-                transactionSpeed = 100;
+                transactionSpeed = otreeConstants.speedShortDelay;
             }
-
+            console.log(transactionSpeed);
             if(exec.player == userPlayerID){
 
                 if(spreadGraph.spread_lines[userPlayerID] != undefined){
@@ -401,7 +401,7 @@ class SpreadGraph extends PolymerElement {
                     
                 
                     if(exec_side == "S"){
-                        console.log(priceOfTransaction);
+
                         spreadGraph.spread_svg.selectAll(".my_line_top").remove();       
                         var yourSpreadLineTop = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1", spreadGraph.spread_width)
@@ -423,7 +423,7 @@ class SpreadGraph extends PolymerElement {
                             .attr("y2",  transactionYCoordinate)
                             .attr("stroke-width",3)
                             .attr("class","my_line my_line_bottom");
-                        console.log(transactionYCoordinate);
+
                         spreadGraph.addOthersLineAnimation([yourSpreadLineBottom], transactionSpeed, 25);
                     }
                     spreadGraph.drawTransactionBar(exec_spread, svgMiddleY,transactionYCoordinate , (exec_side == "S") ? "A" : exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), 10);
@@ -436,9 +436,7 @@ class SpreadGraph extends PolymerElement {
                 //do something else if not player
                 
                 if(spreadGraph.spread_lines[exec.player] != undefined){
-                    console.log(userPlayerID);
-                    console.log("at least theres an attempt lol ");
-                    console.log(exec)
+                     
                     var priceOfTransactionOther = spreadGraph.spread_lines[exec.player][(exec_side == "S") ? "A" : exec_side];
                     
                     var upperPriceBoundOther = (otreeConstants.maxSpread/2) +  +currentFP;
@@ -488,9 +486,9 @@ class SpreadGraph extends PolymerElement {
     var userPlayerID = otreeConstants.playerIDInGroup;
     var svgMiddleY = spreadGraph.spread_height/2;
     var role = document.querySelector('info-table').player_role;
-    var  transactionSpeed = 500;
+    var  transactionSpeed = otreeConstants.speedLongDelay ;
     if(document.querySelector("info-table").speed_cost != 0){
-        transactionSpeed = 100;
+        transactionSpeed = otreeConstants.speedShortDelay;
     }
         
     var bar_color = "";
@@ -590,7 +588,7 @@ class SpreadGraph extends PolymerElement {
                 var newLineUserSpread = parseInt(newLines[userPlayerID]["A"] - newLines[userPlayerID]["B"]);
                 var newLineMoneyRatio = otreeConstants.maxSpread/newLineUserSpread;
                 var newLineYCoordinate = svgMiddleY/newLineMoneyRatio;
-                console.log(newLineYCoordinate);
+
                 var newLineTop = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1", (spreadGraph.spread_width / 2) + 25)
                             .attr("y1", svgMiddleY - newLineYCoordinate)
@@ -608,9 +606,9 @@ class SpreadGraph extends PolymerElement {
                             .attr("class","my_line my_line_bottom");
                             
                 if(role == "MAKER"){
-                    var transactionSpeed = 500;
+                    var transactionSpeed = otreeConstants.speedLongDelay;
                     if(document.querySelector("info-table").speed_cost != 0){
-                        transactionSpeed = 100;
+                        transactionSpeed = otreeConstants.speedShortDelay;
                     }
                     
                     spreadGraph.drawSpreadBar(newLineUserSpread,svgMiddleY,newLineYCoordinate, offset, userPlayerID);
