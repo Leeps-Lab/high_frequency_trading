@@ -43,7 +43,7 @@ class Constants(BaseConstants):
 
     exchange_host_label = '{self.subsession.design}_{host}'
 
-    first_exchange_port = {'CDA': 9001, 'FBA': 9101}  # make this configurable
+    first_exchange_port = {'CDA': 9001, 'FBA': 9101, "IEX":9001}  # make this configurable
 
     speed_factor = 1e-9
     player_state = ('state', 'fp', 'speed', 'spread', 'prev_speed_update')

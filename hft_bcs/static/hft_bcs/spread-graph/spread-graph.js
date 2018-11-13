@@ -314,9 +314,47 @@ class SpreadGraph extends PolymerElement {
                 .text((temp/10000).toFixed(2));
             
             spreadGraph.possibleSpreadLines.push(temp);
+            spreadGraph.queue[temp] = [];
             temp = otreeConstants.min_spread + temp;
         }
     }
+    /*
+    * IEX Specific 
+    */
+    drawQueue(){
+        var userPlayerID = otreeConstants.playerIDInGroup;
+        var index = -1;
+        var xOffset = 0;
+    
+        for(var price in spreadGraph.queue){
+            index = parseInt(spreadGraph.queue[price].indexOf(userPlayerID.toString()));
+            if(index != -1){
+                for(var user = 0; user <= spreadGraph.queue[price].length - 1; user++){
+                    var svgMiddleY = spreadGraph.spread_height/2;
+                    var mySpread = price;
+                    var moneyRatio =  otreeConstants.maxSpread/mySpread;
+                    var yCoordinate = svgMiddleY/moneyRatio;
+                    if(spreadGraph.queue[price][user] == userPlayerID){
+                        spreadGraph.spread_svg.select(".user-bubble").remove();
+                        spreadGraph.spread_svg.append("circle")
+                            .attr("cx", (spreadGraph.spread_width / 2) + 35 + xOffset)
+                            .attr("cy", svgMiddleY - yCoordinate)
+                            .attr("r", 5)
+                            .attr("class","queue user-bubble");
+                    } else {
+                        spreadGraph.spread_svg.select(".other-bubble-"+spreadGraph.queue[price][user]).remove();
+                        spreadGraph.spread_svg.append("circle")
+                        .attr("cx", (spreadGraph.spread_width / 2) + 35 + xOffset)
+                        .attr("cy", svgMiddleY - yCoordinate)
+                        .attr("r", 5)
+                        .attr("class","queue other-bubble " + "other-bubble-" + spreadGraph.queue[price][user]);
+                    }
+                    xOffset = xOffset + 14;
+                }
+            }
+        }   
+      }
+    
 
     /*
     * Sending Spread Change to backend update the info-table accordingly

@@ -121,10 +121,7 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.sync = false;      //When player syncs at beginning  of expirement this is turned to true
     otreeConstants.batch = 0;
     otreeConstants.offset = 0;  
-    otreeConstants.mostRecentSniper = {};
-    otreeConstants.mostRecentSniper.playerID = 0;
-    otreeConstants.mostRecentSniper.side = 0;
-    otreeConstants.mostRecentSniper.profit = 0;
+    spreadGraph.makerQueue = {};
 
     if(otreeConstants.design == "CDA"){
         otreeConstants.CDA  = true; 
@@ -133,6 +130,7 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     } else if(otreeConstants.design == "IEX"){
         otreeConstants.IEX = true;
     }
+    
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js

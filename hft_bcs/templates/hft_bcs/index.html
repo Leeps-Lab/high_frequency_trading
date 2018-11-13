@@ -105,7 +105,7 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.startingWealth = {{player.endowment}};
     otreeConstants.startFP = {{player.fp}}; 
     otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
-    otreeConstants.min_spread = 100;
+    otreeConstants.min_spread = 3000;
     otreeConstants.roundLength = {{subsession.round_length}};
     otreeConstants.timeOffset = 0; 
     otreeConstants.speedCost = {{player.speed_unit_cost}};
@@ -119,10 +119,9 @@ Constant, Player, and Group Information from oTree stored in the otreeConstants 
     otreeConstants.sync = false;      //When player syncs at beginning  of expirement this is turned to true
     otreeConstants.batch = 0;
     otreeConstants.offset = 0;  
-    otreeConstants.mostRecentSniper = {};
-    otreeConstants.mostRecentSniper.playerID = 0;
-    otreeConstants.mostRecentSniper.side = 0;
-    otreeConstants.mostRecentSniper.profit = 0;
+
+    spreadGraph.makerQueue = {};
+
 
     if(otreeConstants.design == "CDA"){
         otreeConstants.CDA  = true; 
