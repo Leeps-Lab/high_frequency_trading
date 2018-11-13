@@ -1033,7 +1033,9 @@ class Player(BasePlayer):
         price = msg['execution_price']
         profit = self.profit(price, order.side, stamp)
         self.group.broadcast(
-            client_messages.execution(self.id_in_group, tok, profit)
+            client_messages.execution(
+                self.id_in_group, tok, profit, order.price, price
+            )
         )
         self.post_execution(order)
         l = prepare(

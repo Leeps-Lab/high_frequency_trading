@@ -22,9 +22,10 @@ def fp_change(new_price):
     msg = {key: value}
     return msg
 
-def execution(player_id, token, profit):
+def execution(player_id, token, profit, orig_price, exec_price):
     key = "EXEC"
-    value = {"id": player_id, "token": token, "profit": profit}
+    value = {"id": player_id, "token": token, "profit": profit, 
+        "orig_price": orig_price, "exec_price": exec_price}
     msg = {key: value}
     return msg
 
