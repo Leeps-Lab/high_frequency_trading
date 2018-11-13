@@ -34,12 +34,34 @@ class InstructionsFBA(Page):
         round_is_fba = True if self.subsession.design == 'FBA' else False
         return round_is_instructed and round_is_fba
 
+class indexFBA(Page):
+    def is_displayed(self):
+        round_is_instructed = self.subsession.is_trial or (
+            self.subsession.first_round == self.round_number)
+        round_is_fba = True if self.subsession.design == 'FBA' else False
+        return round_is_instructed and round_is_fba
+
 class InstructionsCDA(Page):
     def is_displayed(self):
         round_is_instructed = self.subsession.is_trial or (
             self.subsession.first_round == self.round_number)
         round_is_cda = True if self.subsession.design == 'CDA' else False
         return round_is_instructed and round_is_cda
+
+class indexCDA(Page):
+    def is_displayed(self):
+        round_is_instructed = self.subsession.is_trial or (
+            self.subsession.first_round == self.round_number)
+        round_is_cda = True if self.subsession.design == 'CDA' else False
+        return round_is_instructed and round_is_cda
+
+class indexIEX(Page):
+    def is_displayed(self):
+        round_is_instructed = self.subsession.is_trial or (
+            self.subsession.first_round == self.round_number)
+        round_is_iex = True if self.subsession.design == 'IEX' else False
+        return round_is_instructed and round_is_iex
+        
 
 class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
@@ -116,12 +138,15 @@ class SessionResults(Page):
         return out
 
 page_sequence = [
-    InformedConsent,
-    NoParticipation,
-    InstructionsCDA,
-    InstructionsFBA,
+    # InformedConsent,
+    # NoParticipation,
+    # InstructionsCDA,
+    # InstructionsFBA,
     PreWaitPage,
-    index,
+    # index,
+    indexCDA,
+    indexFBA,
+    indexIEX,
     ResultsWaitPage,
     Results,
     SessionEnd,

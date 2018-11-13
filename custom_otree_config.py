@@ -17,6 +17,7 @@ class CustomOtreeConfig:
     constant_required = {}
 
     def __init__(self, filename):
+        print(filename)
         self.yaml_conf = self.read(filename)
         cls = self.__class__
         for pair in cls.yaml_map:
