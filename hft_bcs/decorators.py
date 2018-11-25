@@ -14,6 +14,22 @@ author = 'hasan ali demirci'
 
 key = '{self.code}_lock'
 
+
+def format_output(func):
+    keys = ('exchange', 'broadcast')
+    def normalize_result(self, *args, **kwargs):
+        raw_result = func(self, *args, **kwargs)
+        if raw_result is None:
+            result = {k: None for k in keys}
+        else:
+            result = raw_result
+            for k in keys:
+                if k not in result:
+                    result[k] = None
+        return result
+    return func
+                    
+
 def atomic(func):
     sleep_len = 0.00125
     def atomize(self, *args, **kwargs):

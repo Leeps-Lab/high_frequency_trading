@@ -101,7 +101,7 @@ class BCSTrader(BaseTrader):
         'speed_change': 'update_speed'}
     
     group_message_dispatch = { 'A': 'handle_enter', 'U': 'handle_replace',
-        'C': 'handle_cancel', 'E': 'handle_exec',}
+        'C': 'handle_cancel', 'E': 'handle_exec'}
 
     def first_move(self):
         pass
@@ -466,18 +466,18 @@ class BCSMaker(BCSTrader):
         log_events.push(hfl.spread_update, ** {'gid': self.group_id, 'pid': self.id, 'spread': new_spread})
         experiment_logger.log(SpreadLog(model=self))
   
-    def jump(self, new_price):
-        """
-        player's response to jump
-        update fundamental price
-        return jump response to group.jump
-        """
-        is_positive = new_price - self.fp > 0.
-        self.fp = new_price
-        flag = 1 if is_positive else 0
-        orders = self.makers_replace(flag)  # makers replace returns 2 ouch messages
-        response = orders      
-        return response
+    # def jump(self, new_price):
+    #     """
+    #     player's response to jump
+    #     update fundamental price
+    #     return jump response to group.jump
+    #     """
+    #     is_positive = new_price - self.fp > 0.
+    #     self.fp = new_price
+    #     flag = 1 if is_positive else 0
+    #     orders = self.makers_replace(flag)  # makers replace returns 2 ouch messages
+    #     response = orders      
+    #     return response
 
 class BCSOut(BCSMaker):
 
