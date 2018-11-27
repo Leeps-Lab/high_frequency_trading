@@ -11,6 +11,12 @@ import pytz
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
+def pretranslate_hacks(message_type, message_data):
+    if message_type == 'replace':
+        message_data['price'] = message_data['replace_price']
+    return message_data
+
+
 def get_label_as_int(player):
     """
     this strictly expects a label ends with an integer

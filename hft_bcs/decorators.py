@@ -14,9 +14,19 @@ author = 'hasan ali demirci'
 
 key = '{self.code}_lock'
 
+def timer(func):
+    def timed(self, *args, **kwargs):
+        t = time.time()
+        res = func(self, *args, **kwargs)
+        diff = (time.time() - t) * 1e3
+        print(diff)
+        return res
+    return timed
+
+
 
 def format_output(func):
-    keys = ('exchange', 'broadcast')
+    keys = ('exchange', 'broadcast', 'order_history')
     def normalize_result(self, *args, **kwargs):
         raw_result = func(self, *args, **kwargs)
         if raw_result is None:
@@ -27,7 +37,7 @@ def format_output(func):
                 if k not in result:
                     result[k] = None
         return result
-    return func
+    return normalize_result
                     
 
 def atomic(func):

@@ -1,10 +1,11 @@
 
-from .decorators import atomic
+from .decorators import format_output
 import math
 from .exchange import exchanges
 import logging
 from . import client_messages
-from .utility import nanoseconds_since_midnight as labtime
+from .utility import nanoseconds_since_midnight
+
 
 
 from . import translator as translate
@@ -16,6 +17,7 @@ from .new_translator import BCSTranslator
 
 log = logging.getLogger(__name__)
 
+
 class TraderFactory:
     
     def get_trader(self):
@@ -24,71 +26,60 @@ class TraderFactory:
 class CDATraderFactory(TraderFactory):
 
     @staticmethod
-    def get_trader(subject_state, orderstore, role_name):
+    def get_trader(role_name, subject_state):
         if role_name == 'sniper':
-            return BCSCdaSniper(subject_state, orderstore)
+            return BCSSniper(subject_state)
         elif role_name == 'maker':
-            return BCSMaker(subject_state, orderstore)
+            return BCSMaker(subject_state)
         elif role_name == 'out':
-            return BCSOut(subject_state, orderstore)
+            return BCSOut(subject_state)
         else:
             log.warning('unknown role: %s' % role_name)
 
 class FBATraderFactory(TraderFactory):
 
     @staticmethod
-    def get_trader(subject_state, orderstore, role_name):
+    def get_trader(role_name, subject_state):
         if role_name == 'sniper':
-            return BCSFbaSniper(subject_state, orderstore)
+            return BCSSniper(subject_state)
         elif role_name == 'maker':
-            return BCSMaker(subject_state, orderstore)
+            return BCSMaker(subject_state)
         elif role_name == 'out':
-            return BCSOut(subject_state, orderstore)
+            return BCSOut(subject_state)
         else:
             log.warning('unknown role: %s' % role_name)
+
 
 class BaseTrader:
 
     state_spec = None
 
-    client_message_dispatch = {}
+    message_dispatch = {}
 
-    exchange_message_dispatch = {}
-
-    group_message_dispatch = {}
-
-    def __init__(self, subject_state, orderstore):
+    def __init__(self, subject_state):
+        if not isinstance(subject_state, self.state_spec):
+            raise TypeError('state x trader mismatch.')
         for slot in subject_state.__slots__:
             setattr(self, slot, getattr(subject_state, slot))
-        self.orderstore = orderstore
-    
-    def get_exchange_conn(self):
-        assert self.exchange_address, 'exchange address is not set'
-        try:
-            conn = exchanges[self.exchange_address]
-        except KeyError:
-            log.warning('exchange connection not found at %s.' % self.exchange_address)
-        return conn
-    
-    def get_state(self):
-        state_class = self.state_spec
-        kws = {slot: getattr(self, slot) for slot in self.state_spec.__slots__}
-        subject_state = state_class(**kws)
-        return subject_state
 
-    def get_orderstore(self):
-        return self.orderstore
-    
-    def receive_from_client(self, msg):
-        msg_type = msg['type']
-        methodname = self.client_message_dispatch[msg_type]
-        getattr(self, methodname)(msg)
-    
-    def receive_from_group(self, header, body):
-        handlers = self.group_message_dispatch
-        methodname = handlers[header]
-        getattr(self, methodname)(body)
+    def receive(self, **kwargs) -> dict:
+        """
+        assumes arguments include key event_source
+        """
+        lookup_key = kwargs['type']
+        handler_name = self.message_dispatch[lookup_key]
+        handler = getattr(self, handler_name)
+        relevant_events = handler(**kwargs)
+        return relevant_events
 
+    def first_move(self, **kwargs):
+        """
+        this gets called on a role 
+        change by player model
+        it is a good idea to override this
+        """
+        pass
+        
 
 class BCSTrader(BaseTrader):
 
@@ -97,417 +88,247 @@ class BCSTrader(BaseTrader):
     short_delay = 0.1
     long_delay = 0.5
 
-    client_message_dispatch = { 'spread_change': 'update_spread',
-        'speed_change': 'update_speed'}
-    
-    group_message_dispatch = { 'A': 'handle_enter', 'U': 'handle_replace',
-        'C': 'handle_cancel', 'E': 'handle_exec'}
+    message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
+        'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
+        'E': 'executed'}
 
-    def first_move(self):
-        pass
-
-    def update_speed(self, message):
+    @format_output
+    def speed_change(self, **kwargs):
         """
-        switch between slow and fast
-        calculate cost if player turns off speed
+        switch between on speed, off speed
         record time if player turns on speed
+        to use to calculate technology cost
         """
-        self.speed = not self.speed
-        now = labtime()
-        if self.speed:
-            self.prev_speed_update = now
+        self.speed_on = not self.speed_on
+        if self.speed_on:
+            # player subscribes to speed
+            self.speed_on_start_time = nanoseconds_since_midnight()
         else:
-            start = self.prev_speed_update
-            total_time = now - start
-            self.prev_speed_update += total_time
-        log_events.push(hfl.speed_update, **{'gid': self.group_id, 'pid': self.id, 'speed': self.speed})
-        experiment_logger.log(SpeedLog(model=self))
+            # player unsubscribes from speed
+            time_on_speed = nanoseconds_since_midnight() - self.speed_on_start_time
+            self.time_on_speed += time_on_speed
+    
+    def calc_delay(self) -> float:
+        """
+        returns the required time to delay an exchange message
+        """
+        delay = 0.5
+        if self.speed_on is True:
+            time_since_speed_change = nanoseconds_since_midnight() - self.speed_on_start_time 
+            if time_since_speed_change < 5 * 1e6:
+                # otherwise the order of messages may break
+                return delay
+            delay = 0.1
+        return delay
 
-    def orders_in_market(self):
-        orders = self.orderstore.all_enters()
-        orders_log = {
-            'gid': self.group_id, 'pid': self.id, 'orders': orders
-        }
-        log_events.push(hfl.orders, **orders_log)
-        counts = self.orderstore.counts() 
-        count_log = {
-            'gid': self.group_id, 'pid': self.id, 'act_count': counts['active'],
-            'stg_count': counts['stage'],
-        }
-        log_events.push(hfl.order_count, **count_log)
-        if len(orders) > 2:     # this has to hold if all works properly.
-            log.warning('more than two enter orders: %s.' % orders)
-        return orders
-
-    def send_exchange(self, msgs, delay=False, speed=False):
-        """
-        msgs is a list of lists
-        """
-        msgs_flat = [m for msg in msgs for m in msg]
-        true_msgs = filter(lambda x: x is not False, msgs_flat)
-        if delay:
-            dur = self.short_delay if speed else self.long_delay
-        else:
-            dur = 0.
-        conn = self.get_exchange_conn().connection
-        for m in true_msgs:
-            conn.sendMessage(m, dur)
-    
-    def receive_from_group(self, header, body):
-        super().receive_from_group(header, body)
-        self.orders_in_market()
-    
-    def stage_enter(self, side=None, price=None, time_in_force=99999):
-        spread = self.spread if side == 'S' else - self.spread
-        price = math.ceil(self.fp + spread / 2) if not price else price
-        order = self.orderstore.create(
-            status='stage', side=side, price=price, time_in_force=time_in_force
-        )
-        log_dict = {
-            'gid': self.group_id, 'pid': self.id, 'state': self.role,
-            'speed': self.speed, 'order': order
-        }
-        log_events.push(hfl.stage_enter, **log_dict)
-        kwargs = {'order_token': bytes(order.token, "utf-8"), 'buy_sell_indicator': bytes(order.side, "utf-8"),
-            'price': order.price, 'time_in_force': order.time_in_force}
-        ouch = BCSTranslator.encode('enter', **kwargs)
-        return [ouch]
-    
-    def stage_replace(self, order):
-        new_order, replace = self.replace(order)
-        msgs = [translate.replace(o, new_order) for o in replace.values() 
-                                                            if o is not False]
-        log_dict = {
-            'gid': self.group_id, 'pid': self.id, 'state': self.role,
-            'speed': self.speed, 'head': replace['head'], 'new': new_order,
-        }
-        if len(msgs) > 1:
-            log_dict['root'] = order
-        log_events.push(hfl.stage_replace, **log_dict)
-        return msgs
-
-    def replace(self, order):
-        spread = self.spread
-        d = spread / 2 if order.side == 'S' else - spread / 2
-        price = math.ceil(self.fp + d)
-        new_order = self.orderstore.create(
-            status='replace', side=order.side, price=price, time_in_force=99999
-        )
-        replace = {'root': order, 'head': False}
-        # find the most recent update
-        order_to_replace = self.orderstore.find_head(order)
-        replace['head'] = order_to_replace
-        # register the replace
-        if order_to_replace is False:
-            replace['root'] = False
-        else:     
-            order_to_replace.to_replace(new_order.token)
-        if replace['root'] != replace['head']:
-            # if order is already being replaced
-            # we replace both the head and main order.
-            order.to_replace(new_order.token)
-        self.orderstore[order_to_replace.token] = order_to_replace
-        self.orderstore[order.token] = order
-        return (new_order, replace)
-    
-    def stage_cancel(self, order):
-        """
-        create a cancel order message
-        return ouch message list
-        """
-        cancel = self.cancel(order)
-        # TODO: translate cancel takes order.token,
-        # translate replace takes order
-        # make this uniform somehow
-        msgs = [translate.cancel(o.token) for o in cancel.values()
-                                                if o is not False]
-        log_dict = {
-            'gid': self.group_id, 'pid': self.id, 'state': self.role,
-            'speed': self.speed, 'head': cancel['head'],
-        }
-        if len(msgs) > 1:
-            log_dict['root'] = order
-        return msgs
-    
-    def cancel(self, order):
-        """
-        does orderstore operations
-        similar function to _replace
-        """
-        cancel = {'root': order, 'head': False}
-        order_to_cancel = self.orderstore.find_head(order)
-        cancel['head'] = order_to_cancel
-        if order_to_cancel is False:
-            # better log this each time each happens
-            # made possible by design tho
-            cancel['root'] = False
-        return cancel
-    
-    def handle_enter(self, msg):
-        """
-        handle accept messages for the player
-        update order status as active
-        """
-        timestamp, token = msg['timestamp'], msg['order_token']
-        order = self.confirm_enter(timestamp, token)
-        experiment_logger.log(EnterOrderLog(model=order, id=self.id, group_id=self.group_id))
-        return order
-    
-    def handle_replace(self, msg):
-        """
-        handle replaced messages for the player
-        """
-        ptoken, token = msg['previous_order_token'], msg['replacement_order_token']
-        timestamp = msg['timestamp']
-        old_order, new_order = self.confirm_replace(timestamp, ptoken, token)
-        experiment_logger.log(ReplaceOrderLog(model=self, replaced_roken=ptoken,
-            new_token=token, timestamp=timestamp))
-        return new_order
-    
-    def handle_exec(self, msg):
-        """
-        handles execution messages
-        update order state as executed
-        take profit
-        """
-        timestamp, tok = msg['timestamp'], msg['order_token']
-        order = self.confirm_exec(timestamp, tok)
-        price = msg['execution_price']
-        profit = self.profit(price, order.side, timestamp)
-        experiment_logger.log(ExecuteOrderLog(model=order, id=self.id, group_id=self.group_id))
-        client_messages.broadcast(
-            self.group_id,
-            client_messages.execution(self.id_in_group, tok, profit)
-        )
-        return order
-
-    def confirm_enter(self, timestamp, token):
-        """
-        orderstore operations when confirm
-        """
-        order = self.orderstore[token]
-        if not order:
-            log.warning('player %s: order %s not in active orders' % (self.id, token))
-        # update order as active
-        order = self.orderstore.activate(timestamp, order)
-        log_events.push(hfl.confirm_enter, **{'gid': self.group_id, 'pid': self.id, 'order': order})
-        return order
-    
-    def confirm_replace(self, timestamp, ptoken, token):
-        old_order = self.orderstore[ptoken]
-        new_order = self.orderstore[token]
-        if not old_order:
-            log.warning('player %s: order %s is not in active orders' % (self.id, ptoken))
-        if not new_order:
-            log.warning('player %s: order %s is not in active orders.' % (self.id, token))
-        old_order = self.orderstore.inactivate(old_order, 'replaced')
-        new_order = self.orderstore.activate(timestamp, new_order)
-        log_dict = {'gid': self.group_id, 'pid': self.id, 'replaced': old_order, 'replacing': new_order}
-        log_events.push(hfl.confirm_replace, **log_dict)
-        return (old_order, new_order)
-    
-    def handle_cancel(self, msg):
-        """
-        handles canceled messages
-        find canceled order in the order store
-        move it to inactive dict
-        update order state as canceled
-        """
-        timestamp, tok = msg['timestamp'], msg['order_token']
-        order = self.confirm_cancel(timestamp, tok)
-        experiment_logger.log(CancelOrderLog(model=order, id=self.id, group_id=self.group_id))
-
-    def confirm_cancel(self, timestamp, token):
-        order = self.orderstore[token]
-        if not order:
-            log.warning('player %s : canceled order %s not found in active orders.' % (self.id, token) )
-        order = self.orderstore.inactivate(order, 'canceled')
-        log_events.push(hfl.confirm_cancel, **{'gid': self.group_id, 'pid': self.id, 'order': order})
-        return order
-
-    def confirm_exec(self, timestamp, token):
-        order = self.orderstore[token]
-        order = self.orderstore.inactivate(order, 'executed')
-        log_events.push(hfl.confirm_exec, **{'gid': self.group_id, 'pid': self.id, 'order': order})
-        return order
-
-    def leave_market(self):
-        """
-        exit market after switching from maker
-        pass two ouch messages to cancel active orders
-        """
-        orders = self.orders_in_market()
-        if orders:
-            msgs = [self.stage_cancel(o) for o in orders]
-            self.send_exchange(msgs, delay=True, speed=self.speed)
-        else:
-            log_events.push(hfl.no_orders, **{'gid': self.group_id, 'pid': self.id})
-        client_messages.broadcast(
-                self.group_id,
-                client_messages.spread_change(self.id_in_group)
-            )
-    
-    def profit(self, exec_price, side, timestamp):
+    def profit(self, exec_price, buy_sell_indicator) -> int:
         fp = self.fp
         d = abs(fp - exec_price)
         if exec_price < fp:
             # buyer (seller) buys (sells) less than fp
-            pi = d if side == 'B' else -d  
+            profit = d if buy_sell_indicator == 'B' else -d  
         else:
             # seller (buyer) sells (buys) higher than fp
-            pi = d if side == 'S' else -d  
-        self.endowment += pi
-        log_dict = {
-            'gid': self.group_id, 'pid': self.id, 'amount': pi,
-            'side': side, 'profit': self.endowment, 'fp': fp, 
-            'p': exec_price,
-        }
-        log_events.push(hfl.profit, **log_dict)
-        experiment_logger.log(ProfitLog(model=self, profit=pi))
-        return pi   
-    
-    def take_cost(self, timestamp):
-        """
-        this should only be called once at session end
-        can edit for different versions
-        """
-        if self.speed is True:
-            self.update_speed('')   # sorry 
-        delta = self.speed_on
-        amount = self.speed_unit_cost * delta * 1e-9
-        self.cost += amount
-        log_dict = {
-            'gid': self.group_id, 'pid': self.id,
-            'amount': amount, 'delta': delta, 'cost': amount
-        }
-        log_events.push(hfl.cost, **log_dict)
-        experiment_logger.log(CostLog(model=self))
-        return self.cost
-    
-    def do_payoff(self):
-        payoff = self.endowment - self.cost
-        return (self.endowment, self.cost, payoff)
+            profit = d if buy_sell_indicator == 'S' else -d  
+        return profit
 
+    @format_output
+    def jump(self, **kwargs):
+        """
+        base trader's response to a jump event
+        update fundamental price
+        """
+        self.fp = int(kwargs['new_fundamental'])
+
+    @format_output   
+    def leave_market(self):
+        """
+        cancel all orders in market
+        """
+        orders = self.orderstore.all_orders()
+        if orders:
+            delay = self.calc_delay()
+            host, port = self.exchange_host, self.exchange_port
+            exchange_messages = [(host, port, 'cancel', delay, order_info) for order_info in orders]
+        return {'exchange': exchange_messages}
+
+    @format_output
+    def accepted(self, **kwargs):
+        self.orderstore.confirm('enter', **kwargs)
+
+    @format_output
+    def replaced(self, **kwargs):
+        self.orderstore.confirm('replaced', **kwargs)  
+     
+    @format_output
+    def canceled(self, **kwargs):
+        self.orderstore.confirm('canceled', **kwargs)
+        order_token = kwargs['order_token']
+        broadcast_messages = []
+        broadcast_info = ('canceled', self.group_id, {'id': self.id_in_group, 'order_token': order_token})
+        broadcast_messages.append(broadcast_info)
+        return {'broadcast': broadcast_messages}
+    
+    @format_output
+    def executed(self, **kwargs):
+        order_info =  self.orderstore.confirm('executed', **kwargs)
+        exec_price, side = kwargs['execution_price'], order_info['buy_sell_indicator']
+        order_token = kwargs['order_token']
+        profit = self.profit(exec_price, side)
+        self.endowment += profit
+        broadcast_messages = []
+        broadcast_info = ('executed', self.group_id, {'profit': profit, 'execution_price': exec_price,
+            'order_token': order_token})
+        broadcast_messages.append(broadcast_info)
+        return {'broadcast': broadcast_messages, 'historic_info': order_info}
+            
+            
 class BCSMaker(BCSTrader):
 
-    def first_move(self):
-        self.enter_market()
+    def calc_price(self, buy_sell_indicator):
+        """
+        return order price for a maker order based on spread
+        """
+        leg_length = int(self.spread / 2)
+        multiplier = -1 if buy_sell_indicator == 'B' else 1
+        price = int(self.fp + multiplier * leg_length)
+        return price
 
-    def enter_market(self):
+    @format_output
+    def first_move(self, **kwargs):
+        exchange_messages = []
+        delay = self.calc_delay()
+        for side in ('B', 'S'):
+            price = self.calc_price(side)
+            order_info = self.orderstore.enter(price=price, buy_sell_indicator=side, 
+                            time_in_force=99999)
+            host, port = self.exchange_host, self.exchange_port
+            exchange_messages.append((host, port, 'enter', delay, order_info))
+        return {'exchange': exchange_messages}
+
+    @format_output   
+    def jump(self, **kwargs):
         """
-        enter market after switching role to maker
-        send two enter ouch messages to exchange via group
+        assumes trader has active/pending orders in market
+        reprice orders
+        replace sell order first if jump is positive
         """
-        msgs = [self.stage_enter(side='B'), self.stage_enter(side='S')]
-        self.send_exchange(msgs, delay=True, speed=self.speed)
+        super().jump(**kwargs)
+        positive_jump = kwargs['is_positive']
+        # get list of active or pending orders
+        exchange_messages = self.makers_reprice(positive_jump)
+        return {'exchange': exchange_messages}
     
-    def makers_replace(self, flag):
-        """
-        implement makers' response to jumps and spread changes
-        find active|staged orders
-        compose replace messages
-        flag determines the side of spread to replace first
-        return ouch messages
-        """
-        orders = self.orders_in_market()
-        sorted_orders = sorted(  # better to start from above if jump is positive.
-            orders, key=lambda order: order.price, reverse=flag
-        )
-        msgs = [self.stage_replace(o) for o in sorted_orders]
-        return msgs
+    def makers_reprice(self, start_from_above=True):
+        orders = self.orderstore.all_orders()
+        assert len(orders) <= 2, 'more than two orders in market: %s' % self.orderstore
+        sorted_orders = sorted(orders, key=lambda order: order['price'], 
+                            reverse=start_from_above)
+        exchange_messages = []
+        delay = self.calc_delay()
+        for o in sorted_orders:
+            token, buy_sell_indicator = o['order_token'], o['buy_sell_indicator']
+            new_price = self.calc_price(buy_sell_indicator)
+            order_info = self.orderstore.register_replace(token, new_price)
+            host, port = self.exchange_host, self.exchange_port
+            exchange_messages.append((host, port, 'replace', delay, order_info))
+        return exchange_messages   
 
-    def handle_enter(self, msg):
-        """
-        handle accept messages for the player
-        update order status as active
-        """
-        order = super().handle_enter(msg)
-        self.makers_broadcast(order.token)
-    
-    def handle_replace(self, msg):
-        """
-        handle replaced messages for the player
-        """
-        new_order = super().handle_replace(msg)
-        self.makers_broadcast(new_order.token)
-    
-    def handle_exec(self, msg):
-        """
-        handles execution messages
-        update order state as executed
-        take profit
-        """
-        order = super().handle_exec(msg)
-        if order.time_in_force != 0:
-            msgs = [self.stage_enter(side=order.side)]
-            self.send_exchange(msgs, delay=True, speed=self.speed)
-
-    def makers_broadcast(self, token):
-        # message front-ends so they can place ticks
-        # what is my fundamental price and spread ?
-        # then these are legs
-        lo, hi = self.fp - self.spread / 2, self.fp + self.spread / 2
-        client_messages.broadcast(
-            self.group_id,
-            client_messages.spread_change(self.id_in_group, leg_up=hi, leg_low=lo, token=token)
-        )
-
-    def update_spread(self, message):
-        """
-        makers can change their spreads
-        read new spread
-        let all clients know
-        replace existing orders with new price
-        """
-        new_spread = int(message['spread'])
+    @format_output
+    def spread_change(self, **kwargs):
+        new_spread = int(kwargs['spread'])
         self.spread = new_spread
-        msgs = self.makers_replace(1)  # replace orders, start from above
-        self.send_exchange(msgs, delay=True, speed=self.speed)
-        log_events.push(hfl.spread_update, ** {'gid': self.group_id, 'pid': self.id, 'spread': new_spread})
-        experiment_logger.log(SpreadLog(model=self))
-  
-    # def jump(self, new_price):
-    #     """
-    #     player's response to jump
-    #     update fundamental price
-    #     return jump response to group.jump
-    #     """
-    #     is_positive = new_price - self.fp > 0.
-    #     self.fp = new_price
-    #     flag = 1 if is_positive else 0
-    #     orders = self.makers_replace(flag)  # makers replace returns 2 ouch messages
-    #     response = orders      
-    #     return response
+        exchange_messages = self.makers_reprice()
+        return {'exchange': exchange_messages}
+        
+    def maker_broadcast_info(self, order_token):
+        low_leg, high_leg = int(self.fp - self.spread / 2), int(self.fp + self.spread / 2)
+        broadcast_info = ('maker_confirm', self.group_id, {'leg_up': high_leg, 'leg_low': low_leg, 
+            'order_token': order_token, 'id': self.id_in_group})        
+        return broadcast_info
 
-class BCSOut(BCSMaker):
+    @format_output
+    def accepted(self, **kwargs):
+        super().accepted(**kwargs)
+        order_token = kwargs['order_token']
+        broadcast_messages = []
+        broadcast_info = self.maker_broadcast_info(order_token)
+        broadcast_messages.append(broadcast_info)
+        return {'broadcast': broadcast_messages}
 
-    def first_move(self):
-        self.leave_market()    
+    @format_output
+    def replaced(self, **kwargs):
+        super().replaced(**kwargs)  
+        order_token = kwargs['replacement_order_token']
+        broadcast_messages = []
+        broadcast_info = self.maker_broadcast_info(order_token)
+        broadcast_messages.append(broadcast_info)
+        return {'broadcast': broadcast_messages}
+
+    @format_output    
+    def executed(self, **kwargs):
+        result = super().executed(**kwargs)
+        historic_order_info = result['order_history']
+        time_in_force = historic_order_info['time_in_force']
+        side = historic_order_info['buy_sell_indicator']
+        exchange_messages = []
+        # make sure it is not a sniper order.
+        if time_in_force != 0:
+            host, port = self.exchange_host, self.exchange_port
+            price = self.calc_price(side)
+            delay = self.calc_delay()
+            order_info = self.orderstore.enter(price=price, buy_sell_indicator=side, 
+                            time_in_force=99999)
+            exchange_messages.append((host, port, 'enter', delay, order_info))
+            result.update({'exchange': exchange_messages})
+        return result
     
-    def jump(self, new_price):
-        self.fp = new_price
 
-class BCSSniper(BCSTrader):
+class BCSOut(BCSTrader):
 
-    def first_move(self):
-        self.leave_market()
+    def first_move(self, **kwargs):
+        exchange_messages_dict = self.leave_market()
+        broadcast_messages = []
+        broadcast_info = ('leave_market', self.group_id, {'id': self.id_in_group})
+        broadcast_messages.append(broadcast_info)
+        result = exchange_messages_dict.update(broadcast_messages)
+        return result
 
-class BCSFbaSniper(BCSSniper):
+class BCSSniper(BCSOut):
 
-    def jump(self, new_price):
-        self.fp = new_price
+    @format_output
+    def jump(self, **kwargs):
+        super().jump(**kwargs)
+        positive_jump = kwargs['is_positive']
+        side = 'B' if positive_jump else 'S'
+        exchange_messages = []
+        host, port = self.exchange_host, self.exchange_port
+        order_info = self.orderstore.enter(price=self.fp, buy_sell_indicator=side, 
+                            time_in_force=0)
+        delay = self.calc_delay()
+        exchange_messages.append((host, port, 'enter', delay, order_info))
+        return {'exchange': exchange_messages}
 
-class BCSCdaSniper(BCSSniper):
+class BCSInvestor(BCSOut):
 
-    def jump(self, new_price):
-        """
-        player's response to jump
-        update fundamental price
-        return jump response to group.jump
-        """
-        is_positive = new_price - self.fp > 0.
-        self.fp = new_price
-        side = 'B' if is_positive else 'S'
-        order = [self.stage_enter(side=side, price=self.fp, time_in_force=0)]
-        response = order
-        return response
+    def invest(**kwargs):
+        host, port = self.exchange_host, self.exchange_port
+        order_side = kwargs['side']
+        price = 2147483647  if order_side == 'B' else 0
+        order_info = self.orderstore.enter(price=price, buy_sell_indicator=order_side, 
+                                    time_in_force=0)
+        
+        
+        
+    
+
+
+
+
+
+            
+
+
+
+
+        

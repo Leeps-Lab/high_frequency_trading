@@ -148,7 +148,7 @@ class HeaderLog(ExperimentLog):
         super().__init__(**kwargs)
         self.group_id = 0 
 
-class Player:
+class   MockPlayer:
     def __init__(self):
         self.id = 8
         self.group_id = 2
@@ -159,7 +159,7 @@ class Player:
 experiment_logger = ExperimentLogger()
 
 if __name__ == '__main__':
-    mock_player = Player()
+    mock_player = MockPlayer()
     test_dict = {
         'model': mock_player, 'profit': 15, 'time': 10,
     }

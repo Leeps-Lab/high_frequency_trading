@@ -1,10 +1,12 @@
 from channels import Group, Channel
 from channels.generic.websockets import JsonWebsocketConsumer
-from .models import stop_exogenous, Player, Investor, Group as OGroup
+from .models import (write_to_cache_with_version, get_cache_key, stop_exogenous, 
+    process_trader_response, Player, Investor, Group as OGroup )
+from .client_messages import broadcast
 import json
 import logging
-
-
+from django.core.cache import cache
+from .decorators import timer
 log = logging.getLogger(__name__)
 
 class SubjectConsumer(JsonWebsocketConsumer):
@@ -20,10 +22,20 @@ class SubjectConsumer(JsonWebsocketConsumer):
         player.channel = message.reply_channel
         player.save()
 
+    @timer
     def raw_receive(self, message, group_id, player_id):
-        msg = json.loads(message.content['text'])
-        player = Player.objects.get(id=player_id)
-        player.receive_from_client(msg)
+        try:
+            message_content = json.loads(message.content['text'])
+            player_data_key =  get_cache_key(player_id, 'player')
+            player_data = cache.get(player_data_key)
+            if player_data is None:
+                log.warning('key %s returned none from cache.' % player_data_key)
+                return
+            player = player_data['model']
+            result = player.receive(**message_content)
+            process_trader_response(result)
+        except Exception as e:
+            log.exception('player %s: error processing message %s:%s', player_id, message_content, e)
 
     def raw_disconnect(self, message, group_id, player_id):
         log.info('Player %s disconnected from Group %s.' % (player_id, group_id))

@@ -102,9 +102,15 @@ def disconnect(group, host, port):
     addr = '{}:{}'.format(host, port)
     try:
         conn = exchanges[addr].connection
-    except KeyError as e:
-        log.warning('key not found, maybe connection already deleted.')
-        return
+    except KeyError:
+        log.warning('connection at %s not found.', addr)
     else:
-        del exchanges[addr]
         conn.transport.loseConnection()
+        del exchanges[addr]
+
+def send_exchange(host, port, message, delay):
+    addr = '{}:{}'.format(host, port)
+    if addr not in exchanges:
+        raise FileNotFoundError('connection at %s not found.', addr)
+    conn = exchanges[addr].connection
+    conn.sendMessage(message, delay)

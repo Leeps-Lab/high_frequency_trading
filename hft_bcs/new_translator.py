@@ -23,15 +23,18 @@ class Translator(object):
 
     @classmethod
     def encode(cls, type_spec, **kwargs):
+        # temporarily putting this here 
         assert type_spec in cls.message_type_map.keys(), '%s unknown message type' % type_spec
         message_spec = cls.message_type_map[type_spec]
         for slot in message_spec.PayloadCls.__slots__:
             value = kwargs.get(slot, None)
+            # TODO: the fact that I have to do this is odd.
+            if isinstance(value, str):
+                value = bytes(value, 'utf8')
             if value is None:
                 value = cls.defaults.get(slot, None)
             assert value is not None, 'slot %s is none' % slot
             kwargs[slot] = value
-        print(kwargs)
         message = message_spec(**kwargs)
         return bytes(message)
 
