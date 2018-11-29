@@ -7,7 +7,7 @@ from . import client_messages
 from .utility import nanoseconds_since_midnight
 
 
-
+from collections import deque
 from . import translator as translate
 from .subject_state import *
 from .hft_logging.experiment_log import *
@@ -49,7 +49,6 @@ class FBATraderFactory(TraderFactory):
         else:
             log.warning('unknown role: %s' % role_name)
 
-
 class BaseTrader:
 
     state_spec = None
@@ -61,6 +60,9 @@ class BaseTrader:
             raise TypeError('state x trader mismatch.')
         for slot in subject_state.__slots__:
             setattr(self, slot, getattr(subject_state, slot))
+        self.outgoing_exchange_messages = deque()
+        self.outgoing_broadcast_messages = deque()
+        self.session_data = None
 
     def receive(self, **kwargs) -> dict:
         """
@@ -69,8 +71,8 @@ class BaseTrader:
         lookup_key = kwargs['type']
         handler_name = self.message_dispatch[lookup_key]
         handler = getattr(self, handler_name)
-        relevant_events = handler(**kwargs)
-        return relevant_events
+        handler(**kwargs)
+
 
     def first_move(self, **kwargs):
         """
@@ -132,15 +134,13 @@ class BCSTrader(BaseTrader):
             profit = d if buy_sell_indicator == 'S' else -d  
         return profit
 
-    @format_output
     def jump(self, **kwargs):
         """
         base trader's response to a jump event
         update fundamental price
         """
         self.fp = int(kwargs['new_fundamental'])
-
-    @format_output   
+ 
     def leave_market(self):
         """
         cancel all orders in market
@@ -149,38 +149,35 @@ class BCSTrader(BaseTrader):
         if orders:
             delay = self.calc_delay()
             host, port = self.exchange_host, self.exchange_port
-            exchange_messages = [(host, port, 'cancel', delay, order_info) for order_info in orders]
-        return {'exchange': exchange_messages}
+            for order_info in orders:
+                exchange_message = (host, port, 'cancel', delay, order_info)
+                self.outgoing_exchange_messages.append(exchange_message)
 
-    @format_output
+
     def accepted(self, **kwargs):
         self.orderstore.confirm('enter', **kwargs)
 
-    @format_output
+
     def replaced(self, **kwargs):
         self.orderstore.confirm('replaced', **kwargs)  
      
-    @format_output
+
     def canceled(self, **kwargs):
         self.orderstore.confirm('canceled', **kwargs)
         order_token = kwargs['order_token']
-        broadcast_messages = []
         broadcast_info = ('canceled', self.group_id, {'id': self.id_in_group, 'order_token': order_token})
-        broadcast_messages.append(broadcast_info)
-        return {'broadcast': broadcast_messages}
+        self.outgoing_broadcast_messages.append(broadcast_info)
     
-    @format_output
     def executed(self, **kwargs):
         order_info =  self.orderstore.confirm('executed', **kwargs)
         exec_price, side = kwargs['execution_price'], order_info['buy_sell_indicator']
         order_token = kwargs['order_token']
         profit = self.profit(exec_price, side)
         self.endowment += profit
-        broadcast_messages = []
         broadcast_info = ('executed', self.group_id, {'profit': profit, 'execution_price': exec_price,
             'order_token': order_token})
-        broadcast_messages.append(broadcast_info)
-        return {'broadcast': broadcast_messages, 'historic_info': order_info}
+        self.outgoing_broadcast_messages.append(broadcast_info)
+        return order_info
             
             
 class BCSMaker(BCSTrader):
@@ -194,19 +191,15 @@ class BCSMaker(BCSTrader):
         price = int(self.fp + multiplier * leg_length)
         return price
 
-    @format_output
     def first_move(self, **kwargs):
-        exchange_messages = []
         delay = self.calc_delay()
         for side in ('B', 'S'):
             price = self.calc_price(side)
             order_info = self.orderstore.enter(price=price, buy_sell_indicator=side, 
                             time_in_force=99999)
             host, port = self.exchange_host, self.exchange_port
-            exchange_messages.append((host, port, 'enter', delay, order_info))
-        return {'exchange': exchange_messages}
+            self.outgoing_exchange_messages.append((host, port, 'enter', delay, order_info))
 
-    @format_output   
     def jump(self, **kwargs):
         """
         assumes trader has active/pending orders in market
@@ -216,8 +209,8 @@ class BCSMaker(BCSTrader):
         super().jump(**kwargs)
         positive_jump = kwargs['is_positive']
         # get list of active or pending orders
-        exchange_messages = self.makers_reprice(positive_jump)
-        return {'exchange': exchange_messages}
+        self.makers_reprice(positive_jump)
+
     
     def makers_reprice(self, start_from_above=True):
         orders = self.orderstore.all_orders()
@@ -231,47 +224,36 @@ class BCSMaker(BCSTrader):
             new_price = self.calc_price(buy_sell_indicator)
             order_info = self.orderstore.register_replace(token, new_price)
             host, port = self.exchange_host, self.exchange_port
-            exchange_messages.append((host, port, 'replace', delay, order_info))
-        return exchange_messages   
+            self.outgoing_exchange_messages.append((host, port, 'replace', delay, order_info))
 
-    @format_output
     def spread_change(self, **kwargs):
         new_spread = int(kwargs['spread'])
         self.spread = new_spread
-        exchange_messages = self.makers_reprice()
-        return {'exchange': exchange_messages}
+        self.makers_reprice()
+
         
     def maker_broadcast_info(self, order_token):
         low_leg, high_leg = int(self.fp - self.spread / 2), int(self.fp + self.spread / 2)
         broadcast_info = ('maker_confirm', self.group_id, {'leg_up': high_leg, 'leg_low': low_leg, 
             'order_token': order_token, 'id': self.id_in_group})        
-        return broadcast_info
+        self.outgoing_broadcast_messages.append(broadcast_info)
 
-    @format_output
     def accepted(self, **kwargs):
         super().accepted(**kwargs)
         order_token = kwargs['order_token']
-        broadcast_messages = []
         broadcast_info = self.maker_broadcast_info(order_token)
-        broadcast_messages.append(broadcast_info)
-        return {'broadcast': broadcast_messages}
+        self.outgoing_broadcast_messages.append(broadcast_info)
 
-    @format_output
     def replaced(self, **kwargs):
         super().replaced(**kwargs)  
         order_token = kwargs['replacement_order_token']
-        broadcast_messages = []
         broadcast_info = self.maker_broadcast_info(order_token)
-        broadcast_messages.append(broadcast_info)
-        return {'broadcast': broadcast_messages}
+        self.outgoing_broadcast_messages.append(broadcast_info)
 
-    @format_output    
     def executed(self, **kwargs):
-        result = super().executed(**kwargs)
-        historic_order_info = result['order_history']
-        time_in_force = historic_order_info['time_in_force']
-        side = historic_order_info['buy_sell_indicator']
-        exchange_messages = []
+        order_info = super().executed(**kwargs)
+        time_in_force = order_info['time_in_force']
+        side = order_info['buy_sell_indicator']
         # make sure it is not a sniper order.
         if time_in_force != 0:
             host, port = self.exchange_host, self.exchange_port
@@ -279,24 +261,18 @@ class BCSMaker(BCSTrader):
             delay = self.calc_delay()
             order_info = self.orderstore.enter(price=price, buy_sell_indicator=side, 
                             time_in_force=99999)
-            exchange_messages.append((host, port, 'enter', delay, order_info))
-            result.update({'exchange': exchange_messages})
-        return result
+            self.outgoing_exchange_messages.append((host, port, 'enter', delay, order_info))
     
 
 class BCSOut(BCSTrader):
 
     def first_move(self, **kwargs):
-        exchange_messages_dict = self.leave_market()
-        broadcast_messages = []
+        self.leave_market()
         broadcast_info = ('leave_market', self.group_id, {'id': self.id_in_group})
-        broadcast_messages.append(broadcast_info)
-        result = exchange_messages_dict.update(broadcast_messages)
-        return result
+        self.outgoing_broadcast_messages.append(broadcast_info)
 
 class BCSSniper(BCSOut):
 
-    @format_output
     def jump(self, **kwargs):
         super().jump(**kwargs)
         positive_jump = kwargs['is_positive']
@@ -306,23 +282,16 @@ class BCSSniper(BCSOut):
         order_info = self.orderstore.enter(price=self.fp, buy_sell_indicator=side, 
                             time_in_force=0)
         delay = self.calc_delay()
-        exchange_messages.append((host, port, 'enter', delay, order_info))
-        return {'exchange': exchange_messages}
+        self.outgoing_exchange_messages.append((host, port, 'enter', delay, order_info))
 
 class BCSInvestor(BCSOut):
 
-    def invest(**kwargs):
+    def invest(self, **kwargs):
         host, port = self.exchange_host, self.exchange_port
         order_side = kwargs['side']
         price = 2147483647  if order_side == 'B' else 0
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=order_side, 
                                     time_in_force=0)
-        
-        
-        
-    
-
-
 
 
 

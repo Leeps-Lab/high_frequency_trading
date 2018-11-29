@@ -31,14 +31,14 @@ from otree.common_internal import random_chars_8
 from settings import (
     exp_logs_dir, EXCHANGE_HOST_NO, REAL_WORLD_CURRENCY_CODE )
 
-from .utility import pretranslate_hacks
-from .new_translator import BCSTranslator
-from .subject_state import BCSSubjectState
+
 from .trader import CDATraderFactory, FBATraderFactory
+from .subject_state import BCSSubjectState
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
 from .exchange import send_exchange
+from .event_handlers import process_trader_response, receive_trader_message
 
 log = logging.getLogger(__name__)
 
@@ -77,26 +77,6 @@ class Constants(BaseConstants):
 
     unlock_value = 'unlocked'
 
-    # player_role_update_map = {
-    #     'OUT': 'leave_market', 
-    #     'SNIPER': 'leave_market', 
-    #     'MAKER': 'enter_market'
-    # }
-
-    # player_action_map= {
-    #     'role_change': 'update_state',
-    #     'spread_change': 'update_spread',
-    #     'speed_change': 'update_speed',
-    #     'advance_me': 'session_finished',
-    #     'player_ready': 'in_market'
-    # }
-    # player_message_handle_map = {
-    #     'A': 'handle_enter',
-    #     'U': 'handle_replace',
-    #     'C': 'handle_cancel',
-    #     'E': 'handle_exec',
-    # }
-
     # log file
     log_file = '{dir}{time}_{self.design}_{self.code}_{self.players_per_group}_round_{self.round_number}'
 
@@ -134,10 +114,6 @@ class Constants(BaseConstants):
 
     #   #   #   #   #   #
 
-    trader_factory_map = {
-        'CDA': CDATraderFactory, 'FBA': FBATraderFactory
-    }
-
     player_handlers = {
         'advance_me': 'session_finished',
         'player_ready': 'in_market'
@@ -146,11 +122,6 @@ class Constants(BaseConstants):
 
     #   #   #   #   #   #   #   #   #   #   #
 
-    player_model_key = 'PLAYER_DATA_{model_id}'
-    trader_model_key = 'TRADER_DATA_{model_id}'
-    group_model_key = 'GROUP_DATA_{model_id}'
-
-    cache_timeout = 30 * 60
 
     max_ask = 2147483647
     min_bid = 0
@@ -425,7 +396,7 @@ class Group(BaseGroup):
             stop_exogenous(group_id=self.id)
             self.disconnect_from_exchange()
             self.loggy()
-            self.is_trading = False
+            self.is_trading = False                                                                                                                                                     
             self.save()
             experiment_logger.log(EndLog(model=self))
             self.subsession.groups_ready(self.id, action='end')
@@ -502,11 +473,10 @@ class Group(BaseGroup):
             # TODO: we should find a way to not make
             # this db call, it takes ages.
             player = self.get_player_by_id(pid)
-            fields['type'] = msg_type
             try:
                 print(fields)
-                result = player.receive(**fields)
-                process_trader_response(result)
+                trader = receive_trader_message(player.id, player.design, msg_type, **fields)
+                process_trader_response(trader.outgoing_exchange_messages, trader.outgoing_broadcast_messages)
             except Exception as e:
                 log.exception(e)
 
@@ -533,20 +503,6 @@ class Group(BaseGroup):
             subprocesses[self.id].append(p)
         print(subprocesses)
         log.debug('Group%d: Fire %s.' % (self.id, name))
-
-    # def fp_push(self, price):
-    #     """
-    #     this updates the fp for the group
-    #     players get this
-    #     when responding jumps
-    #     """
-    #     k = Constants.group_fp_key.format(group_id=self.id)
-    #     group_fp = cache.get(k)
-    #     if not group_fp:
-    #         # deque ?
-    #         group_fp = Price_Log(100, price)
-    #     group_fp.push(labtime(), price)
-    #     cache.set(k, group_fp, timeout=None)
 
     def jump_event(self, msg):
         """
@@ -614,45 +570,6 @@ class Group(BaseGroup):
         log_events.convert()
         log_events.dump()
 
-def get_cache_key(model_id, key_model_name):
-    if key_model_name == 'trader':
-        key =  Constants.trader_model_key.format(model_id=model_id)
-    elif key_model_name == 'player':
-        key = Constants.player_model_key.format(model_id=model_id)
-    elif key_model_name == 'group':
-        key = Constants.group_model_key.format(model_id=model_id)
-    else:
-        raise ValueError('invalid model: %s' % key_model_name)
-    return key
-
-def write_to_cache_with_version(key, value, version):
-    current_version_no = cache.get(key)['version']
-    if not (version - current_version_no == 1):
-        raise ValueError('version mismatch: %s x %s in %s' % (current_version_no, version, key))
-    value['version'] = version
-    cache.set(key, value, timeout=Constants.cache_timeout)
-
-def process_trader_response(result):
-    def process_exchange_response(exchange_messages):
-        for message_data in exchange_messages:
-            host, port, message_type, delay, order_data = message_data
-            order_data = pretranslate_hacks(message_type, order_data)
-            bytes_message = BCSTranslator.encode(message_type, **order_data)
-            send_exchange(host, port, bytes_message, delay)
-    def process_broadcast_response(broadcast_messages):
-        for message_data in broadcast_messages:
-            message_type, message_group_id, broadcast_data = message_data
-            client_messages.broadcast(message_type, message_group_id, **broadcast_data)
-    if result is not None:   
-        print(result)
-        exchange_messages = result.pop('exchange', None)
-        if exchange_messages is not None:
-            process_exchange_response(exchange_messages)
-        broadcast_messages = result.pop('broadcast', None)
-        if broadcast_messages is not None:
-            process_broadcast_response(broadcast_messages)
-        return result
-
 
 class Player(BasePlayer):
 
@@ -677,44 +594,10 @@ class Player(BasePlayer):
     final_payoff = models.IntegerField()
     total_payoff = models.IntegerField()
 
-    def initialize_cache(self):
-        pairs = {}
-        player_key = get_cache_key(self.id, 'player')
-        pairs[player_key] = {'model': self}
-        subject_state_data = {k: getattr(self, k, None) for k in Constants.player_fields}
-        subject_state_data.update({'orderstore': OrderStore(self.id_in_group)})
-        trader_key = get_cache_key(self.id, 'trader')
-        pairs[trader_key] = {'version': 0, 'role': self.role, 
-            'subject_state': BCSSubjectState(**subject_state_data)}
-        for k, v in pairs.items():
-            cache.set(k, v, timeout=Constants.cache_timeout)  
-        
-    def receive(self, **kwargs):
-        event_type = kwargs['type']
-        if event_type in Constants.trader_events:
-            key = get_cache_key(self.id ,'trader')
-            trader_data = cache.get(key)
-            if event_type == 'role_change':
-                # temporary for testing.
-                trader_data['role'] = kwargs['state'].lower()
-            role_name, subject_state = trader_data['role'], trader_data['subject_state']
-            TraderFactory = Constants.trader_factory_map[self.design]
-            trader = TraderFactory.get_trader(role_name, subject_state)
-            response = trader.receive(**kwargs)
-            trader_data['subject_state'] = BCSSubjectState.from_trader(trader)
-            version = trader_data['version'] + 1
-            try:
-                write_to_cache_with_version(key, trader_data, version)
-            except ValueError:
-                self.receive(**kwargs)
-            else:
-                return response
-        else:
-            handler_name = Constants.player_handlers[event_type]
-            handler = getattr(self, handler_name)
-            handler(**kwargs)
-                
+    def from_subject_state(sel, subject_state):
+        raise NotImplementedError()
 
+ 
 #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
 
     @atomic

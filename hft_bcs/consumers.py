@@ -1,12 +1,13 @@
 from channels import Group, Channel
 from channels.generic.websockets import JsonWebsocketConsumer
 from .models import (write_to_cache_with_version, get_cache_key, stop_exogenous, 
-    process_trader_response, Player, Investor, Group as OGroup )
+    Constants, Player, Investor, Group as OGroup )
 from .client_messages import broadcast
 import json
 import logging
 from django.core.cache import cache
 from .decorators import timer
+from .event_handlers import receive_trader_message, process_trader_response
 log = logging.getLogger(__name__)
 
 class SubjectConsumer(JsonWebsocketConsumer):
@@ -32,10 +33,19 @@ class SubjectConsumer(JsonWebsocketConsumer):
                 log.warning('key %s returned none from cache.' % player_data_key)
                 return
             player = player_data['model']
-            result = player.receive(**message_content)
-            process_trader_response(result)
+            #TODO: there should be a better place to  
+            # keep session format. maybe an environmental variable ?
+            session_format = player.design  
+            event_type = message_content['type']
+            if event_type in Constants.trader_events:
+                trader = receive_trader_message(session_format, player_id, event_type, **message_content)
+                process_trader_response(trader.outgoing_exchange_messages, trader.outgoing_broadcast_messages)
+            else:
+                handler_name = Constants.player_handlers[event_type]
+                handler = getattr(player, handler_name)
+                handler(**message_content)
         except Exception as e:
-            log.exception('player %s: error processing message %s:%s', player_id, message_content, e)
+            log.exception('player %s: error processing message, ignoring. %s:%s', player_id, message_content, e)
 
     def raw_disconnect(self, message, group_id, player_id):
         log.info('Player %s disconnected from Group %s.' % (player_id, group_id))

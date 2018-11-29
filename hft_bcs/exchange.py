@@ -27,10 +27,9 @@ class OUCH(Protocol):
         log.debug('connection made.')
       
     def dataReceived(self, data):
-        cls = self.__class__
         header = chr(data[0])
         try:
-            bytes_needed = cls.bytes_needed[header]
+            bytes_needed = self.bytes_needed[header]
         except KeyError:
              raise ValueError('unknown header %s.' % header)
 
@@ -40,9 +39,10 @@ class OUCH(Protocol):
             data = data[remainder:]
             try:
                 self.factory.group.receive_from_exchange(bytes(self.buffer))
-                self.buffer.clear()
             except AttributeError as e:
                 log.exception(e)
+            finally:
+                self.buffer.clear()
 
         if len(data):
             self.dataReceived(data)
