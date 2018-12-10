@@ -7,6 +7,7 @@ import numpy as np
 from twisted.internet import reactor
 from .hft_logging import session_events as hfl
 from collections import deque
+from event_handlers import receive_exchange_message
 
 log = logging.getLogger(__name__)
 
@@ -38,7 +39,11 @@ class OUCH(Protocol):
             self.buffer.extend(data[:remainder])
             data = data[remainder:]
             try:
-                self.factory.group.receive_from_exchange(bytes(self.buffer))
+                market_id = self.factory.market
+                try:
+                    receive_exchange_message(market_id, bytes(self.buffer))
+                except Exception as e:
+                    log.exception(e)
             except AttributeError as e:
                 log.exception(e)
             finally:
@@ -59,9 +64,9 @@ class OUCH(Protocol):
 class OUCHConnectionFactory(ClientFactory):
     protocol = OUCH
 
-    def __init__(self, group, addr):
+    def __init__(self, market_id, addr):
         super()
-        self.group = group
+        self.market = market_id
         self.addr = addr
         self.connection = None
 
@@ -82,16 +87,16 @@ class OUCHConnectionFactory(ClientFactory):
 
 exchanges = {}
 
-def connect(group, host, port, wait_for_connection=False):
+def connect(market_id, host, port, wait_for_connection=False):
     addr = '{}:{}'.format(host, port)
     if addr not in exchanges:
-        factory = OUCHConnectionFactory(group, addr)
+        factory = OUCHConnectionFactory(market_id, addr)
         exchanges[addr] = factory
         reactor.connectTCP(host, port, factory)
     else:
-        if exchanges[addr].group != group:
+        if exchanges[addr].market != market_id:
             log.info('exchange at {} already has a group: {}'.format(addr, exchanges))
-        exchanges[addr].group = group
+        exchanges[addr].market = market_id
     while not exchanges[addr].connection and wait_for_connection:
         log.info('waiting for connection to %s...' % addr)
         time.sleep(0.1)

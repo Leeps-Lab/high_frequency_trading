@@ -7,7 +7,7 @@ import json
 import logging
 from django.core.cache import cache
 from .decorators import timer
-from .event_handlers import receive_trader_message, process_trader_response
+from .event_handlers import receive_trader_message, process_response
 log = logging.getLogger(__name__)
 
 class SubjectConsumer(JsonWebsocketConsumer):
@@ -33,13 +33,10 @@ class SubjectConsumer(JsonWebsocketConsumer):
                 log.warning('key %s returned none from cache.' % player_data_key)
                 return
             player = player_data['model']
-            #TODO: there should be a better place to  
-            # keep session format. maybe an environmental variable ?
-            session_format = player.design  
             event_type = message_content['type']
             if event_type in Constants.trader_events:
-                trader = receive_trader_message(session_format, player_id, event_type, **message_content)
-                process_trader_response(trader.outgoing_exchange_messages, trader.outgoing_broadcast_messages)
+                trader = receive_trader_message(player_id, event_type, **message_content)
+                process_response(trader)
             else:
                 handler_name = Constants.player_handlers[event_type]
                 handler = getattr(player, handler_name)

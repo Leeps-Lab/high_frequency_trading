@@ -127,7 +127,7 @@ class Constants(BaseConstants):
     min_bid = 0
     
 
-
+    market_events = ('S')
     trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
 
 subprocesses = {}
@@ -320,7 +320,7 @@ class Subsession(BaseSubsession):
                     json_fields[field.attname] = getattr(self, field.attname)
             self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
 
-translator = new_translator.BCSTranslator()
+translator = new_translator.LeepsOuchTranslator()
 
 class Group(BaseGroup):
 
@@ -435,58 +435,52 @@ class Group(BaseGroup):
         for m in true_msgs:
             conn.sendMessage(m, dur)
     
-    """
-    once I complete the translation module
-    receive function will change to use polymorphism
-    and get rid of if else statements
-    """
-    
-    def receive_from_exchange(self, msg):
-        """
-        handles messages coming from the exchange
-        finds the relevant player for
-        passes on message the player
-        also logs investor executions
-        """
-        msg_type, fields = translator.decode(msg)
-        if msg_type == 'S':
-            event = fields['event_code']
-            if event in ['B', 'P']:
-                log_events.push(hfl.batch, **{'gid': self.id})
-                self.broadcast(client_messages.batch(event=event))
-            return
-        token = fields.get('order_token')
-        if token is None:
-            token = fields.get('replacement_order_token')
-        subject = token[3]
-        # index 3 is subject ID
-        if subject == '@':
-            if msg_type == 'E':
-                # log investor execution
-                log_events.push(hfl.inv_trans, **{'gid': self.id, 'token': token})
-            else:
-                # we really do not care about
-                # investor confirm at this point.
-                pass
-        else:
-            pid = ord(subject) - 64
-            # TODO: we should find a way to not make
-            # this db call, it takes ages.
-            player = self.get_player_by_id(pid)
-            try:
-                print(fields)
-                trader = receive_trader_message(player.id, player.design, msg_type, **fields)
-                process_trader_response(trader.outgoing_exchange_messages, trader.outgoing_broadcast_messages)
-            except Exception as e:
-                log.exception(e)
+    # def receive_from_exchange(self, msg):
+    #     """
+    #     handles messages coming from the exchange
+    #     finds the relevant player for
+    #     passes on message the player
+    #     also logs investor executions
+    #     """
+    #     msg_type, fields = translator.decode(msg)
+    #     if msg_type == 'S':
+    #         event = fields['event_code']
+    #         if event in ['B', 'P']:
+    #             log_events.push(hfl.batch, **{'gid': self.id})
+    #             self.broadcast(client_messages.batch(event=event))
+    #         return
+    #     token = fields.get('order_token')
+    #     if token is None:
+    #         token = fields.get('replacement_order_token')
+    #     subject = token[3]
+    #     # index 3 is subject ID
+    #     if subject == '@':
+    #         if msg_type == 'E':
+    #             # log investor execution
+    #             log_events.push(hfl.inv_trans, **{'gid': self.id, 'token': token})
+    #         else:
+    #             # we really do not care about
+    #             # investor confirm at this point.
+    #             pass
+    #     else:
+    #         pid = ord(subject) - 64
+    #         # TODO: we should find a way to not make
+    #         # this db call, it takes ages.
+    #         player = self.get_player_by_id(pid)
+    #         try:
+    #             print(fields)
+    #             trader = receive_trader_message(player.id, player.design, msg_type, **fields)
+    #             process_trader_response(trader.outgoing_exchange_messages, trader.outgoing_broadcast_messages)
+    #         except Exception as e:
+    #             log.exception(e)
 
 
-    def broadcast(self, note):
-        """
-        broadcast via channel layer
-        """
-        message = json.dumps(note)
-        CGroup(str(self.id)).send({"text": message})
+    # def broadcast(self, note):
+    #     """
+    #     broadcast via channel layer
+    #     """
+    #     message = json.dumps(note)
+    #     CGroup(str(self.id)).send({"text": message})
 
     def spawn(self, name, url, data):
         """
@@ -504,67 +498,67 @@ class Group(BaseGroup):
         print(subprocesses)
         log.debug('Group%d: Fire %s.' % (self.id, name))
 
-    def jump_event(self, msg):
-        """
-        this is the fundamental price jump
-        let all client know the new price
-        get automated responses
-        randomize and send to exchange
-        """
-        new_price = int(msg['size'])
-        # self.fp_push(new_price)
-        # broadcast new price to clients
-        self.broadcast(client_messages.fp_change(new_price))
-        players = self.get_players()
-        # each player will respond to the
-        # new fundamental price information.
-        log.debug('Group%d: jump to %d !!' % (self.id, new_price))
-        log_events.push(hfl.jump, **{'gid': self.id, 'np': new_price})        
-        responses = [p.jump(new_price) for p in players]
-        # then we shuffle responses and send to the exchange
-        # index 1 is an orders list of list
-        true_responses = list(filter(lambda x: x[1] is not False, responses))
-        random.shuffle(true_responses)
-        # index 2 is speed bool
-        for r in true_responses:
-            orders, speed = r[1], r[2]
-            if orders:
-                self.send_exchange(orders, delay=True, speed=speed)
-        for speed in True, False:
-            # index 0 is the player id
-            move_order = [r[0] for r in true_responses if r[2] is speed]
-            log_events.push(hfl.move_order, **{'gid': self.id, 'speed':speed, 'move_order': move_order})
-        # this is here since we are still debugging,
-        self.loggy()
+    # def jump_event(self, msg):
+    #     """
+    #     this is the fundamental price jump
+    #     let all client know the new price
+    #     get automated responses
+    #     randomize and send to exchange
+    #     """
+    #     new_price = int(msg['size'])
+    #     # self.fp_push(new_price)
+    #     # broadcast new price to clients
+    #     self.broadcast(client_messages.fp_change(new_price))
+    #     players = self.get_players()
+    #     # each player will respond to the
+    #     # new fundamental price information.
+    #     log.debug('Group%d: jump to %d !!' % (self.id, new_price))
+    #     log_events.push(hfl.jump, **{'gid': self.id, 'np': new_price})        
+    #     responses = [p.jump(new_price) for p in players]
+    #     # then we shuffle responses and send to the exchange
+    #     # index 1 is an orders list of list
+    #     true_responses = list(filter(lambda x: x[1] is not False, responses))
+    #     random.shuffle(true_responses)
+    #     # index 2 is speed bool
+    #     for r in true_responses:
+    #         orders, speed = r[1], r[2]
+    #         if orders:
+    #             self.send_exchange(orders, delay=True, speed=speed)
+    #     for speed in True, False:
+    #         # index 0 is the player id
+    #         move_order = [r[0] for r in true_responses if r[2] is speed]
+    #         log_events.push(hfl.move_order, **{'gid': self.id, 'speed':speed, 'move_order': move_order})
+    #     # this is here since we are still debugging,
+    #     self.loggy()
 
 
-    @atomic
-    def players_in_market(self, player_id):
-        k = Constants.players_in_market_key.format(self=self)
-        players_in_market = cache.get(k)
-        players_in_market[player_id] = True
-        cache.set(k, players_in_market, timeout=None)
-        total = sum(players_in_market.values())
-        if self.subsession.players_per_group == total:
-            log.info('Group%d: all players are in market.' % self.id)
-            self.subsession.groups_ready(self.id)
-        else:
-            log.debug('Group%d: %d players are in market.' % (self.id, total))
+    # @atomic
+    # def players_in_market(self, player_id):
+    #     k = Constants.players_in_market_key.format(self=self)
+    #     players_in_market = cache.get(k)
+    #     players_in_market[player_id] = True
+    #     cache.set(k, players_in_market, timeout=None)
+    #     total = sum(players_in_market.values())
+    #     if self.subsession.players_per_group == total:
+    #         log.info('Group%d: all players are in market.' % self.id)
+    #         self.subsession.groups_ready(self.id)
+    #     else:
+    #         log.debug('Group%d: %d players are in market.' % (self.id, total))
     
-    @atomic
-    def group_stats(self, old_state, new_state):
-        k = Constants.role_count_key.format(self=self)
-        group_state = cache.get(k)
-        ppg = self.subsession.players_per_group
-        group_state[old_state] -= 1
-        group_state[new_state] += 1
-        cache.set(k, group_state, timeout=None)
-        total = sum(group_state.values())
-        self.broadcast(
-            client_messages.total_role(group_state)
-        )
-        if total != ppg:
-            raise ValueError('total: %d, ppg: %d' % (total, ppg))
+    # @atomic
+    # def group_stats(self, old_state, new_state):
+    #     k = Constants.role_count_key.format(self=self)
+    #     group_state = cache.get(k)
+    #     ppg = self.subsession.players_per_group
+    #     group_state[old_state] -= 1
+    #     group_state[new_state] += 1
+    #     cache.set(k, group_state, timeout=None)
+    #     total = sum(group_state.values())
+    #     self.broadcast(
+    #         client_messages.total_role(group_state)
+    #     )
+    #     if total != ppg:
+    #         raise ValueError('total: %d, ppg: %d' % (total, ppg))
 
     def loggy(self):
         log_events.convert()
@@ -594,31 +588,31 @@ class Player(BasePlayer):
     final_payoff = models.IntegerField()
     total_payoff = models.IntegerField()
 
-    def from_subject_state(sel, subject_state):
+    def from_subject_state(self, subject_state):
         raise NotImplementedError()
 
  
 #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
 
-    @atomic
-    def jump(self, price):
-        response = None
-        trader = self.get_trader()
-        orders = trader.jump(price)
-        self.save_trader(trader)
-        response = (trader.id, orders, trader.speed)
-        return response
+    # @atomic
+    # def jump(self, price):
+    #     response = None
+    #     trader = self.get_trader()
+    #     orders = trader.jump(price)
+    #     self.save_trader(trader)
+    #     response = (trader.id, orders, trader.speed)
+    #     return response
 
-    # Client actions
+    # # Client actions
 
-    def in_market(self, **kwargs):
-        log.debug('Group%d: Player%d: In market.' % (self.group_id, self.id))
-        self.group.players_in_market(self.id)
+    # def in_market(self, **kwargs):
+    #     log.debug('Group%d: Player%d: In market.' % (self.group_id, self.id))
+    #     self.group.players_in_market(self.id)
 
-    def session_finished(self, **kwargs):
-        log.debug('Group%d: Player%d: Ready to advance.' % (self.group_id, self.id))
-        if self.subsession.trade_ended == False:
-            self.group.end_trade(self.id)
+    # def session_finished(self, **kwargs):
+    #     log.debug('Group%d: Player%d: Ready to advance.' % (self.group_id, self.id))
+    #     if self.subsession.trade_ended == False:
+    #         self.group.end_trade(self.id)
 
     # Receive methods
     # action starts here
@@ -636,18 +630,18 @@ class Player(BasePlayer):
         self.save_trader(trader)
         return payoff
 
-class Investor(Model):
+# class Investor(Model):
 
-    group = ForeignKey(Group)
-    order_count = models.IntegerField(initial=1)
+#     group = ForeignKey(Group)
+#     order_count = models.IntegerField(initial=1)
 
-    def receive_from_consumer(self, msg):
-        side = msg['direction']
-        s = ('buy' if side=='B' else 'sell')
-        log.debug('Group%d: investor%d: %s.' % (self.group.id, self.order_count, s))
-        # self.invest(side)
+#     def receive_from_consumer(self, msg):
+#         side = msg['direction']
+#         s = ('buy' if side=='B' else 'sell')
+#         log.debug('Group%d: investor%d: %s.' % (self.group.id, self.order_count, s))
+#         # self.invest(side)
 
-#     # def invest(self, side):
+# #     # def invest(self, side):
 #     #     p = (2147483647 if side == 'B' else 0)
 #     #     # order = Order(
 #     #     #     pid= 0, count=self.order_count, status='stage', 

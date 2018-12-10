@@ -51,8 +51,11 @@ def batch(event):
 dispatch = {
     'maker_confirm': spread_change,
     'leave_market': spread_change,
-    'executed': execution
+    'executed': execution,
+    'fundamental_price_change': fp_change,
+    'batch': batch
 }
+
 def broadcast(message_type, group_id, **kwargs):
     """
     broadcast via channel layer

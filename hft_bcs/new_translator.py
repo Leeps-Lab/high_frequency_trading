@@ -38,7 +38,7 @@ class Translator(object):
         message = message_spec(**kwargs)
         return bytes(message)
 
-class BCSTranslator(Translator):
+class LeepsOuchTranslator(Translator):
 
     defaults = {
             'shares': 1,
@@ -61,7 +61,7 @@ class BCSTranslator(Translator):
     }
 
 if __name__ == '__main__':
-    translator = BCSTranslator()
+    translator = LeepsOuchTranslator()
     kwargs = {
         'enter': {'order_token': b'SUB00000000000', 'buy_sell_indicator': b'B', 
                     'price': 10, 'time_in_force': 1},

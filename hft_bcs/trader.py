@@ -13,7 +13,6 @@ from .subject_state import *
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
-from .new_translator import BCSTranslator
 
 log = logging.getLogger(__name__)
 
@@ -92,7 +91,7 @@ class BCSTrader(BaseTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed'}
+        'E': 'executed', 'fundamental_price_change': 'jump'}
 
     @format_output
     def speed_change(self, **kwargs):
@@ -139,7 +138,10 @@ class BCSTrader(BaseTrader):
         base trader's response to a jump event
         update fundamental price
         """
-        self.fp = int(kwargs['new_fundamental'])
+        new_fp = int(kwargs['new_fundamental'])
+        is_positive = True if new_fp - self.fp > 0 else False
+        self.fp = new_fp
+        return is_positive
  
     def leave_market(self):
         """
@@ -206,18 +208,15 @@ class BCSMaker(BCSTrader):
         reprice orders
         replace sell order first if jump is positive
         """
-        super().jump(**kwargs)
-        positive_jump = kwargs['is_positive']
+        is_positive_jump = super().jump(**kwargs)
         # get list of active or pending orders
-        self.makers_reprice(positive_jump)
+        self.makers_reprice(start_from_above=is_positive_jump)
 
-    
     def makers_reprice(self, start_from_above=True):
         orders = self.orderstore.all_orders()
         assert len(orders) <= 2, 'more than two orders in market: %s' % self.orderstore
         sorted_orders = sorted(orders, key=lambda order: order['price'], 
                             reverse=start_from_above)
-        exchange_messages = []
         delay = self.calc_delay()
         for o in sorted_orders:
             token, buy_sell_indicator = o['order_token'], o['buy_sell_indicator']
@@ -274,10 +273,9 @@ class BCSOut(BCSTrader):
 class BCSSniper(BCSOut):
 
     def jump(self, **kwargs):
-        super().jump(**kwargs)
-        positive_jump = kwargs['is_positive']
-        side = 'B' if positive_jump else 'S'
-        exchange_messages = []
+        #TODO: keep fundamaental in environmental var
+        is_positive_jump = super().jump(**kwargs)
+        side = 'B' if is_positive_jump else 'S'
         host, port = self.exchange_host, self.exchange_port
         order_info = self.orderstore.enter(price=self.fp, buy_sell_indicator=side, 
                             time_in_force=0)
@@ -292,7 +290,7 @@ class BCSInvestor(BCSOut):
         price = 2147483647  if order_side == 'B' else 0
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=order_side, 
                                     time_in_force=0)
-
+        self.outgoing_exchange_messages.append((host, port, 'enter', 0., order_info))
 
 
             
