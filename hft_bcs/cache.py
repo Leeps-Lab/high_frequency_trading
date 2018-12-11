@@ -1,10 +1,12 @@
 
 from django.core.cache import cache
+from models import Player
 
 cache_key_format = {
     'player': 'PLAYER_DATA_{model_id}',
     'trader': 'TRADER_DATA_{model_id}',
     'market': 'MARKET_DATA_{model_id}',
+    'trade_session': 'SESSION_DATA_{model_id}',
     'noise_trader': 'NOISE_TRADER_{model_id}'
 }
 
@@ -24,7 +26,7 @@ def write_to_cache_with_version(key, value, version, timeout=cache_timeout):
     value['version'] = version
     cache.set(key, value, timeout=timeout)
 
-def initialize_player_cache(player, state_cls, ordersore_cls, fields_to_map, timeout=cache_timeout):
+def initialize_player_cache(player:Player, state_cls, ordersore_cls, fields_to_map, timeout=cache_timeout):
     pairs = {}
     player_key = get_cache_key(player.id, 'player')
     pairs[player_key] = {'model': player}
@@ -42,6 +44,11 @@ def initialize_market_cache(market_class, timeout=cache_timeout, **kwargs):
     market_key = get_cache_key(market.id, 'market')
     cache.set(market_key, market_data, timeout=timeout)
 
+def initialize_session_cache(session_class, session_id, timeout=cache_timeout, **kwargs):
+    session = session_class(session_id, **kwargs)
+    session_key = get_cache_key(session_id, 'trade_session')
+    cache.set(session_key, session)
+
 def get_players_by_market(market_id:str):
     market_key = get_cache_key(market_id, 'market')
     market = cache.get(market_key)
@@ -52,4 +59,3 @@ def get_players_by_market(market_id:str):
             player = cache.get(player_key)
             players_data.append(player)
     return players_data
-

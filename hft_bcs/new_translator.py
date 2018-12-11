@@ -28,7 +28,6 @@ class Translator(object):
         message_spec = cls.message_type_map[type_spec]
         for slot in message_spec.PayloadCls.__slots__:
             value = kwargs.get(slot, None)
-            # TODO: the fact that I have to do this is odd.
             if isinstance(value, str):
                 value = bytes(value, 'utf8')
             if value is None:
@@ -57,7 +56,8 @@ class LeepsOuchTranslator(Translator):
     message_type_map = {
         'enter': OuchClientMessages.EnterOrder,
         'replace': OuchClientMessages.ReplaceOrder,
-        'cancel': OuchClientMessages.CancelOrder
+        'cancel': OuchClientMessages.CancelOrder,
+        'reset_exchange': OuchClientMessages.SystemStart
     }
 
 if __name__ == '__main__':

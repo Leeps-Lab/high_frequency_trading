@@ -6,8 +6,6 @@ from .utility import nanoseconds_since_midnight as labtime
 
 log = logging.getLogger(__name__)
 
-author = 'hasan ali demirci'
-
 class OrderStore:
     token_prefix = 'SUB'
     order_format = '<Order{{ {order_token}:@{price}:{status}:{time_in_force} }}>'
@@ -22,6 +20,7 @@ class OrderStore:
         self.subject_code = chr(in_group_id + 64)
         self.counter = itertools.count(1,1)
         self._orders = {}
+        self.inventory = 0
     
     @property
     def orders(self):
@@ -101,8 +100,11 @@ class OrderStore:
     
     def _confirm_execution(self, **kwargs):
         token = kwargs['order_token']
-        order_info = self._orders[token] 
+        order_info = dict(self._orders[token]) 
         del self._orders[token]       
+        direction = order_info['buy_sell_indicator']
+        inventory_change = 1 if direction == b'B' else -1
+        self.inventory += inventory_change
         return order_info
 
 

@@ -64,16 +64,16 @@ class Constants(BaseConstants):
 
     # cache keys
     lock_key = '{self.code}_lock'
-    investor_label = 'investors_group_{self.id_in_subsession}_round_{round_number}'
-    jump_label = 'jumps_group_{self.id_in_subsession}_round_{round_number}'
-    player_fp_key = '{self.code}_fp'
-    group_fp_key = 'group_{group_id}_fp'
-    player_orderstore_key = '{self.code}_orders'
-    player_status_key = '{self.code}_status'
-    groups_ready_key = '{self.code}_ready'
-    players_in_market_key  = '{self.code}_in_market'
-    role_count_key = '{self.code}_role_count'
-    player_role_key = '{self.code}_role'
+    # investor_label = 'investors_group_{self.id_in_subsession}_round_{round_number}'
+    # jump_label = 'jumps_group_{self.id_in_subsession}_round_{round_number}'
+    # player_fp_key = '{self.code}_fp'
+    # group_fp_key = 'group_{group_id}_fp'
+    # player_orderstore_key = '{self.code}_orders'
+    # player_status_key = '{self.code}_status'
+    # groups_ready_key = '{self.code}_ready'
+    # players_in_market_key  = '{self.code}_in_market'
+    # role_count_key = '{self.code}_role_count'
+    # player_role_key = '{self.code}_role'
 
     unlock_value = 'unlocked'
 
@@ -81,11 +81,11 @@ class Constants(BaseConstants):
     log_file = '{dir}{time}_{self.design}_{self.code}_{self.players_per_group}_round_{self.round_number}'
 
     # you may wanna change this if you run otree on different ports.
-    investor_url = 'ws://127.0.0.1:8000/hft_investor/'
-    jump_url = 'ws://127.0.0.1:8000/hft_jump/'
+    # investor_url = 'ws://127.0.0.1:8000/hft_investor/'
+    # jump_url = 'ws://127.0.0.1:8000/hft_jump/'
 
-    investor_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_event.py')
-    jump_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_event.py')
+    # investor_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_event.py')
+    # jump_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_event.py')
     
     conversion_factor = 1e4
     session_field_map = {
@@ -95,11 +95,11 @@ class Constants(BaseConstants):
         'batch_length': 'batch_length',
         'has_trial': 'trial',
         'trial_length': 'trial_length',
-        'total_rounds': 'num_rounds',
-        'restore_from': 'restore_from',
-        'restore': 'restore',
-        'lambda_i': 'lambda_i',
-        'lambda_j': 'lambda_j',
+        # 'total_rounds': 'num_rounds',
+        # 'restore_from': 'restore_from',
+        # 'restore': 'restore',
+        # 'lambda_i': 'lambda_i',
+        # 'lambda_j': 'lambda_j',
     }
     player_field_map = {
         'fp': 'fundamental_price',
@@ -332,17 +332,17 @@ class Group(BaseGroup):
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
 
-    def init_cache(self):
-        pairs = {}
-        group_lock = Constants.lock_key.format(self=self)
-        pairs[group_lock] = Constants.unlock_value
-        in_market_key= Constants.players_in_market_key.format(self=self)   
-        pairs[in_market_key] = {p.id: False for p in self.get_players()}
-        role_count_key = Constants.role_count_key.format(self=self)
-        pairs[role_count_key] = {k: getattr(self.subsession, v) if isinstance(v, str) else v
-                                    for k, v in Constants.group_role_counts.items()} 
-        for k, v in pairs.items():
-            cache.set(k, v, timeout=None)
+    # def init_cache(self):
+    #     pairs = {}
+    #     group_lock = Constants.lock_key.format(self=self)
+    #     pairs[group_lock] = Constants.unlock_value
+    #     in_market_key= Constants.players_in_market_key.format(self=self)   
+    #     pairs[in_market_key] = {p.id: False for p in self.get_players()}
+    #     role_count_key = Constants.role_count_key.format(self=self)
+    #     pairs[role_count_key] = {k: getattr(self.subsession, v) if isinstance(v, str) else v
+    #                                 for k, v in Constants.group_role_counts.items()} 
+    #     for k, v in pairs.items():
+    #         cache.set(k, v, timeout=None)
 
     def creating_group(self):
         # TODO:this is hardcoded temporarily.
@@ -368,72 +368,72 @@ class Group(BaseGroup):
     # TODO: we will add some buttons to 
     # session monitor page and trigger 
     # each of these events from the admin page
-    def start(self):
-        # self.spawn(
-        #     Constants.investor_py,
-        #     Constants.investor_url,
-        #     self.investor_file
-        # )
-        # self.spawn(
-        #     Constants.jump_py,
-        #     Constants.jump_url,
-        #     self.jump_file
-        # )
-        self.connect_to_exchange()
-        self.start_exchange()
-        self.broadcast(
-            client_messages.start_session()
-        )
-        log_events.push(hfl.start, **{'gid': self.id})
-        experiment_logger.log(StartLog(model=self))
-        self.is_trading = True
-        self.save()
+    # def start(self):
+    #     # self.spawn(
+    #     #     Constants.investor_py,
+    #     #     Constants.investor_url,
+    #     #     self.investor_file
+    #     # )
+    #     # self.spawn(
+    #     #     Constants.jump_py,
+    #     #     Constants.jump_url,
+    #     #     self.jump_file
+    #     # )
+    #     self.connect_to_exchange()
+    #     self.start_exchange()
+    #     self.broadcast(
+    #         client_messages.start_session()
+    #     )
+    #     log_events.push(hfl.start, **{'gid': self.id})
+    #     experiment_logger.log(StartLog(model=self))
+    #     self.is_trading = True
+    #     self.save()
 
-    @atomic
-    def end_trade(self, player_id):
-        if self.is_trading == True:
-            log.info('Group%d: Player%d flags session end.' % (self.id, player_id))
-            stop_exogenous(group_id=self.id)
-            self.disconnect_from_exchange()
-            self.loggy()
-            self.is_trading = False                                                                                                                                                     
-            self.save()
-            experiment_logger.log(EndLog(model=self))
-            self.subsession.groups_ready(self.id, action='end')
-        else:
-            pass
+    # @atomic
+    # def end_trade(self, player_id):
+    #     if self.is_trading == True:
+    #         log.info('Group%d: Player%d flags session end.' % (self.id, player_id))
+    #         stop_exogenous(group_id=self.id)
+    #         self.disconnect_from_exchange()
+    #         self.loggy()
+    #         self.is_trading = False                                                                                                                                                     
+    #         self.save()
+    #         experiment_logger.log(EndLog(model=self))
+    #         self.subsession.groups_ready(self.id, action='end')
+    #     else:
+    #         pass
 
-    def start_exchange(self):
-        """
-        sends a system start message
-        to the exchange to allow trade
-        """
-        start_ouch = translate.system_start('S')
-        self.send_exchange(start_ouch)
-        log_events.push(hfl.exchange, **{'gid': self.id, 'context': 'sent system start message'})
+    # def start_exchange(self):
+    #     """
+    #     sends a system start message
+    #     to the exchange to allow trade
+    #     """
+    #     start_ouch = translate.system_start('S')
+    #     self.send_exchange(start_ouch)
+    #     log_events.push(hfl.exchange, **{'gid': self.id, 'context': 'sent system start message'})
 
-    def connect_to_exchange(self):
-        try:
-            exchange.connect(self, self.exch_host, self.exch_port, wait_for_connection=True)
-        except ValueError as e:
-            log.warning(e)
+    # def connect_to_exchange(self):
+    #     try:
+    #         exchange.connect(self, self.exch_host, self.exch_port, wait_for_connection=True)
+    #     except ValueError as e:
+    #         log.warning(e)
 
     def disconnect_from_exchange(self):
         exchange.disconnect(self, self.exch_host, self.exch_port)
 
-    def send_exchange(self, msgs, delay=False, speed=False):
-        """
-        msgs is a list of lists
-        """
-        msgs_flat = [m for msg in msgs for m in msg]
-        true_msgs = filter(lambda x: x is not False, msgs_flat)
-        if delay:
-            dur = Constants.short_delay if speed else Constants.long_delay
-        else:
-            dur = 0.
-        conn = exchange.connect(self, self.exch_host, self.exch_port).connection
-        for m in true_msgs:
-            conn.sendMessage(m, dur)
+    # def send_exchange(self, msgs, delay=False, speed=False):
+    #     """
+    #     msgs is a list of lists
+    #     """
+    #     msgs_flat = [m for msg in msgs for m in msg]
+    #     true_msgs = filter(lambda x: x is not False, msgs_flat)
+    #     if delay:
+    #         dur = Constants.short_delay if speed else Constants.long_delay
+    #     else:
+    #         dur = 0.
+    #     conn = exchange.connect(self, self.exch_host, self.exch_port).connection
+    #     for m in true_msgs:
+    #         conn.sendMessage(m, dur)
     
     # def receive_from_exchange(self, msg):
     #     """
@@ -482,21 +482,21 @@ class Group(BaseGroup):
     #     message = json.dumps(note)
     #     CGroup(str(self.id)).send({"text": message})
 
-    def spawn(self, name, url, data):
-        """
-        fires exogenous investors and jumps
-        as subprocesses
-        """
-        cmd = ['python', name, str(self.id), url, data]
-        p = subprocess.Popen(cmd)
-        try:
-            subprocesses[self.id].append(p)
-        except KeyError as e:
-            log.exception(e)
-            subprocesses[self.id] = []
-            subprocesses[self.id].append(p)
-        print(subprocesses)
-        log.debug('Group%d: Fire %s.' % (self.id, name))
+    # def spawn(self, name, url, data):
+    #     """
+    #     fires exogenous investors and jumps
+    #     as subprocesses
+    #     """
+    #     cmd = ['python', name, str(self.id), url, data]
+    #     p = subprocess.Popen(cmd)
+    #     try:
+    #         subprocesses[self.id].append(p)
+    #     except KeyError as e:
+    #         log.exception(e)
+    #         subprocesses[self.id] = []
+    #         subprocesses[self.id].append(p)
+    #     print(subprocesses)
+    #     log.debug('Group%d: Fire %s.' % (self.id, name))
 
     # def jump_event(self, msg):
     #     """
@@ -587,6 +587,7 @@ class Player(BasePlayer):
     consent = models.BooleanField(initial=True)
     final_payoff = models.IntegerField()
     total_payoff = models.IntegerField()
+    inventory = models.IntegerField(initial=0)
 
     def from_subject_state(self, subject_state):
         raise NotImplementedError()

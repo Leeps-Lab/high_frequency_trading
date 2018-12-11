@@ -3,7 +3,7 @@ import logging
 from collections import deque
 from .models import Player
 import itertools
-from exchange import connect
+from . import exchange
 
 log = logging.getLogger(__name__)
 
@@ -13,17 +13,25 @@ class BaseMarket:
 
     def __init__(self):
         self.id = next(self._ids)
+        self.is_trading = False
         self.ready_to_trade= False
-        self.exchange = None
+        self.exchange_address = None
         self.subscribers = {}
         self.outgoing_exchange_messages = deque()
         self.outgoing_broadcast_messages = deque()
         self.registered_session_events = []
     
     def subscribe_exchange(self, host, port, exchange_format):
-        connection = connect(self.id, host, port)
-        self.exchange = connection
+        exchange.connect(self.id, host, port)
+        self.exchange_address = (host, port)
     
+    def reset_exchange(self):
+        if self.exchange_address is None:
+            raise ValueError('exchange address is not set in market %s.' % self.id)
+        host , port = self.exchange_address
+        exchange_message = (host, port, 'reset_exchange', 0., {'event_code': 'S'})
+        self.outgoing_exchange_messages.append(exchange_message)
+
     def register_group(self, group_id:str, *args):
         self.subscribers[group_id] = []
         for player_id in args:
@@ -36,6 +44,29 @@ class BaseMarket:
             handler_name = self.market_events_dispatch[event_type]
             handler = getattr(self, handler_name)
             handler(*args, **kwargs)
+    
+    def broadcast_to_subscribers(self, broadcast_info):
+        topic, data = broadcast_info
+        for group_id in self.subscribers.keys():
+            broadcast_message = (topic, group_id, data)
+            self.outgoing_broadcast_messages.append(broadcast_message)
+     
+    def start_trade(self):
+        if not self.ready_to_trade:
+            raise ValueError('market %s not ready not trade.' % self.id)
+        else:
+            if self.is_trading:
+                raise ValueError('market %s already trading.' % self.id)
+            else:
+                self.is_trading = True
+                broadcast_info = ('session_start', {})
+                self.broadcast_to_subscribers(broadcast_info)
+    
+    def end_trade(self):
+        if self.is_trading:
+            host, port = self.exchange_address
+            exchange.disconnect(self.id, host, port)
+            self.is_trading = False
 
     def __len__(self):
         return len(self.subscribers)
@@ -45,7 +76,9 @@ class BCSMarket(BaseMarket):
         'jump': 'fundamental_price_change',
         'player_ready': 'player_ready',
         'advance_me': 'player_reached_session_end',
-        'S': 'system_event'
+        'S': 'system_event',
+        'market_start': 'start_trade',
+        'market_end': 'end_trade'
     }
     
     def __init__(self, **kwargs):
@@ -85,15 +118,15 @@ class BCSMarket(BaseMarket):
     def fundamental_price_change(self, **kwargs):
         new_fp = int(kwargs['new_fundamental'])
         self.fp = new_fp
-        for group_id in self.subscribers.keys():
-            broadcast_info = ('fundamental_price_change', group_id, {'new_price': new_fp})
-            self.outgoing_broadcast_messages.append(broadcast_info)
+        broadcast_info = ('fundamental_price_change', {'new_price': new_fp})
+        self.broadcast_to_subscribers(broadcast_info)   
+
            
     def system_event(self, **kwargs):
         event_code = kwargs.get('event_code')
-        for group_id in self.subscribers.keys():
-            broadcast_info = ('batch', group_id, {'event': event_code})   
-            self.outgoing_broadcast_messages.append(broadcast_info)
+        broadcast_info = ('batch', {'event': event_code})
+        self.broadcast_to_subscribers(broadcast_info)   
+
 
 
 

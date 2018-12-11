@@ -103,7 +103,7 @@ def connect(market_id, host, port, wait_for_connection=False):
     return exchanges[addr]
 
 
-def disconnect(group, host, port):
+def disconnect(market_id, host, port):
     addr = '{}:{}'.format(host, port)
     try:
         conn = exchanges[addr].connection

@@ -53,7 +53,8 @@ dispatch = {
     'leave_market': spread_change,
     'executed': execution,
     'fundamental_price_change': fp_change,
-    'batch': batch
+    'batch': batch,
+    'session_start': start_session
 }
 
 def broadcast(message_type, group_id, **kwargs):

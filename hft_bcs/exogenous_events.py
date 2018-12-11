@@ -19,7 +19,6 @@ def fundamental_price_change(market_id, **kwargs):
     market = receive_market_message(market_id, 'jump', **kwargs)
     process_response(market)
 
-
 def noise_trader_arrival(market_id, **kwargs):
     noise_trader_key = get_cache_key(market_id, 'noise_trader')
     noise_trader = cache.get(noise_trader_key)

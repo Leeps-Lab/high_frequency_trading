@@ -4,7 +4,7 @@ import math
 from .exchange import exchanges
 import logging
 from . import client_messages
-from .utility import nanoseconds_since_midnight
+from .utility import nanoseconds_since_midnight, ouch_fields
 
 
 from collections import deque
@@ -155,7 +155,6 @@ class BCSTrader(BaseTrader):
                 exchange_message = (host, port, 'cancel', delay, order_info)
                 self.outgoing_exchange_messages.append(exchange_message)
 
-
     def accepted(self, **kwargs):
         self.orderstore.confirm('enter', **kwargs)
 
@@ -291,6 +290,18 @@ class BCSInvestor(BCSOut):
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=order_side, 
                                     time_in_force=0)
         self.outgoing_exchange_messages.append((host, port, 'enter', 0., order_info))
+
+
+class LEEPSInvestor(BCSOut):
+
+    def invest(self, **kwargs):
+        host, port = self.exchange_host, self.exchange_port
+        #TODO: add logic to do some field checks asap.
+        order_info = self.orderstore.enter(**kwargs)
+        self.outgoing_exchange_messages.append((host, port, 'enter', 0., order_info))
+       
+    
+
 
 
             

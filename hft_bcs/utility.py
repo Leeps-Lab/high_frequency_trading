@@ -11,6 +11,21 @@ import pytz
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
+exogenous_event_endpoints = {
+    'investor': 'ws://127.0.0.1:8000/hft_investor/',
+    'jump': 'ws://127.0.0.1:8000/hft_jump/'
+}
+
+exogenous_event_client = 'hft_bcs/exogenous_event.py'
+
+available_exchange_ports = {
+    'CDA': list(range(9010, 9000, -1)),
+    'FBA': list(range(9110, 9100, -1)),
+    'IEX': list(range(9210, 9200, -1))
+}
+
+ouch_fields = ('price', 'time_in_force', 'display', 'buy_sell_indicator')
+
 def pretranslate_hacks(message_type, message_data):
     if message_type == 'replace':
         message_data['price'] = message_data['replace_price']
