@@ -21,7 +21,7 @@ class BaseMarket:
         self.outgoing_broadcast_messages = deque()
         self.registered_session_events = []
     
-    def subscribe_exchange(self, host, port, exchange_format):
+    def subscribe_exchange(self, host, port):
         exchange.connect(self.id, host, port)
         self.exchange_address = (host, port)
     

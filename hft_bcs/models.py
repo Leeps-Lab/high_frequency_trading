@@ -32,13 +32,18 @@ from settings import (
     exp_logs_dir, EXCHANGE_HOST_NO, REAL_WORLD_CURRENCY_CODE )
 
 
+from .utility import (scale_configs, from_configs_to_models, exogenous_event_client,
+    available_exchange_ports)
 from .trader import CDATraderFactory, FBATraderFactory
+from .market import MarketFactory
 from .subject_state import BCSSubjectState
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
 from .exchange import send_exchange
 from .event_handlers import process_trader_response, receive_trader_message
+from .cache import initialize_market_cache, initialize_player_cache, initialize_session_cache
+
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +57,7 @@ class Constants(BaseConstants):
 
     exchange_host_label = '{self.subsession.design}_{host}'
 
-    first_exchange_port = {'CDA': 9001, 'FBA': 9101}  # make this configurable
+    # first_exchange_port = {'CDA': 9001, 'FBA': 9101}  # make this configurable
 
     speed_factor = 1e-9
     player_state = ('id','id_in_group', 'group_id', 'role', 'fp', 'speed', 'spread', 'prev_speed_update', 'code', 'speed_unit_cost',
@@ -60,10 +65,10 @@ class Constants(BaseConstants):
     player_accum = ('endowment', 'cost', 'speed_on')
     player_fields = player_state + player_accum
 
-    group_role_counts = {'OUT': 'players_per_group', 'MAKER': 0, 'SNIPER': 0}
+    # group_role_counts = {'OUT': 'players_per_group', 'MAKER': 0, 'SNIPER': 0}
 
     # cache keys
-    lock_key = '{self.code}_lock'
+    # lock_key = '{self.code}_lock'
     # investor_label = 'investors_group_{self.id_in_subsession}_round_{round_number}'
     # jump_label = 'jumps_group_{self.id_in_subsession}_round_{round_number}'
     # player_fp_key = '{self.code}_fp'
@@ -75,7 +80,7 @@ class Constants(BaseConstants):
     # role_count_key = '{self.code}_role_count'
     # player_role_key = '{self.code}_role'
 
-    unlock_value = 'unlocked'
+    # unlock_value = 'unlocked'
 
     # log file
     log_file = '{dir}{time}_{self.design}_{self.code}_{self.players_per_group}_round_{self.round_number}'
@@ -87,37 +92,64 @@ class Constants(BaseConstants):
     # investor_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_event.py')
     # jump_py = os.path.join(os.getcwd(), 'hft_bcs/exogenous_event.py')
     
-    conversion_factor = 1e4
-    session_field_map = {
-        'players_per_group': 'players_per_group',
-        'round_length': 'session_length',
-        'design': 'design',
-        'batch_length': 'batch_length',
-        'has_trial': 'trial',
-        'trial_length': 'trial_length',
-        # 'total_rounds': 'num_rounds',
-        # 'restore_from': 'restore_from',
-        # 'restore': 'restore',
-        # 'lambda_i': 'lambda_i',
-        # 'lambda_j': 'lambda_j',
+    nasdaq_multiplier = 1e4
+    config_fields_to_scale = {
+        'fp':1e4, 
+        'spread':1e4,
+        'endowment':1e4,
+        'speed_unit_cost':1e4,
+        'max_spread':1e4
+        }
+
+    configs_to_otree_models = {
+        'session': {
+            'players_per_group': 'players_per_group',
+            'round_length': 'session_length',
+            'design': 'design',
+            'batch_length': 'batch_length',
+            'has_trial': 'trial',
+            'trial_length': 'trial_length',
+        },
+        'player': {
+            'fp': 'fundamental_price',
+            'spread': 'initial_spread',
+            'endowment': 'initial_endowment',
+            'speed_unit_cost': 'speed_cost',
+            'max_spread': 'max_spread',
+            'design': 'design'
+        }
     }
-    player_field_map = {
-        'fp': 'fundamental_price',
-        'spread': 'initial_spread',
-        'endowment': 'initial_endowment',
-        'speed_unit_cost': 'speed_cost',
-        'max_spread': 'max_spread',
-        'design': 'design'
-    }
-    player_scaled_fields = ('fp', 'spread', 'endowment', 'speed_unit_cost', 'max_spread')
+
+    # session_field_map = {
+    #     'players_per_group': 'players_per_group',
+    #     'round_length': 'session_length',
+    #     'design': 'design',
+    #     'batch_length': 'batch_length',
+    #     'has_trial': 'trial',
+    #     'trial_length': 'trial_length',
+    #     # 'total_rounds': 'num_rounds',
+    #     # 'restore_from': 'restore_from',
+    #     # 'restore': 'restore',
+    #     # 'lambda_i': 'lambda_i',
+    #     # 'lambda_j': 'lambda_j',
+    # }
+    # player_field_map = {
+    #     'fp': 'fundamental_price',
+    #     'spread': 'initial_spread',
+    #     'endowment': 'initial_endowment',
+    #     'speed_unit_cost': 'speed_cost',
+    #     'max_spread': 'max_spread',
+    #     'design': 'design'
+    # }
+    # player_scaled_fields = ('fp', 'spread', 'endowment', 'speed_unit_cost', 'max_spread')
 
 
     #   #   #   #   #   #
 
-    player_handlers = {
-        'advance_me': 'session_finished',
-        'player_ready': 'in_market'
-    }
+    # player_handlers = {
+    #     'advance_me': 'session_finished',
+    #     'player_ready': 'in_market'
+    # }
 
 
     #   #   #   #   #   #   #   #   #   #   #
@@ -130,29 +162,27 @@ class Constants(BaseConstants):
     market_events = ('S')
     trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
 
-subprocesses = {}
-# TODO: that is still a bit weird.
-# not really know subprocess module
-# in detail.
+# subprocesses = {}
 
-def stop_exogenous(group_id=None):
-    if group_id: 
-        if subprocesses[group_id]:
-            for process in subprocesses[group_id]:
-                try:
-                    print(group_id)
-                    print(process)
-                    process.kill()
-                except Exception as e:
-                    log.exception(e)
-    else:
-        for _, process_list in subprocesses.items():
-            if process_list:
-                for process in process_list:
-                    try:
-                        process.kill()
-                    except Exception as e:
-                        log.exception(e)
+
+# def stop_exogenous(group_id=None):
+#     if group_id: 
+#         if subprocesses[group_id]:
+#             for process in subprocesses[group_id]:
+#                 try:
+#                     print(group_id)
+#                     print(process)
+#                     process.kill()
+#                 except Exception as e:
+#                     log.exception(e)
+#     else:
+#         for _, process_list in subprocesses.items():
+#             if process_list:
+#                 for process in process_list:
+#                     try:
+#                         process.kill()
+#                     except Exception as e:
+#                         log.exception(e)
 
 
 
@@ -174,22 +204,22 @@ class Subsession(BaseSubsession):
     total_rounds = models.IntegerField(initial=0)
     restore_from = models.CharField()
     restore = models.BooleanField(initial=False)
-    lambda_i = models.FloatField()
-    lambda_j = models.FloatField()
+    # lambda_i = models.FloatField()
+    # lambda_j = models.FloatField()
 
-    def init_cache(self):
-        pairs = {}
-        session_lock = Constants.lock_key.format(self=self)
-        pairs[session_lock] = Constants.unlock_value
-        ready_groups = Constants.groups_ready_key.format(self=self)
-        pairs[ready_groups] = {g.id: False for g in self.get_groups()}
-        for k, v in pairs.items():
-            cache.set(k, v, timeout=None)
+    # def init_cache(self):
+    #     pairs = {}
+    #     session_lock = Constants.lock_key.format(self=self)
+    #     pairs[session_lock] = Constants.unlock_value
+    #     ready_groups = Constants.groups_ready_key.format(self=self)
+    #     pairs[ready_groups] = {g.id: False for g in self.get_groups()}
+    #     for k, v in pairs.items():
+    #         cache.set(k, v, timeout=None)
 
-    def convert_lambdas(self):
-        self.lambda_i = round(1 / self.lambda_i, 1)
-        self.lambda_j = round(1 / self.lambda_j, 1)
-        self.save()
+    # def convert_lambdas(self):
+    #     self.lambda_i = round(1 / self.lambda_i, 1)
+    #     self.lambda_j = round(1 / self.lambda_j, 1)
+    #     self.save()
 
     def set_payoff_round(self):
         for player in self.get_players():
@@ -211,14 +241,54 @@ class Subsession(BaseSubsession):
         self.set_group_matrix(group_matrix)
         self.save()
 
+
+    SESSION_FORMAT = None
+    EXCHANGES = None
+
+    def creating_session(self):
+        def create_trade_session(self):
+            
+        def creating_market(self, exchange_format):
+            market_factory = MarketFactory(SESSION_FORMAT)
+            market = market_factory.get_market()
+            exchange_host = self.session.config['exchange_host']
+            exchange_port = EXCHANGES[exchange_format].pop()
+            market.subscribe_exchange(exchange_host, exchange_port)
+            initialize_market_cache(market)
+            return market         
+        SESSION_FORMAT = self.session.config['environment']
+  
+
+
+
+    def creating_group(self):
+        # TODO:this is hardcoded temporarily.
+        # self.exch_host =  "127.0.0.1"
+  #      self.set_exchange_host()
+        # self.exch_port = self.subsession.next_available_exchange
+        # self.subsession.next_available_exchange += 1
+            # otree wants to create all objects at session start
+            # so actual round number is different than Constants.num_rounds
+            # default to trial
+        rnd = 1 if self.round_number > self.subsession.total_rounds else self.round_number
+        investors = Constants.investor_label.format(self=self, round_number=rnd)
+        jumps = Constants.jump_label.format(self=self, round_number=rnd)
+        self.investor_file = self.session.config[investors]
+        self.jump_file = self.session.config[jumps]
+        fp = self.session.config['fundamental_price'] * Constants.conversion_factor
+        # self.fp_push(fp)
+        self.init_cache()
+        subprocesses[self.id] = list()
+        self.save()
+        self.subsession.save()
     def creating_session(self):
         # set session fields
-        for k, v in Constants.session_field_map.items():
-            setattr(self, k, self.session.config[v])
+        # for k, v in Constants.session_field_map.items():
+        #     setattr(self, k, self.session.config[v])
         # determine if this is a special round
         # trial or last round
-        self.first_round = 1 + self.has_trial
-        self.last_round = self.total_rounds + self.has_trial
+        # self.first_round = 1 + self.has_trial
+        # self.last_round = self.total_rounds + self.has_trial
         if self.has_trial and self.round_number == 1:
             self.is_trial = True
             self.round_length = self.trial_length
@@ -237,14 +307,14 @@ class Subsession(BaseSubsession):
         for group in groups:
             group.creating_group()
         players = self.get_players()
-        for player in players:
-            for k, v in Constants.player_field_map.items():
-                attr = self.session.config[v]
-                if k in Constants.player_scaled_fields:
-                    attr = attr * Constants.conversion_factor
-                setattr(player, k, attr)
+        # for player in players:
+        #     for k, v in Constants.player_field_map.items():
+        #         attr = self.session.config[v]
+        #         if k in Constants.player_scaled_fields:
+        #             attr = attr * Constants.conversion_factor
+        #         setattr(player, k, attr)
             player.initialize_cache()
-        self.convert_lambdas()
+        # s=elf.convert_lambdas()
 
         #TODO: wtf? make this smaller
         group_players = {g.id: [p.id for p in g.get_players()] for g in groups}
@@ -255,21 +325,21 @@ class Subsession(BaseSubsession):
         self.save()
         self.session.save()
 
-    def start_trade(self):
-        log.info('session: starting trade, %d.' % self.round_length)
-        log_events(subsession=self)
-        log_events.dump(header=True)
-        experiment_logger(self.log_file)
-        for g in self.get_groups():
-            g.start()  
+    # def start_trade(self):
+    #     log.info('session: starting trade, %d.' % self.round_length)
+    #     log_events(subsession=self)
+    #     log_events.dump(header=True)
+    #     experiment_logger(self.log_file)
+    #     for g in self.get_groups():
+    #         g.start()  
 
-    def end_trade(self):      
-        log.info('session: advancing all players to results page.')
-        self.trade_ended = True
-        self.save()
-        log_events.push(hfl.end)
-        log_events.dump()
-        self.session.advance_last_place_participants()
+    # def end_trade(self):      
+    #     log.info('session: advancing all players to results page.')
+    #     self.trade_ended = True
+    #     self.save()
+    #     log_events.push(hfl.end)
+    #     log_events.dump()
+    #     self.session.advance_last_place_participants()
 
     @atomic
     def groups_ready(self, group_id, action='start'):

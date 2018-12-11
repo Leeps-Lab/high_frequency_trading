@@ -38,8 +38,7 @@ def initialize_player_cache(player:Player, state_cls, ordersore_cls, fields_to_m
     for k, v in pairs.items():
         cache.set(k, v, timeout=timeout) 
 
-def initialize_market_cache(market_class, timeout=cache_timeout, **kwargs):
-    market = market_class(**kwargs)
+def initialize_market_cache(market, timeout=cache_timeout, **kwargs):
     market_data = {'version': 0, 'market': market}
     market_key = get_cache_key(market.id, 'market')
     cache.set(market_key, market_data, timeout=timeout)
