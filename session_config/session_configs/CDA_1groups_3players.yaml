@@ -2,7 +2,6 @@ demo:
   number-of-participants: 3
 
 group:
-  group-assignments: '[[1, 2, 3]]'
   number-of-groups: 1
   players-per-group: 3
 

@@ -7,15 +7,15 @@ import yaml
 
 log = logging.getLogger(__name__)
 
+
 class CustomOtreeConfig:
     yaml_configs_directory = os.path.join(os.getcwd(), 'session_config/session_configs')
-    yaml_to_otree_config_map = {}
-    exogenous_input = ()
-    otree_default_required = {}
+    otree_default_required = {'app_sequence': ['hft_bcs']}
 
     def __init__(self, configs:dict, filename:str):
         self.base_configs = configs
         self.filename = filename
+        self.environment = configs['environment']
 
     @classmethod
     def from_yaml(cls, filename) -> dict:
@@ -31,7 +31,8 @@ class CustomOtreeConfig:
 
     def convert_to_otree_config(self, configs):
         otree_configs = {}
-        for otree_config_key, yaml_key in self.yaml_to_otree_config_map:
+        yaml_to_otree_map = config_maps[self.environment]
+        for otree_config_key, yaml_key in yaml_to_otree_map.items():
             parent_key, child_key = yaml_key
             otree_config_key = None
             try:
@@ -39,9 +40,8 @@ class CustomOtreeConfig:
             except KeyError:
                 raise KeyError('%s:%s is missing in %s, set to none.' % (
                     parent_key, child_key, self.filename))
+        otree_configs.update(self.otree_default_required)
         return otree_configs
-        # self.read_csv()
-        # self.format_display_name()
 
     @classmethod
     def initialize_many_from_folder(cls):
@@ -53,37 +53,8 @@ class CustomOtreeConfig:
         custom_configs = [cls.from_yaml(f) for f in yaml_config_files]
         return custom_configs
 
-    def read_csv(self):
-        self.otre
-        if folder is None:
-            raise ValueError('session folder name is missing.')
-        dirc = os.path.join(self.conf_dir, folder)
-        self.csv_labels = {}
-        for field in self.exogenous_input:
-            for k, v in self.yaml_conf[field].items():
-                for r, f in enumerate(v):
-                    label = '{field}_{key}_round_{round}'.format(field=field, key=k, round=r+1)
-                    csv_name= os.path.join(dirc, f)
-                    self.csv_labels[label] = csv_name
-                    
-               # csv_list = os.path.join(dirc, v)
-    
-    def json_format(self):
-        out = {k[0]: getattr(self, k[0]) for k in self.yaml_map}
-        out.update(self.csv_labels)
-        constant = {k: v for k, v in self.constant_required.items()}
-        out.update(constant)
-        return out
-
-
-
-
-class BCSConfig(CustomOtreeConfig):
-
-    otree_default_required = {'app_sequence': ['hft_bcs']}
-
-    yaml_map = {
-        'name': ('session', 'session-name'),
+config_maps = {
+    'BCS': { 'name': ('session', 'session-name'),
         'display_name': ('market', 'design'),
         'num_demo_participants': ('demo', 'number-of-participants'),
         'environment': ('session', 'environment'),
@@ -109,14 +80,6 @@ class BCSConfig(CustomOtreeConfig):
         'participation_fee': ('session', 'participation-fee'),
         'real_world_currency_per_point': ('session', 'exchange-rate'),
         'exogenous_event_directory': ('session', 'exogenous_event_directory')
-    }
+        }
+}
 
-    exogenous_input = ('investors', 'jumps')
-
-    def format_display_name(self):
-        name = """High Frequency Trading - BCS - {self.design} \n
-            length: {self.session_length}, groups: {self.number_of_groups}, 
-            players per group: {self.players_per_group}, speed cost: {self.speed_cost},
-            folder: {self.folder} """.format(self=self)
-        setattr(self, 'display_name', name)
-        
