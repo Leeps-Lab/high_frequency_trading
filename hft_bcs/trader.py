@@ -1,7 +1,5 @@
 
-from .decorators import format_output
 import math
-from .exchange import exchanges
 import logging
 from . import client_messages
 from .utility import nanoseconds_since_midnight, ouch_fields
@@ -13,6 +11,7 @@ from .subject_state import *
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
+
 
 log = logging.getLogger(__name__)
 
@@ -93,7 +92,6 @@ class BCSTrader(BaseTrader):
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'fundamental_price_change': 'jump'}
 
-    @format_output
     def speed_change(self, **kwargs):
         """
         switch between on speed, off speed

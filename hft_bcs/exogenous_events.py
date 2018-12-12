@@ -5,7 +5,8 @@ from .event_handlers import receive_trader_message, process_response, receive_ma
 from client_messages import broadcast
 from django.core.cache import cache
 
-def fundamental_price_change(market_id, **kwargs):
+def fundamental_price_change(**kwargs):
+    market_id = str(kwargs.get('market'))
     all_players_data = get_players_by_market(market_id)
     responding_traders = []
     for player_data in all_players_data:
@@ -19,7 +20,8 @@ def fundamental_price_change(market_id, **kwargs):
     market = receive_market_message(market_id, 'jump', **kwargs)
     process_response(market)
 
-def noise_trader_arrival(market_id, **kwargs):
+def noise_trader_arrival(**kwargs):
+    market_id = str(kwargs.get('market'))
     noise_trader_key = get_cache_key(market_id, 'noise_trader')
     noise_trader = cache.get(noise_trader_key)
     noise_trader.invest(**kwargs)

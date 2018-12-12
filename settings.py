@@ -6,7 +6,7 @@ import dj_database_url
 from datetime import datetime
 import otree.settings
 import yaml
-from custom_otree_config import BCSConfig
+from custom_otree_config import CustomOtreeConfig
 
 CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -234,10 +234,10 @@ SESSION_CONFIG_DEFAULTS = {
 
 SESSION_CONFIGS = []
 
-bcs_configs = BCSConfig.get_all()
-config_fields = [cf.json_format() for cf in bcs_configs]
-SESSION_CONFIGS.extend(config_fields)
+custom_configs_directory = os.path.join(os.getcwd(), 'session_config/session_configs')
 
-
+custom_configs = CustomOtreeConfig.initialize_many_from_folder(custom_configs_directory)
+configs = [config.get_otree_config(config) for config in custom_configs]
+SESSION_CONFIGS.extend(configs)
 
 otree.settings.augment_settings(globals())

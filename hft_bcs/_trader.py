@@ -12,7 +12,7 @@ from .subject_state import *
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
-from .new_translator import BCSTranslator
+from .translator import BCSTranslator
 
 log = logging.getLogger(__name__)
 

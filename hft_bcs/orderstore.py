@@ -2,7 +2,6 @@ import logging
 import time
 from .hft_logging import session_events as hfl
 import itertools
-from .utility import nanoseconds_since_midnight as labtime
 
 log = logging.getLogger(__name__)
 

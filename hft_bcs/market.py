@@ -7,6 +7,11 @@ from . import exchange
 
 log = logging.getLogger(__name__)
 
+class MarketFactory:
+    @staticmethod
+    def get_market():
+        return BCSMarket
+
 class BaseMarket:
     market_events_dispatch = {}
     _ids = itertools.count()
@@ -16,7 +21,8 @@ class BaseMarket:
         self.is_trading = False
         self.ready_to_trade= False
         self.exchange_address = None
-        self.subscribers = {}
+        self.subscriber_groups = {}
+        self.players_in_market = {}
         self.outgoing_exchange_messages = deque()
         self.outgoing_broadcast_messages = deque()
         self.registered_session_events = []
@@ -32,10 +38,10 @@ class BaseMarket:
         exchange_message = (host, port, 'reset_exchange', 0., {'event_code': 'S'})
         self.outgoing_exchange_messages.append(exchange_message)
 
-    def register_group(self, group_id:str, *args):
-        self.subscribers[group_id] = []
-        for player_id in args:
-            self.subscribers[group_id].append(player_id)
+    def register_group(self, group):
+        self.subscriber_groups[group.id] = []
+        for player in group.get_players():
+            self.subscriber_groups[group.id].append(player.id)
     
     def receive(self, event_type, *args, **kwargs):
         if event_type not in self.market_events_dispatch:
@@ -47,7 +53,7 @@ class BaseMarket:
     
     def broadcast_to_subscribers(self, broadcast_info):
         topic, data = broadcast_info
-        for group_id in self.subscribers.keys():
+        for group_id in self.subscriber_groups.keys():
             broadcast_message = (topic, group_id, data)
             self.outgoing_broadcast_messages.append(broadcast_message)
      
@@ -69,7 +75,7 @@ class BaseMarket:
             self.is_trading = False
 
     def __len__(self):
-        return len(self.subscribers)
+        return len(self.subscriber_groups)
 
 class BCSMarket(BaseMarket):
     market_events_dispatch = {
@@ -85,14 +91,15 @@ class BCSMarket(BaseMarket):
         super().__init__()
         for key in kwargs.keys():
             setattr(self, key, kwargs.get(key))
-        self.players_in_market = {}
         self.roles = ('maker', 'sniper', 'out')
         self.role_counts = {role: 0 for role in self.roles}
 
-    def register_group(self, group_id, players):
-        super().register_group(group_id, players)
-        for p in players:
+    def register_group(self, group):
+        super().register_group(group)
+        for p in group.get_players():
             self.players_in_market[p.id] = False
+            p.market = self.id
+            p.save()
 
     def player_ready(self, **kwargs):
         player_id = kwargs.get('player_id')
@@ -100,13 +107,13 @@ class BCSMarket(BaseMarket):
         market_ready_condition = (True if False not in self.players_in_market.values() 
             else False)
         if market_ready_condition is True:
-            session_event = ('market_ready_to_start', player_id)
+            session_event = ('market_ready_to_start', self.id)
             self.registered_session_events.append(session_event)
     
     def player_reached_session_end(self, **kwargs):
         player_id = kwargs.get('player_id')
         self.players_in_market[player_id] = False
-        session_event = ('market_ready_to_end', player_id)
+        session_event = ('market_ready_to_end', self.id)
         self.registered_session_events.append(session_event)
 
     def role_change(self, new_role:str, old_role:str, **kwargs):

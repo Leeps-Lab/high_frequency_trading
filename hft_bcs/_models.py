@@ -25,7 +25,7 @@ import json
 from django.core.cache import cache
 from .order import Order, OrderStore
 import time
-from . import new_translator
+from . import translator
 from .decorators import atomic
 from otree.common_internal import random_chars_8
 from settings import (

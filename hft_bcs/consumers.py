@@ -1,13 +1,14 @@
 from channels import Group, Channel
 from channels.generic.websockets import JsonWebsocketConsumer
-from .models import (write_to_cache_with_version, get_cache_key, stop_exogenous, 
-    Constants, Player, Investor, Group as OGroup )
+from .models import (Constants, Player, Group as OGroup )
 from .client_messages import broadcast
 import json
 import logging
 from django.core.cache import cache
 from .decorators import timer
-from .event_handlers import receive_trader_message, process_response
+from .event_handlers import (receive_trader_message, receive_market_message,
+    process_response)
+from .exogenous_events import *
 log = logging.getLogger(__name__)
 
 class SubjectConsumer(JsonWebsocketConsumer):
@@ -37,10 +38,10 @@ class SubjectConsumer(JsonWebsocketConsumer):
             if event_type in Constants.trader_events:
                 trader = receive_trader_message(player_id, event_type, **message_content)
                 process_response(trader)
-            else:
-                handler_name = Constants.player_handlers[event_type]
-                handler = getattr(player, handler_name)
-                handler(**message_content)
+            if event_type in Constants.market_events:
+                market_id = player.market
+                market = receive_market_message(market_id, event_type, **message_content)
+                process_response(market)
         except Exception as e:
             log.exception('player %s: error processing message, ignoring. %s:%s', player_id, message_content, e)
 
@@ -48,50 +49,14 @@ class SubjectConsumer(JsonWebsocketConsumer):
         log.info('Player %s disconnected from Group %s.' % (player_id, group_id))
         Group(group_id).discard(message.reply_channel)
         
-
-
 class InvestorConsumer(JsonWebsocketConsumer):
 
-    def raw_connect(self, message, group_id):
-        log.info('Investor is connected to Group %s.' % group_id)
-        self.connect(group_id)
-
-    def connect(self, group_id):
-        investor = Investor.objects.create(group_id=group_id)
-        investor.save()
-
-    def raw_receive(self, message, group_id):
-        msg = json.loads(message.content['text'])
-        investor = Investor.objects.get(group_id=group_id)
-        investor.receive_from_consumer(msg)
-
-    def raw_disconnect(self, message, group_id):
-        log.info('Investor disconnected from Group %s.' % group_id)
-
+    def raw_receive(self, message):
+        message_content = json.loads(message.content['text'])
+        noise_trader_arrival(**message_content)
 
 class JumpConsumer(JsonWebsocketConsumer):
 
-    def raw_connect(self, message, group_id):
-        log.info('Jump is connected to Group %s.' % group_id)
-
-    def raw_receive(self, message, group_id):
-        msg = json.loads(message.content['text'])
-        group = OGroup.objects.get(id=group_id)
-        group.jump_event(msg)
-
-    def raw_disconnect(self, message, group_id):
-        log.info('Jump disconnected from Group %s.' % group_id)
-
-
-class Stop(JsonWebsocketConsumer):
-
-    def raw_connect(self, message):
-        pass
-
     def raw_receive(self, message):
-        log.info('received stop investor & jumps signal..')
-        stop_exogenous()
-
-
-    def raw_disconnect(self, message):
-        pass
+        message_content = json.loads(message.content['text'])
+        fundamental_price_change(**message_content)

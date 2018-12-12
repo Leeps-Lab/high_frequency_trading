@@ -1,13 +1,13 @@
 from .cache import get_cache_key, write_to_cache_with_version
 from .utility import pretranslate_hacks
-from .new_translator import LeepsOuchTranslator
+from .translator import LeepsOuchTranslator
 from .subject_state import BCSSubjectState
 from .trader import CDATraderFactory, FBATraderFactory
 from .exchange import send_exchange
 from . import client_messages 
 from django.core.cache import cache
 from .models import Constants
-
+from .decorators import atomic
 #TODO: this is temporarily here. there are 
 # better places to keep this.
 
@@ -26,12 +26,16 @@ def process_response(data_model):
         while broadcast_messages:
             message_type, message_group_id, broadcast_data = broadcast_messages.popleft()
             client_messages.broadcast(message_type, message_group_id, **broadcast_data)
+    @atomic
     def registered_session_events(session_events):
-        pass
+        while session_events:
+            session_key = get_cache_key('active_session', 'trade_session')
+            trade_session = cache.get(session_key)
+            trade_session.receive()
     for message_bus_name in ('outgoing_exchange_messages', 'outgoing_broadcast_messages', 
         'registered_session_events'):
         messages = getattr(data_model, message_bus_name)
-        handler = getattr('process_response', message_bus_name)
+        handler = locals()[message_bus_name]
         handler(messages)
 
 def receive_trader_message(player_id: str, event_type: str, session_format='CDA', **kwargs):

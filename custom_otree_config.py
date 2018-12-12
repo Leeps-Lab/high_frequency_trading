@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
 
 
 class CustomOtreeConfig:
-    yaml_configs_directory = os.path.join(os.getcwd(), 'session_config/session_configs')
     otree_default_required = {'app_sequence': ['hft_bcs']}
 
     def __init__(self, configs:dict, filename:str):
@@ -18,25 +17,24 @@ class CustomOtreeConfig:
         self.environment = configs['environment']
 
     @classmethod
-    def from_yaml(cls, filename) -> dict:
-        path = os.path.join(cls.yaml_configs_directory, filename)
-        with open(path, 'r') as f:
+    def from_yaml(cls, path_to_file) -> dict:
+        with open(path_to_file, 'r') as f:
             try:
                 configs = yaml.load(f)
             except yaml.YAMLError as e:
                 raise e
             else:
-                log.debug('read custom config: %s.' % path)
-        return cls(configs, filename)
+                log.debug('custom config: %s.' % path_to_file)
+        return cls(configs, path_to_file)
 
-    def convert_to_otree_config(self, configs):
+    def get_otree_config(self) -> dict:
         otree_configs = {}
         yaml_to_otree_map = config_maps[self.environment]
         for otree_config_key, yaml_key in yaml_to_otree_map.items():
             parent_key, child_key = yaml_key
             otree_config_key = None
             try:
-                otree_configs[otree_config_key] = configs[parent_key][child_key]
+                otree_configs[otree_config_key] = self.base_configs[parent_key][child_key]
             except KeyError:
                 raise KeyError('%s:%s is missing in %s, set to none.' % (
                     parent_key, child_key, self.filename))
@@ -44,18 +42,18 @@ class CustomOtreeConfig:
         return otree_configs
 
     @classmethod
-    def initialize_many_from_folder(cls):
+    def initialize_many_from_folder(cls, directory):
         """
         reads all files in config folder
         """
-        all_yaml_filenames = os.listdir(cls.yaml_configs_directory)
-        yaml_config_files = [f for f in all_yaml_filenames if f.endswith('.yaml')]
-        custom_configs = [cls.from_yaml(f) for f in yaml_config_files]
+        all_yaml_filenames = os.listdir(directory)
+        yaml_config_filenames = [f for f in all_yaml_filenames if f.endswith('.yaml')]
+        custom_configs = [cls.from_yaml(f) for f in yaml_config_filenames]
         return custom_configs
 
 config_maps = {
     'BCS': { 'name': ('session', 'session-name'),
-        'display_name': ('market', 'design'),
+        'auction_format': ('market', 'auction-format'),
         'num_demo_participants': ('demo', 'number-of-participants'),
         'environment': ('session', 'environment'),
         'trial': ('session', 'trial'),

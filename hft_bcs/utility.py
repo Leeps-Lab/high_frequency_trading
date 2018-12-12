@@ -4,14 +4,14 @@ import datetime
 import pytz
 import logging
 import os 
-import yaml
+
 log = logging.getLogger(__name__)
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
 exogenous_event_endpoints = {
-    'investor': 'ws://127.0.0.1:8000/hft_investor/',
-    'jump': 'ws://127.0.0.1:8000/hft_jump/'
+    'investor_arrivals': 'ws://127.0.0.1:8000/hft_investor/',
+    'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/'
 }
 
 exogenous_event_client = 'hft_bcs/exogenous_event.py'
@@ -33,29 +33,30 @@ def scale_configs(scaling_map, session_configs):
         except KeyError:
             log.info('missing key %s:%s, skip..', k, v)
         
-def from_configs_to_models(configs:dict, mapping:dict, **models):
+def configure_model(configs:dict, mapping:dict, model_type, model):
     """
     map configs to database models
-    """
-    for model_name, field_map in mapping.items():
-        for k, v in field_map.items():
-            config_value = configs[k]
-            for model in models[model_name]:
-                setattr(model, v, config_value)
-                model.save()
-
-def read_yaml_config(filename, path='session_config/session_configs') -> dict:
-    path = os.path.join(os.getcwd(), filename)
-    with open(path, 'r') as f:
-        try:
-            config = yaml.load(f)
-        except yaml.YAMLError as e:
-            raise e
-        else:
-            log.debug('read custom config: %s.' % path)
-    return config
+    """    
+    pairs = mapping[model_type] 
+    for k, v in pairs.items():
+        config_value = configs[k]
+        setattr(model, v, config_value)
+    return model
 
 def pretranslate_hacks(message_type, message_data):
     if message_type == 'replace':
         message_data['price'] = message_data['replace_price']
     return message_data
+
+def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
+    now = datetime.datetime.now(tz=tz)
+    timestamp = 0  # since midnight
+    timestamp += now.hour
+    timestamp *= 60  # hours -> minutes
+    timestamp += now.minute
+    timestamp *= 60  # minutes -> seconds
+    timestamp += now.second
+    timestamp *= 10**6  # seconds -> microsecnds
+    timestamp += now.microsecond
+    timestamp *= 10**3  # microseconds -> nanoseconds
+    return timestamp

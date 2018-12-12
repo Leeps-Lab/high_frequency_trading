@@ -59,7 +59,7 @@ class ExogenousEvent(object):
         def on_open(ws):
             thread.start_new_thread(self.run, ())
 
-        ws = websocket.WebSocketApp(self.url + self.group_id + '/',
+        ws = websocket.WebSocketApp(self.url + '/',
                     on_message = on_message,
                     on_error = on_error,
                     on_close = on_close)

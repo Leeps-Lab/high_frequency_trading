@@ -11,7 +11,6 @@ from jsonfield import JSONField
 from . import translator as translate
 from .hft_logging.experiment_logger import prepare
 
-from .utility import get_label_as_int, nanoseconds_since_midnight as labtime
 from . import exchange
 from .profit import Price_Log, Price_Node
 from channels import Group as CGroup, Channel
@@ -23,25 +22,25 @@ from otree.models import Session
 from . import client_messages 
 import json
 from django.core.cache import cache
-from .order import OrderStore
+
 import time
-from . import new_translator
+from . import translator
 from .decorators import atomic
 from otree.common_internal import random_chars_8
 from settings import (
     exp_logs_dir, EXCHANGE_HOST_NO, REAL_WORLD_CURRENCY_CODE )
 
-
-from .utility import (scale_configs, from_configs_to_models, exogenous_event_client,
+from .orderstore import OrderStore
+from .utility import (scale_configs, configure_model, exogenous_event_client,
     available_exchange_ports)
 from .trader import CDATraderFactory, FBATraderFactory
+from .trade_session import TradeSessionFactory
 from .market import MarketFactory
 from .subject_state import BCSSubjectState
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
 from .exchange import send_exchange
-from .event_handlers import process_trader_response, receive_trader_message
 from .cache import initialize_market_cache, initialize_player_cache, initialize_session_cache
 
 
@@ -102,7 +101,7 @@ class Constants(BaseConstants):
         }
 
     configs_to_otree_models = {
-        'session': {
+        'subsession': {
             'players_per_group': 'players_per_group',
             'round_length': 'session_length',
             'design': 'design',
@@ -158,8 +157,10 @@ class Constants(BaseConstants):
     max_ask = 2147483647
     min_bid = 0
     
-
-    market_events = ('S')
+    exogenous_events = {
+        'BCS': ['investor_arrivals', 'fundamental_value_jumps']
+    }
+    market_events = ('S', 'player_ready', 'advance_me')
     trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
 
 # subprocesses = {}
@@ -221,11 +222,11 @@ class Subsession(BaseSubsession):
     #     self.lambda_j = round(1 / self.lambda_j, 1)
     #     self.save()
 
-    def set_payoff_round(self):
-        for player in self.get_players():
-            payoff_round = random.randint(self.first_round, self.last_round)
-            player.participant.vars['payoff_round'] = payoff_round
-            player.save()
+    # def set_payoff_round(self):
+    #     for player in self.get_players():
+    #         payoff_round = random.randint(self.first_round, self.last_round)
+    #         player.participant.vars['payoff_round'] = payoff_round
+    #         player.save()
 
     def set_log_file(self):
         now = datetime.now().strftime('%Y-%m-%d_%H-%M')
@@ -233,97 +234,101 @@ class Subsession(BaseSubsession):
         self.log_file = log_file
         self.save()
 
-    def assign_groups(self):
-        try:
-            group_matrix = self.session.config['group_matrix']
-        except KeyError:
-            raise KeyError('Group assignments not found. You must pass in a list of list.')
-        self.set_group_matrix(group_matrix)
-        self.save()
+    # def assign_groups(self):
+    #     try:
+    #         group_matrix = self.session.config['group_matrix']
+    #     except KeyError:
+    #         raise KeyError('Group assignments not found. You must pass in a list of list.')
+    #     self.set_group_matrix(group_matrix)
+    #     self.save()
 
 
     SESSION_FORMAT = None
     EXCHANGES = None
 
     def creating_session(self):
+        global SESSION_FORMAT
         def create_trade_session(self):
-            
+            trade_session_cls = TradeSessionFactory(SESSION_FORMAT)
+            trade_session = trade_session_cls(self)
+            exogenous_events = Constants.exogenous_events[SESSION_FORMAT]
+            for e in exogenous_events:
+                filename  = self.session.configs[e].pop(self.round_number - 1)
+                trade_session.register_exogenous_event(e, filename) 
+            initialize_session_cache(trade_session)
+            return trade_session
         def creating_market(self, exchange_format):
             market_factory = MarketFactory(SESSION_FORMAT)
-            market = market_factory.get_market()
+            market_cls = market_factory.get_market()
             exchange_host = self.session.config['exchange_host']
             exchange_port = EXCHANGES[exchange_format].pop()
+            market()
             market.subscribe_exchange(exchange_host, exchange_port)
             initialize_market_cache(market)
-            return market         
+            return market    
         SESSION_FORMAT = self.session.config['environment']
-  
-
-
-
-    def creating_group(self):
-        # TODO:this is hardcoded temporarily.
-        # self.exch_host =  "127.0.0.1"
-  #      self.set_exchange_host()
-        # self.exch_port = self.subsession.next_available_exchange
-        # self.subsession.next_available_exchange += 1
-            # otree wants to create all objects at session start
-            # so actual round number is different than Constants.num_rounds
-            # default to trial
-        rnd = 1 if self.round_number > self.subsession.total_rounds else self.round_number
-        investors = Constants.investor_label.format(self=self, round_number=rnd)
-        jumps = Constants.jump_label.format(self=self, round_number=rnd)
-        self.investor_file = self.session.config[investors]
-        self.jump_file = self.session.config[jumps]
-        fp = self.session.config['fundamental_price'] * Constants.conversion_factor
-        # self.fp_push(fp)
-        self.init_cache()
-        subprocesses[self.id] = list()
-        self.save()
-        self.subsession.save()
-    def creating_session(self):
-        # set session fields
-        # for k, v in Constants.session_field_map.items():
-        #     setattr(self, k, self.session.config[v])
-        # determine if this is a special round
-        # trial or last round
-        # self.first_round = 1 + self.has_trial
-        # self.last_round = self.total_rounds + self.has_trial
+        exchange_format = self.session.config['auction-format']
+        create_trade_session(self)
+        configure_model(self.session.configs, Constants.configs_to_otree_models,
+            'subsession', self)
         if self.has_trial and self.round_number == 1:
             self.is_trial = True
-            self.round_length = self.trial_length
-        # set default values for cached session states       
-        self.init_cache()
-        # set group matrix
-        self.assign_groups()
-        # set log file
-        self.set_log_file()  
-        if self.round_number == 1:
-            # payoff from a random round will be paid.
-            self.set_payoff_round()
-        # set the exchange port start
-        self.next_available_exchange = Constants.first_exchange_port[self.design]
-        groups = self.get_groups()
-        for group in groups:
-            group.creating_group()
+            self.round_length = self.trial_length    
+        group_models = self.get_groups()
+        for group in group_models:
+            market = creating_market(self, exchange_format)
+            market.register_group(group)
         players = self.get_players()
-        # for player in players:
-        #     for k, v in Constants.player_field_map.items():
-        #         attr = self.session.config[v]
-        #         if k in Constants.player_scaled_fields:
-        #             attr = attr * Constants.conversion_factor
-        #         setattr(player, k, attr)
-            player.initialize_cache()
-        # s=elf.convert_lambdas()
-
-        #TODO: wtf? make this smaller
-        group_players = {g.id: [p.id for p in g.get_players()] for g in groups}
-        # l = prepare(group=0, level='header', typ='header', groups=group_players,
-        #     session=self.code, design=self.design, initial_spread=players[0].spread,
-        #     batch_length=self.batch_length, round_length=self.round_length, round_no=self.round_number)
-        # lablog(self.log_file, l)
+        for player in players:
+            configure_model(self.session.configs, 
+                Constants.configs_to_otree_models, 'player', player)
+            player.save()
         self.save()
-        self.session.save()
+
+
+    # def creating_session(self):
+    #     # set session fields
+    #     # for k, v in Constants.session_field_map.items():
+    #     #     setattr(self, k, self.session.config[v])
+    #     # determine if this is a special round
+    #     # trial or last round
+    #     # self.first_round = 1 + self.has_trial
+    #     # self.last_round = self.total_rounds + self.has_trial
+    #     if self.has_trial and self.round_number == 1:
+    #         self.is_trial = True
+    #         self.round_length = self.trial_length
+    #     # set default values for cached session states       
+    #     self.init_cache()
+    #     # set group matrix
+    #     self.assign_groups()
+    #     # set log file
+    #     self.set_log_file()  
+    #     if self.round_number == 1:
+    #         # payoff from a random round will be paid.
+    #         self.set_payoff_round()
+    #     # set the exchange port start
+    #     self.next_available_exchange = Constants.first_exchange_port[self.design]
+    #     groups = self.get_groups()
+    #     for group in groups:
+    #         group.creating_group()
+    #     players = self.get_players()
+    #     # for player in players:
+    #     #     for k, v in Constants.player_field_map.items():
+    #     #         attr = self.session.config[v]
+    #     #         if k in Constants.player_scaled_fields:
+    #     #             attr = attr * Constants.conversion_factor
+    #     #         setattr(player, k, attr)
+    #         player.initialize_cache()
+    #     # s=elf.convert_lambdas()
+
+    #     #TODO: wtf? make this smaller
+    #     group_players = {g.id: [p.id for p in g.get_players()] for g in groups}
+    #     # l = prepare(group=0, level='header', typ='header', groups=group_players,
+    #     #     session=self.code, design=self.design, initial_spread=players[0].spread,
+    #     #     batch_length=self.batch_length, round_length=self.round_length, round_no=self.round_number)
+    #     # lablog(self.log_file, l)
+    #     self.save()
+    #     self.session.save()
 
     # def start_trade(self):
     #     log.info('session: starting trade, %d.' % self.round_length)
@@ -341,17 +346,17 @@ class Subsession(BaseSubsession):
     #     log_events.dump()
     #     self.session.advance_last_place_participants()
 
-    @atomic
-    def groups_ready(self, group_id, action='start'):
-        k = Constants.groups_ready_key.format(self=self)
-        session_state = cache.get(k)
-        session_state[group_id] = True if action == 'start' else False
-        cache.set(k, session_state, timeout=None)
-        total = sum(session_state.values())
-        if total == self.session.num_participants / self.players_per_group:
-            self.start_trade()
-        if total == 0 and self.trade_ended == False:
-            self.end_trade()
+    # @atomic
+    # def groups_ready(self, group_id, action='start'):
+    #     k = Constants.groups_ready_key.format(self=self)
+    #     session_state = cache.get(k)
+    #     session_state[group_id] = True if action == 'start' else False
+    #     cache.set(k, session_state, timeout=None)
+    #     total = sum(session_state.values())
+    #     if total == self.session.num_participants / self.players_per_group:
+    #         self.start_trade()
+    #     if total == 0 and self.trade_ended == False:
+    #         self.end_trade()
   
     def restore_payoffs(self):
         """
@@ -390,7 +395,6 @@ class Subsession(BaseSubsession):
                     json_fields[field.attname] = getattr(self, field.attname)
             self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
 
-translator = new_translator.LeepsOuchTranslator()
 
 class Group(BaseGroup):
 
@@ -414,26 +418,26 @@ class Group(BaseGroup):
     #     for k, v in pairs.items():
     #         cache.set(k, v, timeout=None)
 
-    def creating_group(self):
-        # TODO:this is hardcoded temporarily.
-        self.exch_host =  "127.0.0.1"
-  #      self.set_exchange_host()
-        self.exch_port = self.subsession.next_available_exchange
-        self.subsession.next_available_exchange += 1
-            # otree wants to create all objects at session start
-            # so actual round number is different than Constants.num_rounds
-            # default to trial
-        rnd = 1 if self.round_number > self.subsession.total_rounds else self.round_number
-        investors = Constants.investor_label.format(self=self, round_number=rnd)
-        jumps = Constants.jump_label.format(self=self, round_number=rnd)
-        self.investor_file = self.session.config[investors]
-        self.jump_file = self.session.config[jumps]
-        fp = self.session.config['fundamental_price'] * Constants.conversion_factor
-        # self.fp_push(fp)
-        self.init_cache()
-        subprocesses[self.id] = list()
-        self.save()
-        self.subsession.save()
+#     def creating_group(self):
+#         # TODO:this is hardcoded temporarily.
+#         self.exch_host =  "127.0.0.1"
+#   #      self.set_exchange_host()
+#         self.exch_port = self.subsession.next_available_exchange
+#         self.subsession.next_available_exchange += 1
+#             # otree wants to create all objects at session start
+#             # so actual round number is different than Constants.num_rounds
+#             # default to trial
+#         rnd = 1 if self.round_number > self.subsession.total_rounds else self.round_number
+#         investors = Constants.investor_label.format(self=self, round_number=rnd)
+#         jumps = Constants.jump_label.format(self=self, round_number=rnd)
+#         self.investor_file = self.session.config[investors]
+#         self.jump_file = self.session.config[jumps]
+#         fp = self.session.config['fundamental_price'] * Constants.conversion_factor
+#         # self.fp_push(fp)
+#         self.init_cache()
+#         subprocesses[self.id] = list()
+#         self.save()
+#         self.subsession.save()
 
     # TODO: we will add some buttons to 
     # session monitor page and trigger 
@@ -658,9 +662,8 @@ class Player(BasePlayer):
     final_payoff = models.IntegerField()
     total_payoff = models.IntegerField()
     inventory = models.IntegerField(initial=0)
+    market = models.StringField()
 
-    def from_subject_state(self, subject_state):
-        raise NotImplementedError()
 
  
 #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #   #
@@ -690,7 +693,7 @@ class Player(BasePlayer):
    
 
     def take_cost(self):
-        now = labtime()
+        now = nanoseconds_since_midnight()
         trader = self.get_trader()
         trader.take_cost(now)
         self.save_trader(trader)

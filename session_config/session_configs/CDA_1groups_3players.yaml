@@ -5,20 +5,20 @@ group:
   number-of-groups: 1
   players-per-group: 3
 
-investors:
+investor_arrivals:
   - Trial1/investors_trial.csv
   - Draw1/investors_period1.csv
   - Draw1/investors_period2.csv
   - Draw1/investors_period3.csv
 
-jumps:
+fundamental_value_jumps:
   - Trial1/jumps_trial.csv
   - Draw1/jumps_period1.csv
   - Draw1/jumps_period2.csv
   - Draw1/jumps_period3.csv
 
 market:
-  design: "CDA"
+  auction-format: 'CDA'
   matching-engine-host: '127.0.0.1'
   number-of-markets: 1
 
