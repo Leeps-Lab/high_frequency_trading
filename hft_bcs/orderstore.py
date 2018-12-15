@@ -15,8 +15,9 @@ class OrderStore:
         'executed': '_confirm_execution'
     }
 
-    def __init__(self, in_group_id):
-        self.subject_code = chr(in_group_id + 64)
+    def __init__(self, pid, in_group_id):
+        self.player_id = pid
+        self.subject_code = chr(int(in_group_id) + 64)
         self.counter = itertools.count(1,1)
         self._orders = {}
         self.inventory = 0
@@ -34,7 +35,7 @@ class OrderStore:
  
     def tokengen(self, **kwargs):
         count = next(self.counter)
-        token = '{self.token_prefix}{self.subject_code}{buy_sell_indicator}{count:09d}'
+        token = '{self.token_prefix}{self.subject_code}{buy_sell_indicator}{self.player_id:04d}{count:05d}'
         return token.format(self=self, count=count, **kwargs)
 
     def __getitem__(self, token):

@@ -21,8 +21,7 @@ log = logging.getLogger(__name__)
 
 class ExogenousEvent(object):
 
-    def __init__(self, group_id, url, filename):
-        self.group_id = group_id
+    def __init__(self, url, filename):
         self.url = url
         self.filename = filename
         self.data = deque()
@@ -69,8 +68,8 @@ class ExogenousEvent(object):
 
 class BCSExogenousEvent(ExogenousEvent):
 
-    def __init__(self, group_id, url, filename):
-        super().__init__(group_id, url, filename)
+    def __init__(self, url, filename):
+        super().__init__(url, filename)
         self.read()
 
     def run(self):
@@ -96,7 +95,7 @@ class BCSExogenousEvent(ExogenousEvent):
 
 
 def main():
-    investor = BCSExogenousEvent(sys.argv[1], sys.argv[2], sys.argv[3])
+    investor = BCSExogenousEvent(sys.argv[1], sys.argv[2])
     investor.read()
     investor.add_ws()
     investor.ws.run_forever()

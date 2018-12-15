@@ -7,7 +7,6 @@ import numpy as np
 from twisted.internet import reactor
 from .hft_logging import session_events as hfl
 from collections import deque
-from event_handlers import receive_exchange_message
 
 log = logging.getLogger(__name__)
 
@@ -41,9 +40,10 @@ class OUCH(Protocol):
             try:
                 market_id = self.factory.market
                 try:
-                    receive_exchange_message(market_id, bytes(self.buffer))
+                    self.factory.message_handler(market_id, bytes(self.buffer))
                 except Exception as e:
-                    log.exception(e)
+                    log.exception('error processing exchange message (type:%s, market:%s), ignoring..: %s', 
+                        header, market_id, e)
             except AttributeError as e:
                 log.exception(e)
             finally:
@@ -64,11 +64,12 @@ class OUCH(Protocol):
 class OUCHConnectionFactory(ClientFactory):
     protocol = OUCH
 
-    def __init__(self, market_id, addr):
+    def __init__(self, market_id, addr, message_handler):
         super()
         self.market = market_id
         self.addr = addr
         self.connection = None
+        self.message_handler = message_handler
 
     def buildProtocol(self, addr):
         l = 'connecting to exchange server at %s' % addr
@@ -84,13 +85,12 @@ class OUCHConnectionFactory(ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         log.debug('failed to connect to exchange at %s: %s' % (self.addr, reason))
 
-
 exchanges = {}
 
-def connect(market_id, host, port, wait_for_connection=False):
+def connect(market_id, host, port, message_handler, wait_for_connection=False):
     addr = '{}:{}'.format(host, port)
     if addr not in exchanges:
-        factory = OUCHConnectionFactory(market_id, addr)
+        factory = OUCHConnectionFactory(market_id, addr, message_handler)
         exchanges[addr] = factory
         reactor.connectTCP(host, port, factory)
     else:

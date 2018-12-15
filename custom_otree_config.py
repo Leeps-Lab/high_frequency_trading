@@ -14,7 +14,7 @@ class CustomOtreeConfig:
     def __init__(self, configs:dict, filename:str):
         self.base_configs = configs
         self.filename = filename
-        self.environment = configs['environment']
+        self.environment = configs['session']['environment']
 
     @classmethod
     def from_yaml(cls, path_to_file) -> dict:
@@ -32,13 +32,13 @@ class CustomOtreeConfig:
         yaml_to_otree_map = config_maps[self.environment]
         for otree_config_key, yaml_key in yaml_to_otree_map.items():
             parent_key, child_key = yaml_key
-            otree_config_key = None
             try:
                 otree_configs[otree_config_key] = self.base_configs[parent_key][child_key]
             except KeyError:
-                raise KeyError('%s:%s is missing in %s, set to none.' % (
+                log.info('%s:%s is missing in %s, set to none.' % (
                     parent_key, child_key, self.filename))
         otree_configs.update(self.otree_default_required)
+        print(otree_configs)
         return otree_configs
 
     @classmethod
@@ -47,7 +47,8 @@ class CustomOtreeConfig:
         reads all files in config folder
         """
         all_yaml_filenames = os.listdir(directory)
-        yaml_config_filenames = [f for f in all_yaml_filenames if f.endswith('.yaml')]
+        yaml_config_filenames = [os.path.join(directory, f) for f in all_yaml_filenames 
+            if f.endswith('.yaml')]
         custom_configs = [cls.from_yaml(f) for f in yaml_config_filenames]
         return custom_configs
 
@@ -59,9 +60,6 @@ config_maps = {
         'trial': ('session', 'trial'),
         'trial_length': ('session', 'trial-length'),
         'num_rounds': ('session', 'num-rounds'),
-        'restore': ('session', 'restore'),
-        'restore_from': ('session', 'restore-from'),
-        'design': ('market', 'design'),
         'exchange_host': ('market', 'matching-engine-host'),
         'num_markets': ('market', 'number-of-markets'),
         'number_of_groups': ('group', 'number-of-groups'),
@@ -71,13 +69,15 @@ config_maps = {
         'initial_spread': ('parameters', 'initial-spread'),
         'max_spread': ('parameters', 'max-spread'),
         'initial_endowment': ('parameters', 'initial-endowment'),
-        'session_length': ('parameters', 'session-length'),
+        'period_length': ('parameters', 'period-length'),
         'group_matrix': ('group', 'group-assignments'),
         'batch_length': ('parameters', 'batch-length'),
         'random_round_payment': ('session', 'random-round-payment'),
         'participation_fee': ('session', 'participation-fee'),
         'real_world_currency_per_point': ('session', 'exchange-rate'),
-        'exogenous_event_directory': ('session', 'exogenous_event_directory')
+        'exogenous_event_directory': ('session', 'exogenous-event-directory'),
+        'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
+        'fundamental_value_jumps': ('exogenous-events', 'fundamental-value-jumps'),
         }
 }
 

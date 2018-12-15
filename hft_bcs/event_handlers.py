@@ -1,12 +1,11 @@
 from .cache import get_cache_key, write_to_cache_with_version
-from .utility import pretranslate_hacks
+from . import utility
 from .translator import LeepsOuchTranslator
 from .subject_state import BCSSubjectState
 from .trader import CDATraderFactory, FBATraderFactory
 from .exchange import send_exchange
 from . import client_messages 
 from django.core.cache import cache
-from .models import Constants
 from .decorators import atomic
 #TODO: this is temporarily here. there are 
 # better places to keep this.
@@ -15,28 +14,30 @@ trader_factory_map = {
         'CDA': CDATraderFactory, 'FBA': FBATraderFactory
     }
 
-def process_response(data_model):
-    def outgoing_exchange_messages(exchange_messages):
-        while exchange_messages:
-            host, port, message_type, delay, order_data = exchange_messages.popleft()
-            order_data = pretranslate_hacks(message_type, order_data)
-            bytes_message = LeepsOuchTranslator.encode(message_type, **order_data)
-            send_exchange(host, port, bytes_message, delay)
-    def outgoing_broadcast_messages(broadcast_messages):
-        while broadcast_messages:
-            message_type, message_group_id, broadcast_data = broadcast_messages.popleft()
-            client_messages.broadcast(message_type, message_group_id, **broadcast_data)
+def process_response(message_queue):
+    def exchange(message):
+        exchange_message_type = message['type']     
+        order_data = utility.pretranslate_hacks(exchange_message_type, message['order_info'])
+        host, port, delay = message['host'], message['port'], message['delay']
+        bytes_message = LeepsOuchTranslator.encode(exchange_message_type, **order_data)
+        send_exchange(host, port, bytes_message, delay)
+    def broadcast(message):
+        message_type, channels_group_id = message['type'], message['group_id']
+        broadcast_data = message['message']
+        client_messages.broadcast(message_type, channels_group_id, **broadcast_data)
     @atomic
-    def registered_session_events(session_events):
-        while session_events:
-            session_key = get_cache_key('active_session', 'trade_session')
-            trade_session = cache.get(session_key)
-            trade_session.receive()
-    for message_bus_name in ('outgoing_exchange_messages', 'outgoing_broadcast_messages', 
-        'registered_session_events'):
-        messages = getattr(data_model, message_bus_name)
-        handler = locals()[message_bus_name]
-        handler(messages)
+    def trade_session(message):
+            message_type, market_id = message['type'], message['market_id']
+            session_id = message['session_id']
+            session_key = get_cache_key(session_id, 'trade_session')
+            trade_session = cache.get(session_key)          
+            trade_session.receive(message_type, market_id)
+    while message_queue:
+        message = message_queue.popleft()
+        message_type, message_payload = message['message_type'], message['payload']
+        handler = locals()[message_type]
+        print(message)
+        handler(message_payload)
 
 def receive_trader_message(player_id: str, event_type: str, session_format='CDA', **kwargs):
     key = get_cache_key(player_id ,'trader')
@@ -48,6 +49,8 @@ def receive_trader_message(player_id: str, event_type: str, session_format='CDA'
     TraderFactory = trader_factory_map[session_format]
     trader = TraderFactory.get_trader(role_name, subject_state)
     trader.receive(**kwargs)
+    message_queue = trader.outgoing_messages.copy()
+    trader.outgoing_messages.clear()
     trader_data['subject_state'] = BCSSubjectState.from_trader(trader)
     version = trader_data['version'] + 1
     try:
@@ -55,13 +58,15 @@ def receive_trader_message(player_id: str, event_type: str, session_format='CDA'
     except ValueError:
         receive_trader_message(player_id, event_type, **kwargs)
     else:
-        return trader
+        return message_queue
 
 def receive_market_message(market_id:str, event_type:str, **kwargs):
     market_key = get_cache_key(market_id, 'market')
     market_data = cache.get(market_key)
     market, version = market_data['market'], market_data['version']
     market.receive(event_type, **kwargs)
+    message_queue = market.outgoing_messages.copy()
+    market.outgoing_messages.clear()
     market_data['market'] = market
     version = market_data['version'] + 1
     try:
@@ -69,20 +74,24 @@ def receive_market_message(market_id:str, event_type:str, **kwargs):
     except ValueError:
         receive_market_message(market_id, event_type, **kwargs)
     else:
-        return market
+        return message_queue
 
 def receive_exchange_message(market_id, message):
     def extract_player_id(**kwargs):
-        token = fields.get('order_token')
+        token = kwargs.get('order_token')
         if token is None:
-            token = fields.get('replacement_order_token')
+            token = kwargs.get('replacement_order_token')
         # index 3 is subject ID      
-        player_id = ord(token[3]) - 64
+        player_id = token[5:9]
         return player_id
     message_type, fields = LeepsOuchTranslator.decode(message)
-    if message_type in Constants.market_events:
-        receive_market_message(market_id, message_type, **fields)
+    fields['type'] = message_type
+    print(fields)
+    if message_type in utility.market_events:
+        market_message_queue = receive_market_message(market_id, message_type, **fields)
+        process_response(market_message_queue)
+    if message_type in utility.trader_events:
+        player_id = extract_player_id(**fields)
+        message_queue = receive_trader_message(player_id, message_type, **fields)
+        process_response(message_queue)
     
-
-
-

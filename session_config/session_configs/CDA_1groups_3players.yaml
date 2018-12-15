@@ -5,17 +5,17 @@ group:
   number-of-groups: 1
   players-per-group: 3
 
-investor_arrivals:
-  - Trial1/investors_trial.csv
-  - Draw1/investors_period1.csv
-  - Draw1/investors_period2.csv
-  - Draw1/investors_period3.csv
-
-fundamental_value_jumps:
-  - Trial1/jumps_trial.csv
-  - Draw1/jumps_period1.csv
-  - Draw1/jumps_period2.csv
-  - Draw1/jumps_period3.csv
+exogenous-events:
+  investor-arrivals:
+    - session_config/Pilot/Trial1/investors_trial.csv
+    - session_config/Pilot/Draw1/investors_period1.csv
+    - session_config/Pilot/Draw1/investors_period2.csv
+    - session_config/Pilot/Draw1/investors_period3.csv
+  fundamental-value-jumps:
+    - session_config/Pilot/Trial1/jumps_trial.csv
+    - session_config/Pilot/Draw1/jumps_period1.csv
+    - session_config/Pilot/Draw1/jumps_period2.csv
+    - session_config/Pilot/Draw1/jumps_period3.csv
 
 market:
   auction-format: 'CDA'
@@ -30,15 +30,13 @@ parameters:
   lambda-i: 0.25
   lambda-j: 0.33
   max-spread: 2
-  session-length: 60
+  period-length: 60
   speed-cost: 0.022
 
 session:
   environment: 'BCS'
   currency: EUR
   display-name: CDA Production
-  restore: off
-  restore-from: none
   exchange-rate: 1.5
   num-rounds: 3
   participation-fee: 4

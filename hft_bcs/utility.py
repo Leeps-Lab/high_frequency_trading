@@ -9,12 +9,18 @@ log = logging.getLogger(__name__)
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
+exogenous_events = {
+    'BCS': ['investor_arrivals', 'fundamental_value_jumps']
+}  
+market_events = ('S', 'player_ready', 'advance_me')
+trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
+
 exogenous_event_endpoints = {
     'investor_arrivals': 'ws://127.0.0.1:8000/hft_investor/',
     'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/'
 }
 
-exogenous_event_client = 'hft_bcs/exogenous_event.py'
+exogenous_event_client = 'hft_bcs/exogenous_event_client.py'
 
 available_exchange_ports = {
     'CDA': list(range(9010, 9000, -1)),
@@ -25,13 +31,20 @@ available_exchange_ports = {
 ouch_fields = ('price', 'time_in_force', 'display', 'buy_sell_indicator')
 
 
-def scale_configs(scaling_map, session_configs):
+def format_message(message_type, **kwargs):
+    message = {'message_type': message_type, 'payload': {} }
+    for k, v in kwargs.items():
+        message['payload'][k] = v
+    return message
+
+def process_configs(scaling_map, session_configs):
     adjusted_configs = dict(session_configs)
     for k, v in session_configs.items():
         try:
             adjusted_configs[k] = v * scaling_map[k]
         except KeyError:
             log.info('missing key %s:%s, skip..', k, v)
+    return adjusted_configs
         
 def configure_model(configs:dict, mapping:dict, model_type, model):
     """

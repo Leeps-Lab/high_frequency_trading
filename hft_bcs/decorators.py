@@ -17,7 +17,7 @@ def timer(func):
         t = time.time()
         res = func(self, *args, **kwargs)
         diff = (time.time() - t) * 1e3
-        print(diff)
+        print('receive:%f' % diff)
         return res
     return timed
 
@@ -36,6 +36,7 @@ def atomic(func):
             continue
         out = func(*args, **kwargs)
         cache.set(lock_name, 'unlocked', timeout=None)
+        print('trade session lock released.')
         return out
     return atomize
 

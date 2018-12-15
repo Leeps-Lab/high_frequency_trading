@@ -1,15 +1,19 @@
 
 import logging
 from collections import deque
-from .models import Player
 import itertools
 from . import exchange
+from .event_handlers import receive_exchange_message
+from .trader import LEEPSInvestor
+from .subject_state import LEEPSInvestorState
+from .orderstore import OrderStore
+from .utility import format_message
 
 log = logging.getLogger(__name__)
 
 class MarketFactory:
     @staticmethod
-    def get_market():
+    def get_market(session_format):
         return BCSMarket
 
 class BaseMarket:
@@ -23,20 +27,26 @@ class BaseMarket:
         self.exchange_address = None
         self.subscriber_groups = {}
         self.players_in_market = {}
-        self.outgoing_exchange_messages = deque()
-        self.outgoing_broadcast_messages = deque()
-        self.registered_session_events = []
+        self.outgoing_messages = deque()
     
-    def subscribe_exchange(self, host, port):
-        exchange.connect(self.id, host, port)
+    def create_exchange_connection(self):
+        host, port = self.exchange_address
+        exchange.connect(self.id, host, port, receive_exchange_message, wait_for_connection=True)
+
+    def add_exchange(self, host, port):
         self.exchange_address = (host, port)
+    
+    def register_session(self, trade_session_id):
+        self.session_id = trade_session_id
     
     def reset_exchange(self):
         if self.exchange_address is None:
             raise ValueError('exchange address is not set in market %s.' % self.id)
-        host , port = self.exchange_address
-        exchange_message = (host, port, 'reset_exchange', 0., {'event_code': 'S'})
-        self.outgoing_exchange_messages.append(exchange_message)
+        host, port = self.exchange_address
+        message_content = {'host': host, 'port': port, 'type': 'reset_exchange', 'delay':
+                0., 'order_info': {'event_code': 'S', 'timestamp': 0}}
+        internal_message = format_message('exchange', **message_content)
+        self.outgoing_messages.append(internal_message)
 
     def register_group(self, group):
         self.subscriber_groups[group.id] = []
@@ -54,8 +64,10 @@ class BaseMarket:
     def broadcast_to_subscribers(self, broadcast_info):
         topic, data = broadcast_info
         for group_id in self.subscriber_groups.keys():
-            broadcast_message = (topic, group_id, data)
-            self.outgoing_broadcast_messages.append(broadcast_message)
+            message_content = { 'group_id': group_id, 'type': topic, 
+            'message': data}
+            internal_message = format_message('broadcast', **message_content)            
+            self.outgoing_messages.append(internal_message)
      
     def start_trade(self):
         if not self.ready_to_trade:
@@ -65,6 +77,8 @@ class BaseMarket:
                 raise ValueError('market %s already trading.' % self.id)
             else:
                 self.is_trading = True
+                self.create_exchange_connection()
+                self.reset_exchange()
                 broadcast_info = ('session_start', {})
                 self.broadcast_to_subscribers(broadcast_info)
     
@@ -80,6 +94,7 @@ class BaseMarket:
 class BCSMarket(BaseMarket):
     market_events_dispatch = {
         'jump': 'fundamental_price_change',
+        'noise_trader_arrival': 'noise_trader_arrival',
         'player_ready': 'player_ready',
         'advance_me': 'player_reached_session_end',
         'S': 'system_event',
@@ -93,6 +108,7 @@ class BCSMarket(BaseMarket):
             setattr(self, key, kwargs.get(key))
         self.roles = ('maker', 'sniper', 'out')
         self.role_counts = {role: 0 for role in self.roles}
+        self.investor = None
 
     def register_group(self, group):
         super().register_group(group)
@@ -107,14 +123,19 @@ class BCSMarket(BaseMarket):
         market_ready_condition = (True if False not in self.players_in_market.values() 
             else False)
         if market_ready_condition is True:
-            session_event = ('market_ready_to_start', self.id)
-            self.registered_session_events.append(session_event)
+            self.ready_to_trade = True
+            message_content = {'type': 'market_ready_to_start', 'market_id': self.id,
+                'session_id': self.session_id}
+            internal_message = format_message('trade_session', **message_content)
+            self.outgoing_messages.append(internal_message)
     
     def player_reached_session_end(self, **kwargs):
         player_id = kwargs.get('player_id')
         self.players_in_market[player_id] = False
-        session_event = ('market_ready_to_end', self.id)
-        self.registered_session_events.append(session_event)
+        message_content = {'type': 'market_ready_to_end', 'market_id': self.id,
+                'session_id': self.session_id}
+        internal_message = format_message('trade_session', **message_content)
+        self.outgoing_messages.append(internal_message)
 
     def role_change(self, new_role:str, old_role:str, **kwargs):
         if new_role not in self.roles:
@@ -127,7 +148,18 @@ class BCSMarket(BaseMarket):
         self.fp = new_fp
         broadcast_info = ('fundamental_price_change', {'new_price': new_fp})
         self.broadcast_to_subscribers(broadcast_info)   
-
+    
+    def noise_trader_arrival(self, **kwargs):
+        host, port = self.exchange_address
+        if self.investor is None:
+            fields = {'exchange_host': host, 'exchange_port': port, 'market_id':
+                self.id, 'orderstore': OrderStore(self.id, 0)}
+            investor_state = LEEPSInvestorState(**fields)
+            self.investor = LEEPSInvestor(investor_state)
+        self.investor.invest(**kwargs)
+        while self.investor.outgoing_messages:
+            message = self.investor.outgoing_messages.popleft()
+            self.outgoing_messages.append(message)
            
     def system_event(self, **kwargs):
         event_code = kwargs.get('event_code')

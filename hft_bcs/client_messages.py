@@ -6,15 +6,15 @@ messages to communicate with
 client browsers
 """
 
-def spread_change(id=None, leg_up=None, leg_low=None, order_token=None, **kwargs):
+def spread_change(id=None, leg_up=None, leg_down=None, order_token=None, **kwargs):
     """
     default will 0 the spread
     """
     key = "SPRCHG"
-    if not leg_up and not leg_low:
+    if not leg_up and not leg_down:
         value = {str(id): 0}
     else:
-        value = {str(id): {"A": leg_up, "B": leg_low, "TOK":order_token}}       
+        value = {str(id): {"A": leg_up, "B": leg_down, "TOK":order_token}}       
     msg = {key: value}
     return msg 
     
@@ -24,9 +24,9 @@ def fp_change(new_price=None):
     msg = {key: value}
     return msg
 
-def execution(id=None, token=None, profit=None, **kwargs):
+def execution(id=None, order_token=None, profit=None, **kwargs):
     key = "EXEC"
-    value = {"id": str(id), "token": token, "profit": profit}
+    value = {"id": str(id), "token": order_token, "profit": profit}
     msg = {key: value}
     return msg
 
@@ -64,4 +64,5 @@ def broadcast(message_type, group_id, **kwargs):
     f = dispatch[message_type]
     msg = f(**kwargs)
     message = json.dumps(msg)
+    print(message)
     CGroup(str(group_id)).send({"text": message}) 

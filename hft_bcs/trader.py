@@ -2,7 +2,7 @@
 import math
 import logging
 from . import client_messages
-from .utility import nanoseconds_since_midnight, ouch_fields
+from .utility import nanoseconds_since_midnight, ouch_fields, format_message
 
 
 from collections import deque
@@ -54,13 +54,9 @@ class BaseTrader:
     message_dispatch = {}
 
     def __init__(self, subject_state):
-        if not isinstance(subject_state, self.state_spec):
-            raise TypeError('state x trader mismatch.')
         for slot in subject_state.__slots__:
             setattr(self, slot, getattr(subject_state, slot))
-        self.outgoing_exchange_messages = deque()
-        self.outgoing_broadcast_messages = deque()
-        self.session_data = None
+        self.outgoing_messages = deque()
 
     def receive(self, **kwargs) -> dict:
         """
@@ -150,22 +146,25 @@ class BCSTrader(BaseTrader):
             delay = self.calc_delay()
             host, port = self.exchange_host, self.exchange_port
             for order_info in orders:
-                exchange_message = (host, port, 'cancel', delay, order_info)
-                self.outgoing_exchange_messages.append(exchange_message)
+                message_content = {'host': host, 'port': port, 
+                    'type': 'cancel', 'delay': delay, 'order_info': order_info}
+                internal_message = format_message('exchange', **message_content)
+                self.outgoing_messages.append(internal_message)
 
     def accepted(self, **kwargs):
         self.orderstore.confirm('enter', **kwargs)
 
-
     def replaced(self, **kwargs):
         self.orderstore.confirm('replaced', **kwargs)  
      
-
     def canceled(self, **kwargs):
         self.orderstore.confirm('canceled', **kwargs)
         order_token = kwargs['order_token']
-        broadcast_info = ('canceled', self.group_id, {'id': self.id_in_group, 'order_token': order_token})
-        self.outgoing_broadcast_messages.append(broadcast_info)
+        message_content = {'group_id': self.group_id, 'type': 'canceled', 'message': {
+            'id': self.id_in_group, 'order_token': order_token }
+            }
+        internal_message = format_message('broadcast', **message_content)
+        self.outgoing_messages.append(internal_message)
     
     def executed(self, **kwargs):
         order_info =  self.orderstore.confirm('executed', **kwargs)
@@ -173,9 +172,12 @@ class BCSTrader(BaseTrader):
         order_token = kwargs['order_token']
         profit = self.profit(exec_price, side)
         self.endowment += profit
-        broadcast_info = ('executed', self.group_id, {'profit': profit, 'execution_price': exec_price,
-            'order_token': order_token})
-        self.outgoing_broadcast_messages.append(broadcast_info)
+        message_content = { 'group_id': self.group_id, 'type': 'executed', 'message': {
+            'profit': profit, 'execution_price': exec_price, 'order_token': order_token,
+            'id': self.id_in_group }
+            }
+        internal_message = format_message('broadcast', **message_content)
+        self.outgoing_messages.append(internal_message)
         return order_info
             
             
@@ -197,7 +199,10 @@ class BCSMaker(BCSTrader):
             order_info = self.orderstore.enter(price=price, buy_sell_indicator=side, 
                             time_in_force=99999)
             host, port = self.exchange_host, self.exchange_port
-            self.outgoing_exchange_messages.append((host, port, 'enter', delay, order_info))
+            message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
+                delay, 'order_info': order_info}
+            internal_message = format_message('exchange', **message_content)
+            self.outgoing_messages.append(internal_message)
 
     def jump(self, **kwargs):
         """
@@ -220,7 +225,10 @@ class BCSMaker(BCSTrader):
             new_price = self.calc_price(buy_sell_indicator)
             order_info = self.orderstore.register_replace(token, new_price)
             host, port = self.exchange_host, self.exchange_port
-            self.outgoing_exchange_messages.append((host, port, 'replace', delay, order_info))
+            message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
+                delay, 'order_info': order_info}
+            internal_message = format_message('exchange', **message_content)
+            self.outgoing_messages.append(internal_message)
 
     def spread_change(self, **kwargs):
         new_spread = int(kwargs['spread'])
@@ -230,21 +238,23 @@ class BCSMaker(BCSTrader):
         
     def maker_broadcast_info(self, order_token):
         low_leg, high_leg = int(self.fp - self.spread / 2), int(self.fp + self.spread / 2)
-        broadcast_info = ('maker_confirm', self.group_id, {'leg_up': high_leg, 'leg_low': low_leg, 
-            'order_token': order_token, 'id': self.id_in_group})        
-        self.outgoing_broadcast_messages.append(broadcast_info)
+        message_content = { 'group_id': self.group_id, 'type': 'maker_confirm', 
+            'message': { 'leg_up': high_leg, 'leg_down': low_leg, 'order_token': order_token, 
+                'id': self.id_in_group }}
+        internal_message = format_message('broadcast', **message_content)     
+        return internal_message
 
     def accepted(self, **kwargs):
         super().accepted(**kwargs)
         order_token = kwargs['order_token']
         broadcast_info = self.maker_broadcast_info(order_token)
-        self.outgoing_broadcast_messages.append(broadcast_info)
+        self.outgoing_messages.append(broadcast_info)
 
     def replaced(self, **kwargs):
         super().replaced(**kwargs)  
         order_token = kwargs['replacement_order_token']
         broadcast_info = self.maker_broadcast_info(order_token)
-        self.outgoing_broadcast_messages.append(broadcast_info)
+        self.outgoing_messages.append(broadcast_info)
 
     def executed(self, **kwargs):
         order_info = super().executed(**kwargs)
@@ -257,15 +267,20 @@ class BCSMaker(BCSTrader):
             delay = self.calc_delay()
             order_info = self.orderstore.enter(price=price, buy_sell_indicator=side, 
                             time_in_force=99999)
-            self.outgoing_exchange_messages.append((host, port, 'enter', delay, order_info))
+            message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
+                delay, 'order_info': order_info}
+            internal_message = format_message('exchange', **message_content)
+            self.outgoing_messages.append(internal_message)
     
 
 class BCSOut(BCSTrader):
 
     def first_move(self, **kwargs):
         self.leave_market()
-        broadcast_info = ('leave_market', self.group_id, {'id': self.id_in_group})
-        self.outgoing_broadcast_messages.append(broadcast_info)
+        message_content = { 'group_id': self.group_id, 'type': 'leave_market', 
+            'message': {'id': self.id_in_group }}
+        internal_message = format_message('broadcast', **message_content)    
+        self.outgoing_messages.append(internal_message)
 
 class BCSSniper(BCSOut):
 
@@ -277,7 +292,10 @@ class BCSSniper(BCSOut):
         order_info = self.orderstore.enter(price=self.fp, buy_sell_indicator=side, 
                             time_in_force=0)
         delay = self.calc_delay()
-        self.outgoing_exchange_messages.append((host, port, 'enter', delay, order_info))
+        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
+                delay, 'order_info': order_info}
+        internal_message = format_message('exchange', **message_content)
+        self.outgoing_messages.append(internal_message)
 
 class BCSInvestor(BCSOut):
 
@@ -287,7 +305,10 @@ class BCSInvestor(BCSOut):
         price = 2147483647  if order_side == 'B' else 0
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=order_side, 
                                     time_in_force=0)
-        self.outgoing_exchange_messages.append((host, port, 'enter', 0., order_info))
+        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
+                0., 'order_info': order_info}
+        internal_message = format_message('exchange', **message_content)
+        self.outgoing_messages.append(internal_message)
 
 
 class LEEPSInvestor(BCSOut):
@@ -296,7 +317,10 @@ class LEEPSInvestor(BCSOut):
         host, port = self.exchange_host, self.exchange_port
         #TODO: add logic to do some field checks asap.
         order_info = self.orderstore.enter(**kwargs)
-        self.outgoing_exchange_messages.append((host, port, 'enter', 0., order_info))
+        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
+                0., 'order_info': order_info}
+        internal_message = format_message('exchange', **message_content)
+        self.outgoing_messages.append(internal_message)
        
     
 

@@ -236,8 +236,15 @@ SESSION_CONFIGS = []
 
 custom_configs_directory = os.path.join(os.getcwd(), 'session_config/session_configs')
 
-custom_configs = CustomOtreeConfig.initialize_many_from_folder(custom_configs_directory)
-configs = [config.get_otree_config(config) for config in custom_configs]
+try:
+    custom_configs = CustomOtreeConfig.initialize_many_from_folder(custom_configs_directory)
+except Exception as e:
+    print('failed to read .yaml files %s' % e)
+try:
+    configs = [config.get_otree_config() for config in custom_configs]
+except Exception as e:
+    print('failed to create otree configs %s' %s)
+    
 SESSION_CONFIGS.extend(configs)
 
 otree.settings.augment_settings(globals())

@@ -1,8 +1,6 @@
 from ._builtin import Page, WaitPage
-from .translator import system_start
 from otree.api import Currency as c
 from .models import Constants
-from .payoffs import SessionPayoff
 from . import results
 import logging
 from django.core.cache import cache
@@ -86,16 +84,17 @@ class SessionEnd(WaitPage):
         return round_is_final
 
     def after_all_players_arrive(self):
-        for player in self.group.get_players():
-            session_payoff = SessionPayoff(player)
-            random_round_pay = self.session.config['random_round_payment']
-            if random_round_pay:
-                    _, payoff = session_payoff.random_round_payoff()  
-            else:
-                payoff = session_payoff.average_payoff()
-            player.total_payoff = float(player.participant.payoff)
-            fx = 1 / self.session.config['real_world_currency_per_point']
-            player.participant.payoff = fx * payoff * 1 / Constants.conversion_factor
+        pass
+        # for player in self.group.get_players():
+        #     session_payoff = SessionPayoff(player)
+        #     random_round_pay = self.session.config['random_round_payment']
+        #     if random_round_pay:
+        #             _, payoff = session_payoff.random_round_payoff()  
+        #     else:
+        #         payoff = session_payoff.average_payoff()
+        #     player.total_payoff = float(player.participant.payoff)
+        #     fx = 1 / self.session.config['real_world_currency_per_point']
+        #     player.participant.payoff = fx * payoff * 1 / Constants.conversion_factor
 
 class SessionResults(Page):
     def is_displayed(self):
@@ -123,7 +122,7 @@ page_sequence = [
     PreWaitPage,
     index,
     ResultsWaitPage,
-    Results,
-    SessionEnd,
-    SessionResults
+    # Results,
+    # SessionEnd,
+    # SessionResults
 ]
