@@ -43,7 +43,16 @@ class OrderStore:
         return order_info
 
     def __str__(self):
-        out = '\n'.join(self.order_format.format(**v) for v in self._orders.values())
+        active_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
+        pending_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')      
+        out = """
+        ========================================================================
+            Player {player_id} Orders:
+                Active:{active_orders}
+                Pending:{pending_orders}
+        ========================================================================
+        """.format(player_id=self.player_id, active_orders=active_orders, pending_orders=
+            pending_orders)
         return out
 
     def all_orders(self):
@@ -55,9 +64,9 @@ class OrderStore:
         if existing_token is None:
             existing_token = order_info['order_token']
         replacement_token = self.tokengen(**order_info)
-        order_info['replacement_order_token'] = replacement_token
         # this field is added to comply with OUCH spec
         order_info['existing_order_token'] = existing_token
+        order_info['replacement_order_token'] = replacement_token
         order_info['replace_price'] = new_price
         self._orders[existing_token] = order_info
         return order_info

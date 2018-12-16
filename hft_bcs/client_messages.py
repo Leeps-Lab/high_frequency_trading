@@ -64,5 +64,4 @@ def broadcast(message_type, group_id, **kwargs):
     f = dispatch[message_type]
     msg = f(**kwargs)
     message = json.dumps(msg)
-    print(message)
     CGroup(str(group_id)).send({"text": message}) 

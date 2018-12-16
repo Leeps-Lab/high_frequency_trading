@@ -1,4 +1,4 @@
-from .cache import get_cache_key, write_to_cache_with_version
+from .cache import get_cache_key, write_to_cache_with_version, cache_timeout
 from . import utility
 from .translator import LeepsOuchTranslator
 from .subject_state import BCSSubjectState
@@ -32,11 +32,12 @@ def process_response(message_queue):
             session_key = get_cache_key(session_id, 'trade_session')
             trade_session = cache.get(session_key)          
             trade_session.receive(message_type, market_id)
+            cache.set(session_key, trade_session, timeout=cache_timeout)
     while message_queue:
         message = message_queue.popleft()
         message_type, message_payload = message['message_type'], message['payload']
         handler = locals()[message_type]
-        print(message)
+        print('\nOUTGOING:%s\n' % message)
         handler(message_payload)
 
 def receive_trader_message(player_id: str, event_type: str, session_format='CDA', **kwargs):
@@ -83,15 +84,20 @@ def receive_exchange_message(market_id, message):
             token = kwargs.get('replacement_order_token')
         # index 3 is subject ID      
         player_id = token[5:9]
+        if token[3] == '@':
+            #   way out for investor orders
+            return False
         return player_id
     message_type, fields = LeepsOuchTranslator.decode(message)
     fields['type'] = message_type
-    print(fields)
+    print('\nINCOMING: %s\n' % fields)
     if message_type in utility.market_events:
         market_message_queue = receive_market_message(market_id, message_type, **fields)
         process_response(market_message_queue)
     if message_type in utility.trader_events:
         player_id = extract_player_id(**fields)
+        if player_id is False:
+            return
         message_queue = receive_trader_message(player_id, message_type, **fields)
         process_response(message_queue)
     

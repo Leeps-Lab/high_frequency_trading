@@ -39,7 +39,6 @@ class TradeSession:
 
     def register_exogenous_event(self, client_type, filename):
         path = os.path.join(os.getcwd(), filename)
-        print(path)
         self.exogenous_events[client_type] = path
     
     def receive(self, event_type, market_id):
@@ -75,9 +74,13 @@ class LEEPSTradeSession(TradeSession):
             self.is_trading = True
             
     def stop_trade_session(self, *args):
+        print('reached ss end')
         if self.is_trading:
+            print('is trading')
             for market_id, _ in self.markets:
+                print('market_id', market_id)
                 message_queue = receive_market_message(market_id, 'market_end')
+                print(message_queue)
                 process_response(message_queue)
                 self.trading_markets.pop(market_id)
             self.stop_exogenous_events()

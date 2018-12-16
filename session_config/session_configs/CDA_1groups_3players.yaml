@@ -30,7 +30,7 @@ parameters:
   lambda-i: 0.25
   lambda-j: 0.33
   max-spread: 2
-  period-length: 60
+  period-length: 30
   speed-cost: 0.022
 
 session:

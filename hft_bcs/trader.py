@@ -285,7 +285,6 @@ class BCSOut(BCSTrader):
 class BCSSniper(BCSOut):
 
     def jump(self, **kwargs):
-        #TODO: keep fundamaental in environmental var
         is_positive_jump = super().jump(**kwargs)
         side = 'B' if is_positive_jump else 'S'
         host, port = self.exchange_host, self.exchange_port

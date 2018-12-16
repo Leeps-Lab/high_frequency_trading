@@ -18,7 +18,6 @@ def fundamental_price_change(**kwargs):
         responding_traders.append(trader_message_queue)
     shuffle(responding_traders)
     for message_queue in responding_traders:
-        print('fpc respinse', message_queue)
         process_response(message_queue)
     market_message_queue = receive_market_message(market_id, 'jump', **kwargs)
     process_response(market_message_queue)
@@ -26,10 +25,9 @@ def fundamental_price_change(**kwargs):
 integer_fields = ('price', 'time_in_force')
 def noise_trader_arrival(**kwargs):
     market_id = str(kwargs.pop('market_id'))
-    fields= kwargs
-    fields['price'] = int(fields['price'] )
-    fields['time_in_force'] = int(fields['time_in_force'])
-    message_queue = receive_market_message(market_id, 'noise_trader_arrival', **fields)
+    kwargs['price'] = int(kwargs['price'] )
+    kwargs['time_in_force'] = int(kwargs['time_in_force'])
+    message_queue = receive_market_message(market_id, 'noise_trader_arrival', **kwargs)
     process_response(message_queue)
 
 
