@@ -14,6 +14,8 @@ trader_factory_map = {
         'CDA': CDATraderFactory, 'FBA': FBATraderFactory
     }
 
+SUBPROCESSES = {}
+
 def process_response(message_queue):
     def exchange(message):
         exchange_message_type = message['type']     
@@ -30,8 +32,14 @@ def process_response(message_queue):
             message_type, market_id = message['type'], message['market_id']
             session_id = message['session_id']
             session_key = get_cache_key(session_id, 'trade_session')
-            trade_session = cache.get(session_key)          
+            trade_session = cache.get(session_key)
+            if trade_session.id not in SUBPROCESSES:
+                SUBPROCESSES[trade_session.id] = {}
+            trade_session.clients = SUBPROCESSES[trade_session.id]         
             trade_session.receive(message_type, market_id)
+            # since I can't pickle objects with thread locks
+            SUBPROCESSES[trade_session.id] = trade_session.clients
+            trade_session.clients = {}
             cache.set(session_key, trade_session, timeout=cache_timeout)
     while message_queue:
         message = message_queue.popleft()

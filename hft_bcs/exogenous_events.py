@@ -31,6 +31,9 @@ def noise_trader_arrival(**kwargs):
     process_response(message_queue)
 
 
+def best_bid_change(**kwargs):
+    pass
+
 
 
 

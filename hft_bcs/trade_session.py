@@ -4,6 +4,7 @@ from django.core.cache import cache
 from .utility import exogenous_event_client, exogenous_event_endpoints
 import logging
 import os
+from twisted.internet import reactor
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class TradeSession:
     }
 
     def __init__(self, session):
-        self.session = session
+        self.subsession = session
         self.id = str(session.code)
         self.is_trading = False
         self.markets = {}
@@ -32,10 +33,10 @@ class TradeSession:
         self.markets[market_id] = False
     
     def start_trade_session(self, market_id=None):
-        raise NotImplementedError
+        raise NotImplementedError()
     
     def stop_trade_session(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def register_exogenous_event(self, client_type, filename):
         path = os.path.join(os.getcwd(), filename)
@@ -55,7 +56,7 @@ class TradeSession:
                 self.clients[event_type] = process
 
     def stop_exogenous_events(self):
-        for _, process in self.clients.items:
+        for _, process in self.clients.items():
             process.kill()
 
         
@@ -65,25 +66,21 @@ class LEEPSTradeSession(TradeSession):
         self.markets[market_id] = True
         is_ready = (True if False not in self.markets.values() else False)
         if is_ready and not self.is_trading:
-            print(self.markets)
             for market_id, _ in self.markets.items():
                 message_queue = receive_market_message(market_id, 'market_start')
                 process_response(message_queue)
                 self.trading_markets.append(market_id)
             self.run_exogenous_events()
             self.is_trading = True
+            reactor.callLater(self.subsession.round_length, self.stop_trade_session)
             
     def stop_trade_session(self, *args):
-        print('reached ss end')
         if self.is_trading:
-            print('is trading')
-            for market_id, _ in self.markets:
-                print('market_id', market_id)
+            while self.trading_markets:
+                market_id = self.trading_markets.pop()
                 message_queue = receive_market_message(market_id, 'market_end')
-                print(message_queue)
                 process_response(message_queue)
-                self.trading_markets.pop(market_id)
             self.stop_exogenous_events()
-            self.session.advance_last_place_participants()
+            self.subsession.session.advance_last_place_participants()
             self.is_trading = False
         

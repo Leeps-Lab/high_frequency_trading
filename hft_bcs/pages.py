@@ -50,28 +50,27 @@ round_results = {}
 class ResultsWaitPage(WaitPage):
 
     def after_all_players_arrive(self):
-        subsession = self.subsession
-        # take speed cost
-        for player in self.group.get_players():
-            player.take_cost()
-            payoff_for_round = player.do_payoff()
-            print('payoff for round', payoff_for_round)
-            if subsession.is_trial is False:
-                if subsession.restore is True and (subsession.first_round == self.round_number):
-                    subsession.restore_payoffs()
-                player.participant.payoff += payoff_for_round
-                if player.participant.vars['payoff_round'] == self.round_number:
-                    player.participant.vars['round_payoff'] = payoff_for_round
-        # process output to display
-        session_log_file = self.subsession.log_file
-        gid = self.group.id
-        results_for_group = results.BCS_process(session_log_file, gid)
-        round_results[gid] = results_for_group
+        pass
+        # subsession = self.subsession
+        # # take speed cost
+        # for player in self.group.get_players():
+        #     player.take_cost()
+        #     payoff_for_round = player.do_payoff()
+        #     print('payoff for round', payoff_for_round)
+        #     if subsession.is_trial is False:
+        #         if subsession.restore is True and (subsession.first_round == self.round_number):
+        #             subsession.restore_payoffs()
+        #         player.participant.payoff += payoff_for_round
+        #         if player.participant.vars['payoff_round'] == self.round_number:
+        #             player.participant.vars['round_payoff'] = payoff_for_round
+        # # process output to display
+        # session_log_file = self.subsession.log_file
+        # gid = self.group.id
+        # results_for_group = results.BCS_process(session_log_file, gid)
+        # round_results[gid] = results_for_group
 
 class Results(Page):
-    def vars_for_template(self):
-        gid = self.group.id
-        return round_results[gid]
+    pass
 
 class SessionEnd(WaitPage):
     """
@@ -122,7 +121,7 @@ page_sequence = [
     PreWaitPage,
     index,
     ResultsWaitPage,
-    # Results,
+    Results,
     # SessionEnd,
     # SessionResults
 ]

@@ -109,7 +109,7 @@ class OrderStore:
     
     def _confirm_execution(self, **kwargs):
         token = kwargs['order_token']
-        order_info = dict(self._orders[token]) 
+        order_info = self._orders[token].copy()
         del self._orders[token]       
         direction = order_info['buy_sell_indicator']
         inventory_change = 1 if direction == b'B' else -1
