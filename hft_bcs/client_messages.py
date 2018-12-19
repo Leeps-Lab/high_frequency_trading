@@ -46,3 +46,27 @@ def batch(event):
     value = event
     msg = {key: value}
     return msg
+
+# Spread Graph shift message sent to client on desire to shift bounds of spread graph
+# def shift(event):
+#         key = "SHIFT"
+#         upper_bound = desired number
+#         mid_point = desired number
+#         lower_bound = desired number 
+#         msg = {key: {"upper_bound": upper_bound, "mid_point": mid_point, "lower_bound":lower_bound} }
+#         return msg
+
+# Order Object
+# def order(event):
+#     key = "ORDER"
+#     price = get price of transaction 
+#     order_type  = replace, enter, cancel
+#     msg = {key: {"type": , "token": order_token, "price": price } }
+
+# Execution to be shown on the spread graph 
+# def execution(player_id, orig_price):
+#     key = "EXEC"
+#     sniper = true or false
+#     value = {"id": player_id, "sniper": sniper, "price": orig_price}
+#     msg = {key: value}
+#     return msg

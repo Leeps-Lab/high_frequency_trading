@@ -149,11 +149,13 @@ class InputSection extends PolymerElement {
     this.socket = socketActions.socket;
     //Start as speed false
     this.speed = false;
-    inputSection.shadow_dom =  document.querySelector("input-section").shadowRoot;
-    inputSection.shadow_dom_D3 = d3.select(inputSection.shadow_dom);
+    interactiveComponent.inputSectionDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("input-section");
+    interactiveComponent.inputSectionDOM.attachShadow({mode: 'open'});
+    inputSection.inputSectionShadowDOM =  interactiveComponent.inputSectionDOM.shadowRoot;
+    inputSection.inputSectionShadowDOM = d3.select(inputSection.shadow_dom);
     
 
-    if(otreeConstants.FBA){
+    if(otree.FBA){
             //INPUT SECTION
         inputSection.shadow_dom_D3.append("svg").attr("id","timer_FBA");
         inputSection.timerSVGDOM = inputSection.shadow_dom.querySelector("#timer_FBA");
@@ -180,7 +182,7 @@ class InputSection extends PolymerElement {
         * the querySelector can then access each input and we can */
         input_object.path[0].className = "button-pressed";
 
-        var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
+        var timeNow = profitGraph.getTime();
             profitGraph.profitSegments.push(
                 {
                     startTime:timeNow,
@@ -193,15 +195,15 @@ class InputSection extends PolymerElement {
 
         var msg = {
             type: 'role_change',
-            id: otreeConstants.playerID ,
-            id_in_group: otreeConstants.playerIDInGroup,
+            id: otree.playerID ,
+            id_in_group: otree.playerIDInGroup,
             state: "MAKER"
         };
 
         var speed_msg = {
             type: 'speed_change',
-            id: otreeConstants.playerID ,
-            id_in_group: otreeConstants.playerIDInGroup,
+            id: otree.playerID ,
+            id_in_group: otree.playerIDInGroup,
             speed: false 
         };
 
@@ -216,7 +218,7 @@ class InputSection extends PolymerElement {
         }
 
 
-        var money_ratio =  otreeConstants.maxSpread/(spreadGraph.last_spread * 10000);
+        var money_ratio =  otree.maxSpread/(spreadGraph.last_spread * 10000);
         var svg_middle_y = spreadGraph.spread_height/2;
         var y_coordinate = svg_middle_y/money_ratio;
         
@@ -243,7 +245,7 @@ class InputSection extends PolymerElement {
 
         input_object.path[0].className = "button-pressed";
 
-        var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
+        var timeNow = profitGraph.getTime() - otree.timeOffset;
             profitGraph.profitSegments.push(
                 {
                     startTime:timeNow,
@@ -256,14 +258,14 @@ class InputSection extends PolymerElement {
 
         var msg = {
             type: 'role_change',
-            id: otreeConstants.playerID ,
-            id_in_group: otreeConstants.playerIDInGroup,
+            id: otree.playerID ,
+            id_in_group: otree.playerIDInGroup,
             state: "SNIPER"
         };
         var speed_msg = {
               type: 'speed_change',
-              id: otreeConstants.playerID ,
-              id_in_group: otreeConstants.playerIDInGroup,
+              id: otree.playerID ,
+              id_in_group: otree.playerIDInGroup,
               speed: false 
           };
         if (this.socket.readyState === this.socket.OPEN) {
@@ -281,8 +283,8 @@ class InputSection extends PolymerElement {
     }
     spreadGraph.spread_svg.selectAll("rect").remove();
     spreadGraph.spread_svg.selectAll(".my_line").remove();
-    delete spreadGraph.spread_lines[otreeConstants.playerID]
-    delete spreadGraph.spreadLinesFBAConcurrent[otreeConstants.playerID]
+    delete spreadGraph.spread_lines[otree.playerID]
+    delete spreadGraph.spreadLinesFBAConcurrent[otree.playerID]
      document.querySelector('info-table').spread_value = 0;
      input_object.path[1].querySelector("#maker").className = "button-off";
      input_object.path[1].querySelector("#out").className = "button-off";
@@ -299,7 +301,7 @@ class InputSection extends PolymerElement {
         * input_object.path[1] is the actual input-selection element (Shadow DOM that we create using Polymer 3.0), once we access this -
         * the querySelector can then access each input and we can */
         input_object.path[0].className = "button-on";
-        var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
+        var timeNow = profitGraph.getTime();
 
         profitGraph.profitSegments.push(
                 {
@@ -312,14 +314,14 @@ class InputSection extends PolymerElement {
             );
         var msg = {
             type: 'role_change',
-            id: otreeConstants.playerID ,
-            id_in_group: otreeConstants.playerIDInGroup,
+            id: otree.playerID ,
+            id_in_group: otree.playerIDInGroup,
             state: "Out"
         };
         var speed_msg = {
               type: 'speed_change',
-              id: otreeConstants.playerID ,
-              id_in_group: otreeConstants.playerIDInGroup,
+              id: otree.playerID ,
+              id_in_group: otree.playerIDInGroup,
               speed: this.speed 
           };
 
@@ -346,8 +348,8 @@ class InputSection extends PolymerElement {
 
      spreadGraph.spread_svg.selectAll("rect").remove();
      spreadGraph.spread_svg.selectAll(".my_line").remove();
-    delete spreadGraph.spread_lines[otreeConstants.playerID];
-    delete spreadGraph.spreadLinesFBAConcurrent[otreeConstants.playerID];
+    delete spreadGraph.spread_lines[otree.playerID];
+    delete spreadGraph.spreadLinesFBAConcurrent[otree.playerID];
     
   }
 
@@ -375,7 +377,7 @@ class InputSection extends PolymerElement {
                        .style("stroke-width", 10);
 
     timerLine.transition()
-            .duration(otreeConstants.batchLength*1100)
+            .duration(otree.batchLength*1100)
             .attr("x2", inputSection.inputWidth);
   }
 
@@ -402,7 +404,7 @@ class InputSection extends PolymerElement {
           //If you arent out you can turn your speed on
           this.speed = !this.speed;
           if(this.speed){
-              document.querySelector('info-table').setAttribute("speed_cost",(otreeConstants.speedCost * (1e-4) * (1e9)).toFixed(3));
+              document.querySelector('info-table').setAttribute("speed_cost",(otree.speedCost * (1e-4) * (1e9)).toFixed(3));
           }else {
               document.querySelector('info-table').setAttribute("speed_cost",0);
           }
@@ -419,8 +421,8 @@ class InputSection extends PolymerElement {
 
           var msg = {
               type: 'speed_change',
-              id: otreeConstants.playerID ,
-              id_in_group: otreeConstants.playerIDInGroup,
+              id: otree.playerID ,
+              id_in_group: otree.playerIDInGroup,
               speed: this.speed
           };
 

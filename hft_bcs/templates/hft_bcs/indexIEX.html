@@ -27,7 +27,7 @@
     <div class="overlay"></div>
 <script>
     //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
-    let otreeConstants = {};
+    let otree = {};
 
     (function(){
         var origin = window.location.origin;
@@ -59,7 +59,7 @@
             }); 
         }
 
-        otreeConstants.fileReady = true;
+        otree.fileReady = true;
         
     }());
 </script>
@@ -94,41 +94,41 @@ let inputSection = {};
 
 /*  
 IMPORTANT:
-Constant, Player, and Group Information from oTree stored in the otreeConstants objects
+Constant, Player, and Group Information from oTree stored in the otree objects
 */
-    otreeConstants.groupIDInfoTable = {{group.id_in_subsession}};
-    otreeConstants.groupID = {{group.id}};
-    otreeConstants.playerID = {{player.id}};
-    otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
-    otreeConstants.maxSpread = {{player.max_spread}}; 
-    otreeConstants.defaultSpread = {{player.spread}};
-    otreeConstants.startingWealth = {{player.endowment}};
-    otreeConstants.startFP = {{player.fp}}; 
-    otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
-    otreeConstants.min_spread = 3000;
-    otreeConstants.roundLength = {{subsession.round_length}};
-    otreeConstants.timeOffset = 0; 
-    otreeConstants.speedLongDelay = {{Constants.long_delay}} * (1e3);
-    otreeConstants.speedShortDelay = {{Constants.short_delay}} * (1e3);
-    otreeConstants.speedCost = {{player.speed_unit_cost}};
-    otreeConstants.endMsg = "off";
-    otreeConstants.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
-    otreeConstants.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
-    otreeConstants.CDA = false; //Continuous Double Auction
-    otreeConstants.FBA = false; //Frequent Batch Auction
-    otreeConstants.IEX = false; //Continuous Double Auction
-    otreeConstants.FBAGraph = false;  //Turns to true when first batch comes in for FBA and the profit graph begins 
-    otreeConstants.sync = false;      //When player syncs at beginning  of expirement this is turned to true
-    otreeConstants.batch = 0;
-    otreeConstants.offset = 0;  
+    otree.groupIDInfoTable = {{group.id_in_subsession}};
+    otree.groupID = {{group.id}};
+    otree.playerID = {{player.id}};
+    otree.playerIDInGroup = {{player.id_in_group}}; 
+    otree.maxSpread = {{player.max_spread}}; 
+    otree.defaultSpread = {{player.spread}};
+    otree.startingWealth = {{player.endowment}};
+    otree.startFP = {{player.fp}}; 
+    otree.smallestSpread = {"key":-1, "spread":otree.maxSpread};
+    otree.min_spread = 3000;
+    otree.roundLength = {{subsession.round_length}};
+    otree.timeOffset = 0; 
+    otree.speedLongDelay = {{Constants.long_delay}} * (1e3);
+    otree.speedShortDelay = {{Constants.short_delay}} * (1e3);
+    otree.speedCost = {{player.speed_unit_cost}};
+    otree.endMsg = "off";
+    otree.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
+    otree.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
+    otree.CDA = false; //Continuous Double Auction
+    otree.FBA = false; //Frequent Batch Auction
+    otree.IEX = false; //Continuous Double Auction
+    otree.FBAGraph = false;  //Turns to true when first batch comes in for FBA and the profit graph begins 
+    otree.sync = false;      //When player syncs at beginning  of expirement this is turned to true
+    otree.batch = 0;
+    otree.offset = 0;  
     spreadGraph.queue = {}; 
 
-    if(otreeConstants.design == "CDA"){
-        otreeConstants.CDA  = true; 
-    } else if(otreeConstants.design == "FBA"){
-        otreeConstants.FBA = true;
-    } else if(otreeConstants.design == "IEX"){
-        otreeConstants.IEX = true;
+    if(otree.design == "CDA"){
+        otree.CDA  = true; 
+    } else if(otree.design == "FBA"){
+        otree.FBA = true;
+    } else if(otree.design == "IEX"){
+        otree.IEX = true;
     }
     
 /*
@@ -144,7 +144,7 @@ Graph_Features is an object that stores the features of the profit and spread gr
     spreadGraph.spread_lines = {};
     spreadGraph.spreadLinesFBAConcurrent = {}; //Holds a running map of the spread lines
     spreadGraph.spreadLinesFBABatch = {};      //Holds all the lines from the last batch to figure out smallest spread
-    spreadGraph.last_spread =  otreeConstants.defaultSpread/10000;
+    spreadGraph.last_spread =  otree.defaultSpread/10000;
 
     //PROFIT GRAPH
     profitGraph.profit_width = document.querySelector("profit-graph").clientWidth;
@@ -216,7 +216,7 @@ Socket Actions
         * Draw Execution on the profit-graph
         */
         }else if(obj.EXEC != undefined){
-            var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
+            var timeNow = profitGraph.getTime() - otree.timeOffset;
             var exec = {};
             exec["player"] = obj.EXEC.id;
             exec["side"] = obj.EXEC.token[4];
@@ -224,7 +224,7 @@ Socket Actions
             
             spreadGraph.executionHandler(exec);
             
-            if(obj.EXEC.id == otreeConstants.playerIDInGroup){   
+            if(obj.EXEC.id == otree.playerIDInGroup){   
                 
                 profitGraph.profitJumps.push(
                     {
@@ -253,7 +253,7 @@ Socket Actions
         */
         }else if(obj.SPRCHG != undefined) {
             // Number.MAX_SAFE_INTEGER
-            var player_id = parseInt(otreeConstants.playerIDInGroup);
+            var player_id = parseInt(otree.playerIDInGroup);
             var smallest_spread = [-1,Infinity];
             updateSpreadQueue(obj.SPRCHG);
             for(var key in obj.SPRCHG){
@@ -306,7 +306,7 @@ Socket Actions
         */
         }else if(obj.SYNC != undefined){
             console.log("Recieved SYNC");
-            otreeConstants.sync = true; 
+            otree.sync = true; 
             startExperiment();
         
         /*
@@ -347,7 +347,7 @@ Socket Actions
                     state:"OUT"
                 }
             ];
-            profitGraph.init(otreeConstants.startFP, profitGraph.startingWealth, "secondTick");
+            profitGraph.init(otree.startFP, profitGraph.startingWealth, "secondTick");
             requestAnimationFrame(profitGraph.draw);
             
             
@@ -360,11 +360,11 @@ Socket Actions
             document.querySelector('info-table').setAttribute("spread_value","N/A");     
             document.querySelector('info-table').setAttribute("num_makers","0"); 
             document.querySelector('info-table').setAttribute("num_snipers","0"); 
-            document.querySelector('info-table').setAttribute("profit",otreeConstants.startingWealth*(1-4)); 
+            document.querySelector('info-table').setAttribute("profit",otree.startingWealth*(1-4)); 
             document.querySelector('info-table').setAttribute("fp"," "+ {{player.fp}} * (1e-4) + " "); 
             document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
             document.querySelector('info-table').setAttribute("curr_ask","N/A");
-            document.querySelector('info-table').setAttribute("group_id",otreeConstants.groupIDInfoTable);
+            document.querySelector('info-table').setAttribute("group_id",otree.groupIDInfoTable);
 
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
@@ -372,40 +372,40 @@ Socket Actions
             window.setTimeout(function(){
                 profitGraph.clear();
                 spreadGraph.clear();
-                otreeConstants.endMsg = "on";
+                otree.endMsg = "on";
                 var msg = {
                     type: 'advance_me',
                 };
                 console.log("Advance to results");
-                otreeConstants.endMsg = msg;    
+                otree.endMsg = msg;    
                 if (socketActions.socket.readyState === socketActions.socket.OPEN) {
                     socketActions.socket.send(JSON.stringify(msg));
                 }
                 document.querySelector(".overlay").style.opacity = 0.95;
                 document.querySelector(".overlay").style.pointerEvents = 'all';
                 document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Period, calculating results!</h1>";
-            }, otreeConstants.roundLength * 1000);
+            }, otree.roundLength * 1000);
     }
 
 
 
     //Send player ready messages to backend between 1-5 seconds after player loads screen (wait for all other players)
-    if(otreeConstants.fileReady == true){
+    if(otree.fileReady == true){
         window.setTimeout(function(){
                 playerReady();  
         },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
     }
 
     function playerReady(){
-            otreeConstants.playerID = {{player.id}};
-            otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
-            otreeConstants.maxSpread = {{player.max_spread}}; 
-            otreeConstants.defaultSpread = {{player.spread}};
-            otreeConstants.startingWealth = {{player.endowment}};
-            otreeConstants.startFP = {{player.fp}}; 
-            otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
-            otreeConstants.roundLength = {{subsession.round_length}};
-            otreeConstants.speedCost = {{player.speed_unit_cost}} * (1e-9);
+            otree.playerID = {{player.id}};
+            otree.playerIDInGroup = {{player.id_in_group}}; 
+            otree.maxSpread = {{player.max_spread}}; 
+            otree.defaultSpread = {{player.spread}};
+            otree.startingWealth = {{player.endowment}};
+            otree.startFP = {{player.fp}}; 
+            otree.smallestSpread = {"key":-1, "spread":otree.maxSpread};
+            otree.roundLength = {{subsession.round_length}};
+            otree.speedCost = {{player.speed_unit_cost}} * (1e-9);
 
             var msg = {
                  type: 'player_ready',

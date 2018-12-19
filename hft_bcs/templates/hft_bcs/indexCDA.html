@@ -20,53 +20,25 @@
             <spread-graph></spread-graph>
             
             <!-- right most section comprised of the strategy buttons -->
-            <input-section></input-section>
+            <!-- <input-section></input-section> -->
         
         </div>
     </div>
     <div class="overlay"></div>
 <script>
     //Stores all the constants defined in Constansts in models.py and pulled from a presumed manifest file of some sort
-    let otreeConstants = {};
+    let otree = {};
 
-    (function(){
-        var origin = window.location.origin;
-        var Static_Files = {
-           //polymer: "/static/hft_bcs/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
-            input_section: "/static/hft_bcs/input-section/input-section.js",
-            spread_graph: "/static/hft_bcs/spread-graph/spread-graph.js",
-            profitGraph: "/static/hft_bcs/profit-graph/profit-graph.js",
-            info_table: "/static/hft_bcs/info-table/info-table.js"
-        };
-
-        var static_file;
-        for(var key in Static_Files){
-            temp = Static_Files[key];
-            var static_file = origin + temp;
-            $.ajax({
-                type: 'GET',
-                url:static_file,
-                success: function(data){
-                    console.log(static_file + " has been loaded");
-                    // $(data).find("a:contains('.js')").each(function(){
-                    //     // will loop through
-                    //     console.log("second data");
-                    //     console.log(this);
-                    //     listed_files.push(this);
-                    // });
-       
-                }
-            }); 
-        }
-
-        otreeConstants.fileReady = true;
+        otree.fileReady = true;
         
-    }());
+
 </script>
 {% endblock %}
 
 {% block styles%}
-<link rel="stylesheet" type = "text/css" href="{% static 'hft_bcs/index/index.css' %}"/>
+<!-- <link rel="stylesheet" type = "text/css" href="{% static 'hft_bcs/index/index.css'%}"/> -->
+<link rel="stylesheet" type = "text/css" href="{% static 'hft_bcs/leeps/leeps.css'%}"/>
+
 {% endblock %}
 
 {% block scripts %}
@@ -79,6 +51,7 @@
     <script type="module" src="{% static 'hft_bcs/spread-graph/spread-graph.js' %}"></script>
     <script type="module" src="{% static 'hft_bcs/profit-graph/profit-graph.js' %}"></script>
     <script type="module" src="{% static 'hft_bcs/info-table/info-table.js' %}"></script>
+
     
 <script>
 //All socket actions are stored in this object to be used in the seperated js files
@@ -90,45 +63,69 @@ let profitGraph = {};
 
 let inputSection = {};
 
-(function(){
+/*  
+    example
+    playersInMarket = {
+        playerID(1):{ 
+             orders: [ 
+                {
+                    tok: "SUBAS000000045", price: 986243
+                },
+                {
+                    tok: "SUBAS000000046", price: 966243
+                }
+            ]
+        isSniper: false
+        }
+        playerID(n):{ 
+             orders: [ 
+                {
+                    tok: "...", price: ...
+                },
+                {
+                    tok: "...", price: ...
+                }
+            ]
+        isSniper: T || F
+        }
+    }
+*/
+let playersInMarket = {}; 
 
 /*  
 IMPORTANT:
-Constant, Player, and Group Information from oTree stored in the otreeConstants objects
+Constant, Player, and Group Information from oTree stored in the otree objects
 */
-    otreeConstants.groupIDInfoTable = {{group.id_in_subsession}};
-    otreeConstants.groupID = {{group.id}};
-    otreeConstants.playerID = {{player.id}};
-    otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
-    otreeConstants.maxSpread = {{player.max_spread}}; 
-    otreeConstants.defaultSpread = {{player.spread}};
-    otreeConstants.startingWealth = {{player.endowment}};
-    otreeConstants.startFP = {{player.fp}}; 
-    otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
-    otreeConstants.min_spread = 100;
-    otreeConstants.roundLength = {{subsession.round_length}};
-    otreeConstants.timeOffset = 0; 
-    otreeConstants.speedLongDelay = {{Constants.long_delay}} * (1e3);
-    otreeConstants.speedShortDelay = {{Constants.short_delay}} * (1e3);
-    otreeConstants.speedCost = {{player.speed_unit_cost}};
-    otreeConstants.endMsg = "off";
-    otreeConstants.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
-    otreeConstants.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
-    otreeConstants.CDA = false; //Continuous Double Auction
-    otreeConstants.FBA = false; //Frequent Batch Auction
-    otreeConstants.IEX = false; //Continuous Double Auction
-    otreeConstants.FBAGraph = false;  //Turns to true when first batch comes in for FBA and the profit graph begins 
-    otreeConstants.sync = false;      //When player syncs at beginning  of expirement this is turned to true
-    otreeConstants.batch = 0;
-    otreeConstants.offset = 0;  
-    spreadGraph.makerQueue = {};
+    otree.groupIDInfoTable = {{group.id_in_subsession}};
+    otree.groupID = {{group.id}};
+    otree.playerID = {{player.id}};
+    otree.playerIDInGroup = {{player.id_in_group}}; 
+    otree.maxSpread = {{player.max_spread}}; 
+    otree.defaultSpread = {{player.spread}};
+    otree.startingWealth = {{player.endowment}};
+    otree.startFP = {{player.fp}}; 
+    otree.smallestSpread = {"key":-1, "spread":otree.maxSpread};
+    otree.min_spread = 100;
+    otree.roundLength = {{subsession.round_length}};
+    otree.speedLongDelay = {{Constants.long_delay}} * (1e3);
+    otree.speedShortDelay = {{Constants.short_delay}} * (1e3);
+    otree.speedCost = {{player.speed_unit_cost}};
+    otree.endMsg = "off";
+    otree.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
+    otree.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
+    otree.CDA = false; //Continuous Double Auction
+    otree.FBA = false; //Frequent Batch Auction
+    otree.IEX = false; //Continuous Double Auction
+    otree.sync = false;      //When player syncs at beginning  of expirement this is turned to true
+    otree.offset = 0;  
 
-    if(otreeConstants.design == "CDA"){
-        otreeConstants.CDA  = true; 
-    } else if(otreeConstants.design == "FBA"){
-        otreeConstants.FBA = true;
-    } else if(otreeConstants.design == "IEX"){
-        otreeConstants.IEX = true;
+
+    if(otree.design == "CDA"){
+        otree.CDA  = true; 
+    } else if(otree.design == "FBA"){
+        otree.FBA = true;
+    } else if(otree.design == "IEX"){
+        otree.IEX = true;
     }
     
 /*
@@ -142,9 +139,8 @@ Graph_Features is an object that stores the features of the profit and spread gr
     spreadGraph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
     spreadGraph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
     spreadGraph.spread_lines = {};
-    spreadGraph.spreadLinesFBAConcurrent = {}; //Holds a running map of the spread lines
-    spreadGraph.spreadLinesFBABatch = {};      //Holds all the lines from the last batch to figure out smallest spread
-    spreadGraph.last_spread =  otreeConstants.defaultSpread/10000;
+
+    spreadGraph.last_spread =  otree.defaultSpread/10000;
 
     //PROFIT GRAPH
     profitGraph.profit_width = document.querySelector("profit-graph").clientWidth;
@@ -193,6 +189,7 @@ Socket Actions
         * Draw FPC based on the difference of the current FPC and the new FPC
         */
         if(obj.FPC != undefined){
+            
             var FPCDollarAmount = (obj.FPC*(1e-4)).toFixed(2);
             document.querySelector('info-table').fp = FPCDollarAmount;
             var difference = Math.abs(fund_price - (obj.FPC/10000));     
@@ -202,9 +199,8 @@ Socket Actions
                 difference = difference*-1;
             }
             difference = difference*10000;
+
             spreadGraph.drawFPC((difference == NaN) ? 0 : difference);
-            
-            
             for(var key in spreadGraph.spread_lines){
                 for(var token in spreadGraph.spread_lines[key]){
                     spreadGraph.spread_lines[key][token] -= parseInt(difference);
@@ -216,15 +212,17 @@ Socket Actions
         * Draw Execution on the profit-graph
         */
         }else if(obj.EXEC != undefined){
-            var timeNow = profitGraph.getTime() - otreeConstants.timeOffset;
+            var timeNow = profitGraph.getTime();
             var exec = {};
             exec["player"] = obj.EXEC.id;
             exec["side"] = obj.EXEC.token[4];
             exec["profit"] = obj.EXEC.profit;
-            
+            exec["orig_price"] = obj.EXEC.orig_price;
+
+
             spreadGraph.executionHandler(exec);
-            
-            if(obj.EXEC.id == otreeConstants.playerIDInGroup){   
+
+            if(obj.EXEC.id == otree.playerIDInGroup){   
                 
                 profitGraph.profitJumps.push(
                     {
@@ -245,6 +243,7 @@ Socket Actions
                     }
                 )   
             } 
+
         /*
         * Update spread_lines for CDA, spreadLinesFBAConcurrent for FBA
         * Remove maker spread if they left the market
@@ -253,11 +252,10 @@ Socket Actions
         */
         }else if(obj.SPRCHG != undefined) {
             // Number.MAX_SAFE_INTEGER
-            var player_id = parseInt(otreeConstants.playerIDInGroup);
+            var player_id = parseInt(otree.playerIDInGroup);
             var smallest_spread = [-1,Infinity];
 
             for(var key in obj.SPRCHG){
-                var incomingSpread;
                 var incomingSpread = (obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"])/10000;
                 if(key == player_id && obj.SPRCHG[key] != 0 ){
                     spreadGraph.last_spread = incomingSpread;
@@ -265,6 +263,7 @@ Socket Actions
                 delete spreadGraph.spread_lines[key];
                
                 if(obj.SPRCHG[key] == 0){
+                    console.log("Left the market");
                     // Maker has left the market so remove that maker tick
                     spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
                     spreadGraph.spread_svg.selectAll(".others_line_bottom_" + key).remove();
@@ -283,7 +282,7 @@ Socket Actions
             var lineParser = spreadGraph.spread_lines;
 
             for(var key in lineParser){
-                // process all new spreads  after the zeros have been removed
+                // process all new spreads after the zeros have been removed
                 var spread = (lineParser[key]["A"] - lineParser[key]["B"])/10000;
                 if(spread < smallest_spread[1]){
                     smallest_spread[0] = parseInt(key);
@@ -298,15 +297,13 @@ Socket Actions
 
             spreadGraph.drawSpreadChange(obj.SPRCHG);
 
-
-        
         /*
         * Recieved on sync message sent from the backend, sent from backend when they recieved all player_ready
         * Start experiment (remove grey overlay)
         */
         }else if(obj.SYNC != undefined){
             console.log("Recieved SYNC");
-            otreeConstants.sync = true; 
+            otree.sync = true; 
             startExperiment();
         
         /*
@@ -336,20 +333,19 @@ Socket Actions
     * Set experiment timer on experiment based on the round length set by the configs
     */
     function startExperiment(){
-            if(otreeConstants.CDA == true && otreeConstants.FBA == false){
-                profitGraph.adminStartTime = profitGraph.getTime();
-                profitGraph.profitSegments = [
-                    {
-                        startTime:profitGraph.adminStartTime,
-                        endTime:profitGraph.adminStartTime, 
-                        startProfit:profitGraph.profit, 
-                        endProfit:profitGraph.profit,
-                        state:"OUT"
-                    }
-                ];
-                profitGraph.init(otreeConstants.startFP, profitGraph.startingWealth, "secondTick");
-                requestAnimationFrame(profitGraph.draw);
-            }
+
+            profitGraph.adminStartTime = profitGraph.getTime();
+            profitGraph.profitSegments = [
+                {
+                    startTime:profitGraph.adminStartTime,
+                    endTime:profitGraph.adminStartTime, 
+                    startProfit:profitGraph.profit, 
+                    endProfit:profitGraph.profit,
+                    state:"OUT"
+                }
+            ];
+            profitGraph.init(otree.startFP, profitGraph.startingWealth, "secondTick");
+            requestAnimationFrame(profitGraph.draw);
             
             /** Initializing all info table values **/
             document.querySelector('info-table').setAttribute("player_id","{{player.id_in_group}}");
@@ -360,11 +356,11 @@ Socket Actions
             document.querySelector('info-table').setAttribute("spread_value","N/A");     
             document.querySelector('info-table').setAttribute("num_makers","0"); 
             document.querySelector('info-table').setAttribute("num_snipers","0"); 
-            document.querySelector('info-table').setAttribute("profit",otreeConstants.startingWealth*(1-4)); 
+            document.querySelector('info-table').setAttribute("profit",otree.startingWealth*(1-4)); 
             document.querySelector('info-table').setAttribute("fp"," "+ {{player.fp}} * (1e-4) + " "); 
             document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
             document.querySelector('info-table').setAttribute("curr_ask","N/A");
-            document.querySelector('info-table').setAttribute("group_id",otreeConstants.groupIDInfoTable);
+            document.querySelector('info-table').setAttribute("group_id",otree.groupIDInfoTable);
 
             document.querySelector(".overlay").style.opacity = 0;
             document.querySelector(".overlay").style.pointerEvents = 'none';
@@ -372,40 +368,40 @@ Socket Actions
             window.setTimeout(function(){
                 profitGraph.clear();
                 spreadGraph.clear();
-                otreeConstants.endMsg = "on";
+                otree.endMsg = "on";
                 var msg = {
                     type: 'advance_me',
                 };
                 console.log("Advance to results");
-                otreeConstants.endMsg = msg;    
+                otree.endMsg = msg;    
                 if (socketActions.socket.readyState === socketActions.socket.OPEN) {
                     socketActions.socket.send(JSON.stringify(msg));
                 }
                 document.querySelector(".overlay").style.opacity = 0.95;
                 document.querySelector(".overlay").style.pointerEvents = 'all';
                 document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Period, calculating results!</h1>";
-            }, otreeConstants.roundLength * 1000);
+            }, otree.roundLength * 1000);
     }
 
 
 
     //Send player ready messages to backend between 1-5 seconds after player loads screen (wait for all other players)
-    if(otreeConstants.fileReady == true){
+    if(otree.fileReady == true){
         window.setTimeout(function(){
                 playerReady();  
         },Math.floor(Math.random() * 5000) + 1000); // Given a random number between 1000 & 6000
     }
 
     function playerReady(){
-            otreeConstants.playerID = {{player.id}};
-            otreeConstants.playerIDInGroup = {{player.id_in_group}}; 
-            otreeConstants.maxSpread = {{player.max_spread}}; 
-            otreeConstants.defaultSpread = {{player.spread}};
-            otreeConstants.startingWealth = {{player.endowment}};
-            otreeConstants.startFP = {{player.fp}}; 
-            otreeConstants.smallestSpread = {"key":-1, "spread":otreeConstants.maxSpread};
-            otreeConstants.roundLength = {{subsession.round_length}};
-            otreeConstants.speedCost = {{player.speed_unit_cost}} * (1e-9);
+            otree.playerID = {{player.id}};
+            otree.playerIDInGroup = {{player.id_in_group}}; 
+            otree.maxSpread = {{player.max_spread}}; 
+            otree.defaultSpread = {{player.spread}};
+            otree.startingWealth = {{player.endowment}};
+            otree.startFP = {{player.fp}}; 
+            otree.smallestSpread = {"key":-1, "spread":otree.maxSpread};
+            otree.roundLength = {{subsession.round_length}};
+            otree.speedCost = {{player.speed_unit_cost}} * (1e-9);
 
             var msg = {
                  type: 'player_ready',
@@ -415,9 +411,6 @@ Socket Actions
                 socketActions.socket.send(JSON.stringify(msg));
             }
     }
-
-}());
-
 </script>
 
 

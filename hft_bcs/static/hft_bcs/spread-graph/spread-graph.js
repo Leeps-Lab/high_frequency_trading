@@ -8,9 +8,15 @@ class SpreadGraph extends PolymerElement {
   constructor() {
     super();
     //First we access the shadow dom object were working with
-    spreadGraph.spread_graph_shadow_dom = document.querySelector("spread-graph").shadowRoot;
+    interactiveComponent.spreadGraphDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("spread-graph");
+    interactiveComponent.spreadGraphDOM.attachShadow({mode: 'open'});
+
+    spreadGraph.spread_width = document.querySelector("interactive-component").clientWidth;
+    spreadGraph.spread_height = document.querySelector("interactive-component").clientHeight*0.4;
+
+    spreadGraph.spreadGraphShadowDOM = interactiveComponent.spreadGraphDOM.shadowRoot;
     //Second we add the HTML neccessary to be manipulated in the constructor and the subsequent functions
-    spreadGraph.spread_graph_shadow_dom.innerHTML = `
+    spreadGraph.spreadGraphShadowDOM.innerHTML = `
 <style>
     .my-batch-flash {
         stroke: BlueViolet;
@@ -89,14 +95,39 @@ class SpreadGraph extends PolymerElement {
     }
 </style>
 
-<svg id="spread-graph"></svg>
-<svg id="timer"></svg>
-`;
+<svg id="spread-graph">
+<defs>
+<marker
+  id="bidArrow"
+  markerUnits="strokeWidth"
+  markerWidth="6"
+  markerHeight="6"
+  viewBox="0 0 12 12"
+  refX="6"
+  refY="6"
+  orient="auto">
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #B2D8B2;"></path>
+</marker>
+<marker
+  id="askArrow"
+  markerUnits="strokeWidth"
+  markerWidth="6"
+  markerHeight="6"
+  viewBox="0 0 12 12"
+  refX="6"
+  refY="6"
+  orient="auto">
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #FFB2B2;"></path>
+</marker>
+</defs>
+</svg>
 
+`;
+// <svg id="timer"></svg>
   /*  Spread Constant Information 
-     *   otreeConstants.maxSpread = {{Constants.max_spread}}; 
-     *   otreeConstants.defaultSpread = {{Constants.default_spread}};
-     *   otreeConstants.smallestSpread = {{Constants.smallest_spread}};
+     *   otree.maxSpread = {{Constants.max_spread}}; 
+     *   otree.defaultSpread = {{Constants.default_spread}};
+     *   otree.smallestSpread = {{Constants.smallest_spread}};
 
      *   Initialize all the values needed for the spread graph and draw the start state
   */
@@ -106,8 +137,8 @@ class SpreadGraph extends PolymerElement {
     // this.spread_height = Graph_Features.spread_height;
 
     //Getting the Shadow DOM variable to be able to use to be selected by d3
-    spreadGraph.spread_svg_dom = spreadGraph.spread_graph_shadow_dom.querySelector("#spread-graph");
-    spreadGraph.timer_svg_dom = spreadGraph.spread_graph_shadow_dom.querySelector("#timer");
+    spreadGraph.spread_svg_dom = spreadGraph.spreadGraphShadowDOM.querySelector("#spread-graph");
+    spreadGraph.timer_svg_dom = spreadGraph.spreadGraphShadowDOM.querySelector("#timer");
     spreadGraph.spread_svg_dom.style.width = spreadGraph.spread_width;
     spreadGraph.spread_svg_dom.style.height = spreadGraph.spread_height;
     spreadGraph.smallest_spread = true;
@@ -142,8 +173,21 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.executionHandler = this.executionHandler;
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
     spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
+    spreadGraph.drawArrows = this.drawArrows;
+    spreadGraph.dragArrow = this.dragArrow;
+
+    /*
+        price: price it is pointed at
+        d3 arrow line: line created in d3 that maps to yCoordinate to price just above
+        textline : text d3 function for "bid" or "ask"
+    */
+    spreadGraph.bidArrow = {};
+    spreadGraph.askArrow = {};
+
+    
     //Creating the start state
     spreadGraph.start();
+    
     //Activating the event listener
     spreadGraph.listen();
     //spreadGraph.mapSpreadGraph();
@@ -152,24 +196,26 @@ class SpreadGraph extends PolymerElement {
   }
   start(){
     /*Drawing the start state when the window opens*/
-    var spread_line = spreadGraph.spread_svg.append("svg:line")
-                       .attr("x1", spreadGraph.spread_width/2)
-                       .attr("y1", 0)
-                       .attr("x2", spreadGraph.spread_width/2)
-                       .attr("y2", spreadGraph.spread_height)
+    var priceLine = spreadGraph.spread_svg.append("svg:line")
+                       .attr("x1", 0)
+                       .attr("y1", spreadGraph.spread_height*0.3)
+                       .attr("x2", spreadGraph.spread_width)
+                       .attr("y2", spreadGraph.spread_height*0.3)
                        .style("stroke", "lightgrey")
-                       .style("stroke-width", 5);
-
-    // Grey Line in the middle of the spread graph
-    var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
-                       .attr("x1", 60)
-                       .attr("y1", spreadGraph.spread_height/2 )
-                       .attr("x2", spreadGraph.spread_width - 60)
-                       .attr("y2", spreadGraph.spread_height/2)
-                       .style("stroke", "grey")
                        .style("stroke-width", 3);
 
-    if(otreeConstants.FBA == true){
+    // Grey Line in the middle of the spread graph
+    var topPointerInputLine = spreadGraph.spread_svg.append("svg:line")
+                       .attr("x1",0)
+                       .attr("y1", spreadGraph.spread_height*0.6)
+                       .attr("x2", spreadGraph.spread_width)
+                       .attr("y2", spreadGraph.spread_height*0.6)
+                       .style("stroke", "grey")
+                       .style("stroke-width", 5);
+
+   
+
+    if(otree.FBA == true){
         //Only draw the batch timer if FBA is true
         var batch_timer = spreadGraph.timer_svg.append("svg:line")
                             .attr("x1", 0)
@@ -179,9 +225,9 @@ class SpreadGraph extends PolymerElement {
                             .style("stroke", "grey")
                             .style("stroke-width", 3);
     }   
-    if(otreeConstants.IEX == true){
-       spreadGraph.drawPossibleSpreadTicks();
-    }                    
+
+    spreadGraph.drawPossibleSpreadTicks();  
+    spreadGraph.drawArrows();  
   }
 
   /*
@@ -202,22 +248,22 @@ class SpreadGraph extends PolymerElement {
 
             var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
             var ratio = distance_from_middle / (spreadGraph.spread_height/2);
-            var my_spread = (ratio*otreeConstants.maxSpread).toFixed(0);
+            var my_spread = (ratio*otree.maxSpread).toFixed(0);
             var svg_middle_y = spreadGraph.spread_height/2;
 
 
-            if(my_spread < otreeConstants.min_spread){
+            if(my_spread < otree.min_spread){
                 //enforce a minimum spread
-                my_spread = otreeConstants.min_spread;
+                my_spread = otree.min_spread;
             }   
             
-            var money_ratio =  otreeConstants.maxSpread/my_spread;
+            var money_ratio =  otree.maxSpread/my_spread;
 
             var y_coordinate = svg_middle_y/money_ratio;
 
             spreadGraph.drawLineAttempt(y_coordinate);
 
-            if(otreeConstants.IEX == true){
+            if(otree.IEX == true){
                 //Choose one of the spread lines that
                 for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
                     if(my_spread < spreadGraph.possibleSpreadLines[i]){
@@ -230,6 +276,50 @@ class SpreadGraph extends PolymerElement {
             spreadGraph.sendSpreadChange(my_spread);
           } 
     });
+  }
+
+  drawArrows(){
+      //Green Bid --> #B2D8B2
+      //Red ask --> #FFB2B2
+      spreadGraph.bidArrow["price"] = 940000;
+      spreadGraph.askArrow["price"] = 960000;
+
+    spreadGraph.bidArrow["bidArrowLine"] = spreadGraph.spread_svg.append("line")
+        .attr("x1",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
+        .attr("y1",spreadGraph.spread_height - 25)  
+        .attr("x2",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
+        .attr("y2",spreadGraph.spread_height*0.6 + 15)  
+        .attr("stroke","#B2D8B2")  
+        .attr("stroke-width",5)  
+        .attr("marker-end","url(#bidArrow)")
+        .call(d3.drag()
+        .on("drag", function(){
+            spreadGraph.bidArrow["bidArrowLine"].attr("x1",  d3.event.x).attr("x2", d3.event.x);
+        })
+        // .on("drop", function(){
+        //     event.preventDefault();
+        //     console.log(d3.select(this).x1);
+        // })
+    );
+        
+    spreadGraph.askArrow["askArrowLine"]  = spreadGraph.spread_svg.append("line")
+        .attr("x1",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
+        .attr("y1",spreadGraph.spread_height - 25)  
+        .attr("x2",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
+        .attr("y2",spreadGraph.spread_height*0.6 + 15)  
+        .attr("stroke","#FFB2B2")  
+        .attr("stroke-width",5)  
+        .attr("marker-end","url(#askArrow)")
+        .call(d3.drag()
+        .on("drag", function(){
+            spreadGraph.askArrow["askArrowLine"].attr("x1",  d3.event.x).attr("x2", d3.event.x);
+        })
+        // .on("drop", function(){
+        //     event.preventDefault();
+        //     console.log(d3.select(this).x1);
+        // })
+    );
+        
   }
 
     /*
@@ -258,10 +348,10 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke-width",3)
         .attr("class","my_line_attempt");
 
-        var transaction_speed = 500;
+        var  transaction_speed = otree.speedLongDelay ;
         if(document.querySelector("info-table").speed_cost != 0){
-            transaction_speed = 100;
-        } 
+            transaction_speed = otree.speedShortDelay;
+        }
 
         spreadGraph.addOthersLineAnimation([your_spread_line_top, your_spread_line_bottom], transaction_speed, 25);
         your_spread_line_top.transition().delay(transaction_speed).remove();
@@ -274,55 +364,85 @@ class SpreadGraph extends PolymerElement {
     */
     drawPossibleSpreadTicks(){
     //Draws the possible spread ticks for IEX
-    var temp = parseInt(otreeConstants.min_spread);
-    var svg_middle_y = spreadGraph.spread_height/2;
-    var maxSpread = parseInt(otreeConstants.maxSpread);
-    spreadGraph.possibleSpreadLines = [];
-        for(;temp < maxSpread;){
-            //Every spread price is drawn and so is the price
-            var money_ratio =  maxSpread/temp;
-            var y_coordinate = svg_middle_y/money_ratio;
+    // var temp = parseInt(otree.min_spread);
+    // var svg_middle_y = spreadGraph.spread_height/2;
+    // var maxSpread = parseInt(otree.maxSpread);
+    // spreadGraph.possibleSpreadLines = [];
+    //     for(;temp < maxSpread;){
+    //         //Every spread price is drawn and so is the price
+    //         var money_ratio =  maxSpread/temp;
+    //         var y_coordinate = svg_middle_y/money_ratio;
             
-            spreadGraph.spread_svg.append("svg:line")
-                .attr("x1", (spreadGraph.spread_width / 2) - 15)
-                .attr("y1", svg_middle_y - y_coordinate)
-                .attr("x2", (spreadGraph.spread_width / 2) + 15)
-                .attr("y2", svg_middle_y - y_coordinate)
-                .attr("stroke-width",1)
-                .attr("class","possible-spread-ticks");
+    //         spreadGraph.spread_svg.append("svg:line")
+    //             .attr("x1", (spreadGraph.spread_width / 2) - 15)
+    //             .attr("y1", svg_middle_y - y_coordinate)
+    //             .attr("x2", (spreadGraph.spread_width / 2) + 15)
+    //             .attr("y2", svg_middle_y - y_coordinate)
+    //             .attr("stroke-width",1)
+    //             .attr("class","possible-spread-ticks");
             
-            spreadGraph.spread_svg.append("svg:line")
-                .attr("x1", (spreadGraph.spread_width / 2) - 15)
-                .attr("y1", svg_middle_y + y_coordinate)
-                .attr("x2", (spreadGraph.spread_width / 2) + 15)
-                .attr("y2", svg_middle_y + y_coordinate)
-                .attr("stroke-width",1)
-                .attr("class","possible-spread-ticks");        
+    //         spreadGraph.spread_svg.append("svg:line")
+    //             .attr("x1", (spreadGraph.spread_width / 2) - 15)
+    //             .attr("y1", svg_middle_y + y_coordinate)
+    //             .attr("x2", (spreadGraph.spread_width / 2) + 15)
+    //             .attr("y2", svg_middle_y + y_coordinate)
+    //             .attr("stroke-width",1)
+    //             .attr("class","possible-spread-ticks");        
             
-            spreadGraph.spread_svg.append("text")
-                .attr("text-anchor", "start")
-                .attr("x", (spreadGraph.spread_width / 2) + 17)  
-                .attr("y",  svg_middle_y + y_coordinate  + 3)
-                .attr("class", "price-grid-line-text")
-                .text((temp/10000).toFixed(2));
+    //         spreadGraph.spread_svg.append("text")
+    //             .attr("text-anchor", "start")
+    //             .attr("x", (spreadGraph.spread_width / 2) + 17)  
+    //             .attr("y",  svg_middle_y + y_coordinate  + 3)
+    //             .attr("class", "price-grid-line-text")
+    //             .text((temp/10000).toFixed(2));
 
-            spreadGraph.spread_svg.append("text")
-                .attr("text-anchor", "start")
-                .attr("x", (spreadGraph.spread_width / 2) + 17)  
-                .attr("y",  svg_middle_y - y_coordinate + 3)
-                .attr("class", "price-grid-line-text")
-                .text((temp/10000).toFixed(2));
+    //         spreadGraph.spread_svg.append("text")
+    //             .attr("text-anchor", "start")
+    //             .attr("x", (spreadGraph.spread_width / 2) + 17)  
+    //             .attr("y",  svg_middle_y - y_coordinate + 3)
+    //             .attr("class", "price-grid-line-text")
+    //             .text((temp/10000).toFixed(2));
             
-            spreadGraph.possibleSpreadLines.push(temp);
-            spreadGraph.queue[temp] = [];
-            temp = otreeConstants.min_spread + temp;
+    //         spreadGraph.possibleSpreadLines.push(temp);
+    //         spreadGraph.queue[temp] = [];
+    //         temp = otree.min_spread + temp;
+    //     }
+        var upperBound = 1000000;
+        var lowerBound =  900000;
+        var diff = upperBound - lowerBound;
+        var increment  =   10000;
+        var incrementNum = diff / increment;
+        var distanceBetweenLines = spreadGraph.spread_width/incrementNum;
+        var xCoordinate = 0;
+        var yCoordinate = spreadGraph.spread_height*0.3;
+        spreadGraph.visibleTickLines = {};
+
+        
+        for(var temp = lowerBound; temp <= upperBound; temp+=increment){
+            spreadGraph.visibleTickLines[temp] = xCoordinate;
+                spreadGraph.spread_svg.append("svg:line")
+                    .attr("x1", xCoordinate)
+                    .attr("y1", spreadGraph.spread_height*0.3 - 15)
+                    .attr("x2", xCoordinate)
+                    .attr("y2", spreadGraph.spread_height*0.3 + 15)
+                    .attr("stroke-width",1)
+                    .attr("class","possible-spread-ticks");  
+                
+                spreadGraph.spread_svg.append("text")
+                    .attr("text-anchor", "start")
+                    .attr("x", xCoordinate - 5)  
+                    .attr("y",  spreadGraph.spread_height*0.6 - 10)
+                    .attr("class", "price-grid-line-text")
+                    .text((temp/10000).toFixed(0));
+
+                xCoordinate += distanceBetweenLines;                
         }
     }
     /*
     * IEX Specific 
     */
     drawQueue(){
-        var userPlayerID = otreeConstants.playerIDInGroup;
+        var userPlayerID = otree.playerIDInGroup;
         var index = -1;
         var xOffset = 0;
     
@@ -332,7 +452,7 @@ class SpreadGraph extends PolymerElement {
                 for(var user = 0; user <= spreadGraph.queue[price].length - 1; user++){
                     var svgMiddleY = spreadGraph.spread_height/2;
                     var mySpread = price;
-                    var moneyRatio =  otreeConstants.maxSpread/mySpread;
+                    var moneyRatio =  otree.maxSpread/mySpread;
                     var yCoordinate = svgMiddleY/moneyRatio;
                     if(spreadGraph.queue[price][user] == userPlayerID){
                         spreadGraph.spread_svg.select(".user-bubble").remove();
@@ -359,12 +479,12 @@ class SpreadGraph extends PolymerElement {
     /*
     * Sending Spread Change to backend update the info-table accordingly
     */
-    sendSpreadChange(my_spread = otreeConstants.defaultSpread){
+    sendSpreadChange(my_spread = otree.defaultSpread){
     //Sending Spread Change over socket 
     var msg = {
         type: 'spread_change',
-        id: otreeConstants.playerID ,
-        id_in_group: otreeConstants.playerIDInGroup,
+        id: otree.playerID ,
+        id_in_group: otree.playerIDInGroup,
         spread: my_spread
     };
     if (socketActions.socket.readyState === socketActions.socket.OPEN) {
@@ -398,44 +518,48 @@ class SpreadGraph extends PolymerElement {
             spreadGraph.drawSpreadChange(spreadGraph.spreadLinesFBAConcurrent);
         }
     }
+    /*
+    FUNDPRICE  = 984800
+    (index):272 {id: 1, token: "SUBAS000000045", profit: 1400, orig_price: 986243, exec_price: 986243}
+    (index):278 986243
+    */
 
     executionHandler(exec = {}){
-
-        if(otreeConstants.endMsg == "off"){
+        if(otree.endMsg == "off"){
 
             var exec_side = exec.side;
             var exec_spread = "";
             var offset = 0;
 
-            var userPlayerID = otreeConstants.playerIDInGroup;
+            var userPlayerID = otree.playerIDInGroup;
             var svgMiddleY = spreadGraph.spread_height/2;
             var role = document.querySelector('info-table').player_role;
-            var sniper = false; 
             var currentFP =  ((document.querySelector('info-table').fp)*10000).toFixed(0);      
 
-            var  transactionSpeed = otreeConstants.speedLongDelay ;
+            var  transactionSpeed = otree.speedLongDelay ;
             if(document.querySelector("info-table").speed_cost != 0){
-                transactionSpeed = otreeConstants.speedShortDelay;
+                transactionSpeed = otree.speedShortDelay;
             }
-            console.log(transactionSpeed);
-            if(exec.player == userPlayerID){
 
+            if(exec.player == userPlayerID ){
+                console.log(exec.T0K);
                 if(spreadGraph.spread_lines[userPlayerID] != undefined){
                     //you are a maker 
 
                     //Price to be pulled from backend messaging
-                    var priceOfTransaction = spreadGraph.spread_lines[exec.player][(exec_side == "S") ? "A" : exec_side];
+                    // var priceOfTransaction = spreadGraph.spread_lines[exec.player][(exec_side == "S") ? "A" : exec_side];
+                    var priceOfTransaction = exec.orig_price;
+                    // console.log(priceOfTransaction + " vs. " + exec.orig_price);
                     
-                    var upperPriceBound = (otreeConstants.maxSpread/2) +  +currentFP;
-                    var lowerPriceBound = +currentFP - (otreeConstants.maxSpread/2) ;
-                    var totalDiff = Math.abs(upperPriceBound - priceOfTransaction);
-                    var ratio = totalDiff/otreeConstants.maxSpread;
+                    var upperPriceBound = (otree.maxSpread/2) +  +currentFP;
+                    var lowerPriceBound = +currentFP - (otree.maxSpread/2) ;
+                    // console.log(upperPriceBound);
+                    var totalDiff = upperPriceBound - priceOfTransaction;
+                    // console.log("upperBound  " + upperPriceBound + " - POT " + priceOfTransaction+ " = totalDiff " + totalDiff);
+                    // console.log(totalDiff);
+                    var ratio = totalDiff/otree.maxSpread;
                     var transactionYCoordinate = ratio * spreadGraph.spread_height;
 
-                    var userSpread = parseInt(spreadGraph.spread_lines[userPlayerID]["A"] - spreadGraph.spread_lines[userPlayerID]["B"]);
-                    
-                    var moneyRatio =  otreeConstants.maxSpread/userSpread;
-                    var yCoordinate = svgMiddleY/moneyRatio;
                     
                 
                     if(exec_side == "S"){
@@ -452,7 +576,7 @@ class SpreadGraph extends PolymerElement {
                         spreadGraph.addOthersLineAnimation([yourSpreadLineTop], transactionSpeed, 25);
 
                     } else if(exec.side == "B"){
-                        
+
                         spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();       
                         var yourSpreadLineBottom = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1", spreadGraph.spread_width)
@@ -468,24 +592,25 @@ class SpreadGraph extends PolymerElement {
 
 
                 } else {
-                    //your transaction was the sniper flash screen or something
+                    //Your player client browser was the sniper
+                    
                 }
             } else {
-                //do something else if not player
+                //do something else if not player just draw transaction bar with offset
                 
                 if(spreadGraph.spread_lines[exec.player] != undefined){
                      
                     var priceOfTransactionOther = spreadGraph.spread_lines[exec.player][(exec_side == "S") ? "A" : exec_side];
                     
-                    var upperPriceBoundOther = (otreeConstants.maxSpread/2) +  +currentFP;
-                    var lowerPriceBoundOther = +currentFP - (otreeConstants.maxSpread/2) ;
+                    var upperPriceBoundOther = (otree.maxSpread/2) +  +currentFP;
+                    var lowerPriceBoundOther = +currentFP - (otree.maxSpread/2) ;
                     var totalDiffOther = Math.abs(upperPriceBoundOther - priceOfTransactionOther);
-                    var ratioOther = totalDiffOther/otreeConstants.maxSpread;
+                    var ratioOther = totalDiffOther/otree.maxSpread;
                     var transactionYCoordinateOther = ratioOther * spreadGraph.spread_height;
 
                     // var userSpread = parseInt(spreadGraph.spread_lines[userPlayerID]["A"] - spreadGraph.spread_lines[userPlayerID]["B"]);
                     
-                    // var moneyRatio =  otreeConstants.maxSpread/userSpread;
+                    // var moneyRatio =  otree.maxSpread/userSpread;
                     // var yCoordinate = svgMiddleY/moneyRatio;
 
                     spreadGraph.drawTransactionBar(exec_spread, svgMiddleY,transactionYCoordinateOther , (exec_side == "S") ? "A" : exec_side, ((exec.profit > 0) ? "transaction_bar_light_green" : "transaction_bar_light_red"), -10);
@@ -499,7 +624,7 @@ class SpreadGraph extends PolymerElement {
 
   drawFPC(offset){
     //Price Jump (FPC) Offset is the price
-    otreeConstants.offset = offset;
+    otree.offset = offset;
     var spread_line_fundamental_price = spreadGraph.spread_svg.append("svg:line")
         .attr("x1", 0 + 50)
         .attr("y1", spreadGraph.spread_height/2 )
@@ -521,12 +646,12 @@ class SpreadGraph extends PolymerElement {
         .style("stroke", "grey")
         .style("stroke-width", 3);
 
-    var userPlayerID = otreeConstants.playerIDInGroup;
+    var userPlayerID = otree.playerIDInGroup;
     var svgMiddleY = spreadGraph.spread_height/2;
     var role = document.querySelector('info-table').player_role;
-    var  transactionSpeed = otreeConstants.speedLongDelay ;
+    var  transactionSpeed = otree.speedLongDelay ;
     if(document.querySelector("info-table").speed_cost != 0){
-        transactionSpeed = otreeConstants.speedShortDelay;
+        transactionSpeed = otree.speedShortDelay;
     }
         
     var bar_color = "";
@@ -537,7 +662,7 @@ class SpreadGraph extends PolymerElement {
         bar_color = "blue_bar";
     }
 
-    if(otreeConstants.endMsg == "off"){
+    if(otree.endMsg == "off"){
         for(var player in spreadGraph.spread_lines){
             if(player == userPlayerID){ 
                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();  
@@ -547,9 +672,9 @@ class SpreadGraph extends PolymerElement {
 
 
                 var userSpread = parseInt(spreadGraph.spread_lines[userPlayerID]["A"] - spreadGraph.spread_lines[userPlayerID]["B"]);
-                var moneyRatio =  otreeConstants.maxSpread/userSpread;
+                var moneyRatio =  otree.maxSpread/userSpread;
                 var yCoordinate = svgMiddleY/moneyRatio;
-                var offsetMoneyRatio = otreeConstants.maxSpread/offset;
+                var offsetMoneyRatio = otree.maxSpread/offset;
                 var offsetYCoordinate = svgMiddleY/offsetMoneyRatio;
 
                 var yourOffsetBottom = spreadGraph.spread_svg.append("svg:line")
@@ -584,9 +709,9 @@ class SpreadGraph extends PolymerElement {
                 spreadGraph.spread_svg.selectAll(".others_line_bottom_" + player).remove();
 
                 var newLineOtherSpread = parseInt(spreadGraph.spread_lines[player]["A"] - spreadGraph.spread_lines[player]["B"]);
-                var newLineOtherMoneyRatio =  otreeConstants.maxSpread/newLineOtherSpread;
+                var newLineOtherMoneyRatio =  otree.maxSpread/newLineOtherSpread;
                 var newLineOtherYCoordinate = svgMiddleY/newLineOtherMoneyRatio;
-                var newOffsetMoneyRatio = otreeConstants.maxSpread/offset;
+                var newOffsetMoneyRatio = otree.maxSpread/offset;
                 var newOffsetYCoordinate = svgMiddleY/newOffsetMoneyRatio;
 
                 var newLineOtherTop = spreadGraph.spread_svg.append("svg:line")
@@ -612,44 +737,61 @@ class SpreadGraph extends PolymerElement {
 
   drawSpreadChange(newLines){
       
-    var userPlayerID = otreeConstants.playerIDInGroup;
+    var userPlayerID = otree.playerIDInGroup;
     var svgMiddleY = spreadGraph.spread_height/2;
     var role = document.querySelector('info-table').player_role;
     var offset = 0;
     var newLineUserSpread = 0;
-    if(otreeConstants.endMsg == "off"){
+    var currentFP =  ((document.querySelector('info-table').fp)*10000).toFixed(0);    
+
+    if(otree.endMsg == "off"){
         for(var key in newLines){
             if(key == userPlayerID){
                 spreadGraph.spread_svg.selectAll(".my_line_top").remove();
                 spreadGraph.spread_svg.selectAll(".my_line_bottom").remove();
+                
+                var priceOfTransactionTop = newLines[userPlayerID]["A"];
+                var priceOfTransactionBottom = newLines[userPlayerID]["B"];
+                // console.log(priceOfTransaction + " vs. " + exec.orig_price);
+                
+                var upperPriceBound = (otree.maxSpread/2) +  +currentFP;
+                var lowerPriceBound = +currentFP - (otree.maxSpread/2) ;
+                // console.log(upperPriceBound);
+                var totalDiffTop = upperPriceBound - priceOfTransactionTop;
+                var totalDiffBottom = upperPriceBound - priceOfTransactionBottom;
+                // console.log("upperBound  " + upperPriceBound + " - POT " + priceOfTransaction+ " = totalDiff " + totalDiff);
+                // console.log(totalDiff);
+                var ratioForSell = totalDiffTop/otree.maxSpread;
+                var ratioForBuy = totalDiffBottom/otree.maxSpread;
 
-                var newLineUserSpread = parseInt(newLines[userPlayerID]["A"] - newLines[userPlayerID]["B"]);
-                var newLineMoneyRatio = otreeConstants.maxSpread/newLineUserSpread;
-                var newLineYCoordinate = svgMiddleY/newLineMoneyRatio;
+                var sellYCoordinate = ratioForSell * spreadGraph.spread_height;
+                var buyYCoordinate = ratioForBuy * spreadGraph.spread_height;
+
 
                 var newLineTop = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1", (spreadGraph.spread_width / 2) + 25)
-                            .attr("y1", svgMiddleY - newLineYCoordinate)
+                            .attr("y1", sellYCoordinate)
                             .attr("x2", (spreadGraph.spread_width / 2) - 25)
-                            .attr("y2", svgMiddleY - newLineYCoordinate)
+                            .attr("y2", sellYCoordinate)
                             .attr("stroke-width",3)
                             .attr("class","my_line my_line_top");
                 
                 var newLineBottom = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1", (spreadGraph.spread_width / 2) + 25)
-                            .attr("y1", svgMiddleY + newLineYCoordinate)
+                            .attr("y1", buyYCoordinate)
                             .attr("x2", (spreadGraph.spread_width / 2) - 25)
-                            .attr("y2", svgMiddleY + newLineYCoordinate)
+                            .attr("y2", buyYCoordinate)
                             .attr("stroke-width",3)
                             .attr("class","my_line my_line_bottom");
+                
                             
                 if(role == "MAKER"){
-                    var transactionSpeed = otreeConstants.speedLongDelay;
+                    var transactionSpeed = otree.speedLongDelay;
                     if(document.querySelector("info-table").speed_cost != 0){
-                        transactionSpeed = otreeConstants.speedShortDelay;
+                        transactionSpeed = otree.speedShortDelay;
                     }
-                    
-                    spreadGraph.drawSpreadBar(newLineUserSpread,svgMiddleY,newLineYCoordinate, offset, userPlayerID);
+
+                    spreadGraph.drawSpreadBar(sellYCoordinate,(buyYCoordinate - sellYCoordinate));
                 }
 
             } else{
@@ -657,12 +799,12 @@ class SpreadGraph extends PolymerElement {
                 spreadGraph.spread_svg.selectAll(".others_line_bottom_" + key).remove();
                 
                 var newLineOtherSpread = parseInt(newLines[key]["A"] - newLines[key]["B"]);
-                var newLineOtherMoneyRatio =  otreeConstants.maxSpread/newLineOtherSpread;
+                var newLineOtherMoneyRatio =  otree.maxSpread/newLineOtherSpread;
                 var newLineOtherYCoordinate = svgMiddleY/newLineOtherMoneyRatio;
                 
-                var updateLineMoneyRatio = otreeConstants.maxSpread/(spreadGraph.last_spread*10000);
+                var updateLineMoneyRatio = otree.maxSpread/(spreadGraph.last_spread*10000);
                 var updateLineYCoordinate = svgMiddleY/updateLineMoneyRatio;
-                spreadGraph.drawSpreadBar(spreadGraph.last_spread*10000,svgMiddleY,updateLineYCoordinate, offset, userPlayerID);
+                //spreadGraph.drawSpreadBar(spreadGraph.last_spread*10000,svgMiddleY,updateLineYCoordinate, offset, userPlayerID);
 
                 var newLineOtherTop = spreadGraph.spread_svg.append("svg:line")
                             .attr("x1",spreadGraph.spread_width)
@@ -713,7 +855,7 @@ class SpreadGraph extends PolymerElement {
     }   
   }
 
-  drawSpreadBar(my_spread,svg_middle_y,y_coordinate, offset, id){
+  drawSpreadBar(startY, rectHeight){
         //take into account
         var bar_color = "";
         //if not other maker within the spread
@@ -725,11 +867,12 @@ class SpreadGraph extends PolymerElement {
         }
         spreadGraph.spread_svg.selectAll(".green_bar").remove();
         spreadGraph.spread_svg.selectAll(".blue_bar").remove();
+        
         var your_bar_rect = spreadGraph.spread_svg.append("svg:rect")
                    .attr("x", (spreadGraph.spread_width / 2) - 25)
-                   .attr("y", spreadGraph.spread_height/2 - y_coordinate + offset)
+                   .attr("y", startY)
                    .attr("width", 50)
-                   .attr("height", 2*y_coordinate)
+                   .attr("height", rectHeight)
                    .attr("class",bar_color + " spread_bar");
 }
   
