@@ -78,6 +78,7 @@ config_maps = {
         'exogenous_event_directory': ('session', 'exogenous-event-directory'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'fundamental_value_jumps': ('exogenous-events', 'fundamental-value-jumps'),
+        'grid_size': ('parameters', 'grid-size')
         }
 }
 

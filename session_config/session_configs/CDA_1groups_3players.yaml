@@ -32,6 +32,7 @@ parameters:
   max-spread: 2
   period-length: 30
   speed-cost: 0.022
+  grid-size: 1
 
 session:
   environment: 'BCS'

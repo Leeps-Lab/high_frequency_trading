@@ -161,6 +161,8 @@ class Subsession(BaseSubsession):
         exchange_format = self.session.config['auction_format']
         if self.round_number == 1:
             self.session.config = process_configs(Constants.config_fields_to_scale, self.session.config)
+            global GRIDSIZE
+            GRIDSIZE = self.session.config['grid_size']
             if self.has_trial:
                 self.is_trial = True
                 self.round_length = self.trial_length    

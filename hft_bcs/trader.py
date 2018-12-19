@@ -12,7 +12,8 @@ from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
 
-
+from collections import namedtuple
+from .equations import latent_bid_and_offer, price_grid
 log = logging.getLogger(__name__)
 
 
@@ -86,7 +87,7 @@ class BCSTrader(BaseTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed', 'fundamental_price_change': 'jump'}
+        'E': 'executed', 'fundamental_price_change': 'jump', 'slider_change': 'slider_change'}
 
     def speed_change(self, **kwargs):
         """
@@ -321,13 +322,114 @@ class LEEPSInvestor(BCSOut):
         internal_message = format_message('exchange', **message_content)
         self.outgoing_messages.append(internal_message)
        
+
+
+Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
+
+max_ask = 2147483647
+min_bid = 0
+
+class LEEPSBasicMaker(BCSTrader):
+
+    def __init__(self, subject_state):
+        super().__init__(subject_state)
+        self.sliders = Sliders(a_x=0, a_y=0, b_x=0, b_y=0)
+        self.best_quotes = {'bid': None, 'offer': None}
+        self.distance_from_best_quote = {'bid': None, 'offer': None}
     
+    def first_move(self):
+        self.leave_market()
+        message_content = { 'group_id': self.group_id, 'type': 'leave_market', 
+            'message': {'id': self.id_in_group }}
+        internal_message = format_message('broadcast', **message_content)    
+        self.outgoing_messages.append(internal_message)
+   
+    def subject_bid_offer(self, price=None, buy_sell_indicator=None, **kwargs):
+        if buy_sell_indicator is None:
+            buy_sell_indicator = kwargs.get('side')
+        if price is None:
+            price = price_grid(kwargs.get('price'))
+        orders = self.orderstore.all_orders()
+        best_quote = self.best_quotes[buy_sell_indicator]
+        d = abs(best_quote - price)
+        self.distance_from_best_quote[buy_sell_indicator] = d
+        delay = self.calc_delay()
+        if orders:
+            for o in orders:
+                existing_token = o['order_token']
+                existing_buy_sell_indicator = o['buy_sell_indicator']
+                if buy_sell_indicator == existing_buy_sell_indicator:
+                    order_info = self.orderstore.register_replace(existing_token, price)
+                    host, port = self.exchange_host, self.exchange_port
+                    message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
+                        delay, 'order_info': order_info}
+        else:
+            order_info = self.orderstore.enter(price=price, 
+                buy_sell_indicator=buy_sell_indicator, time_in_force=99999)
+            host, port = self.exchange_host, self.exchange_port
+            message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
+                delay, 'order_info': order_info}
+        internal_message = format_message('exchange', **message_content)
+        self.outgoing_messages.append(internal_message)
 
+    def bbo_update(self, **kwargs):
+        pass
 
+class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
+    
+    def slider_change(self, lower_bound=-1, upper_bound=1, **kwargs):
+        def slider_field_check(**kwargs):
+            checked_kwargs = {}
+            for k, v in kwargs.items():
+                checked_value = int(v) 
+                if v < - 1:
+                    checked_value = -1
+                elif v > 1:
+                    checked_value = 1
+                checked_kwargs[k] = checked_value
+            return checked_kwargs
+        fields = slider_field_check(**kwargs)
+        new_slider = Sliders(**fields)
+        old_slider = self.sliders
+        if old_slider != new_slider:
+            self.latent_quote_update(slider=new_slider)
+               
+    def latent_quote_update(self, latent_quote_formula=latent_bid_and_offer, sliders=None, **kwargs):
+        if sliders is None:
+            sliders = self.sliders
+        best_bid, best_offer = kwargs.get('best_bid'), kwargs.get('best_offer')
+        order_imbalance = kwargs.get('order_imbalance')
+        latent_quotes = latent_quote_formula(best_bid, best_offer, order_imbalance, 
+                self.inventory)
+        if latent_quotes != self.latent_quote:
+            bid = None
+            offer = None
+            old_bid, old_offer = self.latent_quote.copy()
+            self.latent_quote = latent_quotes
+            new_bid, new_offer = latent_quotes
+            if new_bid != old_bid:
+                bid = new_bid
+            if new_offer != old_offer:
+                offer = new_offer
+            self.reprice(self, latent_bid=bid, latent_ask=offer)
 
-            
-
-
-
-
-        
+    def reprice(self, latent_bid=None, latent_ask=None, start_from_above=True):
+        orders = self.orderstore.all_orders()
+        assert len(orders) <= 2, 'more than two orders in market: %s' % self.orderstore
+        if orders:
+            sorted_orders = sorted(orders, key=lambda order: order['price'], 
+                                reverse=start_from_above)
+            delay = self.calc_delay()
+            for o in sorted_orders:
+                token, buy_sell_indicator = o['order_token'], o['buy_sell_indicator']
+                if latent_bid and buy_sell_indicator == 'B':
+                    new_price = latent_bid
+                    order_info = self.orderstore.register_replace(token, new_price)
+                elif latent_ask and buy_sell_indicator == 'S':
+                    new_price = latent_ask
+                    order_info = self.orderstore.register_replace(token, new_price)
+                host, port = self.exchange_host, self.exchange_port
+                message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
+                    delay, 'order_info': order_info}
+                internal_message = format_message('exchange', **message_content)
+                self.outgoing_messages.append(internal_message)

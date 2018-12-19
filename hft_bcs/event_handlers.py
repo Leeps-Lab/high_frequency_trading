@@ -37,7 +37,6 @@ def process_response(message_queue):
                 SUBPROCESSES[trade_session.id] = {}
             trade_session.clients = SUBPROCESSES[trade_session.id]         
             trade_session.receive(message_type, market_id)
-            # since I can't pickle objects with thread locks
             SUBPROCESSES[trade_session.id] = trade_session.clients
             trade_session.clients = {}
             cache.set(session_key, trade_session, timeout=cache_timeout)
