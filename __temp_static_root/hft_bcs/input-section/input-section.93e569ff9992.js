@@ -123,10 +123,10 @@ class InputSection extends PolymerElement {
         <button id="out" value="out" class="button-on" on-click="outClick" type="button" style="width:80px">Out</button>
     </div>
     <div class=" col-xs-3">
-        <button id="sniper" value="sniper" class="button-off" on-click="sniperClick" type="button" style="width:80px">Sniper</button> 
+        <button id="sniper" value="sniper" class="button-off col-xs-3" on-click="sniperClick" type="button" style="width:80px">Snipe</button> 
     </div>
     <div class=" col-xs-3">
-        <button id="maker" value="maker" class="button-off" on-click="makerClick" type="button" style="width:80px">Maker</button>
+        <button id="maker" value="maker" class="button-off col-xs-3" on-click="makerClick" type="button" style="width:80px">Maker</button>
     </div>
     <div class=" col-xs-3">
         <p style="text-align: center; font-size:16px; margin-left: 50%; margin-top:40px;">Speed</p>

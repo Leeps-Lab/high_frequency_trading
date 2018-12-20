@@ -106,7 +106,7 @@ class SpreadGraph extends PolymerElement {
   refX="6"
   refY="6"
   orient="auto">
-  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #309930;"></path>
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #B2D8B2;"></path>
 </marker>
 <marker
   id="askArrow"
@@ -117,7 +117,7 @@ class SpreadGraph extends PolymerElement {
   refX="6"
   refY="6"
   orient="auto">
-  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #CB1C36;"></path>
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #FFB2B2;"></path>
 </marker>
 </defs>
 </svg>
@@ -289,17 +289,16 @@ class SpreadGraph extends PolymerElement {
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 15)  
-        .attr("stroke","#309930")  
+        .attr("stroke","#B2D8B2")  
         .attr("stroke-width",7)  
         .attr("marker-end","url(#bidArrow)")
         .call(d3.drag()
             .on("drag", function(){
-                //Making sure not to drag past other arrow line
-                var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") - 10 <= d3.event.x) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
+                var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") <= d3.event.x - 10) ? spreadGraph.askArrow["askArrowLine"].attr("x1") : d3.event.x ;
                 spreadGraph.bidArrow["bidArrowLine"].attr("x1",  lineX).attr("x2", lineX);
             })
             .on("end", function(){
-                    //finding the price in which is just past the dropped x value
+
                     var x = spreadGraph.bidArrow["bidArrowLine"].attr("x1");
                     var tickArray = Object.keys(spreadGraph.visibleTickLines);
                     for(var i = 0; i < tickArray.length; i++){
@@ -307,22 +306,18 @@ class SpreadGraph extends PolymerElement {
                             break;
                         }
                     }
-                    //finding diff from upper and lower
+                
                     var diffUpper =  Math.abs(spreadGraph.visibleTickLines[tickArray[i]] - x);
                     var diffLower = Math.abs(spreadGraph.visibleTickLines[tickArray[i - 1]]  - x);
+                    //Send message over socket to submit order and update price within arrowObject 
                     
-                    // Snapping to the closes price based on drop
                     var snappedX = (diffUpper < diffLower) ? spreadGraph.visibleTickLines[tickArray[i]] : spreadGraph.visibleTickLines[tickArray[i - 1]];
                     var snappedPrice = (diffUpper < diffLower) ? tickArray[i] : tickArray[i - 1];
                      
-                    //Check for ask line x making sure it cant snap to other line 
+                    //Check for ask line x
                     var checkedX = (spreadGraph.askArrow["askArrowLine"].attr("x1") == snappedX) ? spreadGraph.visibleTickLines[tickArray[i - 1]] : snappedX;
                     var checkedPrice = (spreadGraph.askArrow["askArrowLine"].attr("x1") == snappedX) ? tickArray[i - 1] : snappedPrice;
-                    
-                    spreadGraph.bidArrow["bidArrowLine"].price = checkedPrice;
-                    /*
-                        //SEND spreadGraph.bidArrow["bidArrowLine"].price OVER SOCKET ********* 
-                    */
+                    console.log(checkedPrice);
                     spreadGraph.bidArrow["bidArrowLine"].attr("x1",  checkedX).attr("x2", checkedX);
 
                 }   
@@ -335,43 +330,17 @@ class SpreadGraph extends PolymerElement {
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 15)  
-        .attr("stroke","#CB1C36")  
+        .attr("stroke","#FFB2B2")  
         .attr("stroke-width",7)  
         .attr("marker-end","url(#askArrow)")
         .call(d3.drag()
             .on("drag", function(){
-                //Making sure not to drag past other arrow line
-                var lineXAsk = (spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
-                spreadGraph.askArrow["askArrowLine"].attr("x1",  lineXAsk).attr("x2", lineXAsk);
+                // console.log(spreadGraph.askArrow["askArrowLine"].attr("x1"));
+                spreadGraph.askArrow["askArrowLine"].attr("x1",  d3.event.x).attr("x2", d3.event.x);
             })
             .on("end", function(){
-                    //finding the price in which is just past the dropped x value
-                    var xAsk = spreadGraph.askArrow["askArrowLine"].attr("x1");
-                    var tickArray = Object.keys(spreadGraph.visibleTickLines);
-                    for(var i = 0; i < tickArray.length; i++){
-                        if(spreadGraph.visibleTickLines[tickArray[i]] > xAsk){
-                            break;
-                        }
-                    }
-                    //finding diff from upper and lower
-                    var diffUpperAsk =  Math.abs(spreadGraph.visibleTickLines[tickArray[i]] - xAsk);
-                    var diffLowerAsk = Math.abs(spreadGraph.visibleTickLines[tickArray[i - 1]]  - xAsk);
                     
-                    // Snapping to the closes price based on drop
-                    var snappedXAsk = (diffUpperAsk < diffLowerAsk) ? spreadGraph.visibleTickLines[tickArray[i]] : spreadGraph.visibleTickLines[tickArray[i - 1]];
-                    var snappedPriceAsk = (diffUpperAsk < diffLowerAsk) ? tickArray[i] : tickArray[i - 1];
-                    
-                    //Check for ask line x making sure it cant snap to other line 
-                    var checkedXAsk = (spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? spreadGraph.visibleTickLines[tickArray[i]] : snappedXAsk;
-                    var checkedPriceAsk = (spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? tickArray[i] : snappedPriceAsk;
-                    
-                    spreadGraph.askArrow["askArrowLine"].price = checkedPriceAsk;
-                    /*
-                        //SEND spreadGraph.askArrow["askArrowLine"].price OVER SOCKET ********* 
-                    */
-                    spreadGraph.askArrow["askArrowLine"].attr("x1",  checkedXAsk).attr("x2", checkedXAsk);
-
-                }   
+                }
             )
             
     );

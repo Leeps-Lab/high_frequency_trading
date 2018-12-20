@@ -106,7 +106,7 @@ class SpreadGraph extends PolymerElement {
   refX="6"
   refY="6"
   orient="auto">
-  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #309930;"></path>
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #B2D8B2;"></path>
 </marker>
 <marker
   id="askArrow"
@@ -117,7 +117,7 @@ class SpreadGraph extends PolymerElement {
   refX="6"
   refY="6"
   orient="auto">
-  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #CB1C36;"></path>
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #FFB2B2;"></path>
 </marker>
 </defs>
 </svg>
@@ -289,13 +289,13 @@ class SpreadGraph extends PolymerElement {
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 15)  
-        .attr("stroke","#309930")  
+        .attr("stroke","#B2D8B2")  
         .attr("stroke-width",7)  
         .attr("marker-end","url(#bidArrow)")
         .call(d3.drag()
             .on("drag", function(){
                 //Making sure not to drag past other arrow line
-                var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") - 10 <= d3.event.x) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
+                var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") <= d3.event.x - 10) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
                 spreadGraph.bidArrow["bidArrowLine"].attr("x1",  lineX).attr("x2", lineX);
             })
             .on("end", function(){
@@ -335,7 +335,7 @@ class SpreadGraph extends PolymerElement {
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 15)  
-        .attr("stroke","#CB1C36")  
+        .attr("stroke","#FFB2B2")  
         .attr("stroke-width",7)  
         .attr("marker-end","url(#askArrow)")
         .call(d3.drag()
@@ -349,13 +349,13 @@ class SpreadGraph extends PolymerElement {
                     var xAsk = spreadGraph.askArrow["askArrowLine"].attr("x1");
                     var tickArray = Object.keys(spreadGraph.visibleTickLines);
                     for(var i = 0; i < tickArray.length; i++){
-                        if(spreadGraph.visibleTickLines[tickArray[i]] > xAsk){
+                        if(spreadGraph.visibleTickLines[tickArray[i]] > x){
                             break;
                         }
                     }
                     //finding diff from upper and lower
-                    var diffUpperAsk =  Math.abs(spreadGraph.visibleTickLines[tickArray[i]] - xAsk);
-                    var diffLowerAsk = Math.abs(spreadGraph.visibleTickLines[tickArray[i - 1]]  - xAsk);
+                    var diffUpperAsk =  Math.abs(spreadGraph.visibleTickLines[tickArray[i]] - x);
+                    var diffLowerAsk = Math.abs(spreadGraph.visibleTickLines[tickArray[i - 1]]  - x);
                     
                     // Snapping to the closes price based on drop
                     var snappedXAsk = (diffUpperAsk < diffLowerAsk) ? spreadGraph.visibleTickLines[tickArray[i]] : spreadGraph.visibleTickLines[tickArray[i - 1]];
