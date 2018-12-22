@@ -9,6 +9,7 @@ from .subject_state import LEEPSInvestorState
 from .orderstore import OrderStore
 from .utility import format_message
 
+from .equations import order_imbalance_function
 log = logging.getLogger(__name__)
 
 class MarketFactory:
@@ -165,6 +166,55 @@ class BCSMarket(BaseMarket):
         event_code = kwargs.get('event_code')
         broadcast_info = ('batch', {'event': event_code})
         self.broadcast_to_subscribers(broadcast_info)   
+
+
+class LEEPSMarket(BCSMarket):
+
+    def __init__(self, order_imbalance_function, **kwargs):
+        super().__init__(**kwargs)
+        self.order_imbalance = next(order_imbalance_function)
+        self.role_groups = {'maker_basic':[], 'maker_latent': [], 'taker': []}
+    
+    def role_change(self, new_role:str, old_role:str, player_id:str, **kwargs):
+        if new_role not in self.roles:
+            raise KeyError('invalid role: %s' % new_role)
+        self.role_groups[new_role].append(player_id)
+        if old_role in self.role_groups:
+            self.role_groups[old_role].pop(player_id)
+    
+    def order_imbalance_change(self, order_imbalance_function=order_imbalance_function,
+            **kwargs):
+        buy_sell_indicator = kwargs.get('buy_sell_indicator')
+        current_order_imbalance = order_imbalance_function.send(buy_sell_indicator)
+        if current_order_imbalance != self.order_imbalance:
+            self.order_imbalance = current_order_imbalance
+        maker_ids = self.role_groups['maker_latent']
+        message_content = {
+            'type':'order_imbalance_change', 
+            'order_imbalance': current_order_imbalance, 
+            'maker_ids': maker_ids}
+        internal_message = format_message('market', **message_content)
+        self.outgoing_messages.append(internal_message)
+
+    def bbo_update(self, **kwargs):
+        all_maker_ids = itertools.chain(self.role_groups['maker_basic'], 
+            self.role_groups['maker_latent'])
+        message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
+            'maker_ids': all_maker_ids}
+        internal_message = format_message('market', **message_content)
+        self.outgoing_messages.append(internal_message)
+        best_bid, best_offer = kwargs['best_bid'], kwargs['best_offer']
+        broadcast_info = ('bbo', {'best_bid': best_bid, 'best_offer': best_offer})
+        self.broadcast_to_subscribers(broadcast_info)
+        
+
+         
+
+
+        
+
+
+
 
 
 

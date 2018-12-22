@@ -68,8 +68,9 @@ class ExogenousEvent(object):
 
 class BCSExogenousEvent(ExogenousEvent):
 
-    def __init__(self, url, filename):
+    def __init__(self, event_type, url, filename):
         super().__init__(url, filename)
+        self.event_type = event_type
         self.read()
 
     def run(self):
@@ -86,6 +87,7 @@ class BCSExogenousEvent(ExogenousEvent):
             for ix, field in enumerate(row):
                 key = column_names[ix]
                 msg[key] = field
+            msg['type'] = self.event_type
             log.info('Sleep %f (%f:%f) seconds.' % (sleep_time, time_prev, msg_time))
             time.sleep(sleep_time)
             self.ws.send(json.dumps(msg))
@@ -95,7 +97,7 @@ class BCSExogenousEvent(ExogenousEvent):
 
 
 def main():
-    investor = BCSExogenousEvent(sys.argv[1], sys.argv[2])
+    investor = BCSExogenousEvent(sys.argv[1], sys.argv[2], sys.argv[3])
     investor.read()
     investor.add_ws()
     investor.ws.run_forever()

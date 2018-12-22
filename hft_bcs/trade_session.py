@@ -5,6 +5,7 @@ from .utility import exogenous_event_client, exogenous_event_endpoints
 import logging
 import os
 from twisted.internet import reactor
+from .utility import format_message
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ class TradeSession:
         self.clients = {}
         self.exogenous_events = {}
         self.trading_markets = []
+        self.outgoing_messages = deque()
 
     def register_market(self, market_id, market_format):
         self.markets[market_id] = False
@@ -51,7 +53,7 @@ class TradeSession:
         if self.exogenous_events:
             for event_type, filename in self.exogenous_events.items():
                 url = exogenous_event_endpoints[event_type]
-                args = ['python', exogenous_event_client, url, filename]
+                args = ['python', exogenous_event_client, event_type, url, filename]
                 process = subprocess.Popen(args)
                 self.clients[event_type] = process
 
@@ -67,8 +69,9 @@ class LEEPSTradeSession(TradeSession):
         is_ready = (True if False not in self.markets.values() else False)
         if is_ready and not self.is_trading:
             for market_id, _ in self.markets.items():
-                message_queue = receive_market_message(market_id, 'market_start')
-                process_response(message_queue)
+                message_content = {'type': 'market_start', 'market_id': market_id}
+                message = format_message('event', **message_content)
+                self.outgoing_messages.append(message)
                 self.trading_markets.append(market_id)
             self.run_exogenous_events()
             self.is_trading = True
@@ -78,8 +81,9 @@ class LEEPSTradeSession(TradeSession):
         if self.is_trading:
             while self.trading_markets:
                 market_id = self.trading_markets.pop()
-                message_queue = receive_market_message(market_id, 'market_end')
-                process_response(message_queue)
+                message_content = {'type': 'market_end', 'market_id': market_id}
+                message = format_message('event', **message_content)
+                self.outgoing_messages.append(message)
             self.stop_exogenous_events()
             self.subsession.session.advance_last_place_participants()
             self.is_trading = False

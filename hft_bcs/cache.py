@@ -56,5 +56,3 @@ def get_players_by_market(market_id:str):
             player = cache.get(player_key)
             players_data.append(player)
     return players_data
-
-
