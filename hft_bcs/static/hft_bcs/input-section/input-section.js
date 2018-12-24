@@ -5,141 +5,6 @@ import {html,PolymerElement} from '../node_modules/@polymer/polymer/polymer-elem
  * @polymer
  */
 class InputSection extends PolymerElement {
-  static get template() {
-    return html`
-<style>
-    .button-on{
-        background-color:steelblue;
-        border-color: solid black 5px;
-        color:white;
-        border-color: black;
-        border-width: 2px;
-    }
-
-    .button-on-sniper{
-        background-color:orangered;
-        border-color: solid black 5px;
-        color:white;
-        border-color: black;
-        border-width: 2px;
-    }
-
-    .button-pressed{
-        background-color:#444444;
-        color:white;
-    }
-    .button-off{
-        background-color:#666666;
-        color:white;
-    }
-    input{
-        margin-left:30px;
-        margin-top:20px;
-    }
-
-    .button-container{
-        background-color: rgb(230, 230, 230);
-        padding-bottom: 5px;
-        flex: 1 1 auto;
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-    }
-
-
-
-    .button-container-speed {
-        background-color: rgb(230, 230, 230);
-        flex: 1 1 auto;
-    }
-
-    button {
-        border-radius: 8px;
-        font-size: 16px;
-        margin-left:50%;
-    }
-
-    /* The switch - the box around the slider */
-    .switch {
-        position: relative;
-        display: inline-block;
-        width: 60px;
-        height: 34px;
-    }
-
-    /* Hide default HTML checkbox */
-    .switch input {display:none;}
-
-    /* The slider */
-    .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        -webkit-transition: .4s;
-        transition: .4s;
-    }
-
-    .slider:before {
-        position: absolute;
-        content: "";
-        height: 26px;
-        width: 26px;
-        left: 4px;
-        bottom: 4px;
-        background-color: white;
-        -webkit-transition: .4s;
-        transition: .4s;
-    }
-
-    input:checked + .slider {
-        background-color: #1fd15a;
-    }
-
-    input:focus + .slider {
-        box-shadow: 0 0 1px #1fd15a;
-    }
-
-    input:checked + .slider:before {
-        -webkit-transform: translateX(26px);
-        -ms-transform: translateX(26px);
-        transform: translateX(26px);
-    }
-
-    /* Rounded sliders */
-    .slider.round {
-        border-radius: 34px;
-    }
-
-    .slider.round:before {
-        border-radius: 50%;
-    }
-</style>
-<div class="row">
-    <div class=" col-xs-3">
-        <button id="out" value="out" class="button-on" on-click="outClick" type="button" style="width:80px">Out</button>
-    </div>
-    <div class=" col-xs-3">
-        <button id="sniper" value="sniper" class="button-off" on-click="sniperClick" type="button" style="width:80px">Sniper</button> 
-    </div>
-    <div class=" col-xs-3">
-        <button id="maker" value="maker" class="button-off" on-click="makerClick" type="button" style="width:80px">Maker</button>
-    </div>
-    <div class=" col-xs-3">
-        <p style="text-align: center; font-size:16px; margin-left: 50%; margin-top:40px;">Speed</p>
-        <label class="switch" style="margin-left: 50%; margin-top: -10px;" >
-                <br>
-                <input id="speed_checkbox" type="checkbox" on-click="updateSpeed">
-                <span class="slider round"></span>
-        </label>
-    </div>
-</div>
-<br>
-    `;
-  }
 
   static get properties() {
     return {
@@ -153,14 +18,185 @@ class InputSection extends PolymerElement {
   constructor() {
     super();
     this.socket = socketActions.socket;
-    //Start as speed false
-    this.speed = false;
+
     interactiveComponent.inputSectionDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("input-section");
     interactiveComponent.inputSectionDOM.attachShadow({mode: 'open'});
-    inputSection.inputSectionShadowDOM =  interactiveComponent.inputSectionDOM.shadowRoot;
-    inputSection.inputSectionShadowDOM = d3.select(inputSection.shadow_dom);
-    
 
+    inputSection.inputSectionShadowDOM =  interactiveComponent.inputSectionDOM.shadowRoot;
+    inputSection.inputSectionShadowDOMD3 = d3.select(inputSection.shadow_dom);
+    //Second we add the HTML neccessary to be manipulated in the constructor and the subsequent functions
+    inputSection.inputSectionShadowDOM.innerHTML = `
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <style>
+        .button-on{
+            background-color:steelblue;
+            border-color: solid black 5px;
+            color:white;
+            border-color: black;
+            border-width: 2px;
+        }
+    
+        .button-on-sniper{
+            background-color:orangered;
+            border-color: solid black 5px;
+            color:white;
+            border-color: black;
+            border-width: 2px;
+        }
+    
+        .button-pressed{
+            background-color:#444444;
+            color:white;
+        }
+        .button-off{
+            background-color:#666666;
+            color:white;
+        }
+        #speed_checkbox{
+            margin-left:30px;
+            margin-top:20px;
+        }
+    
+        .button-container{
+            background-color: rgb(230, 230, 230);
+            padding-bottom: 5px;
+            flex: 1 1 auto;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+        }
+    
+    
+    
+        .button-container-speed {
+            background-color: rgb(230, 230, 230);
+            flex: 1 1 auto;
+        }
+    
+        /* The switch - the box around the slider */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+    
+        /* Hide default HTML checkbox */
+        .switch #speed_checkbox {display:none;}
+    
+        /* The slider */
+        #speed_checkbox {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+    
+        #speed_checkbox:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+    
+        #speed_checkbox:checked + #speed_checkbox {
+            background-color: #1fd15a;
+        }
+    
+        #speed_checkbox:focus + #speed_checkbox {
+            box-shadow: 0 0 1px #1fd15a;
+        }
+    
+        #speed_checkbox:checked + #speed_checkbox:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+    
+        /* Rounded sliders */
+        #speed_checkbox.round {
+            border-radius: 34px;
+        }
+    
+        #speed_checkbox.round:before {
+            border-radius: 50%;
+        }
+    </style>
+    <!--
+    <div class="row">
+        <div class=" col-xs-3">
+            <button id="out" value="out" class="button-on" on-click="outClick" type="button" style="width:80px">Out</button>
+        </div>
+        <div class=" col-xs-3">
+            <button id="sniper" value="sniper" class="button-off" on-click="sniperClick" type="button" style="width:80px">Sniper</button> 
+        </div>
+        <div class=" col-xs-3">
+            <button id="maker" value="maker" class="button-off" on-click="makerClick" type="button" style="width:80px">Maker</button>
+        </div>
+        <div class=" col-xs-3">
+            <p style="text-align: center; font-size:16px; margin-left: 50%; margin-top:40px;">Speed</p>
+            <label class="switch" style="margin-left: 50%; margin-top: -10px;" >
+                    <br>
+                    <input id="speed_checkbox" type="checkbox" on-click="updateSpeed">
+                    <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+    <br>
+    -->
+    
+    <div class="container-fluid">
+    <div class="row">
+        <div class="text-center col-lg-3">
+            <button  value="out" class="text-center btn btn-primary" on-click="manualClick" type="button">Manual</button>
+            <div style="margin-top:25px;">
+                <button  value="out" class="text-center btn btn-success" on-click="outClick" type="button">Submit Changes</button>
+            </div>
+        </div>
+        <div class="text-center col-lg-3" >
+            <button  value="out" class="text-center btn btn-primary" on-click="outClick" type="button">Algorithm A</button>
+            <div style="margin-top:25px;">
+                <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
+                <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
+            </div>
+        </div>
+        <div class="text-center col-lg-3">
+            <button value="out" class="text-center btn btn-primary" on-click="outClick" type="button">Algorithm B</button>
+            <div style="margin-top:25px;">
+                <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
+                <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
+            </div>
+        </div>
+        <div class="text-center col-lg-3">
+            <p>Speed</p>
+            <label class="switch" >
+                    <br>
+                    <input id="speed_checkbox" type="checkbox" on-click="updateSpeed">
+                    <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        
+    `;
+
+    //Start as speed false
+    this.speed = false;
+   
     if(otree.FBA){
             //INPUT SECTION
         inputSection.shadow_dom_D3.append("svg").attr("id","timer_FBA");
@@ -170,11 +206,33 @@ class InputSection extends PolymerElement {
         inputSection.startTimer = this.startTimer;
         inputSection.drawTimer();
     }
-
     inputSection.Button_Pressed = this.Button_Pressed;
     inputSection.startBatchTimer = this.startBatchTimer;
     inputSection.updateSpeed = this.updateSpeed;
+
+    this.activateSliders();
+
   }
+
+  activateSliders() {
+        
+        var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
+        var sens1Output = inputSection.inputSectionShadowDOM.querySelector("#sens_1_output");
+        var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
+        var sens2Output = inputSection.inputSectionShadowDOM.querySelector("#sens_2_output");
+        sens1Output.innerHTML = sens1.value;
+        sens2Output.innerHTML = sens2.value;
+    
+        sens1.oninput = function() {
+
+            sens1Output.innerHTML = this.value;
+        }
+        sens2.oninput = function() {
+        
+            sens2Output.innerHTML = this.value;
+        }
+      
+  } 
 
   makerClick(input_object){
 

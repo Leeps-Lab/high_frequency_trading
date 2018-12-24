@@ -515,7 +515,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         profitGraph.drawPriceGridLines();
         profitGraph.drawPriceAxis();
 
-        var speed = document.querySelector("input-section").shadowRoot.querySelector("#speed_checkbox").checked
+        var speed = inputSection.inputSectionDOM.querySelector("#speed_checkbox").checked;
         /* *****************************************************************************
         * Data Structures present in Redwood front end, and need to be adapted to otree 
         ******************************************************************************/ 
