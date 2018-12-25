@@ -192,7 +192,6 @@ class InputSection extends PolymerElement {
     inputSection.algo1Button = this.algo1Button;
     inputSection.algo2Button = this.algo2Button;
     inputSection.submitButton = this.submitButton;
-    inputSection.outButton = this.outButton;
 
     this.activateSliders();
     this.activateButtons();
@@ -228,7 +227,7 @@ class InputSection extends PolymerElement {
     manualButton.onclick = inputSection.manualClick;
     algo1Button.onclick = inputSection.algo1Button;
     algo2Button.onclick = inputSection.algo2Button;
-    outButton.onclick = inputSection.outButton;
+    outButton.onclick = inputSection.outClick;
     submitButton.onclick = inputSection.submitButton;
 
   } 
@@ -252,12 +251,6 @@ class InputSection extends PolymerElement {
     }
 
     algo1Button(){
-        
-        //update player object 
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "algo1";
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
@@ -268,10 +261,6 @@ class InputSection extends PolymerElement {
     }
 
     algo2Button(){
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "algo2";
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
@@ -282,6 +271,7 @@ class InputSection extends PolymerElement {
     }
 
     submitButton(){
+        
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
         var sens1Value = sens1.value;
@@ -293,15 +283,13 @@ class InputSection extends PolymerElement {
     }
 
     outButton(){
-        
-        spreadGraph.removeArrows();
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "out";
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
         submitButton.disabled = true;
         sens1.disabled = true;
         sens2.disabled = true;
+        
 
     }
 

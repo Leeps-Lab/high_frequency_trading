@@ -192,7 +192,7 @@ class SpreadGraph extends PolymerElement {
     //Activating the event listener
     // spreadGraph.listen();
     //spreadGraph.mapSpreadGraph();
-    this.drawOrder();
+
 
   }
   start(){

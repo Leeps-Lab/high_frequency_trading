@@ -12,29 +12,35 @@ class InteractiveComponent extends PolymerElement {
     //Second we add the HTML neccessary to be manipulated in the constructor and the subsequent functions
     interactiveComponent.interactiveComponentShadowDOM.innerHTML = `
 
-<spread-graph></spread-graph>
+  <spread-graph></spread-graph>
 
-<div class="button-container">
-    <input-section></input-section>
-</div>
-`;
+  <div class="button-container">
+      <input-section></input-section>
+  </div>
+  `;
+  interactiveComponent.updateOrders = this.updateOrders;
 
+  }
 
-    this.startInteractiveComponent();
+  updateOrders(msg){
+    //filter order message
+    //At playersInMarket[playerId]
+      /*
+        - update the order 
+        - update price
+        - update type
+      */
 
+    //At visibileticklines[price]
+      /*
+        - Add order to the queue
+      */
+
+      
 
   }
 
 
-    startInteractiveComponent(){
-     
-
-
-
-    }
-
-
-
-  }
+}
 
 window.customElements.define('interactive-component', InteractiveComponent);

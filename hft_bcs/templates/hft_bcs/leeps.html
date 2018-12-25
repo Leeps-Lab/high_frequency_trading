@@ -54,49 +54,51 @@
 
     
 <script>
-//All socket actions are stored in this object to be used in the seperated js files
-let socketActions = {};
 
-let spreadGraph = {};
+    //All socket actions are stored in this object to be used in the seperated js files
+    let socketActions = {};
 
-let profitGraph = {};
+    let spreadGraph = {};
 
-let inputSection = {};
+    let profitGraph = {};
 
-let interactiveComponent = {};
-/*  
-    example
-    playersInMarket = {
-        playerID(1):{ 
-             orders: [ 
-                {
-                    tok: "SUBAS000000045", price: 986243
-                },
-                {
-                    tok: "SUBAS000000046", price: 966243
-                }
-            ]
-        isSniper: false
+    let inputSection = {};
+
+    let interactiveComponent = {};
+    /*  
+        example
+        playersInMarket = {
+            playerID(1):{ 
+                orders: [ 
+                    {
+                        tok: "SUBAS000000045", price: 986243
+                    },
+                    {
+                        tok: "SUBAS000000046", price: 966243
+                    }
+                ]
+            strategy: "manual"
+            }
+            playerID(n):{ 
+                orders: [ 
+                    {
+                        tok: "...", price: ...
+                    },
+                    {
+                        tok: "...", price: ...
+                    }
+                ]
+            strategy: "manual" || "out" || "algo1" || "algo2"
+            }
         }
-        playerID(n):{ 
-             orders: [ 
-                {
-                    tok: "...", price: ...
-                },
-                {
-                    tok: "...", price: ...
-                }
-            ]
-        isSniper: T || F
-        }
-    }
-*/
-let playersInMarket = {}; 
+    */
+    
 
-/*  
-IMPORTANT:
-Constant, Player, and Group Information from oTree stored in the otree objects
-*/
+
+    /*  
+    IMPORTANT:
+    Constant, Player, and Group Information from oTree stored in the otree objects
+    */
     otree.groupIDInfoTable = {{group.id_in_subsession}};
     otree.groupID = {{group.id}};
     otree.playerID = {{player.id}};
@@ -120,7 +122,6 @@ Constant, Player, and Group Information from oTree stored in the otree objects
     otree.sync = false;      //When player syncs at beginning  of expirement this is turned to true
     otree.offset = 0;  
 
-
     if(otree.design == "CDA"){
         otree.CDA  = true; 
     } else if(otree.design == "FBA"){
@@ -128,7 +129,14 @@ Constant, Player, and Group Information from oTree stored in the otree objects
     } else if(otree.design == "IEX"){
         otree.IEX = true;
     }
+
+
+    let playersInMarket = {}; 
+    //DO FOR ALL PLAYERS IN THE MARKET INITIALIZE PLAYER OBJECT 
+    playersInMarket[otree.playerIDInGroup] = {};
     
+
+
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
@@ -412,6 +420,8 @@ Socket Actions
                 socketActions.socket.send(JSON.stringify(msg));
             }
     }
+
+
 </script>
 
 

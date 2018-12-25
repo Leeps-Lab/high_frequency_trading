@@ -174,7 +174,8 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
     spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
     spreadGraph.drawArrows = this.drawArrows;
-    spreadGraph.dragArrow = this.dragArrow;
+    spreadGraph.removeArrows = this.removeArrows
+
 
     /*
         price: price it is pointed at
@@ -191,7 +192,7 @@ class SpreadGraph extends PolymerElement {
     //Activating the event listener
     // spreadGraph.listen();
     //spreadGraph.mapSpreadGraph();
-
+    this.drawOrder();
 
   }
   start(){
@@ -227,56 +228,22 @@ class SpreadGraph extends PolymerElement {
     }   
 
     spreadGraph.drawPossibleSpreadTicks();  
-    spreadGraph.drawArrows();  
+    // spreadGraph.drawArrows();  
   }
 
-  /*
-   *  Map the user click of the spread click to a price then sends that spread to the backend
-   */
-//   listen(){
-//     spreadGraph.spread_svg.on('click',function(d) {
-//       spreadGraph.svg_y_offset = spreadGraph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top;
-//       var role = document.querySelector('info-table').player_role;
-//         if(role == "MAKER"){
-//             var svg_middle_x = spreadGraph.spread_width / 2;
-//             var fp_line_y = spreadGraph.spread_height / 2;
-            
-//             var clicked_point = {
-//                 x:(d3.event.clientX ),
-//                 y:(d3.event.clientY - spreadGraph.svg_y_offset)
-//             };
+  drawOrder(price = 960000){
 
-//             var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
-//             var ratio = distance_from_middle / (spreadGraph.spread_height/2);
-//             var my_spread = (ratio*otree.maxSpread).toFixed(0);
-//             var svg_middle_y = spreadGraph.spread_height/2;
+    //What do I need from this?
+    
 
+        spreadGraph.spread_svg.append("circle")
+            .attr("cx", spreadGraph.visibleTickLines[price])
+            .attr("cy", spreadGraph.spread_height*0.3)
+            .attr("r", 5)
+            .attr("class","queue user-bubble");
+    
 
-//             if(my_spread < otree.min_spread){
-//                 //enforce a minimum spread
-//                 my_spread = otree.min_spread;
-//             }   
-            
-//             var money_ratio =  otree.maxSpread/my_spread;
-
-//             var y_coordinate = svg_middle_y/money_ratio;
-
-//             spreadGraph.drawLineAttempt(y_coordinate);
-
-//             if(otree.IEX == true){
-//                 //Choose one of the spread lines that
-//                 for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
-//                     if(my_spread < spreadGraph.possibleSpreadLines[i]){
-//                         my_spread = spreadGraph.possibleSpreadLines[i-1];
-//                         break;
-//                     }
-//                 }
-//             }
-
-//             spreadGraph.sendSpreadChange(my_spread);
-//           } 
-//     });
-//   }
+  }
 
   drawArrows(){
       //Green Bid --> #B2D8B2
@@ -291,12 +258,24 @@ class SpreadGraph extends PolymerElement {
         .attr("y2",spreadGraph.spread_height*0.6 + 20)  
         .attr("stroke","#309930")  
         .attr("stroke-width",7)  
-        .attr("marker-end","url(#bidArrow)")
-        .call(d3.drag()
+        .attr("marker-end","url(#bidArrow)");
+ 
+        
+    spreadGraph.askArrow["askArrowLine"] = spreadGraph.spread_svg.append("line")
+        .attr("x1",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
+        .attr("y1",spreadGraph.spread_height - 25)  
+        .attr("x2",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
+        .attr("y2",spreadGraph.spread_height*0.6 + 20)  
+        .attr("stroke","#CB1C36")  
+        .attr("stroke-width",7)  
+        .attr("marker-end","url(#askArrow)");
+        
+    if(playersInMarket[otree.playerIDInGroup]["strategy"] === "manual"){
+        spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
             .on("drag", function(){
                 //Making sure not to drag past other arrow line
                 var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") - 10 <= d3.event.x) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
-                spreadGraph.bidArrow["bidArrowText"].attr("x", lineX);
+                spreadGraph.bidArrow["bidArrowText"].attr("x", lineX - 10);
                 spreadGraph.bidArrow["bidArrowLine"].attr("x1",  lineX).attr("x2", lineX);
             })
             .on("end", function(){
@@ -315,7 +294,7 @@ class SpreadGraph extends PolymerElement {
                     // Snapping to the closes price based on drop
                     var snappedX = (diffUpper < diffLower) ? spreadGraph.visibleTickLines[tickArray[i]] : spreadGraph.visibleTickLines[tickArray[i - 1]];
                     var snappedPrice = (diffUpper < diffLower) ? tickArray[i] : tickArray[i - 1];
-                     
+                    
                     //Check for ask line x making sure it cant snap to other line 
                     var checkedX = (spreadGraph.askArrow["askArrowLine"].attr("x1") == snappedX) ? spreadGraph.visibleTickLines[tickArray[i - 1]] : snappedX;
                     var checkedPrice = (spreadGraph.askArrow["askArrowLine"].attr("x1") == snappedX) ? tickArray[i - 1] : snappedPrice;
@@ -324,28 +303,20 @@ class SpreadGraph extends PolymerElement {
                     /*
                         //SEND spreadGraph.bidArrow["bidArrowLine"].price OVER SOCKET ********* 
                     */
-                   spreadGraph.bidArrow["bidArrowText"].attr("x", checkedX - 10);
+                    spreadGraph.bidArrow["bidArrowText"].attr("x", checkedX - 10);
                     spreadGraph.bidArrow["bidArrowLine"].attr("x1",  checkedX).attr("x2", checkedX);
 
                 }   
             )
-          
-    );
         
-    spreadGraph.askArrow["askArrowLine"] = spreadGraph.spread_svg.append("line")
-        .attr("x1",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
-        .attr("y1",spreadGraph.spread_height - 25)  
-        .attr("x2",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
-        .attr("y2",spreadGraph.spread_height*0.6 + 20)  
-        .attr("stroke","#CB1C36")  
-        .attr("stroke-width",7)  
-        .attr("marker-end","url(#askArrow)")
-        .call(d3.drag()
+        );
+
+        spreadGraph.askArrow["askArrowLine"].call(d3.drag()
             .on("drag", function(){
                 //Making sure not to drag past other arrow line
                 var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
                 console.log(lineXAsk);
-                spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk);
+                spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
                 spreadGraph.askArrow["askArrowLine"].attr("x1",  lineXAsk).attr("x2", lineXAsk);
             })
             .on("end", function(){
@@ -380,7 +351,9 @@ class SpreadGraph extends PolymerElement {
                 }   
             )
             
-    );
+        );
+    }
+        
 
     spreadGraph.bidArrow["bidArrowText"]  = spreadGraph.spread_svg.append("text")
         .attr("text-anchor", "start")
@@ -394,9 +367,16 @@ class SpreadGraph extends PolymerElement {
         .attr("x", +spreadGraph.askArrow["askArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
         .attr("class", "price-grid-line-text")
-        .text("ASK");
-    
-        
+        .text("ASK");        
+  }
+
+  removeArrows(){
+    if(spreadGraph.bidArrow["bidArrowLine"] != undefined && spreadGraph.askArrow["askArrowLine"] != undefined){
+        spreadGraph.bidArrow["bidArrowLine"].remove();
+        spreadGraph.askArrow["askArrowLine"].remove();
+        spreadGraph.bidArrow["bidArrowText"].remove();
+        spreadGraph.askArrow["askArrowText"].remove();
+    }
   }
 
 
@@ -441,50 +421,7 @@ class SpreadGraph extends PolymerElement {
     * Draws the possible spread ticks based on the set of possible spread ticks
     */
     drawPossibleSpreadTicks(){
-    //Draws the possible spread ticks for IEX
-    // var temp = parseInt(otree.min_spread);
-    // var svg_middle_y = spreadGraph.spread_height/2;
-    // var maxSpread = parseInt(otree.maxSpread);
-    // spreadGraph.possibleSpreadLines = [];
-    //     for(;temp < maxSpread;){
-    //         //Every spread price is drawn and so is the price
-    //         var money_ratio =  maxSpread/temp;
-    //         var y_coordinate = svg_middle_y/money_ratio;
-            
-    //         spreadGraph.spread_svg.append("svg:line")
-    //             .attr("x1", (spreadGraph.spread_width / 2) - 15)
-    //             .attr("y1", svg_middle_y - y_coordinate)
-    //             .attr("x2", (spreadGraph.spread_width / 2) + 15)
-    //             .attr("y2", svg_middle_y - y_coordinate)
-    //             .attr("stroke-width",1)
-    //             .attr("class","possible-spread-ticks");
-            
-    //         spreadGraph.spread_svg.append("svg:line")
-    //             .attr("x1", (spreadGraph.spread_width / 2) - 15)
-    //             .attr("y1", svg_middle_y + y_coordinate)
-    //             .attr("x2", (spreadGraph.spread_width / 2) + 15)
-    //             .attr("y2", svg_middle_y + y_coordinate)
-    //             .attr("stroke-width",1)
-    //             .attr("class","possible-spread-ticks");        
-            
-    //         spreadGraph.spread_svg.append("text")
-    //             .attr("text-anchor", "start")
-    //             .attr("x", (spreadGraph.spread_width / 2) + 17)  
-    //             .attr("y",  svg_middle_y + y_coordinate  + 3)
-    //             .attr("class", "price-grid-line-text")
-    //             .text((temp/10000).toFixed(2));
-
-    //         spreadGraph.spread_svg.append("text")
-    //             .attr("text-anchor", "start")
-    //             .attr("x", (spreadGraph.spread_width / 2) + 17)  
-    //             .attr("y",  svg_middle_y - y_coordinate + 3)
-    //             .attr("class", "price-grid-line-text")
-    //             .text((temp/10000).toFixed(2));
-            
-    //         spreadGraph.possibleSpreadLines.push(temp);
-    //         spreadGraph.queue[temp] = [];
-    //         temp = otree.min_spread + temp;
-    //     }
+        //Drawn on  shift message maybe inputs include
         var upperBound = 1000000;
         var lowerBound =  900000;
         var diff = upperBound - lowerBound;
@@ -516,6 +453,7 @@ class SpreadGraph extends PolymerElement {
                 xCoordinate += distanceBetweenLines;                
         }
     }
+
     /*
     * IEX Specific 
     */

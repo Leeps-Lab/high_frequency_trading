@@ -192,7 +192,7 @@ class SpreadGraph extends PolymerElement {
     //Activating the event listener
     // spreadGraph.listen();
     //spreadGraph.mapSpreadGraph();
-    this.drawOrder();
+
 
   }
   start(){
@@ -231,19 +231,53 @@ class SpreadGraph extends PolymerElement {
     // spreadGraph.drawArrows();  
   }
 
-  drawOrder(price = 960000){
+  /*
+   *  Map the user click of the spread click to a price then sends that spread to the backend
+   */
+//   listen(){
+//     spreadGraph.spread_svg.on('click',function(d) {
+//       spreadGraph.svg_y_offset = spreadGraph.spread_graph_shadow_dom.querySelector("#spread-graph").getBoundingClientRect().top;
+//       var role = document.querySelector('info-table').player_role;
+//         if(role == "MAKER"){
+//             var svg_middle_x = spreadGraph.spread_width / 2;
+//             var fp_line_y = spreadGraph.spread_height / 2;
+            
+//             var clicked_point = {
+//                 x:(d3.event.clientX ),
+//                 y:(d3.event.clientY - spreadGraph.svg_y_offset)
+//             };
 
-    //What do I need from this?
-    
+//             var distance_from_middle = Math.abs((clicked_point.y) - fp_line_y);
+//             var ratio = distance_from_middle / (spreadGraph.spread_height/2);
+//             var my_spread = (ratio*otree.maxSpread).toFixed(0);
+//             var svg_middle_y = spreadGraph.spread_height/2;
 
-        spreadGraph.spread_svg.append("circle")
-            .attr("cx", spreadGraph.visibleTickLines[price])
-            .attr("cy", spreadGraph.spread_height*0.3)
-            .attr("r", 5)
-            .attr("class","queue user-bubble");
-    
 
-  }
+//             if(my_spread < otree.min_spread){
+//                 //enforce a minimum spread
+//                 my_spread = otree.min_spread;
+//             }   
+            
+//             var money_ratio =  otree.maxSpread/my_spread;
+
+//             var y_coordinate = svg_middle_y/money_ratio;
+
+//             spreadGraph.drawLineAttempt(y_coordinate);
+
+//             if(otree.IEX == true){
+//                 //Choose one of the spread lines that
+//                 for(var i = 0; i < spreadGraph.possibleSpreadLines.length; i++){                
+//                     if(my_spread < spreadGraph.possibleSpreadLines[i]){
+//                         my_spread = spreadGraph.possibleSpreadLines[i-1];
+//                         break;
+//                     }
+//                 }
+//             }
+
+//             spreadGraph.sendSpreadChange(my_spread);
+//           } 
+//     });
+//   }
 
   drawArrows(){
       //Green Bid --> #B2D8B2

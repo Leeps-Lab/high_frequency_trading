@@ -131,39 +131,39 @@ class InputSection extends PolymerElement {
     </style>
     
     <div class="container-fluid">
-
+    <div class="row">
+        <div class="text-center center-block">
+            <p>Speed</p>
+            <label class="switch">
+                <input type="checkbox" class="speed-input">
+                <span class="slider-speed round"></span>
+            </label>
+        </div>
+    </div>
     <div class="row">
         <div class="text-center col-lg-3">
-            <button  value="out" class="text-center btn btn-primary manual-button" type="button"  width="80px">Manual</button>
+            <button  value="out" class="text-center btn btn-primary manual-button" type="button">Manual</button>
             <div style="margin-top:50px;">
                 <button   class="text-center btn btn-success submit-button" on-click="submitSensitivities" type="button">Submit Values</button>
             </div>
         </div>
         <div class="text-center col-lg-3" >
-            <button class="text-center btn btn-primary algorithm-button algorithm1-button" type="button"  width="80px">Algorithm A</button>
+            <button class="text-center btn btn-primary algorithm-button algorithm1-button" type="button">Algorithm A</button>
             <div style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
-            <button class="text-center btn btn-primary algorithm-button algorithm2-button" type="button" width="80px">Algorithm B</button>
+            <button class="text-center btn btn-primary algorithm-button algorithm2-button" type="button">Algorithm B</button>
             <div style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
-            <button class="text-center btn btn-primary out-button" type="button" width="80px">Out</button>
-            <div class="text-center center-block" style="margin-top:50px;">
-                <p>Speed</p>
-                <label class="switch">
-                    <input type="checkbox" class="speed-input">
-                    <span class="slider-speed round"></span>
-                </label>
-            </div>
+            <button class="text-center btn btn-primary out-button" type="button">Out</button>
         </div>
-
     </div>
     </div>
     
@@ -192,7 +192,6 @@ class InputSection extends PolymerElement {
     inputSection.algo1Button = this.algo1Button;
     inputSection.algo2Button = this.algo2Button;
     inputSection.submitButton = this.submitButton;
-    inputSection.outButton = this.outButton;
 
     this.activateSliders();
     this.activateButtons();
@@ -222,13 +221,11 @@ class InputSection extends PolymerElement {
     var manualButton = inputSection.inputSectionShadowDOM.querySelector(".manual-button");
     var algo1Button = inputSection.inputSectionShadowDOM.querySelector(".algorithm1-button");
     var algo2Button = inputSection.inputSectionShadowDOM.querySelector(".algorithm2-button");
-    var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
     var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
 
     manualButton.onclick = inputSection.manualClick;
     algo1Button.onclick = inputSection.algo1Button;
     algo2Button.onclick = inputSection.algo2Button;
-    outButton.onclick = inputSection.outButton;
     submitButton.onclick = inputSection.submitButton;
 
   } 
@@ -252,12 +249,6 @@ class InputSection extends PolymerElement {
     }
 
     algo1Button(){
-        
-        //update player object 
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "algo1";
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
@@ -268,10 +259,6 @@ class InputSection extends PolymerElement {
     }
 
     algo2Button(){
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "algo2";
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
@@ -282,6 +269,7 @@ class InputSection extends PolymerElement {
     }
 
     submitButton(){
+        
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
         var sens1Value = sens1.value;
@@ -289,19 +277,6 @@ class InputSection extends PolymerElement {
         alert(sens1Value, sens2Value);
         //Send values over websocket
         
-
-    }
-
-    outButton(){
-        
-        spreadGraph.removeArrows();
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "out";
-        var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
-        var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
-        var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
-        submitButton.disabled = true;
-        sens1.disabled = true;
-        sens2.disabled = true;
 
     }
 
