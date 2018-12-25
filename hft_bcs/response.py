@@ -3,7 +3,7 @@ from .exchange import send_exchange
 from .translator import LeepsOuchTranslator
 from . import client_messages
 
-def process_response(message_queue):
+def process_response(message):
     def exchange(message):
         exchange_message_type = message['type']     
         order_data = utility.pretranslate_hacks(exchange_message_type, message['order_info'])
@@ -14,9 +14,6 @@ def process_response(message_queue):
         message_type, channels_group_id = message['type'], message['group_id']
         broadcast_data = message['message']
         client_messages.broadcast(message_type, channels_group_id, **broadcast_data)
-    while message_queue:
-        message = message_queue.popleft()
-        message_type, message_payload = message['message_type'], message['payload']
-        handler = locals()[message_type]
-        print('\nOUTGOING:%s\n' % message)
-        handler(message_payload)
+    message_type, message_payload = message['message_type'], message['payload']
+    handler = locals()[message_type]
+    handler(message_payload)

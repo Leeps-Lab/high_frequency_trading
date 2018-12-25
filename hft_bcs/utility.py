@@ -43,7 +43,7 @@ def process_configs(scaling_map, session_configs):
         try:
             adjusted_configs[k] = v * scaling_map[k]
         except KeyError:
-            log.info('missing key %s:%s, skip..', k, v)
+            pass
     return adjusted_configs
         
 def configure_model(configs:dict, mapping:dict, model_type, model):

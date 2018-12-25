@@ -1,26 +1,19 @@
 #!/usr/bin/env python
-import sys
-import subprocess
-import os
+
+
 import logging
 from datetime import datetime
-import random
-import time
-import itertools
 from jsonfield import JSONField
-from . import translator as translate
+
 from .hft_logging.experiment_logger import prepare
 
-from . import exchange
-from .profit import Price_Log, Price_Node
-from channels import Group as CGroup, Channel
 from otree.db.models import Model, ForeignKey
 from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
 from otree.models import Session
 from . import client_messages 
-import json
+
 from django.core.cache import cache
 
 import time
@@ -61,7 +54,8 @@ class Constants(BaseConstants):
 
     speed_factor = 1e-9
     player_state = ('id','id_in_group', 'group_id', 'role', 'fp', 'speed', 'spread', 'prev_speed_update', 'code', 'speed_unit_cost',
-        'exchange_host', 'exchange_port', 'time_on_speed', 'endowment', 'cost', 'speed_on')
+        'exchange_host', 'exchange_port', 'time_on_speed', 'endowment', 'cost', 'speed_on',
+        'market')
 
     # log file
     log_file = '{dir}{time}_{self.design}_{self.code}_{self.players_per_group}_round_{self.round_number}'
@@ -174,7 +168,7 @@ class Subsession(BaseSubsession):
             market_data = creating_market(self, exchange_format)
             market = market_data['market']
             market.register_session(trade_session.id)
-            trade_session.register_market(market.id, exchange_format)
+            trade_session.register_market(market.id, market.exchange_address)
             market.register_group(group)
             exchange_host, exchange_port = market.exchange_address
             for player in group.get_players():
@@ -223,8 +217,8 @@ class Group(BaseGroup):
     log_file = models.StringField()
 
 
-    def disconnect_from_exchange(self):
-        exchange.disconnect(self, self.exch_host, self.exch_port)
+    # def disconnect_from_exchange(self):
+    #     exchange.disconnect(self, self.exch_host, self.exch_port)
 
     def loggy(self):
         log_events.convert()

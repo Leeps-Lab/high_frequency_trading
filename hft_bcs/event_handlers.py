@@ -1,15 +1,14 @@
-from .cache import get_cache_key, write_to_cache_with_version, cache_timeout,
-    get_players_by_market
+from .cache import (get_cache_key, write_to_cache_with_version, cache_timeout,
+    get_players_by_market)
 from . import utility
 from .translator import LeepsOuchTranslator
 from .subject_state import BCSSubjectState
 from .trader import CDATraderFactory, FBATraderFactory
-from .exchange import send_exchange
 from . import client_messages 
 from django.core.cache import cache
 from .decorators import atomic
 from random import shuffle
-
+from otree.timeout.tasks import from_trader_to_player
 
 trader_factory_map = {
         'CDA': CDATraderFactory, 'FBA': FBATraderFactory
@@ -31,36 +30,57 @@ class HandlerFactory:
             return fundamental_price_change
         elif handler_type == 'noise_trader_arrival':
             return noise_trader_arrival
+        elif handler_type == 'bbo_change':
+            return new_environment_events
+        elif handler_type == 'order_imbalance_change':
+            return new_environment_events
+        else:
+            raise Exception('unknown event: %s' % handler_type)
 
 def leeps_handle_trader_message(event, session_format='CDA', **kwargs):
     player_id = event.attachments.get('player_id')
+    if player_id is None:
+        player_id = event.message.get('player_id')   
+        if player_id is None:
+            raise Exception('player id is missing in event %s.' % event)
+    if player_id is False:
+        event.attachments['note'] = 'investor accept ignored.'
+        return event
     key = get_cache_key(player_id ,'trader')
     trader_data = cache.get(key)
     if event.event_type == 'role_change':
-        # temporary for testing.
-        trader_data['role'] = event.attachments.get('state').lower()
+        event.message['old_role'] = trader_data['role']
+        trader_data['role'] = event.message.get('state').lower()
     role_name, subject_state = trader_data['role'], trader_data['subject_state']
     TraderFactory = trader_factory_map[session_format]
     trader = TraderFactory.get_trader(role_name, subject_state)
-    trader.receive(event.event_type, **kwargs)
+    fields = event.message.copy()
+    fields.update(kwargs)
+    trader.receive(event.event_type, **fields)
     message_queue = trader.outgoing_messages.copy()
     trader.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
-    trader_data['subject_state'] = BCSSubjectState.from_trader(trader)
+    trader_state = BCSSubjectState.from_trader(trader)
+    trader_data['subject_state'] = trader_state
     version = trader_data['version'] + 1
     try:
         write_to_cache_with_version(key, trader_data, version)
     except ValueError:
         leeps_handle_trader_message(event, **kwargs)
     else:
+        from_trader_to_player(trader_state)
         return event
 
 def leeps_handle_market_message(event, **kwargs):
-    market_id = event.attachments.get('market_id')
+    market_id = event.message.get('market_id')
+    if market_id is None:
+        market_id = event.attachments.get('market_id')
     market_key = get_cache_key(market_id, 'market')
     market_data = cache.get(market_key)
     market, version = market_data['market'], market_data['version']
-    market.receive(event, **kwargs)
+    fields = event.message.copy()
+    fields.update(event.attachments)
+    market.receive(event.event_type, **fields)
     message_queue = market.outgoing_messages.copy()
     market.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
@@ -92,11 +112,11 @@ def leeps_handle_session_events(event, **kwargs):
     return event
 
 def fundamental_price_change(event, **kwargs):
-    market_id = str(event.attachments.pop('market_id'))
+    market_id = int(event.message['market_id'])
     all_players_data = get_players_by_market(market_id)
     for player_data in all_players_data:
         player = player_data['model']
-        event.attachments['player_id'] = player.id
+        event.message['player_id'] = player.id
         event = leeps_handle_trader_message(event, **kwargs)
     shuffle(event.outgoing_messages)
     event = leeps_handle_market_message(event, **kwargs)
@@ -104,10 +124,17 @@ def fundamental_price_change(event, **kwargs):
 
 integer_fields = ('price', 'time_in_force')
 def noise_trader_arrival(event, **kwargs):
-    market_id = str(event.attachments.pop('market_id'))
-    event.attachments['price'] = int(event.attachments['price'] )
-    event.attachments['time_in_force'] = int(event.attachments['time_in_force'])
+    event.message['price'] = int(event.message['price'] )
+    event.message['time_in_force'] = int(event.message['time_in_force'])
     event = leeps_handle_market_message(event, **kwargs)
+    return event
+
+def new_environment_events(event, **kwargs):
+    makers = event.message['maker_ids']
+    for pid in makers:
+        event.attachments['player_id'] = pid
+        event = leeps_handle_trader_message(event, **kwargs)
+    shuffle(event.outgoing_messages)
     return event
 
 # def leeps_handle_exchange_message(event, **kwargs):

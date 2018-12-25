@@ -8,10 +8,6 @@ from .hft_logging import row_formatters as hfl
 
 log = logging.getLogger(__name__)
 
-# TODO: fix this. circular reference being a problem. use partial maybe ?
-
-
-
 def timer(func):
     def timed(self, *args, **kwargs):
         t = time.time()

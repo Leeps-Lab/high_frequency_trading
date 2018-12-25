@@ -87,7 +87,8 @@ class BCSTrader(BaseTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed', 'fundamental_price_change': 'jump', 'slider_change': 'slider_change'}
+        'E': 'executed', 'fundamental_value_jumps': 'jump', 'slider_change': 'slider_change',
+        'bbo_change': 'bbo_update'}
 
     def speed_change(self, **kwargs):
         """
@@ -161,7 +162,7 @@ class BCSTrader(BaseTrader):
     def canceled(self, **kwargs):
         self.orderstore.confirm('canceled', **kwargs)
         order_token = kwargs['order_token']
-        message_content = {'group_id': self.group_id, 'type': 'canceled', 'message': {
+        message_content = {'group_id': self.market, 'type': 'canceled', 'message': {
             'id': self.id_in_group, 'order_token': order_token }
             }
         internal_message = format_message('broadcast', **message_content)
@@ -173,7 +174,7 @@ class BCSTrader(BaseTrader):
         order_token = kwargs['order_token']
         profit = self.profit(exec_price, side)
         self.endowment += profit
-        message_content = { 'group_id': self.group_id, 'type': 'executed', 'message': {
+        message_content = { 'group_id': self.market, 'type': 'executed', 'message': {
             'profit': profit, 'execution_price': exec_price, 'order_token': order_token,
             'id': self.id_in_group }
             }
@@ -239,7 +240,7 @@ class BCSMaker(BCSTrader):
         
     def maker_broadcast_info(self, order_token):
         low_leg, high_leg = int(self.fp - self.spread / 2), int(self.fp + self.spread / 2)
-        message_content = { 'group_id': self.group_id, 'type': 'maker_confirm', 
+        message_content = { 'group_id': self.market, 'type': 'maker_confirm', 
             'message': { 'leg_up': high_leg, 'leg_down': low_leg, 'order_token': order_token, 
                 'id': self.id_in_group }}
         internal_message = format_message('broadcast', **message_content)     
@@ -278,7 +279,7 @@ class BCSOut(BCSTrader):
 
     def first_move(self, **kwargs):
         self.leave_market()
-        message_content = { 'group_id': self.group_id, 'type': 'leave_market', 
+        message_content = { 'group_id': self.market, 'type': 'leave_market', 
             'message': {'id': self.id_in_group }}
         internal_message = format_message('broadcast', **message_content)    
         self.outgoing_messages.append(internal_message)
@@ -338,7 +339,7 @@ class LEEPSBasicMaker(BCSTrader):
     
     def first_move(self):
         self.leave_market()
-        message_content = { 'group_id': self.group_id, 'type': 'leave_market', 
+        message_content = { 'group_id': self.market, 'type': 'leave_market', 
             'message': {'id': self.id_in_group }}
         internal_message = format_message('broadcast', **message_content)    
         self.outgoing_messages.append(internal_message)
@@ -366,7 +367,7 @@ class LEEPSBasicMaker(BCSTrader):
         internal_message = format_message('exchange', **message_content)
         self.outgoing_messages.append(internal_message)
  
-    def subject_bid_offer_change(self, price=None, buy_sell_indicator=None, **kwargs):
+    def trader_bid_offer_change(self, price=None, buy_sell_indicator=None, **kwargs):
         if buy_sell_indicator is None:
             buy_sell_indicator = kwargs.get('side')
         if price is None:
@@ -404,12 +405,12 @@ class LEEPSBasicMaker(BCSTrader):
             self.best_quotes['bid'] = new_best_bid
             d = self.distance_from_best_quote['bid']
             price = new_best_bid - d
-            self.bid_offer_change(price=price, buy_sell_indicator='B')
+            self.trader_bid_offer_change(price=price, buy_sell_indicator='B')
         if new_best_offer != existing_best_offer:
             self.best_quotes['offer'] = new_best_offer
             d = self.distance_from_best_quote['offer']
             price = new_best_offer + d
-            self.bid_offer_change(price=price, buy_sell_indicator='S')
+            self.trader_bid_offer_change(price=price, buy_sell_indicator='S')
 
 
 class LEEPSNotSoBasicMaker(LEEPSBasicMaker):

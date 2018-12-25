@@ -1,11 +1,14 @@
 import subprocess
-from .event_handlers import process_response, receive_market_message
 from django.core.cache import cache
 from .utility import exogenous_event_client, exogenous_event_endpoints
 import logging
 import os
 from twisted.internet import reactor
 from .utility import format_message
+from .cache import get_cache_key
+from collections import deque
+from . import exchange
+from .dispatcher import LEEPSDispatcher
 
 log = logging.getLogger(__name__)
 
@@ -25,14 +28,16 @@ class TradeSession:
         self.subsession = session
         self.id = str(session.code)
         self.is_trading = False
-        self.markets = {}
+        self.market_state = {}
+        self.market_exchange_pairs = {}
         self.clients = {}
         self.exogenous_events = {}
         self.trading_markets = []
         self.outgoing_messages = deque()
 
-    def register_market(self, market_id, market_format):
-        self.markets[market_id] = False
+    def register_market(self, market_id, exchange_address):
+        self.market_state[market_id] = False
+        self.market_exchange_pairs[market_id] = exchange_address
     
     def start_trade_session(self, market_id=None):
         raise NotImplementedError()
@@ -65,12 +70,24 @@ class TradeSession:
 class LEEPSTradeSession(TradeSession):
 
     def start_trade_session(self, market_id):
-        self.markets[market_id] = True
-        is_ready = (True if False not in self.markets.values() else False)
+        def create_exchange_connection(self, market_id):
+            host, port = self.market_exchange_pairs[market_id]
+            exchange.connect(market_id, host, port, LEEPSDispatcher,
+                wait_for_connection=True)
+        def reset_exchange(self, market_id):
+            host, port = self.market_exchange_pairs[market_id]
+            message_content = {'host': host, 'port': port, 'type': 'reset_exchange', 'delay':
+                    0., 'order_info': {'event_code': 'S', 'timestamp': 0}}
+            internal_message = format_message('exchange', **message_content)
+            self.outgoing_messages.append(internal_message)
+        self.market_state[market_id] = True
+        is_ready = (True if False not in self.market_state.values() else False)
         if is_ready and not self.is_trading:
-            for market_id, _ in self.markets.items():
+            for market_id, _ in self.market_state.items():
+                create_exchange_connection(self, market_id)
+                reset_exchange(self, market_id)
                 message_content = {'type': 'market_start', 'market_id': market_id}
-                message = format_message('event', **message_content)
+                message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
                 self.trading_markets.append(market_id)
             self.run_exogenous_events()
@@ -78,11 +95,15 @@ class LEEPSTradeSession(TradeSession):
             reactor.callLater(self.subsession.round_length, self.stop_trade_session)
             
     def stop_trade_session(self, *args):
+        def stop_exchange_connection(self, market_id):
+            host, port = self.market_exchange_pairs[market_id]
+            exchange.disconnect(market_id, host, port)
         if self.is_trading:
             while self.trading_markets:
                 market_id = self.trading_markets.pop()
+                stop_exchange_connection(self, market_id)
                 message_content = {'type': 'market_end', 'market_id': market_id}
-                message = format_message('event', **message_content)
+                message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
             self.stop_exogenous_events()
             self.subsession.session.advance_last_place_participants()

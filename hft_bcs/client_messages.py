@@ -18,6 +18,9 @@ def spread_change(id=None, leg_up=None, leg_down=None, order_token=None, **kwarg
     msg = {key: value}
     return msg 
     
+def bbo_change(best_bid=None, best_offer=None):
+    pass
+
 def fp_change(new_price=None):
     key = "FPC"
     value = new_price
@@ -54,7 +57,9 @@ dispatch = {
     'executed': execution,
     'fundamental_price_change': fp_change,
     'batch': batch,
-    'session_start': start_session
+    'session_start': start_session,
+    'bbo': bbo_change
+    # 'canceled': 
 }
 
 def broadcast(message_type, group_id, **kwargs):
@@ -62,6 +67,8 @@ def broadcast(message_type, group_id, **kwargs):
     broadcast via channel layer
     """
     f = dispatch[message_type]
+    if f is None:
+        return
     msg = f(**kwargs)
     message = json.dumps(msg)
     CGroup(str(group_id)).send({"text": message}) 

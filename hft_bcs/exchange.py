@@ -16,7 +16,8 @@ class OUCH(Protocol):
         'E': 40,
         'C': 28,
         'U': 80,
-        'A': 66
+        'A': 66,
+        'Q':33,
     }
 
     def __init__(self):
@@ -40,7 +41,8 @@ class OUCH(Protocol):
             try:
                 market_id = self.factory.market
                 try:
-                    self.factory.message_handler(market_id, bytes(self.buffer))
+                    self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
+                        market_id=market_id)
                 except Exception as e:
                     log.exception('error processing exchange message (type:%s, market:%s), ignoring..: %s', 
                         header, market_id, e)
@@ -64,12 +66,12 @@ class OUCH(Protocol):
 class OUCHConnectionFactory(ClientFactory):
     protocol = OUCH
 
-    def __init__(self, market_id, addr, message_handler):
+    def __init__(self, market_id, addr, dispatcher):
         super()
         self.market = market_id
         self.addr = addr
         self.connection = None
-        self.message_handler = message_handler
+        self.dispatcher = dispatcher
 
     def buildProtocol(self, addr):
         l = 'connecting to exchange server at %s' % addr
@@ -87,10 +89,10 @@ class OUCHConnectionFactory(ClientFactory):
 
 exchanges = {}
 
-def connect(market_id, host, port, message_handler, wait_for_connection=False):
+def connect(market_id, host, port, dispatcher, wait_for_connection=False):
     addr = '{}:{}'.format(host, port)
     if addr not in exchanges:
-        factory = OUCHConnectionFactory(market_id, addr, message_handler)
+        factory = OUCHConnectionFactory(market_id, addr, dispatcher)
         exchanges[addr] = factory
         reactor.connectTCP(host, port, factory)
     else:
