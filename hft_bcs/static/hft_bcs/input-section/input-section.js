@@ -17,7 +17,6 @@ class InputSection extends PolymerElement {
 
   constructor() {
     super();
-    this.socket = socketActions.socket;
 
     interactiveComponent.inputSectionDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("input-section");
     interactiveComponent.inputSectionDOM.attachShadow({mode: 'open'});
@@ -236,6 +235,16 @@ class InputSection extends PolymerElement {
     manualClick(){
         //update player object 
         playersInMarket[otree.playerIDInGroup]["strategy"] = "manual";
+        var manualChangeMessage = {
+            type: "role_change",
+            id: otree.playerID,
+            id_in_group: otree.playerIDInGroup,
+            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+        };
+        if(socketActions.socket.readyState === socketActions.socket.OPEN){
+            console.log(JSON.stringify(manualChangeMessage));
+            socketActions.socket.send(JSON.stringify(manualChangeMessage));
+        }
         //start the drawArrows on the spread graph only if there are none at the price you either left or at some designated start price or best price?
         if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
             spreadGraph.drawArrows();
@@ -254,7 +263,18 @@ class InputSection extends PolymerElement {
     algo1Button(){
         
         //update player object 
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "algo1";
+        playersInMarket[otree.playerIDInGroup]["strategy"] = "maker_basic";
+        var makerBasicChangeMessage = {
+            type: "role_change",
+            id: otree.playerID,
+            id_in_group: otree.playerIDInGroup,
+            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+        };
+        if(socketActions.socket.readyState === socketActions.socket.OPEN){
+            console.log(JSON.stringify(makerBasicChangeMessage));
+            socketActions.socket.send(JSON.stringify(makerBasicChangeMessage));
+        }
+        //s
         if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
             spreadGraph.drawArrows();
         }
@@ -268,7 +288,17 @@ class InputSection extends PolymerElement {
     }
 
     algo2Button(){
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "algo2";
+        playersInMarket[otree.playerIDInGroup]["strategy"] = "algorithm2";
+        var algorithm2ChangeMessage = {
+            type: "role_change",
+            id: otree.playerID,
+            id_in_group: otree.playerIDInGroup,
+            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+        };
+        if(socketActions.socket.readyState === socketActions.socket.OPEN){
+            console.log(JSON.stringify(algorithm2ChangeMessage));
+            socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
+        }
         if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
             spreadGraph.drawArrows();
         }
@@ -286,6 +316,16 @@ class InputSection extends PolymerElement {
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
         var sens1Value = sens1.value;
         var sens2Value = sens2.value;
+        var algorithm2ChangeMessage = {
+            type: "role_change",
+            id: otree.playerID,
+            id_in_group: otree.playerIDInGroup,
+            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+        };
+        if(socketActions.socket.readyState === socketActions.socket.OPEN){
+            console.log(JSON.stringify(algorithm2ChangeMessage));
+            socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
+        }
         alert(sens1Value, sens2Value);
         //Send values over websocket
         
@@ -296,6 +336,16 @@ class InputSection extends PolymerElement {
         
         spreadGraph.removeArrows();
         playersInMarket[otree.playerIDInGroup]["strategy"] = "out";
+        var outChangeMessage = {
+            type: "role_change",
+            id: otree.playerID,
+            id_in_group: otree.playerIDInGroup,
+            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+        };
+        if(socketActions.socket.readyState === socketActions.socket.OPEN){
+            console.log(JSON.stringify(outChangeMessage));
+            socketActions.socket.send(JSON.stringify(outChangeMessage));
+        }
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");

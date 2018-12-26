@@ -7,7 +7,6 @@ import {html,PolymerElement}   from '../node_modules/@polymer/polymer/polymer-el
 class SpreadGraph extends PolymerElement {
   constructor() {
     super();
-
     //First we access the shadow dom object were working with
     interactiveComponent.spreadGraphDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("spread-graph");
     interactiveComponent.spreadGraphDOM.attachShadow({mode: 'open'});
@@ -312,9 +311,9 @@ class SpreadGraph extends PolymerElement {
                         id_in_group: otree.playerIDInGroup,
                         price: checkedPrice
                     };
-                    if(socketActions.socket.readyState === socketActions.socket.OPEN){
+                    if(this.socket.readyState === this.socket.OPEN){
                         console.log(JSON.stringify(bidPriceMessage));
-                        socketActions.socket.send(JSON.stringify(bidPriceMessage));
+                        this.socket.send(JSON.stringify(bidPriceMessage));
                     }
 
                     spreadGraph.bidArrow["bidArrowText"].attr("x", checkedX - 10);
@@ -362,9 +361,9 @@ class SpreadGraph extends PolymerElement {
                         id_in_group: otree.playerIDInGroup,
                         price: checkedPriceAsk
                     };
-                    if(socketActions.socket.readyState === socketActions.socket.OPEN){
+                    if(this.socket.readyState === this.socket.OPEN){
                         console.log(JSON.stringify(askPriceMessage));
-                        socketActions.socket.send(JSON.stringify(askPriceMessage));
+                        this.socket.send(JSON.stringify(askPriceMessage));
                     }
                     /*
                         //SEND spreadGraph.askArrow["askArrowLine"].price OVER SOCKET ********* 

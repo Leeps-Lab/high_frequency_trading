@@ -7,6 +7,7 @@ import {html,PolymerElement}   from '../node_modules/@polymer/polymer/polymer-el
 class SpreadGraph extends PolymerElement {
   constructor() {
     super();
+
     //First we access the shadow dom object were working with
     interactiveComponent.spreadGraphDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("spread-graph");
     interactiveComponent.spreadGraphDOM.attachShadow({mode: 'open'});
@@ -174,7 +175,8 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
     spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
     spreadGraph.drawArrows = this.drawArrows;
-    spreadGraph.removeArrows = this.removeArrows
+    spreadGraph.removeArrows = this.removeArrows;
+    spreadGraph
 
 
     /*
@@ -303,6 +305,18 @@ class SpreadGraph extends PolymerElement {
                     /*
                         //SEND spreadGraph.bidArrow["bidArrowLine"].price OVER SOCKET ********* 
                     */
+
+                    var bidPriceMessage = {
+                        type: "bid",
+                        id: otree.playerID,
+                        id_in_group: otree.playerIDInGroup,
+                        price: checkedPrice
+                    };
+                    if(socketActions.socket.readyState === socketActions.socket.OPEN){
+                        console.log(JSON.stringify(bidPriceMessage));
+                        socketActions.socket.send(JSON.stringify(bidPriceMessage));
+                    }
+
                     spreadGraph.bidArrow["bidArrowText"].attr("x", checkedX - 10);
                     spreadGraph.bidArrow["bidArrowLine"].attr("x1",  checkedX).attr("x2", checkedX);
 
@@ -342,6 +356,16 @@ class SpreadGraph extends PolymerElement {
                     var checkedPriceAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? tickArray[i] : snappedPriceAsk;
                     
                     spreadGraph.askArrow["price"] = checkedPriceAsk;
+                    var askPriceMessage = {
+                        type: "ask",
+                        id: otree.playerID,
+                        id_in_group: otree.playerIDInGroup,
+                        price: checkedPriceAsk
+                    };
+                    if(socketActions.socket.readyState === socketActions.socket.OPEN){
+                        console.log(JSON.stringify(askPriceMessage));
+                        socketActions.socket.send(JSON.stringify(askPriceMessage));
+                    }
                     /*
                         //SEND spreadGraph.askArrow["askArrowLine"].price OVER SOCKET ********* 
                     */
