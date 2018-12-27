@@ -10,7 +10,8 @@ log = logging.getLogger(__name__)
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
 
 exogenous_events = {
-    'BCS': ['investor_arrivals', 'fundamental_value_jumps']
+    'BCS': ['investor_arrivals', 'fundamental_value_jumps'],
+    'LEEPS': ['investor_arrivals']
 }  
 market_events = ('S', 'player_ready', 'advance_me')
 trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')

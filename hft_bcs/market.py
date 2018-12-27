@@ -13,7 +13,10 @@ log = logging.getLogger(__name__)
 class MarketFactory:
     @staticmethod
     def get_market(session_format):
-        return LEEPSMarket
+        if session_format == 'BCS':
+            return BCSMarket
+        elif session_format == 'LEEPS':
+            return LEEPSMarket
 
 class BaseMarket:
     market_events_dispatch = {}
@@ -169,17 +172,19 @@ class LEEPSMarket(BCSMarket):
         super().__init__(**kwargs)
         self.order_imbalance = 0
         self.role_groups = {'maker': [], 'maker_basic':[], 'maker_latent': [], 
-            'sniper':[], 'taker': []}
+            'sniper':[], 'taker': [], 'out': []}
 
     def role_change(self, **kwargs):
         print(kwargs)
         player_id = kwargs['player_id']
         old_role, new_role = kwargs['old_role'].lower(), kwargs['state'].lower()
-        if new_role not in self.roles:
-            raise KeyError('invalid role: %s' % new_role)
+        if new_role not in self.role_groups:
+            raise KeyError('invalid role: %s for market type: %s' % (new_role, 
+                self.__class__.__name__))
         self.role_groups[new_role].append(player_id)
         if old_role in self.role_groups:
-            self.role_groups[old_role].remove(player_id)
+            if player_id in self.role_groups[old_role]:
+                self.role_groups[old_role].remove(player_id)
     
     def order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
@@ -190,16 +195,15 @@ class LEEPSMarket(BCSMarket):
         message_content = {
             'type':'order_imbalance_change', 
             'order_imbalance': current_order_imbalance, 
-            'maker_ids': maker_ids}
+            'maker_ids': maker_ids,
+            'market_id': self.id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
 
     def bbo_change(self, **kwargs):
-        all_maker_ids = itertools.chain(self.role_groups['maker_basic'], 
-            self.role_groups['maker_latent'])
         best_bid, best_offer = kwargs['best_bid'], kwargs['best_ask']
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
-            'maker_ids': all_maker_ids, 'best_bid': best_bid, 'best_offer': best_offer}
+            'market_id': self.id, 'best_bid': best_bid, 'best_offer': best_offer}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
         broadcast_info = ('bbo', {'best_bid': best_bid, 'best_offer': best_offer})

@@ -1,5 +1,14 @@
 from .orderstore import OrderStore
 
+
+class SubjectStateFactory:
+    @staticmethod
+    def get_state(session_format):
+        if session_format == 'BCS':
+            return BCSSubjectState
+        elif session_format == 'LEEPS':
+            return LEEPSSubjectState
+
 class BaseSubjectState:
 
     orderstore_cls = None
@@ -27,6 +36,13 @@ class BCSSubjectState(BaseSubjectState):
     __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'group_id', 'id_in_group', 
         'id', 'code', 'role', 'fp', 'speed_on',  'speed_unit_cost', 'spread', 'speed_on_start_time', 
         'endowment', 'cost', 'time_on_speed', 'last_message_time', 'market')
+
+class LEEPSSubjectState(BaseSubjectState):
+    orderstore_cls = OrderStore
+    __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'group_id', 'id_in_group', 
+        'id', 'code', 'role', 'fp', 'speed_on',  'speed_unit_cost', 'spread', 'speed_on_start_time', 
+        'endowment', 'cost', 'time_on_speed', 'last_message_time', 'market', 'best_quotes',
+        'distance_from_best_quote', 'sliders', 'latent_quote')    
 
 class LEEPSInvestorState(BaseSubjectState):
     orderstore_cls = OrderStore

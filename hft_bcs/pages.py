@@ -68,6 +68,10 @@ class PreWaitPage(WaitPage):
 class index(Page):
     pass
 
+
+class leeps(Page):
+    pass
+
 round_results = {}
 class ResultsWaitPage(WaitPage):
 
@@ -142,9 +146,10 @@ page_sequence = [
     # InstructionsFBA,
     PreWaitPage,
     # index,
-    indexCDA,
-    indexFBA,
-    indexIEX,
+    leeps,
+    # indexCDA,
+    # indexFBA,
+    # indexIEX,
     ResultsWaitPage,
     Results,
     # SessionEnd,

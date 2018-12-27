@@ -24,15 +24,13 @@ def write_to_cache_with_version(key, value, version, timeout=cache_timeout):
     value['version'] = version
     cache.set(key, value, timeout=timeout)
 
-def initialize_player_cache(player, state_cls, ordersore_cls, fields_to_map, timeout=cache_timeout):
+def initialize_player_cache(player, subject_state, fields_to_map, timeout=cache_timeout):
     pairs = {}
     player_key = get_cache_key(player.id, 'player')
     pairs[player_key] = {'model': player}
-    subject_state_data = {k: getattr(player, k, None) for k in fields_to_map}
-    subject_state_data.update({'orderstore': ordersore_cls(player.id, player.id_in_group)})
     trader_key = get_cache_key(player.id, 'trader')
     pairs[trader_key] = {'version': 0, 'role': player.role, 
-        'subject_state': state_cls(**subject_state_data)}
+        'subject_state': subject_state}
     for k, v in pairs.items():
         cache.set(k, v, timeout=timeout) 
 

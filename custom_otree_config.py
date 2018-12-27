@@ -1,8 +1,6 @@
 import os
 import logging
-import collect
 import sys
-import logging
 import yaml
 
 log = logging.getLogger(__name__)
@@ -78,7 +76,33 @@ config_maps = {
         'exogenous_event_directory': ('session', 'exogenous-event-directory'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'fundamental_value_jumps': ('exogenous-events', 'fundamental-value-jumps'),
-        'grid_size': ('parameters', 'grid-size')
+        },
+        'LEEPS': { 
+            'name': ('session', 'session-name'),
+            'auction_format': ('market', 'auction-format'),
+            'num_demo_participants': ('demo', 'number-of-participants'),
+            'environment': ('session', 'environment'),
+            'trial': ('session', 'trial'),
+            'trial_length': ('session', 'trial-length'),
+            'num_rounds': ('session', 'num-rounds'),
+            'exchange_host': ('market', 'matching-engine-host'),
+            'num_markets': ('market', 'number-of-markets'),
+            'number_of_groups': ('group', 'number-of-groups'),
+            'players_per_group': ('group', 'players-per-group'),
+            'speed_cost': ('parameters', 'speed-cost'),
+            'fundamental_price': ('parameters', 'fundamental-price'),
+            'initial_spread': ('parameters', 'initial-spread'),
+            'max_spread': ('parameters', 'max-spread'),
+            'initial_endowment': ('parameters', 'initial-endowment'),
+            'period_length': ('parameters', 'period-length'),
+            'group_matrix': ('group', 'group-assignments'),
+            'batch_length': ('parameters', 'batch-length'),
+            'random_round_payment': ('session', 'random-round-payment'),
+            'participation_fee': ('session', 'participation-fee'),
+            'real_world_currency_per_point': ('session', 'exchange-rate'),
+            'exogenous_event_directory': ('session', 'exogenous-event-directory'),
+            'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
+            'grid_size': ('parameters', 'grid-size')
         }
 }
 

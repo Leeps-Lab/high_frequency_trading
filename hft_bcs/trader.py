@@ -22,6 +22,16 @@ class TraderFactory:
     def get_trader(self):
         raise NotImplementedError()
 
+class LEEPSTraderFactory:
+    @staticmethod
+    def get_trader(role_name, subject_state):
+        if role_name == 'maker_basic':
+            return LEEPSBasicMaker(subject_state)
+        elif role_name == 'out':
+            return LEEPSOut(subject_state)
+        else:
+            raise Exception('unknown role: %s' % role_name)
+
 class CDATraderFactory(TraderFactory):
 
     @staticmethod
@@ -33,7 +43,7 @@ class CDATraderFactory(TraderFactory):
         elif role_name == 'out':
             return BCSOut(subject_state)
         else:
-            log.warning('unknown role: %s' % role_name)
+            raise Exception('unknown role: %s' % role_name)
 
 class FBATraderFactory(TraderFactory):
 
@@ -88,7 +98,7 @@ class BCSTrader(BaseTrader):
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'fundamental_value_jumps': 'jump', 'slider_change': 'slider_change',
-        'bbo_change': 'bbo_update'}
+        'bbo_change': 'bbo_update', 'order_by_arrow': 'trader_bid_offer_change'}
 
     def speed_change(self, **kwargs):
         """
@@ -330,19 +340,31 @@ Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
 max_ask = 2147483647
 min_bid = 0
 
-class LEEPSBasicMaker(BCSTrader):
+class LEEPSOut(BCSTrader):
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
         self.best_quotes = {'bid': None, 'offer': None}
+
+    def bbo_update(self, **kwargs):
+        new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_offer']
+        self.best_quotes['bid'] = new_best_bid
+        self.best_quotes['offer'] = new_best_offer
+
+class LEEPSBasicMaker(LEEPSOut):
+
+    message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
+        'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
+        'E': 'executed', 'slider_change': 'slider_change',
+        'bbo_change': 'bbo_update', 'order_by_arrow': 'trader_bid_offer_change', 
+        }
+
+    def __init__(self, subject_state):
+        super().__init__(subject_state)
         self.distance_from_best_quote = {'bid': None, 'offer': None}
-    
-    def first_move(self):
+
+    def first_move(self, **kwargs):
         self.leave_market()
-        message_content = { 'group_id': self.market, 'type': 'leave_market', 
-            'message': {'id': self.id_in_group }}
-        internal_message = format_message('broadcast', **message_content)    
-        self.outgoing_messages.append(internal_message)
 
     def calc_price(self, buy_sell_indicator, distance_from_best_quote=None):
         if distance_from_best_quote is None:
@@ -398,22 +420,33 @@ class LEEPSBasicMaker(BCSTrader):
             self.outgoing_messages.append(internal_message)
 
     def bbo_update(self, **kwargs):
-        new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_ask']
+        new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_offer']
         bbo = self.best_quotes
-        existing_best_bid, existing_best_offer = bbo['bid'], bbo['offer']
-        if new_best_bid != existing_best_bid:
-            self.best_quotes['bid'] = new_best_bid
-            d = self.distance_from_best_quote['bid']
-            price = new_best_bid - d
-            self.trader_bid_offer_change(price=price, buy_sell_indicator='B')
-        if new_best_offer != existing_best_offer:
-            self.best_quotes['offer'] = new_best_offer
-            d = self.distance_from_best_quote['offer']
-            price = new_best_offer + d
-            self.trader_bid_offer_change(price=price, buy_sell_indicator='S')
+        if self.distance_from_best_quote['bid'] is not None:
+            if new_best_bid != bbo['bid']:
+                self.best_quotes['bid'] = new_best_bid
+                d = self.distance_from_best_quote['bid']
+                price = new_best_bid - d
+                self.trader_bid_offer_change(price=price, buy_sell_indicator='B')
+        else:
+            log.warning('player %s with role %s, not defined an bid yet.' % (
+                self.id, self.role))
+        if self.distance_from_best_quote['offer'] is not None:
+            if new_best_offer != bbo['offer']:
+                self.best_quotes['offer'] = new_best_offer
+                d = self.distance_from_best_quote['offer']
+                price = new_best_offer + d
+                self.trader_bid_offer_change(price=price, buy_sell_indicator='S')
+        else:
+            log.warning('player %s with role %s, not defined an offer yet.' % (
+                self.id, self.role))
 
+class LEEPSNotSoBasicMaker(LEEPSOut):
 
-class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
+    message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
+        'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
+        'E': 'executed', 'slider_change': 'slider_change', 'bbo_change': 'bbo_update', 
+        'order_imbalance_change': 'latent_quote_update'}
 
     def __init__(self, subject_state):
         super().__init__(subject_state)

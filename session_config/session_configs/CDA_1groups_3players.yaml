@@ -11,12 +11,6 @@ exogenous-events:
     - session_config/Pilot/Draw1/investors_period1.csv
     - session_config/Pilot/Draw1/investors_period2.csv
     - session_config/Pilot/Draw1/investors_period3.csv
-  fundamental-value-jumps:
-    - session_config/Pilot/Trial1/jumps_trial.csv
-    - session_config/Pilot/Draw1/jumps_period1.csv
-    - session_config/Pilot/Draw1/jumps_period2.csv
-    - session_config/Pilot/Draw1/jumps_period3.csv
-
 market:
   auction-format: 'CDA'
   matching-engine-host: '127.0.0.1'
@@ -35,7 +29,7 @@ parameters:
   grid-size: 1
 
 session:
-  environment: 'BCS'
+  environment: LEEPS
   currency: EUR
   display-name: CDA Production
   exchange-rate: 1.5

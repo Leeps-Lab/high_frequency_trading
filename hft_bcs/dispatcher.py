@@ -53,9 +53,11 @@ class LEEPSDispatcher(Dispatcher):
         'market_ready_to_start': ['trade_session'],
         'market_ready_to_end': ['trade_session'],
         'market_start': ['market'],
+        'market_end': ['market'],
+        'order_by_arrow': ['trader'],
         'investor_arrivals': ['noise_trader_arrival'],
         'fundamental_value_jumps': ['fundamental_price_change'],
-        'bbo_change': ['bbo_change'],
-        'order_imbalance_change': ['order_imbalance_change'],      
+        'bbo_change': ['marketwide_events'],
+        'order_imbalance_change': ['role_based_events'],      
     }
     outgoing_message_types = ('exchange', 'broadcast')

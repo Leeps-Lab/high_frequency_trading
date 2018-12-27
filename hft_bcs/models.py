@@ -29,7 +29,7 @@ from .utility import (process_configs, configure_model, exogenous_event_client,
 from .trader import CDATraderFactory, FBATraderFactory
 from .trade_session import TradeSessionFactory
 from .market import MarketFactory
-from .subject_state import BCSSubjectState
+from .subject_state import SubjectStateFactory
 from .hft_logging.experiment_log import *
 from .hft_logging.session_events import log_events
 from .hft_logging import row_formatters as hfl
@@ -121,14 +121,6 @@ class Subsession(BaseSubsession):
         self.log_file = log_file
         self.save()
 
-    # def assign_groups(self):
-    #     try:
-    #         group_matrix = self.session.config['group_matrix']
-    #     except KeyError:
-    #         raise KeyError('Group assignments not found. You must pass in a list of list.')
-    #     self.set_group_matrix(group_matrix)
-    #     self.save()
-
 
     def creating_session(self):
         def create_trade_session(self):
@@ -171,12 +163,14 @@ class Subsession(BaseSubsession):
             trade_session.register_market(market.id, market.exchange_address)
             market.register_group(group)
             exchange_host, exchange_port = market.exchange_address
+            state_cls = SubjectStateFactory.get_state(SESSION_FORMAT)
             for player in group.get_players():
                 player.exchange_host = exchange_host
                 player.exchange_port = exchange_port
                 player = configure_model(self.session.config, 
                     Constants.configs_to_otree_models, 'player', player)
-                initialize_player_cache(player, BCSSubjectState, OrderStore, 
+                subject_state = state_cls.from_otree_player(player)
+                initialize_player_cache(player, subject_state, 
                     Constants.player_state)
                 player.save()
             market_key = get_cache_key(market.id, 'market')
@@ -216,15 +210,6 @@ class Group(BaseGroup):
     code = models.CharField(default=random_chars_8)
     log_file = models.StringField()
 
-
-    # def disconnect_from_exchange(self):
-    #     exchange.disconnect(self, self.exch_host, self.exch_port)
-
-    def loggy(self):
-        log_events.convert()
-        log_events.dump()
-
-
 class Player(BasePlayer):
 
     time_on_speed = models.IntegerField(initial=0)
@@ -249,18 +234,3 @@ class Player(BasePlayer):
     total_payoff = models.IntegerField()
     inventory = models.IntegerField(initial=0)
     market = models.StringField()
-
-
-   
-
-    def take_cost(self):
-        now = nanoseconds_since_midnight()
-        trader = self.get_trader()
-        trader.take_cost(now)
-        self.save_trader(trader)
-    
-    def do_payoff(self):
-        trader = self.get_trader()
-        profit, cost, payoff = trader.do_payoff()
-        self.save_trader(trader)
-        return payoff
