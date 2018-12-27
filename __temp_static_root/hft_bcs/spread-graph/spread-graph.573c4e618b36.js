@@ -279,7 +279,6 @@ class SpreadGraph extends PolymerElement {
   }
 
   drawArrows(){
-
       //Green Bid --> #B2D8B2
       //Red ask --> #FFB2B2
       spreadGraph.bidArrow["price"] = 940000;
@@ -304,7 +303,7 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke-width",7)  
         .attr("marker-end","url(#askArrow)");
         
-    if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
+    if(playersInMarket[otree.playerIDInGroup]["strategy"] === "manual"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
             .on("drag", function(){
                 //Making sure not to drag past other arrow line
@@ -358,7 +357,6 @@ class SpreadGraph extends PolymerElement {
 
         spreadGraph.askArrow["askArrowLine"].call(d3.drag()
             .on("drag", function(){
-                console.log("FUCK");
                 //Making sure not to drag past other arrow line
                 var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
                 spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);

@@ -279,7 +279,7 @@ class SpreadGraph extends PolymerElement {
   }
 
   drawArrows(){
-
+      console.log("Draw arrows called");
       //Green Bid --> #B2D8B2
       //Red ask --> #FFB2B2
       spreadGraph.bidArrow["price"] = 940000;
