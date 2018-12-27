@@ -94,6 +94,15 @@ class SpreadGraph extends PolymerElement {
     fill:#290000;
     opacity: 0.5;
     }
+    .best-bid{
+        fill:#309930;;
+    }
+    .best-offer{
+        fill: #CB1C36;
+    }
+    .order{
+        fill:#162F71;
+    }
 </style>
 
 <svg id="spread-graph">
@@ -195,6 +204,7 @@ class SpreadGraph extends PolymerElement {
     // spreadGraph.listen();
     //spreadGraph.mapSpreadGraph();
     this.drawOrder();
+    this.NBBOChange();
 
   }
   start(){
@@ -232,19 +242,40 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawPossibleSpreadTicks();  
     // spreadGraph.drawArrows();  
   }
+  NBBOChange(bid = 970000, offer = 990000){
+    spreadGraph.spread_svg.select(".best-bid").remove();
+    spreadGraph.spread_svg.select(".best-offer").remove();
 
-  drawOrder(price = 960000){
+    spreadGraph.spread_svg.append("circle")
+        .attr("cx", spreadGraph.visibleTickLines[bid])
+        .attr("cy", spreadGraph.spread_height*0.3)
+        .attr("r", 10)
+        .attr("class","best-bid");
+
+    spreadGraph.spread_svg.append("circle")
+        .attr("cx", spreadGraph.visibleTickLines[offer])
+        .attr("cy", spreadGraph.spread_height*0.3)
+        .attr("r", 10)
+        .attr("class","best-offer");
+
+
+  }
+
+  drawOrder(price = 960000, TOK = ""){
 
     //What do I need from this?
     
-
-        spreadGraph.spread_svg.append("circle")
-            .attr("cx", spreadGraph.visibleTickLines[price])
-            .attr("cy", spreadGraph.spread_height*0.3)
-            .attr("r", 5)
-            .attr("class","queue user-bubble");
+    spreadGraph.spread_svg.append("circle")
+        .attr("cx", spreadGraph.visibleTickLines[price])
+        .attr("cy", spreadGraph.spread_height*0.3)
+        .attr("r", 5)
+        .attr("class","order " + TOK);
     
 
+  }
+
+  removeOrder(TOK){
+    spreadGraph.spread_svg.select("." + TOK).remove();
   }
 
   drawArrows(){

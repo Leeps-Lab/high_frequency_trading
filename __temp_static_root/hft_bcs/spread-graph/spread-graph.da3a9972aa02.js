@@ -98,10 +98,7 @@ class SpreadGraph extends PolymerElement {
         fill:#309930;;
     }
     .best-offer{
-        fill: #CB1C36;
-    }
-    .order{
-        fill:#162F71;
+        fill: #CB1C36;;
     }
 </style>
 
@@ -204,7 +201,6 @@ class SpreadGraph extends PolymerElement {
     // spreadGraph.listen();
     //spreadGraph.mapSpreadGraph();
     this.drawOrder();
-    this.NBBOChange();
 
   }
   start(){
@@ -242,10 +238,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawPossibleSpreadTicks();  
     // spreadGraph.drawArrows();  
   }
-  NBBOChange(bid = 970000, offer = 990000){
-    spreadGraph.spread_svg.select(".best-bid").remove();
-    spreadGraph.spread_svg.select(".best-offer").remove();
-
+  NBBOChange(bid = 970000, offer = 990000 ){
     spreadGraph.spread_svg.append("circle")
         .attr("cx", spreadGraph.visibleTickLines[bid])
         .attr("cy", spreadGraph.spread_height*0.3)
@@ -265,17 +258,14 @@ class SpreadGraph extends PolymerElement {
 
     //What do I need from this?
     
-    spreadGraph.spread_svg.append("circle")
-        .attr("cx", spreadGraph.visibleTickLines[price])
-        .attr("cy", spreadGraph.spread_height*0.3)
-        .attr("r", 5)
-        .attr("class","order " + TOK);
+
+        spreadGraph.spread_svg.append("circle")
+            .attr("cx", spreadGraph.visibleTickLines[price])
+            .attr("cy", spreadGraph.spread_height*0.3)
+            .attr("r", 5)
+            .attr("class","order " + TOK);
     
 
-  }
-
-  removeOrder(TOK){
-    spreadGraph.spread_svg.select("." + TOK).remove();
   }
 
   drawArrows(){

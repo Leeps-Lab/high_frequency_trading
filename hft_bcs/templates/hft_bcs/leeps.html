@@ -51,8 +51,7 @@
     <script type="module" src="{% static 'hft_bcs/profit-graph/profit-graph.js' %}"></script>
     <script type="module" src="{% static 'hft_bcs/info-table/info-table.js' %}"></script>
     <script type="module" src="{% static 'hft_bcs/interactive-component/interactive-component.js' %}"></script>
-
-    
+    <script type="module" src="{% static 'hft_bcs/message-handler.js' %}"></script>
 <script>
 
     //All socket actions are stored in this object to be used in the seperated js files
@@ -331,10 +330,6 @@ Socket Actions
         }  
     };
 
-    // Show a disconnected message when the WebSocket is closed.
-    socketActions.socket.onclose = function (event) {
-        console.log('disconnected from oTree');
-    };
 
     /*
     * If CDA start the profit-graph
