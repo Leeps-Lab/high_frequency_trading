@@ -139,7 +139,7 @@ class InputSection extends PolymerElement {
             </div>
         </div>
         <div class="text-center col-lg-3" >
-            <button class="text-center btn btn-primary algorithm-button algorithm1-button" type="button"  width="80px">Algorithm A</button>
+            <button class="text-center btn btn-primary algorithm-button algorithm1-button" type="button"  width="80px">Maker Basic</button>
             <div style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
@@ -246,9 +246,9 @@ class InputSection extends PolymerElement {
             socketActions.socket.send(JSON.stringify(manualChangeMessage));
         }
         //start the drawArrows on the spread graph only if there are none at the price you either left or at some designated start price or best price?
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
+       
+        spreadGraph.drawArrows();
+        
 
         //disable all sliders and and submit button 
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");

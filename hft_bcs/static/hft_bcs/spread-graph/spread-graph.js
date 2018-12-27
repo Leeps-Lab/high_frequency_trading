@@ -359,14 +359,12 @@ class SpreadGraph extends PolymerElement {
             .on("drag", function(){
                 //Making sure not to drag past other arrow line
                 var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
-                console.log(lineXAsk);
                 spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
                 spreadGraph.askArrow["askArrowLine"].attr("x1",  lineXAsk).attr("x2", lineXAsk);
             })
             .on("end", function(){
                     //finding the price in which is just past the dropped x value
                     var xAsk = +spreadGraph.askArrow["askArrowLine"].attr("x1");
-                    console.log(xAsk);
                     var tickArray = Object.keys(spreadGraph.visibleTickLines);
                     for(var i = 0; i < tickArray.length; i++){
                         if(+spreadGraph.visibleTickLines[tickArray[i]] > xAsk){
@@ -380,7 +378,7 @@ class SpreadGraph extends PolymerElement {
                     // Snapping to the closes price based on drop
                     var snappedXAsk = (diffUpperAsk < diffLowerAsk) ? spreadGraph.visibleTickLines[tickArray[i]] : spreadGraph.visibleTickLines[tickArray[i - 1]];
                     var snappedPriceAsk = (diffUpperAsk < diffLowerAsk) ? tickArray[i] : tickArray[i - 1];
-                    console.log(snappedXAsk, snappedPriceAsk);
+            
                     //Check for ask line x making sure it cant snap to other line 
                     var checkedXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? spreadGraph.visibleTickLines[tickArray[i]] : snappedXAsk;
                     var checkedPriceAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? tickArray[i] : snappedPriceAsk;
