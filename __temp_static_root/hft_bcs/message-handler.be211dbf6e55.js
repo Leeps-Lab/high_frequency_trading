@@ -3,7 +3,7 @@ Socket Actions
 */
     //Socket Connection
     var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-    var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{player.market}}/{{player.id}}/");
+    var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{group.id}}/{{player.id}}/");
    
     socketActions.socket = socket;
  
@@ -22,7 +22,6 @@ Socket Actions
         * Handle messages sent by the server.
         */
          socketActions.socket.onmessage = function (event) {
-             
              
  
         };
