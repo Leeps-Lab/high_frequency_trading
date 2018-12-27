@@ -6,7 +6,7 @@ import dj_database_url
 from datetime import datetime
 import otree.settings
 import yaml
-from custom_otree_config import BCSConfig
+from custom_otree_config import CustomOtreeConfig
 
 CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -90,9 +90,9 @@ AWS_SECRET_ACCESS_KEY = environ.get('AWS_SECRET_ACCESS_KEY')
 
 
 # e.g. EUR, CAD, GBP, CHF, CNY, JPY
-REAL_WORLD_CURRENCY_CODE = 'USD'
-USE_POINTS = True
-
+REAL_WORLD_CURRENCY_CODE = 'EUR'
+USE_POINTS = False
+POINTS_CUSTOM_NAME = 'ECUs'
 
 # e.g. en, de, fr, it, ja, zh-hans
 # see: https://docs.djangoproject.com/en/1.9/topics/i18n/#term-language-code
@@ -100,7 +100,7 @@ LANGUAGE_CODE = 'en'
 
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
-INSTALLED_APPS = ['otree']
+INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
 #EXTENSION_APPS = ['otree_redwood']
 
 # SENTRY_DSN = ''
@@ -216,7 +216,7 @@ LOGGING = {
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = {
-    'real_world_currency_per_point': 0.0001,
+    'real_world_currency_per_point': 1,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['hft_bcs'],
@@ -234,8 +234,11 @@ SESSION_CONFIG_DEFAULTS = {
 
 SESSION_CONFIGS = []
 
-bcs_configs = BCSConfig.get_all()
-config_fields = [cf.json_format() for cf in bcs_configs]
-SESSION_CONFIGS.extend(config_fields)
+custom_configs_directory = os.path.join(os.getcwd(), 'session_config/session_configs')
+
+
+custom_configs = CustomOtreeConfig.initialize_many_from_folder(custom_configs_directory)
+configs = [config.get_otree_config() for config in custom_configs]
+SESSION_CONFIGS.extend(configs)
 
 otree.settings.augment_settings(globals())

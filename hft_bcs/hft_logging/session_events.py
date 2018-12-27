@@ -40,16 +40,16 @@ class SessionEvents:
         self.subsession = subsession
         self.round_start = labtime()
 
-    @classmethod
-    def new_round(cls, subsession=None):
-        round_logger = cls(subsession)
-        round_logger.set_dump_path()
-        return round_logger
+    def __call__(self, subsession):
+        self.backup = list()
+        self.raw_logs = list()
+        self.string_logs = list()
+        self.round_start = labtime()
+        self.set_dump_path(subsession)
     
-    def set_dump_path(self):
-        cls = self.__class__
+    def set_dump_path(self, subsession):
         now = datetime.now().strftime('%Y-%m-%d_%H-%M')
-        filename = cls.filename.format(timestamp=now, subsession=self.subsession)
+        filename = self.filename.format(timestamp=now, subsession=subsession)
         self.path = os.path.join(logs_folder, filename)
 
     def push(self, processor, **kwargs):
@@ -76,4 +76,4 @@ class SessionEvents:
                 writer.writeheader()
             writer.writerows(self.string_logs)
 
-events = SessionEvents()
+log_events = SessionEvents()

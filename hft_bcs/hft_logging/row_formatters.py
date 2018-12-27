@@ -61,6 +61,19 @@ def inv_trans(**kwargs):
     row['context'] = 'investor order {} transacted.'.format(token)
     return row
 
+def db_lock(**kwargs):
+    row = base_row(**kwargs)
+    row['event'] = 'db lock'
+    row['player'] = kwargs.get('pid')
+    state = kwargs.get('state')
+    func = kwargs.get('f')
+    if state == 'locked':
+        ctx = '%s has the lock.' % func
+    else:
+        ctx = '%s released the lock' % func
+    row['context'] = ctx
+    return row
+
 def jump(**kwargs):
     row = base_row(**kwargs)
     row['event'] = 'jump'

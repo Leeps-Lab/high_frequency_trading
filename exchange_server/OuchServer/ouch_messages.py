@@ -35,7 +35,13 @@ class OuchFields(ProtocolFieldEnum):
     match_number = ('Q', 'todo')
     reference_price = ('I', 'todo')
     reference_price_type = ('c', 'todo')
-    
+    leeps_timestamp = ('16s', 'todo')
+    # custom quotation message fields
+    best_bid = ('I', 'the best bid')
+    best_ask = ('I', 'the best ask')
+    volume_at_best_bid = ('I', 'todo')
+    volume_at_best_ask = ('I', 'todo')
+
 class OuchHeader(NamedFieldSequence):
     __slots__ = ('msg_type',)
     _protocol_fields = OuchFields
@@ -145,6 +151,12 @@ class OuchServerMessages(LookupByHeaderBytesMixin, OuchMessageTypeSpec,
             ['timestamp', 'order_token', 'executed_shares',
              'execution_price', 'liquidity_flag', 'match_number']
         )
+
+    BestBidAndOffer = ('{timestamp}:{stock}:bid:{volume_at_best_bid}@{best_bid}:ask:{volume_at_best_ask}@{best_ask}',
+            {'msg_type': b'Q'},
+            ['timestamp', 'stock', 'best_bid', 'volume_at_best_bid', 'best_ask', 
+             'volume_at_best_ask']
+    )
     BrokenTrade = ('{timestamp}:XX{order_token}m{match_number}({reason})',
             {'msg_type': b'B'},
             ['timestamp', 'order_token', 'match_number', 'reason']

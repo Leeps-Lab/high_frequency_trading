@@ -1,5 +1,4 @@
 from ._builtin import Page, WaitPage
-from .translator import system_start
 from otree.api import Currency as c
 from .models import Constants
 from . import results
@@ -33,12 +32,34 @@ class InstructionsFBA(Page):
         round_is_fba = True if self.subsession.design == 'FBA' else False
         return round_is_instructed and round_is_fba
 
+class indexFBA(Page):
+    def is_displayed(self):
+        round_is_instructed = self.subsession.is_trial or (
+            self.subsession.first_round == self.round_number)
+        round_is_fba = True if self.subsession.design == 'FBA' else False
+        return round_is_instructed and round_is_fba
+
 class InstructionsCDA(Page):
     def is_displayed(self):
         round_is_instructed = self.subsession.is_trial or (
             self.subsession.first_round == self.round_number)
         round_is_cda = True if self.subsession.design == 'CDA' else False
         return round_is_instructed and round_is_cda
+
+class indexCDA(Page):
+    def is_displayed(self):
+        round_is_instructed = self.subsession.is_trial or (
+            self.subsession.first_round == self.round_number)
+        round_is_cda = True if self.subsession.design == 'CDA' else False
+        return round_is_instructed and round_is_cda
+
+class indexIEX(Page):
+    def is_displayed(self):
+        round_is_instructed = self.subsession.is_trial or (
+            self.subsession.first_round == self.round_number)
+        round_is_iex = True if self.subsession.design == 'IEX' else False
+        return round_is_instructed and round_is_iex
+        
 
 class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
@@ -47,31 +68,58 @@ class PreWaitPage(WaitPage):
 class index(Page):
     pass
 
+
+class leeps(Page):
+    pass
+
 round_results = {}
 class ResultsWaitPage(WaitPage):
 
     def after_all_players_arrive(self):
-        subsession = self.subsession
-        # take speed cost
-        for player in self.group.get_players():
-            player.take_cost()
-            payoff_for_round = player.calc_payoff()
-            if subsession.is_trial is False:
-                if subsession.restore is True and (subsession.first_round == self.round_number):
-                    subsession.restore_payoffs()
-                player.participant.payoff += payoff_for_round
-                if player.participant.vars['payoff_round'] == self.round_number:
-                    player.participant.vars['round_payoff'] = payoff_for_round
-        # process output to display
-        session_log_file = self.subsession.log_file
-        gid = self.group.id
-        results_for_group = results.BCS_process(session_log_file, gid)
-        round_results[gid] = results_for_group
+        pass
+        # subsession = self.subsession
+        # # take speed cost
+        # for player in self.group.get_players():
+        #     player.take_cost()
+        #     payoff_for_round = player.do_payoff()
+        #     print('payoff for round', payoff_for_round)
+        #     if subsession.is_trial is False:
+        #         if subsession.restore is True and (subsession.first_round == self.round_number):
+        #             subsession.restore_payoffs()
+        #         player.participant.payoff += payoff_for_round
+        #         if player.participant.vars['payoff_round'] == self.round_number:
+        #             player.participant.vars['round_payoff'] = payoff_for_round
+        # # process output to display
+        # session_log_file = self.subsession.log_file
+        # gid = self.group.id
+        # results_for_group = results.BCS_process(session_log_file, gid)
+        # round_results[gid] = results_for_group
 
 class Results(Page):
-    def vars_for_template(self):
-        gid = self.group.id
-        return round_results[gid]
+    pass
+
+class SessionEnd(WaitPage):
+    """
+    i really dont like participant.payoff
+    there is some implicit stuff
+    maybe just never use it till i have to
+    """
+    def is_displayed(self):
+        round_is_final = self.round_number == self.subsession.last_round
+        return round_is_final
+
+    def after_all_players_arrive(self):
+        pass
+        # for player in self.group.get_players():
+        #     session_payoff = SessionPayoff(player)
+        #     random_round_pay = self.session.config['random_round_payment']
+        #     if random_round_pay:
+        #             _, payoff = session_payoff.random_round_payoff()  
+        #     else:
+        #         payoff = session_payoff.average_payoff()
+        #     player.total_payoff = float(player.participant.payoff)
+        #     fx = 1 / self.session.config['real_world_currency_per_point']
+        #     player.participant.payoff = fx * payoff * 1 / Constants.conversion_factor
 
 class SessionResults(Page):
     def is_displayed(self):
@@ -80,25 +128,30 @@ class SessionResults(Page):
 
     def vars_for_template(self):
         random_round_pay = self.session.config['random_round_payment']
-        payoff_round = self.participant.vars['payoff_round']
-        total_payoff = round(self.participant.payoff * 1e-4, 4)
-        round_payoff = round(self.participant.vars['round_payoff'] * 1e-4, 4)
-        out = {
-            'random_round_pay': random_round_pay,
-            'payoff_round': payoff_round, 
-            'round_payoff': c(round_payoff),
-            'total_payoff': c(total_payoff)
-        }
+        out = {'payoff_round': False}
+        if random_round_pay:
+            payoff_round = self.player.participant.vars['payoff_round']
+            out = {'payoff_round': payoff_round}
+        points_payoff = self.player.total_payoff * 1 / Constants.conversion_factor / self.subsession.total_rounds
+        payoff_plus_participation = self.player.participant.payoff + self.session.config['participation_fee']
+        points_payoff = SessionPayoff.round(points_payoff)  
+        out['payoff'] = points_payoff
+        out['payoff_plus_participation'] = payoff_plus_participation
         return out
 
 page_sequence = [
-    InformedConsent,
-    NoParticipation,
-    InstructionsCDA,
-    InstructionsFBA,
+    # InformedConsent,
+    # NoParticipation,
+    # InstructionsCDA,
+    # InstructionsFBA,
     PreWaitPage,
-    index,
+    # index,
+    leeps,
+    # indexCDA,
+    # indexFBA,
+    # indexIEX,
     ResultsWaitPage,
     Results,
-    SessionResults
+    # SessionEnd,
+    # SessionResults
 ]

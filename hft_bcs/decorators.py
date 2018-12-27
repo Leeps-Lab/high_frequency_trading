@@ -3,29 +3,36 @@ import time
 import logging
 import itertools
 
+from .hft_logging.session_events import log_events
+from .hft_logging import row_formatters as hfl
+
 log = logging.getLogger(__name__)
 
-author = 'hasan ali demirci'
+def timer(func):
+    def timed(self, *args, **kwargs):
+        t = time.time()
+        res = func(self, *args, **kwargs)
+        diff = (time.time() - t) * 1e3
+        print('receive:%f' % diff)
+        return res
+    return timed
 
-# TODO: fix this. circular reference being a problem. use partial maybe ?
-
-key = '{self.code}_lock'
-
+lock_name = 'trade_session_lock'
 def atomic(func):
     sleep_len = 0.00125
-    def atomize(self, *args, **kwargs):
-        lock_key = key.format(self=self)
+    def atomize(*args, **kwargs):
         c = 0
         printed = False
-        while cache.delete(lock_key) == 0:
+        while cache.delete(lock_name) == 0:
             time.sleep(sleep_len)
             c += sleep_len
             if c and printed is False:
-                log.info('{}:{}:{} another has the lock.'.format(self, self.id, func.__name__))
+                log.info('{} another thread has the lock.'.format(func.__name__))
                 printed = True
             continue
-        out = func(self, *args, **kwargs)
-        cache.set(lock_key, 'unlocked', timeout=None)
+        out = func(*args, **kwargs)
+        cache.set(lock_name, 'unlocked', timeout=None)
+        print('trade session lock released.')
         return out
     return atomize
 

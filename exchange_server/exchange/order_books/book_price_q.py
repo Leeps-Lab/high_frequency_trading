@@ -1,6 +1,6 @@
 import logging as log
 from collections import OrderedDict
-
+import pdb
 
 
 
@@ -48,6 +48,6 @@ class BookPriceQ:
 			else:
 				volume_to_fill -= next_order_volume
 				fulfilling_orders.append(self.order_q.popitem(last=False))
-				log.info(self.order_q.values())
 				self.interest -= next_order_volume
+			
 		return (volume - volume_to_fill, fulfilling_orders)

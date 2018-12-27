@@ -169,7 +169,7 @@ class BCSMarket:
         'profit': 'handle_profit',
         'speed': 'handle_speed',
         'spread': 'handle_spread',
-        'state': 'handle_role_change',
+        'role': 'handle_role_change',
         'start': 'handle_start',
         'cost': 'handle_cost',
         'end': 'handle_end'
@@ -190,7 +190,7 @@ class BCSMarket:
 
     def process(self):
         for row in self.events:
-            typ = row['type']
+            typ = row['event_type']
             func_name = self.__class__.dispatch.get(typ)
             if func_name:
                 func = getattr(self, func_name)
@@ -229,7 +229,7 @@ class BCSMarket:
 
     def handle_role_change(self, msg):
         player_id = msg['context']['player_id']
-        new_role = msg['context']['state'].lower()
+        new_role = msg['context']['role'].lower()
         time = msg['time']
         old_role = str(self.players[player_id].current_role)
         self.players[player_id].current_role = new_role

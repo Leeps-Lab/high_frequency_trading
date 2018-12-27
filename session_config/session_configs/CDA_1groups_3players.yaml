@@ -1,0 +1,42 @@
+demo:
+  number-of-participants: 3
+
+group:
+  number-of-groups: 1
+  players-per-group: 3
+
+exogenous-events:
+  investor-arrivals:
+    - session_config/Pilot/Trial1/investors_trial.csv
+    - session_config/Pilot/Draw1/investors_period1.csv
+    - session_config/Pilot/Draw1/investors_period2.csv
+    - session_config/Pilot/Draw1/investors_period3.csv
+market:
+  auction-format: 'CDA'
+  matching-engine-host: '127.0.0.1'
+  number-of-markets: 1
+
+parameters:
+  batch-length: 0
+  fundamental-price: 100
+  initial-endowment: 20
+  initial-spread: 1
+  lambda-i: 0.25
+  lambda-j: 0.33
+  max-spread: 2
+  period-length: 30
+  speed-cost: 0.022
+  grid-size: 1
+
+session:
+  environment: LEEPS
+  currency: EUR
+  display-name: CDA Production
+  exchange-rate: 1.5
+  num-rounds: 3
+  participation-fee: 4
+  random-round-payment: off
+  session-name: Cologe3in1
+  exogenous-event-directory: Pilot
+  trial: on
+  trial-length: 10

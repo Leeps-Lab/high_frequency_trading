@@ -1,4 +1,5 @@
-import {html, PolymerElement} from '../node_modules/@polymer/polymer/polymer-element.js';
+import {html, PolymerElement}  from '../node_modules/@polymer/polymer/polymer-element.js';
+
 /**
  * @customElement
  * @polymer
@@ -87,12 +88,12 @@ class ProfitGraph extends PolymerElement {
     /*
      * set of variables we added that were not part of the original solution
      */
-    profitGraph.maxSpread = otreeConstants.maxSpread;
+    profitGraph.maxSpread = otree.maxSpread;
     
     /*
      * Set of variables we update from oTree and manifest values 
      */ 
-    profitGraph.startingWealth =   otreeConstants.startingWealth; 
+    profitGraph.startingWealth =   otree.startingWealth; 
     profitGraph.profit = profitGraph.startingWealth;                                           // Through Django Channels// Django Query
     profitGraph.profitElementWidth = profitGraph.profit_width;
     profitGraph.profitElementHeight = profitGraph.profit_height;
@@ -130,14 +131,14 @@ class ProfitGraph extends PolymerElement {
 
 
     // maybe spread on profit graph
-    profitGraph.priceRange =  5*otreeConstants.maxSpread;
+    profitGraph.priceRange =  5*otree.maxSpread;
     profitGraph.maxPriceProfit = profitGraph.startingWealth + (profitGraph.priceRange / 2);
     profitGraph.minPriceProfit = profitGraph.startingWealth - (profitGraph.priceRange / 2);
     profitGraph.centerPriceProfit = (profitGraph.maxPriceProfit + profitGraph.minPriceProfit) / 2;
    
     profitGraph.profitJumps = [];
 
-    profitGraph.batchLength = otreeConstants.batchLength * 1000000000;
+    profitGraph.batchLength = otree.batchLength * 1000000000;
     profitGraph.batchLines = [];
 
     //------------------------------------------------
@@ -489,7 +490,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
 
         // recalculate market price bounds
         profitGraph.calcPriceBounds();
-        if(otreeConstants.FBA == false){
+        if(otree.FBA == false){
             // recalculate if virtual right side of graph is more than a graph.timeIncrement past last graph.timeLine line
             var rightSideOfGraph = profitGraph.timeLines[profitGraph.timeLines.length - 1] + profitGraph.timeIncrement;
 
@@ -500,7 +501,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
                 profitGraph.timeLines = profitGraph.calcTimeGridLines(startTime, endTime, profitGraph.timeIncrement);
             }
             profitGraph.drawTimeGridLines();
-        } else if(otreeConstants.FBA == true) {
+        } else if(otree.FBA == true) {
             if (profitGraph.currentTime + profitGraph.advanceTimeShown > profitGraph.batchLines[profitGraph.batchLines.length - 1] + profitGraph.batchLength ||
                 Math.max(profitGraph.adminStartTime, profitGraph.currentTime - profitGraph.timeInterval) < profitGraph.batchLines[0] - profitGraph.batchLength) {
                 profitGraph.batchLines = profitGraph.calcBatchLines(profitGraph.currentTime - profitGraph.timeInterval, profitGraph.currentTime + profitGraph.advanceTimeShown, profitGraph.batchLength);      ////changed to *1000000 4/17/17 line 497
@@ -514,7 +515,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         profitGraph.drawPriceGridLines();
         profitGraph.drawPriceAxis();
 
-        var speed = document.querySelector("input-section").shadowRoot.querySelector("#speed_checkbox").checked
+        var speed = inputSection.inputSectionDOM.querySelector("#speed_checkbox").checked;
         /* *****************************************************************************
         * Data Structures present in Redwood front end, and need to be adapted to otree 
         ******************************************************************************/ 
@@ -526,7 +527,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
     
     var profitDecrement = 0;
     if(speed){
-        profitDecrement = (profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["endTime"] - profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["startTime"]) * -(otreeConstants.speedCost);
+        profitDecrement = (profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["endTime"] - profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["startTime"]) * -(otree.speedCost);
     }
 
 
@@ -534,7 +535,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
     profitGraph.profit = profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["startProfit"] + profitDecrement;
     profitGraph.drawProfit(profitGraph.profitSegments, profitGraph.profitJumps);
 
-        if(otreeConstants.endMsg == "off"){
+        if(otree.endMsg == "off"){
             requestAnimationFrame(profitGraph.draw);
         } else {
             profitGraph.clear();

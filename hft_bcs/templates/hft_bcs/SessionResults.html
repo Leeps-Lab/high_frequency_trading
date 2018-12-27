@@ -21,28 +21,28 @@
     }
 </style>
 <div id="container">
-    <h1>
-        Your session has completed.
-    </h1>
+    <h3>
+       Thank you, the session has completed.
+    </h3>
     <br>
     <p>Here are your results, player <strong>{{player.id_in_group}}</strong>:</p>
-
-    <p>
-        You have accumulated <strong>{{total_payoff}}</strong> in experimental currency units (ECU).
-    </p>
-    <!-- maybe some statistics of everyone elses payoff how you did? -->
-    {% if random_round_pay %}
+    {% if payoff_round %}
     <p>
         Dollar payoff round is chosen randomly for each participant.
         Yours were selected as round {{payoff_round}}.
     </p>
     {% endif %}
+    <p>
+        Your average profit is <strong>{{payoff}}</strong> ECUs. 
+        Divided by the exchange rate of <strong>{{session.config.real_world_currency_per_point}}</strong>,
+        this amount translates to <strong>{{player.participant.payoff | c}}</strong>.
+        Your show up fee is <strong>{{session.config.participation_fee}}</strong>.
+        Thus, your total profit is <strong>{{payoff_plus_participation}}</strong>.
+        
+    </p>
+
+    <!-- maybe some statistics of everyone elses payoff how you did? -->
+
     <br>
-    <h3> You will receive 
-        {% if random_round_pay %} 
-        <strong>{{round_payoff}}</strong>  
-        {% else %} 
-        <strong>{{total_payoff}}.</strong>  
-        {% endif %}
 </div>
 {% endblock %}

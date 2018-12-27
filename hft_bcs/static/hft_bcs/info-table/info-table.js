@@ -1,4 +1,5 @@
-import {html, PolymerElement} from '../node_modules/@polymer/polymer/polymer-element.js';
+import {html,PolymerElement} from '../node_modules/@polymer/polymer/polymer-element.js';
+
 /*
  * This file defines the Info Table featured on the top of the main page using the Javascript Framework Polymer 3.0
  * 

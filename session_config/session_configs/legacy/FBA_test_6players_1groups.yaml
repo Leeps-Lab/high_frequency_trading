@@ -1,0 +1,35 @@
+demo:
+  number-of-participants: 6
+directory:
+  folder: investors_jumps
+trial:
+  run: 1
+  trial-length: 20
+investors:
+  group_1: ['i01.csv', 'i02.csv']
+  group_2: ['j01.csv', 'j02.csv']
+jumps:
+  group_1: ['j01.csv', 'j02.csv']
+  group_2: ['j01.csv', 'j02.csv']
+group:
+  group-assignments: '[[1, 2, 3, 4, 5, 6],[7,8,9,10,11,12]]'
+  number-of-groups: 1
+  players-per-group: 6
+market:
+  design: "FBA"
+  matching-engine-host: "127.0.0.1"
+parameters:
+  fundamental-price: 100
+  initial-endowment: 20
+  initial-spread: 1
+  max-spread: 2
+  session-length: 120
+  speed-cost: 0.022
+  batch-length: 3
+session:
+  currency: EUR
+  exchange-rate: 2
+  participation-fee: 4
+  num-rounds: 3
+  display_name: FBA Production
+  session-name: fba_test_config

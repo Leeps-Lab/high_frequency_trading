@@ -1,0 +1,42 @@
+demo:
+  number-of-participants: 18
+directory:
+  folder: investors_jumps
+trial:
+  run: 1
+  trial-length: 30
+investors:
+  group_1: ['i01.csv', 'i02.csv', 'i01.csv', 'i02.csv']
+  group_2: ['i01.csv', 'i02.csv', 'i01.csv', 'i02.csv']
+  group_3: ['i01.csv', 'i02.csv', 'i01.csv', 'i02.csv']
+jumps:
+  group_1: ['j01.csv', 'j02.csv', 'j01.csv', 'j02.csv']
+  group_2: ['j01.csv', 'j02.csv', 'j01.csv', 'j02.csv']
+  group_3: ['j01.csv', 'j02.csv', 'j01.csv', 'j02.csv']
+group:
+  group-assignments: '[[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12], [13, 14, 15, 16, 17, 18]]'
+  number-of-groups: 3
+  players-per-group: 6
+market:
+  design: "FBA"
+  matching-engine-host: "127.0.0.1"
+parameters:
+  fundamental-price: 100
+  initial-endowment: 20
+  initial-spread: 1
+  max-spread: 2
+  session-length: 150
+  speed-cost: 0.022
+  batch-length: 3
+  lambda-i: 0.25
+  lambda-j: 0.3333333333333333
+session:
+  currency: EUR
+  exchange-rate: 1.5
+  participation-fee: 4
+  restore: off
+  restore-from: none
+  random-round-payment: off
+  num-rounds: 4
+  display_name: FBA Production
+  session-name: fba_3_6_test
