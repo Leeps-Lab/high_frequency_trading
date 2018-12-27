@@ -272,7 +272,7 @@ class InputSection extends PolymerElement {
             socketActions.socket.send(JSON.stringify(makerBasicChangeMessage));
         }
         //s
-        spreadGraph.removeArrows();
+
         spreadGraph.drawArrows();
         
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");

@@ -188,10 +188,10 @@ class InputSection extends PolymerElement {
     inputSection.startBatchTimer = this.startBatchTimer;
     inputSection.updateSpeed = this.updateSpeed;
     inputSection.maker1Click = this.maker1Click;
-    inputSection.maker2Click = this.maker2Button;
-    inputSection.takerClick = this.takerButton;
-    inputSection.submitClick = this.submitButton;
-    inputSection.outClick = this.outButton;
+    inputSection.maker2Button = this.maker2Button;
+    inputSection.takerButton = this.takerButton;
+    inputSection.submitButton = this.submitButton;
+    inputSection.outButton = this.outButton;
 
     this.activateSliders();
     this.activateButtons();
@@ -224,11 +224,12 @@ class InputSection extends PolymerElement {
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
     var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
 
-    maker1Button.onclick = inputSection.maker1Click;
-    maker2Button.onclick = inputSection.maker2Click;
-    takerButton.onclick = inputSection.takerClick;
-    outButton.onclick = inputSection.outClick;
-    submitButton.onclick = inputSection.submitClick;
+    maker1Button.onclick = inputSection.maker1Button;
+    maker2Button.onclick = inputSection.maker2Button;
+    takerButton.onclick = inputSection.takerButton;
+    outButton.onclick = inputSection.outButton;
+    submitButton.onclick = inputSection.submitButton;
+
   } 
 
     maker1Click(){
@@ -243,7 +244,7 @@ class InputSection extends PolymerElement {
             socketActions.socket.send(JSON.stringify(manualChangeMessage));
         }
         //start the drawArrows on the spread graph only if there are none at the price you either left or at some designated start price or best price?
-        spreadGraph.removeArrows();
+       
         spreadGraph.drawArrows();
         
 
@@ -272,7 +273,7 @@ class InputSection extends PolymerElement {
             socketActions.socket.send(JSON.stringify(makerBasicChangeMessage));
         }
         //s
-        spreadGraph.removeArrows();
+
         spreadGraph.drawArrows();
         
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
@@ -296,7 +297,7 @@ class InputSection extends PolymerElement {
             console.log(JSON.stringify(algorithm2ChangeMessage));
             socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
         }
-        spreadGraph.removeArrows();
+        
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");

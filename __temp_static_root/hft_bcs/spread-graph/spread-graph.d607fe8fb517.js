@@ -293,7 +293,7 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke","#309930")  
         .attr("stroke-width",7)  
         .attr("marker-end","url(#bidArrow)")
-        .attr("class", "arrow");
+        attr("class", "arrow");
  
         
     spreadGraph.askArrow["askArrowLine"] = spreadGraph.spread_svg.append("line")
@@ -429,7 +429,10 @@ class SpreadGraph extends PolymerElement {
       console.log("Remove arrows is called");
     try {
         console.log("Removing arrows");
-        spreadGraph.spread_svg.selectAll(".arrow").remove();
+        spreadGraph.bidArrow["bidArrowLine"].remove();
+        spreadGraph.askArrow["askArrowLine"].remove();
+        spreadGraph.bidArrow["bidArrowText"].remove();
+        spreadGraph.askArrow["askArrowText"].remove();
     } catch {
         console.log("No Arrows to remove");
     }

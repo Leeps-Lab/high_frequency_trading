@@ -133,20 +133,20 @@ class InputSection extends PolymerElement {
 
     <div class="row">
         <div class="text-center col-lg-3">
-            <button  value="out" class="text-center btn btn-primary manual-button" type="button"  width="80px">Manual</button>
+            <button  value="out" class="text-center btn btn-primary maker1-button" type="button"  width="80px">Maker 1</button>
             <div style="margin-top:50px;">
-                <button   class="text-center btn btn-success submit-button" on-click="submitSensitivities" type="button">Submit Values</button>
+                <button   class="text-center btn btn-success submit-button" type="button">Submit Values</button>
             </div>
         </div>
         <div class="text-center col-lg-3" >
-            <button class="text-center btn btn-primary algorithm-button algorithm1-button" type="button"  width="80px">Maker Basic</button>
+            <button class="text-center btn btn-primary algorithm-button maker2-button" type="button"  width="80px">Maker 2</button>
             <div style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
-            <button class="text-center btn btn-primary algorithm-button algorithm2-button" type="button" width="80px">Algorithm B</button>
+            <button class="text-center btn btn-primary taker-button taker-button" type="button" width="80px">Taker</button>
             <div style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
@@ -187,11 +187,11 @@ class InputSection extends PolymerElement {
     inputSection.Button_Pressed = this.Button_Pressed;
     inputSection.startBatchTimer = this.startBatchTimer;
     inputSection.updateSpeed = this.updateSpeed;
-    inputSection.manualClick = this.manualClick;
-    inputSection.algo1Button = this.algo1Button;
-    inputSection.algo2Button = this.algo2Button;
-    inputSection.submitButton = this.submitButton;
-    inputSection.outButton = this.outButton;
+    inputSection.maker1Click = this.maker1Click;
+    inputSection.maker2Click = this.maker2Button;
+    inputSection.takerClick = this.takerButton;
+    inputSection.submitClick = this.submitButton;
+    inputSection.outClick = this.outButton;
 
     this.activateSliders();
     this.activateButtons();
@@ -218,21 +218,20 @@ class InputSection extends PolymerElement {
       
   }
   activateButtons(){
-    var manualButton = inputSection.inputSectionShadowDOM.querySelector(".manual-button");
-    var algo1Button = inputSection.inputSectionShadowDOM.querySelector(".algorithm1-button");
-    var algo2Button = inputSection.inputSectionShadowDOM.querySelector(".algorithm2-button");
+    var maker1Button = inputSection.inputSectionShadowDOM.querySelector(".maker1-button");
+    var maker2Button = inputSection.inputSectionShadowDOM.querySelector(".maker2-button");
+    var takerButton = inputSection.inputSectionShadowDOM.querySelector(".taker-button");
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
     var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
 
-    manualButton.onclick = inputSection.manualClick;
-    algo1Button.onclick = inputSection.algo1Button;
-    algo2Button.onclick = inputSection.algo2Button;
-    outButton.onclick = inputSection.outButton;
-    submitButton.onclick = inputSection.submitButton;
-
+    maker1Button.onclick = inputSection.maker1Click;
+    maker2Button.onclick = inputSection.maker2Click;
+    takerButton.onclick = inputSection.takerClick;
+    outButton.onclick = inputSection.outClick;
+    submitButton.onclick = inputSection.submitClick;
   } 
 
-    manualClick(){
+    maker1Click(){
         //update player object 
         playersInMarket[otree.playerIDInGroup]["strategy"] = "maker_basic";
         var manualChangeMessage = {
@@ -244,7 +243,7 @@ class InputSection extends PolymerElement {
             socketActions.socket.send(JSON.stringify(manualChangeMessage));
         }
         //start the drawArrows on the spread graph only if there are none at the price you either left or at some designated start price or best price?
-       
+        spreadGraph.removeArrows();
         spreadGraph.drawArrows();
         
 
@@ -258,10 +257,10 @@ class InputSection extends PolymerElement {
 
     }
 
-    algo1Button(){
+    maker2Button(){
         
         //update player object 
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "maker_basic";
+        playersInMarket[otree.playerIDInGroup]["strategy"] = "maker_2";
         var makerBasicChangeMessage = {
             type: "role_change",
             id: otree.playerID,
@@ -273,9 +272,9 @@ class InputSection extends PolymerElement {
             socketActions.socket.send(JSON.stringify(makerBasicChangeMessage));
         }
         //s
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
+        spreadGraph.removeArrows();
+        spreadGraph.drawArrows();
+        
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
@@ -285,8 +284,8 @@ class InputSection extends PolymerElement {
 
     }
 
-    algo2Button(){
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "algorithm2";
+    takerButton(){
+        playersInMarket[otree.playerIDInGroup]["strategy"] = "taker";
         var algorithm2ChangeMessage = {
             type: "role_change",
             id: otree.playerID,
@@ -297,15 +296,13 @@ class InputSection extends PolymerElement {
             console.log(JSON.stringify(algorithm2ChangeMessage));
             socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
         }
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
+        spreadGraph.removeArrows();
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
-        submitButton.disabled = false;
-        sens1.disabled = false;
-        sens2.disabled = false;
+        submitButton.disabled = true;
+        sens1.disabled = true;
+        sens2.disabled = true;
 
     }
 

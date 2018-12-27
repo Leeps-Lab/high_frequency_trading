@@ -292,7 +292,8 @@ class SpreadGraph extends PolymerElement {
         .attr("y2",spreadGraph.spread_height*0.6 + 20)  
         .attr("stroke","#309930")  
         .attr("stroke-width",7)  
-        .attr("marker-end","url(#bidArrow)");
+        .attr("marker-end","url(#bidArrow)")
+        .attr("class", "arrow");
  
         
     spreadGraph.askArrow["askArrowLine"] = spreadGraph.spread_svg.append("line")
@@ -302,7 +303,8 @@ class SpreadGraph extends PolymerElement {
         .attr("y2",spreadGraph.spread_height*0.6 + 20)  
         .attr("stroke","#CB1C36")  
         .attr("stroke-width",7)  
-        .attr("marker-end","url(#askArrow)");
+        .attr("marker-end","url(#askArrow)")
+        .attr("class", "arrow");
         
     if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
@@ -412,24 +414,26 @@ class SpreadGraph extends PolymerElement {
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.bidArrow["bidArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("class", "price-grid-line-text")
+        .attr("class", "price-grid-line-text arrow")
         .text("BID");
 
     spreadGraph.askArrow["askArrowText"]  = spreadGraph.spread_svg.append("text")
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.askArrow["askArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("class", "price-grid-line-text")
+        .attr("class", "price-grid-line-text arrow")
         .text("ASK");        
   }
 
   removeArrows(){
-    if(spreadGraph.bidArrow["bidArrowLine"] != undefined && spreadGraph.askArrow["askArrowLine"] != undefined){
-        spreadGraph.bidArrow["bidArrowLine"].remove();
-        spreadGraph.askArrow["askArrowLine"].remove();
-        spreadGraph.bidArrow["bidArrowText"].remove();
-        spreadGraph.askArrow["askArrowText"].remove();
+      console.log("Remove arrows is called");
+    try {
+        console.log("Removing arrows");
+        spreadGraph.spread_svg.selectAll(".arrow").remove();
+    } catch {
+        console.log("No Arrows to remove");
     }
+    
   }
 
 

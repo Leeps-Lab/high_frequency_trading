@@ -293,7 +293,7 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke","#309930")  
         .attr("stroke-width",7)  
         .attr("marker-end","url(#bidArrow)")
-        .attr("class", "arrow");
+        attr("class", "arrow");
  
         
     spreadGraph.askArrow["askArrowLine"] = spreadGraph.spread_svg.append("line")
