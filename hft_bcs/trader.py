@@ -2,8 +2,8 @@
 import math
 import logging
 from . import client_messages
-from .utility import nanoseconds_since_midnight, ouch_fields, format_message
-
+from .utility import (nanoseconds_since_midnight, ouch_fields, format_message,
+    MIN_BID, MAX_ASK)
 
 from collections import deque
 from . import translator as translate
@@ -205,6 +205,7 @@ class BCSMaker(BCSTrader):
         return price
 
     def first_move(self, **kwargs):
+        self.role = self.__class__.__name__
         delay = self.calc_delay()
         for side in ('B', 'S'):
             price = self.calc_price(side)
@@ -288,6 +289,7 @@ class BCSMaker(BCSTrader):
 class BCSOut(BCSTrader):
 
     def first_move(self, **kwargs):
+        self.role = self.__class__.__name__
         self.leave_market()
         message_content = { 'group_id': self.market, 'type': 'leave_market', 
             'message': {'id': self.id_in_group }}
@@ -337,9 +339,6 @@ class LEEPSInvestor(BCSOut):
 
 Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
 
-max_ask = 2147483647
-min_bid = 0
-
 class LEEPSOut(BCSTrader):
 
     def __init__(self, subject_state):
@@ -347,6 +346,7 @@ class LEEPSOut(BCSTrader):
         self.best_quotes = {'bid': None, 'offer': None}
 
     def bbo_update(self, **kwargs):
+        print(kwargs)
         new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_offer']
         self.best_quotes['bid'] = new_best_bid
         self.best_quotes['offer'] = new_best_offer
@@ -364,7 +364,9 @@ class LEEPSBasicMaker(LEEPSOut):
         self.distance_from_best_quote = {'bid': None, 'offer': None}
 
     def first_move(self, **kwargs):
+        super().bbo_update(**kwargs) 
         self.leave_market()
+        self.role = self.__class__.__name__     
 
     def calc_price(self, buy_sell_indicator, distance_from_best_quote=None):
         if distance_from_best_quote is None:
@@ -422,24 +424,19 @@ class LEEPSBasicMaker(LEEPSOut):
     def bbo_update(self, **kwargs):
         new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_offer']
         bbo = self.best_quotes
-        if self.distance_from_best_quote['bid'] is not None:
-            if new_best_bid != bbo['bid']:
+        if new_best_bid != bbo['bid']:
+            self.best_quotes['bid'] = new_best_bid
+            if self.distance_from_best_quote['bid'] is not None:
                 self.best_quotes['bid'] = new_best_bid
                 d = self.distance_from_best_quote['bid']
                 price = new_best_bid - d
                 self.trader_bid_offer_change(price=price, buy_sell_indicator='B')
-        else:
-            log.warning('player %s with role %s, not defined an bid yet.' % (
-                self.id, self.role))
-        if self.distance_from_best_quote['offer'] is not None:
-            if new_best_offer != bbo['offer']:
-                self.best_quotes['offer'] = new_best_offer
+        if new_best_offer != bbo['offer']:
+            self.best_quotes['offer'] = new_best_offer        
+            if self.distance_from_best_quote['offer'] is not None:
                 d = self.distance_from_best_quote['offer']
                 price = new_best_offer + d
                 self.trader_bid_offer_change(price=price, buy_sell_indicator='S')
-        else:
-            log.warning('player %s with role %s, not defined an offer yet.' % (
-                self.id, self.role))
 
 class LEEPSNotSoBasicMaker(LEEPSOut):
 

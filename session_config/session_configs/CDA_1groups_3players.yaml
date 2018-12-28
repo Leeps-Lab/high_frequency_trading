@@ -38,5 +38,5 @@ session:
   random-round-payment: off
   session-name: Cologe3in1
   exogenous-event-directory: Pilot
-  trial: on
+  trial: off
   trial-length: 10

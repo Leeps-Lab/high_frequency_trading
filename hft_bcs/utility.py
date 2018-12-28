@@ -32,6 +32,9 @@ available_exchange_ports = {
 ouch_fields = ('price', 'time_in_force', 'display', 'buy_sell_indicator')
 
 
+MAX_ASK = 2147483647
+MIN_BID = 0
+
 def format_message(message_type, **kwargs):
     message = {'message_type': message_type, 'payload': {} }
     for k, v in kwargs.items():
@@ -74,3 +77,31 @@ def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     timestamp += now.microsecond
     timestamp *= 10**3  # microseconds -> nanoseconds
     return timestamp
+
+def leeps_fields(player, subject_state):
+    player.best_bid = subject_state.best_quotes['bid']
+    player.best_offer = subject_state.best_quotes['offer']
+    if subject_state.distance_from_best_quote is not None:
+        player.distance_from_bid = subject_state.distance_from_best_quote['bid']
+        player.distance_from_offer = subject_state.distance_from_best_quote['offer']
+    if subject_state.latent_quote is not None:
+        lb, lo = subject_state.latent_quote
+        player.latent_bid = lb
+        player.latent_offer = lo
+    if subject_state.sliders is not None:
+        player.sliders = str(subject_state.sliders)
+
+def from_trader_to_player(player, subject_state, post=leeps_fields):
+    for field in subject_state.__slots__:
+        if hasattr(player, field):
+            setattr(player, field, getattr(subject_state, field))
+    if post:
+        post(player, subject_state)
+
+def kwargs_from_event(event):
+    kwargs = event.message.copy()
+    for k, v in event.attachments.items():
+        if k not in kwargs and v is not None:
+            kwargs[k] = v
+    return kwargs
+

@@ -1,14 +1,15 @@
 from .cache import (get_cache_key, write_to_cache_with_version, cache_timeout,
     get_players_by_market)
 from . import utility
-from .translator import LeepsOuchTranslator
-from .subject_state import BCSSubjectState
-from .trader import CDATraderFactory, FBATraderFactory, LEEPSTraderFactory
-from . import client_messages 
+from .subject_state import SubjectStateFactory
+from .trader import CDATraderFactory, FBATraderFactory, LEEPSTraderFactory 
 from django.core.cache import cache
 from .decorators import atomic
 from random import shuffle
 from otree.timeout.tasks import from_trader_to_player
+import logging
+
+log = logging.getLogger(__name__)
 
 trader_factory_map = {
     'BCS': {'CDA': CDATraderFactory, 'FBA': FBATraderFactory},
@@ -53,18 +54,17 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='LE
     if trader_data is None:
         raise ValueError('trader key: %s returned none.' % key)
     if event.event_type == 'role_change':
-        event.message['old_role'] = trader_data['role']
         trader_data['role'] = event.message.get('state').lower()
     role_name, subject_state = trader_data['role'], trader_data['subject_state']
     TraderFactory = trader_factory_map[session_format][exchange_format]
     trader = TraderFactory.get_trader(role_name, subject_state)
-    fields = event.message.copy()
-    fields.update(kwargs)
+    fields = utility.kwargs_from_event(event)
     trader.receive(event.event_type, **fields)
     message_queue = trader.outgoing_messages.copy()
     trader.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
-    trader_state = BCSSubjectState.from_trader(trader)
+    subject_state_cls = SubjectStateFactory.get_state(session_format)
+    trader_state = subject_state_cls.from_trader(trader)
     trader_data['subject_state'] = trader_state
     version = trader_data['version'] + 1
     try:
@@ -72,7 +72,7 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='LE
     except ValueError:
         leeps_handle_trader_message(event, **kwargs)
     else:
-        from_trader_to_player(trader_state)
+        from_trader_to_player(trader_state, utility.from_trader_to_player)
         return event
 
 def leeps_handle_market_message(event, **kwargs):
@@ -85,9 +85,10 @@ def leeps_handle_market_message(event, **kwargs):
         raise Exception('market key: %s returned none, event: %s' % (market_key,
             event))
     market, version = market_data['market'], market_data['version']
-    fields = event.message.copy()
-    fields.update(event.attachments)
-    market.receive(event.event_type, **fields)
+    fields = utility.kwargs_from_event(event)
+    attachments = market.receive(event.event_type, **fields)
+    if attachments:
+        event.attachments.update(attachments)
     message_queue = market.outgoing_messages.copy()
     market.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
@@ -153,27 +154,3 @@ def role_based_events(event, **kwargs):
         event = leeps_handle_trader_message(event, **kwargs)
     shuffle(event.outgoing_messages)
     return event
-
-# def leeps_handle_exchange_message(event, **kwargs):
-#     def extract_player_id(**kwargs):
-#         token = kwargs.get('order_token')
-#         if token is None:
-#             token = kwargs.get('replacement_order_token')
-#         # index 3 is subject ID      
-#         player_id = token[5:9]
-#         if token[3] == '@':
-#             #   way out for investor orders
-#             return False
-#         return player_id
-#     message_type, fields = LeepsOuchTranslator.decode(message)
-#     fields['type'] = message_type
-#     print('\nINCOMING: %s\n' % fields)
-#     if message_type in utility.trader_events:
-#         player_id = extract_player_id(**fields)
-#         if player_id is not False:
-#             message_queue = receive_trader_message(player_id, message_type, **fields)
-#             process_response(message_queue)
-#     if message_type in utility.market_events:
-#         market_message_queue = receive_market_message(market_id, message_type, **fields)
-#         process_response(market_message_queue)
-    

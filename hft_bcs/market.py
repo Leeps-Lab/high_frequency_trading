@@ -5,7 +5,7 @@ import itertools
 from .trader import LEEPSInvestor
 from .subject_state import LEEPSInvestorState
 from .orderstore import OrderStore
-from .utility import format_message
+from .utility import format_message, MIN_BID, MAX_ASK
 
 from .equations import OrderImbalance
 log = logging.getLogger(__name__)
@@ -49,7 +49,8 @@ class BaseMarket:
         else:
             handler_name = self.market_events_dispatch[event_type]
             handler = getattr(self, handler_name)
-            handler(*args, **kwargs)
+            attachments = handler(*args, **kwargs)
+            return attachments
     
     def broadcast_to_subscribers(self, broadcast_info):
         topic, data = broadcast_info
@@ -171,20 +172,28 @@ class LEEPSMarket(BCSMarket):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.order_imbalance = 0
+        self.best_bid = MIN_BID
+        self.best_offer = MAX_ASK
         self.role_groups = {'maker': [], 'maker_basic':[], 'maker_latent': [], 
             'sniper':[], 'taker': [], 'out': []}
 
     def role_change(self, **kwargs):
-        print(kwargs)
         player_id = kwargs['player_id']
-        old_role, new_role = kwargs['old_role'].lower(), kwargs['state'].lower()
+        new_role = kwargs['state'].lower()
         if new_role not in self.role_groups:
             raise KeyError('invalid role: %s for market type: %s' % (new_role, 
                 self.__class__.__name__))
         self.role_groups[new_role].append(player_id)
-        if old_role in self.role_groups:
-            if player_id in self.role_groups[old_role]:
-                self.role_groups[old_role].remove(player_id)
+        old_role = None
+        for k, v in self.role_groups.items():
+            if player_id in v:
+                old_role = k
+                break
+        if old_role:
+            self.role_groups[old_role].remove(player_id)
+        if new_role in ('maker_basic'):
+            return {'best_bid': self.best_bid, 'best_offer': self.best_offer,
+                'order_imbalance': self.order_imbalance}
     
     def order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
@@ -202,6 +211,8 @@ class LEEPSMarket(BCSMarket):
 
     def bbo_change(self, **kwargs):
         best_bid, best_offer = kwargs['best_bid'], kwargs['best_ask']
+        self.best_bid = best_bid
+        self.best_offer = best_offer
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
             'market_id': self.id, 'best_bid': best_bid, 'best_offer': best_offer}
         internal_message = format_message('derived_event', **message_content)

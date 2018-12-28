@@ -53,8 +53,9 @@ class Constants(BaseConstants):
     # first_exchange_port = {'CDA': 9001, 'FBA': 9101}  # make this configurable
 
     speed_factor = 1e-9
-    player_state = ('id','id_in_group', 'group_id', 'role', 'fp', 'speed', 'spread', 'prev_speed_update', 'code', 'speed_unit_cost',
-        'exchange_host', 'exchange_port', 'time_on_speed', 'endowment', 'cost', 'speed_on',
+    player_state = ('id','id_in_group', 'group_id', 'role', 'fp', 'speed', 'spread', 
+        'prev_speed_update', 'code', 'speed_unit_cost', 'exchange_host', 'exchange_port',
+        'time_on_speed', 'endowment', 'cost', 'speed_on',
         'market')
 
     # log file
@@ -226,11 +227,18 @@ class Player(BasePlayer):
     speed_on = models.IntegerField(initial=0)
     speed_unit_cost = models.IntegerField()
     max_spread = models.IntegerField()
-    code = models.CharField(default=random_chars_8)
-    log_file = models.StringField()
     design =  models.CharField()
     consent = models.BooleanField(initial=True)
-    final_payoff = models.IntegerField()
-    total_payoff = models.IntegerField()
     inventory = models.IntegerField(initial=0)
     market = models.StringField()
+    best_bid = models.IntegerField()
+    best_offer = models.IntegerField()
+    bid = models.IntegerField()
+    offer = models.IntegerField()
+    distance_from_bid = models.IntegerField(blank=True)
+    distance_from_offer = models.IntegerField(blank=True)
+    latent_bid = models.IntegerField(blank=True)
+    latent_offer = models.IntegerField(blank=True)
+    sliders = models.StringField()
+
+

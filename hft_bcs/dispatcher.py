@@ -17,7 +17,7 @@ class Dispatcher:
             raise KeyError('unsupported event type: %s.' % event.event_type)
         else:
             observers = cls.topics[event.event_type]
-        
+        print(event) 
         for entity in observers:
             handler = cls.handler_factory.get_handler(entity)
             processed_event = handler(event)
@@ -47,7 +47,7 @@ class LEEPSDispatcher(Dispatcher):
         'Q': ['market'],
         'player_ready': ['market'],
         'advance_me': ['market'],
-        'role_change': ['trader', 'market'],
+        'role_change': ['market', 'trader'],
         'spread_change': ['trader'],
         'speed_change': ['trader'],    
         'market_ready_to_start': ['trade_session'],
