@@ -13,31 +13,55 @@ socketActions.socket.onopen = function (event) {
 * Handle messages sent by the server.
 */
 socketActions.socket.onmessage = function (event) {
-    var obj = jQuery.parseJSON(event.data);
+
+    var obj = JSON.parse(event.data);
+    console.log(obj);
 
     if(obj.market != undefined){
-        console.log("Market Message");
+        
+        if(obj.market.bbo != undefined){
+            console.log("Changing bid to --> " + obj.market.best_bid);
+            console.log("Changing offer to --> " + obj.market.best_offer);
+            spreadGraph.NBBOChange(obj.market.best_bid, obj.market.best_offer);
+        }
         //BBO Change thinking I will call NBBO Change and Shift animation
-
     } else if(obj.trader != undefined){
-        console.log("Trader Message");
-        //Replace, Cancel, and Confirmation messages will come through this layer
-        //Added orders to spread graph 
+        if(obj.trader.action === "confirmation"){
+            console.log("Confirmed order " + obj.trader.order_token);
+            // if(obj.trader.player_id == otree.player_id){
+            //     console.log("Confirmed Current Browser " + obj.trader.player_id);
+            //     console.log("Draw Arrows");  
+            // }
+            spreadGraph.drawOrder(obj.trader.price, obj.trader.order_token);
+        } else if (obj.trader.action === "replace"){
+            // console.log(old order token replaced with new one);
+            try{
+                spreadGraph.removeOrder(obj.trader.old_token);
+            } catch {
+                console.log("No Order to replace with token" + obj.trader.old_token);
+            }
+            spreadGraph.drawOrder(obj.trader.price, obj.trader.new_token);
+        } else if(obj.trader.action === "cancel"){
+            console.log("Cancel order " + obj.trader.order_token);
+            try{
+                spreadGraph.removeOrder(obj.trader.order_token);
+            } catch {
+                console.log("No Order to Cancel with token" + obj.trader.order_token);
+            }
 
+        } else{
+            console.log("Unparsed trader message below");
+            console.log(obj);
+        }
     } else if(obj.system_event != undefined){
         console.log("System Event Message");
         //Not too sure about this one
 
 
-    } 
-    else if(obj.SYNC != undefined){
+    } else if(obj.SYNC != undefined){
         console.log("Recieved SYNC Message");
         otree.sync = true; 
         otree.startExperiment();
-    
-        /*
-        * Recieved when number of trader enters or leaves the market, update the info-table accordingly
-        */
     }
     
     // var fund_price = document.querySelector('info-table').fp;
@@ -199,4 +223,57 @@ otree.playerReady = function (){
     if (socketActions.socket.readyState === socketActions.socket.OPEN) {
         socketActions.socket.send(JSON.stringify(msg));
     }
+}
+
+otree.testMessageHandler = function (msg){
+    console.log("Recieved test message");
+    var obj = msg;
+    console.log(obj);
+
+    if(obj.market != undefined){
+        console.log("---- BEGIN MARKET MESSAGE ----");
+        if(obj.market.bbo != undefined){
+            console.log("Changing bid to --> " + obj.market.best_bid);
+            console.log("Changing offer to --> " + obj.market.best_offer);
+            spreadGraph.NBBOChange(obj.market.best_bid, obj.market.best_offer);
+        }
+        //BBO Change thinking I will call NBBO Change and Shift animation
+        console.log("---- END MARKET MESSAGE");
+    } else if(obj.trader != undefined){
+        console.log("---- Begin Trader Message ----");
+        if(obj.trader.action === "confirmation"){
+            console.log("Confirmed order " + obj.trader.order_token);
+            // if(obj.trader.player_id == otree.player_id){
+            //     console.log("Confirmed Current Browser " + obj.trader.player_id);
+            //     console.log("Draw Arrows");  
+            // }
+            spreadGraph.drawOrder(obj.trader.price, obj.trader.order_token);
+        } else if (obj.trader.action === "replace"){
+            // console.log(old order token replaced with new one);
+            try{
+                spreadGraph.removeOrder(obj.trader.old_token);
+            } catch {
+                console.log("No Order to replace with token" + obj.trader.old_token);
+            }
+            spreadGraph.drawOrder(obj.trader.price, obj.trader.new_token);
+        } else if(obj.trader.action === "cancel"){
+            console.log("Cancel order " + obj.trader.order_token);
+            try{
+                spreadGraph.removeOrder(obj.trader.order_token);
+            } catch {
+                console.log("No Order to Cancel with token" + obj.trader.order_token);
+            }
+
+
+        } else{
+            console.log("Unparsed trader message below");
+            console.log(obj);
+        }
+        console.log("---- End Trader Message ----");      
+    } else if(obj.system_event != undefined){
+        console.log("System Event Message");
+        //Not too sure about this one
+
+
+    } 
 }

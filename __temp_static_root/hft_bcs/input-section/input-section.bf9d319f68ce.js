@@ -250,14 +250,10 @@ class InputSection extends PolymerElement {
     outButton.onclick = inputSection.outClick;
     submitButton.onclick = inputSection.submitClick;
 
-    var testCancel = function () { inputSection.testClick("cancel")};
-    var testReplace = function () { inputSection.testClick("replace")};
-    var testConfirmation = function () { inputSection.testClick("confirmation")};
-    var testBBO = function () { inputSection.testClick("BBO")};
-    testCancelButton.onclick = testCancel;
-    testReplaceButton.onclick = testReplace;
-    testConfirmationButton.onclick = testConfirmation;
-    testBBOButton.onclick = testBBO;
+    testCancelButton.onclick = inputSection.testClick("cancel");
+    testReplaceButton.onclick = inputSection.testClick("replace");
+    testConfirmationButton.onclick = inputSection.testClick("confirmation");
+    testBBOButton.onclick = inputSection.testClick("BBO");
 
   } 
 
@@ -386,23 +382,23 @@ class InputSection extends PolymerElement {
         if(testing === "cancel"){
             msg["trader"] = {};
             msg["trader"]["action"] = "cancel";
-            msg["trader"]["order_token"] = "TESTTOKEN1";
+            msg["trader"]["order_token"] = "TESTTOKEN0";
         } else if(testing === "replace"){
             msg["trader"] = {};
             msg["trader"]["action"] = "replace";
-            msg["trader"]["old_token"] = "TESTTOKEN0";
-            msg["trader"]["new_token"] = "TESTTOKEN1";
+            msg["trader"]["old_token"] = "TESTTOKEN2";
+            msg["trader"]["new_token"] = "TESTTOKEN3";
             msg["trader"]["price"] = 980000;
         } else if(testing === "confirmation"){
             msg["trader"] = {};
             msg["trader"]["action"] = "confirmation";
-            msg["trader"]["order_token"] = "TESTTOKEN0";
+            msg["trader"]["order_token"] = "TESTTOKEN2";
             msg["trader"]["price"] = 930000;
         } else if(testing === "BBO"){
             msg["market"] = {};
-            msg["market"]["bbo"] = true;
-            msg["market"]["best_bid"] = 950000;
-            msg["market"]["best_offer"] = 970000;
+            msg["trader"]["bbo"] = true;
+            msg["trader"]["best_bid"] = 950000;
+            msg["trader"]["besf_offer"] = 970000;
 
         }
         

@@ -386,23 +386,23 @@ class InputSection extends PolymerElement {
         if(testing === "cancel"){
             msg["trader"] = {};
             msg["trader"]["action"] = "cancel";
-            msg["trader"]["order_token"] = "TESTTOKEN1";
+            msg["trader"]["order_token"] = "TESTTOKEN0";
         } else if(testing === "replace"){
             msg["trader"] = {};
             msg["trader"]["action"] = "replace";
-            msg["trader"]["old_token"] = "TESTTOKEN0";
-            msg["trader"]["new_token"] = "TESTTOKEN1";
+            msg["trader"]["old_token"] = "TESTTOKEN2";
+            msg["trader"]["new_token"] = "TESTTOKEN3";
             msg["trader"]["price"] = 980000;
         } else if(testing === "confirmation"){
             msg["trader"] = {};
             msg["trader"]["action"] = "confirmation";
-            msg["trader"]["order_token"] = "TESTTOKEN0";
+            msg["trader"]["order_token"] = "TESTTOKEN2";
             msg["trader"]["price"] = 930000;
         } else if(testing === "BBO"){
             msg["market"] = {};
             msg["market"]["bbo"] = true;
             msg["market"]["best_bid"] = 950000;
-            msg["market"]["best_offer"] = 970000;
+            msg["market"]["besf_offer"] = 970000;
 
         }
         

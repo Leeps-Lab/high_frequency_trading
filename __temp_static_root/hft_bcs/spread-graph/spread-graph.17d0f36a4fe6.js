@@ -239,7 +239,7 @@ class SpreadGraph extends PolymerElement {
     // spreadGraph.drawArrows();  
   }
   NBBOChange(bid, offer){
-    // console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);
+    console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);
     spreadGraph.spread_svg.select(".best-bid").remove();
     spreadGraph.spread_svg.select(".best-offer").remove();
 

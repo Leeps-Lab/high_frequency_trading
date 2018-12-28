@@ -11,6 +11,13 @@ messages = {
     'system_event': ('type', 'content'),
 }
 
+# messages = {
+#     'market': ('bbo', 'best_bid', 'best_offer'),
+#     'trader': ('action', 'order_token', 'price', 'player_id'),
+#     'replace':('action', 'new_token', 'old_token', 'price','player_id'),
+#     'system_event': ('type', 'content'),
+# }
+
 
 def broadcast(message_type, group_id, **kwargs):
     """

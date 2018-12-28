@@ -186,8 +186,6 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
     spreadGraph.NBBOChange = this.NBBOChange;
-    spreadGraph.drawOrder = this.drawOrder;
-    spreadGraph.removeOrder = this.removeOrder;
 
 
     /*
@@ -202,6 +200,12 @@ class SpreadGraph extends PolymerElement {
     //Creating the start state
     spreadGraph.start();
     
+    //Activating the event listener
+    // spreadGraph.listen();
+    //spreadGraph.mapSpreadGraph();
+    this.drawOrder();
+    this.NBBOChange();
+
   }
   start(){
     /*Drawing the start state when the window opens*/
@@ -238,8 +242,8 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawPossibleSpreadTicks();  
     // spreadGraph.drawArrows();  
   }
-  NBBOChange(bid, offer){
-    // console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);
+  NBBOChange(bid = 970000, offer = 990000){
+    console.log(bid,offer);
     spreadGraph.spread_svg.select(".best-bid").remove();
     spreadGraph.spread_svg.select(".best-offer").remove();
 
@@ -254,9 +258,10 @@ class SpreadGraph extends PolymerElement {
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 10)
         .attr("class","best-offer");
+
   }
 
-  drawOrder(price = 960000, TOK = "TESTTOKEN0"){
+  drawOrder(price = 960000, TOK = ""){
 
     //What do I need from this?
     
@@ -271,10 +276,6 @@ class SpreadGraph extends PolymerElement {
 
   removeOrder(TOK){
     spreadGraph.spread_svg.select("." + TOK).remove();
-  }
-  replaceOrder(oldTOK, newTOK, newPrice){
-    spreadGraph.removeOrder(oldTOK);
-    spreadGraph.drawOrder(newPrice,newTOK);
   }
 
   drawArrows(){

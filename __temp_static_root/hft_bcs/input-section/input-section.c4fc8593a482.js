@@ -162,20 +162,7 @@ class InputSection extends PolymerElement {
                 </label>
             </div>
         </div>
-    </div>
-    <div class="row">
-          <div>
-            <button  class="center-block btn btn-primary test-cancel-button" type="button">Test Cancel</button>
-          </div>
-          <div>
-            <button  class="center-block btn btn-primary test-replace-button" type="button">Test Replace</button>
-          </div>
-          <div>
-            <button  class="center-block btn btn-primary test-confirmation-button" type="button">Test Confirmation</button>
-          </div>
-          <div>
-            <button  class="center-block btn btn-primary test-BBO-button" type="button">Test BBO</button>
-          </div>
+
     </div>
     </div>
     
@@ -206,8 +193,6 @@ class InputSection extends PolymerElement {
     inputSection.submitClick = this.submitButton;
     inputSection.outClick = this.outButton;
 
-    inputSection.testClick = this.testButton;
-
     this.activateSliders();
     this.activateButtons();
 
@@ -233,34 +218,19 @@ class InputSection extends PolymerElement {
       
   }
   activateButtons(){
+      
     var maker1Button = inputSection.inputSectionShadowDOM.querySelector(".maker1-button");
     var maker2Button = inputSection.inputSectionShadowDOM.querySelector(".maker2-button");
     var takerButton = inputSection.inputSectionShadowDOM.querySelector(".taker-button");
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
     var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
-    
-    var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
-    var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
-    var testConfirmationButton = inputSection.inputSectionShadowDOM.querySelector(".test-confirmation-button");
-    var testBBOButton = inputSection.inputSectionShadowDOM.querySelector(".test-BBO-button");
 
     maker1Button.onclick = inputSection.maker1Click;
     maker2Button.onclick = inputSection.maker2Click;
     takerButton.onclick = inputSection.takerClick;
     outButton.onclick = inputSection.outClick;
     submitButton.onclick = inputSection.submitClick;
-
-    var testCancel = function () { inputSection.testClick("cancel")};
-    var testReplace = function () { inputSection.testClick("replace")};
-    var testConfirmation = function () { inputSection.testClick("confirmation")};
-    var testBBO = function () { inputSection.testClick("BBO")};
-    testCancelButton.onclick = testCancel;
-    testReplaceButton.onclick = testReplace;
-    testConfirmationButton.onclick = testConfirmation;
-    testBBOButton.onclick = testBBO;
-
   } 
-
 
     maker1Click(){
         //update player object 
@@ -378,41 +348,6 @@ class InputSection extends PolymerElement {
         submitButton.disabled = true;
         sens1.disabled = true;
         sens2.disabled = true;
-
-    }
-    testButton(testing){
-
-        var msg = {};
-        if(testing === "cancel"){
-            msg["trader"] = {};
-            msg["trader"]["action"] = "cancel";
-            msg["trader"]["order_token"] = "TESTTOKEN1";
-        } else if(testing === "replace"){
-            msg["trader"] = {};
-            msg["trader"]["action"] = "replace";
-            msg["trader"]["old_token"] = "TESTTOKEN0";
-            msg["trader"]["new_token"] = "TESTTOKEN1";
-            msg["trader"]["price"] = 980000;
-        } else if(testing === "confirmation"){
-            msg["trader"] = {};
-            msg["trader"]["action"] = "confirmation";
-            msg["trader"]["order_token"] = "TESTTOKEN0";
-            msg["trader"]["price"] = 930000;
-        } else if(testing === "BBO"){
-            msg["market"] = {};
-            msg["market"]["bbo"] = true;
-            msg["market"]["best_bid"] = 950000;
-            msg["market"]["best_offer"] = 970000;
-
-        }
-        
-        
-        // msg["trader"]["price"] = 920000;
-        JSON.stringify(msg);
-        console.log("Message being tested below");
-        console.log(msg);
-        alert("Tested message being sent");
-        otree.testMessageHandler(msg);
 
     }
 
@@ -598,8 +533,6 @@ class InputSection extends PolymerElement {
     delete spreadGraph.spreadLinesFBAConcurrent[otree.playerID];
     
   }
-
-
 
   drawTimer(){
     inputSection.inputWidth = document.querySelector("input-section").clientWidth*1.5;
