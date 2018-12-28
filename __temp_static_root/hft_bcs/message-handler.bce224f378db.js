@@ -17,17 +17,12 @@ socketActions.socket.onmessage = function (event) {
 
     if(obj.market != undefined){
         console.log("Market Message");
-        //BBO Change thinking I will call NBBO Change and Shift animation
 
     } else if(obj.trader != undefined){
         console.log("Trader Message");
-        //Replace, Cancel, and Confirmation messages will come through this layer
-        //Added orders to spread graph 
 
     } else if(obj.system_event != undefined){
         console.log("System Event Message");
-        //Not too sure about this one
-
 
     } 
     else if(obj.SYNC != undefined){

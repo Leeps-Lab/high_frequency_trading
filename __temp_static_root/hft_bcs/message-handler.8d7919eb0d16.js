@@ -15,22 +15,17 @@ socketActions.socket.onopen = function (event) {
 socketActions.socket.onmessage = function (event) {
     var obj = jQuery.parseJSON(event.data);
 
-    if(obj.market != undefined){
+    if(obj.market){
         console.log("Market Message");
-        //BBO Change thinking I will call NBBO Change and Shift animation
 
-    } else if(obj.trader != undefined){
+    } else if(obj.trader){
         console.log("Trader Message");
-        //Replace, Cancel, and Confirmation messages will come through this layer
-        //Added orders to spread graph 
 
-    } else if(obj.system_event != undefined){
+    } else if(obj.system_event){
         console.log("System Event Message");
-        //Not too sure about this one
-
 
     } 
-    else if(obj.SYNC != undefined){
+    else if(obj.SYNC){
         console.log("Recieved SYNC Message");
         otree.sync = true; 
         otree.startExperiment();
