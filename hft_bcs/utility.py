@@ -90,6 +90,9 @@ def leeps_fields(player, subject_state):
         player.latent_offer = lo
     if subject_state.sliders is not None:
         player.sliders = str(subject_state.sliders)
+    player.orderstore = str(subject_state.orderstore)
+    player.bid = subject_state.orderstore.bid
+    player.ask = subject_state.orderstore.ask
 
 def from_trader_to_player(player, subject_state, post=leeps_fields):
     for field in subject_state.__slots__:

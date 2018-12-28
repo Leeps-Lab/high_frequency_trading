@@ -115,14 +115,6 @@ class Subsession(BaseSubsession):
     restore_from = models.CharField()
     restore = models.BooleanField(initial=False)
 
-
-    def set_log_file(self):
-        now = datetime.now().strftime('%Y-%m-%d_%H-%M')
-        log_file = Constants.log_file.format(dir=exp_logs_dir, self=self, time=now)
-        self.log_file = log_file
-        self.save()
-
-
     def creating_session(self):
         def create_trade_session(self):
             trade_session_cls = TradeSessionFactory.get_session(SESSION_FORMAT)
@@ -203,13 +195,7 @@ class Subsession(BaseSubsession):
 
 class Group(BaseGroup):
 
-    exch_host = models.StringField()
-    exch_port = models.IntegerField()
-    investor_file = models.StringField()
-    jump_file = models.StringField()
-    is_trading = models.BooleanField(initial=False)
-    code = models.CharField(default=random_chars_8)
-    log_file = models.StringField()
+    pass
 
 class Player(BasePlayer):
 
@@ -240,5 +226,19 @@ class Player(BasePlayer):
     latent_bid = models.IntegerField(blank=True)
     latent_offer = models.IntegerField(blank=True)
     sliders = models.StringField()
+    orderstore = models.StringField(blank=True)
 
 
+class HFTTraderStateRecord(Model):
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+    player_id = models.IntegerField()
+    market_id = models.IntegerField()
+    role =  models.StringField()
+    speed_on = models.BooleanField()
+    inventory = models.IntegerField()
+    orderstore = models.StringField()
+    trigger_event = models.StringField()
+    event_message = models.StringField()
+    bid = models.IntegerField(blank=True)
+    ask = models.IntegerField(blank=True)

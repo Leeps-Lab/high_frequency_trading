@@ -21,6 +21,8 @@ class OrderStore:
         self.counter = itertools.count(1,1)
         self._orders = {}
         self.inventory = 0
+        self.bid = None
+        self.offer = None
     
     @property
     def orders(self):
@@ -47,11 +49,12 @@ class OrderStore:
         pending_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')      
         out = """
         ========================================================================
-            Player {player_id} Orders:
+            Player {self.player_id} Orders:
                 Active:{active_orders}
                 Pending:{pending_orders}
+            Inventory: {self.inventory} units.
         ========================================================================
-        """.format(player_id=self.player_id, active_orders=active_orders, pending_orders=
+        """.format(self=self, active_orders=active_orders, pending_orders=
             pending_orders)
         return out
 
@@ -88,6 +91,11 @@ class OrderStore:
         order_info['status'] = b'active'
         order_info['timestamp'] = kwargs['timestamp']
         self._orders[token] = order_info
+        order_side = kwargs['buy_sell_indicator']
+        if order_side == 'B':
+            self.bid = kwargs['price']
+        elif order_side == 'S':
+            self.ask = kwargs['price']
         return order_info    
 
     def _confirm_replace(self, **kwargs):
@@ -101,19 +109,33 @@ class OrderStore:
             del order_info['replace_price']
         self._orders[replacement_token] = order_info
         del self._orders[existing_token]
+        order_side = kwargs['buy_sell_indicator']
+        if order_side == 'B':
+            self.bid = kwargs['price']
+        elif order_side == 'S':
+            self.ask = kwargs['price']
         return order_info   
 
     def _confirm_cancel(self, **kwargs):
         token = kwargs['order_token']
+        order_side = self._orders[token]['buy_sell_indicator']
+        if order_side == 'B':
+            self.bid = kwargs['price']
+        elif order_side == 'S':
+            self.ask = kwargs['price']
         del self._orders[token]
     
     def _confirm_execution(self, **kwargs):
         token = kwargs['order_token']
         order_info = self._orders[token].copy()
         del self._orders[token]       
-        direction = order_info['buy_sell_indicator']
-        inventory_change = 1 if direction == b'B' else -1
+        order_side = order_info['buy_sell_indicator']
+        inventory_change = 1 if order_side == b'B' else -1
         self.inventory += inventory_change
+        if order_side == 'B':
+            self.bid = None
+        elif order_side == 'S':
+            self.ask = None
         return order_info
 
 
