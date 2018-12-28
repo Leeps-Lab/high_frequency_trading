@@ -218,6 +218,7 @@ class InputSection extends PolymerElement {
       
   }
   activateButtons(){
+      
     var maker1Button = inputSection.inputSectionShadowDOM.querySelector(".maker1-button");
     var maker2Button = inputSection.inputSectionShadowDOM.querySelector(".maker2-button");
     var takerButton = inputSection.inputSectionShadowDOM.querySelector(".taker-button");
