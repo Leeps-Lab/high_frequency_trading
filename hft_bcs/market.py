@@ -52,10 +52,9 @@ class BaseMarket:
             handler(*args, **kwargs)
     
     def broadcast_to_subscribers(self, broadcast_info):
-        topic, data = broadcast_info
         # for group_id in self.subscriber_groups.keys():
-        message_content = { 'group_id': self.id, 'type': topic, 
-        'message': data}
+        message_content = {'market_id': self.id}
+        message_content.update(broadcast_info)
         internal_message = format_message('broadcast', **message_content)            
         self.outgoing_messages.append(internal_message)
      
@@ -67,7 +66,7 @@ class BaseMarket:
                 raise ValueError('market %s already trading.' % self.id)
             else:
                 self.is_trading = True
-                broadcast_info = ('session_start', {})
+                broadcast_info = {'type': 'session_event', 'code': 'S'}
                 self.broadcast_to_subscribers(broadcast_info)
     
     def end_trade(self, *args, **kwargs):
@@ -206,14 +205,10 @@ class LEEPSMarket(BCSMarket):
             'market_id': self.id, 'best_bid': best_bid, 'best_offer': best_offer}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
-        broadcast_info = ('bbo', {'best_bid': best_bid, 'best_offer': best_offer})
-        self.broadcast_to_subscribers(broadcast_info)
+        broadcast_content = {'type': 'bbo', 'best_bid': best_bid, 'best_offer': best_offer}
+        self.broadcast_to_subscribers(broadcast_content)
         
 
-         
-
-
-        
 
 
 

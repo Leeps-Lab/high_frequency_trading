@@ -1,38 +1,35 @@
 from channels import Group as CGroup, Channel
 import logging
 import json
+from collections import namedtuple
 
 log = logging.getLogger(__name__)
 
 
 messages = {
-    'market': ('bbo', 'best_bid', 'best_offer'),
-    'trader': ('action', 'order_token', 'price'),
-    'system_event': ('type', 'content'),
+    'bbo': ('type', 'market_id', 'best_bid', 'best_offer'),
+    'confirmed': ('type', 'player_id', 'order_token', 'price'),
+    'replaced': ('type', 'player_id',  'price', 'order_token', 'replaced_token'),
+    'canceled': ('type', 'player_id', 'order_token'),
+    'executed': ('type', 'player_id', 'order_token', 'price'),
+    'system_event': ('type','market_id', 'code')
 }
 
-# messages = {
-#     'market': ('bbo', 'best_bid', 'best_offer'),
-#     'trader': ('action', 'order_token', 'price', 'player_id'),
-#     'replace':('action', 'new_token', 'old_token', 'price','player_id'),
-#     'system_event': ('type', 'content'),
-# }
 
-
-def broadcast(message_type, group_id, **kwargs):
+def broadcast(message_type, market_id, message_schemas=messages, **kwargs):
     """
     broadcast via channel layer
     """
-    channel_group = CGroup(str(group_id))
-    event_fields = messages.get(message_type)
+    event_fields = message_schemas.get(message_type)
     if event_fields is None:
-        log.warning('unknown broadcast event: %s:group %s' % (message_type, group_id))
+        raise Exception('unknown broadcast event: %s:%s' % (message_type, kwargs))
     message = {}
+    message['type'] = message_type
     for key in event_fields:
         value = kwargs.get(key)
         if value is None:
-            log.warning('key %s returned none value. group id %s:message type: %s' 
-                % (key, group_id, message_type))
+            raise ValueError('key: %s returned none in broadcast message: %s' % (key, kwargs))
         message[key] = value
     message = json.dumps(message)
+    channel_group = CGroup(str(market_id))
     channel_group.send({"text": message}) 

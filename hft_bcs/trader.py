@@ -165,31 +165,41 @@ class BCSTrader(BaseTrader):
 
     def accepted(self, **kwargs):
         self.orderstore.confirm('enter', **kwargs)
+        order_token = kwargs['order_token']
+        price = kwargs['order_token']
+        message_content = {'type': 'confirmed', 'order_token': order_token,
+            'price': price}
+        self.broadcast(**message_content)
 
     def replaced(self, **kwargs):
         self.orderstore.confirm('replaced', **kwargs)  
-     
+        order_token, old_token  = kwargs['order_token'], kwargs['previous_order_token']
+        price = kwargs['price']
+        message_content = {'type': 'replaced', 'order_token': order_token,
+            'old_token': old_token, 'price': price}
+        self.broadcast(**message_content)
+
     def canceled(self, **kwargs):
         self.orderstore.confirm('canceled', **kwargs)
         order_token = kwargs['order_token']
-        message_content = {'group_id': self.market, 'type': 'canceled', 'message': {
-            'id': self.id_in_group, 'order_token': order_token }
-            }
-        internal_message = format_message('broadcast', **message_content)
-        self.outgoing_messages.append(internal_message)
-    
+        message_content = {'type': 'canceled', 'order_token': order_token}
+        self.broadcast(**message_content)
+
+    def broadcast(self, **kwargs):
+        message_content = {'player_id': self.id}
+        message_content.update(kwargs)
+        internal_message = format_message('broadcast', **kwargs)
+        self.outgoing_messages.append(internal_message)  
+        
     def executed(self, **kwargs):
         order_info =  self.orderstore.confirm('executed', **kwargs)
         exec_price, side = kwargs['execution_price'], order_info['buy_sell_indicator']
         order_token = kwargs['order_token']
         profit = self.profit(exec_price, side)
         self.endowment += profit
-        message_content = { 'group_id': self.market, 'type': 'executed', 'message': {
-            'profit': profit, 'execution_price': exec_price, 'order_token': order_token,
-            'id': self.id_in_group }
-            }
-        internal_message = format_message('broadcast', **message_content)
-        self.outgoing_messages.append(internal_message)
+        message_content = { 'type': 'executed', 'price': exec_price, 
+            'order_token': order_token}
+        self.broadcast(**message_content)
         return order_info
             
             
@@ -260,6 +270,7 @@ class BCSMaker(BCSTrader):
         super().accepted(**kwargs)
         order_token = kwargs['order_token']
         broadcast_info = self.maker_broadcast_info(order_token)
+        message_content = {}
         self.outgoing_messages.append(broadcast_info)
 
     def replaced(self, **kwargs):
