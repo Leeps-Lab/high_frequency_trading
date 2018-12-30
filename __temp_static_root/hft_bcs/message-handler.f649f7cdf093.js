@@ -64,9 +64,9 @@ socketActions.socket.onmessage = function (event) {
         //Do animation
         //Remove executed order on the spread graph
 
-    } else if(obj.type == "system_event"){
+    } else if(obj["system_event"] != undefined){
         console.log("System Event Message");
-        if(obj.code == "S"){
+        if(obj.system_event.code == "S"){
             console.log("Recieved SYNC Message");
             otree.sync = true; 
             otree.startExperiment();

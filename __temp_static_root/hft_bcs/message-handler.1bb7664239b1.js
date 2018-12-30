@@ -66,7 +66,7 @@ socketActions.socket.onmessage = function (event) {
 
     } else if(obj.type == "system_event"){
         console.log("System Event Message");
-        if(obj.code == "S"){
+        if(obj.system_event.code == "S"){
             console.log("Recieved SYNC Message");
             otree.sync = true; 
             otree.startExperiment();

@@ -64,21 +64,19 @@ socketActions.socket.onmessage = function (event) {
         //Do animation
         //Remove executed order on the spread graph
 
-    } else if(obj.system_event != undefined){
+    } else if(obj.type == "system_event"){
         console.log("System Event Message");
+        if(obj.code == "S"){
+            console.log("Recieved SYNC Message");
+            otree.sync = true; 
+            otree.startExperiment();
+
+        }
         //Not too sure about this one
         
 
-    } else if(obj.SYNC != undefined){
-        console.log("Recieved SYNC Message");
-        otree.sync = true; 
-        otree.startExperiment();
-    }
-    
-    // var fund_price = document.querySelector('info-table').fp;
-    // var obj = jQuery.parseJSON(event.data);
-    // console.log(obj);
-    // var spread = document.querySelector("info-table").spread_value;
+    } 
+ 
 
     // /*
     // * FPC message: NASDAQ pricing changes
