@@ -70,7 +70,6 @@ socketActions.socket.onmessage = function (event) {
             console.log("Recieved SYNC Message");
             otree.sync = true; 
             otree.startExperiment();
-
         }
         //Not too sure about this one
         
