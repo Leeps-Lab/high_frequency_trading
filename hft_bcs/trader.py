@@ -14,6 +14,7 @@ from .hft_logging import row_formatters as hfl
 
 from collections import namedtuple
 from .equations import latent_bid_and_offer, price_grid
+
 log = logging.getLogger(__name__)
 
 

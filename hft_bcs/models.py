@@ -25,7 +25,7 @@ from settings import (
 
 from .orderstore import OrderStore
 from .utility import (process_configs, configure_model, exogenous_event_client,
-    available_exchange_ports, exogenous_events)
+    available_exchange_ports, exogenous_events, leeps_fields)
 from .trader import CDATraderFactory, FBATraderFactory
 from .trade_session import TradeSessionFactory
 from .market import MarketFactory
@@ -229,16 +229,32 @@ class Player(BasePlayer):
     orderstore = models.StringField(blank=True)
 
 
+
 class HFTTraderStateRecord(Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
+    session_id = models.IntegerField()
     player_id = models.IntegerField()
-    market_id = models.IntegerField()
+    market = models.IntegerField()
     role =  models.StringField()
     speed_on = models.BooleanField()
     inventory = models.IntegerField()
     orderstore = models.StringField()
-    trigger_event = models.StringField()
-    event_message = models.StringField()
+    trigger_event_type = models.StringField()
+    event = models.StringField()
     bid = models.IntegerField(blank=True)
-    ask = models.IntegerField(blank=True)
+    offer = models.IntegerField(blank=True)
+
+    def from_event(self, event, player):
+        for field in ('role', 'market', 'speed_on', 'inventory', 'bid', 
+            'offer', 'orderstore'):
+            setattr(self, field, getattr(player, field))  
+        self.trigger_event_type = str(event.event_type)  
+        self.event = str(event)
+        self.player_id = str(player.id)
+        self.session = int(player.session.id)
+    
+    @staticmethod
+    def get_market_data(session_id, market_id, player_id=None):
+        pass
+

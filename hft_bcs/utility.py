@@ -4,6 +4,8 @@ import datetime
 import pytz
 import logging
 import os 
+from .cache import get_cache_key
+from django.core.cache import cache
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +32,6 @@ available_exchange_ports = {
 }
 
 ouch_fields = ('price', 'time_in_force', 'display', 'buy_sell_indicator')
-
 
 MAX_ASK = 2147483647
 MIN_BID = 0
@@ -94,12 +95,6 @@ def leeps_fields(player, subject_state):
     player.bid = subject_state.orderstore.bid
     player.ask = subject_state.orderstore.ask
 
-def from_trader_to_player(player, subject_state, post=leeps_fields):
-    for field in subject_state.__slots__:
-        if hasattr(player, field):
-            setattr(player, field, getattr(subject_state, field))
-    if post:
-        post(player, subject_state)
 
 def kwargs_from_event(event):
     kwargs = event.message.copy()
@@ -108,3 +103,19 @@ def kwargs_from_event(event):
             kwargs[k] = v
     return kwargs
 
+def from_trader_to_player(player_id, subject_state, post=leeps_fields):
+    player_key = get_cache_key(subject_state.id, 'player')
+    player = cache.get(player_key)['model']
+    for field in subject_state.__slots__:
+        if hasattr(player, field):
+            setattr(player, field, getattr(subject_state, field))
+    if post:
+        post(player, subject_state)
+    player.save()
+
+def record_player_state(player_id, event, record_manager):
+    player_key = get_cache_key(player_id, 'player')
+    player = cache.get(player_key)['model']
+    record = record_manager.objects.create()
+    record.from_event(event, player)
+    record.save()
