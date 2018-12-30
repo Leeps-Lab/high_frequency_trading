@@ -439,20 +439,17 @@ class SpreadGraph extends PolymerElement {
 
   addToActiveOrders(token,price){
     console.log("In active orders");
-    if(spreadGraph.activeOrders[price] != undefined){
-        spreadGraph.activeOrders[price].push(token);
-    } else {
-        spreadGraph.activeOrders[price] = [] ;
-        spreadGraph.activeOrders[price].push(token);
-    }
-    
-    console.log(spreadGraph.activeOrders);
+    if(spreadGraph.activeOrders[price] == undefined){
+        spreadGraph.activeOrders[price] = [];
+    } 
+    spreadGraph.activeOrders[price].push(token);
+    console.log(activeOrders);
   }
   removeFromActiveOrders(token,price){
-    //   var index = spreadGraph.activeOrders[price].indexOf(token);
-    //   if(index != -1){
-    //     spreadGraph.activeOrders[price].splice(index,1);
-    //   }
+      var index = spreadGraph.activeOrders[price].indexOf(token);
+      if(index != -1){
+        spreadGraph.activeOrders[price].splice(index,1);
+      }
 
   }
 

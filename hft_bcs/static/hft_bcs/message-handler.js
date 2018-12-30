@@ -17,46 +17,57 @@ socketActions.socket.onmessage = function (event) {
     var obj = JSON.parse(event.data);
     console.log(obj);
 
-    if(obj.market != undefined){
-        
-        if(obj.market.bbo != undefined){
-            console.log("Changing bid to --> " + obj.market.best_bid);
-            console.log("Changing offer to --> " + obj.market.best_offer);
-            spreadGraph.NBBOChange(obj.market.best_bid, obj.market.best_offer);
+    if(obj.bbo != undefined){
+        console.log("---- BEGIN BBO MESSAGE ----");
+        if(obj.bbo.type === otree.marketID){
+            console.log("Changing bid to --> " + obj.bbo.best_bid);
+            console.log("Changing offer to --> " + obj.bbo.best_offer);
+            spreadGraph.NBBOChange(obj.bbo.best_bid, obj.bbo.best_offer);
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
-    } else if(obj.trader != undefined){
-        if(obj.trader.action === "confirmation"){
-            console.log("Confirmed order " + obj.trader.order_token);
-            // if(obj.trader.player_id == otree.player_id){
-            //     console.log("Confirmed Current Browser " + obj.trader.player_id);
-            //     console.log("Draw Arrows");  
-            // }
-            spreadGraph.drawOrder(obj.trader.price, obj.trader.order_token);
-        } else if (obj.trader.action === "replace"){
-            // console.log(old order token replaced with new one);
-            try{
-                spreadGraph.removeOrder(obj.trader.old_token);
-            } catch {
-                console.log("No Order to replace with token" + obj.trader.old_token);
-            }
-            spreadGraph.drawOrder(obj.trader.price, obj.trader.new_token);
-        } else if(obj.trader.action === "cancel"){
-            console.log("Cancel order " + obj.trader.order_token);
-            try{
-                spreadGraph.removeOrder(obj.trader.order_token);
-            } catch {
-                console.log("No Order to Cancel with token" + obj.trader.order_token);
-            }
+        console.log("---- END BBO MESSAGE");
+    } else if(obj.confirmed != undefined){
+        spreadGraph.addToActiveOrders(obj.confirmed.order_token,obj.confirmed.price);
 
-        } else{
-            console.log("Unparsed trader message below");
-            console.log(obj);
+
+        console.log("Confirmed order " + obj.confirmed.order_token);
+        // if(obj.trader.player_id == otree.player_id){
+        //     console.log("Confirmed Current Browser " + obj.trader.player_id);
+        //     console.log("Draw Arrows");  
+        // }
+        // if(obj.confirmed.player_id === otree.player_id){
+            //draw arrow
+        // } else {
+            spreadGraph.drawOrder(obj.confirmed.price, obj.confirmed.order_token);
+        // }
+    } else if(obj.replaced != undefined){
+        // console.log(old order token replaced with new one);
+        spreadGraph.removeFromActiveOrders(obj.replaced.replaced_token,obj.replaced.price);
+        try{
+            spreadGraph.removeOrder(obj.replaced.replaced_token);
+        } catch {
+            console.log("No Order to replace with token " + obj.replaced.replaced_token);
         }
+        spreadGraph.addToActiveOrders(obj.replaced.order_token,obj.replaced.price);
+
+        spreadGraph.drawOrder(obj.replaced.price, obj.replaced.order_token);
+    } else if(obj.canceled != undefined){
+        console.log("Cancel order " + obj.canceled.order_token);                
+        spreadGraph.removeFromActiveOrders(obj.canceled.order_token,obj.canceled.price);
+
+        try{
+            spreadGraph.removeOrder(obj.canceled.order_token);
+        } catch {
+            console.log("No Order to Cancel with token" + obj.canceled.order_token);
+        }
+    } else if(obj.executed != undefined){
+        //Do animation
+        //Remove executed order on the spread graph
+
     } else if(obj.system_event != undefined){
         console.log("System Event Message");
         //Not too sure about this one
-
+        
 
     } else if(obj.SYNC != undefined){
         console.log("Recieved SYNC Message");
@@ -230,50 +241,57 @@ otree.testMessageHandler = function (msg){
     var obj = msg;
     console.log(obj);
 
-    if(obj.market != undefined){
-        console.log("---- BEGIN MARKET MESSAGE ----");
-        if(obj.market.bbo != undefined){
-            console.log("Changing bid to --> " + obj.market.best_bid);
-            console.log("Changing offer to --> " + obj.market.best_offer);
-            spreadGraph.NBBOChange(obj.market.best_bid, obj.market.best_offer);
+    if(obj.bbo != undefined){
+        console.log("---- BEGIN BBO MESSAGE ----");
+        if(obj.bbo.type === otree.marketID){
+            console.log("Changing bid to --> " + obj.bbo.best_bid);
+            console.log("Changing offer to --> " + obj.bbo.best_offer);
+            spreadGraph.NBBOChange(obj.bbo.best_bid, obj.bbo.best_offer);
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
-        console.log("---- END MARKET MESSAGE");
-    } else if(obj.trader != undefined){
-        console.log("---- Begin Trader Message ----");
-        if(obj.trader.action === "confirmation"){
-            console.log("Confirmed order " + obj.trader.order_token);
-            // if(obj.trader.player_id == otree.player_id){
-            //     console.log("Confirmed Current Browser " + obj.trader.player_id);
-            //     console.log("Draw Arrows");  
-            // }
-            spreadGraph.drawOrder(obj.trader.price, obj.trader.order_token);
-        } else if (obj.trader.action === "replace"){
-            // console.log(old order token replaced with new one);
-            try{
-                spreadGraph.removeOrder(obj.trader.old_token);
-            } catch {
-                console.log("No Order to replace with token" + obj.trader.old_token);
-            }
-            spreadGraph.drawOrder(obj.trader.price, obj.trader.new_token);
-        } else if(obj.trader.action === "cancel"){
-            console.log("Cancel order " + obj.trader.order_token);
-            try{
-                spreadGraph.removeOrder(obj.trader.order_token);
-            } catch {
-                console.log("No Order to Cancel with token" + obj.trader.order_token);
-            }
+        console.log("---- END BBO MESSAGE");
+    } else if(obj.confirmed != undefined){
+        spreadGraph.addToActiveOrders(obj.confirmed.order_token,obj.confirmed.price);
 
 
-        } else{
-            console.log("Unparsed trader message below");
-            console.log(obj);
+        console.log("Confirmed order " + obj.confirmed.order_token);
+        // if(obj.trader.player_id == otree.player_id){
+        //     console.log("Confirmed Current Browser " + obj.trader.player_id);
+        //     console.log("Draw Arrows");  
+        // }
+        // if(obj.confirmed.player_id === otree.player_id){
+            //draw arrow
+        // } else {
+            spreadGraph.drawOrder(obj.confirmed.price, obj.confirmed.order_token);
+        // }
+    } else if(obj.replaced != undefined){
+        // console.log(old order token replaced with new one);
+        spreadGraph.removeFromActiveOrders(obj.replaced.replaced_token,obj.replaced.price);
+        try{
+            spreadGraph.removeOrder(obj.replaced.replaced_token);
+        } catch {
+            console.log("No Order to replace with token " + obj.replaced.replaced_token);
         }
-        console.log("---- End Trader Message ----");      
+        spreadGraph.addToActiveOrders(obj.replaced.order_token,obj.replaced.price);
+
+        spreadGraph.drawOrder(obj.replaced.price, obj.replaced.order_token);
+    } else if(obj.canceled != undefined){
+        console.log("Cancel order " + obj.canceled.order_token);                
+        spreadGraph.removeFromActiveOrders(obj.canceled.order_token,obj.canceled.price);
+
+        try{
+            spreadGraph.removeOrder(obj.canceled.order_token);
+        } catch {
+            console.log("No Order to Cancel with token" + obj.canceled.order_token);
+        }
+    } else if(obj.executed != undefined){
+        //Do animation
+        //Remove executed order on the spread graph
+
     } else if(obj.system_event != undefined){
         console.log("System Event Message");
         //Not too sure about this one
-
+        
 
     } 
 }

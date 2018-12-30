@@ -186,11 +186,11 @@ class BCSTrader(BaseTrader):
         self.broadcast(**message_content)
 
     def broadcast(self, **kwargs):
-        message_content = {'player_id': self.id}
+        message_content = {'player_id': self.id, 'market_id': self.market}
         message_content.update(kwargs)
         internal_message = format_message('broadcast', **kwargs)
         self.outgoing_messages.append(internal_message)  
-        
+
     def executed(self, **kwargs):
         order_info =  self.orderstore.confirm('executed', **kwargs)
         exec_price, side = kwargs['execution_price'], order_info['buy_sell_indicator']

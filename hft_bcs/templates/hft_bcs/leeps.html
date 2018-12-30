@@ -64,6 +64,7 @@
     var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
     //Needs to be in index page because Django string replacement of player.market and player.id
     var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{player.market}}/{{player.id}}/");
+
     socketActions.socket = socket;
 
 
@@ -111,6 +112,7 @@
     otree.groupIDInfoTable = {{group.id_in_subsession}};
     otree.groupID = {{group.id}};
     otree.playerID = {{player.id}};
+    otree.marketID = {{player.market}};
     otree.playerIDInGroup = {{player.id_in_group}}; 
     otree.maxSpread = {{player.max_spread}}; 
     otree.defaultSpread = {{player.spread}};
@@ -156,6 +158,7 @@ Graph_Features is an object that stores the features of the profit and spread gr
     // spreadGraph.spread_x = document.querySelector("spread-graph").getBoundingClientRect().left;
     // spreadGraph.spread_y = document.querySelector("spread-graph").getBoundingClientRect().top;
     spreadGraph.spread_lines = {};
+    spreadGraph.activeOrders = {};
 
     spreadGraph.last_spread =  otree.defaultSpread/10000;
 

@@ -392,8 +392,8 @@ class InputSection extends PolymerElement {
         } else if(testing === "replace"){
             msg["replaced"] = {};
             msg["replaced"]["type"] = otree.playerID;
-            msg["replaced"]["order_token"] = "TESTTOKEN1";
-            msg["replaced"]["replaced_token"] = "TESTTOKEN0";
+            msg["replaced"]["order_token"] = "TESTTOKEN0";
+            msg["replaced"]["replaced_token"] = "TESTTOKEN1";
             msg["replaced"]["price"] = 980000;
         } else if(testing === "confirmation"){
             msg["confirmed"] = {};

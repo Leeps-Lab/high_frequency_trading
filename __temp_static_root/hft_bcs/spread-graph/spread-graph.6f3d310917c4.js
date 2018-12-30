@@ -449,10 +449,10 @@ class SpreadGraph extends PolymerElement {
     console.log(spreadGraph.activeOrders);
   }
   removeFromActiveOrders(token,price){
-    //   var index = spreadGraph.activeOrders[price].indexOf(token);
-    //   if(index != -1){
-    //     spreadGraph.activeOrders[price].splice(index,1);
-    //   }
+      var index = spreadGraph.activeOrders[price].indexOf(token);
+      if(index != -1){
+        spreadGraph.activeOrders[price].splice(index,1);
+      }
 
   }
 

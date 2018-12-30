@@ -386,25 +386,25 @@ class InputSection extends PolymerElement {
         var msg = {};
 
         if(testing === "cancel"){
-            msg["canceled"] = {};
-            msg["canceled"]["type"] = otree.playerID ;
-            msg["canceled"]["order_token"] = "TESTTOKEN1";
+            msg["trader"] = {};
+            msg["trader"]["type"] = "cancel";
+            msg["trader"]["order_token"] = "TESTTOKEN1";
         } else if(testing === "replace"){
-            msg["replaced"] = {};
-            msg["replaced"]["type"] = otree.playerID;
-            msg["replaced"]["order_token"] = "TESTTOKEN1";
-            msg["replaced"]["replaced_token"] = "TESTTOKEN0";
-            msg["replaced"]["price"] = 980000;
+            msg["trader"] = {};
+            msg["trader"]["type"] = "replace";
+            msg["trader"]["old_token"] = "TESTTOKEN0";
+            msg["trader"]["new_token"] = "TESTTOKEN1";
+            msg["trader"]["price"] = 980000;
         } else if(testing === "confirmation"){
-            msg["confirmed"] = {};
-            msg["confirmed"]["type"] = otree.playerID ;
-            msg["confirmed"]["order_token"] = "TESTTOKEN0";
-            msg["confirmed"]["price"] = 930000;
+            msg["trader"] = {};
+            msg["trader"]["type"] = "confirmation";
+            msg["trader"]["order_token"] = "TESTTOKEN0";
+            msg["trader"]["price"] = 930000;
         } else if(testing === "BBO"){
-            msg["bbo"] = {};
-            msg["bbo"]["type"] = otree.marketID;
-            msg["bbo"]["best_bid"] = 950000;
-            msg["bbo"]["best_offer"] = 970000;
+            msg["market"] = {};
+            msg["market"]["type"] = "bbo";
+            msg["market"]["best_bid"] = 950000;
+            msg["market"]["best_offer"] = 970000;
             
         }
         

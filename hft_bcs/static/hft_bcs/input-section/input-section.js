@@ -254,6 +254,7 @@ class InputSection extends PolymerElement {
     var testReplace = function () { inputSection.testClick("replace")};
     var testConfirmation = function () { inputSection.testClick("confirmation")};
     var testBBO = function () { inputSection.testClick("BBO")};
+
     testCancelButton.onclick = testCancel;
     testReplaceButton.onclick = testReplace;
     testConfirmationButton.onclick = testConfirmation;
@@ -359,7 +360,6 @@ class InputSection extends PolymerElement {
     }
 
     outButton(){
-        
         spreadGraph.removeArrows();
         playersInMarket[otree.playerIDInGroup]["strategy"] = "out";
         var outChangeMessage = {
@@ -380,32 +380,33 @@ class InputSection extends PolymerElement {
         sens2.disabled = true;
 
     }
+
     testButton(testing){
 
         var msg = {};
-        if(testing === "cancel"){
-            msg["trader"] = {};
-            msg["trader"]["action"] = "cancel";
-            msg["trader"]["order_token"] = "TESTTOKEN1";
-        } else if(testing === "replace"){
-            msg["trader"] = {};
-            msg["trader"]["action"] = "replace";
-            msg["trader"]["old_token"] = "TESTTOKEN0";
-            msg["trader"]["new_token"] = "TESTTOKEN1";
-            msg["trader"]["price"] = 980000;
-        } else if(testing === "confirmation"){
-            msg["trader"] = {};
-            msg["trader"]["action"] = "confirmation";
-            msg["trader"]["order_token"] = "TESTTOKEN0";
-            msg["trader"]["price"] = 930000;
-        } else if(testing === "BBO"){
-            msg["market"] = {};
-            msg["market"]["bbo"] = true;
-            msg["market"]["best_bid"] = 950000;
-            msg["market"]["best_offer"] = 970000;
 
+        if(testing === "cancel"){
+            msg["canceled"] = {};
+            msg["canceled"]["type"] = otree.playerID ;
+            msg["canceled"]["order_token"] = "TESTTOKEN1";
+        } else if(testing === "replace"){
+            msg["replaced"] = {};
+            msg["replaced"]["type"] = otree.playerID;
+            msg["replaced"]["order_token"] = "TESTTOKEN1";
+            msg["replaced"]["replaced_token"] = "TESTTOKEN0";
+            msg["replaced"]["price"] = 980000;
+        } else if(testing === "confirmation"){
+            msg["confirmed"] = {};
+            msg["confirmed"]["type"] = otree.playerID ;
+            msg["confirmed"]["order_token"] = "TESTTOKEN0";
+            msg["confirmed"]["price"] = 930000;
+        } else if(testing === "BBO"){
+            msg["bbo"] = {};
+            msg["bbo"]["type"] = otree.marketID;
+            msg["bbo"]["best_bid"] = 950000;
+            msg["bbo"]["best_offer"] = 970000;
+            
         }
-        
         
         // msg["trader"]["price"] = 920000;
         JSON.stringify(msg);
