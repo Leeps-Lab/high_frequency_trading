@@ -60,12 +60,19 @@ class InputSection extends PolymerElement {
             justify-content: center;
             flex-direction: column;
         }
-    
-    
-    
+        
+        .slider{
+            -webkit-appearance: slider-vertical;
+        }
+        .submit-button{
+            margin-top:85px;
+        }
         .button-container-speed {
             background-color: rgb(230, 230, 230);
             flex: 1 1 auto;
+        }
+        .slider-sens{
+            margin-top:10px;
         }
 
         .switch {
@@ -134,27 +141,27 @@ class InputSection extends PolymerElement {
     <div class="row">
         <div class="text-center col-lg-3">
             <button  value="out" class="text-center btn btn-primary maker1-button" type="button"  width="80px">Maker 1</button>
-            <div style="margin-top:50px;">
+            <div class="slider-sens" style="margin-top:50px;">
                 <button   class="text-center btn btn-success submit-button" type="button">Submit Values</button>
             </div>
         </div>
         <div class="text-center col-lg-3" >
             <button class="text-center btn btn-primary algorithm-button maker2-button" type="button"  width="80px">Maker 2</button>
-            <div style="margin-top:50px;">
+            <div class="slider-sens" style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
             <button class="text-center btn btn-primary taker-button taker-button" type="button" width="80px">Taker</button>
-            <div style="margin-top:50px;">
+            <div class="slider-sens" style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
             <button class="text-center btn btn-primary out-button" type="button" width="80px">Out</button>
-            <div class="text-center center-block" style="margin-top:50px;">
+            <div class="text-center center-block" style="margin-top:100px;">
                 <p>Speed</p>
                 <label class="switch">
                     <input type="checkbox" class="speed-input">
@@ -163,6 +170,7 @@ class InputSection extends PolymerElement {
             </div>
         </div>
     </div>
+    <!---
     <div class="row">
           <div>
             <button  class="center-block btn btn-primary test-cancel-button" type="button">Test Cancel</button>
@@ -177,6 +185,7 @@ class InputSection extends PolymerElement {
             <button  class="center-block btn btn-primary test-BBO-button" type="button">Test BBO</button>
           </div>
     </div>
+    --->
     </div>
     
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -239,10 +248,10 @@ class InputSection extends PolymerElement {
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
     var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
     
-    var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
-    var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
-    var testConfirmationButton = inputSection.inputSectionShadowDOM.querySelector(".test-confirmation-button");
-    var testBBOButton = inputSection.inputSectionShadowDOM.querySelector(".test-BBO-button");
+    // var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
+    // var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
+    // var testConfirmationButton = inputSection.inputSectionShadowDOM.querySelector(".test-confirmation-button");
+    // var testBBOButton = inputSection.inputSectionShadowDOM.querySelector(".test-BBO-button");
 
     maker1Button.onclick = inputSection.maker1Click;
     maker2Button.onclick = inputSection.maker2Click;
@@ -250,15 +259,15 @@ class InputSection extends PolymerElement {
     outButton.onclick = inputSection.outClick;
     submitButton.onclick = inputSection.submitClick;
 
-    var testCancel = function () { inputSection.testClick("cancel")};
-    var testReplace = function () { inputSection.testClick("replace")};
-    var testConfirmation = function () { inputSection.testClick("confirmation")};
-    var testBBO = function () { inputSection.testClick("BBO")};
+    // var testCancel = function () { inputSection.testClick("cancel")};
+    // var testReplace = function () { inputSection.testClick("replace")};
+    // var testConfirmation = function () { inputSection.testClick("confirmation")};
+    // var testBBO = function () { inputSection.testClick("BBO")};
 
-    testCancelButton.onclick = testCancel;
-    testReplaceButton.onclick = testReplace;
-    testConfirmationButton.onclick = testConfirmation;
-    testBBOButton.onclick = testBBO;
+    // testCancelButton.onclick = testCancel;
+    // testReplaceButton.onclick = testReplace;
+    // testConfirmationButton.onclick = testConfirmation;
+    // testBBOButton.onclick = testBBO;
 
   } 
 
@@ -389,6 +398,7 @@ class InputSection extends PolymerElement {
             msg["canceled"] = {};
             msg["canceled"]["type"] = otree.playerID ;
             msg["canceled"]["order_token"] = "TESTTOKEN1";
+            msg["canceled"]["price"] = 980000;
         } else if(testing === "replace"){
             msg["replaced"] = {};
             msg["replaced"]["type"] = otree.playerID;
