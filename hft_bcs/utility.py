@@ -5,6 +5,10 @@ import pytz
 import logging
 import os 
 
+
+SESSION_FORMAT = None
+EXCHANGES = None
+
 log = logging.getLogger(__name__)
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')

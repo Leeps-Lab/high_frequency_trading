@@ -12,7 +12,6 @@ def process_response(message):
         send_exchange(host, port, bytes_message, delay)
     def broadcast(message):
         message_type = message['type']
-        print(message)
         outbound_subject_messages.broadcast(message_type, **message)
     message_type, message_payload = message['message_type'], message['payload']
     handler = locals()[message_type]

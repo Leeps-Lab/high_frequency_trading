@@ -29,6 +29,8 @@ class LEEPSTraderFactory:
             return LEEPSBasicMaker(subject_state)
         elif role_name == 'out':
             return LEEPSOut(subject_state)
+        elif role_name == 'maker_2':
+            return LEEPSNotSoBasicMaker(subject_state)
         else:
             raise Exception('unknown role: %s' % role_name)
 
@@ -70,10 +72,10 @@ class BaseTrader:
         self.outgoing_messages = deque()
 
     def receive(self, message_type, **kwargs) -> dict:
-        """
-        assumes arguments include key event_source
-        """
         lookup_key = message_type
+        if lookup_key not in self.message_dispatch:
+            raise KeyError('Unknown message_type: %s for trader: %s' % (message_type,
+                self.__class__.__name__) )
         handler_name = self.message_dispatch[lookup_key]
         handler = getattr(self, handler_name)
         handler(**kwargs)
@@ -166,14 +168,15 @@ class BCSTrader(BaseTrader):
     def accepted(self, **kwargs):
         self.orderstore.confirm('enter', **kwargs)
         order_token = kwargs['order_token']
-        price = kwargs['order_token']
+        price = kwargs['price']
         message_content = {'type': 'confirmed', 'order_token': order_token,
             'price': price}
         self.broadcast(**message_content)
 
     def replaced(self, **kwargs):
         self.orderstore.confirm('replaced', **kwargs)  
-        order_token, old_token  = kwargs['order_token'], kwargs['previous_order_token']
+        order_token = kwargs['replacement_order_token']
+        old_token = kwargs['previous_order_token']
         price = kwargs['price']
         message_content = {'type': 'replaced', 'order_token': order_token,
             'old_token': old_token, 'price': price}
@@ -187,8 +190,8 @@ class BCSTrader(BaseTrader):
 
     def broadcast(self, **kwargs):
         message_content = {'player_id': self.id, 'market_id': self.market}
-        message_content.update(kwargs)
-        internal_message = format_message('broadcast', **kwargs)
+        message_content.update(kwargs)      
+        internal_message = format_message('broadcast', **message_content)
         self.outgoing_messages.append(internal_message)  
 
     def executed(self, **kwargs):
@@ -348,21 +351,26 @@ class LEEPSInvestor(BCSOut):
 
 Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
 
-max_ask = 2147483647
-min_bid = 0
 
-class LEEPSOut(BCSTrader):
+class LEEPSTrader(BCSTrader):
+
+    def switch_to_market_tracking_role(self, **kwargs):
+        best_bid = kwargs['best_bid']
+        best_offer = kwargs['best_offer']
+        self.best_quotes = {'B': best_bid, 'S': best_offer}
+        self.order_imbalance = kwargs.get('order_imbalance')
+
+class LEEPSOut(LEEPSTrader):
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
-        self.best_quotes = {'bid': None, 'offer': None}
-
-    def bbo_update(self, **kwargs):
-        new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_offer']
-        self.best_quotes['bid'] = new_best_bid
-        self.best_quotes['offer'] = new_best_offer
-
-class LEEPSBasicMaker(LEEPSOut):
+    
+    def first_move(self, **kwargs):
+        self.best_quotes['B'] = None
+        self.best_quotes['S'] = None
+        self.order_imbalance = None
+        
+class LEEPSBasicMaker(LEEPSTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
@@ -372,10 +380,12 @@ class LEEPSBasicMaker(LEEPSOut):
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
-        self.distance_from_best_quote = {'bid': None, 'offer': None}
 
     def first_move(self, **kwargs):
         self.leave_market()
+        self.switch_to_market_tracking_role(**kwargs)
+        if self.distance_from_best_quote is None:
+            self.distance_from_best_quote = {'B': None, 'S': None}
 
     def calc_price(self, buy_sell_indicator, distance_from_best_quote=None):
         if distance_from_best_quote is None:
@@ -402,13 +412,13 @@ class LEEPSBasicMaker(LEEPSOut):
  
     def trader_bid_offer_change(self, price=None, buy_sell_indicator=None, **kwargs):
         if buy_sell_indicator is None:
-            buy_sell_indicator = kwargs.get('side')
+            buy_sell_indicator = kwargs['side']
         if price is None:
-            price = price_grid(kwargs.get('price'))
-            best_quote = self.best_quotes[buy_sell_indicator]
-            d = abs(best_quote - price)
-            self.distance_from_best_quote[buy_sell_indicator] = d
-        orders = self.orderstore.all_orders()
+            price = price_grid(kwargs['price'])
+        best_quote = self.best_quotes[buy_sell_indicator]
+        d = abs(best_quote - price)
+        self.distance_from_best_quote[buy_sell_indicator] = d
+        orders = self.orderstore.all_orders(direction=buy_sell_indicator)
         delay = self.calc_delay()
         if orders:
             for o in orders:
@@ -425,7 +435,7 @@ class LEEPSBasicMaker(LEEPSOut):
             order_info = self.orderstore.enter(price=price, 
                 buy_sell_indicator=buy_sell_indicator, time_in_force=99999)
             host, port = self.exchange_host, self.exchange_port
-            message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
+            message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
                 delay, 'order_info': order_info}
             internal_message = format_message('exchange', **message_content)
             self.outgoing_messages.append(internal_message)
@@ -433,26 +443,22 @@ class LEEPSBasicMaker(LEEPSOut):
     def bbo_update(self, **kwargs):
         new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_offer']
         bbo = self.best_quotes
-        if self.distance_from_best_quote['bid'] is not None:
-            if new_best_bid != bbo['bid']:
-                self.best_quotes['bid'] = new_best_bid
-                d = self.distance_from_best_quote['bid']
+        if self.distance_from_best_quote['B'] is not None and (new_best_bid !=
+            self.orderstore.bid):
+            if new_best_bid != bbo['B']:
+                self.best_quotes['B'] = new_best_bid
+                d = self.distance_from_best_quote['B']
                 price = new_best_bid - d
                 self.trader_bid_offer_change(price=price, buy_sell_indicator='B')
-        else:
-            log.warning('player %s with role %s, not defined an bid yet.' % (
-                self.id, self.role))
-        if self.distance_from_best_quote['offer'] is not None:
-            if new_best_offer != bbo['offer']:
-                self.best_quotes['offer'] = new_best_offer
-                d = self.distance_from_best_quote['offer']
+        if self.distance_from_best_quote['S'] is not None and (new_best_offer !=
+            self.orderstore.offer):
+            if new_best_offer != bbo['S']:
+                self.best_quotes['S'] = new_best_offer
+                d = self.distance_from_best_quote['S']
                 price = new_best_offer + d
                 self.trader_bid_offer_change(price=price, buy_sell_indicator='S')
-        else:
-            log.warning('player %s with role %s, not defined an offer yet.' % (
-                self.id, self.role))
 
-class LEEPSNotSoBasicMaker(LEEPSOut):
+class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
@@ -464,6 +470,27 @@ class LEEPSNotSoBasicMaker(LEEPSOut):
         self.latent_quote = None
         self.sliders = Sliders(a_x=0, a_y=0, b_x=0, b_y=0)
     
+    def first_move(self, **kwargs):
+        self.leave_market()
+        self.switch_to_market_tracking_role(**kwargs)
+        self.enter_with_latent_quote('B')
+        self.enter_with_latent_quote('S')
+    
+    def enter_with_latent_quote(self, buy_sell_indicator, 
+            latent_quote_formula=latent_bid_and_offer):
+        latent_bid, latent_offer = latent_quote_formula(self.best_quotes['B'], 
+            self.best_quotes['S'], self.order_imbalance, self.orderstore.inventory, 
+            self.sliders)
+        price = latent_bid if buy_sell_indicator == 'B' else latent_offer
+        delay = self.calc_delay()
+        order_info = self.orderstore.enter(price=price, buy_sell_indicator=buy_sell_indicator, 
+            time_in_force=99999)
+        host, port = self.exchange_host, self.exchange_port
+        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
+            delay, 'order_info': order_info}
+        internal_message = format_message('exchange', **message_content)
+        self.outgoing_messages.append(internal_message)
+        
     def slider_change(self, lower_bound=-1, upper_bound=1, **kwargs):
         def slider_field_check(**kwargs):
             checked_kwargs = {}
@@ -486,13 +513,15 @@ class LEEPSNotSoBasicMaker(LEEPSOut):
             sliders = self.sliders
         best_bid = kwargs.get('best_bid')
         if best_bid is None:
-            best_bid = self.best_quotes['bid']
+            best_bid = self.best_quotes['B']
         best_offer = kwargs.get('best_offer')
         if best_offer is None:
-            best_offer = self.best_quotes['offer']
+            best_offer = self.best_quotes['S']
         order_imbalance = kwargs.get('order_imbalance')
         new_latent_quote = latent_quote_formula(best_bid, best_offer, order_imbalance, 
-                self.orderstore.inventory)
+                self.orderstore.inventory, self.sliders)
+        if self.latent_quote is None:
+            self.latent_quote = new_latent_quote
         if new_latent_quote != self.latent_quote:
             bid = None
             offer = None
