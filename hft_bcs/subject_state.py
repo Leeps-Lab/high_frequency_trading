@@ -8,6 +8,8 @@ class SubjectStateFactory:
             return BCSSubjectState
         elif session_format == 'LEEPS':
             return LEEPSSubjectState
+        else:
+            raise Exception('invalid session format: %s' % session_format)
 
 class BaseSubjectState:
 

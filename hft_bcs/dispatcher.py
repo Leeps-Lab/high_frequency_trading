@@ -1,6 +1,9 @@
 from .event import EventFactory
 from .event_handlers import HandlerFactory
 from .response import process_response
+import logging
+
+log = logging.getLogger(__name__)
 
 class Dispatcher:
 
@@ -20,11 +23,11 @@ class Dispatcher:
         
         for entity in observers:
             handler = cls.handler_factory.get_handler(entity)
-            processed_event = handler(event)
-        print(event)    
+            event = handler(event)
+        log.info(event)    
         resulting_events = []
-        while processed_event.outgoing_messages:
-            message = processed_event.outgoing_messages.popleft()
+        while event.outgoing_messages:
+            message = event.outgoing_messages.popleft()
             message_type = message['message_type']
             if message_type in cls.outgoing_message_types:
                 cls.responder(message)
@@ -47,7 +50,7 @@ class LEEPSDispatcher(Dispatcher):
         'Q': ['market'],
         'player_ready': ['market'],
         'advance_me': ['market'],
-        'role_change': ['trader', 'market'],
+        'role_change': ['market', 'trader'],
         'spread_change': ['trader'],
         'speed_change': ['trader'],    
         'market_ready_to_start': ['trade_session'],
@@ -57,7 +60,7 @@ class LEEPSDispatcher(Dispatcher):
         'order_by_arrow': ['trader'],
         'investor_arrivals': ['noise_trader_arrival'],
         'fundamental_value_jumps': ['fundamental_price_change'],
-        'bbo_change': ['marketwide_events'],
+        'bbo_change': ['role_based_events'],
         'order_imbalance_change': ['role_based_events'],      
     }
     outgoing_message_types = ('exchange', 'broadcast')
