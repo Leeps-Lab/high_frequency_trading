@@ -141,10 +141,10 @@ class OrderStore:
         if direction == 'B':
             if clear is True and price == self.bid:
                 self.bid = None
-            elif price and (self.bid is None or price > self.bid):
+            elif price is not None and (self.bid is None or price > self.bid):
                 self.bid = price
         elif direction == 'S':
             if clear is True and price == self.offer:
                 self.offer = None
-            elif price and (self.bid is None or price > self.bid):
-                self.bid = price   
+            elif price is not None and (self.offer is None or price < self.offer):
+                self.offer = price   
