@@ -196,14 +196,19 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.executionHandler = this.executionHandler;
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
     spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
+
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
     spreadGraph.confirmArrow = this.confirmArrow;
+
     spreadGraph.NBBOChange = this.NBBOChange;
+
     spreadGraph.drawOrder = this.drawOrder;
     spreadGraph.removeOrder = this.removeOrder;
+
     spreadGraph.addToActiveOrders = this.addToActiveOrders;
     spreadGraph.removeFromActiveOrders = this.removeFromActiveOrders;
+    spreadGraph.replaceActiveOrder = this.replaceActiveOrder;
 
 
     /*
@@ -411,9 +416,6 @@ class SpreadGraph extends PolymerElement {
                         console.log(JSON.stringify(askPriceMessage));
                         socketActions.socket.send(JSON.stringify(askPriceMessage));
                     }
-                    /*
-                        //SEND spreadGraph.askArrow["askArrowLine"].price OVER SOCKET ********* 
-                    */
                     spreadGraph.askArrow["askArrowText"].attr("x", checkedXAsk - 10);
                     spreadGraph.askArrow["askArrowLine"].attr("x1",  checkedXAsk).attr("x2", checkedXAsk);
 
@@ -445,37 +447,37 @@ class SpreadGraph extends PolymerElement {
   }
 
   removeArrows(){
-      console.log("Remove arrows is called");
     try {
-        console.log("Removing arrows");
+
         spreadGraph.spread_svg.selectAll(".arrow").remove();
     } catch {
         console.log("No Arrows to remove");
     }
-    
   }
 
   addToActiveOrders(token,price){
-    console.log("In active orders");
     if(spreadGraph.activeOrders[price] != undefined){
         spreadGraph.activeOrders[price].push(token);
     } else {
         spreadGraph.activeOrders[price] = [] ;
         spreadGraph.activeOrders[price].push(token);
     }
-    
-    console.log(spreadGraph.activeOrders);
   }
-  removeFromActiveOrders(token,price){
-    if(spreadGraph.activeOrders[price] != undefined){
-      var index = spreadGraph.activeOrders[price].indexOf(token);
+
+  removeFromActiveOrders(oldToken, oldPrice){
+    if(spreadGraph.activeOrders[oldPrice] != undefined){
+      var index = spreadGraph.activeOrders[oldPrice].indexOf(oldToken);
       if(index != -1){
-        spreadGraph.activeOrders[price].splice(index,1);
+        spreadGraph.activeOrders[oldPrice].splice(index,1);
       }
     }
     console.log(spreadGraph.activeOrders);
   }
 
+  replaceActiveOrder(newToken, newPrice, oldToken, oldPrice){
+    spreadGraph.removeFromActiveOrders(oldToken,oldPrice);
+    spreadGraph.addToActiveOrders(newToken,newPrice);
+  }
 
     /*
     * This is sent to replicate the time that it takes to send an order to the market

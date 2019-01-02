@@ -18,21 +18,21 @@ socketActions.socket.onmessage = function (event) {
     console.log(obj);
 
     if(obj["type"] == "bbo"){
-        
+        console.log("---- BEGIN BBO MESSAGE ----");
         if(obj["market_id"]  === otree.marketID){
             console.log("Changing bid to --> " + obj["best_bid"]);
             console.log("Changing offer to --> " + obj["best_offer"]);
             spreadGraph.NBBOChange(obj["best_bid"], obj["best_offer"]);
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
- 
+        console.log("---- END BBO MESSAGE");
     } else if(obj["type"] == "confirmed"){
-
         console.log("Confirmed order " + obj["order_token"]);
         spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]);        
         if(obj["player_id"] == otree.playerID){
 
             if(obj["price"] == spreadGraph.bidArrow["price"]){
+
                 spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");
             } else if(obj["price"] == spreadGraph.askArrow["price"]){
                 spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask");
@@ -41,18 +41,17 @@ socketActions.socket.onmessage = function (event) {
         } else {
             spreadGraph.drawOrder(obj["price"], obj["order_token"]);
         }
-
     } else if(obj["type"] == "replaced"){
         // console.log(old order token replaced with new one);
-        spreadGraph.replaceActiveOrder(obj["order_token"], obj["price"], obj["old_token"], obj["old_price"]);
+        spreadGraph.removeFromActiveOrders(obj["old_token"],obj["price"]);
         try{
             spreadGraph.removeOrder(obj["old_token"]);
         } catch {
             console.log("No Order to replace with token " + obj["old_token"]);
         }
+        spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]);
 
         spreadGraph.drawOrder(obj["price"], obj["order_token"]);
-
     } else if(obj.type == "canceled"){
         console.log("Cancel order " + obj["order_token"]);                
         spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);

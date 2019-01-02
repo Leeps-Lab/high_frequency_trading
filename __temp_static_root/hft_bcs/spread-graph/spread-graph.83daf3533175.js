@@ -196,7 +196,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.executionHandler = this.executionHandler;
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
     spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
-
+    
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
     spreadGraph.confirmArrow = this.confirmArrow;
@@ -475,8 +475,8 @@ class SpreadGraph extends PolymerElement {
   }
 
   replaceActiveOrder(newToken, newPrice, oldToken, oldPrice){
-    spreadGraph.removeFromActiveOrders(oldToken,oldPrice);
-    spreadGraph.addToActiveOrders(newToken,newPrice);
+    removeFromActiveOrders(oldToken,oldPrice);
+    addToActiveOrders(newToken,newPrice);
   }
 
     /*
