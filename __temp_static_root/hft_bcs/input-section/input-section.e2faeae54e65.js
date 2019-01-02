@@ -248,10 +248,10 @@ class InputSection extends PolymerElement {
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
     var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
     
-    // var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
-    // var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
-    // var testConfirmationButton = inputSection.inputSectionShadowDOM.querySelector(".test-confirmation-button");
-    // var testBBOButton = inputSection.inputSectionShadowDOM.querySelector(".test-BBO-button");
+    var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
+    var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
+    var testConfirmationButton = inputSection.inputSectionShadowDOM.querySelector(".test-confirmation-button");
+    var testBBOButton = inputSection.inputSectionShadowDOM.querySelector(".test-BBO-button");
 
     maker1Button.onclick = inputSection.maker1Click;
     maker2Button.onclick = inputSection.maker2Click;
@@ -259,15 +259,15 @@ class InputSection extends PolymerElement {
     outButton.onclick = inputSection.outClick;
     submitButton.onclick = inputSection.submitClick;
 
-    // var testCancel = function () { inputSection.testClick("cancel")};
-    // var testReplace = function () { inputSection.testClick("replace")};
-    // var testConfirmation = function () { inputSection.testClick("confirmation")};
-    // var testBBO = function () { inputSection.testClick("BBO")};
+    var testCancel = function () { inputSection.testClick("cancel")};
+    var testReplace = function () { inputSection.testClick("replace")};
+    var testConfirmation = function () { inputSection.testClick("confirmation")};
+    var testBBO = function () { inputSection.testClick("BBO")};
 
-    // testCancelButton.onclick = testCancel;
-    // testReplaceButton.onclick = testReplace;
-    // testConfirmationButton.onclick = testConfirmation;
-    // testBBOButton.onclick = testBBO;
+    testCancelButton.onclick = testCancel;
+    testReplaceButton.onclick = testReplace;
+    testConfirmationButton.onclick = testConfirmation;
+    testBBOButton.onclick = testBBO;
 
   } 
 
