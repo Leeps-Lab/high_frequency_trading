@@ -441,14 +441,12 @@ class SpreadGraph extends PolymerElement {
         .text("ASK");        
   }
 
-  confirmArrow(arrow){
-    console.log(arrow);
-    arrow.attr("fill","none");
+  confirmArrow(arrow,text,side){
+    //confirm the arrow by drawing differnt strokes on it
   }
 
   removeArrows(){
     try {
-
         spreadGraph.spread_svg.selectAll(".arrow").remove();
     } catch {
         console.log("No Arrows to remove");

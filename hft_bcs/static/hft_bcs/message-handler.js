@@ -43,7 +43,7 @@ socketActions.socket.onmessage = function (event) {
         }
 
     } else if(obj["type"] == "replaced"){
-        
+
         spreadGraph.replaceActiveOrder(obj["order_token"], obj["price"], obj["old_token"], obj["old_price"]);
         try{
             spreadGraph.removeOrder(obj["old_token"]);
@@ -63,6 +63,7 @@ socketActions.socket.onmessage = function (event) {
             console.log("No Order to Cancel with token" + obj["order_token"]);
         }
     } else if(obj.type == "executed"){
+        console.log("EXECUTED");
         //Do animation
         //Remove executed order on the spread graph
 
