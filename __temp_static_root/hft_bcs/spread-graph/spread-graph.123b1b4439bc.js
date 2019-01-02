@@ -308,7 +308,7 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke","#309930") 
         .attr("stroke-width",7)  
         .attr("marker-end","url(#bidArrow)")
-        .attr("class", "arrow ");
+        .attr("class", "arrow unconfirmed-order");
  
         
     spreadGraph.askArrow["askArrowLine"] = spreadGraph.spread_svg.append("line")
@@ -319,7 +319,7 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke","#CB1C36") 
         .attr("stroke-width",7)  
         .attr("marker-end","url(#askArrow)")
-        .attr("class", "arrow ");
+        .attr("class", "arrow unconfirmed-order");
         
     if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
@@ -375,6 +375,7 @@ class SpreadGraph extends PolymerElement {
 
         spreadGraph.askArrow["askArrowLine"].call(d3.drag()
             .on("drag", function(){
+                console.log("FUCK");
                 //Making sure not to drag past other arrow line
                 var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
                 spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
@@ -428,14 +429,14 @@ class SpreadGraph extends PolymerElement {
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.bidArrow["bidArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("class", "price-grid-line-text arrow")
+        .attr("class", "price-grid-line-text arrow unconfirmed-order")
         .text("BID");
 
     spreadGraph.askArrow["askArrowText"]  = spreadGraph.spread_svg.append("text")
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.askArrow["askArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("class", "price-grid-line-text arrow")
+        .attr("class", "price-grid-line-text arrow unconfirmed-order")
         .text("ASK");        
   }
 

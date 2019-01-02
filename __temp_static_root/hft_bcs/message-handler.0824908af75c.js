@@ -28,14 +28,17 @@ socketActions.socket.onmessage = function (event) {
         console.log("---- END BBO MESSAGE");
     } else if(obj["type"] == "confirmed"){
         console.log("Confirmed order " + obj["order_token"]);
-        spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]);        
-        if(obj["player_id"] == otree.playerID){
+        spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]);
 
-            if(obj["price"] == spreadGraph.bidArrow["price"]){
-                console.log(spreadGraph.bidArrow["price"],spreadGraph.askArrow["price"]);
-                spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");
-            } else if(obj["price"] == spreadGraph.askArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask");
+
+        
+        if(obj["player_id"] == otree.playerID){
+            console.log("Confirmed Current Browser " + obj["player_id"]);
+            console.log("Draw Arrows"); 
+            if(obj.price["price"] == spreadGraph.bidArrow["price"]){
+                spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"]);
+            } else if(obj.price["price"] == spreadGraph.askArrow["price"]){
+                spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"]);
             }
             
         } else {

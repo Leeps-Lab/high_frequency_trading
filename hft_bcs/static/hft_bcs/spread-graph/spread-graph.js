@@ -54,7 +54,20 @@ class SpreadGraph extends PolymerElement {
         stroke: grey;
         stroke-width: 1;
     }
+    .unconfirmed-order{
+        fill: rgb(150, 150, 150);
+        stroke:rgb(150, 150, 150);
+    }
+    .confirmed-bid{
+        fill: #309930;
+        stroke:#309930;
 
+    }
+    .confirmed-ask{
+        fill: rgb(150, 150, 150);
+        stroke:rgb(150, 150, 150);
+
+    }
     .others_line{
     stroke:lightgrey;
     stroke-width:2px;
@@ -116,7 +129,7 @@ class SpreadGraph extends PolymerElement {
   refX="6"
   refY="6"
   orient="auto">
-  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #309930;"></path>
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill:#309930;"></path>
 </marker>
 <marker
   id="askArrow"
@@ -127,7 +140,7 @@ class SpreadGraph extends PolymerElement {
   refX="6"
   refY="6"
   orient="auto">
-  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #CB1C36;"></path>
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill:#CB1C36;"></path>
 </marker>
 </defs>
 </svg>
@@ -185,6 +198,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
+    spreadGraph.confirmArrow = this.confirmArrow;
     spreadGraph.NBBOChange = this.NBBOChange;
     spreadGraph.drawOrder = this.drawOrder;
     spreadGraph.removeOrder = this.removeOrder;
@@ -291,10 +305,10 @@ class SpreadGraph extends PolymerElement {
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 20)  
-        .attr("stroke","#309930")  
+        .attr("stroke","#309930") 
         .attr("stroke-width",7)  
         .attr("marker-end","url(#bidArrow)")
-        .attr("class", "arrow");
+        .attr("class", "arrow ");
  
         
     spreadGraph.askArrow["askArrowLine"] = spreadGraph.spread_svg.append("line")
@@ -302,10 +316,10 @@ class SpreadGraph extends PolymerElement {
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 20)  
-        .attr("stroke","#CB1C36")  
+        .attr("stroke","#CB1C36") 
         .attr("stroke-width",7)  
         .attr("marker-end","url(#askArrow)")
-        .attr("class", "arrow");
+        .attr("class", "arrow ");
         
     if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
@@ -361,7 +375,6 @@ class SpreadGraph extends PolymerElement {
 
         spreadGraph.askArrow["askArrowLine"].call(d3.drag()
             .on("drag", function(){
-                console.log("FUCK");
                 //Making sure not to drag past other arrow line
                 var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
                 spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
@@ -424,6 +437,11 @@ class SpreadGraph extends PolymerElement {
         .attr("y",  spreadGraph.spread_height - 10)
         .attr("class", "price-grid-line-text arrow")
         .text("ASK");        
+  }
+
+  confirmArrow(arrow){
+    console.log(arrow);
+    arrow.attr("fill","none");
   }
 
   removeArrows(){
