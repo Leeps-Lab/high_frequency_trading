@@ -127,6 +127,7 @@ class OrderStore:
         direction = order_info['buy_sell_indicator']
         price = order_info['price']
         self.update_spread(price, direction, clear=True)   
+        return order_info
 
     
     def _confirm_execution(self, **kwargs):

@@ -184,9 +184,9 @@ class BCSTrader(BaseTrader):
         self.broadcast(**message_content)
 
     def canceled(self, **kwargs):
-        self.orderstore.confirm('canceled', **kwargs)
+        order_info = self.orderstore.confirm('canceled', **kwargs)
         order_token = kwargs['order_token']
-        price = kwargs['price']
+        price = order_info['price']
         message_content = {'type': 'canceled', 'order_token': order_token, 
             'price': price}
         self.broadcast(**message_content)
@@ -403,7 +403,7 @@ class LEEPSBasicMaker(LEEPSTrader):
         return price
     
     def executed(self, **kwargs):
-        order_info = self.orderstore.confirm('executed', **kwargs)
+        order_info = super().executed(**kwargs)
         buy_sell_indicator = order_info['buy_sell_indicator']
         price = self.calc_price(buy_sell_indicator)
         new_order_info = self.orderstore.enter(price=price, 
