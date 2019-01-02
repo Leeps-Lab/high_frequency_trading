@@ -37,10 +37,8 @@ class OrderStore:
 		self.orders[id].executed_quantity += quantity
 
 	def clear_order_store(self):				
-		log.info("Clearing the Stored Orders!!")
-		log.info(self.orders)
 		self.orders.clear()
-		log.info(self.orders)
+		log.info('orderstore after clear: %s' % str(self.orders))
 
 
 
