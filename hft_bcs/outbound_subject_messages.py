@@ -9,8 +9,9 @@ log = logging.getLogger(__name__)
 message_schemas = {
     'bbo': ('type', 'market_id', 'best_bid', 'best_offer'),
     'confirmed': ('type', 'player_id', 'order_token', 'price'),
-    'replaced': ('type', 'player_id',  'price', 'order_token', 'old_token'),
-    'canceled': ('type', 'player_id', 'order_token'),
+    'replaced': ('type', 'player_id',  'price', 'order_token', 'old_token',
+        'old_price'),
+    'canceled': ('type', 'player_id', 'order_token', 'price'),
     'executed': ('type', 'player_id', 'order_token', 'price'),
     'system_event': ('type','market_id', 'code')
 }

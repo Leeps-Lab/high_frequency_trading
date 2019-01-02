@@ -174,18 +174,21 @@ class BCSTrader(BaseTrader):
         self.broadcast(**message_content)
 
     def replaced(self, **kwargs):
-        self.orderstore.confirm('replaced', **kwargs)  
+        order_info = self.orderstore.confirm('replaced', **kwargs)  
         order_token = kwargs['replacement_order_token']
         old_token = kwargs['previous_order_token']
+        old_price = order_info['old_price']
         price = kwargs['price']
         message_content = {'type': 'replaced', 'order_token': order_token,
-            'old_token': old_token, 'price': price}
+            'old_token': old_token, 'price': price, 'old_price': old_price}
         self.broadcast(**message_content)
 
     def canceled(self, **kwargs):
         self.orderstore.confirm('canceled', **kwargs)
         order_token = kwargs['order_token']
-        message_content = {'type': 'canceled', 'order_token': order_token}
+        price = kwargs['price']
+        message_content = {'type': 'canceled', 'order_token': order_token, 
+            'price': price}
         self.broadcast(**message_content)
 
     def broadcast(self, **kwargs):
