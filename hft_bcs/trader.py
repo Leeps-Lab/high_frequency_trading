@@ -174,18 +174,21 @@ class BCSTrader(BaseTrader):
         self.broadcast(**message_content)
 
     def replaced(self, **kwargs):
-        self.orderstore.confirm('replaced', **kwargs)  
+        order_info = self.orderstore.confirm('replaced', **kwargs)  
         order_token = kwargs['replacement_order_token']
         old_token = kwargs['previous_order_token']
+        old_price = order_info['old_price']
         price = kwargs['price']
         message_content = {'type': 'replaced', 'order_token': order_token,
-            'old_token': old_token, 'price': price}
+            'old_token': old_token, 'price': price, 'old_price': old_price}
         self.broadcast(**message_content)
 
     def canceled(self, **kwargs):
         self.orderstore.confirm('canceled', **kwargs)
         order_token = kwargs['order_token']
-        message_content = {'type': 'canceled', 'order_token': order_token}
+        price = kwargs['price']
+        message_content = {'type': 'canceled', 'order_token': order_token, 
+            'price': price}
         self.broadcast(**message_content)
 
     def broadcast(self, **kwargs):
@@ -387,14 +390,16 @@ class LEEPSBasicMaker(LEEPSTrader):
         if self.distance_from_best_quote is None:
             self.distance_from_best_quote = {'B': None, 'S': None}
 
-    def calc_price(self, buy_sell_indicator, distance_from_best_quote=None):
-        if distance_from_best_quote is None:
+    def calc_price(self, buy_sell_indicator, d=None):
+        if d is None:
             d = self.distance_from_best_quote[buy_sell_indicator]
         best_quote = self.best_quotes[buy_sell_indicator]
         if buy_sell_indicator == 'B':
             price = best_quote - d
         elif buy_sell_indicator == 'S':
             price = best_quote + d
+        else:
+            raise ValueError('invalid buy_sell_indicator %s' % buy_sell_indicator)
         return price
     
     def executed(self, **kwargs):
@@ -405,7 +410,7 @@ class LEEPSBasicMaker(LEEPSTrader):
                 buy_sell_indicator=buy_sell_indicator, time_in_force=99999)
         delay = self.calc_delay()
         host, port = self.exchange_host, self.exchange_port
-        message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
+        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
                 delay, 'order_info': new_order_info}
         internal_message = format_message('exchange', **message_content)
         self.outgoing_messages.append(internal_message)
@@ -462,12 +467,12 @@ class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed', 'slider_change': 'slider_change', 'bbo_change': 'bbo_update', 
+        'E': 'executed', 'slider_change': 'slider_change', 'bbo_change': 'latent_quote_update', 
         'order_imbalance_change': 'latent_quote_update'}
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
-        self.latent_quote = None
+        self.latent_quote = {'B': None, 'S': None}
         self.sliders = Sliders(a_x=0, a_y=0, b_x=0, b_y=0)
     
     def first_move(self, **kwargs):
@@ -490,7 +495,8 @@ class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
             delay, 'order_info': order_info}
         internal_message = format_message('exchange', **message_content)
         self.outgoing_messages.append(internal_message)
-        
+        self.latent_quote[buy_sell_indicator] = price
+    
     def slider_change(self, lower_bound=-1, upper_bound=1, **kwargs):
         def slider_field_check(**kwargs):
             checked_kwargs = {}
@@ -518,21 +524,23 @@ class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
         if best_offer is None:
             best_offer = self.best_quotes['S']
         order_imbalance = kwargs.get('order_imbalance')
-        new_latent_quote = latent_quote_formula(best_bid, best_offer, order_imbalance, 
+
+        new_latent_bid, new_latent_offer = latent_quote_formula(best_bid, best_offer, order_imbalance, 
                 self.orderstore.inventory, self.sliders)
-        if self.latent_quote is None:
-            self.latent_quote = new_latent_quote
-        if new_latent_quote != self.latent_quote:
+
+        if  (new_latent_bid != self.latent_quote['B']) or (new_latent_offer != 
+                self.latent_quote['S']):
             bid = None
             offer = None
-            old_bid, old_offer = self.latent_quote.copy()
-            self.latent_quote = new_latent_quote
-            new_bid, new_offer = new_latent_quote
-            if new_bid != old_bid:
-                bid = new_bid
-            if new_offer != old_offer:
-                offer = new_offer
-            self.reprice(self, latent_bid=bid, latent_ask=offer)
+            old_bid= self.latent_quote.pop('B')
+            self.latent_quote['B'] = new_latent_bid
+            old_offer = self.latent_quote.pop('S')
+            self.latent_quote['S'] = new_latent_offer
+            if new_latent_bid != old_bid:
+                bid = new_latent_bid
+            if new_latent_offer != old_offer:
+                offer = new_latent_offer
+            self.reprice(latent_bid=bid, latent_ask=offer)
 
     def reprice(self, latent_bid=None, latent_ask=None, start_from_above=True):
         orders = self.orderstore.all_orders()
@@ -543,10 +551,10 @@ class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
             delay = self.calc_delay()
             for o in sorted_orders:
                 token, buy_sell_indicator = o['order_token'], o['buy_sell_indicator']
-                if latent_bid and buy_sell_indicator == 'B':
+                if latent_bid is not None and buy_sell_indicator == 'B':
                     new_price = latent_bid
                     order_info = self.orderstore.register_replace(token, new_price)
-                elif latent_ask and buy_sell_indicator == 'S':
+                elif latent_ask is not None and buy_sell_indicator == 'S':
                     new_price = latent_ask
                     order_info = self.orderstore.register_replace(token, new_price)
                 host, port = self.exchange_host, self.exchange_port
