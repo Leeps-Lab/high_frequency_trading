@@ -131,15 +131,7 @@ class BCSTrader(BaseTrader):
         return delay
 
     def profit(self, exec_price, buy_sell_indicator) -> int:
-        fp = self.fp
-        d = abs(fp - exec_price)
-        if exec_price < fp:
-            # buyer (seller) buys (sells) less than fp
-            profit = d if buy_sell_indicator == 'B' else -d  
-        else:
-            # seller (buyer) sells (buys) higher than fp
-            profit = d if buy_sell_indicator == 'S' else -d  
-        return profit
+        raise NotImplementedError()
 
     def jump(self, **kwargs):
         """
@@ -369,10 +361,15 @@ class LEEPSOut(LEEPSTrader):
         super().__init__(subject_state)
     
     def first_move(self, **kwargs):
+        self.leave_market()
         self.best_quotes['B'] = None
         self.best_quotes['S'] = None
         self.order_imbalance = None
         
+
+MIN_BID = 0
+MAX_ASK = 2147483647
+
 class LEEPSBasicMaker(LEEPSTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
@@ -454,14 +451,16 @@ class LEEPSBasicMaker(LEEPSTrader):
                 self.best_quotes['B'] = new_best_bid
                 d = self.distance_from_best_quote['B']
                 price = new_best_bid - d
-                self.trader_bid_offer_change(price=price, buy_sell_indicator='B')
+                if new_best_bid > MIN_BID and price > 0:
+                    self.trader_bid_offer_change(price=price, buy_sell_indicator='B')
         if self.distance_from_best_quote['S'] is not None and (new_best_offer !=
             self.orderstore.offer):
             if new_best_offer != bbo['S']:
                 self.best_quotes['S'] = new_best_offer
                 d = self.distance_from_best_quote['S']
                 price = new_best_offer + d
-                self.trader_bid_offer_change(price=price, buy_sell_indicator='S')
+                if new_best_offer < MAX_ASK and price > 0:
+                    self.trader_bid_offer_change(price=price, buy_sell_indicator='S')
 
 class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
 
@@ -478,8 +477,10 @@ class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
     def first_move(self, **kwargs):
         self.leave_market()
         self.switch_to_market_tracking_role(**kwargs)
-        self.enter_with_latent_quote('B')
-        self.enter_with_latent_quote('S')
+        if self.best_quotes['B'] > MIN_BID:
+            self.enter_with_latent_quote('B')
+        if self.best_quotes['S'] < MAX_ASK:
+            self.enter_with_latent_quote('S')
     
     def enter_with_latent_quote(self, buy_sell_indicator, 
             latent_quote_formula=latent_bid_and_offer):
