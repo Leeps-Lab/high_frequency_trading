@@ -63,9 +63,6 @@ class SpreadGraph extends PolymerElement {
         stroke:#309930;
 
     }
-    .arrow-text{
-        font-size: 10px;
-    }
     .confirmed-ask{
         fill: rgb(150, 150, 150);
         stroke:rgb(150, 150, 150);
@@ -434,16 +431,14 @@ class SpreadGraph extends PolymerElement {
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.bidArrow["bidArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("fill","rgb(150,150,150)")
-        .attr("class", "arrow-text arrow")
+        .attr("class", "price-grid-line-text arrow")
         .text("BID");
 
     spreadGraph.askArrow["askArrowText"]  = spreadGraph.spread_svg.append("text")
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.askArrow["askArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("fill","rgb(150,150,150)")
-        .attr("class", "arrow-text arrow")
+        .attr("class", "price-grid-line-text arrow")
         .text("ASK");        
   }
 
@@ -452,11 +447,11 @@ class SpreadGraph extends PolymerElement {
     if(side == "bid"){
         arrow.attr("stroke", "#309930");
         text.attr("fill","#309930");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "#309930";
+        console.log(spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow"));
     } else if(side == "ask"){
         arrow.attr("stroke", "#CB1C36");
         text.attr("fill","#CB1C36");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "#CB1C36";
+        console.log(spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow"));
     }
   }
 

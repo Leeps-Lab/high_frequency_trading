@@ -452,11 +452,11 @@ class SpreadGraph extends PolymerElement {
     if(side == "bid"){
         arrow.attr("stroke", "#309930");
         text.attr("fill","#309930");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "#309930";
+        console.log(spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow"));
     } else if(side == "ask"){
         arrow.attr("stroke", "#CB1C36");
         text.attr("fill","#CB1C36");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "#CB1C36";
+        console.log(spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow"));
     }
   }
 

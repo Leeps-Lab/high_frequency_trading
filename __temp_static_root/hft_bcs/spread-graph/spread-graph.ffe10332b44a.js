@@ -63,9 +63,6 @@ class SpreadGraph extends PolymerElement {
         stroke:#309930;
 
     }
-    .arrow-text{
-        font-size: 10px;
-    }
     .confirmed-ask{
         fill: rgb(150, 150, 150);
         stroke:rgb(150, 150, 150);
@@ -325,7 +322,7 @@ class SpreadGraph extends PolymerElement {
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 20)  
-        .attr("stroke","rgb(150,150,150)") 
+        .attr("stroke","#CB1C36") 
         .attr("stroke-width",7)  
         .attr("marker-end","url(#askArrow)")
         .attr("class", "arrow ");
@@ -434,30 +431,19 @@ class SpreadGraph extends PolymerElement {
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.bidArrow["bidArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("fill","rgb(150,150,150)")
-        .attr("class", "arrow-text arrow")
+        .attr("class", "price-grid-line-text arrow")
         .text("BID");
 
     spreadGraph.askArrow["askArrowText"]  = spreadGraph.spread_svg.append("text")
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.askArrow["askArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("fill","rgb(150,150,150)")
-        .attr("class", "arrow-text arrow")
+        .attr("class", "price-grid-line-text arrow")
         .text("ASK");        
   }
 
   confirmArrow(arrow,text,side){
     //confirm the arrow by drawing differnt strokes on it
-    if(side == "bid"){
-        arrow.attr("stroke", "#309930");
-        text.attr("fill","#309930");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "#309930";
-    } else if(side == "ask"){
-        arrow.attr("stroke", "#CB1C36");
-        text.attr("fill","#CB1C36");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "#CB1C36";
-    }
   }
 
   removeArrows(){
