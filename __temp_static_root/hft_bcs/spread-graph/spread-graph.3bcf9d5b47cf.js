@@ -580,8 +580,6 @@ class SpreadGraph extends PolymerElement {
     */
     drawPossibleSpreadTicks(lowerBound = 900000, upperBound = 1000000){
         //Drawn on  shift message maybe inputs include
-        spreadGraph.lowerBound = lowerBound;
-        spreadGraph.upperBound = upperBound;
         var diff = upperBound - lowerBound;
         var increment  =   10000;
         var incrementNum = diff / increment;

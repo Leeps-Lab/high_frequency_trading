@@ -25,8 +25,6 @@ socketActions.socket.onmessage = function (event) {
             if((obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] < spreadGraph.upperBound) && (obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] < spreadGraph.upperBound) ){
                 spreadGraph.NBBOChange(obj["best_bid"], obj["best_offer"]);
             } else {
-                spreadGraph.spread_svg.select(".best-bid").remove();
-                spreadGraph.spread_svg.select(".best-offer").remove();
                 console.log("SHIFT ANIMATION NECCESSARY!");
             }
             

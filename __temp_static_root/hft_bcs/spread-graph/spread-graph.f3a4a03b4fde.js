@@ -225,7 +225,7 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
-    spreadGraph.NBBOChange(945000, 965000);
+    spreadGraph.NBBOChange(940000, 960000);
 
     
   }
@@ -580,8 +580,6 @@ class SpreadGraph extends PolymerElement {
     */
     drawPossibleSpreadTicks(lowerBound = 900000, upperBound = 1000000){
         //Drawn on  shift message maybe inputs include
-        spreadGraph.lowerBound = lowerBound;
-        spreadGraph.upperBound = upperBound;
         var diff = upperBound - lowerBound;
         var increment  =   10000;
         var incrementNum = diff / increment;

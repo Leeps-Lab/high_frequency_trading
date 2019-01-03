@@ -225,6 +225,8 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
+    spreadGraph.NBBOChange(945000, 965000);
+
     
   }
   start(){
@@ -267,15 +269,53 @@ class SpreadGraph extends PolymerElement {
     // console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);
     spreadGraph.spread_svg.select(".best-bid").remove();
     spreadGraph.spread_svg.select(".best-offer").remove();
+    var bidX = spreadGraph.visibleTickLines[bid];
+    var offerX = spreadGraph.visibleTickLines[offer];
+    if(bidX == undefined){
+        var tickArray = Object.keys(spreadGraph.visibleTickLines);
+        for(var i = 0; i < tickArray.length; i++){
+            if(tickArray[i] > bid){
+                break;
+            }
+        }
+        var upperPrice = tickArray[i];
+        var lowerPrice = tickArray[i-1];
+        var priceDiff = upperPrice - lowerPrice;
+        var bidDiff = Math.abs(bid - lowerPrice);
 
+        var ratio = bidDiff/priceDiff;
+
+        var diffX = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
+        var xRatio = diffX*ratio;
+        bidX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatio;
+
+    }
+    if(offerX == undefined){
+        var tickArray = Object.keys(spreadGraph.visibleTickLines);
+        for(var i = 0; i < tickArray.length; i++){
+            if(tickArray[i] > offer){
+                break;
+            }
+        }
+        var upperPriceOffer = tickArray[i];
+        var lowerPriceOffer = tickArray[i-1];
+        var priceDiffOffer = upperPriceOffer - lowerPriceOffer;
+        var offerDiff = Math.abs(bid - lowerPrice);
+
+        var ratioOffer = offerDiff/priceDiffOffer;
+
+        var diffXOffer = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
+        var xRatioOffer = diffXOffer*ratioOffer;
+        offerX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatioOffer;
+    }
     spreadGraph.spread_svg.append("circle")
-        .attr("cx", spreadGraph.visibleTickLines[bid])
+        .attr("cx", bidX)
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 10)
         .attr("class","best-bid");
 
     spreadGraph.spread_svg.append("circle")
-        .attr("cx", spreadGraph.visibleTickLines[offer])
+        .attr("cx", offerX)
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 10)
         .attr("class","best-offer");
@@ -333,6 +373,9 @@ class SpreadGraph extends PolymerElement {
     if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
             .on("drag", function(){
+                spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
+                spreadGraph.bidArrow["bidArrowText"].attr("fill","rgb(150,150,150)");
+                spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
                 //Making sure not to drag past other arrow line
                 var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") - 10 <= d3.event.x) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
                 spreadGraph.bidArrow["bidArrowText"].attr("x", lineX - 10);
@@ -384,6 +427,9 @@ class SpreadGraph extends PolymerElement {
 
         spreadGraph.askArrow["askArrowLine"].call(d3.drag()
             .on("drag", function(){
+                spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
+                spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
+                spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
                 //Making sure not to drag past other arrow line
                 var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
                 spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
@@ -534,6 +580,8 @@ class SpreadGraph extends PolymerElement {
     */
     drawPossibleSpreadTicks(lowerBound = 900000, upperBound = 1000000){
         //Drawn on  shift message maybe inputs include
+        spreadGraph.lowerBound = lowerBound;
+        spreadGraph.upperBound = upperBound;
         var diff = upperBound - lowerBound;
         var increment  =   10000;
         var incrementNum = diff / increment;

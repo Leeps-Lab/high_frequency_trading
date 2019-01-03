@@ -22,29 +22,32 @@ socketActions.socket.onmessage = function (event) {
         if(obj["market_id"]  === otree.marketID){
             console.log("Changing bid to --> " + obj["best_bid"]);
             console.log("Changing offer to --> " + obj["best_offer"]);
-            if((obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] < spreadGraph.upperBound) && (obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] < spreadGraph.upperBound) ){
-                spreadGraph.NBBOChange(obj["best_bid"], obj["best_offer"]);
-            } else {
-                spreadGraph.spread_svg.select(".best-bid").remove();
-                spreadGraph.spread_svg.select(".best-offer").remove();
-                console.log("SHIFT ANIMATION NECCESSARY!");
-            }
-            
+            spreadGraph.NBBOChange(obj["best_bid"], obj["best_offer"]);
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
  
     } else if(obj["type"] == "confirmed"){
         otree.handleConfirm(obj);
     } else if(obj["type"] == "replaced"){
-       
-        var cancelMessage = {};
-        cancelMessage["order_token"] = obj["old_token"];
-        cancelMessage["price"] = obj["old_price"];
-        cancelMessage["player_id"] = obj["player_id"];
-        otree.handleCancel(cancelMessage);
-        otree.handleConfirm(obj);
+        otree.handleConfirm();
+        spreadGraph.replaceActiveOrder(obj["order_token"], obj["price"], obj["old_token"], obj["old_price"]);
+        try{
+            spreadGraph.removeOrder(obj["old_token"]);
+        } catch {
+            console.log("No Order to replace with token " + obj["old_token"]);
+        }
+
+        spreadGraph.drawOrder(obj["price"], obj["order_token"]);
+
     } else if(obj.type == "canceled"){
-        otree.handleCancel(obj);
+        console.log("Cancel order " + obj["order_token"]);                
+        spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
+
+        try{
+            spreadGraph.removeOrder(obj["order_token"]);
+        } catch {
+            console.log("No Order to Cancel with token" + obj["order_token"]);
+        }
     } else if(obj.type == "executed"){
         console.log("EXECUTED");
         //Do animation
@@ -84,17 +87,6 @@ otree.handleConfirm = function (obj){
         
     } else {
         spreadGraph.drawOrder(obj["price"], obj["order_token"]);
-    }
-}
-
-otree.handleCancel = function (obj){
-    console.log("Cancel order " + obj["order_token"]);                
-    spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
-
-    try{
-        spreadGraph.removeOrder(obj["order_token"]);
-    } catch {
-        console.log("No Order to Cancel with token" + obj["order_token"]);
     }
 }
 
