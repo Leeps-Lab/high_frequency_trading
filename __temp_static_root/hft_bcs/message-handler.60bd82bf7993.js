@@ -73,7 +73,7 @@ otree.handleConfirm = function (obj){
     spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]); 
 
     if(obj["player_id"] == otree.playerID){
-        spreadGraph.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
+        spreadGraph.updateUserBidandAsk(obj["price"], obj["order_token"][4]);
         if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
             if(obj["price"] == spreadGraph.bidArrow["price"]){
                 spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");

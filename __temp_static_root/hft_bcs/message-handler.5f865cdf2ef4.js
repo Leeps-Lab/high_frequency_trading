@@ -71,15 +71,15 @@ socketActions.socket.onclose = function (event) {
 otree.handleConfirm = function (obj){
     console.log("Confirmed order FUNCTION " + obj["order_token"]);
     spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]); 
-
+    console.log(obj["order_token"]);       
     if(obj["player_id"] == otree.playerID){
-        spreadGraph.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
-        if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
-            if(obj["price"] == spreadGraph.bidArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");
-            } else if(obj["price"] == spreadGraph.askArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask");
-            }
+
+        if(obj["price"] == spreadGraph.bidArrow["price"]){
+            spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");
+        } else if(obj["price"] == spreadGraph.askArrow["price"]){
+            spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask");
+        } else {
+           
         }
         
     } else {
