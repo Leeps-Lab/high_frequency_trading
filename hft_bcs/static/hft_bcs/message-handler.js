@@ -20,6 +20,8 @@ socketActions.socket.onmessage = function (event) {
     if(obj["type"] == "bbo"){
         
         if(obj["market_id"]  === otree.marketID){
+            spreadGraph.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
+
             console.log("Changing bid to --> " + obj["best_bid"]);
             console.log("Changing offer to --> " + obj["best_offer"]);
             if((obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] < spreadGraph.upperBound) && (obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] < spreadGraph.upperBound) ){
@@ -58,12 +60,7 @@ socketActions.socket.onmessage = function (event) {
             otree.startExperiment();
         }
         //Not too sure about this one
-        
-
     } 
- 
-
-    
 };
 
 // Show a disconnected message when the WebSocket is closed.

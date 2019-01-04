@@ -225,9 +225,7 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
-    spreadGraph.NBBOChange(945000, 965000);
 
-    
   }
   start(){
     /*Drawing the start state when the window opens*/
@@ -262,7 +260,6 @@ class SpreadGraph extends PolymerElement {
     }   
 
     spreadGraph.drawPossibleSpreadTicks();  
-    // spreadGraph.drawArrows();  
   }
 
   NBBOChange(bid, offer){
@@ -1081,16 +1078,9 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll(".others_line").remove();
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
-    updateBidAndAsk(FPCDollarAmount,spread_value){
-        //Updating the bid and ask on the info table
-        if(document.querySelector("info-table").player_role == "MAKER"){
-            var sum = +FPCDollarAmount + +spread_value;
-            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
-            document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
-        } else {
-            document.querySelector('info-table').curr_bid = "N/A";
-            document.querySelector('info-table').curr_ask = "N/A";
-        }
+    updateBidAndAsk(bid,offer){
+            document.querySelector('info-table').curr_bid = bid;
+            document.querySelector('info-table').curr_ask = offer; 
     }
 
     drawBatchFlash(){

@@ -1079,8 +1079,15 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
     updateBidAndAsk(bid,offer){
-            document.querySelector('info-table').curr_bid = bid;
-            document.querySelector('info-table').curr_ask = offer; 
+        //Updating the bid and ask on the info table
+        if(document.querySelector("info-table").player_role == "MAKER"){
+            var sum = +FPCDollarAmount + +spread_value;
+            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
+            document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
+        } else {
+            document.querySelector('info-table').curr_bid = "N/A";
+            document.querySelector('info-table').curr_ask = "N/A";
+        }
     }
 
     drawBatchFlash(){
