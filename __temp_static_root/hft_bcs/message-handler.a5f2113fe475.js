@@ -74,21 +74,14 @@ otree.handleConfirm = function (obj){
 
     if(obj["player_id"] == otree.playerID){
         spreadGraph.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
-        if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
+        if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
             if(obj["price"] == spreadGraph.bidArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid",obj["order_token"]);
+                spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");
             } else if(obj["price"] == spreadGraph.askArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask", obj["order_token"]);
+                spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask");
             }
         } else {
-            //algorithm player order
-            if(obj["order_token"][4] == "B"){
-                spreadGraph.drawBidArrow(obj);
-            } else if(obj["order_token"][4] == "S"){
-                spreadGraph.drawOfferArrow(obj);
-            }
-
-        
+            
         }
         
     } else {

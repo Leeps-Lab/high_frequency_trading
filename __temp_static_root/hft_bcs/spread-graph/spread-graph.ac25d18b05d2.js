@@ -203,9 +203,6 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
     spreadGraph.confirmArrow = this.confirmArrow;
-    spreadGraph.drawOfferArrow = this.drawOfferArrow;
-    spreadGraph.drawBidArrow = this.drawBidArrow;
-
 
     spreadGraph.NBBOChange = this.NBBOChange;
 
@@ -371,7 +368,7 @@ class SpreadGraph extends PolymerElement {
         .attr("marker-end","url(#askArrow)")
         .attr("class", "arrow ");
         
-    if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
+    if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
             .on("drag", function(){
                 spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
@@ -494,28 +491,18 @@ class SpreadGraph extends PolymerElement {
         .text("ASK");        
   }
 
-  confirmArrow(arrow,text,side,token){
+  confirmArrow(arrow,text,side){
     //confirm the arrow by drawing differnt strokes on it
     if(side == "bid"){
-        arrow["token"] = token;
         arrow.attr("stroke", "#309930");
         text.attr("fill","#309930");
         spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "#309930";
     } else if(side == "ask"){
-        arrow["token"] = token;
         arrow.attr("stroke", "#CB1C36");
         text.attr("fill","#CB1C36");
         spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "#CB1C36";
     }
   }
-
-  drawBidArrow(obj){
-
-  }
-
-  drawOfferArrow(obj){
-
-}
 
   removeArrows(){
     try {
@@ -525,7 +512,6 @@ class SpreadGraph extends PolymerElement {
     }
   }
 
-  
   addToActiveOrders(token,price){
     if(spreadGraph.activeOrders[price] != undefined){
         spreadGraph.activeOrders[price].push(token);

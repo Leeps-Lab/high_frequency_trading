@@ -274,10 +274,10 @@ class InputSection extends PolymerElement {
 
     maker1Click(){
         //update player object 
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "maker_basic";
+        playersInMarket[otree.playerID]["strategy"] = "maker_basic";
         var manualChangeMessage = {
             type: "role_change",
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(manualChangeMessage));
@@ -301,12 +301,12 @@ class InputSection extends PolymerElement {
     maker2Button(){
         
         //update player object 
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "maker_2";
+        playersInMarket[otree.playerID]["strategy"] = "maker_2";
         var makerBasicChangeMessage = {
             type: "role_change",
             id: otree.playerID,
             id_in_group: otree.playerIDInGroup,
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(makerBasicChangeMessage));
@@ -326,12 +326,12 @@ class InputSection extends PolymerElement {
     }
 
     takerButton(){
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "taker";
+        playersInMarket[otree.playerID]["strategy"] = "taker";
         var algorithm2ChangeMessage = {
             type: "role_change",
             id: otree.playerID,
             id_in_group: otree.playerIDInGroup,
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(algorithm2ChangeMessage));
@@ -353,10 +353,10 @@ class InputSection extends PolymerElement {
         var sens1Value = sens1.value;
         var sens2Value = sens2.value;
         var algorithm2ChangeMessage = {
-            type: "role_change",
+            type: "submit_sensitivities",
             id: otree.playerID,
             id_in_group: otree.playerIDInGroup,
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(algorithm2ChangeMessage));
@@ -370,12 +370,12 @@ class InputSection extends PolymerElement {
 
     outButton(){
         spreadGraph.removeArrows();
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "out";
+        playersInMarket[otree.playerID]["strategy"] = "out";
         var outChangeMessage = {
             type: "role_change",
             id: otree.playerID,
             id_in_group: otree.playerIDInGroup,
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(outChangeMessage));

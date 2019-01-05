@@ -69,17 +69,26 @@ socketActions.socket.onclose = function (event) {
 };   
 
 otree.handleConfirm = function (obj){
-    console.log("Confirmed order FUNCTION " + obj["order_token"]);
+    // console.log("Confirmed order FUNCTION " + obj["order_token"]);
     spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]); 
 
     if(obj["player_id"] == otree.playerID){
         spreadGraph.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
-        if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
+        if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
             if(obj["price"] == spreadGraph.bidArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");
+                spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid",obj["order_token"]);
             } else if(obj["price"] == spreadGraph.askArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask");
+                spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask", obj["order_token"]);
             }
+        } else {
+            //algorithm player order
+            if(obj["order_token"][4] == "B"){
+                spreadGraph.drawBidArrow(obj);
+            } else if(obj["order_token"][4] == "S"){
+                spreadGraph.drawOfferArrow(obj);
+            }
+
+        
         }
         
     } else {
@@ -88,7 +97,7 @@ otree.handleConfirm = function (obj){
 }
 
 otree.handleCancel = function (obj){
-    console.log("Cancel order " + obj["order_token"]);                
+    // console.log("Cancel order " + obj["order_token"]);                
     spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
 
     try{
