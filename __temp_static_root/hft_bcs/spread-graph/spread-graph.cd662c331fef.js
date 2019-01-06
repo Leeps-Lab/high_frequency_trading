@@ -214,7 +214,6 @@ class SpreadGraph extends PolymerElement {
 
     spreadGraph.drawOrder = this.drawOrder;
     spreadGraph.removeOrder = this.removeOrder;
-    spreadGraph.executeOrder = this.executeOrder;
 
     spreadGraph.addToActiveOrders = this.addToActiveOrders;
     spreadGraph.removeFromActiveOrders = this.removeFromActiveOrders;

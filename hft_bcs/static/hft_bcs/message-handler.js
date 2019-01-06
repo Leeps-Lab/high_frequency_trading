@@ -102,10 +102,12 @@ otree.handleCancel = function (obj){
 }
 
 otree.handleExecution = function (obj){
+    spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
     if(obj["player_id"] == otree.playerID){
         //if yes 
         spreadGraph.executeArrow(obj);
     } else {
+        spreadGraph.executeOrder(obj);
         //if no
        // spreadGraph.executeOrder(obj);
     }
@@ -114,8 +116,8 @@ otree.handleExecution = function (obj){
 otree.handleBBOChange = function (obj){
     spreadGraph.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
     var shiftNecessary = false;
-    console.log("Changing bid to --> " + obj["best_bid"]);
-    console.log("Changing offer to --> " + obj["best_offer"]);
+    // console.log("Changing bid to --> " + obj["best_bid"]);
+    // console.log("Changing offer to --> " + obj["best_offer"]);
 
 
     if(obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] <  spreadGraph.upperBound){

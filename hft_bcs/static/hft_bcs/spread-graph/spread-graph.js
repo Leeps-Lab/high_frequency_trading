@@ -214,6 +214,7 @@ class SpreadGraph extends PolymerElement {
 
     spreadGraph.drawOrder = this.drawOrder;
     spreadGraph.removeOrder = this.removeOrder;
+    spreadGraph.executeOrder = this.executeOrder;
 
     spreadGraph.addToActiveOrders = this.addToActiveOrders;
     spreadGraph.removeFromActiveOrders = this.removeFromActiveOrders;
@@ -589,6 +590,12 @@ class SpreadGraph extends PolymerElement {
         spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
         spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
     }
+  }
+  executeOrder(obj){
+    var orderCircle = spreadGraph.spread_svg.select("." + ob["order_token"]);
+    orderCircle.transition().duration(100).attr("fill", "rgb(150,150,150)");
+    spreadGraph.removeOrder(ob["order_token"]);
+
   }
 
   drawBidArrow(obj){
