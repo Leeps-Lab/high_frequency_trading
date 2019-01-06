@@ -24,7 +24,7 @@ class Dispatcher:
         for entity in observers:
             handler = cls.handler_factory.get_handler(entity)
             event = handler(event)
-        log.info(event)    
+            log.info(event)    
         resulting_events = []
         while event.outgoing_messages:
             message = event.outgoing_messages.popleft()

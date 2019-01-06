@@ -193,8 +193,6 @@ class BCSTrader(BaseTrader):
         order_info =  self.orderstore.confirm('executed', **kwargs)
         exec_price, side = kwargs['execution_price'], order_info['buy_sell_indicator']
         order_token = kwargs['order_token']
-        profit = self.profit(exec_price, side)
-        self.endowment += profit
         message_content = { 'type': 'executed', 'price': exec_price, 
             'order_token': order_token}
         self.broadcast(**message_content)
@@ -350,10 +348,18 @@ Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
 class LEEPSTrader(BCSTrader):
 
     def switch_to_market_tracking_role(self, **kwargs):
-        best_bid = kwargs['best_bid']
-        best_offer = kwargs['best_offer']
-        self.best_quotes = {'B': best_bid, 'S': best_offer}
+        self.best_quotes = {'B': kwargs['best_bid'], 'S': kwargs['best_offer']}
+        self.best_quote_volumes = {'B': kwargs['volume_at_best_bid'], 
+            'S': kwargs['volume_at_best_ask']}
+        self.no_enter_until_bbo = {'B': False, 'S': False}
         self.order_imbalance = kwargs.get('order_imbalance')
+
+    def exchange_message_from_order_info(self, order_info, delay, order_type):
+        host, port = self.exchange_host, self.exchange_port
+        message_content = {'host': host, 'port': port, 'type': order_type, 'delay':
+            delay, 'order_info': order_info}
+        exchange_message = format_message('exchange', **message_content)
+        return exchange_message
 
 class LEEPSOut(LEEPSTrader):
 
@@ -397,6 +403,7 @@ class LEEPSBasicMaker(LEEPSTrader):
             price = best_quote + d
         else:
             raise ValueError('invalid buy_sell_indicator %s' % buy_sell_indicator)
+        print('price', price, 'dfbq', self.distance_from_best_quote)
         return price
     
     def executed(self, **kwargs):
@@ -406,10 +413,8 @@ class LEEPSBasicMaker(LEEPSTrader):
         new_order_info = self.orderstore.enter(price=price, 
                 buy_sell_indicator=buy_sell_indicator, time_in_force=99999)
         delay = self.calc_delay()
-        host, port = self.exchange_host, self.exchange_port
-        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
-                delay, 'order_info': new_order_info}
-        internal_message = format_message('exchange', **message_content)
+        internal_message = self.exchange_message_from_order_info(new_order_info, 
+            delay,  'enter')
         self.outgoing_messages.append(internal_message)
  
     def trader_bid_offer_change(self, price=None, buy_sell_indicator=None, **kwargs):
@@ -418,51 +423,49 @@ class LEEPSBasicMaker(LEEPSTrader):
         if price is None:
             price = price_grid(kwargs['price'])
         best_quote = self.best_quotes[buy_sell_indicator]
-        d = abs(best_quote - price)
-        self.distance_from_best_quote[buy_sell_indicator] = d
-        orders = self.orderstore.all_orders(direction=buy_sell_indicator)
-        delay = self.calc_delay()
-        if orders:
-            for o in orders:
-                existing_token = o['order_token']
-                existing_buy_sell_indicator = o['buy_sell_indicator']
-                if buy_sell_indicator == existing_buy_sell_indicator:
-                    order_info = self.orderstore.register_replace(existing_token, price)
-                    host, port = self.exchange_host, self.exchange_port
-                    message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
-                        delay, 'order_info': order_info}
-                    internal_message = format_message('exchange', **message_content)
-                    self.outgoing_messages.append(internal_message)
+        if price == MIN_BID or price == MAX_ASK:
+            return
         else:
-            order_info = self.orderstore.enter(price=price, 
-                buy_sell_indicator=buy_sell_indicator, time_in_force=99999)
-            host, port = self.exchange_host, self.exchange_port
-            message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
-                delay, 'order_info': order_info}
-            internal_message = format_message('exchange', **message_content)
-            self.outgoing_messages.append(internal_message)
+            d = abs(best_quote - price)
+            self.distance_from_best_quote[buy_sell_indicator] = d
+            orders = self.orderstore.all_orders(direction=buy_sell_indicator)
+            delay = self.calc_delay()
+            if orders:
+                for o in orders:
+                    existing_token = o['order_token']
+                    existing_buy_sell_indicator = o['buy_sell_indicator']
+                    if buy_sell_indicator == existing_buy_sell_indicator:
+                        order_info = self.orderstore.register_replace(existing_token, price)
+                        internal_message = self.exchange_message_from_order_info(order_info,
+                            delay, 'replace')
+                        self.outgoing_messages.append(internal_message)
+            else:
+                order_info = self.orderstore.enter(price=price, 
+                    buy_sell_indicator=buy_sell_indicator, time_in_force=99999)
+                internal_message = self.exchange_message_from_order_info(order_info,
+                    delay, 'enter')
+                self.outgoing_messages.append(internal_message)
 
     def bbo_update(self, **kwargs):
-        new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_offer']
-        bbo = self.best_quotes
-        if self.distance_from_best_quote['B'] is not None and (new_best_bid !=
-            self.orderstore.bid):
-            if new_best_bid != bbo['B']:
-                self.best_quotes['B'] = new_best_bid
-                d = self.distance_from_best_quote['B']
-                price = new_best_bid - d
+        self.best_quote_volumes['B'] = kwargs['volume_at_best_bid']
+        self.best_quote_volumes['S'] = kwargs['volume_at_best_ask']
+        new_best_bid, new_best_offer = kwargs['best_bid'], kwargs['best_offer'] 
+        if new_best_bid != self.best_quotes['B']:
+            self.best_quotes['B'] = new_best_bid
+            if self.distance_from_best_quote['B'] is not None and (new_best_bid !=
+                self.orderstore.bid):
+                price = new_best_bid - self.distance_from_best_quote['B']
                 if new_best_bid > MIN_BID and price > 0:
                     self.trader_bid_offer_change(price=price, buy_sell_indicator='B')
-        if self.distance_from_best_quote['S'] is not None and (new_best_offer !=
-            self.orderstore.offer):
-            if new_best_offer != bbo['S']:
-                self.best_quotes['S'] = new_best_offer
-                d = self.distance_from_best_quote['S']
-                price = new_best_offer + d
+        if new_best_offer != self.best_quotes['S']:
+            self.best_quotes['S'] = new_best_offer
+            if self.distance_from_best_quote['S'] is not None and (new_best_offer !=
+                self.orderstore.offer):
+                price = new_best_offer + self.distance_from_best_quote['S']
                 if new_best_offer < MAX_ASK and price > 0:
                     self.trader_bid_offer_change(price=price, buy_sell_indicator='S')
 
-class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
+class LEEPSNotSoBasicMaker(LEEPSTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
@@ -471,33 +474,34 @@ class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
-        self.latent_quote = {'B': None, 'S': None}
-        self.sliders = Sliders(a_x=0, a_y=0, b_x=0, b_y=0)
     
     def first_move(self, **kwargs):
         self.leave_market()
         self.switch_to_market_tracking_role(**kwargs)
+        self.sliders = Sliders(a_x=0, a_y=0, b_x=0, b_y=0)
+        self.latent_quote = {'B': None, 'S': None}
         if self.best_quotes['B'] > MIN_BID:
-            self.enter_with_latent_quote('B')
+            buy_message = self.enter_with_latent_quote('B')
+            self.outgoing_messages.append(buy_message)
         if self.best_quotes['S'] < MAX_ASK:
-            self.enter_with_latent_quote('S')
+            sell_message = self.enter_with_latent_quote('S')
+            self.outgoing_messages.append(sell_message)
     
-    def enter_with_latent_quote(self, buy_sell_indicator, 
+    def enter_with_latent_quote(self, buy_sell_indicator, price=None, 
             latent_quote_formula=latent_bid_and_offer):
-        latent_bid, latent_offer = latent_quote_formula(self.best_quotes['B'], 
-            self.best_quotes['S'], self.order_imbalance, self.orderstore.inventory, 
-            self.sliders)
-        price = latent_bid if buy_sell_indicator == 'B' else latent_offer
+        if price is None:
+            latent_bid, latent_offer = latent_quote_formula(self.best_quotes['B'], 
+                self.best_quotes['S'], self.order_imbalance, self.orderstore.inventory, 
+                self.sliders)
+            price = latent_bid if buy_sell_indicator == 'B' else latent_offer
         delay = self.calc_delay()
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=buy_sell_indicator, 
             time_in_force=99999)
-        host, port = self.exchange_host, self.exchange_port
-        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
-            delay, 'order_info': order_info}
-        internal_message = format_message('exchange', **message_content)
-        self.outgoing_messages.append(internal_message)
+        exchange_message = self.exchange_message_from_order_info(order_info, 
+            delay, 'enter')
         self.latent_quote[buy_sell_indicator] = price
-    
+        return exchange_message
+
     def slider_change(self, lower_bound=-1, upper_bound=1, **kwargs):
         def slider_field_check(**kwargs):
             checked_kwargs = {}
@@ -509,6 +513,7 @@ class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
                     checked_value = 1
                 checked_kwargs[k] = checked_value
             return checked_kwargs
+
         fields = slider_field_check(**kwargs)
         new_slider = Sliders(**fields)
         old_slider = self.sliders
@@ -521,45 +526,113 @@ class LEEPSNotSoBasicMaker(LEEPSBasicMaker):
         best_bid = kwargs.get('best_bid')
         if best_bid is None:
             best_bid = self.best_quotes['B']
+        else:
+            self.best_quotes['B'] = best_bid
+            self.best_quote_volumes['B'] = kwargs['volume_at_best_bid']
         best_offer = kwargs.get('best_offer')
         if best_offer is None:
             best_offer = self.best_quotes['S']
-        order_imbalance = kwargs.get('order_imbalance')
+        else:
+            self.best_quotes['S'] = best_offer
+            self.best_quote_volumes['S'] = kwargs['volume_at_best_ask']
 
-        new_latent_bid, new_latent_offer = latent_quote_formula(best_bid, best_offer, order_imbalance, 
-                self.orderstore.inventory, self.sliders)
+        previous_order_imbalance = float(self.order_imbalance)
+        current_order_imbalance = kwargs.get('order_imbalance')
+        self.order_imbalance = current_order_imbalance
 
-        if  (new_latent_bid != self.latent_quote['B']) or (new_latent_offer != 
-                self.latent_quote['S']):
-            bid = None
-            offer = None
+        new_latent_bid, new_latent_offer = latent_quote_formula(best_bid, best_offer, 
+            current_order_imbalance, self.orderstore.inventory, self.sliders)
+
+        bid = None
+        if best_bid > MIN_BID and new_latent_bid != self.latent_quote['B']:
             old_bid= self.latent_quote.pop('B')
-            self.latent_quote['B'] = new_latent_bid
-            old_offer = self.latent_quote.pop('S')
-            self.latent_quote['S'] = new_latent_offer
             if new_latent_bid != old_bid:
                 bid = new_latent_bid
+            self.latent_quote['B'] = new_latent_bid
+
+        offer = None      
+        if  best_offer < MAX_ASK and new_latent_offer != self.latent_quote['S']:
+            old_offer = self.latent_quote.pop('S')
             if new_latent_offer != old_offer:
                 offer = new_latent_offer
-            self.reprice(latent_bid=bid, latent_ask=offer)
+            self.latent_quote['S'] = new_latent_offer
 
-    def reprice(self, latent_bid=None, latent_ask=None, start_from_above=True):
-        orders = self.orderstore.all_orders()
-        assert len(orders) <= 2, 'more than two orders in market: %s' % self.orderstore
-        if orders:
-            sorted_orders = sorted(orders, key=lambda order: order['price'], 
-                                reverse=start_from_above)
-            delay = self.calc_delay()
-            for o in sorted_orders:
-                token, buy_sell_indicator = o['order_token'], o['buy_sell_indicator']
-                if latent_bid is not None and buy_sell_indicator == 'B':
-                    new_price = latent_bid
-                    order_info = self.orderstore.register_replace(token, new_price)
-                elif latent_ask is not None and buy_sell_indicator == 'S':
-                    new_price = latent_ask
-                    order_info = self.orderstore.register_replace(token, new_price)
-                host, port = self.exchange_host, self.exchange_port
-                message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
-                    delay, 'order_info': order_info}
-                internal_message = format_message('exchange', **message_content)
-                self.outgoing_messages.append(internal_message)
+        start_from = 'B'
+        if bid and offer:
+            # start from the direction towards
+            # the less aggressive price
+            # in replaces.
+            sell_is_aggressive = True if old_offer > offer else False
+            buy_is_aggressive = True if old_bid < bid else False
+            
+            if buy_is_aggressive and not sell_is_aggressive:
+                start_from = 'S'
+        
+        if bid or offer:
+            order_imbalance = None
+            if current_order_imbalance != previous_order_imbalance:
+                order_imbalance = current_order_imbalance
+            self.move_bid_and_offer(latent_bid=bid, latent_offer=offer, start_from=
+                start_from, order_imbalance=order_imbalance)
+
+    def move_bid_and_offer(self, latent_bid=None, latent_offer=None, start_from='B',
+            order_imbalance=None):
+        buys = deque()
+        sells = deque()
+        delay = self.calc_delay()
+        
+        if latent_offer is not None:
+            sell_orders = self.orderstore.all_orders('S')
+            assert len(sell_orders) <= 1, 'more than one sell order in market: %s' % self.orderstore
+            if sell_orders:
+                for o in sell_orders:
+                    token = o['order_token']
+                    order_info = self.orderstore.register_replace(token, latent_offer)
+                    sell_message = self.exchange_message_from_order_info(order_info, 
+                        delay, 'replace')
+                    sells.append(sell_message)
+            elif order_imbalance is None or self.no_enter_until_bbo['S'] is False:
+                sell_message = self.enter_with_latent_quote('S', price=latent_offer)
+                sells.append(sell_message)
+                self.no_enter_until_bbo['S'] = False
+
+        
+        if latent_bid is not None:
+            buy_orders = self.orderstore.all_orders('B')
+            assert len(buy_orders) <= 1, 'more than one buy order in market: %s' % self.orderstore
+            if buy_orders:
+                for o in buy_orders:
+                    token = o['order_token']
+                    order_info = self.orderstore.register_replace(token, latent_bid)
+                    buy_message = self.exchange_message_from_order_info(order_info, 
+                        delay, 'replace')
+                    buys.append(buy_message)
+            elif order_imbalance is None or self.no_enter_until_bbo['B'] is False:
+                    buy_message = self.enter_with_latent_quote('B', price=latent_bid)
+                    buys.append(buy_message)
+                    self.no_enter_until_bbo['B'] = False
+
+        
+        if start_from == 'B':
+            self.outgoing_messages.extend(buys)
+            self.outgoing_messages.extend(sells)
+        else:
+            self.outgoing_messages.extend(sells)
+            self.outgoing_messages.extend(buys)
+
+    def executed(self, **kwargs):
+        order_info = super().executed(**kwargs)
+        price = order_info['price']          
+        buy_sell_indicator = order_info['buy_sell_indicator']
+
+        latent_bid = self.latent_quote['B']
+        if  buy_sell_indicator == 'B' and latent_bid == price:
+            self.latent_quote['B'] = None
+        
+        latent_offer = self.latent_quote['S']
+        if  buy_sell_indicator == 'S' and latent_offer == price:
+            self.latent_quote['S'] = None
+
+        if (self.best_quote_volumes[buy_sell_indicator] == 1 and 
+            self.best_quotes[buy_sell_indicator] == price):
+            self.no_enter_until_bbo[buy_sell_indicator] = True
