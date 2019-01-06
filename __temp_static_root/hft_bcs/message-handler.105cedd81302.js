@@ -124,7 +124,7 @@ otree.handleBBOChange = function (obj){
         shiftNecessary = true;
     }
     if(obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] <  spreadGraph.upperBound){
-        spreadGraph.drawBestOffer(obj);
+        spreadGraph.drawBestBid(obj);
     } else {
         shiftNecessary = true;
     }

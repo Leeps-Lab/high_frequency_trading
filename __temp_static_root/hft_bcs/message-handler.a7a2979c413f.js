@@ -24,7 +24,18 @@ socketActions.socket.onmessage = function (event) {
     if(obj["type"] == "bbo"){
         
         if(obj["market_id"]  === otree.marketID){
-            otree.handleBBOChange(obj);
+            spreadGraph.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
+
+            console.log("Changing bid to --> " + obj["best_bid"]);
+            console.log("Changing offer to --> " + obj["best_offer"]);
+            if((obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] < spreadGraph.upperBound) && (obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] < spreadGraph.upperBound) ){
+                spreadGraph.NBBOChange(obj["best_bid"], obj["best_offer"]);
+            } else {
+                spreadGraph.spread_svg.select(".best-bid").remove();
+                spreadGraph.spread_svg.select(".best-offer").remove();
+                console.log("SHIFT ANIMATION NECCESSARY!");
+            }
+            
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
  
@@ -42,9 +53,6 @@ socketActions.socket.onmessage = function (event) {
         otree.handleCancel(obj);
     } else if(obj.type == "executed"){
         console.log("EXECUTED");
-        otree.handleExecution(obj);
-      
-
         //Do animation
         //Remove executed order on the spread graph
 
@@ -98,39 +106,6 @@ otree.handleCancel = function (obj){
         spreadGraph.removeOrder(obj["order_token"]);
     } catch {
         console.log("No Order to Cancel with token" + obj["order_token"]);
-    }
-}
-
-otree.handleExecution = function (obj){
-    if(obj["player_id"] == otree.playerID){
-        //if yes 
-        spreadGraph.executeArrow(obj);
-    } else {
-        //if no
-       // spreadGraph.executeOrder(obj);
-    }
-}
-
-otree.handleBBOChange = function (obj){
-    spreadGraph.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
-    var shiftNecessary = false;
-    console.log("Changing bid to --> " + obj["best_bid"]);
-    console.log("Changing offer to --> " + obj["best_offer"]);
-
-
-    if(obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] <  spreadGraph.upperBound){
-        spreadGraph.drawBestBid(obj);
-    } else {
-        shiftNecessary = true;
-    }
-    if(obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] <  spreadGraph.upperBound){
-        spreadGraph.drawBestOffer(obj);
-    } else {
-        shiftNecessary = true;
-    }
-
-    if(shiftNecessary){
-        console.log("SHIFT IS NECESSARY MF");
     }
 }
 

@@ -362,8 +362,7 @@ class InputSection extends PolymerElement {
             console.log(JSON.stringify(algorithm2ChangeMessage));
             socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
         }
-        alert(sens1Value, sens2Value);
-        //Send values over websocket
+
         
 
     }
