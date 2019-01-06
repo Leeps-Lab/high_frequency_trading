@@ -189,7 +189,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.addOthersLineAnimation = this.addOthersLineAnimation;
     spreadGraph.drawTransactionBar = this.drawTransactionBar;    
     spreadGraph.drawSpreadBar = this.drawSpreadBar;
-    
+    spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
     spreadGraph.drawBatchFlash = this.drawBatchFlash;
     spreadGraph.startBatchTimer = this.startBatchTimer;
     spreadGraph.drawPossibleSpreadTicks = this.drawPossibleSpreadTicks;
@@ -198,7 +198,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawFPC = this.drawFPC;
     spreadGraph.executionHandler = this.executionHandler;
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
-
+    spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
 
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
@@ -213,8 +213,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.removeFromActiveOrders = this.removeFromActiveOrders;
     spreadGraph.replaceActiveOrder = this.replaceActiveOrder;
 
-    spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
-    spreadGraph.updateUserBidAndAsk = this.updateUserBidAndAsk;
+
     /*
         price: price it is pointed at
         d3 arrow line: line created in d3 that maps to yCoordinate to price just above
@@ -997,7 +996,7 @@ class SpreadGraph extends PolymerElement {
 
  addOthersLineAnimation(lines, speed=500, width){
 
-    //SETTING THE SPREAD TO THE LINE
+      //SETTING THE SPREAD TO THE LINE
     for(var i = 0; i < lines.length; i++){
         var add_animation = lines[i]
         .transition()
@@ -1009,6 +1008,7 @@ class SpreadGraph extends PolymerElement {
     if(document.querySelector("info-table").player_role != "MAKER"){
         spreadGraph.spread_svg.selectAll("rect").remove();
         spreadGraph.spread_svg.selectAll(".my_line").remove();
+   
     }   
   }
 
@@ -1079,16 +1079,16 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
     updateBidAndAsk(bid,offer){
-            document.querySelector('info-table').curr_bid = bid;
-            document.querySelector('info-table').curr_ask = offer; 
-    }
-    updateUserBidAndAsk(price,side){
-        if(side == "B"){
-            document.querySelector('info-table').user_bid = price;
-        } else if(side == "S"){
-            document.querySelector('info-table').user_offer = price;
+        //Updating the bid and ask on the info table
+        if(document.querySelector("info-table").player_role == "MAKER"){
+            var sum = +FPCDollarAmount + +spread_value;
+            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
+            document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
+        } else {
+            document.querySelector('info-table').curr_bid = "N/A";
+            document.querySelector('info-table').curr_ask = "N/A";
         }
-}
+    }
 
     drawBatchFlash(){
         //Flash purple on border whenever a batch message is recieved from the exchange

@@ -189,7 +189,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.addOthersLineAnimation = this.addOthersLineAnimation;
     spreadGraph.drawTransactionBar = this.drawTransactionBar;    
     spreadGraph.drawSpreadBar = this.drawSpreadBar;
-    
+    spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
     spreadGraph.drawBatchFlash = this.drawBatchFlash;
     spreadGraph.startBatchTimer = this.startBatchTimer;
     spreadGraph.drawPossibleSpreadTicks = this.drawPossibleSpreadTicks;
@@ -198,7 +198,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawFPC = this.drawFPC;
     spreadGraph.executionHandler = this.executionHandler;
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
-
+    spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
 
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
@@ -213,8 +213,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.removeFromActiveOrders = this.removeFromActiveOrders;
     spreadGraph.replaceActiveOrder = this.replaceActiveOrder;
 
-    spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
-    spreadGraph.updateUserBidAndAsk = this.updateUserBidAndAsk;
+
     /*
         price: price it is pointed at
         d3 arrow line: line created in d3 that maps to yCoordinate to price just above
@@ -226,7 +225,9 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
+    spreadGraph.NBBOChange(940000, 960000);
 
+    
   }
   start(){
     /*Drawing the start state when the window opens*/
@@ -261,6 +262,7 @@ class SpreadGraph extends PolymerElement {
     }   
 
     spreadGraph.drawPossibleSpreadTicks();  
+    // spreadGraph.drawArrows();  
   }
 
   NBBOChange(bid, offer){
@@ -578,8 +580,6 @@ class SpreadGraph extends PolymerElement {
     */
     drawPossibleSpreadTicks(lowerBound = 900000, upperBound = 1000000){
         //Drawn on  shift message maybe inputs include
-        spreadGraph.lowerBound = lowerBound;
-        spreadGraph.upperBound = upperBound;
         var diff = upperBound - lowerBound;
         var increment  =   10000;
         var incrementNum = diff / increment;
@@ -997,7 +997,7 @@ class SpreadGraph extends PolymerElement {
 
  addOthersLineAnimation(lines, speed=500, width){
 
-    //SETTING THE SPREAD TO THE LINE
+      //SETTING THE SPREAD TO THE LINE
     for(var i = 0; i < lines.length; i++){
         var add_animation = lines[i]
         .transition()
@@ -1009,6 +1009,7 @@ class SpreadGraph extends PolymerElement {
     if(document.querySelector("info-table").player_role != "MAKER"){
         spreadGraph.spread_svg.selectAll("rect").remove();
         spreadGraph.spread_svg.selectAll(".my_line").remove();
+   
     }   
   }
 
@@ -1078,17 +1079,17 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll(".others_line").remove();
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
-    updateBidAndAsk(bid,offer){
-            document.querySelector('info-table').curr_bid = bid;
-            document.querySelector('info-table').curr_ask = offer; 
-    }
-    updateUserBidAndAsk(price,side){
-        if(side == "B"){
-            document.querySelector('info-table').user_bid = price;
-        } else if(side == "S"){
-            document.querySelector('info-table').user_offer = price;
+    updateBidAndAsk(FPCDollarAmount,spread_value){
+        //Updating the bid and ask on the info table
+        if(document.querySelector("info-table").player_role == "MAKER"){
+            var sum = +FPCDollarAmount + +spread_value;
+            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
+            document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
+        } else {
+            document.querySelector('info-table').curr_bid = "N/A";
+            document.querySelector('info-table').curr_ask = "N/A";
         }
-}
+    }
 
     drawBatchFlash(){
         //Flash purple on border whenever a batch message is recieved from the exchange

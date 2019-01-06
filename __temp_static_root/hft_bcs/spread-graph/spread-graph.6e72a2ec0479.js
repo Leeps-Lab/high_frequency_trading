@@ -189,7 +189,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.addOthersLineAnimation = this.addOthersLineAnimation;
     spreadGraph.drawTransactionBar = this.drawTransactionBar;    
     spreadGraph.drawSpreadBar = this.drawSpreadBar;
-    
+    spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
     spreadGraph.drawBatchFlash = this.drawBatchFlash;
     spreadGraph.startBatchTimer = this.startBatchTimer;
     spreadGraph.drawPossibleSpreadTicks = this.drawPossibleSpreadTicks;
@@ -198,7 +198,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawFPC = this.drawFPC;
     spreadGraph.executionHandler = this.executionHandler;
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
-
+    spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
 
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
@@ -213,8 +213,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.removeFromActiveOrders = this.removeFromActiveOrders;
     spreadGraph.replaceActiveOrder = this.replaceActiveOrder;
 
-    spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
-    spreadGraph.updateUserBidAndAsk = this.updateUserBidAndAsk;
+
     /*
         price: price it is pointed at
         d3 arrow line: line created in d3 that maps to yCoordinate to price just above
@@ -226,7 +225,7 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
-
+    
   }
   start(){
     /*Drawing the start state when the window opens*/
@@ -261,59 +260,22 @@ class SpreadGraph extends PolymerElement {
     }   
 
     spreadGraph.drawPossibleSpreadTicks();  
+    // spreadGraph.drawArrows();  
   }
 
   NBBOChange(bid, offer){
     // console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);
     spreadGraph.spread_svg.select(".best-bid").remove();
     spreadGraph.spread_svg.select(".best-offer").remove();
-    var bidX = spreadGraph.visibleTickLines[bid];
-    var offerX = spreadGraph.visibleTickLines[offer];
-    if(bidX == undefined){
-        var tickArray = Object.keys(spreadGraph.visibleTickLines);
-        for(var i = 0; i < tickArray.length; i++){
-            if(tickArray[i] > bid){
-                break;
-            }
-        }
-        var upperPrice = tickArray[i];
-        var lowerPrice = tickArray[i-1];
-        var priceDiff = upperPrice - lowerPrice;
-        var bidDiff = Math.abs(bid - lowerPrice);
 
-        var ratio = bidDiff/priceDiff;
-
-        var diffX = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
-        var xRatio = diffX*ratio;
-        bidX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatio;
-
-    }
-    if(offerX == undefined){
-        var tickArray = Object.keys(spreadGraph.visibleTickLines);
-        for(var i = 0; i < tickArray.length; i++){
-            if(tickArray[i] > offer){
-                break;
-            }
-        }
-        var upperPriceOffer = tickArray[i];
-        var lowerPriceOffer = tickArray[i-1];
-        var priceDiffOffer = upperPriceOffer - lowerPriceOffer;
-        var offerDiff = Math.abs(bid - lowerPrice);
-
-        var ratioOffer = offerDiff/priceDiffOffer;
-
-        var diffXOffer = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
-        var xRatioOffer = diffXOffer*ratioOffer;
-        offerX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatioOffer;
-    }
     spreadGraph.spread_svg.append("circle")
-        .attr("cx", bidX)
+        .attr("cx", spreadGraph.visibleTickLines[bid])
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 10)
         .attr("class","best-bid");
 
     spreadGraph.spread_svg.append("circle")
-        .attr("cx", offerX)
+        .attr("cx", spreadGraph.visibleTickLines[offer])
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 10)
         .attr("class","best-offer");
@@ -371,9 +333,6 @@ class SpreadGraph extends PolymerElement {
     if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
             .on("drag", function(){
-                spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
-                spreadGraph.bidArrow["bidArrowText"].attr("fill","rgb(150,150,150)");
-                spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
                 //Making sure not to drag past other arrow line
                 var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") - 10 <= d3.event.x) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
                 spreadGraph.bidArrow["bidArrowText"].attr("x", lineX - 10);
@@ -425,9 +384,6 @@ class SpreadGraph extends PolymerElement {
 
         spreadGraph.askArrow["askArrowLine"].call(d3.drag()
             .on("drag", function(){
-                spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
-                spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
-                spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
                 //Making sure not to drag past other arrow line
                 var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
                 spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
@@ -496,11 +452,11 @@ class SpreadGraph extends PolymerElement {
     if(side == "bid"){
         arrow.attr("stroke", "#309930");
         text.attr("fill","#309930");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "#309930";
+       console.log(spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path"));
     } else if(side == "ask"){
         arrow.attr("stroke", "#CB1C36");
         text.attr("fill","#CB1C36");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "#CB1C36";
+        console.log(spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow"));
     }
   }
 
@@ -578,8 +534,6 @@ class SpreadGraph extends PolymerElement {
     */
     drawPossibleSpreadTicks(lowerBound = 900000, upperBound = 1000000){
         //Drawn on  shift message maybe inputs include
-        spreadGraph.lowerBound = lowerBound;
-        spreadGraph.upperBound = upperBound;
         var diff = upperBound - lowerBound;
         var increment  =   10000;
         var incrementNum = diff / increment;
@@ -997,7 +951,7 @@ class SpreadGraph extends PolymerElement {
 
  addOthersLineAnimation(lines, speed=500, width){
 
-    //SETTING THE SPREAD TO THE LINE
+      //SETTING THE SPREAD TO THE LINE
     for(var i = 0; i < lines.length; i++){
         var add_animation = lines[i]
         .transition()
@@ -1009,6 +963,7 @@ class SpreadGraph extends PolymerElement {
     if(document.querySelector("info-table").player_role != "MAKER"){
         spreadGraph.spread_svg.selectAll("rect").remove();
         spreadGraph.spread_svg.selectAll(".my_line").remove();
+   
     }   
   }
 
@@ -1078,17 +1033,17 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll(".others_line").remove();
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
-    updateBidAndAsk(bid,offer){
-            document.querySelector('info-table').curr_bid = bid;
-            document.querySelector('info-table').curr_ask = offer; 
-    }
-    updateUserBidAndAsk(price,side){
-        if(side == "B"){
-            document.querySelector('info-table').user_bid = price;
-        } else if(side == "S"){
-            document.querySelector('info-table').user_offer = price;
+    updateBidAndAsk(FPCDollarAmount,spread_value){
+        //Updating the bid and ask on the info table
+        if(document.querySelector("info-table").player_role == "MAKER"){
+            var sum = +FPCDollarAmount + +spread_value;
+            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
+            document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
+        } else {
+            document.querySelector('info-table').curr_bid = "N/A";
+            document.querySelector('info-table').curr_ask = "N/A";
         }
-}
+    }
 
     drawBatchFlash(){
         //Flash purple on border whenever a batch message is recieved from the exchange

@@ -20,8 +20,6 @@ socketActions.socket.onmessage = function (event) {
     if(obj["type"] == "bbo"){
         
         if(obj["market_id"]  === otree.marketID){
-            spreadGraph.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
-
             console.log("Changing bid to --> " + obj["best_bid"]);
             console.log("Changing offer to --> " + obj["best_offer"]);
             if((obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] < spreadGraph.upperBound) && (obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] < spreadGraph.upperBound) ){
@@ -60,7 +58,12 @@ socketActions.socket.onmessage = function (event) {
             otree.startExperiment();
         }
         //Not too sure about this one
+        
+
     } 
+ 
+
+    
 };
 
 // Show a disconnected message when the WebSocket is closed.
@@ -70,16 +73,13 @@ socketActions.socket.onclose = function (event) {
 
 otree.handleConfirm = function (obj){
     console.log("Confirmed order FUNCTION " + obj["order_token"]);
-    spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]); 
-
+    spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]);        
     if(obj["player_id"] == otree.playerID){
-        spreadGraph.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
-        if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
-            if(obj["price"] == spreadGraph.bidArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");
-            } else if(obj["price"] == spreadGraph.askArrow["price"]){
-                spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask");
-            }
+
+        if(obj["price"] == spreadGraph.bidArrow["price"]){
+            spreadGraph.confirmArrow(spreadGraph.bidArrow["bidArrowLine"],spreadGraph.bidArrow["bidArrowText"],"bid");
+        } else if(obj["price"] == spreadGraph.askArrow["price"]){
+            spreadGraph.confirmArrow(spreadGraph.askArrow["askArrowLine"],spreadGraph.askArrow["askArrowText"],"ask");
         }
         
     } else {
