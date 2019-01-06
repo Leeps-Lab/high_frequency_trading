@@ -89,7 +89,8 @@ def leeps_handle_market_message(event, **kwargs):
     fields.update(event.attachments)
     market.receive(event.event_type, **fields)
     message_queue = market.outgoing_messages.copy()
-    event.attachments.update(market.attachments_for_observers)
+    if event.event_type in market.attachments_for_observers:
+        event.attachments.update(market.attachments_for_observers[event.event_type])
     market.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
     market_data['market'] = market
