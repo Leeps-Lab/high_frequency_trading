@@ -592,9 +592,9 @@ class SpreadGraph extends PolymerElement {
     }
   }
   executeOrder(obj){
-    var orderCircle = spreadGraph.spread_svg.select("." + ob["order_token"]);
+    var orderCircle = spreadGraph.spread_svg.select("." + obj["order_token"]);
     orderCircle.transition().duration(100).attr("fill", "rgb(150,150,150)");
-    spreadGraph.removeOrder(ob["order_token"]);
+    spreadGraph.removeOrder(obj["order_token"]);
 
   }
 
