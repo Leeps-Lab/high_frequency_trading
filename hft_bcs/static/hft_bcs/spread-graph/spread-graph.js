@@ -394,13 +394,13 @@ class SpreadGraph extends PolymerElement {
 
     //What do I need from this?
     
-    spreadGraph.spread_svg.append("circle")
+    var order = spreadGraph.spread_svg.append("circle")
         .attr("cx", spreadGraph.visibleTickLines[price])
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 5)
         .attr("class","order " + TOK);
     
-
+    order.raise();
   }
 
   removeOrder(TOK){
