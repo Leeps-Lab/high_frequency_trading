@@ -57,7 +57,8 @@ class TradeSession:
     def run_exogenous_events(self):
         if self.exogenous_events:
             for event_type, filename in self.exogenous_events.items():
-                url = exogenous_event_endpoints[event_type]
+                url = exogenous_event_endpoints[event_type].format(subsession_id=
+                    self.subsession.id)
                 args = ['python', exogenous_event_client, event_type, url, filename]
                 process = subprocess.Popen(args)
                 self.clients[event_type] = process
@@ -72,8 +73,8 @@ class LEEPSTradeSession(TradeSession):
     def start_trade_session(self, market_id):
         def create_exchange_connection(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
-            exchange.connect(market_id, host, port, LEEPSDispatcher,
-                wait_for_connection=True)
+            exchange.connect(self.subsession.id, market_id, host, port, 
+                LEEPSDispatcher, wait_for_connection=True)
         def reset_exchange(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             message_content = {'host': host, 'port': port, 'type': 'reset_exchange', 'delay':

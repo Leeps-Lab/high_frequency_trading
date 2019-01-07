@@ -1,6 +1,8 @@
 from .event import EventFactory
 from .event_handlers import HandlerFactory
 from .response import process_response
+from otree.timeout.tasks import hft_background_task
+from .output import hft_event_checkpoint
 
 class Dispatcher:
 
@@ -20,11 +22,12 @@ class Dispatcher:
         print(event) 
         for entity in observers:
             handler = cls.handler_factory.get_handler(entity)
-            processed_event = handler(event)
-        print(event)    
+            event = handler(event)
+        print(event) 
+        hft_background_task(hft_event_checkpoint, event)   
         resulting_events = []
-        while processed_event.outgoing_messages:
-            message = processed_event.outgoing_messages.popleft()
+        while event.outgoing_messages:
+            message = event.outgoing_messages.popleft()
             message_type = message['message_type']
             if message_type in cls.outgoing_message_types:
                 cls.responder(message)

@@ -19,8 +19,8 @@ market_events = ('S', 'player_ready', 'advance_me')
 trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
 
 exogenous_event_endpoints = {
-    'investor_arrivals': 'ws://127.0.0.1:8000/hft_investor/',
-    'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/'
+    'investor_arrivals': 'ws://127.0.0.1:8000/hft_investor/{subsession_id}',
+    'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/{subsession_id}'
 }
 
 exogenous_event_client = 'hft_bcs/exogenous_event_client.py'
@@ -112,10 +112,6 @@ def from_trader_to_player(player_id, subject_state, post=leeps_fields):
     if post:
         post(player, subject_state)
     player.save()
+    return player
 
-def record_player_state(player_id, event, record_manager):
-    player_key = get_cache_key(player_id, 'player')
-    player = cache.get(player_key)['model']
-    record = record_manager.objects.create()
-    record.from_event(event, player)
-    record.save()
+

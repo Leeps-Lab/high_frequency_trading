@@ -22,7 +22,7 @@ class BaseMarket:
     market_events_dispatch = {}
     _ids = itertools.count()
 
-    def __init__(self):
+    def __init__(self, subsession_id):
         self.id = next(self._ids)
         self.is_trading = False
         self.ready_to_trade= False
@@ -205,7 +205,8 @@ class LEEPSMarket(BCSMarket):
             'type':'order_imbalance_change', 
             'order_imbalance': current_order_imbalance, 
             'maker_ids': maker_ids,
-            'market_id': self.id}
+            'market_id': self.id,
+            'session_id': self.session_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
 
@@ -214,7 +215,8 @@ class LEEPSMarket(BCSMarket):
         self.best_bid = best_bid
         self.best_offer = best_offer
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
-            'market_id': self.id, 'best_bid': best_bid, 'best_offer': best_offer}
+            'market_id': self.id, 'best_bid': best_bid, 'best_offer': best_offer,
+            'session_id': self.session_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
         broadcast_info = ('bbo', {'best_bid': best_bid, 'best_offer': best_offer})
