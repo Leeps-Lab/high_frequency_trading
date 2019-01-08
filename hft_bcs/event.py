@@ -54,7 +54,7 @@ class LEEPSEvent(Event):
     def from_websocket_message(cls, message, **kwargs):
         player_id = kwargs.get('player_id')
         market_id = kwargs.get('market_id')
-        subsession_id = kwargs.get('session_id')
+        subsession_id = kwargs.get('subsession_id')
         message_content = json.loads(message.content['text'])
         event_type = message_content['type']
         return cls('websocket', event_type, message_content, subsession_id=subsession_id,
@@ -90,7 +90,7 @@ class LEEPSEvent(Event):
     def from_event_message(cls, message, **kwargs):
         event_source = message['message_type']
         event_type = message['payload']['type']
-        session_id = message['payload']['session_id']
+        session_id = message['payload']['subsession_id']
         return cls(event_source, event_type, message['payload'], subsession_id=session_id)
     
 

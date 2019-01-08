@@ -42,7 +42,7 @@ class OUCH(Protocol):
                 market_id = self.factory.market
                 try:
                     self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
-                        subsession_id=self.subsession_id, market_id=market_id)
+                        subsession_id=self.factory.subsession_id, market_id=market_id)
                 except Exception as e:
                     log.exception('error processing exchange message (type:%s, market:%s), ignoring..: %s', 
                         header, market_id, e)

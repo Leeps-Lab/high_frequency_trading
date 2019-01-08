@@ -87,7 +87,8 @@ class LEEPSTradeSession(TradeSession):
             for market_id, _ in self.market_state.items():
                 create_exchange_connection(self, market_id)
                 reset_exchange(self, market_id)
-                message_content = {'type': 'market_start', 'market_id': market_id}
+                message_content = {'type': 'market_start', 'market_id': market_id,
+                    'subsession_id': self.subsession.id}
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
                 self.trading_markets.append(market_id)
@@ -103,7 +104,8 @@ class LEEPSTradeSession(TradeSession):
             while self.trading_markets:
                 market_id = self.trading_markets.pop()
                 stop_exchange_connection(self, market_id)
-                message_content = {'type': 'market_end', 'market_id': market_id}
+                message_content = {'type': 'market_end', 'market_id': market_id,
+                    'subsession_id': self.subsession.id}
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
             self.stop_exogenous_events()

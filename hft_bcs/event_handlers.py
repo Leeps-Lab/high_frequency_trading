@@ -104,7 +104,7 @@ def leeps_handle_market_message(event, **kwargs):
 @atomic
 def leeps_handle_session_events(event, **kwargs):
     message_type, market_id = event.event_type, event.message['market_id']
-    session_id = event.message['session_id']
+    session_id = event.message['subsession_id']
     session_key = get_cache_key(session_id, 'trade_session')
     trade_session = cache.get(session_key)
     if trade_session.id not in SUBPROCESSES:

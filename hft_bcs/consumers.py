@@ -17,7 +17,7 @@ class SubjectConsumer(JsonWebsocketConsumer):
     def raw_connect(self, message, subsession_id, group_id, player_id):
         player = Player.objects.get(id=player_id)
         Group(player.market).add(message.reply_channel)
-        self.connect(message, group_id, player_id)
+        self.connect(message, subsession_id, group_id, player_id)
 
     def connect(self, message, subsession_id, group_id, player_id):
         player = Player.objects.get(id=player_id)
