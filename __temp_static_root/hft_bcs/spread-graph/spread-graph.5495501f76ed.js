@@ -331,17 +331,25 @@ class SpreadGraph extends PolymerElement {
   BBOShift(shiftMsg){
     var bestBidCicle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCicle = spreadGraph.spread_svg.select(".best-offer");
+    console.log(bestBidCicle.attr("cx"), bestOfferCicle.attr("cx"));
     var smallerX = (bestBidCicle.attr("cx") <=  bestOfferCicle.attr("cx")) ? bestBidCicle.attr("cx") : bestOfferCicle.attr("cx");
+    console.log(smallerX);
     var diff = Math.abs(bestBidCicle.attr("cx") - bestOfferCicle.attr("cx"));
     var desiredCenter = (diff/2) + +smallerX;
 
+    console.log(center,spreadGraph.spread_width/2);
     //Center is between the best bid and the best offer
     //Now I have add animations
-    spreadGraph.animateBBOShift(desiredCenter);
+    spreadGraph.animateBBOShift(center);
+
+
   } 
 
-  animateBBOShift(desiredCenter){
-    
+  animateBBOShift(center){
+      if(center == spreadGraph.spread_width/2){
+         return; 
+      }
+      console.log("SHIIITTTTT");
   }
 
   drawBestBid(obj){

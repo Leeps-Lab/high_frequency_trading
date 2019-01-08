@@ -341,7 +341,12 @@ class SpreadGraph extends PolymerElement {
   } 
 
   animateBBOShift(desiredCenter){
-    
+      console.log("BEING CALLLED!!!! " + desiredCenter);
+      if(desiredCenter == spreadGraph.spread_width/2){
+         return; 
+      }
+
+      window.requestAnimationFrame(spreadGraph.animateBBOShift);
   }
 
   drawBestBid(obj){

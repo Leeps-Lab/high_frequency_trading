@@ -133,11 +133,8 @@ otree.handleBBOChange = function (obj){
         shiftNecessary = true;
     }
 
-
     if(shiftNecessary){
-        console.log("SHIFT IS NECESSARY--> bid = " + obj["best_bid"] + obj["best_offer"]);
-    } else {
-        spreadGraph.BBOShift(obj);
+        console.log("SHIFT IS NECESSARY MF");
     }
 }
 

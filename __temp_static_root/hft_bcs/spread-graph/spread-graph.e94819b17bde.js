@@ -329,6 +329,8 @@ class SpreadGraph extends PolymerElement {
   }
 
   BBOShift(shiftMsg){
+
+
     var bestBidCicle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCicle = spreadGraph.spread_svg.select(".best-offer");
     var smallerX = (bestBidCicle.attr("cx") <=  bestOfferCicle.attr("cx")) ? bestBidCicle.attr("cx") : bestOfferCicle.attr("cx");
@@ -337,12 +339,20 @@ class SpreadGraph extends PolymerElement {
 
     //Center is between the best bid and the best offer
     //Now I have add animations
-    spreadGraph.animateBBOShift(desiredCenter);
+    spreadGraph.animateBBOShift();
+
+    spreadGraph.animateBBOShift = function (){
+        console.log("BEING CALLLED!!!! " + desiredCenter);
+        if(desiredCenter == spreadGraph.spread_width/2){
+           return; 
+        }
+        desiredCenter - 1;
+        window.requestAnimationFrame(spreadGraph.animateBBOShift);
+    }
+
   } 
 
-  animateBBOShift(desiredCenter){
-    
-  }
+
 
   drawBestBid(obj){
         // console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);

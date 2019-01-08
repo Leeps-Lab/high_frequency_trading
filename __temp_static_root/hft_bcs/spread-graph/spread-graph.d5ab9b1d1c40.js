@@ -338,10 +338,17 @@ class SpreadGraph extends PolymerElement {
     //Center is between the best bid and the best offer
     //Now I have add animations
     spreadGraph.animateBBOShift(desiredCenter);
+
+
   } 
 
   animateBBOShift(desiredCenter){
-    
+      console.log("BEING CALLLED!!!!");
+      if(desiredCenter == spreadGraph.spread_width/2){
+         return; 
+      }
+
+      window.requestAnimationFrame(spreadGraph.animateBBOShift.bind(desiredCenter - 10 ));
   }
 
   drawBestBid(obj){
