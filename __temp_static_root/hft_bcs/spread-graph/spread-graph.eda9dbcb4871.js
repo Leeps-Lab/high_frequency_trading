@@ -605,47 +605,26 @@ class SpreadGraph extends PolymerElement {
   }
 
   executeArrow(obj){
-      
     //confirm the arrow by drawing differnt strokes on it
     if(obj["order_token"][4] == "B"){
         spreadGraph.bidArrow["token"] = "";
         spreadGraph.bidArrow["bidArrowLine"].transition()
-                                            .duration(750)
+                                            .duration(250)
                                             .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.bidArrow["bidArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
+                                            .on("end", function() {spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)") } 
                                             );
         spreadGraph.bidArrow["bidArrowText"].transition()
-                                            .duration(750)
+                                            .duration(250)
                                             .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.bidArrow["bidArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
+                                            .on("end", function() {spreadGraph.bidArrow["bidArrowText"].attr("fill", "rgb(150,150,150)") } 
                                             );
-
-        spreadGraph.spread_svg.select("#bidArrow").transition()
-                                                .duration(750)
-                                                .style("opacity", 0.0)
-                                                .on("end", function() {spreadGraph.spread_svg.select("#bidArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
-                                                spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
-                                            );
-
+        console.log(spreadGraph.spread_svg.select("#bidArrow"));
+        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
     } else if(obj["order_token"][4] == "S"){
         spreadGraph.askArrow["token"] = "";
-        spreadGraph.askArrow["askArrowLine"].transition()
-                                            .duration(750)
-                                            .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.askArrow["askArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
-                                            );
-        spreadGraph.askArrow["askArrowText"].transition()
-                                            .duration(750)
-                                            .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.askArrow["askArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
-                                            );
-
-        spreadGraph.spread_svg.select("#askArrow").transition()
-                                                .duration(750)
-                                                .style("opacity", 0.0)
-                                                .on("end", function() {spreadGraph.spread_svg.select("#askArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
-                                                spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
-                                            );
+        spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
+        spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
     }
   }
   executeOrder(obj){

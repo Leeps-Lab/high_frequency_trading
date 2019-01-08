@@ -637,7 +637,7 @@ class SpreadGraph extends PolymerElement {
         spreadGraph.askArrow["askArrowText"].transition()
                                             .duration(750)
                                             .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.askArrow["askArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
+                                            .on("end", function() {spreadGraph.bidArrow["askArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
                                             );
 
         spreadGraph.spread_svg.select("#askArrow").transition()
