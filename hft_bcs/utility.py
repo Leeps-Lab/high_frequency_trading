@@ -7,6 +7,10 @@ import os
 from .cache import get_cache_key
 from django.core.cache import cache
 
+
+SESSION_FORMAT = None
+EXCHANGES = None
+
 log = logging.getLogger(__name__)
 
 DEFAULT_TIMEZONE = pytz.timezone('US/Pacific')
@@ -93,7 +97,7 @@ def leeps_fields(player, subject_state):
         player.sliders = str(subject_state.sliders)
     player.orderstore = str(subject_state.orderstore)
     player.bid = subject_state.orderstore.bid
-    player.ask = subject_state.orderstore.ask
+    player.ask = subject_state.orderstore.offer
 
 
 def kwargs_from_event(event):

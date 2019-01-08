@@ -19,7 +19,7 @@ class Dispatcher:
             raise KeyError('unsupported event type: %s.' % event.event_type)
         else:
             observers = cls.topics[event.event_type]
-        print(event) 
+            
         for entity in observers:
             handler = cls.handler_factory.get_handler(entity)
             event = handler(event)
@@ -60,7 +60,7 @@ class LEEPSDispatcher(Dispatcher):
         'order_by_arrow': ['trader'],
         'investor_arrivals': ['noise_trader_arrival'],
         'fundamental_value_jumps': ['fundamental_price_change'],
-        'bbo_change': ['marketwide_events'],
+        'bbo_change': ['role_based_events'],
         'order_imbalance_change': ['role_based_events'],      
     }
     outgoing_message_types = ('exchange', 'broadcast')

@@ -8,6 +8,8 @@ class SubjectStateFactory:
             return BCSSubjectState
         elif session_format == 'LEEPS':
             return LEEPSSubjectState
+        else:
+            raise Exception('invalid session format: %s' % session_format)
 
 class BaseSubjectState:
 
@@ -42,7 +44,8 @@ class LEEPSSubjectState(BaseSubjectState):
     __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'group_id', 'id_in_group', 
         'id', 'code', 'role', 'speed_on',  'speed_unit_cost', 'spread', 'speed_on_start_time', 
         'endowment', 'cost', 'time_on_speed', 'last_message_time', 'market', 'best_quotes',
-        'distance_from_best_quote', 'sliders', 'latent_quote')    
+        'distance_from_best_quote', 'sliders', 'latent_quote', 'order_imbalance',
+        'enter_with_next_bbo', 'best_quote_volumes', 'no_enter_until_bbo')    
 
 class LEEPSInvestorState(BaseSubjectState):
     orderstore_cls = OrderStore

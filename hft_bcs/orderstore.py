@@ -23,7 +23,6 @@ class OrderStore:
         self.inventory = 0
         self.bid = None
         self.offer = None
-    
     @property
     def orders(self):
         return self._orders
@@ -52,15 +51,21 @@ class OrderStore:
             Player {self.player_id} Orders:
                 Active:{active_orders}
                 Pending:{pending_orders}
-            Inventory: {self.inventory} units.
+            Spread: {self.bid} - {self.offer}
         ========================================================================
         """.format(self=self, active_orders=active_orders, pending_orders=
             pending_orders)
         return out
 
-    def all_orders(self):
-        return [o for o in self._orders.values() if o['status'] in (b'active', b'pending')]
-    
+    def all_orders(self, direction=None):
+        out = [o for o in self._orders.values() if o['status'] 
+            in (b'active', b'pending')]
+        if direction is None:
+            return out
+        else:
+            out = list(filter(lambda x: x['buy_sell_indicator'] == direction, out))
+            return out
+
     def register_replace(self, token, new_price):
         order_info = self._orders[token]
         existing_token = order_info.get('replacement_order_token')
@@ -82,7 +87,7 @@ class OrderStore:
         except KeyError as e:
             log.exception(e)
         else:
-            print(self)
+            log.debug(self)
             return order_info
 
     def _confirm_enter(self, **kwargs):
@@ -91,53 +96,57 @@ class OrderStore:
         order_info['status'] = b'active'
         order_info['timestamp'] = kwargs['timestamp']
         self._orders[token] = order_info
-        order_side = kwargs['buy_sell_indicator']
-        if order_side == 'B':
-            self.bid = kwargs['price']
-        elif order_side == 'S':
-            self.ask = kwargs['price']
+        price = order_info['price']
+        direction = order_info['buy_sell_indicator']
+        self.update_spread(price, direction)
         return order_info    
 
     def _confirm_replace(self, **kwargs):
         existing_token = kwargs['previous_order_token']
         replacement_token = kwargs['replacement_order_token']
-        order_info = self._orders[existing_token]
+        order_info = self._orders.pop(existing_token)
         order_info['order_token'] = replacement_token
-        order_info['price'] = kwargs['price']
+        new_price = kwargs['price']
+        old_price = int(order_info['price'])
+        direction = order_info['buy_sell_indicator']
+        self.update_spread(old_price, direction, clear=True)
+        self.update_spread(new_price, direction)
+        
         if order_info['replacement_order_token'] == replacement_token:
             del order_info['replacement_order_token']
             del order_info['replace_price']
+        order_info['price'] = new_price
         self._orders[replacement_token] = order_info
-        del self._orders[existing_token]
-        order_side = kwargs['buy_sell_indicator']
-        if order_side == 'B':
-            self.bid = kwargs['price']
-        elif order_side == 'S':
-            self.ask = kwargs['price']
+        order_info['old_price'] = old_price
         return order_info   
 
     def _confirm_cancel(self, **kwargs):
         token = kwargs['order_token']
-        order_side = self._orders[token]['buy_sell_indicator']
-        if order_side == 'B':
-            self.bid = kwargs['price']
-        elif order_side == 'S':
-            self.ask = kwargs['price']
-        del self._orders[token]
+        order_info = self._orders.pop(token)
+        direction = order_info['buy_sell_indicator']
+        price = order_info['price']
+        self.update_spread(price, direction, clear=True)   
+        return order_info
+
     
     def _confirm_execution(self, **kwargs):
         token = kwargs['order_token']
-        order_info = self._orders[token].copy()
-        del self._orders[token]       
-        order_side = order_info['buy_sell_indicator']
-        inventory_change = 1 if order_side == b'B' else -1
+        order_info = self._orders.pop(token)
+        direction = order_info['buy_sell_indicator']
+        inventory_change = 1 if direction == b'B' else -1
         self.inventory += inventory_change
-        if order_side == 'B':
-            self.bid = None
-        elif order_side == 'S':
-            self.ask = None
+        price = order_info['price']
+        self.update_spread(price, direction, clear=True)            
         return order_info
 
-
-
-
+    def update_spread(self, price, direction, clear=False):
+        if direction == 'B':
+            if clear is True and price == self.bid:
+                self.bid = None
+            elif price is not None and (self.bid is None or price > self.bid):
+                self.bid = price
+        elif direction == 'S':
+            if clear is True and price == self.offer:
+                self.offer = None
+            elif price is not None and (self.offer is None or price < self.offer):
+                self.offer = price   

@@ -20,7 +20,7 @@ class MarketFactory:
 
 class BaseMarket:
     market_events_dispatch = {}
-    _ids = itertools.count()
+    _ids = itertools.count(1,1)
 
     def __init__(self):
         self.id = next(self._ids)
@@ -29,6 +29,8 @@ class BaseMarket:
         self.exchange_address = None
         self.subscriber_groups = {}
         self.players_in_market = {}
+
+        self.attachments_for_observers = {}
         self.outgoing_messages = deque()
     
  
@@ -53,10 +55,9 @@ class BaseMarket:
             return attachments
     
     def broadcast_to_subscribers(self, broadcast_info):
-        topic, data = broadcast_info
         # for group_id in self.subscriber_groups.keys():
-        message_content = { 'group_id': self.id, 'type': topic, 
-        'message': data}
+        message_content = {'market_id': self.id}
+        message_content.update(broadcast_info)
         internal_message = format_message('broadcast', **message_content)            
         self.outgoing_messages.append(internal_message)
      
@@ -68,7 +69,7 @@ class BaseMarket:
                 raise ValueError('market %s already trading.' % self.id)
             else:
                 self.is_trading = True
-                broadcast_info = ('session_start', {})
+                broadcast_info = {'type': 'system_event', 'code': 'S'}
                 self.broadcast_to_subscribers(broadcast_info)
     
     def end_trade(self, *args, **kwargs):
@@ -149,10 +150,10 @@ class BCSMarket(BaseMarket):
             self.outgoing_messages.append(message)
            
     def system_event(self, **kwargs):
-        event_code = kwargs.get('event_code')
-        broadcast_info = ('batch', {'event': event_code})
-        self.broadcast_to_subscribers(broadcast_info)   
+        pass
 
+max_ask = 2147483647
+min_bid = 0
 
 class LEEPSMarket(BCSMarket):
 
@@ -171,19 +172,21 @@ class LEEPSMarket(BCSMarket):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.best_bid = min_bid
+        self.volume_at_best_bid = 0
+        self.best_offer = max_ask
+        self.volume_at_best_offer = 0
         self.order_imbalance = 0
-        self.best_bid = MIN_BID
-        self.best_offer = MAX_ASK
-        self.role_groups = {'maker': [], 'maker_basic':[], 'maker_latent': [], 
+        #TODO: Rename maker_2 to something else.
+        self.role_groups = {'maker': [], 'maker_basic':[], 'maker_2': [], 
             'sniper':[], 'taker': [], 'out': []}
 
     def role_change(self, **kwargs):
         player_id = kwargs['player_id']
-        new_role = kwargs['state'].lower()
+        new_role = kwargs['state']
         if new_role not in self.role_groups:
             raise KeyError('invalid role: %s for market type: %s' % (new_role, 
                 self.__class__.__name__))
-        self.role_groups[new_role].append(player_id)
         old_role = None
         for k, v in self.role_groups.items():
             if player_id in v:
@@ -191,42 +194,56 @@ class LEEPSMarket(BCSMarket):
                 break
         if old_role:
             self.role_groups[old_role].remove(player_id)
-        if new_role in ('maker_basic'):
-            return {'best_bid': self.best_bid, 'best_offer': self.best_offer,
-                'order_imbalance': self.order_imbalance}
+        self.role_groups[new_role].append(player_id)
+        if new_role in ('maker_basic', 'maker_2'):
+            attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
+                'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
+                self.volume_at_best_bid, 'volume_at_best_ask': 
+                self.volume_at_best_offer}
+            self.attachments_for_observers.update({'role_change':attached})
+
+    # def role_change(self, **kwargs):
+    #     player_id = kwargs['player_id']
+    #     old_role, new_role = kwargs['old_role'].lower(), kwargs['state'].lower()
+    #     if new_role not in self.role_groups:
+    #         raise KeyError('invalid role: %s for market type: %s' % (new_role, 
+    #             self.__class__.__name__))
+    #     self.role_groups[new_role].append(player_id)
+    #     if old_role in self.role_groups:
+    #         if player_id in self.role_groups[old_role]:
+    #             self.role_groups[old_role].remove(player_id)
     
     def order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
         current_order_imbalance = order_imbalance.step(buy_sell_indicator)
         if current_order_imbalance != self.order_imbalance:
             self.order_imbalance = current_order_imbalance
-        maker_ids = self.role_groups['maker_latent']
-        message_content = {
-            'type':'order_imbalance_change', 
-            'order_imbalance': current_order_imbalance, 
-            'maker_ids': maker_ids,
-            'market_id': self.id,
-            'subsession_id': self.subsession_id}
-        internal_message = format_message('derived_event', **message_content)
-        self.outgoing_messages.append(internal_message)
+            maker_ids = self.role_groups['maker_2']
+            message_content = {
+                'type':'order_imbalance_change', 
+                'order_imbalance': current_order_imbalance, 
+                'maker_ids': maker_ids,
+                'market_id': self.id,
+                'subsession_id': self.subsession_id}
+            internal_message = format_message('derived_event', **message_content)
+            self.outgoing_messages.append(internal_message)
 
     def bbo_change(self, **kwargs):
-        best_bid, best_offer = kwargs['best_bid'], kwargs['best_ask']
-        self.best_bid = best_bid
-        self.best_offer = best_offer
+        self.volume_at_best_bid = kwargs['volume_at_best_bid']
+        self.volume_at_best_offer = kwargs['volume_at_best_ask']
+        self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
+        makers_ids = self.role_groups['maker_basic'] + self.role_groups['maker_2']
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
-            'market_id': self.id, 'best_bid': best_bid, 'best_offer': best_offer,
-            'subsession_id': self.subsession_id}
+            'market_id': self.id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
+            'maker_ids': makers_ids, 'volume_at_best_bid': self.volume_at_best_bid,
+            'volume_at_best_ask': self.volume_at_best_offer, 'subsession_id': self.subsession_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
-        broadcast_info = ('bbo', {'best_bid': best_bid, 'best_offer': best_offer})
-        self.broadcast_to_subscribers(broadcast_info)
+        broadcast_content = {'type': 'bbo', 'best_bid': self.best_bid, 
+        'best_offer': self.best_offer}
+        self.broadcast_to_subscribers(broadcast_content)
         
 
-         
-
-
-        
 
 
 

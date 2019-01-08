@@ -54,7 +54,23 @@ class SpreadGraph extends PolymerElement {
         stroke: grey;
         stroke-width: 1;
     }
+    .unconfirmed-order{
+        fill: rgb(150, 150, 150);
+        stroke:rgb(150, 150, 150);
+    }
+    .confirmed-bid{
+        fill: #309930;
+        stroke:#309930;
 
+    }
+    .arrow-text{
+        font-size: 10px;
+    }
+    .confirmed-ask{
+        fill: rgb(150, 150, 150);
+        stroke:rgb(150, 150, 150);
+
+    }
     .others_line{
     stroke:lightgrey;
     stroke-width:2px;
@@ -116,7 +132,7 @@ class SpreadGraph extends PolymerElement {
   refX="6"
   refY="6"
   orient="auto">
-  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #309930;"></path>
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill:rgb(150,150,150);"></path>
 </marker>
 <marker
   id="askArrow"
@@ -127,7 +143,7 @@ class SpreadGraph extends PolymerElement {
   refX="6"
   refY="6"
   orient="auto">
-  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill: #CB1C36;"></path>
+  <path d="M2,2 L10,6 L2,10 L2,2 L2,2" style="fill:rgb(150,150,150);"></path>
 </marker>
 </defs>
 </svg>
@@ -173,7 +189,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.addOthersLineAnimation = this.addOthersLineAnimation;
     spreadGraph.drawTransactionBar = this.drawTransactionBar;    
     spreadGraph.drawSpreadBar = this.drawSpreadBar;
-    spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
+    
     spreadGraph.drawBatchFlash = this.drawBatchFlash;
     spreadGraph.startBatchTimer = this.startBatchTimer;
     spreadGraph.drawPossibleSpreadTicks = this.drawPossibleSpreadTicks;
@@ -182,12 +198,30 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawFPC = this.drawFPC;
     spreadGraph.executionHandler = this.executionHandler;
     spreadGraph.drawSpreadChange = this.drawSpreadChange;
-    spreadGraph.mapSpreadGraph = this.mapSpreadGraph;
+
+
     spreadGraph.drawArrows = this.drawArrows;
     spreadGraph.removeArrows = this.removeArrows;
-    spreadGraph
+    spreadGraph.confirmArrow = this.confirmArrow;
+    spreadGraph.drawOfferArrow = this.drawOfferArrow;
+    spreadGraph.drawBidArrow = this.drawBidArrow;
+    spreadGraph.executeArrow = this.executeArrow;
 
 
+    spreadGraph.NBBOChange = this.NBBOChange;
+    spreadGraph.drawBestBid = this.drawBestBid;
+    spreadGraph.drawBestOffer = this. drawBestOffer;
+
+    spreadGraph.drawOrder = this.drawOrder;
+    spreadGraph.removeOrder = this.removeOrder;
+    spreadGraph.executeOrder = this.executeOrder;
+
+    spreadGraph.addToActiveOrders = this.addToActiveOrders;
+    spreadGraph.removeFromActiveOrders = this.removeFromActiveOrders;
+    spreadGraph.replaceActiveOrder = this.replaceActiveOrder;
+
+    spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
+    spreadGraph.updateUserBidAndAsk = this.updateUserBidAndAsk;
     /*
         price: price it is pointed at
         d3 arrow line: line created in d3 that maps to yCoordinate to price just above
@@ -199,12 +233,6 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
-    
-    //Activating the event listener
-    // spreadGraph.listen();
-    //spreadGraph.mapSpreadGraph();
-    this.drawOrder();
-    this.NBBOChange();
 
   }
   start(){
@@ -240,59 +268,165 @@ class SpreadGraph extends PolymerElement {
     }   
 
     spreadGraph.drawPossibleSpreadTicks();  
-    // spreadGraph.drawArrows();  
   }
-  NBBOChange(bid = 970000, offer = 990000){
+
+  NBBOChange(bid, offer){
+    // console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);
     spreadGraph.spread_svg.select(".best-bid").remove();
     spreadGraph.spread_svg.select(".best-offer").remove();
+    var bidX = spreadGraph.visibleTickLines[bid];
+    var offerX = spreadGraph.visibleTickLines[offer];
+    if(bidX == undefined){
+        var tickArray = Object.keys(spreadGraph.visibleTickLines);
+        for(var i = 0; i < tickArray.length; i++){
+            if(tickArray[i] > bid){
+                break;
+            }
+        }
+        var upperPrice = tickArray[i];
+        var lowerPrice = tickArray[i-1];
+        var priceDiff = upperPrice - lowerPrice;
+        var bidDiff = Math.abs(bid - lowerPrice);
 
+        var ratio = bidDiff/priceDiff;
+
+        var diffX = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
+        var xRatio = diffX*ratio;
+        bidX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatio;
+
+    }
+    if(offerX == undefined){
+        var tickArray = Object.keys(spreadGraph.visibleTickLines);
+        for(var i = 0; i < tickArray.length; i++){
+            if(tickArray[i] > offer){
+                break;
+            }
+        }
+        var upperPriceOffer = tickArray[i];
+        var lowerPriceOffer = tickArray[i-1];
+        var priceDiffOffer = upperPriceOffer - lowerPriceOffer;
+        var offerDiff = Math.abs(bid - lowerPrice);
+
+        var ratioOffer = offerDiff/priceDiffOffer;
+
+        var diffXOffer = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
+        var xRatioOffer = diffXOffer*ratioOffer;
+        offerX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatioOffer;
+    }
     spreadGraph.spread_svg.append("circle")
-        .attr("cx", spreadGraph.visibleTickLines[bid])
+        .attr("cx", bidX)
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 10)
         .attr("class","best-bid");
 
     spreadGraph.spread_svg.append("circle")
-        .attr("cx", spreadGraph.visibleTickLines[offer])
+        .attr("cx", offerX)
+        .attr("cy", spreadGraph.spread_height*0.3)
+        .attr("r", 10)
+        .attr("class","best-offer");
+  }
+
+  drawBestBid(obj){
+        // console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);
+        spreadGraph.spread_svg.select(".best-bid").remove();
+
+        var bidX = spreadGraph.visibleTickLines[obj["best_bid"]];
+
+        if(bidX == undefined){
+            var tickArray = Object.keys(spreadGraph.visibleTickLines);
+            for(var i = 0; i < tickArray.length; i++){
+                if(tickArray[i] > obj["best_bid"]){
+                    break;
+                }
+            }
+            var upperPrice = tickArray[i];
+            var lowerPrice = tickArray[i-1];
+            var priceDiff = upperPrice - lowerPrice;
+            var bidDiff = Math.abs(obj["best_bid"] - lowerPrice);
+    
+            var ratio = bidDiff/priceDiff;
+    
+            var diffX = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
+            var xRatio = diffX*ratio;
+            bidX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatio;
+    
+        }
+
+        spreadGraph.spread_svg.append("circle")
+        .attr("cx", bidX)
+        .attr("cy", spreadGraph.spread_height*0.3)
+        .attr("r", 10)
+        .attr("class","best-bid");
+
+  }
+
+  drawBestOffer(obj){
+        spreadGraph.spread_svg.select(".best-offer").remove();
+
+        var offerX = spreadGraph.visibleTickLines[obj["best_offer"]];
+    if(offerX == undefined){
+        var tickArray = Object.keys(spreadGraph.visibleTickLines);
+        for(var i = 0; i < tickArray.length; i++){
+            if(tickArray[i] > obj["best_offer"]){
+                break;
+            }
+        }
+        var upperPriceOffer = tickArray[i];
+        var lowerPriceOffer = tickArray[i-1];
+        var priceDiffOffer = upperPriceOffer - lowerPriceOffer;
+        var offerDiff = Math.abs(obj["best_offer"] - lowerPrice);
+
+        var ratioOffer = offerDiff/priceDiffOffer;
+
+        var diffXOffer = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
+        var xRatioOffer = diffXOffer*ratioOffer;
+        offerX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatioOffer;
+    }
+    spreadGraph.spread_svg.append("circle")
+        .attr("cx", offerX)
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 10)
         .attr("class","best-offer");
 
-
   }
 
-  drawOrder(price = 960000, TOK = ""){
+  drawOrder(price = 960000, TOK = "TESTTOKEN0"){
 
     //What do I need from this?
     
-    spreadGraph.spread_svg.append("circle")
+    var order = spreadGraph.spread_svg.append("circle")
         .attr("cx", spreadGraph.visibleTickLines[price])
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", 5)
         .attr("class","order " + TOK);
     
-
+    order.raise();
   }
 
   removeOrder(TOK){
     spreadGraph.spread_svg.select("." + TOK).remove();
   }
+  replaceOrder(oldTOK, newTOK, newPrice){
+    spreadGraph.removeOrder(oldTOK);
+    spreadGraph.drawOrder(newPrice,newTOK);
+  }
 
   drawArrows(){
 
-      //Green Bid --> #B2D8B2
-      //Red ask --> #FFB2B2
-      spreadGraph.bidArrow["price"] = 940000;
-      spreadGraph.askArrow["price"] = 960000;
+      //Green Bid --> #309930
+      //Red ask --> #CB1C36
+    spreadGraph.bidArrow["price"] = 940000;
+    spreadGraph.askArrow["price"] = 960000;
 
     spreadGraph.bidArrow["bidArrowLine"] = spreadGraph.spread_svg.append("line")
         .attr("x1",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 20)  
-        .attr("stroke","#309930")  
+        .attr("stroke","rgb(150,150,150)") 
         .attr("stroke-width",7)  
-        .attr("marker-end","url(#bidArrow)");
+        .attr("marker-end","url(#bidArrow)")
+        .attr("class", "arrow");
  
         
     spreadGraph.askArrow["askArrowLine"] = spreadGraph.spread_svg.append("line")
@@ -300,13 +434,17 @@ class SpreadGraph extends PolymerElement {
         .attr("y1",spreadGraph.spread_height - 25)  
         .attr("x2",spreadGraph.visibleTickLines[spreadGraph.askArrow["price"]])  
         .attr("y2",spreadGraph.spread_height*0.6 + 20)  
-        .attr("stroke","#CB1C36")  
+        .attr("stroke","rgb(150,150,150)") 
         .attr("stroke-width",7)  
-        .attr("marker-end","url(#askArrow)");
+        .attr("marker-end","url(#askArrow)")
+        .attr("class", "arrow ");
         
-    if(playersInMarket[otree.playerIDInGroup]["strategy"] === "maker_basic"){
+    if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
             .on("drag", function(){
+                spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
+                spreadGraph.bidArrow["bidArrowText"].attr("fill","rgb(150,150,150)");
+                spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
                 //Making sure not to drag past other arrow line
                 var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") - 10 <= d3.event.x) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
                 spreadGraph.bidArrow["bidArrowText"].attr("x", lineX - 10);
@@ -344,7 +482,7 @@ class SpreadGraph extends PolymerElement {
                         price: checkedPrice
                     };
                     if(socketActions.socket.readyState === socketActions.socket.OPEN){
-                        console.log(JSON.stringify(bidPriceMessage));
+                        // console.log(JSON.stringify(bidPriceMessage));
                         socketActions.socket.send(JSON.stringify(bidPriceMessage));
                     }
 
@@ -358,7 +496,9 @@ class SpreadGraph extends PolymerElement {
 
         spreadGraph.askArrow["askArrowLine"].call(d3.drag()
             .on("drag", function(){
-                console.log("FUCK");
+                spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
+                spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
+                spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
                 //Making sure not to drag past other arrow line
                 var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
                 spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
@@ -392,12 +532,9 @@ class SpreadGraph extends PolymerElement {
                         price: checkedPriceAsk
                     };
                     if(socketActions.socket.readyState === socketActions.socket.OPEN){
-                        console.log(JSON.stringify(askPriceMessage));
+                        // console.log(JSON.stringify(askPriceMessage));
                         socketActions.socket.send(JSON.stringify(askPriceMessage));
                     }
-                    /*
-                        //SEND spreadGraph.askArrow["askArrowLine"].price OVER SOCKET ********* 
-                    */
                     spreadGraph.askArrow["askArrowText"].attr("x", checkedXAsk - 10);
                     spreadGraph.askArrow["askArrowLine"].attr("x1",  checkedXAsk).attr("x2", checkedXAsk);
 
@@ -412,26 +549,101 @@ class SpreadGraph extends PolymerElement {
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.bidArrow["bidArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("class", "price-grid-line-text")
+        .attr("fill","rgb(150,150,150)")
+        .attr("class", "arrow-text arrow")
         .text("BID");
 
     spreadGraph.askArrow["askArrowText"]  = spreadGraph.spread_svg.append("text")
         .attr("text-anchor", "start")
         .attr("x", +spreadGraph.askArrow["askArrowLine"].attr("x1") - 10)  
         .attr("y",  spreadGraph.spread_height - 10)
-        .attr("class", "price-grid-line-text")
+        .attr("fill","rgb(150,150,150)")
+        .attr("class", "arrow-text arrow")
         .text("ASK");        
   }
 
-  removeArrows(){
-    if(spreadGraph.bidArrow["bidArrowLine"] != undefined && spreadGraph.askArrow["askArrowLine"] != undefined){
-        spreadGraph.bidArrow["bidArrowLine"].remove();
-        spreadGraph.askArrow["askArrowLine"].remove();
-        spreadGraph.bidArrow["bidArrowText"].remove();
-        spreadGraph.askArrow["askArrowText"].remove();
+  confirmArrow(obj){
+    //confirm the arrow by drawing differnt strokes on it
+    if(obj["order_token"][4] == "B"){
+        spreadGraph.bidArrow["token"] = obj["order_token"];
+        spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "#309930");
+        spreadGraph.bidArrow["bidArrowText"].attr("fill","#309930");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "#309930";
+    } else if(obj["order_token"][4] == "S"){
+        spreadGraph.askArrow["token"] = obj["order_token"];
+        spreadGraph.askArrow["askArrowLine"].attr("stroke", "#CB1C36");
+        spreadGraph.askArrow["askArrowText"].attr("fill","#CB1C36");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "#CB1C36";
     }
   }
 
+  executeArrow(obj){
+    //confirm the arrow by drawing differnt strokes on it
+    if(obj["order_token"][4] == "B"){
+        spreadGraph.bidArrow["token"] = "";
+        spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
+        spreadGraph.bidArrow["bidArrowText"].attr("fill","rgb(150,150,150)");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
+    } else if(obj["order_token"][4] == "S"){
+        spreadGraph.askArrow["token"] = "";
+        spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
+        spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
+    }
+  }
+  executeOrder(obj){
+    var orderCircle = spreadGraph.spread_svg.select("." + obj["order_token"]);
+    orderCircle.transition().duration(100).attr("fill", "rgb(150,150,150)");
+    spreadGraph.removeOrder(obj["order_token"]);
+
+  }
+
+  drawBidArrow(obj){
+    spreadGraph.bidArrow["bidArrowLine"].transition().duration(100).attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
+    spreadGraph.bidArrow["bidArrowText"].transition().duration(100).attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
+    spreadGraph.confirmArrow(obj);
+  }
+
+  drawOfferArrow(obj){
+
+    spreadGraph.askArrow["askArrowLine"].transition().duration(100).attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
+    spreadGraph.askArrow["askArrowText"].transition().duration(100).attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
+    spreadGraph.confirmArrow(obj);
+
+}
+
+  removeArrows(){
+    try {
+        spreadGraph.spread_svg.selectAll(".arrow").remove();
+    } catch {
+        console.log("No Arrows to remove");
+    }
+  }
+
+  
+  addToActiveOrders(token,price){
+    if(spreadGraph.activeOrders[price] != undefined){
+        spreadGraph.activeOrders[price].push(token);
+    } else {
+        spreadGraph.activeOrders[price] = [] ;
+        spreadGraph.activeOrders[price].push(token);
+    }
+  }
+
+  removeFromActiveOrders(oldToken, oldPrice){
+    if(spreadGraph.activeOrders[oldPrice] != undefined){
+      var index = spreadGraph.activeOrders[oldPrice].indexOf(oldToken);
+      if(index != -1){
+        spreadGraph.activeOrders[oldPrice].splice(index,1);
+      }
+    }
+    console.log(spreadGraph.activeOrders);
+  }
+
+  replaceActiveOrder(newToken, newPrice, oldToken, oldPrice){
+    spreadGraph.removeFromActiveOrders(oldToken,oldPrice);
+    spreadGraph.addToActiveOrders(newToken,newPrice);
+  }
 
     /*
     * This is sent to replicate the time that it takes to send an order to the market
@@ -473,10 +685,10 @@ class SpreadGraph extends PolymerElement {
     * IEX Specififc Function
     * Draws the possible spread ticks based on the set of possible spread ticks
     */
-    drawPossibleSpreadTicks(){
+    drawPossibleSpreadTicks(lowerBound = 900000, upperBound = 1000000){
         //Drawn on  shift message maybe inputs include
-        var upperBound = 1000000;
-        var lowerBound =  900000;
+        spreadGraph.lowerBound = lowerBound;
+        spreadGraph.upperBound = upperBound;
         var diff = upperBound - lowerBound;
         var increment  =   10000;
         var incrementNum = diff / increment;
@@ -484,24 +696,26 @@ class SpreadGraph extends PolymerElement {
         var xCoordinate = 0;
         var yCoordinate = spreadGraph.spread_height*0.3;
         spreadGraph.visibleTickLines = {};
+        spreadGraph.tickLines = [];
+        spreadGraph.tickLinesText = [];
 
         
         for(var temp = lowerBound; temp <= upperBound; temp+=increment){
             spreadGraph.visibleTickLines[temp] = xCoordinate;
-                spreadGraph.spread_svg.append("svg:line")
+            spreadGraph.tickLines.push(spreadGraph.spread_svg.append("svg:line")
                     .attr("x1", xCoordinate)
                     .attr("y1", spreadGraph.spread_height*0.3 - 15)
                     .attr("x2", xCoordinate)
                     .attr("y2", spreadGraph.spread_height*0.3 + 15)
                     .attr("stroke-width",1)
-                    .attr("class","possible-spread-ticks");  
+                    .attr("class","possible-spread-ticks"));  
                 
-                spreadGraph.spread_svg.append("text")
+                    spreadGraph.tickLines.push(spreadGraph.spread_svg.append("text")
                     .attr("text-anchor", "start")
                     .attr("x", xCoordinate - 5)  
                     .attr("y",  spreadGraph.spread_height*0.6 - 10)
                     .attr("class", "price-grid-line-text")
-                    .text((temp/10000).toFixed(0));
+                    .text((temp/10000).toFixed(0)));
 
                 xCoordinate += distanceBetweenLines;                
         }
@@ -545,22 +759,7 @@ class SpreadGraph extends PolymerElement {
       }
     
 
-    /*
-    * Sending Spread Change to backend update the info-table accordingly
-    */
-    sendSpreadChange(my_spread = otree.defaultSpread){
-    //Sending Spread Change over socket 
-    var msg = {
-        type: 'spread_change',
-        id: otree.playerID ,
-        id_in_group: otree.playerIDInGroup,
-        spread: my_spread
-    };
-    if (socketActions.socket.readyState === socketActions.socket.OPEN) {
-        socketActions.socket.send(JSON.stringify(msg));
-    }
-    document.querySelector('info-table').spread_value = (my_spread / 10000).toFixed(2);
-    }
+    
 
     /*
     * Starts the batch timer called on batch begins message
@@ -592,7 +791,6 @@ class SpreadGraph extends PolymerElement {
     (index):272 {id: 1, token: "SUBAS000000045", profit: 1400, orig_price: 986243, exec_price: 986243}
     (index):278 986243
     */
-
     executionHandler(exec = {}){
         if(otree.endMsg == "off"){
 
@@ -908,7 +1106,7 @@ class SpreadGraph extends PolymerElement {
 
  addOthersLineAnimation(lines, speed=500, width){
 
-      //SETTING THE SPREAD TO THE LINE
+    //SETTING THE SPREAD TO THE LINE
     for(var i = 0; i < lines.length; i++){
         var add_animation = lines[i]
         .transition()
@@ -920,7 +1118,6 @@ class SpreadGraph extends PolymerElement {
     if(document.querySelector("info-table").player_role != "MAKER"){
         spreadGraph.spread_svg.selectAll("rect").remove();
         spreadGraph.spread_svg.selectAll(".my_line").remove();
-   
     }   
   }
 
@@ -990,17 +1187,17 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll(".others_line").remove();
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
-    updateBidAndAsk(FPCDollarAmount,spread_value){
-        //Updating the bid and ask on the info table
-        if(document.querySelector("info-table").player_role == "MAKER"){
-            var sum = +FPCDollarAmount + +spread_value;
-            document.querySelector('info-table').curr_bid = parseFloat(sum).toFixed(2);
-            document.querySelector('info-table').curr_ask = parseFloat(FPCDollarAmount - spread_value).toFixed(2);
-        } else {
-            document.querySelector('info-table').curr_bid = "N/A";
-            document.querySelector('info-table').curr_ask = "N/A";
-        }
+    updateBidAndAsk(bid,offer){
+            document.querySelector('info-table').curr_bid = bid;
+            document.querySelector('info-table').curr_ask = offer; 
     }
+    updateUserBidAndAsk(price,side){
+        if(side == "B"){
+            document.querySelector('info-table').user_bid = price;
+        } else if(side == "S"){
+            document.querySelector('info-table').user_offer = price;
+        }
+}
 
     drawBatchFlash(){
         //Flash purple on border whenever a batch message is recieved from the exchange

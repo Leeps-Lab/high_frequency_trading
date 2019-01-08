@@ -2,7 +2,7 @@ from collections import deque
 from itertools import count
 from . import translator
 import json
-
+from .decorators import inbound_ws_message_preprocess
 
 class EventFactory:
 
@@ -11,7 +11,7 @@ class EventFactory:
         if message_source == 'exchange':
             event = LEEPSEvent.from_exchange_message(message, **kwargs)
         elif message_source == 'websocket':
-            event = LEEPSEvent.from_websocket_message(message, **kwargs)
+            event = LEEPSEvent.from_subject_websocket_message(message, **kwargs)
         elif message_source == 'derived_event':
             event = LEEPSEvent.from_event_message(message, **kwargs)
         else:
@@ -51,14 +51,14 @@ class Event:
 class LEEPSEvent(Event):
 
     @classmethod
-    def from_websocket_message(cls, message, **kwargs):
+    @inbound_ws_message_preprocess
+    def from_subject_websocket_message(cls, message, **kwargs):
         player_id = kwargs.get('player_id')
         market_id = kwargs.get('market_id')
         subsession_id = kwargs.get('subsession_id')
-        message_content = json.loads(message.content['text'])
-        event_type = message_content['type']
-        return cls('websocket', event_type, message_content, subsession_id=subsession_id,
-            player_id=player_id, market_id=market_id)
+        event_type = message['type']
+        return cls('websocket', event_type, message, player_id=player_id,
+            subsession_id=subsession_id, market_id=market_id)
     
     @classmethod
     def from_exchange_message(cls, message, **kwargs):
@@ -71,7 +71,7 @@ class LEEPSEvent(Event):
             if token[3] == '@':
                 #   way out for investor orders
                 return False
-            return player_id
+            return int(player_id)
 
         market_id = kwargs.get('market_id')
         subsession_id = kwargs.get('subsession_id')

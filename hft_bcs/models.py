@@ -16,7 +16,7 @@ from otree.common_internal import random_chars_8
 
 from .orderstore import OrderStore
 from .utility import (process_configs, configure_model, exogenous_event_client,
-    available_exchange_ports, exogenous_events, leeps_fields)
+    available_exchange_ports, exogenous_events, SESSION_FORMAT, EXCHANGES)
 from .trader import CDATraderFactory, FBATraderFactory
 from .trade_session import TradeSessionFactory
 from .market import MarketFactory
@@ -77,10 +77,6 @@ class Constants(BaseConstants):
     max_ask = 2147483647
     min_bid = 0
 
-
-
-SESSION_FORMAT = None
-EXCHANGES = None
 
 class Subsession(BaseSubsession):
     design = models.StringField()

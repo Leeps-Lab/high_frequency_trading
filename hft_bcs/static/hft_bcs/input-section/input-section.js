@@ -60,12 +60,19 @@ class InputSection extends PolymerElement {
             justify-content: center;
             flex-direction: column;
         }
-    
-    
-    
+        
+        .slider{
+            -webkit-appearance: slider-vertical;
+        }
+        .submit-button{
+            margin-top:85px;
+        }
         .button-container-speed {
             background-color: rgb(230, 230, 230);
             flex: 1 1 auto;
+        }
+        .slider-sens{
+            margin-top:10px;
         }
 
         .switch {
@@ -133,28 +140,28 @@ class InputSection extends PolymerElement {
 
     <div class="row">
         <div class="text-center col-lg-3">
-            <button  value="out" class="text-center btn btn-primary manual-button" type="button"  width="80px">Manual</button>
-            <div style="margin-top:50px;">
-                <button   class="text-center btn btn-success submit-button" on-click="submitSensitivities" type="button">Submit Values</button>
+            <button  value="out" class="text-center btn btn-primary maker1-button" type="button"  width="80px">Maker 1</button>
+            <div class="slider-sens" style="margin-top:50px;">
+                <button   class="text-center btn btn-success submit-button" type="button">Submit Values</button>
             </div>
         </div>
         <div class="text-center col-lg-3" >
-            <button class="text-center btn btn-primary algorithm-button algorithm1-button" type="button"  width="80px">Maker Basic</button>
-            <div style="margin-top:50px;">
+            <button class="text-center btn btn-primary algorithm-button maker2-button" type="button"  width="80px">Maker 2</button>
+            <div class="slider-sens" style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
-            <button class="text-center btn btn-primary algorithm-button algorithm2-button" type="button" width="80px">Algorithm B</button>
-            <div style="margin-top:50px;">
+            <button class="text-center btn btn-primary taker-button taker-button" type="button" width="80px">Taker</button>
+            <div class="slider-sens" style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
             <button class="text-center btn btn-primary out-button" type="button" width="80px">Out</button>
-            <div class="text-center center-block" style="margin-top:50px;">
+            <div class="text-center center-block" style="margin-top:100px;">
                 <p>Speed</p>
                 <label class="switch">
                     <input type="checkbox" class="speed-input">
@@ -162,8 +169,23 @@ class InputSection extends PolymerElement {
                 </label>
             </div>
         </div>
-
     </div>
+    <!---
+    <div class="row">
+          <div>
+            <button  class="center-block btn btn-primary test-cancel-button" type="button">Test Cancel</button>
+          </div>
+          <div>
+            <button  class="center-block btn btn-primary test-replace-button" type="button">Test Replace</button>
+          </div>
+          <div>
+            <button  class="center-block btn btn-primary test-confirmation-button" type="button">Test Confirmation</button>
+          </div>
+          <div>
+            <button  class="center-block btn btn-primary test-BBO-button" type="button">Test BBO</button>
+          </div>
+    </div>
+    --->
     </div>
     
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -187,11 +209,13 @@ class InputSection extends PolymerElement {
     inputSection.Button_Pressed = this.Button_Pressed;
     inputSection.startBatchTimer = this.startBatchTimer;
     inputSection.updateSpeed = this.updateSpeed;
-    inputSection.manualClick = this.manualClick;
-    inputSection.algo1Button = this.algo1Button;
-    inputSection.algo2Button = this.algo2Button;
-    inputSection.submitButton = this.submitButton;
-    inputSection.outButton = this.outButton;
+    inputSection.maker1Click = this.maker1Click;
+    inputSection.maker2Click = this.maker2Button;
+    inputSection.takerClick = this.takerButton;
+    inputSection.submitClick = this.submitButton;
+    inputSection.outClick = this.outButton;
+
+    inputSection.testClick = this.testButton;
 
     this.activateSliders();
     this.activateButtons();
@@ -218,33 +242,49 @@ class InputSection extends PolymerElement {
       
   }
   activateButtons(){
-    var manualButton = inputSection.inputSectionShadowDOM.querySelector(".manual-button");
-    var algo1Button = inputSection.inputSectionShadowDOM.querySelector(".algorithm1-button");
-    var algo2Button = inputSection.inputSectionShadowDOM.querySelector(".algorithm2-button");
+    var maker1Button = inputSection.inputSectionShadowDOM.querySelector(".maker1-button");
+    var maker2Button = inputSection.inputSectionShadowDOM.querySelector(".maker2-button");
+    var takerButton = inputSection.inputSectionShadowDOM.querySelector(".taker-button");
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
     var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
+    
+    // var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
+    // var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
+    // var testConfirmationButton = inputSection.inputSectionShadowDOM.querySelector(".test-confirmation-button");
+    // var testBBOButton = inputSection.inputSectionShadowDOM.querySelector(".test-BBO-button");
 
-    manualButton.onclick = inputSection.manualClick;
-    algo1Button.onclick = inputSection.algo1Button;
-    algo2Button.onclick = inputSection.algo2Button;
-    outButton.onclick = inputSection.outButton;
-    submitButton.onclick = inputSection.submitButton;
+    maker1Button.onclick = inputSection.maker1Click;
+    maker2Button.onclick = inputSection.maker2Click;
+    takerButton.onclick = inputSection.takerClick;
+    outButton.onclick = inputSection.outClick;
+    submitButton.onclick = inputSection.submitClick;
+
+    // var testCancel = function () { inputSection.testClick("cancel")};
+    // var testReplace = function () { inputSection.testClick("replace")};
+    // var testConfirmation = function () { inputSection.testClick("confirmation")};
+    // var testBBO = function () { inputSection.testClick("BBO")};
+
+    // testCancelButton.onclick = testCancel;
+    // testReplaceButton.onclick = testReplace;
+    // testConfirmationButton.onclick = testConfirmation;
+    // testBBOButton.onclick = testBBO;
 
   } 
 
-    manualClick(){
+
+    maker1Click(){
         //update player object 
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "maker_basic";
+        playersInMarket[otree.playerID]["strategy"] = "maker_basic";
         var manualChangeMessage = {
             type: "role_change",
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(manualChangeMessage));
             socketActions.socket.send(JSON.stringify(manualChangeMessage));
         }
         //start the drawArrows on the spread graph only if there are none at the price you either left or at some designated start price or best price?
-       
+        spreadGraph.removeArrows();
         spreadGraph.drawArrows();
         
 
@@ -258,24 +298,24 @@ class InputSection extends PolymerElement {
 
     }
 
-    algo1Button(){
+    maker2Button(){
         
         //update player object 
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "maker_basic";
+        playersInMarket[otree.playerID]["strategy"] = "maker_2";
         var makerBasicChangeMessage = {
             type: "role_change",
             id: otree.playerID,
             id_in_group: otree.playerIDInGroup,
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(makerBasicChangeMessage));
             socketActions.socket.send(JSON.stringify(makerBasicChangeMessage));
         }
         //s
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
+        spreadGraph.removeArrows();
+        spreadGraph.drawArrows();
+        
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
@@ -285,27 +325,25 @@ class InputSection extends PolymerElement {
 
     }
 
-    algo2Button(){
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "algorithm2";
+    takerButton(){
+        playersInMarket[otree.playerID]["strategy"] = "taker";
         var algorithm2ChangeMessage = {
             type: "role_change",
             id: otree.playerID,
             id_in_group: otree.playerIDInGroup,
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(algorithm2ChangeMessage));
             socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
         }
-        if(spreadGraph.bidArrow["bidArrowLine"] == undefined && spreadGraph.askArrow["askArrowLine"] == undefined){
-            spreadGraph.drawArrows();
-        }
+        spreadGraph.removeArrows();
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
-        submitButton.disabled = false;
-        sens1.disabled = false;
-        sens2.disabled = false;
+        submitButton.disabled = true;
+        sens1.disabled = true;
+        sens2.disabled = true;
 
     }
 
@@ -315,30 +353,28 @@ class InputSection extends PolymerElement {
         var sens1Value = sens1.value;
         var sens2Value = sens2.value;
         var algorithm2ChangeMessage = {
-            type: "role_change",
+            type: "submit_sensitivities",
             id: otree.playerID,
             id_in_group: otree.playerIDInGroup,
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(algorithm2ChangeMessage));
             socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
         }
-        alert(sens1Value, sens2Value);
-        //Send values over websocket
+
         
 
     }
 
     outButton(){
-        
         spreadGraph.removeArrows();
-        playersInMarket[otree.playerIDInGroup]["strategy"] = "out";
+        playersInMarket[otree.playerID]["strategy"] = "out";
         var outChangeMessage = {
             type: "role_change",
             id: otree.playerID,
             id_in_group: otree.playerIDInGroup,
-            state: playersInMarket[otree.playerIDInGroup]["strategy"]
+            state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(outChangeMessage));
@@ -350,6 +386,43 @@ class InputSection extends PolymerElement {
         submitButton.disabled = true;
         sens1.disabled = true;
         sens2.disabled = true;
+
+    }
+
+    testButton(testing){
+
+        var msg = {};
+
+        if(testing === "cancel"){
+            msg["canceled"] = {};
+            msg["canceled"]["type"] = otree.playerID ;
+            msg["canceled"]["order_token"] = "TESTTOKEN1";
+            msg["canceled"]["price"] = 980000;
+        } else if(testing === "replace"){
+            msg["replaced"] = {};
+            msg["replaced"]["type"] = otree.playerID;
+            msg["replaced"]["order_token"] = "TESTTOKEN1";
+            msg["replaced"]["replaced_token"] = "TESTTOKEN0";
+            msg["replaced"]["price"] = 980000;
+        } else if(testing === "confirmation"){
+            msg["confirmed"] = {};
+            msg["confirmed"]["type"] = otree.playerID ;
+            msg["confirmed"]["order_token"] = "TESTTOKEN0";
+            msg["confirmed"]["price"] = 930000;
+        } else if(testing === "BBO"){
+            msg["bbo"] = {};
+            msg["bbo"]["type"] = otree.marketID;
+            msg["bbo"]["best_bid"] = 950000;
+            msg["bbo"]["best_offer"] = 970000;
+            
+        }
+        
+        // msg["trader"]["price"] = 920000;
+        JSON.stringify(msg);
+        console.log("Message being tested below");
+        console.log(msg);
+        alert("Tested message being sent");
+        otree.testMessageHandler(msg);
 
     }
 
@@ -535,6 +608,8 @@ class InputSection extends PolymerElement {
     delete spreadGraph.spreadLinesFBAConcurrent[otree.playerID];
     
   }
+
+
 
   drawTimer(){
     inputSection.inputWidth = document.querySelector("input-section").clientWidth*1.5;

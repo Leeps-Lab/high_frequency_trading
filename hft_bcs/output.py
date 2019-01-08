@@ -29,7 +29,6 @@ class HFTPlayerStateRecord(Model):
         self.event_no = int(event.reference_no)
         self.session = player.session.id
         self.player_id = player.id
-        self.save()
         return self
 
 class HFTEventRecord(Model):
@@ -52,7 +51,6 @@ class HFTEventRecord(Model):
         self.original_message = event.message
         self.attachments = event.attachments
         self.outgoing_messages = event.outgoing_messages
-        self.save()
         return self
 
 results_foldername = 'results'

@@ -1,7 +1,6 @@
 from ._builtin import Page, WaitPage
 from otree.api import Currency as c
 from .models import Constants
-from . import results
 import logging
 from django.core.cache import cache
 from django.conf import settings

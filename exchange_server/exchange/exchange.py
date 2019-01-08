@@ -50,18 +50,11 @@ class Exchange:
             OuchClientMessages.ModifyOrder: None}
 
     def system_start_atomic(self, system_event_message, timestamp):  
-        log.info("System start message sent      : " + str(system_event_message['timestamp']))
-        log.info("System start message received  : " + str(timestamp))
+        log.debug('received reset signal at %s.' % timestamp)
         self.order_store.clear_order_store()
         self.order_book.reset_book()
-        m = OuchServerMessages.SystemEvent(
-            event_code=b'S',
-            timestamp=timestamp)
+        m = OuchServerMessages.SystemEvent(event_code=b'S', timestamp=timestamp)
         m.meta = system_event_message.meta
-        # await self.message_broadcast(
-        #     OuchServerMessages.SystemEvent(
-        #     event_code=b'S',
-        #     timestamp=timestamp))
         self.outgoing_messages.append(m)
 
 
