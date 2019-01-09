@@ -312,8 +312,6 @@ class InputSection extends PolymerElement {
         playersInMarket[otree.playerID]["strategy"] = "maker_2";
         var makerBasicChangeMessage = {
             type: "role_change",
-            id: otree.playerID,
-            id_in_group: otree.playerIDInGroup,
             state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
@@ -340,8 +338,6 @@ class InputSection extends PolymerElement {
         playersInMarket[otree.playerID]["strategy"] = "taker";
         var algorithm2ChangeMessage = {
             type: "role_change",
-            id: otree.playerID,
-            id_in_group: otree.playerIDInGroup,
             state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
@@ -365,7 +361,6 @@ class InputSection extends PolymerElement {
         var sens2Value = sens2.value;
         var algorithm2ChangeMessage = {
             type: "slider",
-            id: otree.playerID,
             a_x: sens1.value,
             a_y: sens2.value,
         };
@@ -387,8 +382,6 @@ class InputSection extends PolymerElement {
         playersInMarket[otree.playerID]["strategy"] = "out";
         var outChangeMessage = {
             type: "role_change",
-            id: otree.playerID,
-            id_in_group: otree.playerIDInGroup,
             state: playersInMarket[otree.playerID]["strategy"]
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){

@@ -366,7 +366,7 @@ class SpreadGraph extends PolymerElement {
             .attr("x", ((desiredCenter < text.attr("x") ) ? +text.attr("x") - differenceFromMid : +text.attr("x") + differenceFromMid))
 
     });
-    // spreadGraph.drawPossibleSpreadTicks();
+    spreadGraph.drawPossibleSpreadTicks();
   }
 
   drawBestBid(obj){

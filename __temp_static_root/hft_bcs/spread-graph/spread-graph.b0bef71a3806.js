@@ -341,32 +341,26 @@ class SpreadGraph extends PolymerElement {
                     .attr("stroke-width",2)
                     .attr("stroke", "black")
                     .attr("class","middle");
-    
     //Center is between the best bid and the best offer
     //Now I have add animations
-    spreadGraph.animateBBOShift(desiredCenter);
+    //spreadGraph.animateBBOShift(desiredCenter);
   } 
 
   animateBBOShift(desiredCenter){
-
+    console.log(desiredCenter);
     var differenceFromMid = Math.abs(desiredCenter - spreadGraph.spread_width/2);
-    
-
+    console.log(differenceFromMid);
     spreadGraph.tickLines.forEach(line => { 
         line.transition()
             .duration(300)
-            .attr("x1", ((desiredCenter < line.attr("x1") ) ? +line.attr("x1") + differenceFromMid : +line.attr("x1") - differenceFromMid))
-            .attr("x2", ((desiredCenter < line.attr("x2") ) ? +line.attr("x2") + differenceFromMid : +line.attr("x2") - differenceFromMid))
-
+            .attr("x1", desiredCenter)
+            .attr("x2", desiredCenter)
     });
-    
     spreadGraph.tickLinesText.forEach(text => { 
         text.transition()
             .duration(300)
-            .attr("x", ((desiredCenter < text.attr("x") ) ? +text.attr("x") - differenceFromMid : +text.attr("x") + differenceFromMid))
-
+            .attr("x", ((desiredCenter > text.attr("x") ) ? +text.attr("x") + differenceFromMid : +text.attr("x") - differenceFromMid))
     });
-    // spreadGraph.drawPossibleSpreadTicks();
   }
 
   drawBestBid(obj){

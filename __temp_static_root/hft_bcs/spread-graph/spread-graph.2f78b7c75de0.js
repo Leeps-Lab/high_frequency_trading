@@ -332,41 +332,25 @@ class SpreadGraph extends PolymerElement {
     var smallerX = (bestBidCicle.attr("cx") <=  bestOfferCicle.attr("cx")) ? bestBidCicle.attr("cx") : bestOfferCicle.attr("cx");
     var diff = Math.abs(bestBidCicle.attr("cx") - bestOfferCicle.attr("cx"));
     var desiredCenter = (diff/2) + +smallerX;
-    spreadGraph.spread_svg.select(".middle").remove();
-    spreadGraph.spread_svg.append("svg:line")
-                    .attr("x1", desiredCenter)
-                    .attr("y1", spreadGraph.spread_height*0.3 - 5)
-                    .attr("x2", desiredCenter)
-                    .attr("y2", spreadGraph.spread_height*0.3 + 5)
-                    .attr("stroke-width",2)
-                    .attr("stroke", "black")
-                    .attr("class","middle");
-    
+
     //Center is between the best bid and the best offer
     //Now I have add animations
     spreadGraph.animateBBOShift(desiredCenter);
   } 
 
   animateBBOShift(desiredCenter){
-
     var differenceFromMid = Math.abs(desiredCenter - spreadGraph.spread_width/2);
-    
-
-    spreadGraph.tickLines.forEach(line => { 
-        line.transition()
-            .duration(300)
-            .attr("x1", ((desiredCenter < line.attr("x1") ) ? +line.attr("x1") + differenceFromMid : +line.attr("x1") - differenceFromMid))
-            .attr("x2", ((desiredCenter < line.attr("x2") ) ? +line.attr("x2") + differenceFromMid : +line.attr("x2") - differenceFromMid))
-
-    });
-    
+    // spreadGraph.tickLines.forEach(line => { 
+    //     line.transition()
+    //         .duration(300)
+    //         .attr("x1", desiredCenter)
+    //         .attr("x2", desiredCenter)
+    // });
     spreadGraph.tickLinesText.forEach(text => { 
         text.transition()
             .duration(300)
-            .attr("x", ((desiredCenter < text.attr("x") ) ? +text.attr("x") - differenceFromMid : +text.attr("x") + differenceFromMid))
-
+            .attr("x", ((desiredCenter > text.attr("x") ) ? text.attr("x") - differenceFromMid : text.attr("x") + differenceFromMid))
     });
-    // spreadGraph.drawPossibleSpreadTicks();
   }
 
   drawBestBid(obj){

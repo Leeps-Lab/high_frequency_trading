@@ -350,23 +350,20 @@ class SpreadGraph extends PolymerElement {
   animateBBOShift(desiredCenter){
 
     var differenceFromMid = Math.abs(desiredCenter - spreadGraph.spread_width/2);
-    
 
     spreadGraph.tickLines.forEach(line => { 
         line.transition()
             .duration(300)
-            .attr("x1", ((desiredCenter < line.attr("x1") ) ? +line.attr("x1") + differenceFromMid : +line.attr("x1") - differenceFromMid))
-            .attr("x2", ((desiredCenter < line.attr("x2") ) ? +line.attr("x2") + differenceFromMid : +line.attr("x2") - differenceFromMid))
-
+            .attr("x1", ((desiredCenter < line.attr("x1") ) ? +line.attr("x1") - differenceFromMid : +line.attr("x1") - differenceFromMid))
+            .attr("x2", ((desiredCenter < line.attr("x1") ) ? +line.attr("x1") - differenceFromMid : +line.attr("x1") - differenceFromMid))
     });
     
     spreadGraph.tickLinesText.forEach(text => { 
         text.transition()
             .duration(300)
-            .attr("x", ((desiredCenter < text.attr("x") ) ? +text.attr("x") - differenceFromMid : +text.attr("x") + differenceFromMid))
-
+            .attr("x", ((desiredCenter < text.attr("x") ) ? +text.attr("x") - differenceFromMid : +text.attr("x") - differenceFromMid))
     });
-    // spreadGraph.drawPossibleSpreadTicks();
+    spreadGraph.drawPossibleSpreadTicks();
   }
 
   drawBestBid(obj){
