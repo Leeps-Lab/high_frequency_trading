@@ -134,35 +134,33 @@ class InputSection extends PolymerElement {
           .slider-speed.round:before {
             border-radius: 50%;
           }
-</style>
+    </style>
     
     <div class="container-fluid">
 
     <div class="row">
-        
-        <br>
         <div class="text-center col-lg-3">
-            <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button"  width="80px">Manual</button>
+            <button  value="out" class="text-center btn btn-primary manual-button" type="button"  width="80px">Manual</button>
             <div class="slider-sens" style="margin-top:50px;">
                 <button   class="text-center btn btn-primary submit-button" type="button">Submit Values</button>
             </div>
         </div>
         <div class="text-center col-lg-3" >
-            <button class="text-center btn btn-block btn-primary algorithm-button maker-button" type="button"  width="80px">Maker</button>
+            <button class="text-center btn btn-primary algorithm-button maker-button" type="button"  width="80px">Maker</button>
             <div class="slider-sens" style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
-            <button class="text-center btn btn-block btn-primary taker-button taker-button" type="button" width="80px">Taker</button>
+            <button class="text-center btn btn-primary taker-button taker-button" type="button" width="80px">Taker</button>
             <div class="slider-sens" style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
-            <button class="text-center btn btn-block btn-primary out-button" type="button" width="80px">Out</button>
+            <button class="text-center btn btn-primary out-button" type="button" width="80px">Out</button>
             <div class="text-center center-block" style="margin-top:100px;">
                 <p>Speed</p>
                 <label class="switch">
@@ -405,22 +403,30 @@ class InputSection extends PolymerElement {
 
     uncheckOtherButtons(button){
 
-        if(playersInMarket[otree.playerID]["strategy"] == "maker_basic"){
-            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-primary");
-        }
-        if(playersInMarket[otree.playerID]["strategy"] == "maker_2"){
-            inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-primary");
-
-        }
-        if(playersInMarket[otree.playerID]["strategy"] == "taker"){
-            inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
+        if(button.className.includes("manual-button")){
+            
+            console.log(inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-primary"));
             inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-primary");
-        }
-        if(playersInMarket[otree.playerID]["strategy"] == "out"){
-            inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
             inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-primary");
+    
+        } else if(button.className.includes("maker-button")){
+
+            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-primary");
+            inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-primary");
+            inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-primary");
+
+        } else if(button.className.includes("taker-button")){
+
+            inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-primary");
+            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-primary");
+            inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-primary");
+
+        } else if(button.className.includes("out-button")){
+
+            inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-primary");
+            inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-primary");
+            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-primary");
+
         }
     }
 

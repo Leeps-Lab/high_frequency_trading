@@ -134,33 +134,35 @@ class InputSection extends PolymerElement {
           .slider-speed.round:before {
             border-radius: 50%;
           }
-    </style>
+</style>
     
     <div class="container-fluid">
 
     <div class="row">
+        
+        <br>
         <div class="text-center col-lg-3">
-            <button  value="out" class="text-center btn btn-primary maker1-button" type="button"  width="80px">Maker 1</button>
+            <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button"  width="80px">Manual</button>
             <div class="slider-sens" style="margin-top:50px;">
-                <button   class="text-center btn btn-success submit-button" type="button">Submit Values</button>
+                <button   class="text-center btn btn-primary submit-button" type="button">Submit Values</button>
             </div>
         </div>
         <div class="text-center col-lg-3" >
-            <button class="text-center btn btn-primary algorithm-button maker2-button" type="button"  width="80px">Maker 2</button>
+            <button class="text-center btn btn-block btn-primary algorithm-button maker-button" type="button"  width="80px">Maker</button>
             <div class="slider-sens" style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
-            <button class="text-center btn btn-primary taker-button taker-button" type="button" width="80px">Taker</button>
+            <button class="text-center btn btn-block btn-primary taker-button taker-button" type="button" width="80px">Taker</button>
             <div class="slider-sens" style="margin-top:50px;">
                 <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
                 <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
             </div>
         </div>
         <div class="text-center col-lg-3">
-            <button class="text-center btn btn-primary out-button" type="button" width="80px">Out</button>
+            <button class="text-center btn btn-block btn-primary out-button" type="button" width="80px">Out</button>
             <div class="text-center center-block" style="margin-top:100px;">
                 <p>Speed</p>
                 <label class="switch">
@@ -209,11 +211,12 @@ class InputSection extends PolymerElement {
     inputSection.Button_Pressed = this.Button_Pressed;
     inputSection.startBatchTimer = this.startBatchTimer;
     inputSection.updateSpeed = this.updateSpeed;
-    inputSection.maker1Click = this.maker1Click;
-    inputSection.maker2Click = this.maker2Button;
+    inputSection.manualClick = this.manualClick;
+    inputSection.makerClick = this.makerButton;
     inputSection.takerClick = this.takerButton;
     inputSection.submitClick = this.submitButton;
     inputSection.outClick = this.outButton;
+    inputSection.uncheckOtherButtons = this.uncheckOtherButtons;
 
     inputSection.testClick = this.testButton;
 
@@ -242,8 +245,8 @@ class InputSection extends PolymerElement {
       
   }
   activateButtons(){
-    var maker1Button = inputSection.inputSectionShadowDOM.querySelector(".maker1-button");
-    var maker2Button = inputSection.inputSectionShadowDOM.querySelector(".maker2-button");
+    var manualButton = inputSection.inputSectionShadowDOM.querySelector(".manual-button");
+    var makerButton = inputSection.inputSectionShadowDOM.querySelector(".maker-button");
     var takerButton = inputSection.inputSectionShadowDOM.querySelector(".taker-button");
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
     var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
@@ -253,8 +256,8 @@ class InputSection extends PolymerElement {
     // var testConfirmationButton = inputSection.inputSectionShadowDOM.querySelector(".test-confirmation-button");
     // var testBBOButton = inputSection.inputSectionShadowDOM.querySelector(".test-BBO-button");
 
-    maker1Button.onclick = inputSection.maker1Click;
-    maker2Button.onclick = inputSection.maker2Click;
+    manualButton.onclick = inputSection.manualClick;
+    makerButton.onclick = inputSection.makerClick;
     takerButton.onclick = inputSection.takerClick;
     outButton.onclick = inputSection.outClick;
     submitButton.onclick = inputSection.submitClick;
@@ -272,8 +275,11 @@ class InputSection extends PolymerElement {
   } 
 
 
-    maker1Click(){
+    manualClick(){
+        inputSection.uncheckOtherButtons(this);
         //update player object 
+        this.classList.toggle("btn-primary");
+        this.classList.toggle("btn-success");
         playersInMarket[otree.playerID]["strategy"] = "maker_basic";
         var manualChangeMessage = {
             type: "role_change",
@@ -298,8 +304,10 @@ class InputSection extends PolymerElement {
 
     }
 
-    maker2Button(){
-        
+    makerButton(){
+        inputSection.uncheckOtherButtons(this);
+        this.classList.toggle("btn-primary");
+        this.classList.toggle("btn-success");
         //update player object 
         playersInMarket[otree.playerID]["strategy"] = "maker_2";
         var makerBasicChangeMessage = {
@@ -326,6 +334,9 @@ class InputSection extends PolymerElement {
     }
 
     takerButton(){
+        inputSection.uncheckOtherButtons(this);
+        this.classList.toggle("btn-primary");
+        this.classList.toggle("btn-success");
         playersInMarket[otree.playerID]["strategy"] = "taker";
         var algorithm2ChangeMessage = {
             type: "role_change",
@@ -368,6 +379,9 @@ class InputSection extends PolymerElement {
     }
 
     outButton(){
+        inputSection.uncheckOtherButtons(this);
+        this.classList.toggle("btn-primary");
+        this.classList.toggle("btn-success");
         spreadGraph.removeArrows();
         playersInMarket[otree.playerID]["strategy"] = "out";
         var outChangeMessage = {
@@ -387,6 +401,27 @@ class InputSection extends PolymerElement {
         sens1.disabled = true;
         sens2.disabled = true;
 
+    }
+
+    uncheckOtherButtons(button){
+
+        if(playersInMarket[otree.playerID]["strategy"] == "maker_basic"){
+            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
+            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-primary");
+        }
+        if(playersInMarket[otree.playerID]["strategy"] == "maker_2"){
+            inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-success");
+            inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-primary");
+
+        }
+        if(playersInMarket[otree.playerID]["strategy"] == "taker"){
+            inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
+            inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-primary");
+        }
+        if(playersInMarket[otree.playerID]["strategy"] == "out"){
+            inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
+            inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-primary");
+        }
     }
 
     testButton(testing){
