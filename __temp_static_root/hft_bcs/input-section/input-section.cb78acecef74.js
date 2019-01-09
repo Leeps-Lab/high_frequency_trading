@@ -369,7 +369,7 @@ class InputSection extends PolymerElement {
             a_x: sens1.value,
             a_y: sens2.value,
         };
-        
+        console.log( algorithm2ChangeMessage );
         if(socketActions.socket.readyState === socketActions.socket.OPEN){
             console.log(JSON.stringify(algorithm2ChangeMessage));
             socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
