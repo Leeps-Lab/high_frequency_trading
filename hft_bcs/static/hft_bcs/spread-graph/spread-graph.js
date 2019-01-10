@@ -351,12 +351,12 @@ class SpreadGraph extends PolymerElement {
 
     var differenceFromMid = Math.abs(desiredCenter - spreadGraph.spread_width/2);
      //Animate All Spread Line Text Values
-     spreadGraph.tickLinesText.forEach(text => { 
-        text.transition()
-            .duration(300)
-            .attr("x", ((desiredCenter < text.attr("x") ) ? +text.attr("x") - differenceFromMid : +text.attr("x") + differenceFromMid))
+    //  spreadGraph.tickLinesText.forEach(text => { 
+    //     text.transition()
+    //         .duration(300)
+    //         .attr("x", ((desiredCenter < text.attr("x") ) ? +text.attr("x") - differenceFromMid : +text.attr("x") + differenceFromMid))
 
-    });
+    // });
      //Animate All Spread Line Text Values
      spreadGraph.tickLines.forEach(line => { 
         line.transition()
@@ -371,9 +371,8 @@ class SpreadGraph extends PolymerElement {
 
     //Shift Arrows
 
-   
     //Redraw possiible spread ticks with updated best bid and best offer
-    // spreadGraph.drawPossibleSpreadTicks();
+    spreadGraph.drawPossibleSpreadTicks();
   }
 
   drawBestBid(obj){
