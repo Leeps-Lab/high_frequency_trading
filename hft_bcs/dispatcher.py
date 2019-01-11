@@ -23,7 +23,7 @@ class Dispatcher:
         for entity in observers:
             handler = cls.handler_factory.get_handler(entity)
             event = handler(event)
-        print(event) 
+        print(event.event_type) 
         hft_background_task(hft_event_checkpoint, event)   
         resulting_events = []
         while event.outgoing_messages:

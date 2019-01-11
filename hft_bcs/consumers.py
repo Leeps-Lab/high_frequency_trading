@@ -16,7 +16,7 @@ class SubjectConsumer(JsonWebsocketConsumer):
 
     def raw_connect(self, message, subsession_id, group_id, player_id):
         player = Player.objects.get(id=player_id)
-        Group(player.market).add(message.reply_channel)
+        Group(player.market_id).add(message.reply_channel)
         self.connect(message, subsession_id, group_id, player_id)
 
     def connect(self, message, subsession_id, group_id, player_id):
@@ -36,9 +36,9 @@ class SubjectConsumer(JsonWebsocketConsumer):
                 player_id, message.content, e)
 
     def raw_disconnect(self, message, subsession_id, group_id, player_id):
-        log.info('Player %s disconnected from Group %s.' % (player_id, group_id))
-        Group(group_id).discard(message.reply_channel)
-        
+        player = Player.objects.get(id=player_id)
+        Group(player.market_id).add(message.reply_channel)      
+
 class InvestorConsumer(JsonWebsocketConsumer):
 
     def raw_receive(self, message, subsession_id):

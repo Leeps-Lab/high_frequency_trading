@@ -84,20 +84,20 @@ def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     return timestamp
 
 def leeps_fields(player, subject_state):
-    player.best_bid = subject_state.best_quotes['bid']
-    player.best_offer = subject_state.best_quotes['offer']
+    player.best_bid = subject_state.best_quotes['B']
+    player.best_offer = subject_state.best_quotes['S']
     if subject_state.distance_from_best_quote is not None:
-        player.distance_from_bid = subject_state.distance_from_best_quote['bid']
-        player.distance_from_offer = subject_state.distance_from_best_quote['offer']
+        player.distance_from_bid = subject_state.distance_from_best_quote['B']
+        player.distance_from_offer = subject_state.distance_from_best_quote['S']
     if subject_state.latent_quote is not None:
-        lb, lo = subject_state.latent_quote
-        player.latent_bid = lb
-        player.latent_offer = lo
+        player.latent_bid = subject_state.latent_quote['B']
+        player.latent_offer = subject_state.latent_quote['S']
     if subject_state.sliders is not None:
         player.sliders = str(subject_state.sliders)
     player.orderstore = str(subject_state.orderstore)
     player.bid = subject_state.orderstore.bid
-    player.ask = subject_state.orderstore.offer
+    player.offer = subject_state.orderstore.offer
+    player.market_id = str(subject_state.market_id)
 
 
 def kwargs_from_event(event):

@@ -9,6 +9,7 @@ from .cache import get_cache_key
 from collections import deque
 from . import exchange
 from .dispatcher import LEEPSDispatcher
+from functools import partial
 
 log = logging.getLogger(__name__)
 
@@ -63,8 +64,9 @@ class TradeSession:
                 process = subprocess.Popen(args)
                 self.clients[event_type] = process
 
-    def stop_exogenous_events(self):
-        for _, process in self.clients.items():
+    @staticmethod
+    def stop_exogenous_events(clients):
+        for _, process in clients.items():
             process.kill()
 
         
@@ -94,9 +96,10 @@ class LEEPSTradeSession(TradeSession):
                 self.trading_markets.append(market_id)
             self.run_exogenous_events()
             self.is_trading = True
-            reactor.callLater(self.subsession.round_length, self.stop_trade_session)
+            reactor.callLater(self.subsession.round_length, partial(self.stop_trade_session, 
+                clients=dict(self.clients)))
             
-    def stop_trade_session(self, *args):
+    def stop_trade_session(self, *args, clients=None):
         def stop_exchange_connection(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             exchange.disconnect(market_id, host, port)
@@ -108,7 +111,7 @@ class LEEPSTradeSession(TradeSession):
                     'subsession_id': self.subsession.id}
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
-            self.stop_exogenous_events()
+            self.stop_exogenous_events(clients=clients)
             self.subsession.session.advance_last_place_participants()
             self.is_trading = False
         

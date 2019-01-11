@@ -23,7 +23,7 @@ class BaseMarket:
     _ids = itertools.count(1,1)
 
     def __init__(self):
-        self.id = next(self._ids)
+        self.id = str(next(self._ids))
         self.is_trading = False
         self.ready_to_trade= False
         self.exchange_address = None
@@ -102,7 +102,7 @@ class BCSMarket(BaseMarket):
         super().register_group(group)
         for p in group.get_players():
             self.players_in_market[p.id] = False
-            p.market = self.id
+            p.market_id = self.id
             p.save()
 
     def player_ready(self, **kwargs):
@@ -141,7 +141,7 @@ class BCSMarket(BaseMarket):
         host, port = self.exchange_address
         if self.investor is None:
             fields = {'exchange_host': host, 'exchange_port': port, 'market_id':
-                self.id, 'orderstore': OrderStore(self.id, 0)}
+                self.id, 'orderstore': OrderStore(int(self.id), 0)}
             investor_state = LEEPSInvestorState(**fields)
             self.investor = LEEPSInvestor(investor_state)
         self.investor.invest(**kwargs)

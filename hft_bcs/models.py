@@ -45,7 +45,7 @@ class Constants(BaseConstants):
     player_state = ('id','id_in_group', 'group_id', 'role', 'fp', 'speed', 'spread', 
         'prev_speed_update', 'code', 'speed_unit_cost', 'exchange_host', 'exchange_port',
         'time_on_speed', 'endowment', 'cost', 'speed_on',
-        'market')
+        'market_id')
     nasdaq_multiplier = 1e4
     config_fields_to_scale = {
         'fundamental_price':1e4, 
@@ -104,6 +104,7 @@ class Subsession(BaseSubsession):
             for e in exg_events:
                 filename  = self.session.config[e].pop(0)
                 trade_session.register_exogenous_event(e, filename) 
+            self.session.vars['trade_sessions'][self.id] = trade_session.id
             initialize_session_cache(trade_session)
             return trade_session
         def creating_market(self, exchange_format):
@@ -116,11 +117,12 @@ class Subsession(BaseSubsession):
             market = market_cls()
             market.add_exchange(exchange_host, exchange_port)
             market_data = initialize_market_cache(market)
-            return market_data    
+            return market_data      
         SESSION_FORMAT = self.session.config['environment']
         exchange_format = self.session.config['auction_format']
         if self.round_number == 1:
             self.session.config = process_configs(Constants.config_fields_to_scale, self.session.config)
+            self.session.vars['trade_sessions'] = {}
             global GRIDSIZE
             GRIDSIZE = self.session.config['grid_size']
             if self.has_trial:
@@ -197,7 +199,7 @@ class Player(BasePlayer):
     design =  models.CharField()
     consent = models.BooleanField(initial=True)
     inventory = models.IntegerField(initial=0)
-    market = models.StringField()
+    market_id = models.StringField()
     best_bid = models.IntegerField()
     best_offer = models.IntegerField()
     bid = models.IntegerField()

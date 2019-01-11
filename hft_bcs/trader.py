@@ -185,7 +185,7 @@ class BCSTrader(BaseTrader):
         self.broadcast(**message_content)
 
     def broadcast(self, **kwargs):
-        message_content = {'player_id': self.id, 'market_id': self.market}
+        message_content = {'player_id': self.id, 'market_id': self.market_id}
         message_content.update(kwargs)      
         internal_message = format_message('broadcast', **message_content)
         self.outgoing_messages.append(internal_message)  
@@ -258,7 +258,7 @@ class BCSMaker(BCSTrader):
         
     def maker_broadcast_info(self, order_token):
         low_leg, high_leg = int(self.fp - self.spread / 2), int(self.fp + self.spread / 2)
-        message_content = { 'group_id': self.market, 'type': 'maker_confirm', 
+        message_content = { 'group_id': self.market_id, 'type': 'maker_confirm', 
             'message': { 'leg_up': high_leg, 'leg_down': low_leg, 'order_token': order_token, 
                 'id': self.id_in_group }}
         internal_message = format_message('broadcast', **message_content)     
@@ -299,7 +299,7 @@ class BCSOut(BCSTrader):
     def first_move(self, **kwargs):
         self.role = self.__class__.__name__
         self.leave_market()
-        message_content = { 'group_id': self.market, 'type': 'leave_market', 
+        message_content = { 'group_id': self.market_id, 'type': 'leave_market', 
             'message': {'id': self.id_in_group }}
         internal_message = format_message('broadcast', **message_content)    
         self.outgoing_messages.append(internal_message)
@@ -364,12 +364,16 @@ class LEEPSTrader(BCSTrader):
         exchange_message = format_message('exchange', **message_content)
         return exchange_message
 
+    def first_move(self, **kwargs):
+        self.role = kwargs['state']
+
 class LEEPSOut(LEEPSTrader):
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
     
     def first_move(self, **kwargs):
+        super().first_move(**kwargs)
         self.leave_market()
         self.best_quotes['B'] = None
         self.best_quotes['S'] = None
@@ -391,7 +395,7 @@ class LEEPSBasicMaker(LEEPSTrader):
         super().__init__(subject_state)
 
     def first_move(self, **kwargs):
-        super().bbo_update(**kwargs) 
+        super().first_move(**kwargs)
         self.leave_market()
         self.switch_to_market_tracking_role(**kwargs)
 
@@ -438,6 +442,7 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
         super().__init__(subject_state)
     
     def first_move(self, **kwargs):
+        super().first_move(**kwargs)
         self.leave_market()
         self.switch_to_market_tracking_role(**kwargs)
         self.sliders = Sliders(a_x=0, a_y=0, b_x=0, b_y=0)
@@ -507,7 +512,6 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
 
         bid = None
         if best_bid > MIN_BID and new_latent_bid != self.latent_quote['B']:
-            print(best_bid, new_latent_bid, self.latent_quote['B'])
             old_bid= self.latent_quote.pop('B')
             if new_latent_bid != old_bid:
                 bid = new_latent_bid
@@ -515,7 +519,6 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
 
         offer = None      
         if  best_offer < MAX_ASK and new_latent_offer != self.latent_quote['S']:
-            print(best_offer, new_latent_offer, self.latent_quote['S'])
             old_offer = self.latent_quote.pop('S')
             if new_latent_offer != old_offer:
                 offer = new_latent_offer

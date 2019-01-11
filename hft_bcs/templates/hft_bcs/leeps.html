@@ -63,7 +63,7 @@
     //Socket Connection
     var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
     //Needs to be in index page because Django string replacement of player.market and player.id
-    var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{player.subsession.id}}/{{player.market}}/{{player.id}}/");
+    var socket = new WebSocket(ws_scheme + '://' + window.location.host + "/hft/{{player.subsession.id}}/{{player.market_id}}/{{player.id}}/");
 
     socketActions.socket = socket;
 
@@ -112,7 +112,7 @@
     otree.groupIDInfoTable = {{group.id_in_subsession}};
     otree.groupID = {{group.id}};
     otree.playerID = {{player.id}};
-    otree.marketID = {{player.market}};
+    otree.marketID = {{player.market_id}};
     otree.playerIDInGroup = {{player.id_in_group}}; 
     otree.maxSpread = {{player.max_spread}}; 
     otree.defaultSpread = {{player.spread}};

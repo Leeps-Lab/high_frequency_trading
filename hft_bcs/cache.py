@@ -27,7 +27,6 @@ def write_to_cache_with_version(key, value, version, timeout=cache_timeout):
 def initialize_player_cache(player, subject_state, fields_to_map, timeout=cache_timeout):
     pairs = {}
     player_key = get_cache_key(player.id, 'player')
-    print(player.market)
     pairs[player_key] = {'model': player}
     trader_key = get_cache_key(player.id, 'trader')
     pairs[trader_key] = {'version': 0, 'role': player.role, 

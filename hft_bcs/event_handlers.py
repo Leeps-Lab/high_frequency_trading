@@ -107,12 +107,12 @@ def leeps_handle_market_message(event, **kwargs):
 @atomic
 def leeps_handle_session_events(event, **kwargs):
     message_type, market_id = event.event_type, event.message['market_id']
-    session_id = event.message['subsession_id']
-    session_key = get_cache_key(session_id, 'trade_session')
+    subsession_id = event.message['subsession_id']
+    session_key = get_cache_key(subsession_id, 'trade_session')
     trade_session = cache.get(session_key)
     if trade_session.id not in SUBPROCESSES:
         SUBPROCESSES[trade_session.id] = {}
-    trade_session.clients = SUBPROCESSES[trade_session.id]         
+    trade_session.clients = SUBPROCESSES[trade_session.id]      
     trade_session.receive(message_type, market_id)
     SUBPROCESSES[trade_session.id] = trade_session.clients
     trade_session.clients = {}
@@ -135,6 +135,7 @@ def fundamental_price_change(event, **kwargs):
 
 integer_fields = ('price', 'time_in_force')
 def noise_trader_arrival(event, **kwargs):
+    event.attachments['market_id'] = str(event.message['market_id'])
     event.message['price'] = int(event.message['price'] )
     event.message['time_in_force'] = int(event.message['time_in_force'])
     event = leeps_handle_market_message(event, **kwargs)
@@ -142,6 +143,7 @@ def noise_trader_arrival(event, **kwargs):
 
 def marketwide_events(event, **kwargs):
     market_id = event.message['market_id']
+    event.attachments['market_id'] = market_id
     all_players_data = get_players_by_market(market_id)
     for player_data in all_players_data:
         player = player_data['model']
@@ -151,6 +153,8 @@ def marketwide_events(event, **kwargs):
     return event
 
 def role_based_events(event, **kwargs):
+    market_id = event.message['market_id']
+    event.attachments['market_id'] = market_id
     makers = event.message['maker_ids']
     for player_id in makers:
         event.attachments['player_id'] = player_id
