@@ -297,7 +297,7 @@ class SpreadGraph extends PolymerElement {
     //Now I have add animations
 
     if((spreadGraph.bestBid != undefined && spreadGraph.bestOffer != undefined) && (spreadGraph.bestBid != 0 || spreadGraph.bestOffer != 0)){
-        // spreadGraph.animateBBOShift(desiredCenter);
+        spreadGraph.animateBBOShift(desiredCenter);
     }
     
   } 
