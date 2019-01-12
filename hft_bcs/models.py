@@ -2,26 +2,17 @@
 
 
 import logging
-from datetime import datetime
 from jsonfield import JSONField
 
-from .hft_logging.experiment_logger import prepare
-
 from otree.db.models import Model, ForeignKey
-from otree.api import (
+from otree.api import ( 
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
 from otree.models import Session
-from . import client_messages 
 
 from django.core.cache import cache
 
-import time
-from . import translator
-from .decorators import atomic
 from otree.common_internal import random_chars_8
-from settings import (
-    exp_logs_dir, EXCHANGE_HOST_NO, REAL_WORLD_CURRENCY_CODE )
 
 from .orderstore import OrderStore
 from .utility import (process_configs, configure_model, exogenous_event_client,
@@ -50,17 +41,11 @@ class Constants(BaseConstants):
 
     exchange_host_label = '{self.subsession.design}_{host}'
 
-    # first_exchange_port = {'CDA': 9001, 'FBA': 9101}  # make this configurable
-
     speed_factor = 1e-9
     player_state = ('id','id_in_group', 'group_id', 'role', 'fp', 'speed', 'spread', 
         'prev_speed_update', 'code', 'speed_unit_cost', 'exchange_host', 'exchange_port',
         'time_on_speed', 'endowment', 'cost', 'speed_on',
-        'market')
-
-    # log file
-    log_file = '{dir}{time}_{self.design}_{self.code}_{self.players_per_group}_round_{self.round_number}'
-
+        'market_id')
     nasdaq_multiplier = 1e4
     config_fields_to_scale = {
         'fundamental_price':1e4, 
@@ -119,6 +104,7 @@ class Subsession(BaseSubsession):
             for e in exg_events:
                 filename  = self.session.config[e].pop(0)
                 trade_session.register_exogenous_event(e, filename) 
+            self.session.vars['trade_sessions'][self.id] = trade_session.id
             initialize_session_cache(trade_session)
             return trade_session
         def creating_market(self, exchange_format):
@@ -131,11 +117,12 @@ class Subsession(BaseSubsession):
             market = market_cls()
             market.add_exchange(exchange_host, exchange_port)
             market_data = initialize_market_cache(market)
-            return market_data    
+            return market_data      
         SESSION_FORMAT = self.session.config['environment']
         exchange_format = self.session.config['auction_format']
         if self.round_number == 1:
             self.session.config = process_configs(Constants.config_fields_to_scale, self.session.config)
+            self.session.vars['trade_sessions'] = {}
             global GRIDSIZE
             GRIDSIZE = self.session.config['grid_size']
             if self.has_trial:
@@ -212,7 +199,7 @@ class Player(BasePlayer):
     design =  models.CharField()
     consent = models.BooleanField(initial=True)
     inventory = models.IntegerField(initial=0)
-    market = models.StringField()
+    market_id = models.StringField()
     best_bid = models.IntegerField()
     best_offer = models.IntegerField()
     bid = models.IntegerField()
@@ -223,18 +210,3 @@ class Player(BasePlayer):
     latent_offer = models.IntegerField(blank=True)
     sliders = models.StringField()
     orderstore = models.StringField(blank=True)
-
-
-class HFTTraderStateRecord(Model):
-
-    timestamp = models.DateTimeField(auto_now_add=True)
-    player_id = models.IntegerField()
-    market_id = models.IntegerField()
-    role =  models.StringField()
-    speed_on = models.BooleanField()
-    inventory = models.IntegerField()
-    orderstore = models.StringField()
-    trigger_event = models.StringField()
-    event_message = models.StringField()
-    bid = models.IntegerField(blank=True)
-    ask = models.IntegerField(blank=True)

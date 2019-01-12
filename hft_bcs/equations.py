@@ -44,9 +44,6 @@ class OrderImbalance:
         self.order_imbalance = order_imbalance
         return order_imbalance   
 
-    
-
-
 # def order_imbalance_function(constant=1):
 #     """
 #     dan's order imbalance function

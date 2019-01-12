@@ -24,7 +24,7 @@ parameters:
   lambda-i: 0.25
   lambda-j: 0.33
   max-spread: 2
-  period-length: 240
+  period-length: 60
   speed-cost: 0.022
   grid-size: 1
 

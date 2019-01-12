@@ -36,7 +36,6 @@ class CustomOtreeConfig:
                 log.info('%s:%s is missing in %s, set to none.' % (
                     parent_key, child_key, self.filename))
         otree_configs.update(self.otree_default_required)
-        print(otree_configs)
         return otree_configs
 
     @classmethod

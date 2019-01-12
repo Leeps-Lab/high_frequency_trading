@@ -9,6 +9,7 @@ from .cache import get_cache_key
 from collections import deque
 from . import exchange
 from .dispatcher import LEEPSDispatcher
+from functools import partial
 
 log = logging.getLogger(__name__)
 
@@ -57,13 +58,15 @@ class TradeSession:
     def run_exogenous_events(self):
         if self.exogenous_events:
             for event_type, filename in self.exogenous_events.items():
-                url = exogenous_event_endpoints[event_type]
+                url = exogenous_event_endpoints[event_type].format(subsession_id=
+                    self.subsession.id)
                 args = ['python', exogenous_event_client, event_type, url, filename]
                 process = subprocess.Popen(args)
                 self.clients[event_type] = process
 
-    def stop_exogenous_events(self):
-        for _, process in self.clients.items():
+    @staticmethod
+    def stop_exogenous_events(clients):
+        for _, process in clients.items():
             process.kill()
 
         
@@ -72,8 +75,8 @@ class LEEPSTradeSession(TradeSession):
     def start_trade_session(self, market_id):
         def create_exchange_connection(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
-            exchange.connect(market_id, host, port, LEEPSDispatcher,
-                wait_for_connection=True)
+            exchange.connect(self.subsession.id, market_id, host, port, 
+                LEEPSDispatcher, wait_for_connection=True)
         def reset_exchange(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             message_content = {'host': host, 'port': port, 'type': 'reset_exchange', 'delay':
@@ -86,15 +89,17 @@ class LEEPSTradeSession(TradeSession):
             for market_id, _ in self.market_state.items():
                 create_exchange_connection(self, market_id)
                 reset_exchange(self, market_id)
-                message_content = {'type': 'market_start', 'market_id': market_id}
+                message_content = {'type': 'market_start', 'market_id': market_id,
+                    'subsession_id': self.subsession.id}
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
                 self.trading_markets.append(market_id)
             self.run_exogenous_events()
             self.is_trading = True
-            reactor.callLater(self.subsession.round_length, self.stop_trade_session)
+            reactor.callLater(self.subsession.round_length, partial(self.stop_trade_session, 
+                clients=dict(self.clients)))
             
-    def stop_trade_session(self, *args):
+    def stop_trade_session(self, *args, clients=None):
         def stop_exchange_connection(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             exchange.disconnect(market_id, host, port)
@@ -102,10 +107,11 @@ class LEEPSTradeSession(TradeSession):
             while self.trading_markets:
                 market_id = self.trading_markets.pop()
                 stop_exchange_connection(self, market_id)
-                message_content = {'type': 'market_end', 'market_id': market_id}
+                message_content = {'type': 'market_end', 'market_id': market_id,
+                    'subsession_id': self.subsession.id}
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
-            self.stop_exogenous_events()
+            self.stop_exogenous_events(clients=clients)
             self.subsession.session.advance_last_place_participants()
             self.is_trading = False
         

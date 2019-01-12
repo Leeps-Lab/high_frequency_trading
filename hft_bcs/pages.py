@@ -1,11 +1,12 @@
 from ._builtin import Page, WaitPage
 from otree.api import Currency as c
 from .models import Constants
-from . import results
 import logging
 from django.core.cache import cache
 from django.conf import settings
-
+from .output import close_trade_session
+from .cache import get_cache_key
+from django.core.cache import cache
 
 log = logging.getLogger(__name__)
 
@@ -76,24 +77,11 @@ round_results = {}
 class ResultsWaitPage(WaitPage):
 
     def after_all_players_arrive(self):
-        pass
-        # subsession = self.subsession
-        # # take speed cost
-        # for player in self.group.get_players():
-        #     player.take_cost()
-        #     payoff_for_round = player.do_payoff()
-        #     print('payoff for round', payoff_for_round)
-        #     if subsession.is_trial is False:
-        #         if subsession.restore is True and (subsession.first_round == self.round_number):
-        #             subsession.restore_payoffs()
-        #         player.participant.payoff += payoff_for_round
-        #         if player.participant.vars['payoff_round'] == self.round_number:
-        #             player.participant.vars['round_payoff'] = payoff_for_round
-        # # process output to display
-        # session_log_file = self.subsession.log_file
-        # gid = self.group.id
-        # results_for_group = results.BCS_process(session_log_file, gid)
-        # round_results[gid] = results_for_group
+        trade_session_id = self.session.vars['trade_sessions'][self.subsession.id]
+        ts_key = get_cache_key(trade_session_id, 'trade_session')
+        trade_session = cache.get(ts_key)
+        close_trade_session(trade_session)
+        
 
 class Results(Page):
     pass

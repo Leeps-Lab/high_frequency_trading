@@ -5,7 +5,7 @@ import itertools
 from .trader import LEEPSInvestor
 from .subject_state import LEEPSInvestorState
 from .orderstore import OrderStore
-from .utility import format_message
+from .utility import format_message, MIN_BID, MAX_ASK
 
 from .equations import OrderImbalance
 log = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ class BaseMarket:
     _ids = itertools.count(1,1)
 
     def __init__(self):
-        self.id = next(self._ids)
+        self.id = str(next(self._ids))
         self.is_trading = False
         self.ready_to_trade= False
         self.exchange_address = None
@@ -37,8 +37,8 @@ class BaseMarket:
     def add_exchange(self, host, port):
         self.exchange_address = (host, port)
     
-    def register_session(self, trade_session_id):
-        self.session_id = trade_session_id
+    def register_session(self, subsession_id):
+        self.subsession_id = subsession_id
     
     def register_group(self, group):
         self.subscriber_groups[group.id] = []
@@ -51,7 +51,8 @@ class BaseMarket:
         else:
             handler_name = self.market_events_dispatch[event_type]
             handler = getattr(self, handler_name)
-            handler(*args, **kwargs)
+            attachments = handler(*args, **kwargs)
+            return attachments
     
     def broadcast_to_subscribers(self, broadcast_info):
         # for group_id in self.subscriber_groups.keys():
@@ -101,7 +102,7 @@ class BCSMarket(BaseMarket):
         super().register_group(group)
         for p in group.get_players():
             self.players_in_market[p.id] = False
-            p.market = self.id
+            p.market_id = self.id
             p.save()
 
     def player_ready(self, **kwargs):
@@ -112,7 +113,7 @@ class BCSMarket(BaseMarket):
         if market_ready_condition is True:
             self.ready_to_trade = True
             message_content = {'type': 'market_ready_to_start', 'market_id': self.id,
-                'session_id': self.session_id}
+                'subsession_id': self.subsession_id}
             internal_message = format_message('derived_event', **message_content)
             self.outgoing_messages.append(internal_message)
     
@@ -120,7 +121,7 @@ class BCSMarket(BaseMarket):
         player_id = int(kwargs.get('player_id'))
         self.players_in_market[player_id] = False
         message_content = {'type': 'market_ready_to_end', 'market_id': self.id,
-                'session_id': self.session_id}
+                'subsession_id': self.subsession_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
 
@@ -140,7 +141,7 @@ class BCSMarket(BaseMarket):
         host, port = self.exchange_address
         if self.investor is None:
             fields = {'exchange_host': host, 'exchange_port': port, 'market_id':
-                self.id, 'orderstore': OrderStore(self.id, 0)}
+                self.id, 'orderstore': OrderStore(int(self.id), 0)}
             investor_state = LEEPSInvestorState(**fields)
             self.investor = LEEPSInvestor(investor_state)
         self.investor.invest(**kwargs)
@@ -222,7 +223,8 @@ class LEEPSMarket(BCSMarket):
                 'type':'order_imbalance_change', 
                 'order_imbalance': current_order_imbalance, 
                 'maker_ids': maker_ids,
-                'market_id': self.id}
+                'market_id': self.id,
+                'subsession_id': self.subsession_id}
             internal_message = format_message('derived_event', **message_content)
             self.outgoing_messages.append(internal_message)
 
@@ -234,7 +236,7 @@ class LEEPSMarket(BCSMarket):
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
             'market_id': self.id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
             'maker_ids': makers_ids, 'volume_at_best_bid': self.volume_at_best_bid,
-            'volume_at_best_ask': self.volume_at_best_offer}
+            'volume_at_best_ask': self.volume_at_best_offer, 'subsession_id': self.subsession_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
         broadcast_content = {'type': 'bbo', 'best_bid': self.best_bid, 

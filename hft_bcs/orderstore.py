@@ -23,7 +23,6 @@ class OrderStore:
         self.inventory = 0
         self.bid = None
         self.offer = None
-
     @property
     def orders(self):
         return self._orders
@@ -47,14 +46,11 @@ class OrderStore:
     def __str__(self):
         active_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
         pending_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')      
-        out = """
-        ========================================================================
-            Player {self.player_id} Orders:
+        out = """Player {self.player_id} Orders:
                 Active:{active_orders}
                 Pending:{pending_orders}
             Spread: {self.bid} - {self.offer}
-        ========================================================================
-        """.format(self=self, active_orders=active_orders, pending_orders=
+     """.format(self=self, active_orders=active_orders, pending_orders=
             pending_orders)
         return out
 
@@ -88,7 +84,6 @@ class OrderStore:
         except KeyError as e:
             log.exception(e)
         else:
-            log.debug(self)
             return order_info
 
     def _confirm_enter(self, **kwargs):

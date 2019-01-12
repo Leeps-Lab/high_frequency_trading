@@ -55,9 +55,10 @@ class LEEPSEvent(Event):
     def from_subject_websocket_message(cls, message, **kwargs):
         player_id = kwargs.get('player_id')
         market_id = kwargs.get('market_id')
+        subsession_id = kwargs.get('subsession_id')
         event_type = message['type']
         return cls('websocket', event_type, message, player_id=player_id,
-            market_id=market_id)
+            subsession_id=subsession_id, market_id=market_id)
     
     @classmethod
     def from_exchange_message(cls, message, **kwargs):
@@ -73,6 +74,7 @@ class LEEPSEvent(Event):
             return int(player_id)
 
         market_id = kwargs.get('market_id')
+        subsession_id = kwargs.get('subsession_id')
 
         translator_class = cls.translator_cls
         message_type, message_content = translator_class.decode(message)
@@ -81,14 +83,15 @@ class LEEPSEvent(Event):
         if message_type not in ('S', 'Q'):
             player_id = extract_player_id(**message_content)
 
-        return cls('exchange', message_type, message_content, player_id=player_id,
-            market_id=market_id)
+        return cls('exchange', message_type, message_content, subsession_id=subsession_id,
+            player_id=player_id, market_id=market_id)
     
     @classmethod
     def from_event_message(cls, message, **kwargs):
         event_source = message['message_type']
         event_type = message['payload']['type']
-        return cls(event_source, event_type, message['payload'])
+        session_id = message['payload']['subsession_id']
+        return cls(event_source, event_type, message['payload'], subsession_id=session_id)
     
 
             

@@ -4,6 +4,8 @@ import datetime
 import pytz
 import logging
 import os 
+from .cache import get_cache_key
+from django.core.cache import cache
 
 
 SESSION_FORMAT = None
@@ -21,8 +23,8 @@ market_events = ('S', 'player_ready', 'advance_me')
 trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
 
 exogenous_event_endpoints = {
-    'investor_arrivals': 'ws://127.0.0.1:8000/hft_investor/',
-    'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/'
+    'investor_arrivals': 'ws://127.0.0.1:8000/hft_investor/{subsession_id}',
+    'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/{subsession_id}'
 }
 
 exogenous_event_client = 'hft_bcs/exogenous_event_client.py'
@@ -35,6 +37,8 @@ available_exchange_ports = {
 
 ouch_fields = ('price', 'time_in_force', 'display', 'buy_sell_indicator')
 
+MAX_ASK = 2147483647
+MIN_BID = 0
 
 def format_message(message_type, **kwargs):
     message = {'message_type': message_type, 'payload': {} }
@@ -78,3 +82,40 @@ def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     timestamp += now.microsecond
     timestamp *= 10**3  # microseconds -> nanoseconds
     return timestamp
+
+def leeps_fields(player, subject_state):
+    player.best_bid = subject_state.best_quotes['B']
+    player.best_offer = subject_state.best_quotes['S']
+    if subject_state.distance_from_best_quote is not None:
+        player.distance_from_bid = subject_state.distance_from_best_quote['B']
+        player.distance_from_offer = subject_state.distance_from_best_quote['S']
+    if subject_state.latent_quote is not None:
+        player.latent_bid = subject_state.latent_quote['B']
+        player.latent_offer = subject_state.latent_quote['S']
+    if subject_state.sliders is not None:
+        player.sliders = str(subject_state.sliders)
+    player.orderstore = str(subject_state.orderstore)
+    player.bid = subject_state.orderstore.bid
+    player.offer = subject_state.orderstore.offer
+    player.market_id = str(subject_state.market_id)
+
+
+def kwargs_from_event(event):
+    kwargs = event.message.copy()
+    for k, v in event.attachments.items():
+        if k not in kwargs and v is not None:
+            kwargs[k] = v
+    return kwargs
+
+def from_trader_to_player(player_id, subject_state, post=leeps_fields):
+    player_key = get_cache_key(subject_state.id, 'player')
+    player = cache.get(player_key)['model']
+    for field in subject_state.__slots__:
+        if hasattr(player, field):
+            setattr(player, field, getattr(subject_state, field))
+    if post:
+        post(player, subject_state)
+    player.save()
+    return player
+
+
