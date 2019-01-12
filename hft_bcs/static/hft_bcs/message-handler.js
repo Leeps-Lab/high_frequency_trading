@@ -115,6 +115,8 @@ otree.handleExecution = function (obj){
 
 otree.handleBBOChange = function (obj){
     spreadGraph.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
+    spreadGraph.bestBid = obj["best_bid"];
+    spreadGraph.bestOffer = obj["best_offer"];
     var shiftNecessary = false;
     // console.log("Changing bid to --> " + obj["best_bid"]);
     // console.log("Changing offer to --> " + obj["best_offer"]);
@@ -123,16 +125,21 @@ otree.handleBBOChange = function (obj){
     if(obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] <  spreadGraph.upperBound){
         spreadGraph.drawBestBid(obj);
     } else {
+        spreadGraph.spread_svg.select(".best-bid").remove();
         shiftNecessary = true;
     }
     if(obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] <  spreadGraph.upperBound){
         spreadGraph.drawBestOffer(obj);
     } else {
+        spreadGraph.spread_svg.select(".best-offer").remove();
         shiftNecessary = true;
     }
 
+
     if(shiftNecessary){
-        console.log("SHIFT IS NECESSARY MF");
+        console.log("SHIFT IS NECESSARY--> bid = " + obj["best_bid"] + obj["best_offer"]);
+    } else {
+        spreadGraph.BBOShift(obj);
     }
 }
 

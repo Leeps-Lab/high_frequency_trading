@@ -111,14 +111,12 @@ class SpreadGraph extends PolymerElement {
     opacity: 0.5;
     }
     .best-bid{
-        fill:#309930;;
+        fill:#309930;
     }
     .best-offer{
-        fill: #CB1C36;
+        fill: #13AAF5;
     }
-    .order{
-        fill:#162F71;
-    }
+
 </style>
 
 <svg id="spread-graph">
@@ -211,6 +209,8 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.NBBOChange = this.NBBOChange;
     spreadGraph.drawBestBid = this.drawBestBid;
     spreadGraph.drawBestOffer = this. drawBestOffer;
+    spreadGraph.BBOShift = this.BBOShift;
+    spreadGraph.animateBBOShift = this.animateBBOShift;
 
     spreadGraph.drawOrder = this.drawOrder;
     spreadGraph.removeOrder = this.removeOrder;
@@ -219,6 +219,12 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.addToActiveOrders = this.addToActiveOrders;
     spreadGraph.removeFromActiveOrders = this.removeFromActiveOrders;
     spreadGraph.replaceActiveOrder = this.replaceActiveOrder;
+
+    spreadGraph.visibleTickLines = {};
+    spreadGraph.tickLines = [];
+    spreadGraph.tickLinesText = [];
+    spreadGraph.orderD3Objects = [];
+
 
     spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
     spreadGraph.updateUserBidAndAsk = this.updateUserBidAndAsk;
@@ -270,60 +276,84 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawPossibleSpreadTicks();  
   }
 
-  NBBOChange(bid, offer){
-    // console.log("BEST BID BEING DRAWN " + bid + "BEST OFFER BEING DRAWN " + offer);
-    spreadGraph.spread_svg.select(".best-bid").remove();
-    spreadGraph.spread_svg.select(".best-offer").remove();
-    var bidX = spreadGraph.visibleTickLines[bid];
-    var offerX = spreadGraph.visibleTickLines[offer];
-    if(bidX == undefined){
-        var tickArray = Object.keys(spreadGraph.visibleTickLines);
-        for(var i = 0; i < tickArray.length; i++){
-            if(tickArray[i] > bid){
-                break;
-            }
-        }
-        var upperPrice = tickArray[i];
-        var lowerPrice = tickArray[i-1];
-        var priceDiff = upperPrice - lowerPrice;
-        var bidDiff = Math.abs(bid - lowerPrice);
 
-        var ratio = bidDiff/priceDiff;
+  BBOShift(shiftMsg){
+    var bestBidCicle = spreadGraph.spread_svg.select(".best-bid");
+    var bestOfferCicle = spreadGraph.spread_svg.select(".best-offer");
+    var smallerX = (bestBidCicle.attr("cx") <=  bestOfferCicle.attr("cx")) ? bestBidCicle.attr("cx") : bestOfferCicle.attr("cx");
+    var diff = Math.abs(bestBidCicle.attr("cx") - bestOfferCicle.attr("cx"));
+    var desiredCenter = (diff/2) + +smallerX;
+    spreadGraph.spread_svg.select(".middle").remove();
+    spreadGraph.spread_svg.append("svg:line")
+                    .attr("x1", desiredCenter)
+                    .attr("y1", spreadGraph.spread_height*0.3 - 5)
+                    .attr("x2", desiredCenter)
+                    .attr("y2", spreadGraph.spread_height*0.3 + 5)
+                    .attr("stroke-width",2)
+                    .attr("stroke", "black")
+                    .attr("class","middle");
+    
+    //Center is between the best bid and the best offer
+    //Now I have add animations
 
-        var diffX = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
-        var xRatio = diffX*ratio;
-        bidX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatio;
-
+    if((spreadGraph.bestBid != undefined && spreadGraph.bestOffer != undefined) && (spreadGraph.bestBid != 0 || spreadGraph.bestOffer != 0)){
+        // spreadGraph.animateBBOShift(desiredCenter);
     }
-    if(offerX == undefined){
-        var tickArray = Object.keys(spreadGraph.visibleTickLines);
-        for(var i = 0; i < tickArray.length; i++){
-            if(tickArray[i] > offer){
-                break;
-            }
+    
+  } 
+
+  animateBBOShift(desiredCenter){
+    var tickArray = Object.keys(spreadGraph.visibleTickLines);
+    for(var i = 0; i < tickArray.length; i++){
+        if(spreadGraph.visibleTickLines[tickArray[i]] >= desiredCenter){
+            break;
         }
-        var upperPriceOffer = tickArray[i];
-        var lowerPriceOffer = tickArray[i-1];
-        var priceDiffOffer = upperPriceOffer - lowerPriceOffer;
-        var offerDiff = Math.abs(bid - lowerPrice);
-
-        var ratioOffer = offerDiff/priceDiffOffer;
-
-        var diffXOffer = +spreadGraph.visibleTickLines[tickArray[i]] - +spreadGraph.visibleTickLines[tickArray[i - 1]];
-        var xRatioOffer = diffXOffer*ratioOffer;
-        offerX =  +spreadGraph.visibleTickLines[tickArray[i - 1]] + xRatioOffer;
     }
-    spreadGraph.spread_svg.append("circle")
-        .attr("cx", bidX)
-        .attr("cy", spreadGraph.spread_height*0.3)
-        .attr("r", 10)
-        .attr("class","best-bid");
+    var newMiddlePrice = tickArray[i];
 
-    spreadGraph.spread_svg.append("circle")
-        .attr("cx", offerX)
-        .attr("cy", spreadGraph.spread_height*0.3)
-        .attr("r", 10)
-        .attr("class","best-offer");
+    // console.log("Price closest to " + desiredCenter + " is " + tickArray[i]);
+    // console.log("New price of the middle is " + newMiddlePrice);
+
+    var differenceFromMid = Math.abs(desiredCenter - spreadGraph.spread_width/2);
+     //Animate All Spread Line Text Values
+     spreadGraph.tickLinesText.forEach(text => { 
+
+        text.transition()
+            .duration(300)
+            .attr("x", ((desiredCenter < spreadGraph.spread_width/2 ) ? +text.attr("x") + differenceFromMid : +text.attr("x") - differenceFromMid))
+
+    });
+     //Animate All Spread Line Text Values
+     spreadGraph.tickLines.forEach(line => { 
+        
+        line.transition()
+            .duration(300)
+            .attr("x1", ((desiredCenter < spreadGraph.spread_width/2) ? +line.attr("x1") + differenceFromMid : +line.attr("x1") - differenceFromMid))
+            .attr("x2", ((desiredCenter < spreadGraph.spread_width/2) ? +line.attr("x2") + differenceFromMid : +line.attr("x2") - differenceFromMid))
+        
+    });
+    
+    
+    //Shift Best Bid and Best Offer
+    var bestBidCircle = spreadGraph.spread_svg.select(".best-bid");
+    var bestOfferCircle = spreadGraph.spread_svg.select(".best-offer");
+
+    bestBidCircle.transition()
+                 .duration(300)
+                 .attr("cx", ((desiredCenter < spreadGraph.spread_width/2) ? +bestBidCircle.attr("cx") + differenceFromMid : +bestBidCircle.attr("cx") - differenceFromMid))
+    bestOfferCircle.transition()
+                 .duration(300)
+                 .attr("cx", ((desiredCenter < spreadGraph.spread_width/2) ? +bestOfferCircle.attr("cx") + differenceFromMid : +bestOfferCircle.attr("cx") - differenceFromMid))
+
+    //Shift all orders 
+
+    //Shift Arrows
+
+    //Redraw possiible spread ticks with updated best bid and best offer
+
+    spreadGraph.drawPossibleSpreadTicks(+newMiddlePrice - 5, + newMiddlePrice + 5);
+
+    
   }
 
   drawBestBid(obj){
@@ -390,17 +420,31 @@ class SpreadGraph extends PolymerElement {
 
   }
 
-  drawOrder(price = 960000, TOK = "TESTTOKEN0"){
-
+  drawOrder(price, TOK ){
+    
+    spreadGraph.orderD3Objects
     //What do I need from this?
-    
-    var order = spreadGraph.spread_svg.append("circle")
-        .attr("cx", spreadGraph.visibleTickLines[price])
-        .attr("cy", spreadGraph.spread_height*0.3)
-        .attr("r", 5)
-        .attr("class","order " + TOK);
-    
-    order.raise();
+    if(TOK[4] == "B"){
+        var orderBid = spreadGraph.spread_svg.append("circle")
+            .attr("cx", spreadGraph.visibleTickLines[price])
+            .attr("cy", spreadGraph.spread_height*0.3)
+            .attr("r", 5)
+            .attr("fill","#309930")
+            .attr("class","order " + TOK);
+        spreadGraph.orderD3Objects.push(orderBid);
+    } else if(TOK[4] == "S"){
+        var orderOffer = spreadGraph.spread_svg.append("circle")
+            .attr("cx", spreadGraph.visibleTickLines[price])
+            .attr("cy", spreadGraph.spread_height*0.3)
+            .attr("r", 5)
+            .attr("fill","#13AAF5")
+            .attr("class","order " + TOK);
+        spreadGraph.orderD3Objects.push(orderOffer);
+    } else{
+        console.error("Invalid Order Token " + TOK);
+    }
+
+    //draw the order on top of everything 
   }
 
   removeOrder(TOK){
@@ -571,24 +615,54 @@ class SpreadGraph extends PolymerElement {
         spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "#309930";
     } else if(obj["order_token"][4] == "S"){
         spreadGraph.askArrow["token"] = obj["order_token"];
-        spreadGraph.askArrow["askArrowLine"].attr("stroke", "#CB1C36");
-        spreadGraph.askArrow["askArrowText"].attr("fill","#CB1C36");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "#CB1C36";
+        spreadGraph.askArrow["askArrowLine"].attr("stroke", "#13AAF5");
+        spreadGraph.askArrow["askArrowText"].attr("fill","#13AAF5");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "#13AAF5";
     }
   }
 
   executeArrow(obj){
+      
     //confirm the arrow by drawing differnt strokes on it
     if(obj["order_token"][4] == "B"){
         spreadGraph.bidArrow["token"] = "";
-        spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
-        spreadGraph.bidArrow["bidArrowText"].attr("fill","rgb(150,150,150)");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
+        spreadGraph.bidArrow["bidArrowLine"].transition()
+                                            .duration(750)
+                                            .style("opacity", 0.0)
+                                            .on("end", function() {spreadGraph.bidArrow["bidArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
+                                            );
+        spreadGraph.bidArrow["bidArrowText"].transition()
+                                            .duration(750)
+                                            .style("opacity", 0.0)
+                                            .on("end", function() {spreadGraph.bidArrow["bidArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
+                                            );
+
+        spreadGraph.spread_svg.select("#bidArrow").transition()
+                                                .duration(750)
+                                                .style("opacity", 0.0)
+                                                .on("end", function() {spreadGraph.spread_svg.select("#bidArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
+                                                spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
+                                            );
+
     } else if(obj["order_token"][4] == "S"){
         spreadGraph.askArrow["token"] = "";
-        spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
-        spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
-        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
+        spreadGraph.askArrow["askArrowLine"].transition()
+                                            .duration(750)
+                                            .style("opacity", 0.0)
+                                            .on("end", function() {spreadGraph.askArrow["askArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
+                                            );
+        spreadGraph.askArrow["askArrowText"].transition()
+                                            .duration(750)
+                                            .style("opacity", 0.0)
+                                            .on("end", function() {spreadGraph.askArrow["askArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
+                                            );
+
+        spreadGraph.spread_svg.select("#askArrow").transition()
+                                                .duration(750)
+                                                .style("opacity", 0.0)
+                                                .on("end", function() {spreadGraph.spread_svg.select("#askArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
+                                                spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
+                                            );
     }
   }
   executeOrder(obj){
@@ -695,9 +769,6 @@ class SpreadGraph extends PolymerElement {
         var distanceBetweenLines = spreadGraph.spread_width/incrementNum;
         var xCoordinate = 0;
         var yCoordinate = spreadGraph.spread_height*0.3;
-        spreadGraph.visibleTickLines = {};
-        spreadGraph.tickLines = [];
-        spreadGraph.tickLinesText = [];
 
         
         for(var temp = lowerBound; temp <= upperBound; temp+=increment){
@@ -710,7 +781,7 @@ class SpreadGraph extends PolymerElement {
                     .attr("stroke-width",1)
                     .attr("class","possible-spread-ticks"));  
                 
-                    spreadGraph.tickLines.push(spreadGraph.spread_svg.append("text")
+            spreadGraph.tickLinesText.push(spreadGraph.spread_svg.append("text")
                     .attr("text-anchor", "start")
                     .attr("x", xCoordinate - 5)  
                     .attr("y",  spreadGraph.spread_height*0.6 - 10)
