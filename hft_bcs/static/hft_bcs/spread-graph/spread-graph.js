@@ -294,33 +294,36 @@ class SpreadGraph extends PolymerElement {
                     .attr("class","middle");
     
     //Center is between the best bid and the best offer
-    //Now I have add animations
 
-    if((spreadGraph.bestBid != undefined && spreadGraph.bestOffer != undefined) && (spreadGraph.bestBid != 0 || spreadGraph.bestOffer != 0)){
-        // spreadGraph.animateBBOShift(desiredCenter);
-    }
+
+    // if((spreadGraph.bestBid != undefined && spreadGraph.bestOffer != undefined) && (spreadGraph.bestBid != 0 || spreadGraph.bestOffer != 0)){
+        spreadGraph.animateBBOShift(desiredCenter);
+    // }
     
   } 
 
   animateBBOShift(desiredCenter){
     var tickArray = Object.keys(spreadGraph.visibleTickLines);
     for(var i = 0; i < tickArray.length; i++){
+        console.log(spreadGraph.visibleTickLines[tickArray[i]]);
         if(spreadGraph.visibleTickLines[tickArray[i]] >= desiredCenter){
             break;
         }
     }
     var newMiddlePrice = tickArray[i];
 
-    // console.log("Price closest to " + desiredCenter + " is " + tickArray[i]);
-    // console.log("New price of the middle is " + newMiddlePrice);
+    console.log("Price closest to " + desiredCenter + " is " + tickArray[i]);
+    console.log("New price of the middle is " + newMiddlePrice);
 
     var differenceFromMid = Math.abs(desiredCenter - spreadGraph.spread_width/2);
+    console.log("Desired Center is " + desiredCenter);
      //Animate All Spread Line Text Values
      spreadGraph.tickLinesText.forEach(text => { 
-
+        console.log(((desiredCenter < spreadGraph.spread_width/2 ) ? +text.attr("x") + differenceFromMid : +text.attr("x") - differenceFromMid));
         text.transition()
             .duration(300)
             .attr("x", ((desiredCenter < spreadGraph.spread_width/2 ) ? +text.attr("x") + differenceFromMid : +text.attr("x") - differenceFromMid))
+            // .on("end", function() { text.remove()})
 
     });
      //Animate All Spread Line Text Values
@@ -330,28 +333,28 @@ class SpreadGraph extends PolymerElement {
             .duration(300)
             .attr("x1", ((desiredCenter < spreadGraph.spread_width/2) ? +line.attr("x1") + differenceFromMid : +line.attr("x1") - differenceFromMid))
             .attr("x2", ((desiredCenter < spreadGraph.spread_width/2) ? +line.attr("x2") + differenceFromMid : +line.attr("x2") - differenceFromMid))
-        
+            // .on("end", function() { line.remove()})
     });
-    
-    
+    //Redraw possiible spread ticks with updated best bid and best offer
+    console.log(+newMiddlePrice - 50000,  +newMiddlePrice + 50000);
+    spreadGraph.drawPossibleSpreadTicks(+newMiddlePrice - 5, +newMiddlePrice + 5);
     //Shift Best Bid and Best Offer
     var bestBidCircle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCircle = spreadGraph.spread_svg.select(".best-offer");
 
-    bestBidCircle.transition()
-                 .duration(300)
-                 .attr("cx", ((desiredCenter < spreadGraph.spread_width/2) ? +bestBidCircle.attr("cx") + differenceFromMid : +bestBidCircle.attr("cx") - differenceFromMid))
-    bestOfferCircle.transition()
-                 .duration(300)
-                 .attr("cx", ((desiredCenter < spreadGraph.spread_width/2) ? +bestOfferCircle.attr("cx") + differenceFromMid : +bestOfferCircle.attr("cx") - differenceFromMid))
+    // bestBidCircle.transition()
+    //              .duration(300)
+    //              .attr("cx", ((desiredCenter < spreadGraph.spread_width/2) ? +bestBidCircle.attr("cx") + differenceFromMid : +bestBidCircle.attr("cx") - differenceFromMid))
+    // bestOfferCircle.transition()
+    //              .duration(300)
+    //              .attr("cx", ((desiredCenter < spreadGraph.spread_width/2) ? +bestOfferCircle.attr("cx") + differenceFromMid : +bestOfferCircle.attr("cx") - differenceFromMid))
 
     //Shift all orders 
 
     //Shift Arrows
 
-    //Redraw possiible spread ticks with updated best bid and best offer
-
-    spreadGraph.drawPossibleSpreadTicks(+newMiddlePrice - 5, + newMiddlePrice + 5);
+    
+    
 
     
   }
@@ -448,7 +451,9 @@ class SpreadGraph extends PolymerElement {
   }
 
   removeOrder(TOK){
-    spreadGraph.spread_svg.select("." + TOK).remove();
+    var orderObj = spreadGraph.spread_svg.select("." + TOK);
+    orderObj.remove();
+    //Remove from d3 orders as well
   }
   replaceOrder(oldTOK, newTOK, newPrice){
     spreadGraph.removeOrder(oldTOK);
@@ -673,6 +678,7 @@ class SpreadGraph extends PolymerElement {
   }
 
   drawBidArrow(obj){
+    
     spreadGraph.bidArrow["bidArrowLine"].transition().duration(100).attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
     spreadGraph.bidArrow["bidArrowText"].transition().duration(100).attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
     spreadGraph.confirmArrow(obj);
@@ -769,8 +775,8 @@ class SpreadGraph extends PolymerElement {
         var distanceBetweenLines = spreadGraph.spread_width/incrementNum;
         var xCoordinate = 0;
         var yCoordinate = spreadGraph.spread_height*0.3;
-
-        
+        console.log(xCoordinate);
+        spreadGraph.visibleTickLines = {};
         for(var temp = lowerBound; temp <= upperBound; temp+=increment){
             spreadGraph.visibleTickLines[temp] = xCoordinate;
             spreadGraph.tickLines.push(spreadGraph.spread_svg.append("svg:line")

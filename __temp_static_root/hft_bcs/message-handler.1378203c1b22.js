@@ -41,7 +41,7 @@ socketActions.socket.onmessage = function (event) {
     } else if(obj.type == "canceled"){
         otree.handleCancel(obj);
     } else if(obj.type == "executed"){
-        // console.log("EXECUTED");
+        console.log("EXECUTED");
         otree.handleExecution(obj);
       
 
@@ -97,7 +97,7 @@ otree.handleCancel = function (obj){
     try{
         spreadGraph.removeOrder(obj["order_token"]);
     } catch {
-        console.error("No Order to Cancel with token" + obj["order_token"]);
+        console.log("No Order to Cancel with token" + obj["order_token"]);
     }
 }
 

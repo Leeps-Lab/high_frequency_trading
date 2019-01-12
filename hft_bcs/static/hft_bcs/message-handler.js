@@ -41,7 +41,7 @@ socketActions.socket.onmessage = function (event) {
     } else if(obj.type == "canceled"){
         otree.handleCancel(obj);
     } else if(obj.type == "executed"){
-        console.log("EXECUTED");
+        // console.log("EXECUTED");
         otree.handleExecution(obj);
       
 
@@ -97,7 +97,7 @@ otree.handleCancel = function (obj){
     try{
         spreadGraph.removeOrder(obj["order_token"]);
     } catch {
-        console.log("No Order to Cancel with token" + obj["order_token"]);
+        console.error("No Order to Cancel with token" + obj["order_token"]);
     }
 }
 
@@ -125,13 +125,13 @@ otree.handleBBOChange = function (obj){
     if(obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] <  spreadGraph.upperBound){
         spreadGraph.drawBestBid(obj);
     } else {
-        spreadGraph.spread_svg.select(".best-bid").remove();
+        // spreadGraph.spread_svg.select(".best-bid").remove();
         shiftNecessary = true;
     }
     if(obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] <  spreadGraph.upperBound){
         spreadGraph.drawBestOffer(obj);
     } else {
-        spreadGraph.spread_svg.select(".best-offer").remove();
+        // spreadGraph.spread_svg.select(".best-offer").remove();
         shiftNecessary = true;
     }
 

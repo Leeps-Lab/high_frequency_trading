@@ -305,7 +305,6 @@ class SpreadGraph extends PolymerElement {
   animateBBOShift(desiredCenter){
     var tickArray = Object.keys(spreadGraph.visibleTickLines);
     for(var i = 0; i < tickArray.length; i++){
-        console.log(spreadGraph.visibleTickLines[tickArray[i]]);
         if(spreadGraph.visibleTickLines[tickArray[i]] >= desiredCenter){
             break;
         }
@@ -678,7 +677,7 @@ class SpreadGraph extends PolymerElement {
   }
 
   drawBidArrow(obj){
-    
+    console.log(spreadGraph.visibleTickLines[obj["price"]]);
     spreadGraph.bidArrow["bidArrowLine"].transition().duration(100).attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
     spreadGraph.bidArrow["bidArrowText"].transition().duration(100).attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
     spreadGraph.confirmArrow(obj);

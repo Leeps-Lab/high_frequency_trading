@@ -123,13 +123,13 @@ otree.handleBBOChange = function (obj){
 
 
     if(obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] <  spreadGraph.upperBound){
-        spreadGraph.drawBestBid(obj);
+        // spreadGraph.drawBestBid(obj);
     } else {
         // spreadGraph.spread_svg.select(".best-bid").remove();
         shiftNecessary = true;
     }
     if(obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] <  spreadGraph.upperBound){
-        spreadGraph.drawBestOffer(obj);
+        // spreadGraph.drawBestOffer(obj);
     } else {
         // spreadGraph.spread_svg.select(".best-offer").remove();
         shiftNecessary = true;
