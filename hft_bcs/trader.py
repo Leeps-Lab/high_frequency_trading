@@ -122,13 +122,13 @@ class BCSTrader(BaseTrader):
         """
         returns the required time to delay an exchange message
         """
-        delay = 0.5
+        delay = self.long_delay
         if self.speed_on is True:
             time_since_speed_change = nanoseconds_since_midnight() - self.speed_on_start_time 
             if time_since_speed_change < 5 * 1e6:
                 # otherwise the order of messages may break
                 return delay
-            delay = 0.1
+            delay = self.short_delay
         return delay
 
     def profit(self, exec_price, buy_sell_indicator) -> int:
@@ -346,6 +346,7 @@ class LEEPSInvestor(BCSOut):
 
 
 Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
+Sliders.__new__.__defaults__ = (0, 0, 0, 0)
 
 
 class LEEPSTrader(BCSTrader):
@@ -387,8 +388,7 @@ class LEEPSBasicMaker(LEEPSTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed', 'slider_change': 'slider_change',
-        'bbo_change': 'bbo_update', 'order_by_arrow': 'trader_bid_offer_change', 
+        'E': 'executed', 'bbo_change': 'bbo_update', 'order_by_arrow': 'trader_bid_offer_change', 
         }
 
     def __init__(self, subject_state):
@@ -435,7 +435,7 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed', 'slider_change': 'slider_change', 'bbo_change': 'latent_quote_update', 
+        'E': 'executed', 'slider': 'slider_change', 'bbo_change': 'latent_quote_update', 
         'order_imbalance_change': 'latent_quote_update'}
 
     def __init__(self, subject_state):
@@ -445,7 +445,7 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
         super().first_move(**kwargs)
         self.leave_market()
         self.switch_to_market_tracking_role(**kwargs)
-        self.sliders = Sliders(a_x=0, a_y=0, b_x=0, b_y=0)
+        self.sliders = Sliders()
         self.latent_quote = {'B': None, 'S': None}
         if self.best_quotes['B'] > MIN_BID:
             buy_message = self.enter_with_latent_quote('B')
@@ -470,26 +470,26 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
         return exchange_message
 
     def slider_change(self, lower_bound=-1, upper_bound=1, **kwargs):
-        def slider_field_check(**kwargs):
-            checked_kwargs = {}
-            for k, v in kwargs.items():
-                checked_value = int(v) 
-                if v < - 1:
-                    checked_value = -1
-                elif v > 1:
-                    checked_value = 1
-                checked_kwargs[k] = checked_value
-            return checked_kwargs
-
-        fields = slider_field_check(**kwargs)
-        new_slider = Sliders(**fields)
+        def slider_field_check(slider_value):
+            checked_value = float(slider_value) 
+            if checked_value < - 1:
+                checked_value = -1
+            elif checked_value > 1:
+                checked_value = 1
+            return checked_value
+        sliders_dict = {}
+        for field in ('a_x', 'a_y'):
+            sliders_dict[field] = slider_field_check(kwargs[field])
+        new_slider = Sliders(**sliders_dict)
         old_slider = self.sliders
         if old_slider != new_slider:
-            self.latent_quote_update(slider=new_slider)
+            self.latent_quote_update(sliders=new_slider)
                
     def latent_quote_update(self, latent_quote_formula=latent_bid_and_offer, sliders=None, **kwargs):
         if sliders is None:
             sliders = self.sliders
+        else:
+            self.sliders = sliders
         best_bid = kwargs.get('best_bid')
         if best_bid is None:
             best_bid = self.best_quotes['B']
@@ -505,21 +505,26 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
 
         previous_order_imbalance = float(self.order_imbalance)
         current_order_imbalance = kwargs.get('order_imbalance')
-        self.order_imbalance = current_order_imbalance
+        if current_order_imbalance is not None:
+            self.order_imbalance = current_order_imbalance
+        else:
+            current_order_imbalance = previous_order_imbalance
 
         new_latent_bid, new_latent_offer = latent_quote_formula(best_bid, best_offer, 
-            current_order_imbalance, self.orderstore.inventory, self.sliders)
+            current_order_imbalance, self.orderstore.inventory, sliders)
 
         bid = None
-        if best_bid > MIN_BID and new_latent_bid != self.latent_quote['B']:
-            old_bid= self.latent_quote.pop('B')
+        if best_bid > MIN_BID and new_latent_bid != self.latent_quote['B'] and (
+            self.latent_quote['B'] != self.best_quotes['B']):
+            old_bid= self.latent_quote['B']
             if new_latent_bid != old_bid:
                 bid = new_latent_bid
             self.latent_quote['B'] = new_latent_bid
 
         offer = None      
-        if  best_offer < MAX_ASK and new_latent_offer != self.latent_quote['S']:
-            old_offer = self.latent_quote.pop('S')
+        if  best_offer < MAX_ASK and new_latent_offer != self.latent_quote['S'] and (
+            self.latent_quote['S'] != self.best_quotes['S']):
+            old_offer = self.latent_quote['S']
             if new_latent_offer != old_offer:
                 offer = new_latent_offer
             self.latent_quote['S'] = new_latent_offer

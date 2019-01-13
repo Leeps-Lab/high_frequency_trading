@@ -76,7 +76,7 @@ config_maps = {
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'fundamental_value_jumps': ('exogenous-events', 'fundamental-value-jumps'),
         },
-        'LEEPS': { 
+        'elo': { 
             'name': ('session', 'session-name'),
             'auction_format': ('market', 'auction-format'),
             'num_demo_participants': ('demo', 'number-of-participants'),

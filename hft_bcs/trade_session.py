@@ -10,6 +10,7 @@ from collections import deque
 from . import exchange
 from .dispatcher import LEEPSDispatcher
 from functools import partial
+from .market import MarketFactory
 
 log = logging.getLogger(__name__)
 
@@ -20,14 +21,17 @@ class TradeSessionFactory:
 
 class TradeSession:
 
+    market_factory = MarketFactory
+
     events_dispatch = {
         'market_ready_to_start': 'start_trade_session',
         'market_ready_to_end': 'stop_trade_session'
     }
 
-    def __init__(self, session):
-        self.subsession = session
-        self.id = str(session.code)
+    def __init__(self, subsession, session_format):
+        self.session_format = session_format
+        self.subsession = subsession
+        self.id = str(subsession.code)
         self.is_trading = False
         self.market_state = {}
         self.market_exchange_pairs = {}
@@ -35,16 +39,22 @@ class TradeSession:
         self.exogenous_events = {}
         self.trading_markets = []
         self.outgoing_messages = deque()
-
-    def register_market(self, market_id, exchange_address):
-        self.market_state[market_id] = False
-        self.market_exchange_pairs[market_id] = exchange_address
-    
+   
     def start_trade_session(self, market_id=None):
         raise NotImplementedError()
     
     def stop_trade_session(self):
         raise NotImplementedError()
+
+    def create_market(self, exchange_host, exchange_port):
+        market_cls = self.market_factory.get_market(self.session_format)
+        print(market_cls)
+        market = market_cls(self.id)
+        market.add_exchange(exchange_host, exchange_port)
+        self.market_state[market.id] = False
+        self.market_exchange_pairs[market.id] = (exchange_host, exchange_port)
+        market.register_session(self.id)
+        return market
 
     def register_exogenous_event(self, client_type, filename):
         path = os.path.join(os.getcwd(), filename)

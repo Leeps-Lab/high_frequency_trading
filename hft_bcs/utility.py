@@ -6,7 +6,10 @@ import logging
 import os 
 from .cache import get_cache_key
 from django.core.cache import cache
-
+from . import market_environments
+from otree.api import ( 
+    models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
+)
 
 SESSION_FORMAT = None
 EXCHANGES = None
@@ -46,24 +49,33 @@ def format_message(message_type, **kwargs):
         message['payload'][k] = v
     return message
 
-def process_configs(scaling_map, session_configs):
-    adjusted_configs = dict(session_configs)
+def clean_configs(session_format, session_configs):
+    market_settings = market_environments.environments[session_format]
+    clean_configs = dict(session_configs)
     for k, v in session_configs.items():
         try:
-            adjusted_configs[k] = v * scaling_map[k]
+            field_cls, scale = market_settings.config_field_type_and_scale[k]
         except KeyError:
-            pass
-    return adjusted_configs
+            continue
+        clean_configs[k] = field_cls(v) * scale
+    return clean_configs
         
-def configure_model(configs:dict, mapping:dict, model_type, model):
-    """
-    map configs to database models
-    """    
-    pairs = mapping[model_type] 
-    for k, v in pairs.items():
-        config_value = configs[k]
-        setattr(model, v, config_value)
+def configure_model(model, session_format:dict, session_configs:dict):
+    def validate_model(model):
+        if isinstance(model, BasePlayer):
+            return 'player'
+        elif isinstance(model, BaseSubsession):
+            return 'subsession'
+        else:
+            raise ValueError('invalid model %s' % model.__class__.__name__)
+    model_type = validate_model(model)
+    market_settings = market_environments.environments[session_format]
+    mapping = market_settings.model_configuration[model_type]
+    for k, v in mapping.items():
+        field_value = session_configs[k]
+        setattr(model, v, field_value)
     return model
+
 
 def pretranslate_hacks(message_type, message_data):
     if message_type == 'replace':
@@ -83,22 +95,6 @@ def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     timestamp *= 10**3  # microseconds -> nanoseconds
     return timestamp
 
-def leeps_fields(player, subject_state):
-    player.best_bid = subject_state.best_quotes['B']
-    player.best_offer = subject_state.best_quotes['S']
-    if subject_state.distance_from_best_quote is not None:
-        player.distance_from_bid = subject_state.distance_from_best_quote['B']
-        player.distance_from_offer = subject_state.distance_from_best_quote['S']
-    if subject_state.latent_quote is not None:
-        player.latent_bid = subject_state.latent_quote['B']
-        player.latent_offer = subject_state.latent_quote['S']
-    if subject_state.sliders is not None:
-        player.sliders = str(subject_state.sliders)
-    player.orderstore = str(subject_state.orderstore)
-    player.bid = subject_state.orderstore.bid
-    player.offer = subject_state.orderstore.offer
-    player.market_id = str(subject_state.market_id)
-
 
 def kwargs_from_event(event):
     kwargs = event.message.copy()
@@ -107,15 +103,6 @@ def kwargs_from_event(event):
             kwargs[k] = v
     return kwargs
 
-def from_trader_to_player(player_id, subject_state, post=leeps_fields):
-    player_key = get_cache_key(subject_state.id, 'player')
-    player = cache.get(player_key)['model']
-    for field in subject_state.__slots__:
-        if hasattr(player, field):
-            setattr(player, field, getattr(subject_state, field))
-    if post:
-        post(player, subject_state)
-    player.save()
-    return player
+
 
 

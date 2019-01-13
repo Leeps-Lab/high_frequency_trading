@@ -24,15 +24,11 @@ def write_to_cache_with_version(key, value, version, timeout=cache_timeout):
     value['version'] = version
     cache.set(key, value, timeout=timeout)
 
-def initialize_player_cache(player, subject_state, fields_to_map, timeout=cache_timeout):
-    pairs = {}
-    player_key = get_cache_key(player.id, 'player')
-    pairs[player_key] = {'model': player}
+def initialize_player_cache(player, trader_state, timeout=cache_timeout):
     trader_key = get_cache_key(player.id, 'trader')
-    pairs[trader_key] = {'version': 0, 'role': player.role, 
-        'subject_state': subject_state}
-    for k, v in pairs.items():
-        cache.set(k, v, timeout=timeout) 
+    trader_data = {'version': 0, 'role': player.role, 
+        'subject_state': trader_state}
+    cache.set(trader_key, trader_data)
 
 def initialize_market_cache(market, timeout=cache_timeout, **kwargs):
     market_data = {'version': 0, 'market': market}
@@ -44,13 +40,9 @@ def initialize_session_cache(session, timeout=cache_timeout, **kwargs):
     session_key = get_cache_key(session.id, 'trade_session')
     cache.set(session_key, session, timeout=timeout)
 
-def get_players_by_market(market_id:str):
+def get_trader_ids_by_market(market_id:str):
     market_key = get_cache_key(market_id, 'market')
     market_data = cache.get(market_key)
-    players_data = [] 
-    for _, player_ids in market_data['market'].subscriber_groups.items():
-        for pid in player_ids:
-            player_key = get_cache_key(pid, 'player')
-            player = cache.get(player_key)
-            players_data.append(player)
-    return players_data
+    trader_ids =[player_id for player_id in group_players for group_players in 
+        market_data['market'].subscriber_groups.values()]
+    return trader_ids
