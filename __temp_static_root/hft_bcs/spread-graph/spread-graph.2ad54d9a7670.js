@@ -364,7 +364,6 @@ class SpreadGraph extends PolymerElement {
         console.log(price);
 
         for(var i = 0; i <  spreadGraph.activeOrders[price].length; i++){
-            console.log(spreadGraph.activeOrders[price]);
             if(spreadGraph.activeOrders[price][i]["selection"] != undefined){
                 spreadGraph.activeOrders[price][i]["selection"].transition()
                 .duration(300)

@@ -358,20 +358,6 @@ class SpreadGraph extends PolymerElement {
         spreadGraph.askArrow["askArrowLine"].transition().duration(300).attr("x1",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowLine"].attr("x1") - differenceFromMid : +spreadGraph.askArrow["askArrowLine"].attr("x1")  + differenceFromMid)
                                                                     .attr("x2",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowLine"].attr("x2") - differenceFromMid : +spreadGraph.askArrow["askArrowLine"].attr("x2")  + differenceFromMid);
     }
-
-
-    for(var price in spreadGraph.activeOrders){
-        console.log(price);
-
-        for(var i = 0; i <  spreadGraph.activeOrders[price].length; i++){
-            console.log(spreadGraph.activeOrders[price]);
-            if(spreadGraph.activeOrders[price][i]["selection"] != undefined){
-                spreadGraph.activeOrders[price][i]["selection"].transition()
-                .duration(300)
-                .attr("cx", ((desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.activeOrders[price][i]["selection"].attr("cx") - differenceFromMid : +spreadGraph.activeOrders[price][i]["selection"].attr("cx") + differenceFromMid))
-            }
-        }
-    }   
    
   }
 
@@ -486,7 +472,7 @@ class SpreadGraph extends PolymerElement {
 
   removeOrder(TOK){
     console.log("Removing order with token " + TOK);
-    // console.log( spreadGraph.orderD3Objects);
+    console.log( spreadGraph.orderD3Objects);
     var orderObj = spreadGraph.spread_svg.select("." + TOK);
 
     orderObj.remove();
@@ -498,7 +484,7 @@ class SpreadGraph extends PolymerElement {
     //         spreadGraph.orderD3Objects.splice(index,1);
     //     }
     // }
-    // console.log(spreadGraph.orderD3Object);
+    console.log(spreadGraph.orderD3Object);
     //Remove from d3 orders as well
   }
   replaceOrder(oldTOK, newTOK, newPrice){

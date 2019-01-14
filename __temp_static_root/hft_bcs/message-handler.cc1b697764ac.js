@@ -66,8 +66,8 @@ socketActions.socket.onclose = function (event) {
 
 otree.handleConfirm = function (obj){
     // console.log("Confirmed order FUNCTION " + obj["order_token"]);
-    spreadGraph.addToActiveOrders(obj); 
-    
+    spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]); 
+
     if(obj["player_id"] == otree.playerID){
         spreadGraph.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
         if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
@@ -85,6 +85,8 @@ otree.handleConfirm = function (obj){
             }
         }
         
+    } else {
+        spreadGraph.drawOrder(obj["price"], obj["order_token"]);
     }
 }
 
@@ -93,13 +95,7 @@ otree.handleCancel = function (obj){
     spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
 
     try{
-       if(obj["player_id"] == otree.playerID){
-           console.log("Removing Arrow");
-        spreadGraph.removeArrows(obj["player_token"][4])
-       } else {
-        console.log("Removing Order Circle");
         spreadGraph.removeOrder(obj["order_token"]);
-       }
     } catch {
         console.error("No Order to Cancel with token" + obj["order_token"]);
     }
@@ -126,21 +122,20 @@ otree.handleBBOChange = function (obj){
     // console.log("Changing offer to --> " + obj["best_offer"]);
 
 
-    // if(obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] <  spreadGraph.upperBound){
-        
-    // } else {
-    //     // spreadGraph.spread_svg.select(".best-bid").remove();
-    //     shiftNecessary = true;
-    // }
-    // if(obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] <  spreadGraph.upperBound){
-        
-    // } else {
-    //     // spreadGraph.spread_svg.select(".best-offer").remove();
-    //     shiftNecessary = true;
-    // }
-    console.log("Handler Recieved BBO");
-    spreadGraph.drawBestBid(obj);
-    spreadGraph.drawBestOffer(obj);
+    if(obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] <  spreadGraph.upperBound){
+        spreadGraph.drawBestBid(obj);
+    } else {
+        // spreadGraph.spread_svg.select(".best-bid").remove();
+        shiftNecessary = true;
+    }
+    if(obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] <  spreadGraph.upperBound){
+        spreadGraph.drawBestOffer(obj);
+    } else {
+        // spreadGraph.spread_svg.select(".best-offer").remove();
+        shiftNecessary = true;
+    }
+
+
     // if(shiftNecessary){
     //     console.log("SHIFT IS NECESSARY--> bid = " + obj["best_bid"] + obj["best_offer"]);
     // } else {

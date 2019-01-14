@@ -66,7 +66,7 @@ socketActions.socket.onclose = function (event) {
 
 otree.handleConfirm = function (obj){
     // console.log("Confirmed order FUNCTION " + obj["order_token"]);
-    spreadGraph.addToActiveOrders(obj); 
+    spreadGraph.addToActiveOrders(obj["order_token"],obj["price"]); 
     
     if(obj["player_id"] == otree.playerID){
         spreadGraph.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
@@ -85,6 +85,8 @@ otree.handleConfirm = function (obj){
             }
         }
         
+    } else {
+        spreadGraph.drawOrder(obj["price"], obj["order_token"]);
     }
 }
 
@@ -94,12 +96,9 @@ otree.handleCancel = function (obj){
 
     try{
        if(obj["player_id"] == otree.playerID){
-           console.log("Removing Arrow");
         spreadGraph.removeArrows(obj["player_token"][4])
-       } else {
-        console.log("Removing Order Circle");
-        spreadGraph.removeOrder(obj["order_token"]);
        }
+        spreadGraph.removeOrder(obj["order_token"]);
     } catch {
         console.error("No Order to Cancel with token" + obj["order_token"]);
     }

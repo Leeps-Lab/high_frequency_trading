@@ -1,7 +1,7 @@
 from .event import EventFactory
 from .event_handlers import HandlerFactory
 from .response import process_response
-from otree.timeout.tasks import hft_background_task
+# from otree.timeout.tasks import hft_background_task
 from .output import hft_event_checkpoint
 
 class Dispatcher:
@@ -24,7 +24,7 @@ class Dispatcher:
             handler = cls.handler_factory.get_handler(entity)
             event = handler(event)
         print(event.event_type) 
-        hft_background_task(hft_event_checkpoint, event)   
+        # hft_background_task(hft_event_checkpoint, event)   
         resulting_events = []
         while event.outgoing_messages:
             message = event.outgoing_messages.popleft()

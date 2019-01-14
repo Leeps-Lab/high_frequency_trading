@@ -6,7 +6,7 @@ from .trader import CDATraderFactory, FBATraderFactory, LEEPSTraderFactory
 from django.core.cache import cache
 from .decorators import atomic
 from random import shuffle
-from otree.timeout.tasks import hft_background_task
+# from otree.timeout.tasks import hft_background_task
 from .output import hft_trader_checkpoint
 import logging
 log = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='LE
     except ValueError:
         leeps_handle_trader_message(event, **kwargs)
     else:
-        hft_background_task(hft_trader_checkpoint, player_id, trader_state, event)  
+        # hft_background_task(hft_trader_checkpoint, player_id, trader_state, event)  
         return event
 
 def leeps_handle_market_message(event, **kwargs):
