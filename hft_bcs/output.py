@@ -3,8 +3,6 @@ from otree.db.models import Model, ForeignKey
 import datetime
 import os
 import csv
-from .utility import from_trader_to_player
-
 
 class HFTPlayerStateRecord(Model):
 
@@ -109,13 +107,28 @@ def _collect_and_dump(session_code, subsession_id:int, market_ids:list, round_no
                 for row in market_records:
                     writer.writerow(row.__dict__)
 
+def _elo_fields(player, subject_state):
+    player.best_bid = subject_state.best_quotes['B']
+    player.best_offer = subject_state.best_quotes['S']
+    if subject_state.distance_from_best_quote is not None:
+        player.distance_from_bid = subject_state.distance_from_best_quote['B']
+        player.distance_from_offer = subject_state.distance_from_best_quote['S']
+    if subject_state.latent_quote is not None:
+        player.latent_bid = subject_state.latent_quote['B']
+        player.latent_offer = subject_state.latent_quote['S']
+    if subject_state.sliders is not None:
+        player.sliders = str(subject_state.sliders)
+    player.orderstore = str(subject_state.orderstore)
+    player.bid = subject_state.orderstore.bid
+    player.offer = subject_state.orderstore.offer
+    player.market_id = str(subject_state.market_id)
 
-def hft_trader_checkpoint(player_id, subject_state, event):
-    player = from_trader_to_player(player_id, subject_state)
-    player_record = HFTPlayerStateRecord().from_event_and_player(event, player)
-    player_record.save()
-
-def hft_event_checkpoint(event):
-    event_record = HFTEventRecord().from_event(event)
-    event_record.save()
+def from_trader_to_player(player, subject_state, post=_elo_fields):
+    for field in subject_state.__slots__:
+        if hasattr(player, field):
+            setattr(player, field, getattr(subject_state, field))
+    if post:
+        post(player, subject_state)
+    player.save()
+    return player
 

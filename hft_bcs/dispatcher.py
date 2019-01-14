@@ -1,8 +1,8 @@
 from .event import EventFactory
 from .event_handlers import HandlerFactory
 from .response import process_response
-# from otree.timeout.tasks import hft_background_task
-from .output import hft_event_checkpoint
+from otree.timeout.tasks import hft_background_task
+from .checkpoints import hft_event_checkpoint
 
 class Dispatcher:
 
@@ -23,8 +23,8 @@ class Dispatcher:
         for entity in observers:
             handler = cls.handler_factory.get_handler(entity)
             event = handler(event)
-        print(event.event_type) 
-        # hft_background_task(hft_event_checkpoint, event)   
+        print(event) 
+        hft_background_task(hft_event_checkpoint, event)   
         resulting_events = []
         while event.outgoing_messages:
             message = event.outgoing_messages.popleft()
@@ -61,6 +61,7 @@ class LEEPSDispatcher(Dispatcher):
         'investor_arrivals': ['noise_trader_arrival'],
         'fundamental_value_jumps': ['fundamental_price_change'],
         'bbo_change': ['role_based_events'],
-        'order_imbalance_change': ['role_based_events'],      
+        'order_imbalance_change': ['role_based_events'],
+        'slider': ['trader']      
     }
     outgoing_message_types = ('exchange', 'broadcast')

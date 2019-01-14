@@ -6,8 +6,8 @@ class SubjectStateFactory:
     def get_state(session_format):
         if session_format == 'BCS':
             return BCSSubjectState
-        elif session_format == 'LEEPS':
-            return LEEPSSubjectState
+        elif session_format == 'elo':
+            return ELOSubjectState
         else:
             raise Exception('invalid session format: %s' % session_format)
 
@@ -39,7 +39,7 @@ class BCSSubjectState(BaseSubjectState):
         'id', 'code', 'role', 'fp', 'speed_on',  'speed_unit_cost', 'spread', 'speed_on_start_time', 
         'endowment', 'cost', 'time_on_speed', 'last_message_time', 'market')
 
-class LEEPSSubjectState(BaseSubjectState):
+class ELOSubjectState(BaseSubjectState):
     orderstore_cls = OrderStore
     __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'group_id', 'id_in_group', 
         'id', 'code', 'role', 'speed_on',  'speed_unit_cost', 'spread', 'speed_on_start_time', 

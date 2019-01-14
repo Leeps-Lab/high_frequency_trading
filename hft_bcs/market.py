@@ -2,11 +2,12 @@
 import logging
 from collections import deque
 import itertools
+from .subject_state import SubjectStateFactory
 from .trader import LEEPSInvestor
 from .subject_state import LEEPSInvestorState
 from .orderstore import OrderStore
-from .utility import format_message, MIN_BID, MAX_ASK
-
+from .utility import format_message, MIN_BID, MAX_ASK, configure_model
+from .cache import initialize_player_cache
 from .equations import OrderImbalance
 log = logging.getLogger(__name__)
 
@@ -15,14 +16,19 @@ class MarketFactory:
     def get_market(session_format):
         if session_format == 'BCS':
             return BCSMarket
-        elif session_format == 'LEEPS':
-            return LEEPSMarket
+        elif session_format == 'elo':
+            return ELOMarket
+        else:
+            raise ValueError('unknown format %s' % session_format)
 
 class BaseMarket:
     market_events_dispatch = {}
     _ids = itertools.count(1,1)
+    state_factory = SubjectStateFactory
 
-    def __init__(self):
+    def __init__(self, trade_session_id, **kwargs):
+        self.trade_session = trade_session_id
+        self.session_format = None
         self.id = str(next(self._ids))
         self.is_trading = False
         self.ready_to_trade= False
@@ -40,10 +46,22 @@ class BaseMarket:
     def register_session(self, subsession_id):
         self.subsession_id = subsession_id
     
-    def register_group(self, group):
+    def register_group(self, group, session_configs):
         self.subscriber_groups[group.id] = []
+        session_format = self.session_format
+        state_cls = self.state_factory.get_state(session_format)
+        exchange_host, exchange_port = self.exchange_address
         for player in group.get_players():
             self.subscriber_groups[group.id].append(player.id)
+            self.players_in_market[player.id] = False
+            player.exchange_host = exchange_host
+            player.exchange_port = exchange_port
+            player.market_id = self.id
+            player = configure_model(player, session_format, 
+                session_configs)
+            player.save()
+            trader_state = state_cls.from_otree_player(player)
+            initialize_player_cache(player, trader_state)
     
     def receive(self, event_type, *args, **kwargs):
         if event_type not in self.market_events_dispatch:
@@ -90,20 +108,13 @@ class BCSMarket(BaseMarket):
         'market_end': 'end_trade'
     }
     
-    def __init__(self, **kwargs):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         for key in kwargs.keys():
             setattr(self, key, kwargs.get(key))
         self.roles = ('maker', 'sniper', 'out')
         self.role_counts = {role: 0 for role in self.roles}
         self.investor = None
-
-    def register_group(self, group):
-        super().register_group(group)
-        for p in group.get_players():
-            self.players_in_market[p.id] = False
-            p.market_id = self.id
-            p.save()
 
     def player_ready(self, **kwargs):
         player_id = int(kwargs.get('player_id'))
@@ -155,7 +166,7 @@ class BCSMarket(BaseMarket):
 max_ask = 2147483647
 min_bid = 0
 
-class LEEPSMarket(BCSMarket):
+class ELOMarket(BCSMarket):
 
     market_events_dispatch = {
         'E':'order_imbalance_change',
@@ -170,14 +181,14 @@ class LEEPSMarket(BCSMarket):
         'Q': 'bbo_change'
     }
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.session_format = 'elo'
         self.best_bid = min_bid
         self.volume_at_best_bid = 0
         self.best_offer = max_ask
         self.volume_at_best_offer = 0
         self.order_imbalance = 0
-        #TODO: Rename maker_2 to something else.
         self.role_groups = {'maker': [], 'maker_basic':[], 'maker_2': [], 
             'sniper':[], 'taker': [], 'out': []}
 
