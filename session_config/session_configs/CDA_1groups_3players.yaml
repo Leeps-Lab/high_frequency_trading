@@ -24,7 +24,7 @@ parameters:
   lambda-i: 0.25
   lambda-j: 0.33
   max-spread: 2
-  period-length: 20
+  period-length: 60
   speed-cost: 0.022
   grid-size: 1
 
@@ -36,5 +36,5 @@ session:
   num-rounds: 3
   participation-fee: 4
   random-round-payment: off
-  session-name: Cologe3in1
+  session-name: ELO_Development_Session_3_rounds_1_market
   exogenous-event-directory: Pilot

@@ -11,7 +11,7 @@ from otree.api import (
 from otree.models import Session
 
 from django.core.cache import cache
-
+import copy
 from otree.common_internal import random_chars_8
 
 from .orderstore import OrderStore
@@ -73,8 +73,7 @@ class Subsession(BaseSubsession):
         self.session.vars['trade_sessions'][self.id] = trade_session.id
         exchange_format = session_configs['auction_format']
         exchange_host = session_configs['exchange_host']
-        exchange_ports = dict(utility.available_exchange_ports) 
-        print(exchange_ports)
+        exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         for group in self.get_groups():
             exchange_port = exchange_ports[exchange_format].pop()
             market = trade_session.create_market(exchange_host, exchange_port)
