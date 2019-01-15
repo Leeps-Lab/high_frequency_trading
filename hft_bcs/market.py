@@ -251,7 +251,8 @@ class ELOMarket(BCSMarket):
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
         broadcast_content = {'type': 'bbo', 'best_bid': self.best_bid, 
-        'best_offer': self.best_offer}
+        'best_offer': self.best_offer, 'volume_bid': self.volume_at_best_bid,
+        'volume_offer': self.volume_at_best_offer}
         self.broadcast_to_subscribers(broadcast_content)
         
 

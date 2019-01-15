@@ -85,8 +85,8 @@ class BaseTrader:
     def first_move(self, **kwargs):
         """
         this gets called on a role 
-        change by player model
-        it is a good idea to override this
+        change
+        override this
         """
         pass
         
@@ -131,7 +131,7 @@ class BCSTrader(BaseTrader):
             delay = self.short_delay
         return delay
 
-    def profit(self, exec_price, buy_sell_indicator) -> int:
+    def update_cash_position(self, exec_price, buy_sell_indicator) -> int:
         raise NotImplementedError()
 
     def jump(self, **kwargs):
@@ -191,11 +191,15 @@ class BCSTrader(BaseTrader):
         self.outgoing_messages.append(internal_message)  
 
     def executed(self, **kwargs):
+        execution_price = kwargs['execution_price']
         order_info =  self.orderstore.confirm('executed', **kwargs)
+        buy_sell_indicator = order_info['buy_sell_indicator']
+        self.update_cash_position(execution_price, buy_sell_indicator)
         price = order_info['price']
         order_token = kwargs['order_token']
         message_content = { 'type': 'executed', 'price': price, 
-            'order_token': order_token}
+            'order_token': order_token, 'endowment': self.endowment,
+            'inventory': self.orderstore.inventory}
         self.broadcast(**message_content)
         return order_info
             
@@ -350,6 +354,12 @@ Sliders.__new__.__defaults__ = (0, 0, 0, 0)
 
 
 class LEEPSTrader(BCSTrader):
+
+    def update_cash_position(self, execution_price, buy_sell_indicator):
+        if buy_sell_indicator == 'B':
+            self.endowment -= execution_price
+        elif buy_sell_indicator == 'S':
+            self.endowment += execution_price
 
     def switch_to_market_tracking_role(self, **kwargs):
         self.best_quotes = {'B': kwargs['best_bid'], 'S': kwargs['best_offer']}
