@@ -106,15 +106,22 @@ otree.handleCancel = function (obj){
 }
 
 otree.handleExecution = function (obj){
+    console.log("Execution Message");
+    console.log(obj);
+    
+
     spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
     if(obj["player_id"] == otree.playerID){
         //if yes 
+        profitGraph.addProfitJump(obj);
+
         spreadGraph.executeArrow(obj);
     } else {
         spreadGraph.executeOrder(obj);
         //if no
        // spreadGraph.executeOrder(obj);
     }
+
 }
 
 otree.handleBBOChange = function (obj){

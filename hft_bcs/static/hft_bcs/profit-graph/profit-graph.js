@@ -131,7 +131,7 @@ class ProfitGraph extends PolymerElement {
 
 
     // maybe spread on profit graph
-    profitGraph.priceRange =  5*otree.maxSpread;
+    profitGraph.priceRange =  100000;
     profitGraph.maxPriceProfit = profitGraph.startingWealth + (profitGraph.priceRange / 2);
     profitGraph.minPriceProfit = profitGraph.startingWealth - (profitGraph.priceRange / 2);
     profitGraph.centerPriceProfit = (profitGraph.maxPriceProfit + profitGraph.minPriceProfit) / 2;
@@ -146,7 +146,7 @@ class ProfitGraph extends PolymerElement {
     profitGraph.graphPaddingRight = 50;  //used                                 // how far from the x axis label that the line stops moving
     profitGraph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
     profitGraph.numberOfTicks = 10;
-    profitGraph.profitPriceGridIncrement = profitGraph.priceRange / profitGraph.numberOfTicks;                             //amount between each line on profit price axis
+    profitGraph.profitPriceGridIncrement = 10000;                             //amount between each line on profit price axis
     
     profitGraph.currentTime = 0;                                          // Time displayed on graph
     profitGraph.profitPriceLines = [];                                    // The array of price lines
@@ -201,12 +201,14 @@ class ProfitGraph extends PolymerElement {
     profitGraph.drawProfit = this.drawProfit;
     profitGraph.draw = this.draw;
     profitGraph.calcBatchLines = this.calcBatchLines; 
-    profitGraph.drawBatchLines = this.drawBatchLines; 
+    profitGraph.drawBatchLines = this.drawBatchLines;
     profitGraph.clear = this.clear;
+    profitGraph.addProfitJump = this.addProfitJump;
     profitGraph.init =  this.init;
   }
 
   calcPriceGridLines(maxPrice,minPrice,increment){
+    console.log(increment);
     var gridLineVal = minPrice + increment - (minPrice % increment);
     // adjust for mod of negative numbers not being negative
     if(minPrice < 0){
@@ -255,6 +257,7 @@ class ProfitGraph extends PolymerElement {
         diff *= 1000000;
         return diff;
     }
+
 
     mapTimeToXAxis(timeStamp) {
         var percentOffset;
@@ -471,6 +474,39 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
             .attr("class", function (d) {
                   return d.oldProfit < d.newProfit ? "my-positive-profit" : "my-negative-profit";
             });   
+    }
+
+    addProfitJump(obj){
+        var timeNow = profitGraph.getTime();
+        var profit = 0;
+        /*
+            CALCULATE PROFIT BASED ON THE FUNCTION GIVEN ON ASANA
+        */
+        var expectedPrice = (obj["order_token"][4] == "S" ) ? spreadGraph.bestBid: spreadGraph.bestOffer;
+        var myCashPosition = obj["endowment"];
+        var endowment = myCashPosition + expectedPrice*obj["inventory"];
+        
+        var profit = parseInt(document.querySelector('info-table').profit) + endowment;
+        console.log("New profit from execution ==> " + profit);
+        
+        profitGraph.profitJumps.push(
+            {
+                timestamp:timeNow,
+                oldProfit:profitGraph.profit,
+                newProfit:profitGraph.profit + profit, 
+            }
+        );
+
+        profitGraph.profit += profit;
+        profitGraph.profitSegments.push(
+            {
+                startTime:timeNow,
+                endTime:timeNow, 
+                startProfit:profitGraph.profit, 
+                endProfit:profitGraph.profit,
+                state:"out"
+            }
+        )
     }
 
     draw(){

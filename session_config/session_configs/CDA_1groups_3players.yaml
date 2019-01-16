@@ -19,7 +19,7 @@ market:
 parameters:
   batch-length: 0
   fundamental-price: 100
-  initial-endowment: 20
+  initial-endowment: 150
   initial-spread: 1
   lambda-i: 0.25
   lambda-j: 0.33
