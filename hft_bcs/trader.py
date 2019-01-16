@@ -465,7 +465,7 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
             self.outgoing_messages.append(sell_message)
     
     def enter_with_latent_quote(self, buy_sell_indicator, price=None, 
-            latent_quote_formula=latent_bid_and_offer):
+            time_in_force=99999, latent_quote_formula=latent_bid_and_offer):
         if price is None:
             latent_bid, latent_offer = latent_quote_formula(self.best_quotes['B'], 
                 self.best_quotes['S'], self.order_imbalance, self.orderstore.inventory, 
@@ -473,7 +473,7 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
             price = latent_bid if buy_sell_indicator == 'B' else latent_offer
         delay = self.calc_delay()
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=buy_sell_indicator, 
-            time_in_force=99999)
+            time_in_force=time_in_force)
         exchange_message = self.exchange_message_from_order_info(order_info, 
             delay, 'enter')
         self.latent_quote[buy_sell_indicator] = price
@@ -494,7 +494,23 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
         old_slider = self.sliders
         if old_slider != new_slider:
             self.latent_quote_update(sliders=new_slider)
-               
+
+    @staticmethod    
+    def enter_rule(current_bid, current_offer, best_bid, best_offer, 
+        implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer):
+        bid = None
+        if best_bid > MIN_BID and (current_bid != best_bid or 
+            volume_at_best_bid > 1):
+            if implied_bid != current_bid:
+                bid = implied_bid
+
+        offer = None      
+        if  best_offer < MAX_ASK  and (current_offer != best_offer or
+            volume_at_best_offer > 1):
+            if implied_offer != current_offer:
+                offer = implied_offer
+        return (bid, offer)
+
     def latent_quote_update(self, latent_quote_formula=latent_bid_and_offer, sliders=None, **kwargs):
         if sliders is None:
             sliders = self.sliders
@@ -525,29 +541,27 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
         new_latent_bid, new_latent_offer = latent_quote_formula(best_bid, best_offer, 
             current_order_imbalance, self.orderstore.inventory, sliders)
 
-        bid = None
-        if best_bid > MIN_BID and new_latent_bid != self.latent_quote['B'] and (
-            self.latent_quote['B'] != self.best_quotes['B']):
-            old_bid= self.latent_quote['B']
-            if new_latent_bid != old_bid:
-                bid = new_latent_bid
-            self.latent_quote['B'] = new_latent_bid
+        current_bid = self.latent_quote['B']
+        current_offer = self.latent_quote['S']    
 
-        offer = None      
-        if  best_offer < MAX_ASK and new_latent_offer != self.latent_quote['S'] and (
-            self.latent_quote['S'] != self.best_quotes['S']):
-            old_offer = self.latent_quote['S']
-            if new_latent_offer != old_offer:
-                offer = new_latent_offer
-            self.latent_quote['S'] = new_latent_offer
+        volume_at_best_offer = self.best_quote_volumes['S']
+        volume_at_best_bid = self.best_quote_volumes['B']
+
+        bid, offer = self.enter_rule(current_bid, current_offer, best_bid, 
+            best_offer, new_latent_bid, new_latent_offer, volume_at_best_bid, 
+            volume_at_best_offer)
 
         start_from = 'B'
         if bid and offer:
             # start from the direction towards
             # the less aggressive price
             # in replaces.
-            sell_is_aggressive = True if old_offer > offer else False
-            buy_is_aggressive = True if old_bid < bid else False
+            sell_is_aggressive = False
+            if current_offer is not None and current_offer > offer:
+                sell_is_aggressive = True
+            buy_is_aggressive = False
+            if current_bid is not None and current_bid < bid:
+                buy_is_aggressive = True
             
             if buy_is_aggressive and not sell_is_aggressive:
                 start_from = 'S'
@@ -620,3 +634,20 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
         if (self.best_quote_volumes[buy_sell_indicator] == 1 and 
             self.best_quotes[buy_sell_indicator] == price):
             self.no_enter_until_bbo[buy_sell_indicator] = True
+
+
+class LEEPSTaker(LEEPSNotSoBasicMaker):
+    
+    @staticmethod    
+    def enter_rule(current_bid, current_offer, best_bid, best_offer, 
+        implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer):
+        bid = None
+        if best_bid > MIN_BID and implied_bid > best_bid:
+            if implied_bid != current_bid:
+                bid = implied_bid
+
+        offer = None      
+        if  best_offer < MAX_ASK  and implied_offer < best_offer:
+            if implied_offer != current_offer:
+                offer = implied_offer
+        return (bid, offer)
