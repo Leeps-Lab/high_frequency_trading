@@ -500,12 +500,14 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
             sliders = self.sliders
         else:
             self.sliders = sliders
+
         best_bid = kwargs.get('best_bid')
         if best_bid is None:
             best_bid = self.best_quotes['B']
         else:
             self.best_quotes['B'] = best_bid
             self.best_quote_volumes['B'] = kwargs['volume_at_best_bid']
+
         best_offer = kwargs.get('best_offer')
         if best_offer is None:
             best_offer = self.best_quotes['S']
