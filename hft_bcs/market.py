@@ -206,7 +206,7 @@ class ELOMarket(BCSMarket):
         if old_role:
             self.role_groups[old_role].remove(player_id)
         self.role_groups[new_role].append(player_id)
-        if new_role in ('maker_basic', 'maker_2'):
+        if new_role in ('maker_basic', 'maker_2', 'taker'):
             attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
                 'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
                 self.volume_at_best_bid, 'volume_at_best_ask': 
@@ -243,7 +243,8 @@ class ELOMarket(BCSMarket):
         self.volume_at_best_bid = kwargs['volume_at_best_bid']
         self.volume_at_best_offer = kwargs['volume_at_best_ask']
         self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
-        makers_ids = self.role_groups['maker_basic'] + self.role_groups['maker_2']
+        makers_ids = (self.role_groups['maker_basic'] + self.role_groups['maker_2'] +
+            self.role_groups['taker'])
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
             'market_id': self.id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
             'maker_ids': makers_ids, 'volume_at_best_bid': self.volume_at_best_bid,

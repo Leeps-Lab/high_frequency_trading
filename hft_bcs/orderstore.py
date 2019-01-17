@@ -1,6 +1,7 @@
 import logging
 import time
 from .hft_logging import session_events as hfl
+from .utility import nanoseconds_since_midnight
 import itertools
 
 log = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ class OrderStore:
         token = self.tokengen(**kwargs)
         kwargs['order_token'] = token 
         kwargs['status'] = b'pending'
+        kwargs['created_at'] = nanoseconds_since_midnight()
         self._orders[token] = kwargs
         return kwargs
  
@@ -45,13 +47,18 @@ class OrderStore:
 
     def __str__(self):
         active_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
-        pending_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')      
+        pending_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')
+        ioc = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'ioc')       
         out = """Player {self.player_id} Orders:
                 Active:{active_orders}
+
+                IOC: {ioc_orders}
+
                 Pending:{pending_orders}
+                
             Spread: {self.bid} - {self.offer}
      """.format(self=self, active_orders=active_orders, pending_orders=
-            pending_orders)
+            pending_orders, ioc=ioc)
         return out
 
     def all_orders(self, direction=None):
@@ -89,8 +96,13 @@ class OrderStore:
     def _confirm_enter(self, **kwargs):
         token = kwargs['order_token']
         order_info = self._orders[token]
-        order_info['status'] = b'active'
+        time_in_force = kwargs['time_in_force']
+        if time_in_force != 0:
+            order_info['status'] = b'active'
+        else:
+            order_info['status'] = b'ioc'
         order_info['timestamp'] = kwargs['timestamp']
+        order_info['confirmed_at'] = nanoseconds_since_midnight()
         self._orders[token] = order_info
         price = order_info['price']
         direction = order_info['buy_sell_indicator']

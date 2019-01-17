@@ -23,15 +23,17 @@ class TraderFactory:
     def get_trader(self):
         raise NotImplementedError()
 
-class LEEPSTraderFactory:
+class ELOTraderFactory:
     @staticmethod
     def get_trader(role_name, subject_state):
         if role_name == 'maker_basic':
-            return LEEPSBasicMaker(subject_state)
+            return ELOBasicMaker(subject_state)
         elif role_name == 'out':
-            return LEEPSOut(subject_state)
+            return ELOOut(subject_state)
         elif role_name == 'maker_2':
-            return LEEPSNotSoBasicMaker(subject_state)
+            return ELONotSoBasicMaker(subject_state)
+        elif role_name == 'taker':
+            return ELOTaker(subject_state)
         else:
             raise Exception('unknown role: %s' % role_name)
 
@@ -353,7 +355,7 @@ Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
 Sliders.__new__.__defaults__ = (0, 0, 0, 0)
 
 
-class LEEPSTrader(BCSTrader):
+class ELOTrader(BCSTrader):
 
     def update_cash_position(self, execution_price, buy_sell_indicator):
         if buy_sell_indicator == 'B':
@@ -378,7 +380,7 @@ class LEEPSTrader(BCSTrader):
     def first_move(self, **kwargs):
         self.role = kwargs['state']
 
-class LEEPSOut(LEEPSTrader):
+class ELOOut(ELOTrader):
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
@@ -394,7 +396,7 @@ class LEEPSOut(LEEPSTrader):
 MIN_BID = 0
 MAX_ASK = 2147483647
 
-class LEEPSBasicMaker(LEEPSTrader):
+class ELOBasicMaker(ELOTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
@@ -441,7 +443,7 @@ class LEEPSBasicMaker(LEEPSTrader):
         self.best_quotes['B'] = kwargs['best_bid']
         self.best_quotes['S'] = kwargs['best_offer']
 
-class LEEPSNotSoBasicMaker(LEEPSTrader):
+class ELONotSoBasicMaker(ELOTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
@@ -636,7 +638,14 @@ class LEEPSNotSoBasicMaker(LEEPSTrader):
             self.no_enter_until_bbo[buy_sell_indicator] = True
 
 
-class LEEPSTaker(LEEPSNotSoBasicMaker):
+class ELOTaker(ELONotSoBasicMaker):
+
+    def first_move(self, **kwargs):
+        self.role = kwargs['state']
+        self.leave_market()
+        self.switch_to_market_tracking_role(**kwargs)
+        self.sliders = Sliders()
+        self.latent_quote = {'B': None, 'S': None}
     
     @staticmethod    
     def enter_rule(current_bid, current_offer, best_bid, best_offer, 
@@ -650,4 +659,23 @@ class LEEPSTaker(LEEPSNotSoBasicMaker):
         if  best_offer < MAX_ASK  and implied_offer < best_offer:
             if implied_offer != current_offer:
                 offer = implied_offer
+        print('implied', implied_bid, implied_offer)
+        print('enter rule', bid, offer)
         return (bid, offer)
+
+
+    def move_bid_and_offer(self, latent_bid=None, latent_offer=None, start_from='B',
+            order_imbalance=None):
+        messages = deque()
+        
+        if latent_offer is not None:
+            sell_message = self.enter_with_latent_quote('S', price=latent_offer,
+                time_in_force=0)
+            messages.append(sell_message)
+       
+        if latent_bid is not None:
+            buy_message = self.enter_with_latent_quote('B', price=latent_bid,
+                time_in_force=0)
+            messages.append(buy_message)
+
+        self.outgoing_messages.extend(messages)
