@@ -290,12 +290,12 @@ class SpreadGraph extends PolymerElement {
 
 
     // if((spreadGraph.bestBid != undefined && spreadGraph.bestOffer != undefined) && (spreadGraph.bestBid != 0 || spreadGraph.bestOffer != 0)){
-        spreadGraph.animateBBOShift(desiredCenter);
+        spreadGraph.animateBBOShift(desiredCenter,shiftMsg);
     // }
     
   } 
 
-  animateBBOShift(desiredCenter){
+  animateBBOShift(desiredCenter, obj){
     var tickArray = Object.keys(spreadGraph.visibleTickLines);
     for(var i = 0; i < tickArray.length; i++){
         // console.log(spreadGraph.visibleTickLines[tickArray[i]]);
@@ -334,9 +334,12 @@ class SpreadGraph extends PolymerElement {
     bestBidCircle.transition()
                  .duration(300)
                  .attr("cx", ((desiredCenter > spreadGraph.spread_width/2) ? +bestBidCircle.attr("cx") - differenceFromMid : +bestBidCircle.attr("cx") + differenceFromMid))
+                 .attr("r", obj["volume_bid"]*4)
+     
     bestOfferCircle.transition()
                  .duration(300)
                  .attr("cx", ((desiredCenter > spreadGraph.spread_width/2) ? +bestOfferCircle.attr("cx") - differenceFromMid : +bestOfferCircle.attr("cx") + differenceFromMid))
+                 .attr("r", obj["volume_offer"]*4)
 
     //Shift all orders 
 
@@ -403,7 +406,7 @@ class SpreadGraph extends PolymerElement {
         spreadGraph.spread_svg.append("circle")
         .attr("cx", bidX)
         .attr("cy", spreadGraph.spread_height*0.3)
-        .attr("r", 10)
+        .attr("r", obj["volume_bid"]*4)
         .attr("class","best-bid");
 
   }
@@ -442,7 +445,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.spread_svg.append("circle")
         .attr("cx", offerX)
         .attr("cy", spreadGraph.spread_height*0.3)
-        .attr("r", 10)
+        .attr("r", obj["volume_offer"]*4)
         .attr("class","best-offer");
 
   }

@@ -486,7 +486,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         var myCashPosition = obj["endowment"];
         var endowment = myCashPosition + expectedPrice*obj["inventory"];
         
-        var profit = parseInt(document.querySelector('info-table').profit)*(1e4) + endowment;
+        var profit = parseInt(document.querySelector('info-table').profit)*(1e-4) + endowment;
         console.log("New profit from execution ==> " + profit);
         
         profitGraph.profitJumps.push(
