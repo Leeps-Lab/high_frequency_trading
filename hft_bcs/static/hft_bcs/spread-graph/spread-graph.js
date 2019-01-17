@@ -407,6 +407,7 @@ class SpreadGraph extends PolymerElement {
         .attr("cx", bidX)
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", obj["volume_bid"]*4)
+        .attr("stroke", "black")
         .attr("class","best-bid");
 
   }
@@ -446,6 +447,7 @@ class SpreadGraph extends PolymerElement {
         .attr("cx", offerX)
         .attr("cy", spreadGraph.spread_height*0.3)
         .attr("r", obj["volume_offer"]*4)
+        .attr("stroke", "black")
         .attr("class","best-offer");
 
   }
