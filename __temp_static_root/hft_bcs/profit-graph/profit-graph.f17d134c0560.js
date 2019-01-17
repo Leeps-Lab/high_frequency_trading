@@ -208,7 +208,7 @@ class ProfitGraph extends PolymerElement {
   }
 
   calcPriceGridLines(maxPrice,minPrice,increment){
-    
+    console.log(increment);
     var gridLineVal = minPrice + increment - (minPrice % increment);
     // adjust for mod of negative numbers not being negative
     if(minPrice < 0){
@@ -485,9 +485,9 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         var expectedPrice = (obj["order_token"][4] == "S" ) ? spreadGraph.bestBid: spreadGraph.bestOffer;
         var myCashPosition = obj["endowment"];
         var endowment = myCashPosition + expectedPrice*obj["inventory"];
-        
-        var profit = parseInt(document.querySelector('info-table').profit)*(1e4) + endowment;
-        console.log("New profit from execution ==> " + profit);
+ 
+        var profit = currentProfit + endowment*(1e-4);
+ 
         
         profitGraph.profitJumps.push(
             {
@@ -504,7 +504,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
                 endTime:timeNow, 
                 startProfit:profitGraph.profit, 
                 endProfit:profitGraph.profit,
-                state:"out"
+                state:"maker"
             }
         )
     }
@@ -594,6 +594,8 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         profitGraph.advanceTimeShown = profitGraph.nanosecondPerPixel * (profitGraph.axisLabelWidth + profitGraph.graphPaddingRight);
         // collect an array of price values where the horizontal lines will be drawn
         profitGraph.profitPriceLines = profitGraph.calcPriceGridLines(profitGraph.maxPriceProfit, profitGraph.minPriceProfit, profitGraph.profitPriceGridIncrement);
+        console.log(profitGraph.profitPriceLines);
+        console.log(profitGraph.maxPriceProfit, profitGraph.minPriceProfit, profitGraph.profitPriceGridIncrement);
         var endTime = profitGraph.adminStartTime + profitGraph.timeInterval + profitGraph.advanceTimeShown;
         profitGraph.timeLines = profitGraph.calcTimeGridLines(profitGraph.adminStartTime, endTime, profitGraph.timeIncrement);
         profitGraph.batchLines = profitGraph.calcBatchLines(profitGraph.adminStartTime, profitGraph.adminStartTime + profitGraph.timeInterval + profitGraph.advanceTimeShown, profitGraph.batchLength);

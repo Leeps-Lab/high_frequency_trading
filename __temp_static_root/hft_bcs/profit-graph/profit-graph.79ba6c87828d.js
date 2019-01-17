@@ -131,7 +131,7 @@ class ProfitGraph extends PolymerElement {
 
 
     // maybe spread on profit graph
-    profitGraph.priceRange =  100000;
+    profitGraph.priceRange =  5*otree.maxSpread;
     profitGraph.maxPriceProfit = profitGraph.startingWealth + (profitGraph.priceRange / 2);
     profitGraph.minPriceProfit = profitGraph.startingWealth - (profitGraph.priceRange / 2);
     profitGraph.centerPriceProfit = (profitGraph.maxPriceProfit + profitGraph.minPriceProfit) / 2;
@@ -146,7 +146,7 @@ class ProfitGraph extends PolymerElement {
     profitGraph.graphPaddingRight = 50;  //used                                 // how far from the x axis label that the line stops moving
     profitGraph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
     profitGraph.numberOfTicks = 10;
-    profitGraph.profitPriceGridIncrement = 10000;                             //amount between each line on profit price axis
+    profitGraph.profitPriceGridIncrement = 100;                             //amount between each line on profit price axis
     
     profitGraph.currentTime = 0;                                          // Time displayed on graph
     profitGraph.profitPriceLines = [];                                    // The array of price lines
@@ -208,7 +208,6 @@ class ProfitGraph extends PolymerElement {
   }
 
   calcPriceGridLines(maxPrice,minPrice,increment){
-    
     var gridLineVal = minPrice + increment - (minPrice % increment);
     // adjust for mod of negative numbers not being negative
     if(minPrice < 0){
@@ -483,11 +482,12 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
             CALCULATE PROFIT BASED ON THE FUNCTION GIVEN ON ASANA
         */
         var expectedPrice = (obj["order_token"][4] == "S" ) ? spreadGraph.bestBid: spreadGraph.bestOffer;
-        var myCashPosition = obj["endowment"];
+        var currentProfit = parseInt(document.querySelector('info-table').profit);
+        var myCashPosition = ("yes" == "yes") ? obj["endowment"]: currentProfit;
         var endowment = myCashPosition + expectedPrice*obj["inventory"];
-        
-        var profit = parseInt(document.querySelector('info-table').profit)*(1e4) + endowment;
-        console.log("New profit from execution ==> " + profit);
+        console.log(currentProfit);
+        var profit = currentProfit + endowment*(1e-4);
+        console.log(endowment, profit);
         
         profitGraph.profitJumps.push(
             {
@@ -504,7 +504,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
                 endTime:timeNow, 
                 startProfit:profitGraph.profit, 
                 endProfit:profitGraph.profit,
-                state:"out"
+                state:"maker"
             }
         )
     }
@@ -594,6 +594,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         profitGraph.advanceTimeShown = profitGraph.nanosecondPerPixel * (profitGraph.axisLabelWidth + profitGraph.graphPaddingRight);
         // collect an array of price values where the horizontal lines will be drawn
         profitGraph.profitPriceLines = profitGraph.calcPriceGridLines(profitGraph.maxPriceProfit, profitGraph.minPriceProfit, profitGraph.profitPriceGridIncrement);
+
         var endTime = profitGraph.adminStartTime + profitGraph.timeInterval + profitGraph.advanceTimeShown;
         profitGraph.timeLines = profitGraph.calcTimeGridLines(profitGraph.adminStartTime, endTime, profitGraph.timeIncrement);
         profitGraph.batchLines = profitGraph.calcBatchLines(profitGraph.adminStartTime, profitGraph.adminStartTime + profitGraph.timeInterval + profitGraph.advanceTimeShown, profitGraph.batchLength);

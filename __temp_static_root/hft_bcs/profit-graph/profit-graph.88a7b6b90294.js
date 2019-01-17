@@ -208,7 +208,7 @@ class ProfitGraph extends PolymerElement {
   }
 
   calcPriceGridLines(maxPrice,minPrice,increment){
-    
+    console.log(increment);
     var gridLineVal = minPrice + increment - (minPrice % increment);
     // adjust for mod of negative numbers not being negative
     if(minPrice < 0){
@@ -486,7 +486,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         var myCashPosition = obj["endowment"];
         var endowment = myCashPosition + expectedPrice*obj["inventory"];
         
-        var profit = parseInt(document.querySelector('info-table').profit)*(1e4) + endowment;
+        var profit = parseInt(document.querySelector('info-table').profit) + endowment;
         console.log("New profit from execution ==> " + profit);
         
         profitGraph.profitJumps.push(

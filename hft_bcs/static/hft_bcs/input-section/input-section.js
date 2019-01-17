@@ -348,9 +348,9 @@ class InputSection extends PolymerElement {
         var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
-        submitButton.disabled = true;
-        sens1.disabled = true;
-        sens2.disabled = true;
+        submitButton.disabled = false;
+        sens1.disabled = false;
+        sens2.disabled = false;
 
     }
 
