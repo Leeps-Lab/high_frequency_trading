@@ -279,7 +279,8 @@ class SpreadGraph extends PolymerElement {
 
 
   BBOShift(shiftMsg){
-
+    console.log("BBO!");
+    console.log(spreadGraph.visibleTickLines);
     var bestBidCircle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCircle = spreadGraph.spread_svg.select(".best-offer");
     var smallerX = (bestBidCircle.attr("cx") <=  bestOfferCircle.attr("cx")) ? bestBidCircle.attr("cx") : bestBidCircle.attr("cx");
@@ -344,16 +345,23 @@ class SpreadGraph extends PolymerElement {
     //Shift all orders 
 
     // Shift Arrow
-    if(spreadGraph.bidArrow["bidArrowText"] != undefined && spreadGraph.askArrow["askArrowText"] != undefined){
-
     
+
+    try{
+        console.log("Bid Arrow ANIMATION");
         spreadGraph.bidArrow["bidArrowText"].transition().duration(300).attr("x",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.bidArrow["bidArrowText"].attr("x") - differenceFromMid : +spreadGraph.bidArrow["bidArrowText"].attr("x")  + differenceFromMid);
         spreadGraph.bidArrow["bidArrowLine"].transition().duration(300).attr("x1",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") - differenceFromMid : +spreadGraph.bidArrow["bidArrowLine"].attr("x1")  + differenceFromMid)
                                                                     .attr("x2",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x2") - differenceFromMid : +spreadGraph.bidArrow["bidArrowLine"].attr("x2")  + differenceFromMid);
-
+    } catch {
+        console.log("Bid Arrow not Exist");
+    }
+    try{
+        console.log("Bid Offer ANIMATION");
         spreadGraph.askArrow["askArrowText"].transition().duration(300).attr("x",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowText"].attr("x") - differenceFromMid : +spreadGraph.askArrow["askArrowText"].attr("x")  + differenceFromMid);
         spreadGraph.askArrow["askArrowLine"].transition().duration(300).attr("x1",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowLine"].attr("x1") - differenceFromMid : +spreadGraph.askArrow["askArrowLine"].attr("x1")  + differenceFromMid)
                                                                     .attr("x2",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowLine"].attr("x2") - differenceFromMid : +spreadGraph.askArrow["askArrowLine"].attr("x2")  + differenceFromMid);
+    } catch {
+        console.log("Ask Arrow not existing");
     }
 
 
@@ -486,7 +494,7 @@ class SpreadGraph extends PolymerElement {
 
     // console.log( spreadGraph.orderD3Objects);
     var orderObj = spreadGraph.spread_svg.select("." + TOK);
-    console.log("STILL NEED TO REMOVE ORDER REMOVE MESSAGE WHEN DONE");
+    // console.log("STILL NEED TO REMOVE ORDER REMOVE MESSAGE WHEN DONE");
     orderObj.remove();
     // for(var i = 0; i < spreadGraph.orderD3Objects.length; i++){
     //     console.log(spreadGraph.orderD3Objects[i]["_groups"][0].classList);
@@ -508,8 +516,10 @@ class SpreadGraph extends PolymerElement {
 
       //Green Bid --> #309930
       //Red ask --> #CB1C36
-    spreadGraph.bidArrow["price"] = 940000;
-    spreadGraph.askArrow["price"] = 960000;
+    
+    var midPrice = (spreadGraph.lowerBound + spreadGraph.upperBound)/2;
+    spreadGraph.bidArrow["price"] = midPrice - 10000;
+    spreadGraph.askArrow["price"] = midPrice + 10000;
 
     spreadGraph.bidArrow["bidArrowLine"] = spreadGraph.spread_svg.append("line")
         .attr("x1",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
@@ -674,6 +684,7 @@ class SpreadGraph extends PolymerElement {
       
     //confirm the arrow by drawing differnt strokes on it
     if(obj["order_token"][4] == "B"){
+        console.log("EXECUTING BID ARROW");
         spreadGraph.bidArrow["token"] = "";
         spreadGraph.bidArrow["bidArrowLine"].transition()
                                             .duration(750)
@@ -694,6 +705,7 @@ class SpreadGraph extends PolymerElement {
                                             );
 
     } else if(obj["order_token"][4] == "S"){
+        console.log("EXECUTING OFFER ARROW");
         spreadGraph.askArrow["token"] = "";
         spreadGraph.askArrow["askArrowLine"].transition()
                                             .duration(750)
@@ -722,13 +734,19 @@ class SpreadGraph extends PolymerElement {
   }
 
   drawBidArrow(obj){
-   
-    spreadGraph.bidArrow["bidArrowLine"].transition().duration(100).attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
-    spreadGraph.bidArrow["bidArrowText"].transition().duration(100).attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
+    console.log("Drawing Bid Arrow");
+    console.log(spreadGraph.lowerBound, spreadGraph.upperBound);
+    console.log(spreadGraph.visibleTickLines);
+
+    spreadGraph.bidArrow["bidArrowLine"].attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
+    spreadGraph.bidArrow["bidArrowText"].attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
     spreadGraph.confirmArrow(obj);
   }
 
   drawOfferArrow(obj){
+    console.log("Drawing Offer Arrow");
+    console.log(spreadGraph.lowerBound, spreadGraph.upperBound);
+    console.log(spreadGraph.visibleTickLines);
 
     spreadGraph.askArrow["askArrowLine"].transition().duration(100).attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
     spreadGraph.askArrow["askArrowText"].transition().duration(100).attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);

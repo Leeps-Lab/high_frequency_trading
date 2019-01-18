@@ -131,10 +131,10 @@ class ProfitGraph extends PolymerElement {
 
 
     // maybe spread on profit graph
-
-    profitGraph.maxPriceProfit = profitGraph.startingWealth * 2;
+    profitGraph.priceRange =  30000;
+    profitGraph.maxPriceProfit = profitGraph.startingWealth * 1.1;
     profitGraph.maxPriceProfit = Math.floor(profitGraph.maxPriceProfit/5)*5;
-    profitGraph.minPriceProfit = profitGraph.startingWealth * 0.2;
+    profitGraph.minPriceProfit = profitGraph.startingWealth * 0.9;
     profitGraph.minPriceProfit = Math.floor(profitGraph.minPriceProfit/5)*5;
 
     profitGraph.centerPriceProfit = (profitGraph.maxPriceProfit + profitGraph.minPriceProfit) / 2;
@@ -150,7 +150,7 @@ class ProfitGraph extends PolymerElement {
     profitGraph.graphPaddingRight = 50;  //used                                 // how far from the x axis label that the line stops moving
     profitGraph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
     profitGraph.numberOfTicks = 10;
-    profitGraph.profitPriceGridIncrement = 150000;                             //amount between each line on profit price axis
+    profitGraph.profitPriceGridIncrement = 30000;                             //amount between each line on profit price axis
     
     profitGraph.currentTime = 0;                                          // Time displayed on graph
     profitGraph.profitPriceLines = [];                                    // The array of price lines

@@ -132,9 +132,9 @@ class ProfitGraph extends PolymerElement {
 
     // maybe spread on profit graph
 
-    profitGraph.maxPriceProfit = profitGraph.startingWealth * 2;
+    profitGraph.maxPriceProfit = profitGraph.startingWealth * 1.5;
     profitGraph.maxPriceProfit = Math.floor(profitGraph.maxPriceProfit/5)*5;
-    profitGraph.minPriceProfit = profitGraph.startingWealth * 0.2;
+    profitGraph.minPriceProfit = profitGraph.startingWealth * 0.5;
     profitGraph.minPriceProfit = Math.floor(profitGraph.minPriceProfit/5)*5;
 
     profitGraph.centerPriceProfit = (profitGraph.maxPriceProfit + profitGraph.minPriceProfit) / 2;
