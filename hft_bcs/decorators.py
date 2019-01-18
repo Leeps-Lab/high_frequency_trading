@@ -3,7 +3,6 @@ import time
 import logging
 import itertools
 import json 
-
 from .equations import price_grid
 
 log = logging.getLogger(__name__)
@@ -36,6 +35,8 @@ def inbound_ws_message_preprocess(func, types=bcs_field_types):
                     message[field] = clean(message[field], expected_type)
         if 'state' in message:
             message['state'] = message['state'].lower()
+        if 'price' in message:
+            message['price'] = price_grid(message['price'])
         out = func(cls, message, **kwargs)
         return out
     return checker

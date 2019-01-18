@@ -2,7 +2,7 @@ from .cache import (get_cache_key, write_to_cache_with_version, cache_timeout,
     get_trader_ids_by_market)
 from . import utility
 from .subject_state import SubjectStateFactory
-from .trader import CDATraderFactory, FBATraderFactory, LEEPSTraderFactory 
+from .trader import CDATraderFactory, FBATraderFactory, ELOTraderFactory 
 from django.core.cache import cache
 from .decorators import atomic
 from random import shuffle
@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 trader_factory_map = {
     'BCS': {'CDA': CDATraderFactory, 'FBA': FBATraderFactory},
-    'elo': {'CDA': LEEPSTraderFactory}
+    'elo': {'CDA': ELOTraderFactory}
     }
 
 SUBPROCESSES = {}

@@ -15,7 +15,7 @@ import time
 max_ask = 2147483647
 min_bid = 0
 
-def price_grid(price, gridsize=1):
+def price_grid(price, gridsize=1e4):
     """
     the grid
     """
@@ -24,7 +24,8 @@ def price_grid(price, gridsize=1):
         price_in_range = min_bid
     elif price > max_ask:
         price_in_range = max_ask
-    grid_price = math.floor((price_in_range - min_bid) / gridsize)
+    grid_formula = round((price_in_range - min_bid) / gridsize)
+    grid_price = int(grid_formula * gridsize)
     return grid_price
 
 class OrderImbalance:
@@ -57,11 +58,44 @@ class OrderImbalance:
 #         order_imbalance = (
 #             offset + order_imbalance * math.e ** (-1 * constant * time_since_last_execution) 
 #         )
-            
-def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders,
-        gridsize=1, k=1e4):
-        sell_aggressiveness = k*(sliders.a_x *  order_imbalance - sliders.a_y * inventory)
-        bid_aggressiveness = k*(- sliders.a_x * order_imbalance + sliders.a_y * inventory)
-        latent_bid = price_grid(best_bid - gridsize * bid_aggressiveness, gridsize)
-        latent_ask = price_grid(best_offer + gridsize * sell_aggressiveness, gridsize)
-        return (latent_bid, latent_ask)
+
+def bid_aggressiveness(b_x, b_y, x, y):
+    """
+    B(x(t), y(t))
+    x: order imbalance
+    y: inventory position
+    """
+    return - b_x * x + b_y * y
+
+def sell_aggressiveness(a_x, a_y, x, y):
+    """
+    A(x(t), y(t))
+    x: order imbalance
+    y: inventory position
+    """
+    return a_x * x - a_y * y
+ 
+def latent_bid(bb, S, bid_aggressiveness):
+    """
+    LB(t)
+    bb: best bid
+    S: half a tick
+    """
+    return bb - S * bid_aggressiveness
+
+def latent_offer(bo, S, bid_aggressiveness):
+    """
+    LB(t)
+    bb: best offer
+    S: half a tick
+    """
+    return bo + S * sell_aggressiveness
+
+def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders, S=1e4):
+    b = bid_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
+    a = sell_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
+    latent_bid = best_bid - 0.5 * S * b
+    latent_ask = best_offer + 0.5 * S * a
+    print('bidag', b, 'selag', a)
+    print('lb', latent_bid, 'lo', latent_ask)
+    return price_grid(latent_bid), price_grid(latent_ask)
