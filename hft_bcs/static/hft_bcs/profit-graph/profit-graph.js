@@ -150,7 +150,7 @@ class ProfitGraph extends PolymerElement {
     profitGraph.graphPaddingRight = 50;  //used                                 // how far from the x axis label that the line stops moving
     profitGraph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
     profitGraph.numberOfTicks = Math.floor((profitGraph.maxPriceProfit - profitGraph.minPriceProfit) / profitGraph.profitPriceGridIncrement);
-    profitGraph.profitPriceGridIncrement = profitGraph.startingWealth * 0.01;                             //amount between each line on profit price axis
+    profitGraph.profitPriceGridIncrement = profitGraph.startingWealth * 0.02;                             //amount between each line on profit price axis
     
     profitGraph.currentTime = 0;                                          // Time displayed on graph
     profitGraph.profitPriceLines = [];                                    // The array of price lines
