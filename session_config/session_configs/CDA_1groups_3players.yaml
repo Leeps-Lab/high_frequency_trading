@@ -19,7 +19,7 @@ market:
 parameters:
   batch-length: 0
   fundamental-price: 100
-  initial-endowment: 1000
+  initial-endowment: 10000
   initial-spread: 1
   max-spread: 2
   period-length: 240
