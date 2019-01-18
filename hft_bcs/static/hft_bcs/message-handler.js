@@ -97,8 +97,7 @@ otree.handleCancel = function (obj){
            console.log("Removing Arrow");
         spreadGraph.removeArrows(obj["player_token"][4])
        } else {
-        console.log("Removing Order Circle");
-        spreadGraph.removeOrder(obj["order_token"]);
+            spreadGraph.removeOrder(obj["order_token"]);
        }
     } catch {
         console.error("No Order to Cancel with token" + obj["order_token"]);
@@ -106,9 +105,6 @@ otree.handleCancel = function (obj){
 }
 
 otree.handleExecution = function (obj){
-    console.log("Execution Message");
-    console.log(obj);
-    
 
     spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
     if(obj["player_id"] == otree.playerID){
@@ -118,8 +114,7 @@ otree.handleExecution = function (obj){
         spreadGraph.executeArrow(obj);
     } else {
         spreadGraph.executeOrder(obj);
-        //if no
-       // spreadGraph.executeOrder(obj);
+     
     }
 
 }
@@ -145,7 +140,7 @@ otree.handleBBOChange = function (obj){
     //     // spreadGraph.spread_svg.select(".best-offer").remove();
     //     shiftNecessary = true;
     // }
-    console.log("Handler Recieved BBO");
+
     spreadGraph.drawBestBid(obj);
     spreadGraph.drawBestOffer(obj);
     // if(shiftNecessary){
