@@ -93,7 +93,7 @@ class ProfitGraph extends PolymerElement {
     /*
      * Set of variables we update from oTree and manifest values 
      */ 
-    profitGraph.startingWealth =   otree.startingWealth; 
+    profitGraph.startingWealth = otree.startingWealth; 
     profitGraph.profit = profitGraph.startingWealth;                                           // Through Django Channels// Django Query
     profitGraph.profitElementWidth = profitGraph.profit_width;
     profitGraph.profitElementHeight = profitGraph.profit_height;
