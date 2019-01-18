@@ -587,10 +587,13 @@ class ELONotSoBasicMaker(ELOTrader):
             if sell_orders:
                 for o in sell_orders:
                     token = o['order_token']
-                    order_info = self.orderstore.register_replace(token, latent_offer)
-                    sell_message = self.exchange_message_from_order_info(order_info, 
+                    order_price = o['price']
+                    replace_price = o.get('replace_price', None)
+                    if latent_offer != order_price and latent_offer != replace_price:
+                        order_info = self.orderstore.register_replace(token, latent_offer)
+                        sell_message = self.exchange_message_from_order_info(order_info, 
                         delay, 'replace')
-                    sells.append(sell_message)
+                        sells.append(sell_message)
             elif order_imbalance is None or self.no_enter_until_bbo['S'] is False:
                 sell_message = self.enter_with_latent_quote('S', price=latent_offer)
                 sells.append(sell_message)
@@ -603,10 +606,13 @@ class ELONotSoBasicMaker(ELOTrader):
             if buy_orders:
                 for o in buy_orders:
                     token = o['order_token']
-                    order_info = self.orderstore.register_replace(token, latent_bid)
-                    buy_message = self.exchange_message_from_order_info(order_info, 
-                        delay, 'replace')
-                    buys.append(buy_message)
+                    order_price = o['price']
+                    replace_price = o.get('replace_price', None)
+                    if latent_bid != order_price and latent_bid != replace_price:
+                        order_info = self.orderstore.register_replace(token, latent_bid)
+                        buy_message = self.exchange_message_from_order_info(order_info, 
+                            delay, 'replace')
+                        buys.append(buy_message)
             elif order_imbalance is None or self.no_enter_until_bbo['B'] is False:
                     buy_message = self.enter_with_latent_quote('B', price=latent_bid)
                     buys.append(buy_message)
@@ -659,8 +665,8 @@ class ELOTaker(ELONotSoBasicMaker):
         if  best_offer < MAX_ASK  and implied_offer < best_offer:
             if implied_offer != current_offer:
                 offer = implied_offer
-        print('implied', implied_bid, implied_offer)
-        print('enter rule', bid, offer)
+        print('taker implied', implied_bid, implied_offer)
+        print('taker enter rule', bid, offer)
         return (bid, offer)
 
 

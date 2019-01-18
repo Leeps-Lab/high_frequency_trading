@@ -229,7 +229,7 @@ class ELOMarket(BCSMarket):
         current_order_imbalance = order_imbalance.step(buy_sell_indicator)
         if current_order_imbalance != self.order_imbalance:
             self.order_imbalance = current_order_imbalance
-            maker_ids = self.role_groups['maker_2']
+            maker_ids = self.role_groups['maker_2'] + self.role_groups['taker']
             message_content = {
                 'type':'order_imbalance_change', 
                 'order_imbalance': current_order_imbalance, 
