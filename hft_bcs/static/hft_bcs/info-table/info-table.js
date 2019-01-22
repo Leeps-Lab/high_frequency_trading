@@ -13,92 +13,50 @@ import {html,PolymerElement} from '../node_modules/@polymer/polymer/polymer-elem
  * document.querySelector('info-table').setAttribute("player_role","Maker"); 
 */
 class InfoTable extends PolymerElement {
-  static get template() {
-    return html`
-<style>
-  table{
-    width:100%;
-    border: rgb(200, 200, 200) 3px solid;
-    text-align:center;
-    table-layout : auto;
-  }
-  td{
-    margin-top:10px; 
-    margin-left:50%;
-  }
-  .bold{
-    font-weight:bold;
-  }
-</style>
-        <table>
-          <!-- Row 1 of info box -->
-          <tr>
-              <td class="info_text"><span class="bold">Player ID</span>:            [[player_id]]   </td>
-              <td class="info_text"><span class="bold">Role</span>:                 [[player_role]] </td>
-              <td class="info_text"><span class="bold">Fundamental Value</span>:    [[fp]]          </td>
-              <td class="info_text"><span class="bold">Your Bid</span>:               [[user_bid]], <span class="bold">Your Offer</span>: [[user_offer]]</td>
-          </tr>
-          <!-- Row 2 of info box -->
-          <tr>
-              <td class="info_text"><span class="bold">Group ID</span>:             [[group_id]]       </td>
-              <td class="info_text"><span class="bold">Number of Traders</span>:    [[num_traders]] </td>
-              <td class="info_text"><span class="bold">Speed Cost</span>:           [[speed_cost]]   </td>      
-              <td class="info_text"><span class="bold">Best Bid</span>:    [[curr_bid]]     </td>
-          </tr>
-          <!-- Row 3 of info box -->
-          <tr>
-              <td class="info_text"><span class="bold">Period</span>:               [[period_id]]    </td>
-              <td class="info_text"><span class="bold">Number of Makers</span>:     [[num_makers]]   </td>
-              <td class="info_text"><span class="bold">Your Profit</span>:          [[profit]]       </td>
-              <td class="info_text"><span class="bold">Best Offer</span>:   [[curr_ask]]     </td>
-          </tr>
-      </table>
+  constructor(){
+    super();
+    interactiveComponent.infoTableDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("info-table");
+    interactiveComponent.infoTableDOM.attachShadow({mode: 'open'});
+
+    infoTable.infoTableShadowDOM = interactiveComponent.infoTableDOM.shadowRoot;
+    infoTable.infoTableShadowDOM.innerHTML = `<style>
+    table{
+      border-right:solid 1px rgb(200,200,200);
+      text-align:left;
+      width:100%;
+      height:100%;
+    }
+    td{
+      margin-top:10px; 
+      margin-left:50%;
+    }
+    .bold{
+      font-weight:bold;
+    }
+  </style>
+          <table>
+            <tr>
+              <td class="info_text"><span class="bold">Period</span>: <span class="period_id"></span>                  </td>
+  
+              <td class="info_text"><span class="bold">Role</span>: <span class="player_role"></span>                </td>
+            </tr>
+            <tr>
+              <td class="info_text"><span class="bold">Number of Traders</span>: <span class="num_traders"></span>    </td>  
+              <td class="info_text"><span class="bold">Number of Makers</span>: <span class="num_makers"></span>       </td>
+            </tr>
+            <!-- Row 1 of info box -->
+            <tr>
+              <td class="info_text"><span class="bold">Your Bid</span>:     <span class="user_bid"></span>         , <span class="bold">Your Offer</span>: <span class="user_offer"></span></td>
+              <td class="info_text"><span class="bold">Your Profit</span>:  <span class="profit"></span>              </td> 
+            </tr>
+            <!-- Row 3 of info box -->
+            <tr>
+              <td class="info_text"><span class="bold">Best Bid</span>: <span class="curr_bid"></span>       </td>
+              <td class="info_text"><span class="bold">Best Offer</span>: <span class="curr_ask"></span>       </td>
+            </tr>
+        </table>
     `;
-  }
-
-  static get properties() {
-    return {
-      player_id: {
-        type: String
-      },
-      num_traders: {
-        type: String, 
-      },
-      group_id: {
-        type: String, 
-      },
-      player_role: {
-        type: String,
-      },
-      fp: {
-        type: String,
-      },
-
-      period_id: {
-        type: String,
-      },
-      num_makers: {
-        type: String,
-      },
-      spread_value: {
-        type: String,
-      },
-      curr_bid: {
-        type: String,
-      },
-      speed_cost: {
-        type: String,
-      },
-      num_snipers: {
-        type: String,
-      },
-      profit: {
-        type: String,
-      },
-      curr_ask: {
-        type: String,
-      }
-    };
+    
   }
 }
 window.customElements.define('info-table', InfoTable);

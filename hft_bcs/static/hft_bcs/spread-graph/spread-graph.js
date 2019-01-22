@@ -12,8 +12,8 @@ class SpreadGraph extends PolymerElement {
     interactiveComponent.spreadGraphDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("spread-graph");
     interactiveComponent.spreadGraphDOM.attachShadow({mode: 'open'});
 
-    spreadGraph.spread_width = document.querySelector("interactive-component").clientWidth;
-    spreadGraph.spread_height = document.querySelector("interactive-component").clientHeight*0.4;
+    spreadGraph.spread_width = document.querySelector(".front_end_controller").clientWidth;
+    spreadGraph.spread_height = document.querySelector(".front_end_controller").clientHeight*0.2;
 
     spreadGraph.spreadGraphShadowDOM = interactiveComponent.spreadGraphDOM.shadowRoot;
     //Second we add the HTML neccessary to be manipulated in the constructor and the subsequent functions
@@ -24,6 +24,9 @@ class SpreadGraph extends PolymerElement {
         stroke-width: 5;
         fill-opacity: 0;
         fill: pink;
+    }
+    #spread-graph{
+        background-color:white;
     }
     .line {
         stroke: steelblue;
@@ -236,6 +239,9 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.bidArrow = {};
     spreadGraph.askArrow = {};
 
+    spreadGraph.numPriceTicks = 20;
+    spreadGraph.startingLowerBound = 800000;
+    spreadGraph.startingUpperBound = 1000000;
     
     //Creating the start state
     spreadGraph.start();
@@ -309,11 +315,13 @@ class SpreadGraph extends PolymerElement {
     var differenceFromMid = Math.abs(spreadGraph.visibleTickLines[newMiddlePrice] - spreadGraph.spread_width/2);
 
      //Animate All Spread Line Text Values
+
      spreadGraph.tickLinesText.forEach(text => { 
-        text.transition()
-            .duration(300)
-            .attr("x", ((desiredCenter < spreadGraph.spread_width/2 ) ? +text.attr("x") + differenceFromMid : +text.attr("x") - differenceFromMid))
-            .on("end", function() { text.remove()})
+       
+        console.log( text.transition()
+        .duration(300)
+        .attr("x", ((desiredCenter < spreadGraph.spread_width/2 ) ? +text.attr("x") + differenceFromMid : +text.attr("x") - differenceFromMid))
+        .on("end", function() { text.remove()}));
 
     });
      //Animate All Spread Line Text Values
@@ -327,7 +335,7 @@ class SpreadGraph extends PolymerElement {
     });
     //Redraw possiible spread ticks with updated best bid and best offer
    
-    spreadGraph.drawPossibleSpreadTicks(+newMiddlePrice - 50000, +newMiddlePrice + 50000);
+    spreadGraph.drawPossibleSpreadTicks(+newMiddlePrice - 100000, +newMiddlePrice + 100000);
     //Shift Best Bid and Best Offer
     var bestBidCircle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCircle = spreadGraph.spread_svg.select(".best-offer");
@@ -585,7 +593,7 @@ class SpreadGraph extends PolymerElement {
                         price: checkedPrice
                     };
                     if(socketActions.socket.readyState === socketActions.socket.OPEN){
-                        // console.log(JSON.stringify(bidPriceMessage));
+                        console.log(JSON.stringify(bidPriceMessage));
                         socketActions.socket.send(JSON.stringify(bidPriceMessage));
                     }
 
@@ -635,7 +643,7 @@ class SpreadGraph extends PolymerElement {
                         price: checkedPriceAsk
                     };
                     if(socketActions.socket.readyState === socketActions.socket.OPEN){
-                        // console.log(JSON.stringify(askPriceMessage));
+                        console.log(JSON.stringify(askPriceMessage));
                         socketActions.socket.send(JSON.stringify(askPriceMessage));
                     }
                     spreadGraph.askArrow["askArrowText"].attr("x", checkedXAsk - 10);
@@ -683,47 +691,52 @@ class SpreadGraph extends PolymerElement {
   executeArrow(obj){
       
     //confirm the arrow by drawing differnt strokes on it
+    console.log("EXECUTING OFFER ARROW");
+    console.log(obj);
     if(obj["order_token"][4] == "B"){
         console.log("EXECUTING BID ARROW");
         spreadGraph.bidArrow["token"] = "";
         spreadGraph.bidArrow["bidArrowLine"].transition()
-                                            .duration(750)
+                                            .duration(100)
                                             .style("opacity", 0.0)
                                             .on("end", function() {spreadGraph.bidArrow["bidArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
                                             );
         spreadGraph.bidArrow["bidArrowText"].transition()
-                                            .duration(750)
+                                            .duration(100)
                                             .style("opacity", 0.0)
                                             .on("end", function() {spreadGraph.bidArrow["bidArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
                                             );
 
         spreadGraph.spread_svg.select("#bidArrow").transition()
-                                                .duration(750)
+                                                .duration(100)
                                                 .style("opacity", 0.0)
                                                 .on("end", function() {spreadGraph.spread_svg.select("#bidArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
                                                 spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
                                             );
+                                            console.log("FINISHED BID ANIMATIONS");
+
 
     } else if(obj["order_token"][4] == "S"){
         console.log("EXECUTING OFFER ARROW");
         spreadGraph.askArrow["token"] = "";
         spreadGraph.askArrow["askArrowLine"].transition()
-                                            .duration(750)
-                                            .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.askArrow["askArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
-                                            );
+                                            .duration(100)
+                                            .style("opacity", 0.0);
+                                            // .on("end", function() {spreadGraph.askArrow["askArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
+                                            // );
         spreadGraph.askArrow["askArrowText"].transition()
-                                            .duration(750)
-                                            .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.askArrow["askArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
-                                            );
+                                            .duration(100)
+                                            .style("opacity", 0.0);
+                                            // .on("end", function() {spreadGraph.askArrow["askArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
+                                            // );
 
         spreadGraph.spread_svg.select("#askArrow").transition()
-                                                .duration(750)
-                                                .style("opacity", 0.0)
-                                                .on("end", function() {spreadGraph.spread_svg.select("#askArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
-                                                spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
-                                            );
+                                                .duration(100)
+                                                .style("opacity", 0.0);
+                                            //     .on("end", function() {spreadGraph.spread_svg.select("#askArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
+                                            //     spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
+                                            // );
+                                            console.log("FINISHED OFFER ANIMATIONS");
     }
   }
   executeOrder(obj){
@@ -817,7 +830,7 @@ class SpreadGraph extends PolymerElement {
     * IEX Specififc Function
     * Draws the possible spread ticks based on the set of possible spread ticks
     */
-    drawPossibleSpreadTicks(lowerBound = 900000, upperBound = 1000000){
+    drawPossibleSpreadTicks(lowerBound = spreadGraph.startingLowerBound, upperBound = spreadGraph.startingUpperBound){
         
         //Drawn on  shift message maybe inputs include
         spreadGraph.lowerBound = lowerBound;
@@ -924,14 +937,15 @@ class SpreadGraph extends PolymerElement {
     updateBidAndAsk(bid,offer){
             spreadGraph.bestBid = bid;
             spreadGraph.bestOffer = offer;
-            document.querySelector('info-table').curr_bid = bid;
-            document.querySelector('info-table').curr_ask = offer; 
+
+            // document.querySelector('info-table').querySelector('curr_bid').innerHTML = bid;
+            // document.querySelector('info-table').querySelector('curr_ask').innerHTML = offer; 
     }
     updateUserBidAndAsk(price,side){
         if(side == "B"){
-            document.querySelector('info-table').user_bid = price;
+            // document.querySelector('info-table').user_bid = price;
         } else if(side == "S"){
-            document.querySelector('info-table').user_offer = price;
+            // document.querySelector('info-table').user_offer = price;
         }
 }
 

@@ -7,23 +7,10 @@
     <div class="front_end_controller">
         
         <!-- info-table is the top information diplay -->
-        <div class="top-banner">
-        <info-table></info-table>
-        </div>
-        <!-- new row defining the interactive part of the front end -->
-        <div class="row">
-            
-            <!-- left most graph displaying users changing profit -->
+      
+            <interactive-component></interactive-component>    
             <profit-graph></profit-graph>
-            
-            <!-- middle graph displaying and able to be clicked to show spread  -->
-            <interactive-component></interactive-component>
-            <!-- <spread-graph></spread-graph> -->
-            
-            <!-- right most section comprised of the strategy buttons -->
-            <!-- <input-section></input-section> -->
-        
-        </div>
+    
     </div>
     <div class="overlay"></div>
 <script>
@@ -56,7 +43,7 @@
 <script>
     //All socket actions are stored in this object to be used in the seperated js files
     let socketActions = {};
-
+    console.log(document);
     /*
     Socket Actions
     */
@@ -74,37 +61,10 @@
 
     let inputSection = {};
 
+    let infoTable = {};
+
     let interactiveComponent = {};
-    /*  
-        example
-        playersInMarket = {
-            playerID(1):{ 
-                orders: [ 
-                    {
-                        tok: "SUBAS000000045", price: 986243
-                    },
-                    {
-                        tok: "SUBAS000000046", price: 966243
-                    }
-                ]
-            strategy: "manual"
-            }
-            playerID(n):{ 
-                orders: [ 
-                    {
-                        tok: "...", price: ...
-                    },
-                    {
-                        tok: "...", price: ...
-                    }
-                ]
-            strategy: "manual" || "out" || "algo1" || "algo2"
-            }
-        }
-    */
     
-
-
     /*  
     IMPORTANT:
     Constant, Player, and Group Information from oTree stored in the otree objects
@@ -145,6 +105,7 @@
     let playersInMarket = {}; 
     //DO FOR ALL PLAYERS IN THE MARKET INITIALIZE PLAYER OBJECT 
     playersInMarket[otree.playerID] = {};
+    playersInMarket[otree.playerID]["profit"] = otree.startingWealth;
     
 
 
@@ -163,9 +124,9 @@ Graph_Features is an object that stores the features of the profit and spread gr
     spreadGraph.last_spread =  otree.defaultSpread/10000;
 
     //PROFIT GRAPH
-    profitGraph.profit_width = document.querySelector("profit-graph").clientWidth;
-    profitGraph.profit_height = document.querySelector("profit-graph").clientHeight;
-
+    profitGraph.profit_width = document.querySelector(".front_end_controller").clientWidth;
+    profitGraph.profit_height = document.querySelector(".front_end_controller").clientHeight * 0.6;
+    console.log(profitGraph.profit_width,profitGraph.profit_height);
 /*
 In order for our Shadow DOM Elements to be acessable in javascript we must set the mode to 'open', 'closed' is the other option and would restrict access to the Shadow DOM Elements. Since they are now open we can access them with js in their corressponding .js files
 */
@@ -194,20 +155,17 @@ In order for our Shadow DOM Elements to be acessable in javascript we must set t
                                 requestAnimationFrame(profitGraph.draw);
 
                                 /** Initializing all info table values **/
-                                document.querySelector('info-table').setAttribute("player_id","{{player.id_in_group}}");
-                                document.querySelector('info-table').setAttribute("period_id",{{group.round_number}} - 1); 
-                                document.querySelector('info-table').setAttribute("speed_cost","0"); 
-                                document.querySelector('info-table').setAttribute("num_traders","0"); 
-                                document.querySelector('info-table').setAttribute("player_role","OUT"); 
-                                document.querySelector('info-table').setAttribute("user_bid","N/A"); 
-                                document.querySelector('info-table').setAttribute("user_offer","N/A");     
-                                document.querySelector('info-table').setAttribute("num_makers","0"); 
-                                document.querySelector('info-table').setAttribute("num_snipers","0"); 
-                                document.querySelector('info-table').setAttribute("profit",otree.startingWealth*(1-4)); 
-                                document.querySelector('info-table').setAttribute("fp"," "+ {{player.fp}} * (1e-4) + " "); 
-                                document.querySelector('info-table').setAttribute("curr_bid","N/A"); 
-                                document.querySelector('info-table').setAttribute("curr_ask","N/A");
-                                document.querySelector('info-table').setAttribute("group_id",otree.groupIDInfoTable);
+                            
+                                interactiveComponent.infoTableDOM.setAttribute("period_id",{{group.round_number}} - 1); 
+                                interactiveComponent.infoTableDOM.setAttribute("num_traders","0"); 
+                                interactiveComponent.infoTableDOM.setAttribute("player_role","OUT"); 
+                                interactiveComponent.infoTableDOM.setAttribute("user_bid","N/A"); 
+                                interactiveComponent.infoTableDOM.setAttribute("user_offer","N/A");     
+                                interactiveComponent.infoTableDOM.setAttribute("num_makers","0"); 
+                                interactiveComponent.infoTableDOM.setAttribute("num_snipers","0"); 
+                                interactiveComponent.infoTableDOM.setAttribute("profit",otree.startingWealth*(1-4)); 
+                                interactiveComponent.infoTableDOM.setAttribute("curr_bid","N/A"); 
+                                interactiveComponent.infoTableDOM.setAttribute("curr_ask","N/A");
 
                                 document.querySelector(".overlay").style.opacity = 0;
                                 document.querySelector(".overlay").style.pointerEvents = 'none';
