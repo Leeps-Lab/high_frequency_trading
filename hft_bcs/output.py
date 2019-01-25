@@ -76,6 +76,8 @@ def close_trade_session(trade_session):
         current_round_number)
 
 def _collect_and_dump(session_code, subsession_id:int, market_ids:list, round_no:int):  
+    if results_foldername not in os.listdir(os.getcwd()):
+        os.mkdir(results_foldername)
     session_foldernames = [x for x in os.listdir(results_foldername) 
         if x.endswith(session_code)]
     if len(session_foldernames) > 1:

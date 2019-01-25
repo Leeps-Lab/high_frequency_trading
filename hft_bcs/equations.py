@@ -91,11 +91,10 @@ def latent_offer(bo, S, bid_aggressiveness):
     """
     return bo + S * sell_aggressiveness
 
-def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders, S=1e4):
+def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders, S=1e4,
+        bid_aggressiveness=bid_aggressiveness, sell_aggressiveness=sell_aggressiveness):
     b = bid_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
     a = sell_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
     latent_bid = best_bid - 0.5 * S * b
     latent_ask = best_offer + 0.5 * S * a
-    print('bidag', b, 'selag', a)
-    print('lb', latent_bid, 'lo', latent_ask)
     return price_grid(latent_bid), price_grid(latent_ask)
