@@ -761,8 +761,8 @@ class SpreadGraph extends PolymerElement {
     console.log(spreadGraph.lowerBound, spreadGraph.upperBound);
     console.log(spreadGraph.visibleTickLines);
     spreadGraph.askArrow["price"] = obj["price"];
-    spreadGraph.askArrow["askArrowLine"].attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
-    spreadGraph.askArrow["askArrowText"].attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
+    spreadGraph.askArrow["askArrowLine"].transition().duration(100).attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
+    spreadGraph.askArrow["askArrowText"].transition().duration(100).attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
     spreadGraph.confirmArrow(obj);
 
 

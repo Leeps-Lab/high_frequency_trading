@@ -111,7 +111,7 @@ otree.handleExecution = function (obj){
         //if yes 
         profitGraph.addProfitJump(obj);
 
-        spreadGraph.executeArrow(obj);
+        // spreadGraph.executeArrow(obj);
     } else {
         spreadGraph.executeOrder(obj);
      
