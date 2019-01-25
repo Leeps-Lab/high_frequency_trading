@@ -26,7 +26,7 @@ exogenous_event_endpoints = {
     'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/{subsession_id}'
 }
 
-exogenous_event_client = 'hft_bcs/exogenous_event_client.py'
+exogenous_event_client = 'hft/exogenous_event_client.py'
 
 available_exchange_ports = {
     'CDA': list(range(9010, 9000, -1)),

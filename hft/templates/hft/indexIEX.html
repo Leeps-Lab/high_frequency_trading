@@ -32,11 +32,11 @@
     (function(){
         var origin = window.location.origin;
         var Static_Files = {
-           //polymer: "/static/hft_bcs/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
-            input_section: "/static/hft_bcs/input-section/input-section.js",
-            spread_graph: "/static/hft_bcs/spread-graph/spread-graph.js",
-            profitGraph: "/static/hft_bcs/profit-graph/profit-graph.js",
-            info_table: "/static/hft_bcs/info-table/info-table.js"
+           //polymer: "/static/hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
+            input_section: "/static/hft/input-section/input-section.js",
+            spread_graph: "/static/hft/spread-graph/spread-graph.js",
+            profitGraph: "/static/hft/profit-graph/profit-graph.js",
+            info_table: "/static/hft/info-table/info-table.js"
         };
 
         var static_file;
@@ -66,19 +66,19 @@
 {% endblock %}
 
 {% block styles%}
-<link rel="stylesheet" type = "text/css" href="{% static 'hft_bcs/index/index.css' %}"/>
+<link rel="stylesheet" type = "text/css" href="{% static 'hft/index/index.css' %}"/>
 {% endblock %}
 
 {% block scripts %}
     <script src="https://d3js.org/d3.v5.js"></script>
     <script src="https://momentjs.com/downloads/moment.js"></script>
     <script src="https://momentjs.com/downloads/moment-timezone.min.js"></script>
-    <link rel="manifest" href="{% static 'hft_bcs/manifest.json' %}">
-    <script src="{% static 'hft_bcs/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
-    <script type="module" src="{% static 'hft_bcs/input-section/input-section.js' %}"></script>
-    <script type="module" src="{% static 'hft_bcs/spread-graph/spread-graph.js' %}"></script>
-    <script type="module" src="{% static 'hft_bcs/profit-graph/profit-graph.js' %}"></script>
-    <script type="module" src="{% static 'hft_bcs/info-table/info-table.js' %}"></script>
+    <link rel="manifest" href="{% static 'hft/manifest.json' %}">
+    <script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
+    <script type="module" src="{% static 'hft/input-section/input-section.js' %}"></script>
+    <script type="module" src="{% static 'hft/spread-graph/spread-graph.js' %}"></script>
+    <script type="module" src="{% static 'hft/profit-graph/profit-graph.js' %}"></script>
+    <script type="module" src="{% static 'hft/info-table/info-table.js' %}"></script>
     
 <script>
 //All socket actions are stored in this object to be used in the seperated js files
@@ -105,12 +105,12 @@ Constant, Player, and Group Information from oTree stored in the otree objects
     otree.startingWealth = {{player.endowment}};
     otree.startFP = {{player.fp}}; 
     otree.smallestSpread = {"key":-1, "spread":otree.maxSpread};
-    otree.min_spread = 100;
+    otree.min_spread = 3000;
     otree.roundLength = {{subsession.round_length}};
     otree.timeOffset = 0; 
-    otree.speedCost = {{player.speed_unit_cost}};
     otree.speedLongDelay = {{Constants.long_delay}} * (1e3);
     otree.speedShortDelay = {{Constants.short_delay}} * (1e3);
+    otree.speedCost = {{player.speed_unit_cost}};
     otree.endMsg = "off";
     otree.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
     otree.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
@@ -121,10 +121,7 @@ Constant, Player, and Group Information from oTree stored in the otree objects
     otree.sync = false;      //When player syncs at beginning  of expirement this is turned to true
     otree.batch = 0;
     otree.offset = 0;  
-    otree.mostRecentSniper = {};
-    otree.mostRecentSniper.playerID = 0;
-    otree.mostRecentSniper.side = 0;
-    otree.mostRecentSniper.profit = 0;
+    spreadGraph.queue = {}; 
 
     if(otree.design == "CDA"){
         otree.CDA  = true; 
@@ -133,6 +130,7 @@ Constant, Player, and Group Information from oTree stored in the otree objects
     } else if(otree.design == "IEX"){
         otree.IEX = true;
     }
+    
 /*
 IMPORTANT:
 Graph_Features is an object that stores the features of the profit and spread graph that are only able to be retrieved in index.html. This object is used in spread-graph.js and profit-graph.js
@@ -228,9 +226,6 @@ Socket Actions
             
             if(obj.EXEC.id == otree.playerIDInGroup){   
                 
-                if(timeNow > otree.batch && otree.FBA == true){
-                    timeNow = otree.batch;
-                } 
                 profitGraph.profitJumps.push(
                     {
                         timestamp:timeNow,
@@ -260,7 +255,7 @@ Socket Actions
             // Number.MAX_SAFE_INTEGER
             var player_id = parseInt(otree.playerIDInGroup);
             var smallest_spread = [-1,Infinity];
-
+            updateSpreadQueue(obj.SPRCHG);
             for(var key in obj.SPRCHG){
                 var incomingSpread;
                 var incomingSpread = (obj.SPRCHG[key]["A"] - obj.SPRCHG[key]["B"])/10000;
@@ -268,13 +263,11 @@ Socket Actions
                     spreadGraph.last_spread = incomingSpread;
                 }
                 delete spreadGraph.spread_lines[key];
-                spreadGraph.spreadLinesFBAConcurrent[key] = obj.SPRCHG[key];
-
+               
                 if(obj.SPRCHG[key] == 0){
                     // Maker has left the market so remove that maker tick
                     spreadGraph.spread_svg.selectAll(".others_line_top_" + key).remove();
                     spreadGraph.spread_svg.selectAll(".others_line_bottom_" + key).remove();
-                    delete spreadGraph.spreadLinesFBAConcurrent[key];
                     delete obj.SPRCHG[key];
                 } 
                 // process all new spreads  after the zeros have been removed
@@ -287,9 +280,7 @@ Socket Actions
                     smallest_spread[1] = incomingSpread;
                 }
             }
-          
-            lineParser = spreadGraph.spreadLinesFBAConcurrent;
-            
+            var lineParser = spreadGraph.spread_lines;
 
             for(var key in lineParser){
                 // process all new spreads  after the zeros have been removed
@@ -305,10 +296,10 @@ Socket Actions
                 spreadGraph.smallest_spread = false;
             }
 
-        if(obj.SPRCHG[player_id] != undefined){
-            //spreadGraph.drawMySpreadLines(obj.SPRCHG);
             spreadGraph.drawSpreadChange(obj.SPRCHG);
-        }
+            spreadGraph.drawQueue();
+
+        
         /*
         * Recieved on sync message sent from the backend, sent from backend when they recieved all player_ready
         * Start experiment (remove grey overlay)
@@ -331,45 +322,7 @@ Socket Actions
             document.querySelector("info-table").num_traders = total_traders;
             document.querySelector("info-table").num_makers = total_makers;
         
-        /*
-        * FBA Specific
-        * Batch has just been processed
-        * save the exact time when the batch occured for client use
-        * Update the FBA maker lines with the spreadLinesFBAConcurrent maintained in obj.SPRCHG
-        * Draw the batch flash on the spread-graph
-        */
-        } else if(obj.BATCH == "P"){
-            otree.batch = profitGraph.getTime();
-            //Plot the most current spread lines then update the saved batch lines
-            spreadGraph.updateFBASpreadGraphLines();
-            //Flash Spread Graph
-            spreadGraph.drawBatchFlash();
-
-        /*
-        * FBA Specific
-        * Batch has just started
-        * Start Batch Timer with startTimer() which resets and starts timer
-        * If this is the first batch message after the obj.SYNC message then start expirement, start profit-graph
-        */
-        } else if(obj.BATCH == "B"){
-            inputSection.startTimer();
-            if(otree.sync == true && otree.FBAGraph == false){
-                document.querySelector(".overlay").style.pointerEvents = 'none';
-                profitGraph.adminStartTime = profitGraph.getTime();
-                profitGraph.profitSegments = [
-                    {
-                        startTime:profitGraph.adminStartTime,
-                        endTime:profitGraph.adminStartTime, 
-                        startProfit:profitGraph.profit, 
-                        endProfit:profitGraph.profit,
-                        state:"OUT"
-                    }
-                ];
-                profitGraph.init(otree.startFP, profitGraph.startingWealth, "secondTick");
-                requestAnimationFrame(profitGraph.draw);
-                otree.FBAGraph = true;
-            }
-        }
+        }  
     };
 
     // Show a disconnected message when the WebSocket is closed.
@@ -383,20 +336,20 @@ Socket Actions
     * Set experiment timer on experiment based on the round length set by the configs
     */
     function startExperiment(){
-            if(otree.CDA == true && otree.FBA == false){
-                profitGraph.adminStartTime = profitGraph.getTime();
-                profitGraph.profitSegments = [
-                    {
-                        startTime:profitGraph.adminStartTime,
-                        endTime:profitGraph.adminStartTime, 
-                        startProfit:profitGraph.profit, 
-                        endProfit:profitGraph.profit,
-                        state:"OUT"
-                    }
-                ];
-                profitGraph.init(otree.startFP, profitGraph.startingWealth, "secondTick");
-                requestAnimationFrame(profitGraph.draw);
-            }
+        
+            profitGraph.adminStartTime = profitGraph.getTime();
+            profitGraph.profitSegments = [
+                {
+                    startTime:profitGraph.adminStartTime,
+                    endTime:profitGraph.adminStartTime, 
+                    startProfit:profitGraph.profit, 
+                    endProfit:profitGraph.profit,
+                    state:"OUT"
+                }
+            ];
+            profitGraph.init(otree.startFP, profitGraph.startingWealth, "secondTick");
+            requestAnimationFrame(profitGraph.draw);
+            
             
             /** Initializing all info table values **/
             document.querySelector('info-table').setAttribute("player_id","{{player.id_in_group}}");
@@ -414,9 +367,8 @@ Socket Actions
             document.querySelector('info-table').setAttribute("group_id",otree.groupIDInfoTable);
 
             document.querySelector(".overlay").style.opacity = 0;
-            if(!otree.FBA){
-                document.querySelector(".overlay").style.pointerEvents = 'none';
-            }
+            document.querySelector(".overlay").style.pointerEvents = 'none';
+            
             window.setTimeout(function(){
                 profitGraph.clear();
                 spreadGraph.clear();
@@ -434,6 +386,7 @@ Socket Actions
                 document.querySelector(".overlay").innerHTML = "<h1 style='font-weight:bold; opacity:1.0;'>End Period, calculating results!</h1>";
             }, otree.roundLength * 1000);
     }
+
 
 
     //Send player ready messages to backend between 1-5 seconds after player loads screen (wait for all other players)
@@ -461,6 +414,23 @@ Socket Actions
             if (socketActions.socket.readyState === socketActions.socket.OPEN) {
                 socketActions.socket.send(JSON.stringify(msg));
             }
+    }
+
+    function updateSpreadQueue(SPRCHG){
+        for(var key in SPRCHG){
+            var queueSpread = (SPRCHG[key]["A"] - SPRCHG[key]["B"]);
+            var index = -1;
+            for(var price in spreadGraph.queue){
+                index = spreadGraph.queue[price].indexOf(key);
+                if(index != -1){
+                    spreadGraph.queue[price].splice(index,1); 
+                } 
+            }
+            console.log(queueSpread);
+            console.log(key);
+            spreadGraph.queue[queueSpread].push(key);
+            
+        }
     }
 
 }());

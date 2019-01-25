@@ -85,7 +85,8 @@ class OUCHConnectionFactory(ClientFactory):
 
 exchanges = {}
 
-def connect(subsession_id, market_id, host, port, dispatcher, wait_for_connection=False):
+def connect(subsession_id, market_id, host, port, dispatcher, wait_for_connection=False,
+        retries=10):
     addr = '{}:{}'.format(host, port)
     if addr not in exchanges:
         factory = OUCHConnectionFactory(subsession_id, market_id, addr, dispatcher)
@@ -95,9 +96,13 @@ def connect(subsession_id, market_id, host, port, dispatcher, wait_for_connectio
         if exchanges[addr].market != market_id:
             log.warning('exchange at {} already has a group: {}'.format(addr, exchanges))
         exchanges[addr].market = market_id
+    retry_count = 0
     while not exchanges[addr].connection and wait_for_connection:
         log.info('waiting for connection to %s...' % addr)
-        time.sleep(0.1)
+        time.sleep(0.5)
+        retry_count += 1
+        if retry_count > retries:
+            raise Exception('failed to connect exchange at %s:%s.' % (host, port))
     return exchanges[addr]
 
 

@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 
 
 class CustomOtreeConfig:
-    otree_default_required = {'app_sequence': ['hft_bcs']}
+    otree_default_required = {'app_sequence': ['hft']}
 
     def __init__(self, configs:dict, filename:str):
         self.base_configs = configs

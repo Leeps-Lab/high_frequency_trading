@@ -9,7 +9,7 @@ import yaml
 from custom_otree_config import CustomOtreeConfig
 import sys
 
-CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
+CHANNEL_ROUTING = 'hft.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 POINTS_DECIMAL_PLACES = 2
@@ -189,7 +189,7 @@ LOGGING = {
             'propagate': False,
             'level': 'DEBUG',
         },
-        'hft_bcs': {
+        'hft': {
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': False,
@@ -207,7 +207,7 @@ SESSION_CONFIG_DEFAULTS = {
     'real_world_currency_per_point': 1,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
-    'app_sequence': ['hft_bcs'],
+    'app_sequence': ['hft'],
     'exchange_host': '127.0.0.1',
     'speed_cost': 0.01,
     'fundamental_price': 100,
