@@ -1,6 +1,5 @@
 from exchange_server.OuchServer.ouch_messages import OuchClientMessages, OuchServerMessages
 import time
-import numpy as np
 import datetime
 import pytz
 from random import randrange
