@@ -16,6 +16,7 @@ class InputSection extends PolymerElement {
     //Second we add the HTML neccessary to be manipulated in the constructor and the subsequent functions
     inputSection.inputSectionShadowDOM.innerHTML = `
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/hft/input-section/range.css">
     <style>
         .button-on{
             background-color:steelblue;
@@ -60,7 +61,11 @@ class InputSection extends PolymerElement {
             flex: 1 1 auto;
         }
         .slider-sens{
-    
+            margin-top: 20px;
+        }
+
+        .slider-sens > input {
+            width: 100%;
         }
 
         .switch {
@@ -125,10 +130,10 @@ class InputSection extends PolymerElement {
 </style>
     
 
-   <div class="container-fluid">
-    <div class="row" >
+   <div class="container-fluid" style="height: 100%;">
+    <div class="row" style="height: 100%;">
         <div class="text-center col-lg-2">
-            <div class="text-center center-block" style="margin-top:30px;">
+            <div class="text-center center-block" style="margin-top:10px;">
                 <p>Speed</p>
                 <label class="switch">
                 <input type="checkbox" class="speed-input">
@@ -138,28 +143,32 @@ class InputSection extends PolymerElement {
         </div>
     
         <div class="text-center col-lg-2">
-            <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button">Manual</button>
-            <button class="text-center btn btn-block btn-primary out-button" type="button">Out</button>
-
+            <div style="margin-top:15px;">
+                <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button">Manual</button>
+                <button class="text-center btn btn-block btn-primary out-button" type="button">Out</button>
+            </div>
         </div>
-
         
         <div class="text-center col-lg-8" style="background-color:rgb(200,200,200);">
             <div class="row">
-                <div class="col-lg-8">
-                    <button class="text-center btn btn-block btn-primary algorithm-button maker-button" type="button">Maker</button>
-                    <button class="text-center btn btn-block btn-primary taker-button taker-button" type="button">Taker</button>
+                <div class="col-lg-4">
+                    <div style="margin-top: 15px">
+                        <button class="text-center btn btn-block btn-primary algorithm-button maker-button" type="button">Maker</button>
+                        <button class="text-center btn btn-block btn-primary taker-button taker-button" type="button">Taker</button>
+                    </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="slider-sens" >
                         <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
                         <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
                     </div>
+                </div>
+                <div class="col-lg-4">
                     <div class="slider-sens" >
                         <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
                         <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
                     </div>
-                </di>
+                </div>
             </div>
         </div>
 

@@ -53,7 +53,7 @@ def clean_configs(session_format, session_configs):
             field_cls, scale = market_settings.config_field_type_and_scale[k]
         except KeyError:
             continue
-        clean_configs[k] = field_cls(v) * scale
+        clean_configs[k] = field_cls(v) * int(scale)
     return clean_configs
         
 def configure_model(model, session_format:dict, session_configs:dict):
@@ -69,6 +69,7 @@ def configure_model(model, session_format:dict, session_configs:dict):
     mapping = market_settings.model_configuration[model_type]
     for k, v in mapping.items():
         field_value = session_configs[k]
+        print(model, v, field_value)
         setattr(model, v, field_value)
     return model
 

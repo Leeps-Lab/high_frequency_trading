@@ -55,7 +55,7 @@ class BaseMarket:
             self.subscriber_groups[group.id].append(player.id)
             self.players_in_market[player.id] = False
             player.exchange_host = exchange_host
-            player.exchange_port = exchange_port
+            player.exchange_port = str(exchange_port)
             player.market_id = self.id
             player = configure_model(player, session_format, 
                 session_configs)
