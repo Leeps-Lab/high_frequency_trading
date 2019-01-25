@@ -5,16 +5,6 @@ import {html,PolymerElement} from '../node_modules/@polymer/polymer/polymer-elem
  * @polymer
  */
 class InputSection extends PolymerElement {
-
-  static get properties() {
-    return {
-      player_id: {
-        type: String,
-        value:"this"
-        }
-      };
-  }
-
   constructor() {
     super();
 
@@ -53,7 +43,7 @@ class InputSection extends PolymerElement {
         }
     
         .button-container{
-            background-color: rgb(230, 230, 230);
+            background-color: rgb(200, 200, 200);
             padding-bottom: 5px;
             flex: 1 1 auto;
             display: flex;
@@ -62,17 +52,15 @@ class InputSection extends PolymerElement {
         }
         
         .slider{
-            -webkit-appearance: slider-vertical;
+            
         }
-        .submit-button{
-            margin-top:85px;
-        }
+       
         .button-container-speed {
             background-color: rgb(230, 230, 230);
             flex: 1 1 auto;
         }
         .slider-sens{
-            margin-top:10px;
+    
         }
 
         .switch {
@@ -136,63 +124,49 @@ class InputSection extends PolymerElement {
           }
 </style>
     
-    <div class="container-fluid">
 
-    <div class="row">
-        
-        <br>
-        <div class="text-center col-lg-3">
-            <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button"  width="80px">Manual</button>
-            <div class="slider-sens" style="margin-top:50px;">
-                <button   class="text-center btn btn-primary submit-button" type="button">Submit Values</button>
-            </div>
-        </div>
-        <div class="text-center col-lg-3" >
-            <button class="text-center btn btn-block btn-primary algorithm-button maker-button" type="button"  width="80px">Maker</button>
-            <div class="slider-sens" style="margin-top:50px;">
-                <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
-                <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
-            </div>
-        </div>
-        <div class="text-center col-lg-3">
-            <button class="text-center btn btn-block btn-primary taker-button taker-button" type="button" width="80px">Taker</button>
-            <div class="slider-sens" style="margin-top:50px;">
-                <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
-                <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
-            </div>
-        </div>
-        <div class="text-center col-lg-3">
-            <button class="text-center btn btn-block btn-primary out-button" type="button" width="80px">Out</button>
-            <div class="text-center center-block" style="margin-top:100px;">
+   <div class="container-fluid">
+    <div class="row" >
+        <div class="text-center col-lg-2">
+            <div class="text-center center-block" style="margin-top:30px;">
                 <p>Speed</p>
                 <label class="switch">
-                    <input type="checkbox" class="speed-input">
-                    <span class="slider-speed round"></span>
+                <input type="checkbox" class="speed-input">
+                <span class="slider-speed round"></span>
                 </label>
             </div>
         </div>
-    </div>
-    <!---
-    <div class="row">
-          <div>
-            <button  class="center-block btn btn-primary test-cancel-button" type="button">Test Cancel</button>
-          </div>
-          <div>
-            <button  class="center-block btn btn-primary test-replace-button" type="button">Test Replace</button>
-          </div>
-          <div>
-            <button  class="center-block btn btn-primary test-confirmation-button" type="button">Test Confirmation</button>
-          </div>
-          <div>
-            <button  class="center-block btn btn-primary test-BBO-button" type="button">Test BBO</button>
-          </div>
-    </div>
-    --->
-    </div>
     
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <div class="text-center col-lg-2">
+            <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button">Manual</button>
+            <button class="text-center btn btn-block btn-primary out-button" type="button">Out</button>
+
+        </div>
+
+        
+        <div class="text-center col-lg-8" style="background-color:rgb(200,200,200);">
+            <div class="row">
+                <div class="col-lg-8">
+                    <button class="text-center btn btn-block btn-primary algorithm-button maker-button" type="button">Maker</button>
+                    <button class="text-center btn btn-block btn-primary taker-button taker-button" type="button">Taker</button>
+                </div>
+                <div class="col-lg-4">
+                    <div class="slider-sens" >
+                        <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
+                        <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
+                    </div>
+                    <div class="slider-sens" >
+                        <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
+                        <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
+                    </div>
+                </di>
+            </div>
+        </div>
+
+
+    </div>
+    </div>
+
         
     `;
 
@@ -214,7 +188,7 @@ class InputSection extends PolymerElement {
     inputSection.manualClick = this.manualClick;
     inputSection.makerClick = this.makerButton;
     inputSection.takerClick = this.takerButton;
-    inputSection.submitClick = this.submitButton;
+    // inputSection.submitClick = this.submitButton;
     inputSection.outClick = this.outButton;
     inputSection.uncheckOtherButtons = this.uncheckOtherButtons;
 
@@ -249,7 +223,6 @@ class InputSection extends PolymerElement {
     var makerButton = inputSection.inputSectionShadowDOM.querySelector(".maker-button");
     var takerButton = inputSection.inputSectionShadowDOM.querySelector(".taker-button");
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
-    var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
     
     // var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
     // var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
@@ -260,7 +233,6 @@ class InputSection extends PolymerElement {
     makerButton.onclick = inputSection.makerClick;
     takerButton.onclick = inputSection.takerClick;
     outButton.onclick = inputSection.outClick;
-    submitButton.onclick = inputSection.submitClick;
 
     // var testCancel = function () { inputSection.testClick("cancel")};
     // var testReplace = function () { inputSection.testClick("replace")};
@@ -295,10 +267,10 @@ class InputSection extends PolymerElement {
         
 
         //disable all sliders and and submit button 
-        var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
+        // var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
-        submitButton.disabled = true;
+        // submitButton.disabled = true;
         sens1.disabled = true;
         sens2.disabled = true;
 
@@ -322,10 +294,10 @@ class InputSection extends PolymerElement {
         spreadGraph.removeArrows();
         spreadGraph.drawArrows();
         
-        var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
+        // var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
-        submitButton.disabled = false;
+        // submitButton.disabled = false;
         sens1.disabled = false;
         sens2.disabled = false;
 
@@ -345,10 +317,10 @@ class InputSection extends PolymerElement {
             socketActions.socket.send(JSON.stringify(algorithm2ChangeMessage));
         }
         spreadGraph.removeArrows();
-        var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
+        // var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
-        submitButton.disabled = false;
+        // submitButton.disabled = false;
         sens1.disabled = false;
         sens2.disabled = false;
 
@@ -388,10 +360,8 @@ class InputSection extends PolymerElement {
             console.log(JSON.stringify(outChangeMessage));
             socketActions.socket.send(JSON.stringify(outChangeMessage));
         }
-        var submitButton = inputSection.inputSectionShadowDOM.querySelector(".submit-button");
         var sens1 = inputSection.inputSectionShadowDOM.querySelector("#sens_1");
         var sens2 = inputSection.inputSectionShadowDOM.querySelector("#sens_2");
-        submitButton.disabled = true;
         sens1.disabled = true;
         sens2.disabled = true;
 

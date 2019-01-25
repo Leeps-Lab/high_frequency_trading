@@ -93,7 +93,7 @@ class ProfitGraph extends PolymerElement {
     /*
      * Set of variables we update from oTree and manifest values 
      */ 
-    profitGraph.startingWealth =   otree.startingWealth; 
+    profitGraph.startingWealth = otree.startingWealth; 
     profitGraph.profit = profitGraph.startingWealth;                                           // Through Django Channels// Django Query
     profitGraph.profitElementWidth = profitGraph.profit_width;
     profitGraph.profitElementHeight = profitGraph.profit_height;
@@ -447,7 +447,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
                return profitGraph.mapProfitPriceToYAxis(d.startProfit);
             })
             .attr("y2", function (d) {
-               document.querySelector('info-table').setAttribute("profit",(d.endProfit*(1e-4)).toFixed(2)); 
+            //    document.querySelector('info-table').setAttribute("profit",(d.endProfit*(1e-4)).toFixed(2)); 
                return profitGraph.mapProfitPriceToYAxis(d.endProfit);
             })
             .attr("class", function (d) {
@@ -490,10 +490,11 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         var myCashPosition = obj["endowment"];
         var endowment = myCashPosition + expectedPrice*obj["inventory"];
         
-        var selectedProfit = parseInt(document.querySelector('info-table').profit)*(1e4)
-        
+        // var selectedProfit = parseInt(document.querySelector('info-table').profit)*(1e4)
+        var selectedProfit = playersInMarket[otree.playerID]["profit"];
         var profit = Math.floor(endowment - selectedProfit);
         console.log("profit: " + profit + ", current endowment: " + selectedProfit + ", incoming: " + endowment);
+        playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
         
         profitGraph.profitJumps.push(
             {
