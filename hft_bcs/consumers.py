@@ -1,14 +1,9 @@
 from channels import Group, Channel
 from channels.generic.websockets import JsonWebsocketConsumer
-from .models import (Constants, Player, Group as OGroup )
-import json
-import logging
-from django.core.cache import cache
 from .decorators import timer
-
-from . import utility
-
 from .dispatcher import LEEPSDispatcher
+from .models import Player
+import logging
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +36,7 @@ class SubjectConsumer(JsonWebsocketConsumer):
 
 class InvestorConsumer(JsonWebsocketConsumer):
 
+    @timer
     def raw_receive(self, message, subsession_id):
         try:
             LEEPSDispatcher.dispatch('websocket', message, subsession_id=subsession_id)

@@ -1,6 +1,4 @@
 import logging
-import time
-from .hft_logging import session_events as hfl
 from .utility import nanoseconds_since_midnight
 import itertools
 

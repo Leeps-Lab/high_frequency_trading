@@ -1,7 +1,6 @@
 from django.core.cache import cache
 import time
 import logging
-import itertools
 import json 
 from .equations import price_grid
 

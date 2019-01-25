@@ -1,12 +1,9 @@
-
-import sys
 import logging
 import time
 from twisted.internet.protocol import Protocol, ClientFactory
-import numpy as np
 from twisted.internet import reactor
-from .hft_logging import session_events as hfl
 from collections import deque
+from .decorators import timer
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +23,8 @@ class OUCH(Protocol):
 
     def connectionMade(self):
         log.debug('connection made.')
-      
+    
+    @timer
     def dataReceived(self, data):
         header = chr(data[0])
         try:
@@ -75,15 +73,12 @@ class OUCHConnectionFactory(ClientFactory):
         self.dispatcher = dispatcher
 
     def buildProtocol(self, addr):
-        l = 'connecting to exchange server at %s' % addr
-        hfl.log_events.push(hfl.exchange, **{'context': l})
+        log.info('connecting to exchange server at %s' % addr)
         self.connection = ClientFactory.buildProtocol(self, addr)
         return self.connection
 
     def clientConnectionLost(self, connector, reason):
-        l = 'lost connection to exchange at %s: %s' % (self.addr, reason)
-        log.debug(l)
-        hfl.log_events.push(hfl.exchange, **{'context': l})
+        log.info('lost connection to exchange at %s: %s' % (self.addr, reason))
 
     def clientConnectionFailed(self, connector, reason):
         log.debug('failed to connect to exchange at %s: %s' % (self.addr, reason))
@@ -98,7 +93,7 @@ def connect(subsession_id, market_id, host, port, dispatcher, wait_for_connectio
         reactor.connectTCP(host, port, factory)
     else:
         if exchanges[addr].market != market_id:
-            log.info('exchange at {} already has a group: {}'.format(addr, exchanges))
+            log.warning('exchange at {} already has a group: {}'.format(addr, exchanges))
         exchanges[addr].market = market_id
     while not exchanges[addr].connection and wait_for_connection:
         log.info('waiting for connection to %s...' % addr)

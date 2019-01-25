@@ -46,7 +46,15 @@ class CustomOtreeConfig:
         all_yaml_filenames = os.listdir(directory)
         yaml_config_filenames = [os.path.join(directory, f) for f in all_yaml_filenames 
             if f.endswith('.yaml')]
-        custom_configs = [cls.from_yaml(f) for f in yaml_config_filenames]
+        custom_configs = []
+        for f in yaml_config_filenames:
+            try:
+               config  = cls.from_yaml(f)
+            except Exception as e:
+                log.exception('failed to read file %s:%s', f, e)
+            else:
+                custom_configs.append(config)
+        print(custom_configs)
         return custom_configs
 
 config_maps = {
@@ -76,32 +84,32 @@ config_maps = {
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'fundamental_value_jumps': ('exogenous-events', 'fundamental-value-jumps'),
         },
-        'elo': { 
-            'name': ('session', 'session-name'),
-            'auction_format': ('market', 'auction-format'),
-            'num_demo_participants': ('demo', 'number-of-participants'),
-            'environment': ('session', 'environment'),
-            'trial': ('session', 'trial'),
-            'trial_length': ('session', 'trial-length'),
-            'num_rounds': ('session', 'num-rounds'),
-            'exchange_host': ('market', 'matching-engine-host'),
-            'num_markets': ('market', 'number-of-markets'),
-            'number_of_groups': ('group', 'number-of-groups'),
-            'players_per_group': ('group', 'players-per-group'),
-            'speed_cost': ('parameters', 'speed-cost'),
-            'fundamental_price': ('parameters', 'fundamental-price'),
-            'initial_spread': ('parameters', 'initial-spread'),
-            'max_spread': ('parameters', 'max-spread'),
-            'initial_endowment': ('parameters', 'initial-endowment'),
-            'period_length': ('parameters', 'period-length'),
-            'group_matrix': ('group', 'group-assignments'),
-            'batch_length': ('parameters', 'batch-length'),
-            'random_round_payment': ('session', 'random-round-payment'),
-            'participation_fee': ('session', 'participation-fee'),
-            'real_world_currency_per_point': ('session', 'exchange-rate'),
-            'exogenous_event_directory': ('session', 'exogenous-event-directory'),
-            'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
-            'grid_size': ('parameters', 'grid-size')
-        }
+    'elo': { 
+        'name': ('session', 'session-name'),
+        'auction_format': ('market', 'auction-format'),
+        'num_demo_participants': ('demo', 'number-of-participants'),
+        'environment': ('session', 'environment'),
+        'trial': ('session', 'trial'),
+        'trial_length': ('session', 'trial-length'),
+        'num_rounds': ('session', 'num-rounds'),
+        'exchange_host': ('market', 'matching-engine-host'),
+        'num_markets': ('market', 'number-of-markets'),
+        'number_of_groups': ('group', 'number-of-groups'),
+        'players_per_group': ('group', 'players-per-group'),
+        'speed_cost': ('parameters', 'speed-cost'),
+        'fundamental_price': ('parameters', 'fundamental-price'),
+        'initial_spread': ('parameters', 'initial-spread'),
+        'max_spread': ('parameters', 'max-spread'),
+        'initial_endowment': ('parameters', 'initial-endowment'),
+        'period_length': ('parameters', 'period-length'),
+        'group_matrix': ('group', 'group-assignments'),
+        'batch_length': ('parameters', 'batch-length'),
+        'random_round_payment': ('session', 'random-round-payment'),
+        'participation_fee': ('session', 'participation-fee'),
+        'real_world_currency_per_point': ('session', 'exchange-rate'),
+        'exogenous_event_directory': ('session', 'exogenous-event-directory'),
+        'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
+        'grid_size': ('parameters', 'grid-size')
+    }
 }
 

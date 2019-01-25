@@ -3,17 +3,12 @@ try:
     import thread
 except ImportError:
     import _thread as thread
-import sys
-import numpy as np
 import logging
-import json
-import datetime
 import csv
 from collections import deque
 import sys
 import os
 import time
-from datetime import datetime
 import json
 
 log = logging.getLogger(__name__)
@@ -97,7 +92,7 @@ class BCSExogenousEvent(ExogenousEvent):
 
 
 def main():
-    investor = BCSExogenousEvent(sys.argv[1], sys.argv[2], sys.argv[3])
+    investor = BCSExogenousEvent(*sys.argv[1:])
     investor.read()
     investor.add_ws()
     investor.ws.run_forever()

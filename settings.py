@@ -7,6 +7,7 @@ from datetime import datetime
 import otree.settings
 import yaml
 from custom_otree_config import CustomOtreeConfig
+import sys
 
 CHANNEL_ROUTING = 'hft_bcs.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -161,14 +162,6 @@ mturk_hit_settings = {
     ]
 }
 
-# configure logging in json style
-
-today = datetime.now().strftime('%Y-%m-%d_%H-%M')   # get todays date
-exp_logs_dir = 'hft_bcs/hft_logging/experiment_data/'
-logs_dir = 'hft_bcs/hft_logging/logs/'
-results_dir = 'hft_bcs/experiment_results/'
-logfile_name_format = '{directory}_{kind}_{date}'
-filename_soft = logfile_name_format.format(directory=logs_dir, kind='otree_console', date=today)
 
 LOGGING = {
     'version': 1,
@@ -188,21 +181,16 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        'logfile': {
-            'class': 'logging.FileHandler',
-            'level': 'DEBUG',
-            'formatter': 'verbose',
-            'filename': filename_soft,
-        },
+
     },
     'loggers': {
         'django.channels':{
-            'handlers': ['logfile'],
+            'handlers': ['console'],
             'propagate': False,
             'level': 'DEBUG',
         },
         'hft_bcs': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': False,
         }
@@ -234,11 +222,18 @@ SESSION_CONFIG_DEFAULTS = {
 
 SESSION_CONFIGS = []
 
+# read configurations
 custom_configs_directory = os.path.join(os.getcwd(), 'session_config/session_configs')
-
-
 custom_configs = CustomOtreeConfig.initialize_many_from_folder(custom_configs_directory)
-configs = [config.get_otree_config() for config in custom_configs]
-SESSION_CONFIGS.extend(configs)
+otree_configs = []
+for config in custom_configs:
+    try:
+        otree_config = config.get_otree_config()
+    except Exception as e:
+        sys.stdout.write('failed to read configuration %s: %s' % (config, e))
+    else:
+        otree_configs.append(otree_config)
+
+SESSION_CONFIGS.extend(otree_configs)
 
 otree.settings.augment_settings(globals())

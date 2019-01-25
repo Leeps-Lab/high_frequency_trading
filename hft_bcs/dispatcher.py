@@ -1,8 +1,11 @@
+from .checkpoints import hft_event_checkpoint
 from .event import EventFactory
 from .event_handlers import HandlerFactory
 from .response import process_response
-# from otree.timeout.tasks import hft_background_task
-from .checkpoints import hft_event_checkpoint
+from otree.timeout.tasks import hft_background_task
+import logging
+
+log = logging.getLogger(__name__)
 
 class Dispatcher:
 
@@ -16,15 +19,17 @@ class Dispatcher:
     def dispatch(cls, message_source, message, **kwargs):
         event = EventFactory.get_event(message_source, message, **kwargs)
         if event.event_type not in cls.topics:
-            raise KeyError('unsupported event type: %s.' % event.event_type)
+            log.exception(KeyError('unsupported event type: %s.' % event.event_type))
         else:
             observers = cls.topics[event.event_type]
             
         for entity in observers:
             handler = cls.handler_factory.get_handler(entity)
             event = handler(event)
-        print(event) 
-        # hft_background_task(hft_event_checkpoint, event)   
+
+        log.debug(event) 
+        
+        hft_background_task(hft_event_checkpoint, event)   
         resulting_events = []
         while event.outgoing_messages:
             message = event.outgoing_messages.popleft()
