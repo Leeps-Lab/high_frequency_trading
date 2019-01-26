@@ -45,16 +45,41 @@ def format_message(message_type, **kwargs):
         message['payload'][k] = v
     return message
 
-def clean_configs(session_format, session_configs):
+def type_check_configs(session_format, session_configs):
     market_settings = market_environments.environments[session_format]
-    clean_configs = dict(session_configs)
+    cleaned_configs = dict(session_configs)
     for k, v in session_configs.items():
         try:
-            field_cls, scale = market_settings.config_field_type_and_scale[k]
+            field_cls = market_settings.config_field_type[k]
         except KeyError:
             continue
-        clean_configs[k] = field_cls(v) * scale
-    return clean_configs
+        else:
+            try:
+                cleaned_configs[k] = field_cls(v)
+            except:
+                log.error('type check/cast failed for config key: %s and value: %s for type: %s.' 
+                    % (k, v, field_cls))
+                raise 
+    return cleaned_configs
+
+def scale_configs(session_format, session_configs):
+    market_settings = market_environments.environments[session_format]
+    scaled_configs = dict(session_configs)  
+    for k, v in session_configs.items():
+        try:
+            scale = market_settings.fields_to_scale[k]
+        except KeyError:
+            continue
+        else:
+            try:
+                scaled_configs[k] = v * int(scale)
+            except:
+                log.error('scaling failed for config key: %s and value: %s for scale: %s.' 
+                    % (k, v, scale))
+                raise 
+    return scaled_configs
+
+
         
 def configure_model(model, session_format:dict, session_configs:dict):
     def validate_model(model):
@@ -69,7 +94,12 @@ def configure_model(model, session_format:dict, session_configs:dict):
     mapping = market_settings.model_configuration[model_type]
     for k, v in mapping.items():
         field_value = session_configs[k]
-        setattr(model, v, field_value)
+        try:
+            setattr(model, v, field_value)
+        except:
+            log.error('failed to set field: %s on model: %s with value: %s.' %
+                (k, v, field_value))
+            raise
     return model
 
 

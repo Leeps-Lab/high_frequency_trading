@@ -27,9 +27,6 @@ INTERNAL_IPS = (
     '0.0.0.0',
     '127.0.0.1',
 )
-EXCHANGE_HOST_NO = os.environ.get("EXCHANGE_GROUP")
-if EXCHANGE_HOST_NO in {None, ''}:
-    EXCHANGE_HOST_NO = "127.0.0.1"
 
 # don't share this with anybody.
 # SECRET_KEY = '{{ secret_key }}'

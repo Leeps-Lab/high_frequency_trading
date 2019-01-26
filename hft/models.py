@@ -60,12 +60,13 @@ class Subsession(BaseSubsession):
             return trade_session
         session_format = self.session.config['environment']    
         if self.round_number == 1:
-            self.session.config = utility.clean_configs(session_format, 
+            self.session.config = utility.type_check_configs(session_format, 
+                self.session.config)
+            self.session.config = utility.scale_configs(session_format, 
                 self.session.config)
             self.session.vars['trade_sessions'] = {} 
         session_configs = self.session.config
         session_format = session_configs['environment']
-        session_configs = self.session.config
         trade_session = create_trade_session(self, session_format)
         self.session.vars['trade_sessions'][self.id] = trade_session.id
         exchange_format = session_configs['auction_format']
@@ -107,7 +108,7 @@ class Player(BasePlayer):
 
     time_on_speed = models.IntegerField(initial=0)
     exchange_host = models.StringField(initial='127.0.0.1')
-    exchange_port = models.StringField(initial='9001')
+    exchange_port = models.IntegerField()
     role = models.StringField(initial='out')
     speed = models.BooleanField(initial=False)
     spread = models.IntegerField()
