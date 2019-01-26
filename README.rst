@@ -9,48 +9,47 @@ where subjects participate in a market by interacting with the components on the
 Naturally, this is oriented towards experimental environments with algorithmic and high
 frequency trading.
 
-See the paper here for a detailed explanation:
-
 Setting Up
 =============
 
 Redis is used as the primary data storage during a trade session for quick read/writes,
-and experimental data is written to the relational database in background.
-We use Huey for this purpose. Both Redis and Huey is already required for oTree, used
-for different purposes in the application. The `interface server`_ is utilized to 
-connect to remote exchanges.
+and experiment data is written to the Postgres in background.
+We use Huey for this purpose. Both Redis and Huey is already required for oTree.
+The `interface server`_ is used to connect to remote exchanges.
 
 To run a test:
 
-1. Start with creating a virtual environment, you will install a slightly modified 
+1. Create a virtual environment, you will install a slightly modified 
 version of oTree in this new environment. A virtual environment will keep this version 
 separate from the oTree version you are already using.
 
 ::
 
     mkdir otree_hft_env
-    virtualenv otree_hft_env
+    virtualenv -p python3.6 otree_hft_env
+
+For mac and linux:
+
+::
+
     source otree_hft_env/bin/activate
 
-2. Clone oTree libraries from the `this`_ repo.
+For windows: 
 
- ::
+::
 
-    cd otree-core 
-    pip install -e .
-    cd ..
-
-3. Clone this repository and install dependencies.
+    otree_hft_env/Scripts/activate
+    
+2. Clone this repository and install dependencies.
 
 ::  
 
     cd high_frequency_trading
     pip install -r requirements.txt
 
-4. For convenience the repository includes matching engine libraries as subrepo. Some modules
+3. For convenience the repository includes matching engine libraries as subrepo. Some modules
 are used by both the exchange server and application. Both applications decode/encode
 `OUCH`_ messages to talk with each other. 
-Make sure all files are downloaded.
 
 ::
 
@@ -60,6 +59,8 @@ Make sure all files are downloaded.
 
 Follow the `exchange server instructions`_ and run a CDA exchange instance.
 
+4. Postgres DB and Redis must be running and oTree must be configured to talk 
+with both; explained in `oTree docs`_ .
 
 5. In a separate shell start the background process.
    
@@ -67,20 +68,19 @@ Follow the `exchange server instructions`_ and run a CDA exchange instance.
 
      otree run_huey
 
-6. Finally, run oTree.
+6. Finally, run oTree in another shell.
 
 ::
 
     otree runhftserver
 
-In a production setting you should run all these as services. The method above
-is only intended for quick testing.
+In production, you should run each as a service. The method above
+is only intended for testing.
 
 
 .. _oTree: http://www.otree.org/
 .. [AldrichVargas] https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3154070
 .. _interface server: https://github.com/django/daphne
-.. _this: https://github.com/hademircii/otree-core/tree/hft
 .. _OUCH: http://www.nasdaqtrader.com/content/technicalsupport/specifications/tradingproducts/ouch4.2.pdf
 .. _exchange server instructions: https://github.com/Leeps-Lab/exchange_server/blob/4cf00614917e792957579ecdd0f5719f9780b94c/README.rst
-
+.. _oTree docs: https://otree.readthedocs.io/en/latest/server/intro.html
