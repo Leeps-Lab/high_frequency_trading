@@ -22,17 +22,14 @@ class InteractiveComponent extends PolymerElement {
   } 
   spread-graph{
     width:100%;
-
   }
   info-table{
     float:left;
-  }
-  input-section{
-    floar:right;
+    width: 40%;
   }
   </style>
   <spread-graph></spread-graph>
-  <div style="border:solid 1px rgb(200,200,200)">
+  <div style="border:solid 1px rgb(200,200,200); height: 108px;">
     <info-table></info-table>
     <input-section></input-section>
   </div>
