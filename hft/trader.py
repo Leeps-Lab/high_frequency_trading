@@ -1,7 +1,6 @@
 
 import math
 import logging
-from . import client_messages
 from .utility import (nanoseconds_since_midnight, ouch_fields, format_message,
     MIN_BID, MAX_ASK)
 
