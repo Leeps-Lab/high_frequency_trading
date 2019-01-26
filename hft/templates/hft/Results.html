@@ -3,7 +3,7 @@
 {% load staticfiles %}
 
 {% block title %}
-    Results in Period {{ subsession.round_number }} of {{ subsession.last_round }}
+    Results
 {% endblock %}
 
 {% block content %}
@@ -62,13 +62,7 @@
                 data.addColumn({type: 'string', role: 'annotation'});
                 data.addColumn('number', 'Slow');
                 data.addColumn({type: 'string', role: 'style'});
-                data.addColumn({type: 'string', role: 'annotation'});
-                data.addRows([
-                    ['Inside Maker', {{profit.fast_inside}}, 'color: #0033FF', 'Fast', {{profit.slow_inside}}, 'color: #0099FF', 'Slow'],
-                    ['Outside Maker', {{profit.fast_outside}},'color: #6633FF',  'Fast', {{profit.slow_outside}}, 'color: #6699FF', 'Slow'],
-                    ['Sniper', {{profit.fast_sniper}},'color: #FF9900',  'Fast', {{profit.slow_sniper}}, 'color: #FFCC66', 'Slow']
-            
-                ]);
+                data.addColumn({type: 'string', role: 'annotation'});;
         var options = {
           "title":"Profit by Strategy (ECUs)",
           bars: 'vertical', 
