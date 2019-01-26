@@ -60,7 +60,12 @@ are used by both the exchange server and application. Both applications decode/e
 Follow the `exchange server instructions`_ and run a CDA exchange instance.
 
 4. Postgres DB and Redis must be running and oTree must be configured to talk 
-with both; explained in `oTree docs`_ .
+with both; explained in `oTree docs`_ . Also run:
+
+::
+
+    otree resetdb
+    otree collectstatic
 
 5. In a separate shell start the background process.
    
