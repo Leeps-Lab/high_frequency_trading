@@ -4,19 +4,22 @@ autobahn==0.16.0
 certifi==2018.11.29
 channels==0.17.3
 colorama==0.3.7
+ConfigArgParse==0.13.0
 contextlib2==0.5.4
+coverage==4.2
 daphne==0.14.3
 dj-database-url==0.4.1
 Django==1.11.2
 django-idmap==1.0.3
 django-redis==4.9.0
 django-vanilla-views==1.0.4
+djangorestframework==3.4.6
 honcho==0.7.1
 huey==1.2.0
 IPy==0.83
 jsonfield==2.0.2
 msgpack-python==0.4.8
--e git+git@github.com:hademircii/otree-core.git@db00d7e14cc2535b9560c5d4a28e7238c07202dc#egg=otree
+-e git+git@github.com:hademircii/otree-core.git@293f41364fdd47b9e18f385474bb3641fcd89183#egg=otree
 otree-boto2-shim==0.3.2
 otree-core==0.0.0b1
 otree-save-the-change==1.1.3
@@ -29,7 +32,7 @@ pytest-django==3.0.0
 python-redis-lock==3.3.1
 pytz==2017.3
 PyYAML==3.12
-raven==6.9.0
+raven==5.25.0
 redis==2.10.5
 requests==2.11.1
 schema==0.6.2

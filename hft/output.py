@@ -74,7 +74,10 @@ class HFTInvestorRecord(Model):
             self.buy_sell_indicator = event.message['buy_sell_indicator']
         else:
             self.buy_sell_indicator = event.message['order_token'][4]
-        self.price = event.message['price']
+        if 'price' in event.message:
+            self.price = event.message['price']
+        else:
+            self.price = event.message['execution_price']
         self.exchange_timestamp = event.message['timestamp']
         return self
 
