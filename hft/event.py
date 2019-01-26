@@ -70,7 +70,7 @@ class LEEPSEvent(Event):
             player_id = token[5:9]
             if token[3] == '@':
                 #   way out for investor orders
-                return False
+                return 0
             return int(player_id)
 
         market_id = kwargs.get('market_id')

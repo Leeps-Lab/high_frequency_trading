@@ -45,8 +45,9 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='el
         player_id = event.message.get('player_id')   
         if player_id is None:
             raise Exception('player id is missing in event %s.' % event)
-    if player_id == False:
-        event.attachments['note'] = 'ignored.'
+    if player_id == 0:
+        event.attachments['note'] = 'investor'
+        hft_background_task(checkpoints.hft_investor_checkpoint, event)
         return event
     key = get_cache_key(player_id ,'trader')
     trader_data = cache.get(key)

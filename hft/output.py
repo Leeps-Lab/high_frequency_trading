@@ -53,6 +53,34 @@ class HFTEventRecord(Model):
         self.outgoing_messages = str(event.outgoing_messages)
         return self
 
+
+class HFTInvestorRecord(Model):
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+    exchange_timestamp = models.BigIntegerField()
+    subsession_id= models.StringField()
+    market_id = models.StringField()
+    order_token = models.StringField()
+    status = models.StringField()
+    buy_sell_indicator = models.StringField()
+    price = models.IntegerField()
+
+    def from_event(self, event):
+        self.subsession_id = str(event.attachments['subsession_id'])
+        self.market_id = str(event.attachments['market_id'])
+        self.status = event.event_type
+        self.order_token = event.message['order_token']
+        if 'buy_sell_indicator' in event.message:
+            self.buy_sell_indicator = event.message['buy_sell_indicator']
+        else:
+            self.buy_sell_indicator = event.message['order_token'][4]
+        self.price = event.message['price']
+        self.exchange_timestamp = event.message['timestamp']
+        return self
+
+
+
+
 results_foldername = 'results'
 base_session_foldername = '{timestamp:%Y%m%d_%H:%M}_session_{session_code}'  
 base_subsession_foldername = 'subsession_{subsession_id}_round_{round_no}'                         
@@ -64,7 +92,9 @@ csv_headers = {
         'event_source', 'event_type', 'original_message', 'attachments', 'outgoing_messages'],
     'HFTPlayerStateRecord': ['timestamp', 'session_id', 'subsession_id', 'player_id', 'market_id', 'role',
         'speed_on', 'trigger_event_type', 'event_no', 'inventory', 'orderstore', 'bid',
-        'offer']
+        'offer'],
+    'HFTInvestorRecord': ['timestamp', 'exchange_timestamp', 'subsession_id', 
+        'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']
 }
 
 def close_trade_session(trade_session):
@@ -95,7 +125,7 @@ def _collect_and_dump(session_code, subsession_id:int, market_ids:list, round_no
     if subsession_foldername not in os.listdir(session_directory):
         os.mkdir(os.path.join(results_foldername, session_foldername, 
             subsession_foldername))
-    for record_class in HFTEventRecord, HFTPlayerStateRecord:
+    for record_class in HFTEventRecord, HFTPlayerStateRecord, HFTInvestorRecord:
         all_records = record_class.objects.filter(subsession_id=subsession_id)
         for market_id in market_ids:
             market_records = all_records.filter(market_id=str(market_id))
