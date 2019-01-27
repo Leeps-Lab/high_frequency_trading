@@ -1,3 +1,3 @@
 [submodule "exchange_server"]
 	path = exchange_server
-	url = git@github.com:Leeps-Lab/exchange_server.git
+	url =  https://github.com/Leeps-Lab/exchange_server.git

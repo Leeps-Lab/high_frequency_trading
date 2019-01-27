@@ -19,7 +19,7 @@ huey==1.2.0
 IPy==0.83
 jsonfield==2.0.2
 msgpack-python==0.4.8
--e git+git@github.com:hademircii/otree-core.git@293f41364fdd47b9e18f385474bb3641fcd89183#egg=otree
+-e git+https://github.com/hademircii/otree-core.git@293f41364fdd47b9e18f385474bb3641fcd89183#egg=otree
 otree-boto2-shim==0.3.2
 otree-core==0.0.0b1
 otree-save-the-change==1.1.3
