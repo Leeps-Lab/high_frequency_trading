@@ -615,6 +615,7 @@ class SpreadGraph extends PolymerElement {
                         side: "B",
                         price: checkedPrice
                     };
+                    
                     if(socketActions.socket.readyState === socketActions.socket.OPEN){
                         console.log(JSON.stringify(bidPriceMessage));
                         socketActions.socket.send(JSON.stringify(bidPriceMessage));
@@ -650,6 +651,7 @@ class SpreadGraph extends PolymerElement {
                             break;
                         }
                     }
+
                     //finding diff from upper and lower
                     var diffUpperAsk =  Math.abs(spreadGraph.visibleTickLines[tickArray[i]] - xAsk);
                     var diffLowerAsk = Math.abs(spreadGraph.visibleTickLines[tickArray[i - 1]]  - xAsk);
@@ -662,13 +664,16 @@ class SpreadGraph extends PolymerElement {
                     var checkedXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? spreadGraph.visibleTickLines[tickArray[i]] : snappedXAsk;
                     var checkedPriceAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? tickArray[i] : snappedPriceAsk;
                     
-                    spreadGraph.askArrow["price"] = checkedPriceAsk;
+                    
                     var askPriceMessage = {
                         type:  "order_by_arrow",
                         side: "S",
                         price: checkedPriceAsk
                     };
+                    console.log(checkedPriceAsk,spreadGraph.askArrow["price"]);
+                    spreadGraph.askArrow["price"] = checkedPriceAsk;
                     if(socketActions.socket.readyState === socketActions.socket.OPEN){
+
                         console.log(JSON.stringify(askPriceMessage));
                         socketActions.socket.send(JSON.stringify(askPriceMessage));
                     }
