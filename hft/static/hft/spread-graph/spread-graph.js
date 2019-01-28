@@ -340,9 +340,9 @@ class SpreadGraph extends PolymerElement {
     //Redraw possiible spread ticks with updated best bid and best offer
    
     spreadGraph.drawPossibleSpreadTicks(+newMiddlePrice - 100000, +newMiddlePrice + 100000);
-    for(var price in spreadGraph.visibleTickLines){
-        console.log("Price is =" + price + " x value =" + spreadGraph.visibleTickLines[price]);
-    }
+    // for(var price in spreadGraph.visibleTickLines){
+    //     console.log("Price is =" + price + " x value =" + spreadGraph.visibleTickLines[price]);
+    // }
 
    
     //Shift Best Bid and Best Offer
@@ -380,12 +380,15 @@ class SpreadGraph extends PolymerElement {
         console.log("Ask Arrow not existing");
     }
 
+    console.log(spreadGraph.activeOrders);
 
     for(var price in spreadGraph.activeOrders){
+       
 
         for(var i = 0; i <  spreadGraph.activeOrders[price].length; i++){
-     
+            
             if(spreadGraph.activeOrders[price][i]["selection"] != undefined){
+                
                 spreadGraph.activeOrders[price][i]["selection"].transition()
                 .duration(300)
                 .attr("cx", ((desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.activeOrders[price][i]["selection"].attr("cx") - differenceFromMid : +spreadGraph.activeOrders[price][i]["selection"].attr("cx") + differenceFromMid))
@@ -478,9 +481,9 @@ class SpreadGraph extends PolymerElement {
 
   }
 
-  drawOrder(price, TOK ){
+  drawOrder(price, TOK){
     
-    //What do I need from this?
+    console.log("Drawing order at price " + price + " with token " + TOK)
     if(TOK[4] == "B"){
         var orderBid = spreadGraph.spread_svg.append("circle")
             .attr("cx", spreadGraph.visibleTickLines[price])
@@ -512,6 +515,7 @@ class SpreadGraph extends PolymerElement {
 
     // console.log( spreadGraph.orderD3Objects);
     var orderObj = spreadGraph.spread_svg.select("." + TOK);
+    console.log(orderObj);
     // console.log("STILL NEED TO REMOVE ORDER REMOVE MESSAGE WHEN DONE");
     orderObj.remove();
     // for(var i = 0; i < spreadGraph.orderD3Objects.length; i++){
@@ -540,7 +544,6 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.bidArrow["price"] = midPrice - 10000;
     spreadGraph.askArrow["price"] = midPrice + 10000;
 
-    console.log("Arrows being drawn at " + spreadGraph.bidArrow["price"] + " , " +spreadGraph.askArrow["price"] );
     spreadGraph.bidArrow["bidArrowLine"] = spreadGraph.spread_svg.append("line")
         .attr("x1",spreadGraph.visibleTickLines[spreadGraph.bidArrow["price"]])  
         .attr("y1",spreadGraph.spread_height - 25)  
@@ -561,6 +564,9 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke-width",7)  
         .attr("marker-end","url(#askArrow)")
         .attr("class", "arrow ");
+    
+    spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
+    spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
         
     if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
@@ -714,39 +720,26 @@ class SpreadGraph extends PolymerElement {
   executeArrow(obj){
     
     //confirm the arrow by drawing differnt strokes on it
-    console.log("EXECUTING OFFER ARROW");
+    console.log("EXECUTING Arrow ARROW");
     console.log(obj);
     if(obj["order_token"][4] == "B"){
 
         spreadGraph.bidArrow["token"] = "";
-        spreadGraph.bidArrow["bidArrowLine"].style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.bidArrow["bidArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") ;} 
-                                            );
-        spreadGraph.bidArrow["bidArrowText"].style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.bidArrow["bidArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") ;} 
-                                            );
+        spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
 
-        spreadGraph.spread_svg.select("#bidArrow").style("opacity", 0.0)
-                                                .on("end", function() {spreadGraph.spread_svg.select("#bidArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)");
-                                                spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
-                                            );
-
+        spreadGraph.bidArrow["bidArrowText"].attr("fill", "rgb(150,150,150)");
+        spreadGraph.spread_svg.select("#bidArrow").attr("fill", "rgb(150,150,150)");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
 
 
     } else if(obj["order_token"][4] == "S"){
 
         spreadGraph.askArrow["token"] = "";
-        spreadGraph.askArrow["askArrowLine"].style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.askArrow["askArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") ;} 
-                                            );
-        spreadGraph.askArrow["askArrowText"].style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.askArrow["askArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") ;} 
-                                            );
+        spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
+        spreadGraph.askArrow["askArrowText"].attr("fill", "rgb(150,150,150)");
 
-        spreadGraph.spread_svg.select("#askArrow").style("opacity", 0.0)
-                                                .on("end", function() {spreadGraph.spread_svg.select("#askArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)");
-                                                spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
-                                            );
+        spreadGraph.spread_svg.select("#askArrow").attr("fill", "rgb(150,150,150)");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
     }
   }
   executeOrder(obj){
@@ -795,6 +788,7 @@ class SpreadGraph extends PolymerElement {
     orderObj["player_id"] = obj["player_id"];
     
     if(obj["player_id"] != otree.playerID){
+        
         orderObj["selection"] = spreadGraph.drawOrder(obj["price"], obj["order_token"]);
     }
 

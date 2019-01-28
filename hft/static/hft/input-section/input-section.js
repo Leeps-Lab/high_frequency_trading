@@ -145,7 +145,7 @@ class InputSection extends PolymerElement {
         <div class="text-center col-lg-2">
             <div style="margin-top:15px;">
                 <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button">Manual</button>
-                <button class="text-center btn btn-block btn-primary out-button" type="button">Out</button>
+                <button class="text-center btn btn-block btn-primary btn-success out-button" type="button">Out</button>
             </div>
         </div>
         
@@ -159,13 +159,13 @@ class InputSection extends PolymerElement {
                 </div>
                 <div class="col-lg-4">
                     <div class="slider-sens" >
-                        <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
+                        <p>Val 1 <b><span id="sens_1_output"></span></b></p>
                         <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="slider-sens" >
-                        <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
+                        <p>Val 2: <b><span id="sens_2_output"></span></b></p>
                         <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
                     </div>
                 </div>
@@ -175,8 +175,6 @@ class InputSection extends PolymerElement {
 
     </div>
     </div>
-
-        
     `;
 
     //Start as speed false
@@ -197,8 +195,9 @@ class InputSection extends PolymerElement {
     inputSection.manualClick = this.manualClick;
     inputSection.makerClick = this.makerButton;
     inputSection.takerClick = this.takerButton;
-    // inputSection.submitClick = this.submitButton;
+    inputSection.submitButton= this.submitButton;
     inputSection.outClick = this.outButton;
+    inputSection.sendSpeed = this.sendSpeed;
     inputSection.uncheckOtherButtons = this.uncheckOtherButtons;
 
     inputSection.testClick = this.testButton;
@@ -216,6 +215,11 @@ class InputSection extends PolymerElement {
         var sens2Output = inputSection.inputSectionShadowDOM.querySelector("#sens_2_output");
         sens1Output.innerHTML = sens1.value;
         sens2Output.innerHTML = sens2.value;
+        sens1.disabled = true;
+        sens2.disabled = true;
+        playersInMarket[otree.playerID]["strategy"] = "out";  
+        sens1.onchange = function() {inputSection.submitButton()};
+        sens2.onchange = function() {inputSection.submitButton()};
     
         sens1.oninput = function() {
 
@@ -232,6 +236,7 @@ class InputSection extends PolymerElement {
     var makerButton = inputSection.inputSectionShadowDOM.querySelector(".maker-button");
     var takerButton = inputSection.inputSectionShadowDOM.querySelector(".taker-button");
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
+    var speed = inputSection.inputSectionShadowDOM.querySelector(".speed-input");
     
     // var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
     // var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
@@ -242,6 +247,8 @@ class InputSection extends PolymerElement {
     makerButton.onclick = inputSection.makerClick;
     takerButton.onclick = inputSection.takerClick;
     outButton.onclick = inputSection.outClick;
+
+    speed.onclick = inputSection.sendSpeed;
 
     // var testCancel = function () { inputSection.testClick("cancel")};
     // var testReplace = function () { inputSection.testClick("replace")};
@@ -257,11 +264,14 @@ class InputSection extends PolymerElement {
 
 
     manualClick(){
-        inputSection.uncheckOtherButtons(this);
-        //update player object 
-        this.classList.toggle("btn-primary");
-        this.classList.toggle("btn-success");
-        playersInMarket[otree.playerID]["strategy"] = "maker_basic";
+        if(inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked == true){
+            inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked = false;
+            inputSection.sendSpeed();
+        }
+        inputSection.uncheckOtherButtons(this);   
+        inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
+        inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
+        playersInMarket[otree.playerID]["strategy"] = "maker_basic";     
         var manualChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -286,11 +296,15 @@ class InputSection extends PolymerElement {
     }
 
     makerButton(){
+        if(inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked == true){
+            inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked = false;
+            inputSection.sendSpeed();
+        }
         inputSection.uncheckOtherButtons(this);
-        this.classList.toggle("btn-primary");
-        this.classList.toggle("btn-success");
-        //update player object 
+        inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-success");
+        inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "maker_2";
+
         var makerBasicChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -313,9 +327,13 @@ class InputSection extends PolymerElement {
     }
 
     takerButton(){
+        if(inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked == true){
+            inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked = false;
+            inputSection.sendSpeed();
+        }
         inputSection.uncheckOtherButtons(this);
-        this.classList.toggle("btn-primary");
-        this.classList.toggle("btn-success");
+        inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
+        inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "taker";
         var algorithm2ChangeMessage = {
             type: "role_change",
@@ -356,11 +374,16 @@ class InputSection extends PolymerElement {
     }
 
     outButton(){
+        if(inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked == true){
+            inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked = false;
+            inputSection.sendSpeed();
+        }
         inputSection.uncheckOtherButtons(this);
-        this.classList.toggle("btn-primary");
-        this.classList.toggle("btn-success");
-        spreadGraph.removeArrows();
+        inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = true;
+        inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
         playersInMarket[otree.playerID]["strategy"] = "out";
+        spreadGraph.removeArrows();
+       
         var outChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -376,24 +399,41 @@ class InputSection extends PolymerElement {
 
     }
 
-    uncheckOtherButtons(button){
+    sendSpeed(){
+        var speedMsg = {
+            type:"speed",
+            speed: inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked
+        };
+        if(socketActions.socket.readyState === socketActions.socket.OPEN){
+            console.log(JSON.stringify(speedMsg));
+            socketActions.socket.send(JSON.stringify(speedMsg));
+        }
+        var timeNow = profitGraph.getTime() - profitGraph.timeOffset;
+        profitGraph.profitSegments.push(
+            {
+                startTime:timeNow,
+                endTime:timeNow, 
+                startProfit:profitGraph.profit, 
+                endProfit:profitGraph.profit,
+                state: playersInMarket[otree.playerID]["strategy"]
+            }
+        );
 
+    }
+
+    uncheckOtherButtons(button){
+        
         if(playersInMarket[otree.playerID]["strategy"] == "maker_basic"){
-            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-primary");
+            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");      
         }
         if(playersInMarket[otree.playerID]["strategy"] == "maker_2"){
             inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-primary");
-
         }
         if(playersInMarket[otree.playerID]["strategy"] == "taker"){
             inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-primary");
         }
         if(playersInMarket[otree.playerID]["strategy"] == "out"){
             inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-primary");
         }
     }
 
@@ -663,8 +703,8 @@ class InputSection extends PolymerElement {
     }
 
     updateSpeed(input_object){
-      console.log("Called at least");
-      console.log(document.querySelector('info-table').getAttribute("player_role"));
+     
+      
       if(document.querySelector('info-table').getAttribute("player_role") != "OUT"){
         console.log("Inside the if");
           //If you arent out you can turn your speed on
