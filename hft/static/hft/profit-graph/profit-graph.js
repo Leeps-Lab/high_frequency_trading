@@ -102,18 +102,20 @@ class ProfitGraph extends PolymerElement {
 
     profitGraph.profitGraph_svg = profitGraph.shadow_dom.querySelector("#profit-graph");
 
+
     
     /*
      * HTML Variables
      */ 
     profitGraph.profitGraph_svg.style.width = profitGraph.profit_width;
     profitGraph.profitGraph_svg.style.height = profitGraph.profit_height;
+    profitGraph.profitGraph_svg.style.background = "white";
+
     
     /*
      * d3 Variables
      */ 
     profitGraph.profitSVG = d3.select(profitGraph.profitGraph_svg);
-    profitGraph.profitSVG.style.background = "white";
     profitGraph.curTimeX = 0;
 
     /*
@@ -224,6 +226,7 @@ class ProfitGraph extends PolymerElement {
             lines.push(gridLineVal);
             gridLineVal += increment;
         }
+        console.log(lines);
         return lines;  
     }
 
@@ -422,7 +425,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
             })
             .attr("class", "price-grid-line-text")
             .text(function (d) {
-                return d * (1e-4);
+                return d ;
         });
     }
 
