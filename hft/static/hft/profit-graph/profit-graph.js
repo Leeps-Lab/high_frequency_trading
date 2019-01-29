@@ -95,7 +95,7 @@ class ProfitGraph extends PolymerElement {
      */ 
     profitGraph.startingWealth = otree.startingWealth; 
     profitGraph.profit = profitGraph.startingWealth;                                           // Through Django Channels// Django Query
-    profitGraph.profitElementWidth = profitGraph.profit_width;
+    profitGraph.profitElementWidth = profitGraph.profit_width - 10;
     profitGraph.profitElementHeight = profitGraph.profit_height;
     profitGraph.slowDelay = 5e8;
     profitGraph.fastDelay = 1e8;
@@ -141,7 +141,6 @@ class ProfitGraph extends PolymerElement {
     profitGraph.minPriceProfit = Math.floor(profitGraph.minPriceProfit/5)*5;
 
     profitGraph.centerPriceProfit = (profitGraph.maxPriceProfit + profitGraph.minPriceProfit) / 2;
-    console.log(profitGraph.minPriceProfit, profitGraph.centerPriceProfit, profitGraph.maxPriceProfit);
    
     profitGraph.profitJumps = [];
 
@@ -153,7 +152,7 @@ class ProfitGraph extends PolymerElement {
     profitGraph.graphPaddingRight = 50;  //used                                 // how far from the x axis label that the line stops moving
     profitGraph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
     profitGraph.numberOfTicks = Math.floor((profitGraph.maxPriceProfit - profitGraph.minPriceProfit) / profitGraph.profitPriceGridIncrement);
-    profitGraph.profitPriceGridIncrement = profitGraph.startingWealth * 0.02;                             //amount between each line on profit price axis
+    profitGraph.profitPriceGridIncrement = profitGraph.startingWealth * 0.04;                             //amount between each line on profit price axis
     
     profitGraph.currentTime = 0;                                          // Time displayed on graph
     profitGraph.profitPriceLines = [];                                    // The array of price lines
@@ -425,7 +424,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
             })
             .attr("class", "price-grid-line-text")
             .text(function (d) {
-                return d ;
+                return d * 1e-4 ;
         });
     }
 
@@ -499,7 +498,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         var profit = Math.floor(endowment - selectedProfit);
         console.log("profit: " + profit + ", current endowment: " + selectedProfit + ", incoming: " + endowment);
         playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
-        
+        infoTable.updateProfit(playersInMarket[otree.playerID]["profit"])
         profitGraph.profitJumps.push(
             {
                 timestamp:timeNow,

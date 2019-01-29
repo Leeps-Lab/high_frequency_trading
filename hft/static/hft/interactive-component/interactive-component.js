@@ -27,9 +27,13 @@ class InteractiveComponent extends PolymerElement {
     float:left;
     width: 40%;
   }
+  .button-and-info{
+    height:25%;
+    border:solid 1px rgb(200,200,200);
+  }
   </style>
   <spread-graph></spread-graph>
-  <div style="border:solid 1px rgb(200,200,200); height: 108px;">
+  <div class="button-and-info" s>
     <info-table></info-table>
     <input-section></input-section>
   </div>
@@ -39,6 +43,7 @@ class InteractiveComponent extends PolymerElement {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
   `;
+  
   }
 
 

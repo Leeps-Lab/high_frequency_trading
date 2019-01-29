@@ -271,7 +271,8 @@ class InputSection extends PolymerElement {
         inputSection.uncheckOtherButtons(this);   
         inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
-        playersInMarket[otree.playerID]["strategy"] = "maker_basic";     
+        playersInMarket[otree.playerID]["strategy"] = "maker_basic";   
+        infoTable.updateRole("Manual");  
         var manualChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -304,7 +305,7 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-success");
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "maker_2";
-
+        infoTable.updateRole("Maker");
         var makerBasicChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -335,6 +336,7 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "taker";
+        infoTable.updateRole("Taker");
         var algorithm2ChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -382,6 +384,7 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = true;
         inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
         playersInMarket[otree.playerID]["strategy"] = "out";
+        infoTable.updateRole("Out");
         spreadGraph.removeArrows();
        
         var outChangeMessage = {

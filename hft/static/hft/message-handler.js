@@ -24,7 +24,10 @@ socketActions.socket.onmessage = function (event) {
     if(obj["type"] == "bbo"){
         
         if(obj["market_id"]  === otree.marketID){
-            otree.handleBBOChange(obj);
+            
+            if(obj["best_bid"] != 0 &&  obj["best_offer"] != 0 && obj["best_bid"] != 2147483647  && obj["best_offer"] != 2147483647 ){
+                otree.handleBBOChange(obj);
+            }
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
  
