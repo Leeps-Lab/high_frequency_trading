@@ -75,6 +75,7 @@ class Subsession(BaseSubsession):
         for group in self.get_groups():
             exchange_port = exchange_ports[exchange_format].pop()
             market = trade_session.create_market(exchange_host, exchange_port)
+            print(session_configs)
             market.register_group(group, session_configs)
             initialize_market_cache(market)
         utility.configure_model(self, session_format, session_configs)
@@ -118,7 +119,7 @@ class Player(BasePlayer):
     endowment = models.IntegerField()
     prev_speed_update = models.BigIntegerField(initial=0)
     speed_on = models.IntegerField(initial=0)
-    speed_unit_cost = models.IntegerField()
+    speed_unit_cost = models.FloatField()
     max_spread = models.IntegerField()
     design =  models.CharField()
     consent = models.BooleanField(initial=True)

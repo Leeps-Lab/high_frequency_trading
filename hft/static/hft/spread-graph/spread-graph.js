@@ -12,8 +12,8 @@ class SpreadGraph extends PolymerElement {
     interactiveComponent.spreadGraphDOM = document.querySelector("spread-graph");
     interactiveComponent.spreadGraphDOM.attachShadow({mode: 'open'});
 
-    spreadGraph.spread_width = document.querySelector(".front_end_controller").clientWidth;
-    spreadGraph.spread_height = document.querySelector(".front_end_controller").clientHeight*0.2;
+    spreadGraph.spread_width = document.querySelector(".front_end_controller").clientWidth - 10;
+    spreadGraph.spread_height = document.querySelector(".front_end_controller").clientHeight*0.25;
 
     spreadGraph.spreadGraphShadowDOM = interactiveComponent.spreadGraphDOM.shadowRoot;
     //Second we add the HTML neccessary to be manipulated in the constructor and the subsequent functions
@@ -215,6 +215,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.BBOShift = this.BBOShift;
     spreadGraph.animateBBOShift = this.animateBBOShift;
 
+
     spreadGraph.drawOrder = this.drawOrder;
     spreadGraph.removeOrder = this.removeOrder;
     spreadGraph.executeOrder = this.executeOrder;
@@ -227,6 +228,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.tickLines = [];
     spreadGraph.tickLinesText = [];
     spreadGraph.orderD3Objects = [];
+    spreadGraph.activeBBOTransitions = [];
 
 
     spreadGraph.updateBidAndAsk = this.updateBidAndAsk;
@@ -245,7 +247,7 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
-
+    this.takerOrder();
   }
 
   start(){
@@ -283,10 +285,28 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawPossibleSpreadTicks();  
   }
 
+  takerOrder(price = 980000){    
+    spreadGraph.spread_svg.append("line")
+        .attr("x1",spreadGraph.visibleTickLines[price])  
+        .attr("y1",spreadGraph.spread_height - 30)  
+        .attr("x2",spreadGraph.visibleTickLines[price])  
+        .attr("y2",spreadGraph.spread_height*0.6 + 20)  
+        .attr("stroke","rgb(150,150,150)") 
+        .attr("stroke-width",10) 
+        .attr("class", "taker-order");
+
+    spreadGraph.spread_svg.append("text")
+        .attr("text-anchor", "start")
+        .attr("x", spreadGraph.visibleTickLines[price] - 20)  
+        .attr("y",  spreadGraph.spread_height - 10)
+        .attr("fill","rgb(150,150,150)")
+        .attr("class", "taker-text")
+        .text("TAKER");
+  } 
+
 
   BBOShift(shiftMsg){
-    console.log("BBO!");
-    console.log(spreadGraph.visibleTickLines);
+    spreadGraph.animation = true;
     var bestBidCircle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCircle = spreadGraph.spread_svg.select(".best-offer");
     var smallerX = (bestBidCircle.attr("cx") <=  bestOfferCircle.attr("cx")) ? bestBidCircle.attr("cx") : bestBidCircle.attr("cx");
@@ -296,11 +316,10 @@ class SpreadGraph extends PolymerElement {
     //Center is between the best bid and the best offer
 
 
-    // if((spreadGraph.bestBid != undefined && spreadGraph.bestOffer != undefined) && (spreadGraph.bestBid != 0 || spreadGraph.bestOffer != 0)){
-        spreadGraph.animateBBOShift(desiredCenter,shiftMsg);
-    // }
+    spreadGraph.animateBBOShift(desiredCenter,shiftMsg);
     
   } 
+
 
   animateBBOShift(desiredCenter, obj){
     var tickArray = Object.keys(spreadGraph.visibleTickLines);
@@ -315,15 +334,20 @@ class SpreadGraph extends PolymerElement {
     var differenceFromMid = Math.abs(spreadGraph.visibleTickLines[newMiddlePrice] - spreadGraph.spread_width/2);
 
      //Animate All Spread Line Text Values
-
+    
+    
      spreadGraph.tickLinesText.forEach(text => { 
        
-        console.log( text.transition()
+        text.transition()
         .duration(300)
         .attr("x", ((desiredCenter < spreadGraph.spread_width/2 ) ? +text.attr("x") + differenceFromMid : +text.attr("x") - differenceFromMid))
-        .on("end", function() { text.remove()}));
+        .on("end", function() {
+            text.remove();
+            spreadGraph.animation = false;
+        })
 
     });
+
      //Animate All Spread Line Text Values
      spreadGraph.tickLines.forEach(line => { 
         
@@ -336,6 +360,11 @@ class SpreadGraph extends PolymerElement {
     //Redraw possiible spread ticks with updated best bid and best offer
    
     spreadGraph.drawPossibleSpreadTicks(+newMiddlePrice - 100000, +newMiddlePrice + 100000);
+    // for(var price in spreadGraph.visibleTickLines){
+    //     console.log("Price is =" + price + " x value =" + spreadGraph.visibleTickLines[price]);
+    // }
+
+   
     //Shift Best Bid and Best Offer
     var bestBidCircle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCircle = spreadGraph.spread_svg.select(".best-offer");
@@ -343,12 +372,12 @@ class SpreadGraph extends PolymerElement {
     bestBidCircle.transition()
                  .duration(300)
                  .attr("cx", ((desiredCenter > spreadGraph.spread_width/2) ? +bestBidCircle.attr("cx") - differenceFromMid : +bestBidCircle.attr("cx") + differenceFromMid))
-                 .attr("r", obj["volume_bid"]*4)
+                 .attr("r", obj["volume_bid"]*4);
      
     bestOfferCircle.transition()
                  .duration(300)
                  .attr("cx", ((desiredCenter > spreadGraph.spread_width/2) ? +bestOfferCircle.attr("cx") - differenceFromMid : +bestOfferCircle.attr("cx") + differenceFromMid))
-                 .attr("r", obj["volume_offer"]*4)
+                 .attr("r", obj["volume_offer"]*4);
 
     //Shift all orders 
 
@@ -356,7 +385,6 @@ class SpreadGraph extends PolymerElement {
     
 
     try{
-        console.log("Bid Arrow ANIMATION");
         spreadGraph.bidArrow["bidArrowText"].transition().duration(300).attr("x",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.bidArrow["bidArrowText"].attr("x") - differenceFromMid : +spreadGraph.bidArrow["bidArrowText"].attr("x")  + differenceFromMid);
         spreadGraph.bidArrow["bidArrowLine"].transition().duration(300).attr("x1",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") - differenceFromMid : +spreadGraph.bidArrow["bidArrowLine"].attr("x1")  + differenceFromMid)
                                                                     .attr("x2",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x2") - differenceFromMid : +spreadGraph.bidArrow["bidArrowLine"].attr("x2")  + differenceFromMid);
@@ -364,7 +392,7 @@ class SpreadGraph extends PolymerElement {
         console.log("Bid Arrow not Exist");
     }
     try{
-        console.log("Bid Offer ANIMATION");
+
         spreadGraph.askArrow["askArrowText"].transition().duration(300).attr("x",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowText"].attr("x") - differenceFromMid : +spreadGraph.askArrow["askArrowText"].attr("x")  + differenceFromMid);
         spreadGraph.askArrow["askArrowLine"].transition().duration(300).attr("x1",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowLine"].attr("x1") - differenceFromMid : +spreadGraph.askArrow["askArrowLine"].attr("x1")  + differenceFromMid)
                                                                     .attr("x2",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowLine"].attr("x2") - differenceFromMid : +spreadGraph.askArrow["askArrowLine"].attr("x2")  + differenceFromMid);
@@ -372,20 +400,25 @@ class SpreadGraph extends PolymerElement {
         console.log("Ask Arrow not existing");
     }
 
+    console.log(spreadGraph.activeOrders);
 
     for(var price in spreadGraph.activeOrders){
+       
 
         for(var i = 0; i <  spreadGraph.activeOrders[price].length; i++){
-     
+            
             if(spreadGraph.activeOrders[price][i]["selection"] != undefined){
+                
                 spreadGraph.activeOrders[price][i]["selection"].transition()
                 .duration(300)
                 .attr("cx", ((desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.activeOrders[price][i]["selection"].attr("cx") - differenceFromMid : +spreadGraph.activeOrders[price][i]["selection"].attr("cx") + differenceFromMid))
             }
         }
     }   
+    spreadGraph.BBOAnimation = false;
    
   }
+
 
   drawBestBid(obj){
         spreadGraph.spread_svg.select(".best-bid").remove();
@@ -468,9 +501,9 @@ class SpreadGraph extends PolymerElement {
 
   }
 
-  drawOrder(price, TOK ){
+  drawOrder(price, TOK){
     
-    //What do I need from this?
+    console.log("Drawing order at price " + price + " with token " + TOK)
     if(TOK[4] == "B"){
         var orderBid = spreadGraph.spread_svg.append("circle")
             .attr("cx", spreadGraph.visibleTickLines[price])
@@ -502,6 +535,7 @@ class SpreadGraph extends PolymerElement {
 
     // console.log( spreadGraph.orderD3Objects);
     var orderObj = spreadGraph.spread_svg.select("." + TOK);
+    console.log(orderObj);
     // console.log("STILL NEED TO REMOVE ORDER REMOVE MESSAGE WHEN DONE");
     orderObj.remove();
     // for(var i = 0; i < spreadGraph.orderD3Objects.length; i++){
@@ -526,6 +560,7 @@ class SpreadGraph extends PolymerElement {
       //Red ask --> #CB1C36
     
     var midPrice = (spreadGraph.lowerBound + spreadGraph.upperBound)/2;
+
     spreadGraph.bidArrow["price"] = midPrice - 10000;
     spreadGraph.askArrow["price"] = midPrice + 10000;
 
@@ -549,17 +584,25 @@ class SpreadGraph extends PolymerElement {
         .attr("stroke-width",7)  
         .attr("marker-end","url(#askArrow)")
         .attr("class", "arrow ");
+    
+    spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
+    spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
         
     if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
         spreadGraph.bidArrow["bidArrowLine"].call(d3.drag()
+
             .on("drag", function(){
-                spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
-                spreadGraph.bidArrow["bidArrowText"].attr("fill","rgb(150,150,150)");
-                spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
-                //Making sure not to drag past other arrow line
-                var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") - 10 <= d3.event.x) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
-                spreadGraph.bidArrow["bidArrowText"].attr("x", lineX - 10);
-                spreadGraph.bidArrow["bidArrowLine"].attr("x1",  lineX).attr("x2", lineX);
+                if(spreadGraph.animation){
+                    return;
+                } else{
+                    spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
+                    spreadGraph.bidArrow["bidArrowText"].attr("fill","rgb(150,150,150)");
+                    spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
+                    //Making sure not to drag past other arrow line
+                    var lineX = (spreadGraph.askArrow["askArrowLine"].attr("x1") - 10 <= d3.event.x) ? spreadGraph.askArrow["askArrowLine"].attr("x1") - 10: d3.event.x ;
+                    spreadGraph.bidArrow["bidArrowText"].attr("x", lineX - 10);
+                    spreadGraph.bidArrow["bidArrowLine"].attr("x1",  lineX).attr("x2", lineX);
+                }
             })
             .on("end", function(){
                     //finding the price in which is just past the dropped x value
@@ -592,6 +635,7 @@ class SpreadGraph extends PolymerElement {
                         side: "B",
                         price: checkedPrice
                     };
+                    
                     if(socketActions.socket.readyState === socketActions.socket.OPEN){
                         console.log(JSON.stringify(bidPriceMessage));
                         socketActions.socket.send(JSON.stringify(bidPriceMessage));
@@ -602,18 +646,21 @@ class SpreadGraph extends PolymerElement {
 
                 }   
             )
-        
         );
 
         spreadGraph.askArrow["askArrowLine"].call(d3.drag()
             .on("drag", function(){
-                spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
-                spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
-                spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
-                //Making sure not to drag past other arrow line
-                var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
-                spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
-                spreadGraph.askArrow["askArrowLine"].attr("x1",  lineXAsk).attr("x2", lineXAsk);
+                if(spreadGraph.animation){
+                    return;
+                } else {
+                    spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
+                    spreadGraph.askArrow["askArrowText"].attr("fill","rgb(150,150,150)");
+                    spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
+                    //Making sure not to drag past other arrow line
+                    var lineXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10 >= d3.event.x) ? +spreadGraph.bidArrow["bidArrowLine"].attr("x1") + 10: d3.event.x ;
+                    spreadGraph.askArrow["askArrowText"].attr("x", lineXAsk - 10);
+                    spreadGraph.askArrow["askArrowLine"].attr("x1",  lineXAsk).attr("x2", lineXAsk);
+                }
             })
             .on("end", function(){
                     //finding the price in which is just past the dropped x value
@@ -624,6 +671,7 @@ class SpreadGraph extends PolymerElement {
                             break;
                         }
                     }
+
                     //finding diff from upper and lower
                     var diffUpperAsk =  Math.abs(spreadGraph.visibleTickLines[tickArray[i]] - xAsk);
                     var diffLowerAsk = Math.abs(spreadGraph.visibleTickLines[tickArray[i - 1]]  - xAsk);
@@ -636,13 +684,16 @@ class SpreadGraph extends PolymerElement {
                     var checkedXAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? spreadGraph.visibleTickLines[tickArray[i]] : snappedXAsk;
                     var checkedPriceAsk = (+spreadGraph.bidArrow["bidArrowLine"].attr("x1") == snappedXAsk) ? tickArray[i] : snappedPriceAsk;
                     
-                    spreadGraph.askArrow["price"] = checkedPriceAsk;
+                    
                     var askPriceMessage = {
                         type:  "order_by_arrow",
                         side: "S",
                         price: checkedPriceAsk
                     };
+                    console.log(checkedPriceAsk,spreadGraph.askArrow["price"]);
+                    spreadGraph.askArrow["price"] = checkedPriceAsk;
                     if(socketActions.socket.readyState === socketActions.socket.OPEN){
+
                         console.log(JSON.stringify(askPriceMessage));
                         socketActions.socket.send(JSON.stringify(askPriceMessage));
                     }
@@ -674,13 +725,16 @@ class SpreadGraph extends PolymerElement {
   }
 
   confirmArrow(obj){
+   
     //confirm the arrow by drawing differnt strokes on it
     if(obj["order_token"][4] == "B"){
+        spreadGraph.bidArrow["price"] = obj["price"];
         spreadGraph.bidArrow["token"] = obj["order_token"];
         spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "#309930");
         spreadGraph.bidArrow["bidArrowText"].attr("fill","#309930");
         spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "#309930";
     } else if(obj["order_token"][4] == "S"){
+        spreadGraph.askArrow["price"] = obj["price"];
         spreadGraph.askArrow["token"] = obj["order_token"];
         spreadGraph.askArrow["askArrowLine"].attr("stroke", "#13AAF5");
         spreadGraph.askArrow["askArrowText"].attr("fill","#13AAF5");
@@ -689,84 +743,51 @@ class SpreadGraph extends PolymerElement {
   }
 
   executeArrow(obj){
-      
+    
     //confirm the arrow by drawing differnt strokes on it
-    console.log("EXECUTING OFFER ARROW");
+    console.log("EXECUTING Arrow ARROW");
     console.log(obj);
     if(obj["order_token"][4] == "B"){
-        console.log("EXECUTING BID ARROW");
-        spreadGraph.bidArrow["token"] = "";
-        spreadGraph.bidArrow["bidArrowLine"].transition()
-                                            .duration(100)
-                                            .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.bidArrow["bidArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
-                                            );
-        spreadGraph.bidArrow["bidArrowText"].transition()
-                                            .duration(100)
-                                            .style("opacity", 0.0)
-                                            .on("end", function() {spreadGraph.bidArrow["bidArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
-                                            );
 
-        spreadGraph.spread_svg.select("#bidArrow").transition()
-                                                .duration(100)
-                                                .style("opacity", 0.0)
-                                                .on("end", function() {spreadGraph.spread_svg.select("#bidArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
-                                                spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
-                                            );
-                                            console.log("FINISHED BID ANIMATIONS");
+        spreadGraph.bidArrow["token"] = "";
+        spreadGraph.bidArrow["bidArrowLine"].attr("stroke", "rgb(150,150,150)");
+
+        spreadGraph.bidArrow["bidArrowText"].attr("fill", "rgb(150,150,150)");
+        spreadGraph.spread_svg.select("#bidArrow").attr("fill", "rgb(150,150,150)");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#bidArrow").querySelector("path").style.fill = "rgb(150,150,150)";
 
 
     } else if(obj["order_token"][4] == "S"){
-        console.log("EXECUTING OFFER ARROW");
-        spreadGraph.askArrow["token"] = "";
-        spreadGraph.askArrow["askArrowLine"].transition()
-                                            .duration(100)
-                                            .style("opacity", 0.0);
-                                            // .on("end", function() {spreadGraph.askArrow["askArrowLine"].style("opacity", 1.0).attr("stroke", "rgb(150,150,150)") } 
-                                            // );
-        spreadGraph.askArrow["askArrowText"].transition()
-                                            .duration(100)
-                                            .style("opacity", 0.0);
-                                            // .on("end", function() {spreadGraph.askArrow["askArrowText"].style("opacity", 1.0).attr("fill", "rgb(150,150,150)") } 
-                                            // );
 
-        spreadGraph.spread_svg.select("#askArrow").transition()
-                                                .duration(100)
-                                                .style("opacity", 0.0);
-                                            //     .on("end", function() {spreadGraph.spread_svg.select("#askArrow").style("opacity", 1.0).attr("fill", "rgb(150,150,150)")
-                                            //     spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)"; } 
-                                            // );
-                                            console.log("FINISHED OFFER ANIMATIONS");
+        spreadGraph.askArrow["token"] = "";
+        spreadGraph.askArrow["askArrowLine"].attr("stroke", "rgb(150,150,150)");
+        spreadGraph.askArrow["askArrowText"].attr("fill", "rgb(150,150,150)");
+
+        spreadGraph.spread_svg.select("#askArrow").attr("fill", "rgb(150,150,150)");
+        spreadGraph.spreadGraphShadowDOM.querySelector("#askArrow").querySelector("path").style.fill = "rgb(150,150,150)";
     }
   }
   executeOrder(obj){
     var orderCircle = spreadGraph.spread_svg.select("." + obj["order_token"]);
-    orderCircle.transition().duration(100).attr("fill", "rgb(150,150,150)");
+    orderCircle.attr("fill", "rgb(150,150,150)");
     spreadGraph.removeOrder(obj["order_token"]);
-
   }
 
   drawBidArrow(obj){
-    console.log("Drawing Bid Arrow");
-    console.log(spreadGraph.lowerBound, spreadGraph.upperBound);
-    console.log(spreadGraph.visibleTickLines);
     spreadGraph.bidArrow["price"] = obj["price"];
+    spreadGraph.bidArrow["order_token"] = obj["order_token"];
     spreadGraph.bidArrow["bidArrowLine"].attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
     spreadGraph.bidArrow["bidArrowText"].attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
     spreadGraph.confirmArrow(obj);
   }
 
   drawOfferArrow(obj){
-    console.log("Drawing Offer Arrow");
-    console.log(spreadGraph.lowerBound, spreadGraph.upperBound);
-    console.log(spreadGraph.visibleTickLines);
     spreadGraph.askArrow["price"] = obj["price"];
+    spreadGraph.askArrow["token"] = obj["order_token"];
     spreadGraph.askArrow["askArrowLine"].attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
     spreadGraph.askArrow["askArrowText"].attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
     spreadGraph.confirmArrow(obj);
-
-
-}
+    }
 
   removeArrows(side = ""){
 
@@ -792,6 +813,7 @@ class SpreadGraph extends PolymerElement {
     orderObj["player_id"] = obj["player_id"];
     
     if(obj["player_id"] != otree.playerID){
+        
         orderObj["selection"] = spreadGraph.drawOrder(obj["price"], obj["order_token"]);
     }
 
@@ -843,7 +865,9 @@ class SpreadGraph extends PolymerElement {
         var yCoordinate = spreadGraph.spread_height*0.3;
         spreadGraph.visibleTickLines = {};
         for(var temp = lowerBound; temp <= upperBound; temp+=increment){
+
             spreadGraph.visibleTickLines[temp] = xCoordinate;
+
             spreadGraph.tickLines.push(spreadGraph.spread_svg.append("svg:line")
                     .attr("x1", xCoordinate)
                     .attr("y1", spreadGraph.spread_height*0.3 - 15)
@@ -934,20 +958,7 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll(".others_line").remove();
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
-    updateBidAndAsk(bid,offer){
-            spreadGraph.bestBid = bid;
-            spreadGraph.bestOffer = offer;
 
-            // document.querySelector('info-table').querySelector('curr_bid').innerHTML = bid;
-            // document.querySelector('info-table').querySelector('curr_ask').innerHTML = offer; 
-    }
-    updateUserBidAndAsk(price,side){
-        if(side == "B"){
-            // document.querySelector('info-table').user_bid = price;
-        } else if(side == "S"){
-            // document.querySelector('info-table').user_offer = price;
-        }
-}
 
     drawBatchFlash(){
         //Flash purple on border whenever a batch message is recieved from the exchange

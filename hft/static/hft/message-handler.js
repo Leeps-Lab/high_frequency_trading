@@ -24,14 +24,17 @@ socketActions.socket.onmessage = function (event) {
     if(obj["type"] == "bbo"){
         
         if(obj["market_id"]  === otree.marketID){
-            otree.handleBBOChange(obj);
+            
+            if(obj["best_bid"] != 0 &&  obj["best_offer"] != 0 && obj["best_bid"] != 2147483647  && obj["best_offer"] != 2147483647 ){
+                otree.handleBBOChange(obj);
+            }
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
  
     } else if(obj["type"] == "confirmed"){
         otree.handleConfirm(obj);
     } else if(obj["type"] == "replaced"){
-       
+        console.log("REPLACE");
         var cancelMessage = {};
         cancelMessage["order_token"] = obj["old_token"];
         cancelMessage["price"] = obj["old_price"];
@@ -39,23 +42,23 @@ socketActions.socket.onmessage = function (event) {
         otree.handleCancel(cancelMessage);
         otree.handleConfirm(obj);
     } else if(obj.type == "canceled"){
+        console.log("CANCEL");
         otree.handleCancel(obj);
     } else if(obj.type == "executed"){
-        // console.log("EXECUTED");
+        console.log("EXECUTION");
         otree.handleExecution(obj);
-      
-
-        //Do animation
-        //Remove executed order on the spread graph
-
     } else if(obj.type == "system_event"){
-        console.log("System Event Message");
+      
         if(obj.code == "S"){
             console.log("Recieved SYNC Message");
             otree.sync = true; 
             otree.startExperiment();
         }
-        //Not too sure about this one
+
+    } else if(obj.type == "taker"){
+        if(otree.playersInMarket[otree.playerID]["strategy"] ==  "taker" && obj["player_id"] == otree.playerID){
+            //spreadGraph.takerOrder(price);
+        }
     } 
 };
 
@@ -69,7 +72,10 @@ otree.handleConfirm = function (obj){
     spreadGraph.addToActiveOrders(obj); 
     
     if(obj["player_id"] == otree.playerID){
-        spreadGraph.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
+        
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", obj["order_token"][4], obj["price"]);
+
+        // infoTable.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
         if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
             if(obj["price"] == spreadGraph.bidArrow["price"]){
                 spreadGraph.confirmArrow(obj);
@@ -95,59 +101,42 @@ otree.handleCancel = function (obj){
     try{
        if(obj["player_id"] == otree.playerID){
            console.log("Removing Arrow");
+           
         spreadGraph.removeArrows(obj["player_token"][4])
        } else {
             spreadGraph.removeOrder(obj["order_token"]);
        }
     } catch {
-        console.error("No Order to Cancel with token" + obj["order_token"]);
+        console.error("No Order to Cancel with token " + obj["order_token"]);
     }
 }
 
 otree.handleExecution = function (obj){
+    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", obj["order_token"][4], obj["price"]);
 
     spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
-    if(obj["player_id"] == otree.playerID){
-        //if yes 
-        profitGraph.addProfitJump(obj);
 
-        // spreadGraph.executeArrow(obj);
+    if(obj["player_id"] == otree.playerID){
+        profitGraph.addProfitJump(obj);
+        spreadGraph.executeArrow(obj);
     } else {
         spreadGraph.executeOrder(obj);
-     
     }
 
 }
 
 otree.handleBBOChange = function (obj){
-    spreadGraph.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
+    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo", );;
+
+    // infoTable.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
     spreadGraph.bestBid = obj["best_bid"];
     spreadGraph.bestOffer = obj["best_offer"];
     var shiftNecessary = false;
-    // console.log("Changing bid to --> " + obj["best_bid"]);
-    // console.log("Changing offer to --> " + obj["best_offer"]);
-
-
-    // if(obj["best_bid"] > spreadGraph.lowerBound && obj["best_bid"] <  spreadGraph.upperBound){
-        
-    // } else {
-    //     // spreadGraph.spread_svg.select(".best-bid").remove();
-    //     shiftNecessary = true;
-    // }
-    // if(obj["best_offer"] > spreadGraph.lowerBound && obj["best_offer"] <  spreadGraph.upperBound){
-        
-    // } else {
-    //     // spreadGraph.spread_svg.select(".best-offer").remove();
-    //     shiftNecessary = true;
-    // }
+   
 
     spreadGraph.drawBestBid(obj);
     spreadGraph.drawBestOffer(obj);
-    // if(shiftNecessary){
-    //     console.log("SHIFT IS NECESSARY--> bid = " + obj["best_bid"] + obj["best_offer"]);
-    // } else {
-    //     spreadGraph.BBOShift(obj);
-    // }
+
     spreadGraph.BBOShift(obj);
 }
 

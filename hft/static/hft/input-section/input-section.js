@@ -234,8 +234,9 @@ class InputSection extends PolymerElement {
     inputSection.manualClick = this.manualClick;
     inputSection.makerClick = this.makerButton;
     inputSection.takerClick = this.takerButton;
-    // inputSection.submitClick = this.submitButton;
+    inputSection.submitButton= this.submitButton;
     inputSection.outClick = this.outButton;
+    inputSection.sendSpeed = this.sendSpeed;
     inputSection.uncheckOtherButtons = this.uncheckOtherButtons;
 
     inputSection.testClick = this.testButton;
@@ -253,6 +254,11 @@ class InputSection extends PolymerElement {
         var sens2Output = inputSection.inputSectionShadowDOM.querySelector("#sens_2_output");
         sens1Output.innerHTML = sens1.value;
         sens2Output.innerHTML = sens2.value;
+        sens1.disabled = true;
+        sens2.disabled = true;
+        playersInMarket[otree.playerID]["strategy"] = "out";  
+        sens1.onchange = function() {inputSection.submitButton()};
+        sens2.onchange = function() {inputSection.submitButton()};
     
         sens1.oninput = function() {
 
@@ -269,6 +275,7 @@ class InputSection extends PolymerElement {
     var makerButton = inputSection.inputSectionShadowDOM.querySelector(".maker-button");
     var takerButton = inputSection.inputSectionShadowDOM.querySelector(".taker-button");
     var outButton = inputSection.inputSectionShadowDOM.querySelector(".out-button");
+    var speed = inputSection.inputSectionShadowDOM.querySelector(".speed-input");
     
     // var testCancelButton = inputSection.inputSectionShadowDOM.querySelector(".test-cancel-button");
     // var testReplaceButton = inputSection.inputSectionShadowDOM.querySelector(".test-replace-button");
@@ -279,6 +286,8 @@ class InputSection extends PolymerElement {
     makerButton.onclick = inputSection.makerClick;
     takerButton.onclick = inputSection.takerClick;
     outButton.onclick = inputSection.outClick;
+
+    speed.onclick = inputSection.sendSpeed;
 
     // var testCancel = function () { inputSection.testClick("cancel")};
     // var testReplace = function () { inputSection.testClick("replace")};
@@ -294,11 +303,17 @@ class InputSection extends PolymerElement {
 
 
     manualClick(){
-        inputSection.uncheckOtherButtons(this);
-        //update player object 
-        this.classList.toggle("btn-primary");
-        this.classList.toggle("btn-success");
-        playersInMarket[otree.playerID]["strategy"] = "maker_basic";
+        if(inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked == true){
+            inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked = false;
+            inputSection.sendSpeed();
+        }
+        inputSection.uncheckOtherButtons(this);   
+        inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
+        inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
+        playersInMarket[otree.playerID]["strategy"] = "maker_basic";   
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+       
+        // infoTable.updateRole("Manual");  
         var manualChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -323,11 +338,16 @@ class InputSection extends PolymerElement {
     }
 
     makerButton(){
+        if(inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked == true){
+            inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked = false;
+            inputSection.sendSpeed();
+        }
         inputSection.uncheckOtherButtons(this);
-        this.classList.toggle("btn-primary");
-        this.classList.toggle("btn-success");
-        //update player object 
+        inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-success");
+        inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "maker_2";
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+
         var makerBasicChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -350,10 +370,17 @@ class InputSection extends PolymerElement {
     }
 
     takerButton(){
+        if(inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked == true){
+            inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked = false;
+            inputSection.sendSpeed();
+        }
         inputSection.uncheckOtherButtons(this);
-        this.classList.toggle("btn-primary");
-        this.classList.toggle("btn-success");
+        inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
+        inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "taker";
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+
+        // infoTable.updateRole("Taker");
         var algorithm2ChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -393,11 +420,19 @@ class InputSection extends PolymerElement {
     }
 
     outButton(){
+        if(inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked == true){
+            inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked = false;
+            inputSection.sendSpeed();
+        }
         inputSection.uncheckOtherButtons(this);
-        this.classList.toggle("btn-primary");
-        this.classList.toggle("btn-success");
-        spreadGraph.removeArrows();
+        inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = true;
+        inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
         playersInMarket[otree.playerID]["strategy"] = "out";
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+
+        // infoTable.updateRole("Out");
+        spreadGraph.removeArrows();
+       
         var outChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -413,24 +448,41 @@ class InputSection extends PolymerElement {
 
     }
 
-    uncheckOtherButtons(button){
+    sendSpeed(){
+        var speedMsg = {
+            type:"speed",
+            speed: inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked
+        };
+        if(socketActions.socket.readyState === socketActions.socket.OPEN){
+            console.log(JSON.stringify(speedMsg));
+            socketActions.socket.send(JSON.stringify(speedMsg));
+        }
+        var timeNow = profitGraph.getTime() - profitGraph.timeOffset;
+        profitGraph.profitSegments.push(
+            {
+                startTime:timeNow,
+                endTime:timeNow, 
+                startProfit:profitGraph.profit, 
+                endProfit:profitGraph.profit,
+                state: playersInMarket[otree.playerID]["strategy"]
+            }
+        );
 
+    }
+
+    uncheckOtherButtons(button){
+        
         if(playersInMarket[otree.playerID]["strategy"] == "maker_basic"){
-            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-primary");
+            inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");      
         }
         if(playersInMarket[otree.playerID]["strategy"] == "maker_2"){
             inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-primary");
-
         }
         if(playersInMarket[otree.playerID]["strategy"] == "taker"){
             inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-primary");
         }
         if(playersInMarket[otree.playerID]["strategy"] == "out"){
             inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
-            inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-primary");
         }
     }
 
@@ -514,7 +566,7 @@ class InputSection extends PolymerElement {
             this.socket.send(JSON.stringify(speed_msg));
             this.speed = !this.speed;
             input_object.path[1].querySelector("#speed_checkbox").checked = false;
-            document.querySelector('info-table').setAttribute("speed_cost","0");
+            // document.querySelector('info-table').setAttribute("speed_cost","0");
           }
         }
 
@@ -526,8 +578,8 @@ class InputSection extends PolymerElement {
         spreadGraph.drawLineAttempt(y_coordinate);
 
        this.Button_Pressed(input_object);
-       document.querySelector('info-table').setAttribute("player_role","MAKER"); 
-       document.querySelector('info-table').setAttribute("spread_value",spreadGraph.last_spread.toFixed(2));
+    //    document.querySelector('info-table').setAttribute("player_role","MAKER"); 
+    //    document.querySelector('info-table').setAttribute("spread_value",spreadGraph.last_spread.toFixed(2));
     }
      input_object.path[1].querySelector("#out").className = "button-off";
      input_object.path[1].querySelector("#sniper").className = "button-off";
@@ -575,22 +627,22 @@ class InputSection extends PolymerElement {
             this.socket.send(JSON.stringify(speed_msg));
             this.speed = !this.speed;
             input_object.path[1].querySelector("#speed_checkbox").checked = false;
-            document.querySelector('info-table').setAttribute("speed_cost","0");
+            // document.querySelector('info-table').setAttribute("speed_cost","0");
           }
         }
 
        this.Button_Pressed(input_object);
-       document.querySelector('info-table').setAttribute("player_role","SNIPER"); 
+    //    document.querySelector('info-table').setAttribute("player_role","SNIPER"); 
     }
     spreadGraph.spread_svg.selectAll("rect").remove();
     spreadGraph.spread_svg.selectAll(".my_line").remove();
     delete spreadGraph.spread_lines[otree.playerID]
     delete spreadGraph.spreadLinesFBAConcurrent[otree.playerID]
-     document.querySelector('info-table').spread_value = 0;
+    //  document.querySelector('info-table').spread_value = 0;
      input_object.path[1].querySelector("#maker").className = "button-off";
      input_object.path[1].querySelector("#out").className = "button-off";
-     document.querySelector('info-table').setAttribute("curr_bid","N/A");
-     document.querySelector('info-table').setAttribute("curr_ask","N/A");
+    //  document.querySelector('info-table').setAttribute("curr_bid","N/A");
+    //  document.querySelector('info-table').setAttribute("curr_ask","N/A");
   }
 
   outClick(input_object){
@@ -632,20 +684,20 @@ class InputSection extends PolymerElement {
                 this.socket.send(JSON.stringify(speed_msg));
                 this.speed = !this.speed;
                 input_object.path[1].querySelector("#speed_checkbox").checked = false;
-                document.querySelector('info-table').setAttribute("speed_cost","0");
+                // document.querySelector('info-table').setAttribute("speed_cost","0");
               }
           } 
-       document.querySelector('info-table').setAttribute("player_role","OUT"); 
+    //    document.querySelector('info-table').setAttribute("player_role","OUT"); 
     }
 
      input_object.path[1].querySelector("#sniper").className = "button-off";
      input_object.path[1].querySelector("#maker").className = "button-off";
      //Turn off Speed if it is on the front end
-     document.querySelector('info-table').setAttribute("speed_cost",0);
+    //  document.querySelector('info-table').setAttribute("speed_cost",0);
      console.log("Out now");
-     document.querySelector('info-table').setAttribute("spread_value",0);
-     document.querySelector('info-table').setAttribute("curr_bid","N/A");
-     document.querySelector('info-table').setAttribute("curr_ask","N/A");
+    //  document.querySelector('info-table').setAttribute("spread_value",0);
+    //  document.querySelector('info-table').setAttribute("curr_bid","N/A");
+    //  document.querySelector('info-table').setAttribute("curr_ask","N/A");
 
      spreadGraph.spread_svg.selectAll("rect").remove();
      spreadGraph.spread_svg.selectAll(".my_line").remove();
@@ -700,16 +752,16 @@ class InputSection extends PolymerElement {
     }
 
     updateSpeed(input_object){
-      console.log("Called at least");
-      console.log(document.querySelector('info-table').getAttribute("player_role"));
+     
+      
       if(document.querySelector('info-table').getAttribute("player_role") != "OUT"){
         console.log("Inside the if");
           //If you arent out you can turn your speed on
           this.speed = !this.speed;
           if(this.speed){
-              document.querySelector('info-table').setAttribute("speed_cost",(otree.speedCost * (1e-4) * (1e9)).toFixed(3));
+            //   document.querySelector('info-table').setAttribute("speed_cost",(otree.speedCost * (1e-4) * (1e9)).toFixed(3));
           }else {
-              document.querySelector('info-table').setAttribute("speed_cost",0);
+            //   document.querySelector('info-table').setAttribute("speed_cost",0);
           }
         var timeNow = profitGraph.getTime() - profitGraph.timeOffset;
         profitGraph.profitSegments.push(
@@ -718,7 +770,7 @@ class InputSection extends PolymerElement {
                 endTime:timeNow, 
                 startProfit:profitGraph.profit, 
                 endProfit:profitGraph.profit,
-                state:document.querySelector('info-table').player_role
+                // state:document.querySelector('info-table').player_role
             }
         );
 

@@ -49,6 +49,7 @@
 
     
 <script>
+    console.log(document);
     //All socket actions are stored in this object to be used in the seperated js files
     let socketActions = {};
     console.log(document);
@@ -77,9 +78,11 @@
     IMPORTANT:
     Constant, Player, and Group Information from oTree stored in the otree objects
     */
+    
     otree.groupIDInfoTable = {{group.id_in_subsession}};
     otree.groupID = {{group.id}};
     otree.playerID = {{player.id}};
+   
     otree.marketID = {{player.market_id}};
     otree.playerIDInGroup = {{player.id_in_group}}; 
     otree.maxSpread = {{player.max_spread}}; 
@@ -91,7 +94,8 @@
     otree.roundLength = {{subsession.round_length}};
     otree.speedLongDelay = {{Constants.long_delay}} * (1e3);
     otree.speedShortDelay = {{Constants.short_delay}} * (1e3);
-    otree.speedCost = {{player.speed_unit_cost}};
+    otree.speedCost = parseFloat({{player.speed_unit_cost}}) * (1e-6);
+    
     otree.endMsg = "off";
     otree.batchLength = {{subsession.batch_length}}; // Set to zero if there is a FBA experiment, sends error otherewise
     otree.design ="{{subsession.design}}"; //Design Variable to be pulled from the backend
@@ -133,7 +137,7 @@ Graph_Features is an object that stores the features of the profit and spread gr
 
     //PROFIT GRAPH
     profitGraph.profit_width = document.querySelector(".front_end_controller").clientWidth;
-    profitGraph.profit_height = document.querySelector(".front_end_controller").clientHeight * 0.6;
+    profitGraph.profit_height = document.querySelector(".front_end_controller").clientHeight * 0.45;
     console.log(profitGraph.profit_width,profitGraph.profit_height);
 /*
 In order for our Shadow DOM Elements to be acessable in javascript we must set the mode to 'open', 'closed' is the other option and would restrict access to the Shadow DOM Elements. Since they are now open we can access them with js in their corressponding .js files
@@ -164,16 +168,16 @@ In order for our Shadow DOM Elements to be acessable in javascript we must set t
 
                                 /** Initializing all info table values **/
                             
-                                interactiveComponent.infoTableDOM.setAttribute("period_id",{{group.round_number}} - 1); 
-                                interactiveComponent.infoTableDOM.setAttribute("num_traders","0"); 
-                                interactiveComponent.infoTableDOM.setAttribute("player_role","OUT"); 
-                                interactiveComponent.infoTableDOM.setAttribute("user_bid","N/A"); 
-                                interactiveComponent.infoTableDOM.setAttribute("user_offer","N/A");     
-                                interactiveComponent.infoTableDOM.setAttribute("num_makers","0"); 
-                                interactiveComponent.infoTableDOM.setAttribute("num_snipers","0"); 
-                                interactiveComponent.infoTableDOM.setAttribute("profit",otree.startingWealth*(1-4)); 
-                                interactiveComponent.infoTableDOM.setAttribute("curr_bid","N/A"); 
-                                interactiveComponent.infoTableDOM.setAttribute("curr_ask","N/A");
+                                // interactiveComponent.infoTableDOM.setAttribute("period_id",{{group.round_number}} - 1); 
+                                // interactiveComponent.infoTableDOM.setAttribute("num_traders","0"); 
+                                // interactiveComponent.infoTableDOM.setAttribute("player_role","OUT"); 
+                                // interactiveComponent.infoTableDOM.setAttribute("user_bid","N/A"); 
+                                // interactiveComponent.infoTableDOM.setAttribute("user_offer","N/A");     
+                                // interactiveComponent.infoTableDOM.setAttribute("num_makers","0"); 
+                                // interactiveComponent.infoTableDOM.setAttribute("num_snipers","0"); 
+                                // interactiveComponent.infoTableDOM.setAttribute("profit",otree.startingWealth*(1-4)); 
+                                // interactiveComponent.infoTableDOM.setAttribute("curr_bid","N/A"); 
+                                // interactiveComponent.infoTableDOM.setAttribute("curr_ask","N/A");
 
                                 document.querySelector(".overlay").style.opacity = 0;
                                 document.querySelector(".overlay").style.pointerEvents = 'none';

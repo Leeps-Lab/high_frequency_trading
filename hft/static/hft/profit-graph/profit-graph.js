@@ -95,12 +95,13 @@ class ProfitGraph extends PolymerElement {
      */ 
     profitGraph.startingWealth = otree.startingWealth; 
     profitGraph.profit = profitGraph.startingWealth;                                           // Through Django Channels// Django Query
-    profitGraph.profitElementWidth = profitGraph.profit_width;
+    profitGraph.profitElementWidth = profitGraph.profit_width - 10;
     profitGraph.profitElementHeight = profitGraph.profit_height;
     profitGraph.slowDelay = 5e8;
     profitGraph.fastDelay = 1e8;
 
     profitGraph.profitGraph_svg = profitGraph.shadow_dom.querySelector("#profit-graph");
+
 
     
     /*
@@ -108,6 +109,8 @@ class ProfitGraph extends PolymerElement {
      */ 
     profitGraph.profitGraph_svg.style.width = profitGraph.profit_width;
     profitGraph.profitGraph_svg.style.height = profitGraph.profit_height;
+    profitGraph.profitGraph_svg.style.background = "white";
+
     
     /*
      * d3 Variables
@@ -138,7 +141,6 @@ class ProfitGraph extends PolymerElement {
     profitGraph.minPriceProfit = Math.floor(profitGraph.minPriceProfit/5)*5;
 
     profitGraph.centerPriceProfit = (profitGraph.maxPriceProfit + profitGraph.minPriceProfit) / 2;
-    console.log(profitGraph.minPriceProfit, profitGraph.centerPriceProfit, profitGraph.maxPriceProfit);
    
     profitGraph.profitJumps = [];
 
@@ -150,7 +152,7 @@ class ProfitGraph extends PolymerElement {
     profitGraph.graphPaddingRight = 50;  //used                                 // how far from the x axis label that the line stops moving
     profitGraph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
     profitGraph.numberOfTicks = Math.floor((profitGraph.maxPriceProfit - profitGraph.minPriceProfit) / profitGraph.profitPriceGridIncrement);
-    profitGraph.profitPriceGridIncrement = profitGraph.startingWealth * 0.02;                             //amount between each line on profit price axis
+    profitGraph.profitPriceGridIncrement = profitGraph.startingWealth * 0.04;                             //amount between each line on profit price axis
     
     profitGraph.currentTime = 0;                                          // Time displayed on graph
     profitGraph.profitPriceLines = [];                                    // The array of price lines
@@ -223,6 +225,7 @@ class ProfitGraph extends PolymerElement {
             lines.push(gridLineVal);
             gridLineVal += increment;
         }
+        console.log(lines);
         return lines;  
     }
 
@@ -421,7 +424,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
             })
             .attr("class", "price-grid-line-text")
             .text(function (d) {
-                return d * (1e-4);
+                return d * 1e-4 ;
         });
     }
 
@@ -488,7 +491,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         */
         var expectedPrice = (obj["order_token"][4] == "S" ) ? spreadGraph.bestBid: spreadGraph.bestOffer;
         var myCashPosition = obj["endowment"];
-        var endowment = myCashPosition + expectedPrice*obj["inventory"];
+        var endowment = myCashPosition + expectedPrice * obj["inventory"];
         
         // var selectedProfit = parseInt(document.querySelector('info-table').profit)*(1e4)
         var selectedProfit = playersInMarket[otree.playerID]["profit"];
@@ -496,6 +499,8 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         console.log("profit: " + profit + ", current endowment: " + selectedProfit + ", incoming: " + endowment);
         playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
         
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+        // infoTable.updateProfit(playersInMarket[otree.playerID]["profit"]);
         profitGraph.profitJumps.push(
             {
                 timestamp:timeNow,
@@ -547,7 +552,8 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         } else if(otree.FBA == true) {
             if (profitGraph.currentTime + profitGraph.advanceTimeShown > profitGraph.batchLines[profitGraph.batchLines.length - 1] + profitGraph.batchLength ||
                 Math.max(profitGraph.adminStartTime, profitGraph.currentTime - profitGraph.timeInterval) < profitGraph.batchLines[0] - profitGraph.batchLength) {
-                profitGraph.batchLines = profitGraph.calcBatchLines(profitGraph.currentTime - profitGraph.timeInterval, profitGraph.currentTime + profitGraph.advanceTimeShown, profitGraph.batchLength);      ////changed to *1000000 4/17/17 line 497
+                profitGraph.batchLines = profitGraph.calcBatchLines(profitGraph.currentTime - profitGraph.timeInterval, profitGraph.currentTime + 
+                 profitGraph.advanceTimeShown, profitGraph.batchLength);      ////changed to *1000000 4/17/17 line 497
             }else{
                 profitGraph.batchLines = profitGraph.calcBatchLines(profitGraph.currentTime - profitGraph.timeInterval, profitGraph.currentTime + profitGraph.advanceTimeShown, profitGraph.batchLength);    //remember to take this out 4/17/17
             }
@@ -558,7 +564,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         profitGraph.drawPriceGridLines();
         profitGraph.drawPriceAxis();
 
-        var speed = inputSection.inputSectionShadowDOM.querySelector(".slider-speed").checked;
+        var speed = inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked;
         /* *****************************************************************************
         * Data Structures present in Redwood front end, and need to be adapted to otree 
         ******************************************************************************/ 
@@ -569,10 +575,13 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
     profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["endTime"] = profitGraph.currentTime;
     
     var profitDecrement = 0;
-    if(speed){
-        profitDecrement = (profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["endTime"] - profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["startTime"]) * -(otree.speedCost);
-    }
 
+    if(speed){
+        
+        profitDecrement = (profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["endTime"] - 
+            profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["startTime"]) * -(otree.speedCost);
+    }
+    
 
     profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["endProfit"] = profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["startProfit"] + profitDecrement;
     profitGraph.profit = profitGraph.profitSegments[profitGraph.profitSegments.length - 1]["startProfit"] + profitDecrement;

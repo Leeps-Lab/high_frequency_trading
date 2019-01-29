@@ -57,6 +57,37 @@ class InfoTable extends PolymerElement {
         </table>
     `;
     
+    infoTable.updateProfit = this.updateProfit;
+    infoTable.updateBidAndAsk = this.updateBidAndAsk;
+    infoTable.updateRole = this.updateRole;
+    infoTable.updateUserBidAndAsk = this.updateUserBidAndAsk;
+    infoTable.init = this.init;
+    
   }
+  updateRole(role){
+    infoTable.infoTableShadowDOM.querySelector(".player_role").innerHTML = role;
+  }
+  updateProfit(profit){
+    infoTable.infoTableShadowDOM.querySelector(".profit").innerHTML = profit * 1e-4;
+  }
+  updateBidAndAsk(bid,ask){
+    spreadGraph.bestBid = bid;
+    spreadGraph.bestOffer = ask;
+
+    //If we use polymer then update property and use these lines of code in the observer function
+    infoTable.infoTableShadowDOM.querySelector(".curr_bid").innerHTML = bid * 1e-4;
+    infoTable.infoTableShadowDOM.querySelector(".curr_ask").innerHTML = ask * 1e-4;
+    // document.querySelector('info-table').user_bid = price;
+
+    // document.querySelector('info-table').user_offer = price;
+  }
+  updateUserBidAndAsk(price,side){
+    if(side == "B"){
+      infoTable.infoTableShadowDOM.querySelector(".user_bid").innerHTML = price * 1e-4;
+    } else if(side == "S"){
+      infoTable.infoTableShadowDOM.querySelector(".user_offer").innerHTML = price * 1e-4;
+    }
+  }
+
 }
 window.customElements.define('info-table', InfoTable);

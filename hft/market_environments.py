@@ -10,7 +10,7 @@ elo = market_environment(
     exogenous_events=('investor_arrivals', ),
     config_field_type={
         'initial_endowment': int,
-        'speed_cost': int
+        'speed_cost': float
     },
     fields_to_scale={
         'initial_endowment': 10000,
