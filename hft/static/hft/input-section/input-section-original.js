@@ -17,7 +17,6 @@ class InputSection extends PolymerElement {
     inputSection.inputSectionShadowDOM.innerHTML = `
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/hft/input-section/range.css">
-    
     <style>
 
         .button-on{
@@ -126,99 +125,64 @@ class InputSection extends PolymerElement {
             height: 100%; 
             margin: 0px;
           }
-
           .slider-speed.round:before {
             border-radius: 50%;
           }
+</style>
+    
 
-        :host {
-            font-family: monospace;
-            height: 100%;
-            width: 100%;
-        }
-
-        #main-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-evenly;
-            align-items: center;
-            height: 200px;
-            width: 100%;
-        }
-
-        .column-container {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          width: 30%;
-        }
-
-        .row-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-evenly;
-        }
-
-    </style>
-
-    <div id="main-container">
-
-        <div class="column-container">
-
-            <label class="switch">
+   <div class="container-fluid">
+    <div class="row" style="height: 100%;">
+        <div class="text-center col-lg-2">
+            <div class="text-center center-block" style="margin-top:10px;">
+                <p>Speed</p>
+                <label class="switch">
                 <input type="checkbox" class="speed-input">
                 <span class="slider-speed round"></span>
-            </label>
-
+                </label>
+            </div>
         </div>
-
-        <div class="column-container">
-
-            <div class="row-container">
-                <button  value="out" class="text-center btn btn-block btn-primary manual-button" 
-                    type="button">Manual</button>
-                <button class="text-center btn btn-block btn-primary out-button" 
-                    type="button">Out</button>
+    
+        <div class="text-center col-lg-2">
+            <div style="margin-top:15px;">
+                <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button">Manual</button>
+                <button class="text-center btn btn-block btn-primary out-button" type="button">Out</button>
             </div>
-
-            <div class="row-container">
-                <button class="text-center btn btn-block btn-primary algorithm-button 
-                    maker-button" type="button">Maker</button>
-                <button class="text-center btn btn-block btn-primary taker-button 
-                    taker-button" type="button">Taker</button>
-            </div>
-
         </div>
-
-        <div class="column-container">
-
-            <div class="row-container">
-                <h3> Sensitivity </h3>
-            </div>
-
-            <div class="row-container">
-                <div class="slider-sens" >
-                    <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
-                    <input type="range" min="-1" max="1" value="0" class="slider" 
-                        id="sens_1" step="0.1">
+        
+        <div class="text-center col-lg-8" style="background-color:rgb(200,200,200);">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div style="margin-top: 15px">
+                        <button class="text-center btn btn-block btn-primary algorithm-button maker-button" type="button">Maker</button>
+                        <button class="text-center btn btn-block btn-primary taker-button taker-button" type="button">Taker</button>
+                    </div>
                 </div>
-            </div>
-
-            <div class="row-container">
-                <div class="slider-sens" >
-                    <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
-                    <input type="range" min="-1" max="1" value="0" class="slider" 
-                        id="sens_2" step="0.1">
+                <div class="col-lg-4">
+                    <div class="slider-sens" >
+                        <p>Sensitivity value <b><span id="sens_1_output"></span></b></p>
+                        <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="slider-sens" >
+                        <p>Sensitivity value <b><span id="sens_2_output"></span></b></p>
+                        <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
+                    </div>
                 </div>
             </div>
         </div>
-    </div>        
+
+
+    </div>
+    </div>
+
+        
     `;
 
     //Start as speed false
     this.speed = false;
+   
     if(otree.FBA){
             //INPUT SECTION
         inputSection.shadow_dom_D3.append("svg").attr("id","timer_FBA");

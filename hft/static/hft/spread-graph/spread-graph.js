@@ -9,7 +9,7 @@ class SpreadGraph extends PolymerElement {
     super();
 
     //First we access the shadow dom object were working with
-    interactiveComponent.spreadGraphDOM = interactiveComponent.interactiveComponentShadowDOM.querySelector("spread-graph");
+    interactiveComponent.spreadGraphDOM = document.querySelector("spread-graph");
     interactiveComponent.spreadGraphDOM.attachShadow({mode: 'open'});
 
     spreadGraph.spread_width = document.querySelector(".front_end_controller").clientWidth;
