@@ -33,7 +33,7 @@ class InteractiveComponent extends PolymerElement {
   }
   </style>
   <spread-graph></spread-graph>
-  <div class="button-and-info" s>
+  <div class="button-and-info">
     <info-table></info-table>
     <input-section></input-section>
   </div>

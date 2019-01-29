@@ -2,6 +2,7 @@
  * http://danielstern.ca/range.css
  * Style: Bootstrap
  */
+ 
 input[type=range] {
   -webkit-appearance: none;
   width: 100%;

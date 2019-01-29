@@ -247,7 +247,7 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
-
+    this.takerOrder();
   }
 
   start(){
@@ -285,6 +285,25 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.drawPossibleSpreadTicks();  
   }
 
+  takerOrder(price = 980000){    
+    spreadGraph.spread_svg.append("line")
+        .attr("x1",spreadGraph.visibleTickLines[price])  
+        .attr("y1",spreadGraph.spread_height - 30)  
+        .attr("x2",spreadGraph.visibleTickLines[price])  
+        .attr("y2",spreadGraph.spread_height*0.6 + 20)  
+        .attr("stroke","rgb(150,150,150)") 
+        .attr("stroke-width",10) 
+        .attr("class", "taker-order");
+
+    spreadGraph.spread_svg.append("text")
+        .attr("text-anchor", "start")
+        .attr("x", spreadGraph.visibleTickLines[price] - 20)  
+        .attr("y",  spreadGraph.spread_height - 10)
+        .attr("fill","rgb(150,150,150)")
+        .attr("class", "taker-text")
+        .text("TAKER");
+  } 
+
 
   BBOShift(shiftMsg){
     spreadGraph.animation = true;
@@ -300,6 +319,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.animateBBOShift(desiredCenter,shiftMsg);
     
   } 
+
 
   animateBBOShift(desiredCenter, obj){
     var tickArray = Object.keys(spreadGraph.visibleTickLines);

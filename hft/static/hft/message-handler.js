@@ -27,6 +27,7 @@ socketActions.socket.onmessage = function (event) {
             
             if(obj["best_bid"] != 0 &&  obj["best_offer"] != 0 && obj["best_bid"] != 2147483647  && obj["best_offer"] != 2147483647 ){
                 otree.handleBBOChange(obj);
+                
             }
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
@@ -55,6 +56,10 @@ socketActions.socket.onmessage = function (event) {
             otree.startExperiment();
         }
 
+    } else if(obj.type == "taker"){
+        if(otree.playersInMarket[otree.playerID]["strategy"] ==  "taker" && obj["player_id"] == otree.playerID){
+            //spreadGraph.takerOrder(price,);
+        }
     } 
 };
 
