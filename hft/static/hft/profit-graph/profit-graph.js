@@ -498,7 +498,9 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         var profit = Math.floor(endowment - selectedProfit);
         console.log("profit: " + profit + ", current endowment: " + selectedProfit + ", incoming: " + endowment);
         playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
-        infoTable.updateProfit(playersInMarket[otree.playerID]["profit"])
+        
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+        // infoTable.updateProfit(playersInMarket[otree.playerID]["profit"]);
         profitGraph.profitJumps.push(
             {
                 timestamp:timeNow,

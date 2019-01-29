@@ -272,7 +272,9 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "maker_basic";   
-        infoTable.updateRole("Manual");  
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+       
+        // infoTable.updateRole("Manual");  
         var manualChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -305,7 +307,8 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".maker-button").classList.toggle("btn-success");
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "maker_2";
-        infoTable.updateRole("Maker");
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+
         var makerBasicChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -336,7 +339,9 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "taker";
-        infoTable.updateRole("Taker");
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+
+        // infoTable.updateRole("Taker");
         var algorithm2ChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -384,7 +389,9 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = true;
         inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
         playersInMarket[otree.playerID]["strategy"] = "out";
-        infoTable.updateRole("Out");
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+
+        // infoTable.updateRole("Out");
         spreadGraph.removeArrows();
        
         var outChangeMessage = {
@@ -520,7 +527,7 @@ class InputSection extends PolymerElement {
             this.socket.send(JSON.stringify(speed_msg));
             this.speed = !this.speed;
             input_object.path[1].querySelector("#speed_checkbox").checked = false;
-            document.querySelector('info-table').setAttribute("speed_cost","0");
+            // document.querySelector('info-table').setAttribute("speed_cost","0");
           }
         }
 
@@ -532,8 +539,8 @@ class InputSection extends PolymerElement {
         spreadGraph.drawLineAttempt(y_coordinate);
 
        this.Button_Pressed(input_object);
-       document.querySelector('info-table').setAttribute("player_role","MAKER"); 
-       document.querySelector('info-table').setAttribute("spread_value",spreadGraph.last_spread.toFixed(2));
+    //    document.querySelector('info-table').setAttribute("player_role","MAKER"); 
+    //    document.querySelector('info-table').setAttribute("spread_value",spreadGraph.last_spread.toFixed(2));
     }
      input_object.path[1].querySelector("#out").className = "button-off";
      input_object.path[1].querySelector("#sniper").className = "button-off";
@@ -581,22 +588,22 @@ class InputSection extends PolymerElement {
             this.socket.send(JSON.stringify(speed_msg));
             this.speed = !this.speed;
             input_object.path[1].querySelector("#speed_checkbox").checked = false;
-            document.querySelector('info-table').setAttribute("speed_cost","0");
+            // document.querySelector('info-table').setAttribute("speed_cost","0");
           }
         }
 
        this.Button_Pressed(input_object);
-       document.querySelector('info-table').setAttribute("player_role","SNIPER"); 
+    //    document.querySelector('info-table').setAttribute("player_role","SNIPER"); 
     }
     spreadGraph.spread_svg.selectAll("rect").remove();
     spreadGraph.spread_svg.selectAll(".my_line").remove();
     delete spreadGraph.spread_lines[otree.playerID]
     delete spreadGraph.spreadLinesFBAConcurrent[otree.playerID]
-     document.querySelector('info-table').spread_value = 0;
+    //  document.querySelector('info-table').spread_value = 0;
      input_object.path[1].querySelector("#maker").className = "button-off";
      input_object.path[1].querySelector("#out").className = "button-off";
-     document.querySelector('info-table').setAttribute("curr_bid","N/A");
-     document.querySelector('info-table').setAttribute("curr_ask","N/A");
+    //  document.querySelector('info-table').setAttribute("curr_bid","N/A");
+    //  document.querySelector('info-table').setAttribute("curr_ask","N/A");
   }
 
   outClick(input_object){
@@ -638,20 +645,20 @@ class InputSection extends PolymerElement {
                 this.socket.send(JSON.stringify(speed_msg));
                 this.speed = !this.speed;
                 input_object.path[1].querySelector("#speed_checkbox").checked = false;
-                document.querySelector('info-table').setAttribute("speed_cost","0");
+                // document.querySelector('info-table').setAttribute("speed_cost","0");
               }
           } 
-       document.querySelector('info-table').setAttribute("player_role","OUT"); 
+    //    document.querySelector('info-table').setAttribute("player_role","OUT"); 
     }
 
      input_object.path[1].querySelector("#sniper").className = "button-off";
      input_object.path[1].querySelector("#maker").className = "button-off";
      //Turn off Speed if it is on the front end
-     document.querySelector('info-table').setAttribute("speed_cost",0);
+    //  document.querySelector('info-table').setAttribute("speed_cost",0);
      console.log("Out now");
-     document.querySelector('info-table').setAttribute("spread_value",0);
-     document.querySelector('info-table').setAttribute("curr_bid","N/A");
-     document.querySelector('info-table').setAttribute("curr_ask","N/A");
+    //  document.querySelector('info-table').setAttribute("spread_value",0);
+    //  document.querySelector('info-table').setAttribute("curr_bid","N/A");
+    //  document.querySelector('info-table').setAttribute("curr_ask","N/A");
 
      spreadGraph.spread_svg.selectAll("rect").remove();
      spreadGraph.spread_svg.selectAll(".my_line").remove();
@@ -713,9 +720,9 @@ class InputSection extends PolymerElement {
           //If you arent out you can turn your speed on
           this.speed = !this.speed;
           if(this.speed){
-              document.querySelector('info-table').setAttribute("speed_cost",(otree.speedCost * (1e-4) * (1e9)).toFixed(3));
+            //   document.querySelector('info-table').setAttribute("speed_cost",(otree.speedCost * (1e-4) * (1e9)).toFixed(3));
           }else {
-              document.querySelector('info-table').setAttribute("speed_cost",0);
+            //   document.querySelector('info-table').setAttribute("speed_cost",0);
           }
         var timeNow = profitGraph.getTime() - profitGraph.timeOffset;
         profitGraph.profitSegments.push(
@@ -724,7 +731,7 @@ class InputSection extends PolymerElement {
                 endTime:timeNow, 
                 startProfit:profitGraph.profit, 
                 endProfit:profitGraph.profit,
-                state:document.querySelector('info-table').player_role
+                // state:document.querySelector('info-table').player_role
             }
         );
 

@@ -16,7 +16,7 @@ class InfoTable extends LitElement {
       this.bbo = {'bid': 0, 'ask': 0, 'bid_trend': '', 'ask_trend': ''}
       this.mbo = {'bid': 0, 'ask': 0, 'bid_trend': '', 'ask_trend': ''}
       this.ice = {'inventory': 0, 'cash': 0, 'endowment': 0, 'shine_class': ''}
-      this.addEventListener('click', this.change.bind(this));
+      this.addEventListener('click', this.updateState.bind(this));
     }
   
     updateState(fieldName, subFieldName, newValue) {

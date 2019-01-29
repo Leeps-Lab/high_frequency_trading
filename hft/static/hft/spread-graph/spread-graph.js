@@ -787,7 +787,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.askArrow["askArrowLine"].attr("x1", spreadGraph.visibleTickLines[obj["price"]]).attr("x2", spreadGraph.visibleTickLines[obj["price"]]);
     spreadGraph.askArrow["askArrowText"].attr("x", spreadGraph.visibleTickLines[obj["price"]] - 10);
     spreadGraph.confirmArrow(obj);
-}
+    }
 
   removeArrows(side = ""){
 
@@ -958,20 +958,7 @@ class SpreadGraph extends PolymerElement {
       spreadGraph.spread_svg.selectAll(".others_line").remove();
       spreadGraph.spread_svg.selectAll("rect").remove();
     }
-    updateBidAndAsk(bid,offer){
-            spreadGraph.bestBid = bid;
-            spreadGraph.bestOffer = offer;
 
-            // document.querySelector('info-table').querySelector('curr_bid').innerHTML = bid;
-            // document.querySelector('info-table').querySelector('curr_ask').innerHTML = offer; 
-    }
-    updateUserBidAndAsk(price,side){
-        if(side == "B"){
-            // document.querySelector('info-table').user_bid = price;
-        } else if(side == "S"){
-            // document.querySelector('info-table').user_offer = price;
-        }
-}
 
     drawBatchFlash(){
         //Flash purple on border whenever a batch message is recieved from the exchange

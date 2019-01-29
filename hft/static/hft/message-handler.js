@@ -27,7 +27,6 @@ socketActions.socket.onmessage = function (event) {
             
             if(obj["best_bid"] != 0 &&  obj["best_offer"] != 0 && obj["best_bid"] != 2147483647  && obj["best_offer"] != 2147483647 ){
                 otree.handleBBOChange(obj);
-                
             }
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
@@ -58,7 +57,7 @@ socketActions.socket.onmessage = function (event) {
 
     } else if(obj.type == "taker"){
         if(otree.playersInMarket[otree.playerID]["strategy"] ==  "taker" && obj["player_id"] == otree.playerID){
-            //spreadGraph.takerOrder(price,);
+            //spreadGraph.takerOrder(price);
         }
     } 
 };
@@ -73,7 +72,10 @@ otree.handleConfirm = function (obj){
     spreadGraph.addToActiveOrders(obj); 
     
     if(obj["player_id"] == otree.playerID){
-        infoTable.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
+        
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", obj["order_token"][4], obj["price"]);
+
+        // infoTable.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
         if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
             if(obj["price"] == spreadGraph.bidArrow["price"]){
                 spreadGraph.confirmArrow(obj);
@@ -110,6 +112,8 @@ otree.handleCancel = function (obj){
 }
 
 otree.handleExecution = function (obj){
+    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", obj["order_token"][4], obj["price"]);
+
     spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
 
     if(obj["player_id"] == otree.playerID){
@@ -122,7 +126,9 @@ otree.handleExecution = function (obj){
 }
 
 otree.handleBBOChange = function (obj){
-    infoTable.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
+    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo", );;
+
+    // infoTable.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
     spreadGraph.bestBid = obj["best_bid"];
     spreadGraph.bestOffer = obj["best_offer"];
     var shiftNecessary = false;
