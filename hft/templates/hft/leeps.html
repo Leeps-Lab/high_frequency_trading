@@ -7,7 +7,7 @@
     <div class="front_end_controller">
         
         <!-- info-table is the top information diplay -->
-      
+            <information-table style="height: 140px; width: 1000px;" ></information-table>
             <interactive-component></interactive-component>    
             <profit-graph></profit-graph>
     
@@ -39,6 +39,14 @@
     <script type="module" src="{% static 'hft/info-table/info-table.js' %}"></script>
     <script type="module" src="{% static 'hft/interactive-component/interactive-component.js' %}"></script>
     <script type="module" src="{% static 'hft/message-handler.js' %}"></script>
+
+    <script type="module" src="{% static 'hft/information-section/subject-wallet.js' %}"></script>
+    <script type="module" src="{% static 'hft/information-section/info-card.js' %}"></script>
+    <script type="module" src="{% static 'hft/information-section/market-price.js' %}"></script>
+    <script type="module" src="{% static 'hft/information-section/bid-ask-spread.js' %}"></script>
+    
+    <script type="module" src="{% static 'hft/information-section/information-table.js' %}"></script>
+
     
 <script>
     //All socket actions are stored in this object to be used in the seperated js files
