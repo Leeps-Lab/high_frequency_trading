@@ -23,6 +23,7 @@ class InteractiveComponent extends PolymerElement {
   spread-graph{
     width:100%;
   }
+
   info-table{
     float:left;
     width: 40%;
