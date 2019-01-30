@@ -308,6 +308,10 @@ class SpreadGraph extends PolymerElement {
 
   BBOShift(shiftMsg){
     spreadGraph.animation = true;
+    spreadGraph.spread_svg.select(".taker-order");
+    spreadGraph.spread_svg.select(".taker-text");
+    
+    
     var bestBidCircle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCircle = spreadGraph.spread_svg.select(".best-offer");
     var smallerX = (bestBidCircle.attr("cx") <=  bestOfferCircle.attr("cx")) ? bestBidCircle.attr("cx") : bestBidCircle.attr("cx");
@@ -323,15 +327,14 @@ class SpreadGraph extends PolymerElement {
 
 
   animateBBOShift(desiredCenter, obj){
+
     var tickArray = Object.keys(spreadGraph.visibleTickLines);
     for(var i = 0; i < tickArray.length; i++){
-        // console.log(spreadGraph.visibleTickLines[tickArray[i]]);
         if(spreadGraph.visibleTickLines[tickArray[i]] >= desiredCenter){
             break;
         }
     }
     var newMiddlePrice = tickArray[i];
-
     var differenceFromMid = Math.abs(spreadGraph.visibleTickLines[newMiddlePrice] - spreadGraph.spread_width/2);
 
      //Animate All Spread Line Text Values
