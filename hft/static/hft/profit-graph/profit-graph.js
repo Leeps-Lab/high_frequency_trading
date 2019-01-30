@@ -135,9 +135,9 @@ class ProfitGraph extends PolymerElement {
 
     // maybe spread on profit graph
 
-    profitGraph.maxPriceProfit = profitGraph.startingWealth * 1.2;
+    profitGraph.maxPriceProfit = profitGraph.startingWealth * 1.01;
     profitGraph.maxPriceProfit = Math.floor(profitGraph.maxPriceProfit/5)*5;
-    profitGraph.minPriceProfit = profitGraph.startingWealth * 0.8;
+    profitGraph.minPriceProfit = profitGraph.startingWealth * 0.99;
     profitGraph.minPriceProfit = Math.floor(profitGraph.minPriceProfit/5)*5;
 
     profitGraph.centerPriceProfit = (profitGraph.maxPriceProfit + profitGraph.minPriceProfit) / 2;
@@ -151,8 +151,8 @@ class ProfitGraph extends PolymerElement {
     profitGraph.axisLabelWidth = 40;    //used                                  //Width of area where price axis labels are drawn
     profitGraph.graphPaddingRight = 50;  //used                                 // how far from the x axis label that the line stops moving
     profitGraph.graphAdjustSpeedProfit = 100;                              //speed that profit price axis adjusts in pixels per frame
-    profitGraph.numberOfTicks = Math.floor((profitGraph.maxPriceProfit - profitGraph.minPriceProfit) / profitGraph.profitPriceGridIncrement);
-    profitGraph.profitPriceGridIncrement = profitGraph.startingWealth * 0.04;                             //amount between each line on profit price axis
+
+    profitGraph.profitPriceGridIncrement = profitGraph.startingWealth * 0.001;                             //amount between each line on profit price axis
     
     profitGraph.currentTime = 0;                                          // Time displayed on graph
     profitGraph.profitPriceLines = [];                                    // The array of price lines
@@ -225,7 +225,6 @@ class ProfitGraph extends PolymerElement {
             lines.push(gridLineVal);
             gridLineVal += increment;
         }
-        console.log(lines);
         return lines;  
     }
 
@@ -489,9 +488,13 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         /*
             CALCULATE PROFIT BASED ON THE FUNCTION GIVEN ON ASANA
         */
+
         var expectedPrice = (obj["order_token"][4] == "S" ) ? spreadGraph.bestBid: spreadGraph.bestOffer;
-        console.log(expectedPrice);
-        if(expectedPrice == undefined){
+
+        if(expectedPrice == 0 || expectedPrice == 2147483647){
+            return;
+        } 
+        if(expectedPrice == undefined ){
             interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "inventory",obj["inventory"]);
             interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",0);
             // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment", 0);
@@ -504,7 +507,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
             var profit = parseInt(endowment - selectedProfit);
 
             playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
-            
+            console.log("My cash position " , myCashPosition , ",endowment " , endowment , ", expected price " , expectedPrice , " profit " , profit , "selectedProfit " + selectedProfit);
             interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "inventory",obj["inventory"]);
             interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",myCashPosition*1e-4);
             interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
@@ -529,7 +532,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
                     endTime:timeNow, 
                     startProfit:profitGraph.profit, 
                     endProfit:profitGraph.profit,
-                    state:"out"
+                    state:""
                 }
             )
         }

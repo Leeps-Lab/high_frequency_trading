@@ -148,7 +148,6 @@ class SpreadGraph extends PolymerElement {
 </marker>
 </defs>
 </svg>
-
 `;
 // <svg id="timer"></svg>
   /*  Spread Constant Information 
@@ -248,7 +247,7 @@ class SpreadGraph extends PolymerElement {
     
     //Creating the start state
     spreadGraph.start();
-    this.takerOrder();
+    // this.takerOrder();
   }
 
   start(){

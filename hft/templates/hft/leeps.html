@@ -154,6 +154,7 @@ In order for our Shadow DOM Elements to be acessable in javascript we must set t
                                 ];
                                 profitGraph.init(otree.startFP, profitGraph.startingWealth, "secondTick");
                                 requestAnimationFrame(profitGraph.draw);
+                                interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",otree.startingWealth/10000);
                                 interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",otree.startingWealth/10000);
 
                                 document.querySelector(".overlay").style.opacity = 0;

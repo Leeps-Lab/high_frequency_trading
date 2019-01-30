@@ -267,7 +267,7 @@ class InputSection extends PolymerElement {
                     </span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" min="-1" max="1" value="0" class="slider" 
+                    <input type="range" min="0" max="1" value="0" class="slider" 
                         id="sens_1" step="0.1">
                 </div>
 
@@ -279,7 +279,7 @@ class InputSection extends PolymerElement {
                     </span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" min="-1" max="1" value="0" class="slider" 
+                    <input type="range" min="0" max="1" value="0" class="slider" 
                         id="sens_2" step="0.1">
                 </div>
             </div>

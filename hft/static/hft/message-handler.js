@@ -22,11 +22,18 @@ socketActions.socket.onmessage = function (event) {
     console.log(obj);
 
     if(obj["type"] == "bbo"){
-        
+        var profitMSG = {};
+        var inventory = interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").ice.inventory;
+        var side = (inventory < 0 ) ? "B" : "S";
+        profitMSG["inventory"] = inventory;
+        profitMSG["endowment"] = interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").ice.cash * 10000;
+        profitMSG["order_token"] = "XXXX" + side;
+
         if(obj["market_id"]  === otree.marketID){
             
-            if(obj["best_bid"] != 0 &&  obj["best_offer"] != 0 && obj["best_bid"] != 2147483647  && obj["best_offer"] != 2147483647 ){
+            if(!(obj["best_bid"] == 0 &&  obj["best_offer"] == 2147483647)  && obj["best_offer"] != 2147483647 ){
                 otree.handleBBOChange(obj);
+                profitGraph.addProfitJump(profitMSG);
             }
         }
         //BBO Change thinking I will call NBBO Change and Shift animation
