@@ -96,8 +96,9 @@ class InfoCard extends LitElement {
             <h4> ${this.title}</h4>
             <div class="price-holder border" shineClass=${this.shineClass}>
                 <h3 > ${this.currency} 
-                    ${this.currency === '' && ${this.value} === 0 ? html`-` : 
-                        html`${this.value}`}
+                    ${(this.currency !== '' && this.value === 0) ? html`-` : 
+                        html`${this.value}`
+                    }
                 </h3>
             </div>
         </div>

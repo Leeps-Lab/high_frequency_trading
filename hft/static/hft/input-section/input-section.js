@@ -214,10 +214,13 @@ class InputSection extends PolymerElement {
         .btn-primary, .btn-primary:hover{
             background-color: #86BBD8;}
         
-        .btn-primary:active, .btn-primary:focus, .btn-primary:active:focus, .btn-primary:visited 
+        .btn-primary:active, .btn-primary:focus, .btn-primary:active:focus,  
               {
             background-color: #ED6A5A;
             }
+        .btn-primary:visited {
+            background-color: #ED6A5A;
+        }
     </style>
 
     <div id="main-container">
