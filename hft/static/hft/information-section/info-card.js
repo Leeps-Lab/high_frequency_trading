@@ -15,13 +15,9 @@ class InfoCard extends LitElement {
         super();
         this.title = '#title';
         this.value = 0;
-        this.currency = '#currency';
+        this.currency = '';
         this.shineClass = '';
         }  
-
-        updated(changed) {
-            console.log('info card changed', this.value);
-        } 
 
     render () {
         return html`
@@ -99,11 +95,15 @@ class InfoCard extends LitElement {
         <div class="theCard">
             <h4> ${this.title}</h4>
             <div class="price-holder border" shineClass=${this.shineClass}>
-            <h3 > ${this.currency} ${this.value}</h3>
+                <h3 > ${this.currency} 
+                    ${(this.currency !== '' && this.value === 0) ? html`-` : 
+                        html`${this.value}`
+                    }
+                </h3>
             </div>
         </div>
         `
-    }
+        }
     }
 
 
