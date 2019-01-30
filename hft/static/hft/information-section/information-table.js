@@ -77,7 +77,6 @@ class InfoTable extends LitElement {
   
         .column {
           display: inline-block;
-          margin: 10px;
           height: 100%;
           width: 100%;
         }

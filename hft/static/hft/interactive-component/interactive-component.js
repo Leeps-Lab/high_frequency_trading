@@ -21,24 +21,39 @@ class InteractiveComponent extends PolymerElement {
     flex-direction: column;
   } 
 
+
+  :host {
+    font-family: monospace;
+    font-weight: bold;
+  }
+  #main-container {
+    height: 27vh;
+    width: 100vw; 
+  }
+
   .row-container {
-    
+    height: 100%;
     display: flex;
     flex-directon: row;
     justify-content: flex-start;
     align-items: center;
   }
   
-  info-table{
-    float:left;
-    width: 40%;
+  information-table{
+    height: 100%;
+    width: 60%;
+  }
+
+  input-section {
+    height: 100%;
+    width: 40%
   }
 
   </style>
   <div id="main-container">
     <div class="row-container">
-      <information-table ></information-table>
-      <input-section style="height: 100%;"> </input-section>
+      <information-table></information-table>
+      <input-section> </input-section>
     </div>
   </div>
 
