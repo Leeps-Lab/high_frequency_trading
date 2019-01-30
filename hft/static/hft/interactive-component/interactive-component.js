@@ -21,7 +21,6 @@ class InteractiveComponent extends PolymerElement {
     flex-direction: column;
   } 
 
-
   :host {
     font-family: monospace;
     font-weight: bold;
@@ -29,6 +28,8 @@ class InteractiveComponent extends PolymerElement {
   #main-container {
     height: 27vh;
     width: 100vw; 
+    border-top: 3px solid #ED6A5A;
+    border-bottom: 3px solid #ED6A5A;
   }
 
   .row-container {

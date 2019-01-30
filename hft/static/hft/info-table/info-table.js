@@ -77,9 +77,7 @@ class InfoTable extends PolymerElement {
     //If we use polymer then update property and use these lines of code in the observer function
     infoTable.infoTableShadowDOM.querySelector(".curr_bid").innerHTML = bid * 1e-4;
     infoTable.infoTableShadowDOM.querySelector(".curr_ask").innerHTML = ask * 1e-4;
-    // document.querySelector('info-table').user_bid = price;
 
-    // document.querySelector('info-table').user_offer = price;
   }
   updateUserBidAndAsk(price,side){
     if(side == "B"){

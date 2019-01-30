@@ -168,6 +168,7 @@ class SpreadGraph extends PolymerElement {
     spreadGraph.timer_svg_dom = spreadGraph.spreadGraphShadowDOM.querySelector("#timer");
     spreadGraph.spread_svg_dom.style.width = spreadGraph.spread_width;
     spreadGraph.spread_svg_dom.style.height = spreadGraph.spread_height;
+    spreadGraph.spread_svg_dom.style.background ="#FFFFF0";
     spreadGraph.smallest_spread = true;
 
 
