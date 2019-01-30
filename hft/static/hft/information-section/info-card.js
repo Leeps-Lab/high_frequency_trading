@@ -32,11 +32,11 @@ class InfoCard extends LitElement {
             }
 
             .theCard {
-            width: 100px;
-            height: 40px;
+            width: 150px;
+            height: 60px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             }
 
@@ -60,16 +60,16 @@ class InfoCard extends LitElement {
             }
 
             h4 {
-            display: inline-block;
-            text-align: center;
-            background: #FFFFF0;
-            width: 80%;
-            margin: 0px;
-            
+                display: inline-block;
+                text-align: center;
+                background: #FFFFF0;
+                width: 80%;
+                margin: 0px;       
             }
+
             h3 {
-            display: inline-block;
-            text-align: center;
+                display: inline-block;
+                text-align: center;
             }
 
             [shineclass=shine-backup] {

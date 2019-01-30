@@ -20,26 +20,42 @@ class InteractiveComponent extends PolymerElement {
     justify-content: center;
     flex-direction: column;
   } 
-  spread-graph{
-    width:100%;
+
+  :host {
+    font-family: monospace;
+    font-weight: bold;
+  }
+  #main-container {
+    height: 27vh;
+    width: 100vw; 
+    border-top: 3px solid #ED6A5A;
+    border-bottom: 3px solid #ED6A5A;
+  }
+
+  .row-container {
+    height: 100%;
+    display: flex;
+    flex-directon: row;
+    justify-content: flex-start;
+    align-items: center;
   }
   
-  info-table{
-    float:left;
-    width: 40%;
+  information-table{
+    height: 100%;
+    width: 60%;
   }
-  .button-and-info{
-    height:25%;
-    border:solid 1px rgb(200,200,200);
 
-    display:flex;
+  input-section {
+    height: 100%;
+    width: 40%
   }
+
   </style>
-  <spread-graph></spread-graph>
-  <div class="button-and-info">
-    <!-- <info-table></info-table> --->
-     <information-table style="height: 140px; width: 1000px;" ></information-table>
-    <input-section></input-section>
+  <div id="main-container">
+    <div class="row-container">
+      <information-table></information-table>
+      <input-section> </input-section>
+    </div>
   </div>
 
 

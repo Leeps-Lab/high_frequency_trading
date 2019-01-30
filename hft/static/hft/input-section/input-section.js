@@ -17,9 +17,11 @@ class InputSection extends PolymerElement {
     inputSection.inputSectionShadowDOM.innerHTML = `
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/hft/input-section/range.css">
+    
     <style>
+
         .button-on{
-            background-color:steelblue;
+            background-color: #ED6A5A;
             border-color: solid black 5px;
             color:white;
             border-color: black;
@@ -29,20 +31,22 @@ class InputSection extends PolymerElement {
         .button-on-sniper{
             background-color:orangered;
             border-color: solid black 5px;
-            color:white;
+            color: white;
             border-color: black;
             border-width: 2px;
         }
     
         .button-pressed{
-            background-color:#444444;
+            background-color: #ED6A5A;
             color:white;
         }
+
         .button-off{
             background-color:#666666;
             color:white;
         }
-    
+        
+
         .button-container{
             background-color: rgb(200, 200, 200);
             padding-bottom: 5px;
@@ -51,15 +55,12 @@ class InputSection extends PolymerElement {
             justify-content: center;
             flex-direction: column;
         }
-        
-        .slider{
-            
-        }
        
         .button-container-speed {
             background-color: rgb(230, 230, 230);
             flex: 1 1 auto;
         }
+
         .slider-sens{
             margin-top: 20px;
         }
@@ -72,7 +73,7 @@ class InputSection extends PolymerElement {
             position: relative;
             display: inline-block;
             width: 60px;
-            height: 34px;
+            height: 30px;
           }
           
           .switch .speed-input { 
@@ -100,13 +101,13 @@ class InputSection extends PolymerElement {
             width: 26px;
             left: 4px;
             bottom: 4px;
-            background-color: white;
+            background-color: #FFFFF0;
             -webkit-transition: .4s;
             transition: .4s;
           }
           
           .speed-input:checked + .slider-speed {
-            background-color: #2196F3;
+            background-color: #ED6A5A;
           }
           
           .speed-input:focus + .slider-speed {
@@ -124,57 +125,166 @@ class InputSection extends PolymerElement {
             border-radius: 34px;
           }
           
+          .container-fluid {
+            height: 100%; 
+            margin: 0px;
+          }
+
           .slider-speed.round:before {
             border-radius: 50%;
           }
-</style>
-    
 
-   <div class="container-fluid" style="height: 100%;">
-    <div class="row" style="height: 100%;">
-        <div class="text-center col-lg-2">
-            <div class="text-center center-block" style="margin-top:10px;">
-                <p>Speed</p>
-                <label class="switch">
+        :host {
+            font-family: monospace;
+            height: 100%;
+            width: 100%;
+            background-color: #4F759B;
+        }
+
+        #main-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            align-items: center;
+            height: 200px;
+            width: 100%;
+            
+        }
+
+        .column-container {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          height: 100%;
+          width: 30%;
+        }
+
+        .row-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            margin: 5px;
+        }
+
+        #buttons-container > div {
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #buttons-container button {
+            width: 40%;
+            display: inline-block;
+            margin-top: 0;
+            margin-left: 10px;
+        }
+
+        #sensitivity-header {
+            background-color: #FFFFF0;
+            font-size: 14px;
+        }
+        
+        .header-container {
+            background-color: #FFFFF0;
+            border-radius: 5%;
+            border: 1px solid #000;
+        }
+        
+        .slider-header {
+            background-color: #FFFFF0;
+            font-size: 12px;
+            text-align: center;
+            margin: 8px;
+        }
+
+        .slider-container {
+            margin:8px;
+        }
+
+        #smaller-row {
+           width 
+        }
+
+        .evenly-spaced-column {
+            justify-content: space-evenly;
+        }
+
+        .btn-primary, .btn-primary:hover{
+            background-color: #86BBD8;}
+        
+        .btn-primary:active, .btn-primary:focus, .btn-primary:active:focus, .btn-primary:visited 
+              {
+            background-color: #ED6A5A;
+            }
+    </style>
+
+    <div id="main-container">
+
+        <div class="column-container" style="width: 10%; ">
+            <div class="header-container">
+                <span class="slider-header"> Speed </span>
+            </div>
+            <label class="switch">
                 <input type="checkbox" class="speed-input">
                 <span class="slider-speed round"></span>
-                </label>
-            </div>
-        </div>
-    
-        <div class="text-center col-lg-2">
-            <div style="margin-top:15px;">
-                <button  value="out" class="text-center btn btn-block btn-primary manual-button" type="button">Manual</button>
-                <button class="text-center btn btn-block btn-primary btn-success out-button" type="button">Out</button>
-            </div>
-        </div>
-        
-        <div class="text-center col-lg-8" style="background-color:rgb(200,200,200);">
-            <div class="row">
-                <div class="col-lg-4">
-                    <div style="margin-top: 15px">
-                        <button class="text-center btn btn-block btn-primary algorithm-button maker-button" type="button">Maker</button>
-                        <button class="text-center btn btn-block btn-primary taker-button taker-button" type="button">Taker</button>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="slider-sens" >
-                        <p>Val 1 <b><span id="sens_1_output"></span></b></p>
-                        <input type="range" min="-1" max="1" value="0" class="slider" id="sens_1" step="0.1">
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="slider-sens" >
-                        <p>Val 2: <b><span id="sens_2_output"></span></b></p>
-                        <input type="range" min="-1" max="1" value="0" class="slider" id="sens_2" step="0.1">
-                    </div>
-                </div>
-            </div>
+            </label>
+
         </div>
 
+        <div id="buttons-container" class="column-container" style="width: 50%">
 
-    </div>
-    </div>
+            <div>
+                <button  value="out" class="text-center btn btn-block btn-primary manual-button" 
+                    type="button">Manual</button>
+                <button class="text-center btn btn-block btn-success  btn-primary out-button" 
+                    type="button">Out</button>
+            </div>
+
+            <div>
+                <button class="text-center btn btn-block btn-primary algorithm-button 
+                    maker-button" type="button">Maker</button>
+                <button class="text-center btn btn-block btn-primary taker-button 
+                    taker-button" type="button">Taker</button>
+            </div>
+
+        </div>
+
+        <div class="column-container evenly-spaced-column ">
+
+            <div class="header-container">
+                <span id="sensitivity-header"> Sensitivity </span>
+            </div>
+
+            <hr style="width: 90%;">
+
+                <div class="header-container">
+                    <span class="slider-header">
+                        Inventory:  
+                        <span id="sens_1_output">
+                        </span>
+                    </span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" min="-1" max="1" value="0" class="slider" 
+                        id="sens_1" step="0.1">
+                </div>
+
+                <div class="header-container">
+                    <span class="slider-header">
+                        Order: 
+                        <span id="sens_2_output">
+                        </span>
+                    </span>
+                </div>
+                <div class="slider-container">
+                    <input type="range" min="-1" max="1" value="0" class="slider" 
+                        id="sens_2" step="0.1">
+                </div>
+            </div>
+        </div>
+    </div>        
     `;
 
     //Start as speed false
@@ -261,9 +371,7 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".manual-button").classList.toggle("btn-success");
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
         playersInMarket[otree.playerID]["strategy"] = "maker_basic";   
-        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
        
-        // infoTable.updateRole("Manual");  
         var manualChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]

@@ -67,7 +67,6 @@ class InfoTable extends LitElement {
           justify-content: flex-start;
           align-items: center;
           height: 100%;
-          width: 60%;
           background: #4F759B;
         }
 
@@ -80,7 +79,6 @@ class InfoTable extends LitElement {
   
         .column {
           display: inline-block;
-          margin: 10px;
           height: 100%;
           width: 100%;
         }
