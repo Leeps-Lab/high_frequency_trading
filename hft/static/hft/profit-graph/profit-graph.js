@@ -485,46 +485,55 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
 
     addProfitJump(obj){
         var timeNow = profitGraph.getTime();
-        var profit = 0;
+
         /*
             CALCULATE PROFIT BASED ON THE FUNCTION GIVEN ON ASANA
         */
         var expectedPrice = (obj["order_token"][4] == "S" ) ? spreadGraph.bestBid: spreadGraph.bestOffer;
-        var myCashPosition = obj["endowment"];
-        var endowment = myCashPosition + expectedPrice * obj["inventory"];
+        console.log(expectedPrice);
+        if(expectedPrice == undefined){
+            interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "inventory",obj["inventory"]);
+            interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",0);
+            // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment", 0);
+        } else{
+            var myCashPosition = obj["endowment"];
+
+            var endowment = myCashPosition + expectedPrice * obj["inventory"];
+            
+            var selectedProfit = playersInMarket[otree.playerID]["profit"];
+            var profit = parseInt(endowment - selectedProfit);
+
+            playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
+            
+            interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "inventory",obj["inventory"]);
+            interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",myCashPosition*1e-4);
+            interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
+
+            
+            // Order Imbalence Sensitivity
+            // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
+
+
+            profitGraph.profitJumps.push(
+                {
+                    timestamp:timeNow,
+                    oldProfit:profitGraph.profit,
+                    newProfit:profitGraph.profit + profit, 
+                }
+            );
+
+            profitGraph.profit += profit;
+            profitGraph.profitSegments.push(
+                {
+                    startTime:timeNow,
+                    endTime:timeNow, 
+                    startProfit:profitGraph.profit, 
+                    endProfit:profitGraph.profit,
+                    state:"out"
+                }
+            )
+        }
         
-        var selectedProfit = playersInMarket[otree.playerID]["profit"];
-        var profit = parseInt(endowment - selectedProfit);
-        console.log("profit: " + profit + ", current endowment: " + selectedProfit + ", incoming: " + endowment);
-        playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
-        
-        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "inventory",obj["inventory"]);
-        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",myCashPosition*1e-4);
-        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
-
-        
-        // Order Imbalence Sensitivity
-        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
-
-
-        profitGraph.profitJumps.push(
-            {
-                timestamp:timeNow,
-                oldProfit:profitGraph.profit,
-                newProfit:profitGraph.profit + profit, 
-            }
-        );
-
-        profitGraph.profit += profit;
-        profitGraph.profitSegments.push(
-            {
-                startTime:timeNow,
-                endTime:timeNow, 
-                startProfit:profitGraph.profit, 
-                endProfit:profitGraph.profit,
-                state:"out"
-            }
-        )
     }
 
     draw(){
