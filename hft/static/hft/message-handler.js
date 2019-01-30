@@ -68,14 +68,12 @@ socketActions.socket.onclose = function (event) {
 };   
 
 otree.handleConfirm = function (obj){
-    // console.log("Confirmed order FUNCTION " + obj["order_token"]);
-    spreadGraph.addToActiveOrders(obj); 
-    
-    if(obj["player_id"] == otree.playerID){
-        
-        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", obj["order_token"][4], obj["price"]);
 
-        // infoTable.updateUserBidAndAsk(obj["price"], obj["order_token"][4]);
+    spreadGraph.addToActiveOrders(obj);     
+    if(obj["player_id"] == otree.playerID){
+        let side = (obj["order_token"][4] == "S") ? "ask" :"bid";
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", side, obj["price"]*1e-4);
+
         if(playersInMarket[otree.playerID]["strategy"] === "maker_basic"){
             if(obj["price"] == spreadGraph.bidArrow["price"]){
                 spreadGraph.confirmArrow(obj);
@@ -112,8 +110,7 @@ otree.handleCancel = function (obj){
 }
 
 otree.handleExecution = function (obj){
-    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", obj["order_token"][4], obj["price"]);
-
+   
     spreadGraph.removeFromActiveOrders(obj["order_token"],obj["price"]);
 
     if(obj["player_id"] == otree.playerID){
@@ -126,9 +123,10 @@ otree.handleExecution = function (obj){
 }
 
 otree.handleBBOChange = function (obj){
-    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo", );;
 
-    // infoTable.updateBidAndAsk(obj["best_bid"],obj["best_offer"]);
+    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo","bid", obj["best_bid"]*1e-4 );
+    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo","ask", obj["best_offer"]*1e-4 );
+
     spreadGraph.bestBid = obj["best_bid"];
     spreadGraph.bestOffer = obj["best_offer"];
     var shiftNecessary = false;

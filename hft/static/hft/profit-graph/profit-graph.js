@@ -109,7 +109,7 @@ class ProfitGraph extends PolymerElement {
      */ 
     profitGraph.profitGraph_svg.style.width = profitGraph.profit_width;
     profitGraph.profitGraph_svg.style.height = profitGraph.profit_height;
-    profitGraph.profitGraph_svg.style.background = "white";
+    profitGraph.profitGraph_svg.style.background = "#FFFFF0";
 
     
     /*
@@ -493,14 +493,15 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         var myCashPosition = obj["endowment"];
         var endowment = myCashPosition + expectedPrice * obj["inventory"];
         
-        // var selectedProfit = parseInt(document.querySelector('info-table').profit)*(1e4)
         var selectedProfit = playersInMarket[otree.playerID]["profit"];
         var profit = Math.floor(endowment - selectedProfit);
         console.log("profit: " + profit + ", current endowment: " + selectedProfit + ", incoming: " + endowment);
         playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
         
-        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
-        // infoTable.updateProfit(playersInMarket[otree.playerID]["profit"]);
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "inventory",obj["inventory"]);
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",myCashPosition*1e-4);
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
+
         profitGraph.profitJumps.push(
             {
                 timestamp:timeNow,
