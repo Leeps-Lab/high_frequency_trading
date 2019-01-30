@@ -98,8 +98,8 @@ otree.handleCancel = function (obj){
 
     try{
        if(obj["player_id"] == otree.playerID){
-           console.log("Removing Arrow");
-           
+        console.log("Removing Arrow");
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", side, 0);
         spreadGraph.removeArrows(obj["player_token"][4])
        } else {
             spreadGraph.removeOrder(obj["order_token"]);
@@ -117,7 +117,7 @@ otree.handleExecution = function (obj){
         profitGraph.addProfitJump(obj);
 
         let side = (obj["order_token"][4] == "S") ? "ask" :"bid";
-        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", side, "-");
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", side, 0);
         spreadGraph.executeArrow(obj);
     } else {
         spreadGraph.executeOrder(obj);

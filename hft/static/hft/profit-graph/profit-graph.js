@@ -502,7 +502,8 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",myCashPosition*1e-4);
         interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
 
-        // Inventory Sensitivity
+        
+        // Order Imbalence Sensitivity
         // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
 
 

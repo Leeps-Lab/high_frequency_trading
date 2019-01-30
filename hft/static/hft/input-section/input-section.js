@@ -238,13 +238,13 @@ class InputSection extends PolymerElement {
             <div>
                 <button  value="out" class="text-center btn btn-block btn-primary manual-button" 
                     type="button">Manual</button>
-                <button class="text-center btn btn-block btn-success  btn-primary out-button" 
-                    type="button">Out</button>
+                <button class="text-center btn btn-bloc  btn-primary algorithm-button maker-button" 
+                    type="button">Maker</button>
             </div>
 
             <div>
-                <button class="text-center btn btn-block btn-primary algorithm-button 
-                    maker-button" type="button">Maker</button>
+                <button class="text-center btn btn-block btn-primary out-button 
+                    " type="button">Out</button>
                 <button class="text-center btn btn-block btn-primary taker-button 
                     taker-button" type="button">Taker</button>
             </div>
@@ -435,10 +435,12 @@ class InputSection extends PolymerElement {
         inputSection.uncheckOtherButtons(this);
         inputSection.inputSectionShadowDOM.querySelector(".taker-button").classList.toggle("btn-success");
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = false;
-        playersInMarket[otree.playerID]["strategy"] = "taker";
-        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
 
-        // infoTable.updateRole("Taker");
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", "ask", 0);
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", "bid", 0);
+
+        playersInMarket[otree.playerID]["strategy"] = "taker";
+
         var algorithm2ChangeMessage = {
             type: "role_change",
             state: playersInMarket[otree.playerID]["strategy"]
@@ -486,7 +488,9 @@ class InputSection extends PolymerElement {
         inputSection.inputSectionShadowDOM.querySelector(".speed-input").disabled = true;
         inputSection.inputSectionShadowDOM.querySelector(".out-button").classList.toggle("btn-success");
         playersInMarket[otree.playerID]["strategy"] = "out";
-        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo");;
+
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", "ask", 0);
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", "bid", 0);
 
         // infoTable.updateRole("Out");
         spreadGraph.removeArrows();
