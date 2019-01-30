@@ -241,7 +241,7 @@ class InputSection extends PolymerElement {
             <div>
                 <button  value="out" class="text-center btn btn-block btn-primary manual-button" 
                     type="button">Manual</button>
-                <button class="text-center btn btn-bloc  btn-primary algorithm-button maker-button" 
+                <button class="text-center btn btn-block  btn-primary  maker-button" 
                     type="button">Maker</button>
             </div>
 
