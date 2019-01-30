@@ -115,6 +115,9 @@ otree.handleExecution = function (obj){
 
     if(obj["player_id"] == otree.playerID){
         profitGraph.addProfitJump(obj);
+
+        let side = (obj["order_token"][4] == "S") ? "ask" :"bid";
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("mbo", side, "-");
         spreadGraph.executeArrow(obj);
     } else {
         spreadGraph.executeOrder(obj);

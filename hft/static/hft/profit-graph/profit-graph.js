@@ -494,13 +494,17 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         var endowment = myCashPosition + expectedPrice * obj["inventory"];
         
         var selectedProfit = playersInMarket[otree.playerID]["profit"];
-        var profit = Math.floor(endowment - selectedProfit);
+        var profit = parseInt(endowment - selectedProfit);
         console.log("profit: " + profit + ", current endowment: " + selectedProfit + ", incoming: " + endowment);
         playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
         
         interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "inventory",obj["inventory"]);
         interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",myCashPosition*1e-4);
         interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
+
+        // Inventory Sensitivity
+        // interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
+
 
         profitGraph.profitJumps.push(
             {
