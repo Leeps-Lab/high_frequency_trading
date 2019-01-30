@@ -135,7 +135,7 @@ class MarketPriceCard extends LitElement {
                   ${this.currency}
                 </h1>
                 <h1 id="the-price">
-                  ${this.price}
+                  ${this.price == 0 ? html` - `: html`${this.price}`}
                 </h1>
               </div>
             </div>

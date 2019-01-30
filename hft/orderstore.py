@@ -139,7 +139,7 @@ class OrderStore:
         token = kwargs['order_token']
         order_info = self._orders.pop(token)
         direction = order_info['buy_sell_indicator']
-        inventory_change = 1 if direction == b'B' else -1
+        inventory_change = 1 if direction == 'B' else -1
         self.inventory += inventory_change
         price = order_info['price']
         self.update_spread(price, direction, clear=True)            
