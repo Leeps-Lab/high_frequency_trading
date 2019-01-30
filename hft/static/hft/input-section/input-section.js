@@ -239,16 +239,16 @@ class InputSection extends PolymerElement {
         <div id="buttons-container" class="column-container" style="width: 50%">
 
             <div>
-                <button  value="out" class="text-center btn btn-block btn-primary manual-button" 
+                <button  value="out" class="text-center btn btn-primary manual-button" 
                     type="button">Manual</button>
                 <button class="text-center btn btn-block  btn-primary  maker-button" 
                     type="button">Maker</button>
             </div>
 
             <div>
-                <button class="text-center btn btn-block btn-primary out-button 
+                <button class="text-center btn btn-primary out-button 
                     " type="button">Out</button>
-                <button class="text-center btn btn-block btn-primary taker-button 
+                <button class="text-center btn btn-primary taker-button 
                     taker-button" type="button">Taker</button>
             </div>
 
