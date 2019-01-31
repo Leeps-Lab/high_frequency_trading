@@ -43,7 +43,7 @@ class WallletCard extends LitElement {
             shineClass=${this.shineClass}></info-card>
           <info-card class="thecard" title="Cash" currency="$" value=${this.cash}
             shineClass=${this.shineClass}></info-card>
-          <info-card class="thecard" title="Endowment" currency="$" value=${this.endowment}
+          <info-card class="thecard" title="Cash + p*Q" currency="$" value=${this.endowment}
             shineClass=${this.shineClass}></info-card>
         </div>
         `;
