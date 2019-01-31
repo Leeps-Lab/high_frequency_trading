@@ -490,7 +490,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         */
 
         var expectedPrice = (obj["order_token"][4] == "S" ) ? spreadGraph.bestBid: spreadGraph.bestOffer;
-
+        console.log("In profit Jump");
         if(expectedPrice == 0 || expectedPrice == 2147483647){
             return;
         } 

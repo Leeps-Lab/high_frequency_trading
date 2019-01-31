@@ -31,7 +31,7 @@ socketActions.socket.onmessage = function (event) {
 
         if(obj["market_id"]  === otree.marketID){
             
-            if(!(obj["best_bid"] == 0 &&  obj["best_offer"] == 2147483647)  && obj["best_offer"] != 2147483647 ){
+            if (obj["best_bid"] != 0 || obj["best_offer"] != 2147483647 ) {
                 otree.handleBBOChange(obj);
                 profitGraph.addProfitJump(profitMSG);
             }
@@ -134,18 +134,26 @@ otree.handleExecution = function (obj){
 
 otree.handleBBOChange = function (obj){
 
-    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo","bid", obj["best_bid"]*1e-4 );
-    interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo","ask", obj["best_offer"]*1e-4 );
 
     spreadGraph.bestBid = obj["best_bid"];
     spreadGraph.bestOffer = obj["best_offer"];
     var shiftNecessary = false;
    
+    if (obj["best_bid"] != 0) {
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo","bid", obj["best_bid"]*1e-4 );
+        spreadGraph.drawBestBid(obj);
+    }
 
-    spreadGraph.drawBestBid(obj);
-    spreadGraph.drawBestOffer(obj);
+    if (obj["best_offer"] != 2147483647) {
+        interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("bbo","ask", obj["best_offer"]*1e-4 );
+        spreadGraph.drawBestOffer(obj);
+    }
 
-    spreadGraph.BBOShift(obj);
+    if (obj["best_bid"] != 0 && obj["best_offer"] != 2147483647) {
+        spreadGraph.BBOShift(obj);
+    }
+
+    
 }
 
 otree.playerReady = function (){

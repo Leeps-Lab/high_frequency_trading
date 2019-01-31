@@ -264,25 +264,25 @@ class InputSection extends PolymerElement {
 
                 <div class="header-container">
                     <span class="slider-header">
-                        Inventory:  
+                        Imbalance:
                         <span id="sens_1_output">
                         </span>
                     </span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" min="0" max="1" value="0" class="slider" 
+                    <input type="range" min="0" max="10" value="0" class="slider" 
                         id="sens_1" step="0.1">
                 </div>
 
                 <div class="header-container">
                     <span class="slider-header">
-                        Order: 
+                        Inventory: 
                         <span id="sens_2_output">
                         </span>
                     </span>
                 </div>
                 <div class="slider-container">
-                    <input type="range" min="0" max="1" value="0" class="slider" 
+                    <input type="range" min="0" max="10" value="0" class="slider" 
                         id="sens_2" step="0.1">
                 </div>
             </div>

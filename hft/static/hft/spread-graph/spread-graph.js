@@ -371,7 +371,6 @@ class SpreadGraph extends PolymerElement {
     //Shift Best Bid and Best Offer
     var bestBidCircle = spreadGraph.spread_svg.select(".best-bid");
     var bestOfferCircle = spreadGraph.spread_svg.select(".best-offer");
-
     bestBidCircle.transition()
                  .duration(300)
                  .attr("cx", ((desiredCenter > spreadGraph.spread_width/2) ? +bestBidCircle.attr("cx") - differenceFromMid : +bestBidCircle.attr("cx") + differenceFromMid))
@@ -394,6 +393,7 @@ class SpreadGraph extends PolymerElement {
     } catch {
         console.log("Bid Arrow not Exist");
     }
+
     try{
 
         spreadGraph.askArrow["askArrowText"].transition().duration(300).attr("x",(desiredCenter > spreadGraph.spread_width/2) ? +spreadGraph.askArrow["askArrowText"].attr("x") - differenceFromMid : +spreadGraph.askArrow["askArrowText"].attr("x")  + differenceFromMid);
@@ -403,7 +403,6 @@ class SpreadGraph extends PolymerElement {
         console.log("Ask Arrow not existing");
     }
 
-    console.log(spreadGraph.activeOrders);
 
     for(var price in spreadGraph.activeOrders){
        
@@ -425,6 +424,7 @@ class SpreadGraph extends PolymerElement {
 
   drawBestBid(obj){
         spreadGraph.spread_svg.select(".best-bid").remove();
+        console.log("BESTBID");
         var bidX = spreadGraph.visibleTickLines[obj["best_bid"]];
         bidX = (bidX == undefined) ? 0 : bidX ;
         if(+obj["best_bid"] < spreadGraph.lowerBound){
@@ -467,7 +467,7 @@ class SpreadGraph extends PolymerElement {
   drawBestOffer(obj){
 
         spreadGraph.spread_svg.select(".best-offer").remove();
-
+        console.log("BESTOFFER");
         var offerX = spreadGraph.visibleTickLines[obj["best_offer"]];
 
         if(+obj["best_offer"] < spreadGraph.lowerBound){
@@ -486,7 +486,7 @@ class SpreadGraph extends PolymerElement {
         var upperPriceOffer = tickArray[i];
         var lowerPriceOffer = tickArray[i-1];
         var priceDiffOffer = upperPriceOffer - lowerPriceOffer;
-        var offerDiff = Math.abs(obj["best_offer"] - lowerPrice);
+        var offerDiff = Math.abs(obj["best_offer"] - lowerPriceOffer);
 
         var ratioOffer = offerDiff/priceDiffOffer;
 
