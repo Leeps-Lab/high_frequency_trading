@@ -12,7 +12,7 @@ as traders.
 In this paradigm, each oTree subsession corresponds to a trading day and one webpage
 where subjects participate in a market by interacting with the components on the user interface.
 
-This architecture is capable of creating experimental environments to study algorithmic 
+This architecture is inteded for creating experimental environments to study algorithmic 
 and high-frequency trading.
 
 Setting Up
@@ -31,18 +31,27 @@ version of oTree in this new environment. A virtual environment will keep this v
 separate from the oTree version you are already using.
 
 This assumes that you have Python 3.6 (thus pip3) installed on your computer. 
-If not, here is a nice `guide`_ to do it.
 
-If you don't have virtualenv installed:
+Make sure to have virtualenv installed by checking the version. 
+
+::
+
+    virtualenv --version
+
+The version for virtualenv should be printed on console, else install virtualenv:
 
 ::
 
     pip3 install virtualenv
 
+
+Then run:
+
 ::
 
     mkdir otree_hft_env
     virtualenv -p python3.6 otree_hft_env
+
 
 2. Activate the virtual environment.
 
@@ -57,13 +66,15 @@ For windows:
 ::
 
     otree_hft_env/Scripts/activate
-    
+
+
 3. `Clone`_ this repository and install dependencies.
 
 ::  
 
     cd high_frequency_trading
     pip3 install -r requirements.txt
+
 
 4. For convenience, the repository includes matching engine libraries as subrepo. Some modules
 are used by both the exchange server and application. Both applications decode/encode
@@ -79,6 +90,7 @@ created.
     git submodule init 
     git submodule update 
 
+
 Follow the `exchange server instructions`_ and run a CDA exchange instance.
 
 5. Postgres DB and Redis must be running and oTree must be configured to talk 
@@ -92,15 +104,19 @@ static files by running commands below.
     otree resetdb
     otree collectstatic
 
+
 7. Run oTree.
 
 ::
 
     otree runhftserver
 
+
+
 8. In a separate shell, activate the new environment and start a background process.
 
 ::
+
      otree run_huey
 
 
