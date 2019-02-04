@@ -29,6 +29,8 @@ To run a test:
 version of oTree in this new environment. A virtual environment will keep this version 
 separate from the oTree version you are already using.
 
+Temp note: =-=-=-= What if virtualenv is not installed? -> pip install virtualenv
+
 ::
 
     mkdir otree_hft_env
@@ -48,14 +50,18 @@ For windows:
     
 2. Clone this repository and install dependencies.
 
+TempNote: git clone https://github.com/Leeps-Lab/high_frequency_trading.git
+
 ::  
 
     cd high_frequency_trading
     pip install -r requirements.txt
 
-3. For convenience the repository includes matching engine libraries as subrepo. Some modules
+3. For convenience, the repository includes matching engine libraries as subrepo. Some modules
 are used by both the exchange server and application. Both applications decode/encode
 `OUCH`_ messages to talk with each other. 
+
+?? TEMP NOTE: do I do this in a different terminal or shell?
 
 ::
 
@@ -65,8 +71,11 @@ are used by both the exchange server and application. Both applications decode/e
 
 Follow the `exchange server instructions`_ and run a CDA exchange instance.
 
+
 4. Postgres DB and Redis must be running and oTree must be configured to talk 
 with both; explained in `oTree docs`_ . Also run:
+
+? TEMP NOTE: Am I back to the venv I assume
 
 ::
 
@@ -74,9 +83,10 @@ with both; explained in `oTree docs`_ . Also run:
     otree collectstatic
 
 5. In a separate shell start the background process.
-   
-::
+  
+?? TEMP NOTE: In which folder do I run this... it seems it must be run in the same venv as in 
 
+::
      otree run_huey
 
 6. Finally, run oTree in another shell.
@@ -84,6 +94,20 @@ with both; explained in `oTree docs`_ . Also run:
 ::
 
     otree runhftserver
+
+
+?? TEMPNOTE: I got this error "ModuleNotFoundError: No module named 'jsonfield'"
+I run: "pip install jsonfield", run again and got this new error.
+  File "/Users/klopezva/GitHubRepos/high_frequency_trading/hft/models.py", line 20, in <module>
+    from .trade_session import TradeSessionFactory
+  File "/Users/klopezva/GitHubRepos/high_frequency_trading/hft/trade_session.py", line 11, in <module>
+    from .dispatcher import LEEPSDispatcher
+  File "/Users/klopezva/GitHubRepos/high_frequency_trading/hft/dispatcher.py", line 3, in <module>
+    from .event_handlers import HandlerFactory
+  File "/Users/klopezva/GitHubRepos/high_frequency_trading/hft/event_handlers.py", line 9, in <module>
+    from otree.timeout.tasks import hft_background_task
+ImportError: cannot import name 'hft_background_task'
+ 
 
 In production, you should run each as a service. The method above
 is only intended for testing.
