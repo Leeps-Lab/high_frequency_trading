@@ -30,10 +30,8 @@ To run a test:
 version of oTree in this new environment. A virtual environment will keep this version 
 separate from the oTree version you might be already using.
 
-.. warning::
-
-    If you have a version of oTree installed in your computer and do not use a virtual environment
-    to do Step 1, you will overwrite your current oTree installation. 
+_Warning_: If you have a version of oTree installed in your computer and do not use a virtual environment
+to do Step 1, you will overwrite your current oTree installation. 
 
 This assumes that you have Python 3.6 (thus pip3) installed on your computer. 
 
