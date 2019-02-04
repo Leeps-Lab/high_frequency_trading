@@ -1,13 +1,18 @@
-
+General
+=============
 
 This repo contains an `oTree`_ application customized for conducting real-time financial
-market experiments. Originally started as an attempt to build an pure oTree implementation
-of [AldrichVargas]_, it now generalizes over many small-scale financial market
-environments. It serves as an experiment software layer for a system with remote
-exchanges and traders (subjects). Each oTree subsession includes a trading day webpage,
-where subjects participate in a market by interacting with the components on the user interface. 
-Naturally, this is oriented towards experimental environments with algorithmic and high
-frequency trading.
+market experiments. It originally started as an attempt to build an pure oTree implementation
+of the experiment in [AldrichVargas]_. It now can support a large set of financial market
+environments. 
+
+The general architecture of this experiment software includes of supports the operation of a remote
+exchanges (market engine) and human participants operating as traders via an oTree layer. 
+
+In this paradigm, each oTree subsession corresponds to a trading day and one webpage
+where subjects participate in a market by interacting with the components on the user interface in real time.
+
+This architecture is capable of creating experimental environments where to study algorithmic and high-frequency trading.
 
 Setting Up
 =============
