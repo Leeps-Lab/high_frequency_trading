@@ -3,7 +3,7 @@ General
 
 This repo contains an `oTree`_ application customized for conducting real-time financial
 market experiments. It originally started as an attempt to build an pure oTree implementation
-of the experiment in [Aldrich_LopezVargas]_. It now can support a large set of financial market
+of the experiment in [AldrichAndLopezVargas]_. It now can support a large set of financial market
 environments. 
 
 The general architecture of this experiment software includes of supports the operation of a remote
@@ -114,7 +114,7 @@ is only intended for testing.
 
 
 .. _oTree: http://www.otree.org/
-.. [Aldrich_LopezVargas] https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3154070
+.. [AldrichAndLopezVargas] https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3154070
 .. _interface server: https://github.com/django/daphne
 .. _OUCH: http://www.nasdaqtrader.com/content/technicalsupport/specifications/tradingproducts/ouch4.2.pdf
 .. _exchange server instructions: https://github.com/Leeps-Lab/exchange_server/blob/4cf00614917e792957579ecdd0f5719f9780b94c/README.rst
