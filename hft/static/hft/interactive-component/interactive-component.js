@@ -45,16 +45,27 @@ class InteractiveComponent extends PolymerElement {
     width: 60%;
   }
 
-  input-section {
+  state-selection {
     height: 100%;
-    width: 40%
+    width: 40%;
   }
 
   </style>
   <div id="main-container">
     <div class="row-container">
       <information-table></information-table>
-      <input-section> </input-section>
+      <state-selection 
+        title = "State Selection"
+        manualState = false 
+        takerState = false
+        makerState = false
+        outState = true
+        inventorySensitivyMin = 0
+        inventorySensitivyMax = 10
+        orderSensitivyMin = 0
+        orderSensitivyMax = 10
+        sliderStep = 0.1
+      > </state-selection>
     </div>
   </div>
 
