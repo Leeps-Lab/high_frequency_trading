@@ -3,7 +3,7 @@ General
 
 This repo contains an `oTree`_ application customized for conducting real-time financial
 market experiments. It originally started as an attempt to build an pure oTree implementation
-of the experiment in [AldrichVargas]_. It now can support a large set of financial market
+of the experiment in [Aldrich & Lopez Vargas]_. It now can support a large set of financial market
 environments. 
 
 The general architecture of this experiment software includes of supports the operation of a remote
@@ -19,7 +19,8 @@ Setting Up
 
 Redis is used as the primary data storage during a trade session for quick read/writes,
 and experiment data is written to the Postgres in background.
-We use Huey for this purpose. Both Redis and Huey is already required for oTree.
+
+We use Huey for this purpose. Both Redis and Huey are already required for oTree.
 The `interface server`_ is used to connect to remote exchanges.
 
 To run a test:
@@ -89,7 +90,7 @@ is only intended for testing.
 
 
 .. _oTree: http://www.otree.org/
-.. [AldrichVargas] https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3154070
+.. [Aldrich & Lopez Vargas] https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3154070
 .. _interface server: https://github.com/django/daphne
 .. _OUCH: http://www.nasdaqtrader.com/content/technicalsupport/specifications/tradingproducts/ouch4.2.pdf
 .. _exchange server instructions: https://github.com/Leeps-Lab/exchange_server/blob/4cf00614917e792957579ecdd0f5719f9780b94c/README.rst
