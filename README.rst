@@ -31,6 +31,7 @@ version of oTree in this new environment. A virtual environment will keep this v
 separate from the oTree version you might be already using.
 
 .. warning::
+
     If you have a version of oTree installed in your computer and do not use a virtual environment
     to do Step 1, you will overwrite your current oTree installation. 
 
