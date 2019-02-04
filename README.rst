@@ -28,7 +28,11 @@ To run a test:
 
 1. Create a virtual environment, you will install a slightly modified 
 version of oTree in this new environment. A virtual environment will keep this version 
-separate from the oTree version you are already using.
+separate from the oTree version you might be already using.
+
+.. warning::
+    If you have a version of oTree installed in your computer and do not use a virtual environment
+    to do Step 1, you will overwrite your current oTree installation. 
 
 This assumes that you have Python 3.6 (thus pip3) installed on your computer. 
 
@@ -68,19 +72,16 @@ For windows:
     otree_hft_env/Scripts/activate
 
 
-3. `Clone`_ this repository and install dependencies.
+3. `Clone`_ this repository, cd into the folder and install dependencies.
 
 ::  
 
+    git clone https://github.com/Leeps-Lab/high_frequency_trading.git
     cd high_frequency_trading
     pip3 install -r requirements.txt
 
 
-4. For convenience, the repository includes matching engine libraries as subrepo. Some modules
-are used by both the exchange server and application. Both applications decode/encode
-`OUCH`_ messages to talk with each other. 
-
-In a seperate shell, navigate to the folder that contains the repository. It is always
+4. In a seperate shell, navigate into the folder of the repository you cloned. It is always
 a good idea to use a virtual environment. Do step 2, activate the environment previously
 created.
 
@@ -92,6 +93,12 @@ created.
 
 
 Follow the `exchange server instructions`_ and run a CDA exchange instance.
+
+.. note::
+    Note: the exchange server has its own repository and, for convenience, this repository 
+    includes the exchange server libraries as a subrepo. This is because some modules are used
+    by both the exchange server and this application 
+    (e.g., both applications decode/encode `OUCH`_ messages o talk with each other).
 
 5. Postgres DB and Redis must be running and oTree must be configured to talk 
 with both; explained in `oTree docs`_ .
