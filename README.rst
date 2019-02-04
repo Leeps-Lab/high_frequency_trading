@@ -3,16 +3,17 @@ General
 
 This repo contains an `oTree`_ application customized for conducting real-time financial
 market experiments. It originally started as an attempt to build an pure oTree implementation
-of the experiment in [AldrichAndLopezVargas]_. It now can support a large set of financial market
+of the experiment in [AldrichAndLopezVargas]_. It now supports a large set of financial market
 environments. 
 
-The general architecture of this experiment software includes of supports the operation of a remote
-exchanges (market engine) and human participants operating as traders via an oTree layer. 
+This application connects to a remote exchange server, and human participants operate
+as traders.
 
 In this paradigm, each oTree subsession corresponds to a trading day and one webpage
-where subjects participate in a market by interacting with the components on the user interface in real time.
+where subjects participate in a market by interacting with the components on the user interface.
 
-This architecture is capable of creating experimental environments where to study algorithmic and high-frequency trading.
+This architecture is capable of creating experimental environments to study algorithmic 
+and high-frequency trading.
 
 Setting Up
 =============
@@ -21,7 +22,7 @@ Redis is used as the primary data storage during a trade session for quick read/
 and experiment data is written to the Postgres in background.
 
 We use Huey for this purpose. Both Redis and Huey are already required for oTree.
-The `interface server`_ is used to connect to remote exchanges.
+The `interface server`_ is used to connect to exchange server.
 
 To run a test:
 
@@ -29,12 +30,21 @@ To run a test:
 version of oTree in this new environment. A virtual environment will keep this version 
 separate from the oTree version you are already using.
 
-Temp note: =-=-=-= What if virtualenv is not installed? -> pip install virtualenv
+This assumes that you have Python 3.6 (thus pip3) installed on your computer. 
+If not, here is a nice `guide`_ to do it.
+
+If you don't have virtualenv installed:
+
+::
+
+    pip3 install virtualenv
 
 ::
 
     mkdir otree_hft_env
     virtualenv -p python3.6 otree_hft_env
+
+2. Activate the virtual environment.
 
 For mac and linux:
 
@@ -48,20 +58,20 @@ For windows:
 
     otree_hft_env/Scripts/activate
     
-2. Clone this repository and install dependencies.
-
-TempNote: git clone https://github.com/Leeps-Lab/high_frequency_trading.git
+3. `Clone`_ this repository and install dependencies.
 
 ::  
 
     cd high_frequency_trading
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
 
-3. For convenience, the repository includes matching engine libraries as subrepo. Some modules
+4. For convenience, the repository includes matching engine libraries as subrepo. Some modules
 are used by both the exchange server and application. Both applications decode/encode
 `OUCH`_ messages to talk with each other. 
 
-?? TEMP NOTE: do I do this in a different terminal or shell?
+In a seperate shell, navigate to the folder that contains the repository. It is always
+a good idea to use a virtual environment. Do step 2, activate the environment previously
+created.
 
 ::
 
@@ -71,43 +81,32 @@ are used by both the exchange server and application. Both applications decode/e
 
 Follow the `exchange server instructions`_ and run a CDA exchange instance.
 
+5. Postgres DB and Redis must be running and oTree must be configured to talk 
+with both; explained in `oTree docs`_ .
 
-4. Postgres DB and Redis must be running and oTree must be configured to talk 
-with both; explained in `oTree docs`_ . Also run:
-
-? TEMP NOTE: Am I back to the venv I assume
+6. Go back to the shell with new virtual environment, reset the database and copy
+static files by running commands below.
 
 ::
 
     otree resetdb
     otree collectstatic
 
-5. In a separate shell start the background process.
-  
-?? TEMP NOTE: In which folder do I run this... it seems it must be run in the same venv as in 
-
-::
-     otree run_huey
-
-6. Finally, run oTree in another shell.
+7. Run oTree.
 
 ::
 
     otree runhftserver
 
+8. In a separate shell, activate the new environment and start a background process.
 
-?? TEMPNOTE: I got this error "ModuleNotFoundError: No module named 'jsonfield'"
-I run: "pip install jsonfield", run again and got this new error.
-  File "/Users/klopezva/GitHubRepos/high_frequency_trading/hft/models.py", line 20, in <module>
-    from .trade_session import TradeSessionFactory
-  File "/Users/klopezva/GitHubRepos/high_frequency_trading/hft/trade_session.py", line 11, in <module>
-    from .dispatcher import LEEPSDispatcher
-  File "/Users/klopezva/GitHubRepos/high_frequency_trading/hft/dispatcher.py", line 3, in <module>
-    from .event_handlers import HandlerFactory
-  File "/Users/klopezva/GitHubRepos/high_frequency_trading/hft/event_handlers.py", line 9, in <module>
-    from otree.timeout.tasks import hft_background_task
-ImportError: cannot import name 'hft_background_task'
- 
+::
+     otree run_huey
+
+
+
+In summary, there should be 3 processes running in 3 different shells with the new
+environment. These will talk to each other during a trade session.
 
 In production, you should run each as a service. The method above
 is only intended for testing.
@@ -119,3 +118,5 @@ is only intended for testing.
 .. _OUCH: http://www.nasdaqtrader.com/content/technicalsupport/specifications/tradingproducts/ouch4.2.pdf
 .. _exchange server instructions: https://github.com/Leeps-Lab/exchange_server/blob/4cf00614917e792957579ecdd0f5719f9780b94c/README.rst
 .. _oTree docs: https://otree.readthedocs.io/en/latest/server/intro.html
+.. _Clone: https://help.github.com/articles/cloning-a-repository/
+.. _guide: https://docs.python-guide.org/dev/virtualenvs/
