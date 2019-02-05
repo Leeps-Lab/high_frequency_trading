@@ -110,7 +110,7 @@ by both the exchange server and this application
 
 5. Still in Terminal #2, follow the `exchange server instructions`_ and run a CDA exchange 
 instance. 
-Expect to see three timestamped lines that look like this:
+Expect to see three timestamped lines that look like this
 
 ::
 
