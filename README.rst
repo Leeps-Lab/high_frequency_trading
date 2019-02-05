@@ -27,19 +27,21 @@ The `interface server`_ is used to connect to exchange server.
 **Prerequisites**:
 
 The tutorial below assumes that you have Python 3.6 (thus, pip3) installed in your computer as well as an 
-up-to-date of the Google Chrome browser. 
+up-to-date Google Chrome browser. 
 
 Redis and Postgres databases should be running and oTree configured to talk with them.  See `oTree docs`_ 
 documentation for details. 
-You can also find instructions to install and run redis here: https://redis.io/download#installation 
-Similarly, can download and install Postgres here: https://www.postgresql.org/download/
-We were able to run a couple of successful tests without Postgres, using SQLite (the default development
-database for otree). 
+You can also find instructions to install and run `Redis here`_. 
+Similarly, can download and install `Postgres here`_.
+We were able to run a couple of successful tests using SQLite (the default development
+database for otree) instead of Postgres.
 
 
-**Step-by-step tutorial to run a simple test**:
+**Step-by-step tutorial to run a simple test**
+
 
 0. Open four terminals. 
+
 
 1. Create a virtual environment, you will install a slightly modified 
 version of oTree in this new environment. A virtual environment will keep this version 
@@ -53,28 +55,29 @@ In terminal #1, make sure to have virtualenv installed by checking the version.
 
     virtualenv --version
 
-The version for virtualenv should be printed on console, else install virtualenv:
+The version for virtualenv should be printed on console, else install virtualenv
 
 ::
 
     pip3 install virtualenv
 
-Then run:
+Then run
 
 ::
 
     mkdir otree_hft_env
     virtualenv -p python3.6 otree_hft_env
 
+
 2. Activate the virtual environment (still in terminal #1).
 
-For mac and linux:
+For mac and linux
 
 ::
 
     source otree_hft_env/bin/activate
 
-For windows: 
+For windows 
 
 ::
 
@@ -104,15 +107,17 @@ includes the exchange server libraries as a subrepo. This is because some module
 by both the exchange server and this application 
 (e.g., both applications decode/encode `OUCH`_ messages o talk with each other).
 
+
 5. Still in Terminal #2, follow the `exchange server instructions`_ and run a CDA exchange 
 instance. 
-If it works, you will receive three timestamped lines that look like this:
+Expect to see three timestamped lines that look like this:
 
 ::
 
     [14:45:00.803] Using selector: KqueueSelector
     [14:45:00.803] DEBUG [root.__init__:35] Initializing exchange
     [14:45:00.803] INFO [root.register_listener:112] added listener 0
+
 
 6. Go back to Terminal #1, reset the database and copy static files by running these commands.
 
@@ -128,24 +133,27 @@ If it works, you will receive three timestamped lines that look like this:
 
     otree runhftserver
 
-Note: this step requires redis to be running either in the background or in a separate Terminal (run 'redis-server' in Terminal #4)
+Note: this step requires Redis to be running either in the background or in a separate Terminal (run 'redis-server' in Terminal #4)
+
 
 8. In Terminal #3, go to the folder that contains 'otree_hft_env' and do Step 2 (activate the virtual environment). 
-Then, cd into the 'high_frequency_trading' folder and start the following background process:
+Then, cd into the 'high_frequency_trading' folder and start the following background process.
 
 ::
+
      cd high_frequency_trading
      otree run_huey
 
-9. Open your Chrome browser and go to http://localhost:8000_. Click on the 'demo session' and follow the screen 
+
+9. Open your Chrome browser and go to `localhost`_. Click on the 'demo session' and follow the screen 
 istructions to launch clients' (traders') screens as tabs in the same browser. 
 
 
 **Final notes**
 
-Here, we have four terminals running four processes that conform our financial environment. These processes are talking to each other during a trading session.
+Here, we have four terminals running four processes that conform to our financial market environment. These processes are talking to each other during a trading session.
 
-In production mode, you should run each of these as a 'service'. The method above is only intended for testing.
+In production mode, you should run each of these as a 'service'. The method above is only intended for testing on your personal computer.
 
 
 .. _oTree: http://www.otree.org/
@@ -156,3 +164,6 @@ In production mode, you should run each of these as a 'service'. The method abov
 .. _oTree docs: https://otree.readthedocs.io/en/latest/server/intro.html
 .. _clone: https://help.github.com/articles/cloning-a-repository/
 .. _guide: https://docs.python-guide.org/dev/virtualenvs/
+.. _Redis here: https://redis.io/download#installation
+.. _Postgres here: https://www.postgresql.org/download/
+.. _localhost: http://localhost:8000
