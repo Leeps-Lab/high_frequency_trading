@@ -146,7 +146,7 @@ Then, cd into the 'high_frequency_trading' folder and start the following backgr
 
 
 9. Open your Chrome browser and go to `localhost`_. Click on the 'demo session' and follow the screen 
-istructions to launch clients' (traders') screens as tabs in the same browser. 
+instructions to launch clients' (traders') screens as tabs in the same browser. 
 
 
 **Final notes**
