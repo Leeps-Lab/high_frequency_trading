@@ -2,7 +2,7 @@ General
 =============
 
 This repo contains an `oTree`_ application customized for conducting real-time financial
-market experiments. It originally started as an attempt to build an pure oTree implementation
+market experiments. It originally started as an attempt to build an oTree implementation
 of the experiment in [Aldrich_LopezVargas]_. It now supports a large set of financial market
 environments. 
 
