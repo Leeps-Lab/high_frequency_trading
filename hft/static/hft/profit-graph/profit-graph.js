@@ -244,9 +244,9 @@ class ProfitGraph extends PolymerElement {
             timeLineVal += increment;
         }
         if(profitGraph.debug["calcTimeGridLines"]){
-            console.log("Lines post computation: previous set of lines :-: computed set of lines ");
+            ////console.log("Lines post computation: previous set of lines :-: computed set of lines ");
             for(var i = 0; i < lines.length; i++){
-                console.log("   [" + i + "]    " + ((profitGraph.timeLines[i] - profitGraph.adminStartTime) / profitGraph.nanoToSec).toFixed(2) + "  :-:  " + ((lines[i] - profitGraph.adminStartTime) / profitGraph.nanoToSec).toFixed(2));
+                ////console.log("   [" + i + "]    " + ((profitGraph.timeLines[i] - profitGraph.adminStartTime) / profitGraph.nanoToSec).toFixed(2) + "  :-:  " + ((lines[i] - profitGraph.adminStartTime) / profitGraph.nanoToSec).toFixed(2));
             }
         }
         return lines;
@@ -490,7 +490,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
         */
 
         var expectedPrice = (obj["order_token"][4] == "S" ) ? spreadGraph.bestBid: spreadGraph.bestOffer;
-        console.log("In profit Jump");
+        ////console.log("In profit Jump");
         if(expectedPrice == 0 || expectedPrice == 2147483647){
             return;
         } 
@@ -507,7 +507,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
             var profit = parseInt(endowment - selectedProfit);
 
             playersInMarket[otree.playerID]["profit"] = profitGraph.profit + profit;
-            console.log("My cash position " , myCashPosition , ",endowment " , endowment , ", expected price " , expectedPrice , " profit " , profit , "selectedProfit " + selectedProfit);
+            ////console.log("My cash position " , myCashPosition , ",endowment " , endowment , ", expected price " , expectedPrice , " profit " , profit , "selectedProfit " + selectedProfit);
             interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "inventory",obj["inventory"]);
             interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "cash",myCashPosition*1e-4);
             interactiveComponent.interactiveComponentShadowDOM.querySelector("information-table").updateState("ice", "endowment",endowment*1e-4);
@@ -547,7 +547,7 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
 
         profitGraph.currentTime =  profitGraph.getTime() - profitGraph.timeOffset; 
         profitGraph.timeSinceStart = profitGraph.currentTime - profitGraph.adminStartTime;
-        // Print to console.log everytime a second occurs
+        // Print to ////console.log everytime a second occurs
         if((profitGraph.previousTime != Math.trunc(profitGraph.timeSinceStart / profitGraph.nanoToSec)) && profitGraph.debug["secondTick"]){
             profitGraph.previousTime = Math.trunc(profitGraph.timeSinceStart / profitGraph.nanoToSec);
         } 

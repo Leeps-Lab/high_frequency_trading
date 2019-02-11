@@ -33,8 +33,8 @@ class WallletCard extends LitElement {
           .container {
             display: flex;
             flex-direction: column;
-            justify-content: space-evenly;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
           }
         </style>
 

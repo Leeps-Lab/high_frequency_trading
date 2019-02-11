@@ -1,22 +1,124 @@
-import { LitElement, html } from 'lit-element';
+import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
 
-class AlgorithmSelection extends LitElement {
+import './state-button.js';
+import './sensitivity-slider.js';
+import './speed-selection.js';
 
+class AlgorithmSelection extends PolymerElement {
+    static get template() {
+        return html`
+        <style>
+            :host {
+                display: inline-block;
+                height: 100%;
+                width: 100%;
+                font-family: monospace;
+            }
+
+            .title-container{
+                width:100%;
+                display: flex;
+                display: inline-block;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .top-title{
+                text-align: center;
+                background: #FFFFF0;
+            }
+
+            .algorithm-selection-container{
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                border-left: 1px solid #FFFFF0;
+            }
+            
+            .algorithm-buttons{
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                width:50%;
+            }
+
+            .sliders{
+                width:50%;
+                height:100%;
+            }
+
+            p{
+                text-align: center;
+                font-weight:bold;
+                font-size:14px;
+                background: #FFFFF0;
+              
+            }
+        </style>
+
+     
+            <div class = "algorithm-selection-container">
+                <div class="column algorithm-buttons">
+ 
+                        <state-button
+                            strategy="maker"
+                            strategyOn = "[[makerOn]]"
+                        >
+                        </state-button>
+
+                        <state-button
+                            strategy="taker"
+                            strategyOn = "[[takerOn]] " 
+                        >
+                        </state-button>
+          
+                </div>
+
+                <div class="column sliders">
+                    
+                    <sensitivity-slider
+                        sensitivity="Order"
+                        disabledSlider ="[[disabledSliders]]"
+                        min = "0"
+                        max = "10"
+                        step = "0.1"
+                    >
+                    </sensitivity-slider>
+
+                    <sensitivity-slider
+                        sensitivity="Inventory"
+                        disabledSlider = "[[disabledSliders]]"
+                        min = "0"
+                        max = "10"
+                        step = "0.1"
+                    >
+                    </sensitivity-slider>
+                    
+                </div>
+            </div>
+        `;
+
+    }
     static get properties(){
         return {
-            makerOn: {
-                type: Boolean 
+            makeron: {
+                type: String,
+                computed: '_algorithmRoleSelected()' 
             },
-            takerOn: {
-                type: Boolean 
+            takeron: {
+                type: String,
+                computed: '_algorithmRoleSelected()' 
             },      
-            inventorySensitivyMin: {
+            inventorySensitivityMin: {
                 type: Number 
             }, 
-            inventorySensitivyMax: {
+            inventorySensitivityMax: {
                 type: Number 
             },
-            orderSensitivyMin: {
+            orderSensitivityMin: {
                 type: Number 
             },
             orderSensitivityMax: {
@@ -26,7 +128,7 @@ class AlgorithmSelection extends LitElement {
                 type: Number
             },
             disabledSliders: {
-                type: Boolean
+                type: String
             },
 
         }
@@ -34,73 +136,25 @@ class AlgorithmSelection extends LitElement {
         
     constructor(){
         super();
-       
-        
 
-        
     }
+
 
     updateState(){
         //send this.socketMessage over socket
 
         
     } 
-
-
-    render () {
-        return html`
-        <style>
-            :host {
-                display: inline-block;
-                font-family: monospace;
-            }
-            .algorithm-container{
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-start;
-                align-items: center;
-                height: 100%;
-                background: #4F759B;
-            }
-        </style>
-        <div class = "algorithm-container" >
-            <div class="column">
-                <state-button
-                    state="maker"
-                    strategyOn = ${this.makerOn}
-                >
-                </state-button>
-
-                <state-button
-                    state="out"
-                    strategyOn = ${this.takerOn}
-                    
-                >
-                </state-button>
-            </div>
-            <div class="column">
-                <sensitivity-slider
-                    sensitivity="order"
-                    disabled = ${this.disabledSliders}
-                    min = ${this.orderSensitivyMin}
-                    max = ${this.orderSensitivyMax}
-                    step = ${this.sliderStep}
-                >
-                </sensitivity-slider>
-
-                <sensitivity-slider
-                    sensitivity="inventory"
-                    disabled = ${this.disabledSliders}
-                    min = ${this.inventorySensitivyMin}
-                    max = ${this.inventorySensitivyMax}
-                    step = ${this.sliderStep}
-                >
-                </sensitivity-slider>
-            </div>
-        </div>
-        
-        `
+    _algorithmRoleSelected(){
+        if(this.takerOn == "selected" || this.makerOn == "selected"){
+            this.disabledSliders = "selected";
+        } else {
+            this.disabledSliders = "";
         }
+
+    }
+
+
     }
 
 

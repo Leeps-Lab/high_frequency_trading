@@ -17,9 +17,9 @@ socketActions.socket.onmessage = function (event) {
 
     var obj = JSON.parse(event.data);
     msgCounter++;
-    console.log("----------");
-    console.log("Recieved Message " + msgCounter);
-    console.log(obj);
+    // console.log("----------");
+    // console.log("Recieved Message " + msgCounter);
+    // console.log(obj);
 
     if(obj["type"] == "bbo"){
         var profitMSG = {};
