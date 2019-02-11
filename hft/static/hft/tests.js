@@ -30,3 +30,5 @@ const orderBookTest = () => {
 }
 
 orderBookTest();
+
+export {orderBookTest};
