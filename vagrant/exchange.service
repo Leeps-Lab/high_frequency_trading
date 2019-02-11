@@ -1,0 +1,13 @@
+[Unit]
+Description=oTree Experiment Server
+After=redis.service
+
+[Service]
+Environment=PATH=/opt/venv/bin:$PATH
+WorkingDirectory=/opt/high_frequency_trading
+ExecStart=/opt/venv/bin/python3 /opt/high_frequency_trading/exchange_server/run_exchange_server.py --host 0.0.0.0 --port 9001 --debug --mechanism cda
+ExecStop=/bin/kill -INT $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
