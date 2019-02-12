@@ -149,14 +149,14 @@ class SpreadGraph extends PolymerElement {
             .attr('cy', this.height / 2)
             .attr('cx', d => this.scale(d.key))
             .attr('class', 'volume')
-            .transition()
+          .transition()
             .duration(this.animationTime)
-            .attr('r', d => d.value * MIN_CIRCLE_RADIUS);
+            .attr('r', d => Math.sqrt(d.value) * MIN_CIRCLE_RADIUS);
         
         circles.transition()
             .duration(this.animationTime)
             .attr('cx', d => this.scale(d.key))
-            .attr('r', d => d.value * MIN_CIRCLE_RADIUS);
+            .attr('r', d => Math.sqrt(d.value) * MIN_CIRCLE_RADIUS);
     }
 
     updateDomain(orders) {
