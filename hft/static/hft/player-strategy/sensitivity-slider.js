@@ -19,21 +19,20 @@ class SensitivitySlider extends PolymerElement {
             </style>
             <div class="slider-container">
                 <p>
-                    [[sensitivity]]
+                    {{sensitivity}}
                 </p>
                 
                 <slider>
                 </slider>
                 <input 
                     id = 'slider'
-                    disabledSlider = "[[disabledSlider]]"
-                    type="range" min = "[[min]]" 
-                    max = "[[max]]" 
-                    value = "0" 
-                    step = "[[step]]"
+                    type="range" min = '{{min}}'
+                    max = '{{max}}'
+                    value = '0' 
+                    step = '{{step}}'
                 >
             </div>
-        `
+        `;
     }
 
     static get properties(){
@@ -43,7 +42,7 @@ class SensitivitySlider extends PolymerElement {
             },
             disabledSlider: {
                 type: String,
-                computed: "_slidersDisabled()"
+                observer: "_slidersDisabled"
             },
             min: {
                 type: Number
@@ -69,10 +68,11 @@ class SensitivitySlider extends PolymerElement {
     ready(){
         super.ready();
         console.log(this.$.slider.disabled);
-        this.$.slider.addEventListener('mouseup',this.updateState.bind(this));
+        this.$.slider.addEventListener('mouseup',this._sendValues.bind(this));
+
     }
 
-    updateState(e){
+    _sendValues(e){
 
         //send this.socketMessage over socket
         let variable = (this.sensitivity == "Order") ? "a_x" : "a_y";
@@ -80,12 +80,15 @@ class SensitivitySlider extends PolymerElement {
    
         console.log(this.socketMessage);  
     } 
-    _slidersDisabled(){
-        console.log(this.min);
-        if(this.disabledSlider == "selected"){
+
+    _slidersDisabled(newVal , oldVal){
+        console.log("SHITFUCK " , newVal);
+        if(newVal == 'selected'){
             this.$.slider.disabled = false;
-        } else {
+        } else if(newVal == 'not-selected'){
             this.$.slider.disabled = true;
+        } else {
+            console.error('newVal not recognized ' + newVal);
         }
     }
 

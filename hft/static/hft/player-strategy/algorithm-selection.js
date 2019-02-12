@@ -5,6 +5,60 @@ import './sensitivity-slider.js';
 import './speed-selection.js';
 
 class AlgorithmSelection extends PolymerElement {
+    static get properties(){
+        return {
+            makerOn: {
+                type: String
+            },
+            takerOn: {
+                type: String
+            },      
+            inventorySensitivityMin: {
+                type: Number 
+            }, 
+            inventorySensitivityMax: {
+                type: Number 
+            },
+            orderSensitivityMin: {
+                type: Number 
+            },
+            orderSensitivityMax: {
+                type: Number
+            },
+            sliderStep: {
+                type: Number
+            },
+            disabledSliders: {
+                type: String,
+            }
+
+        }
+    }
+    constructor(){
+        super();
+
+
+    }
+    ready(){
+        super.ready();
+        console.log(this);
+    }
+
+
+    updateState(){
+        //send this.socketMessage over socket
+
+        
+    } 
+    _algorithmRoleSelected(newVal,oldVal){
+        console.log("Within algo with change " + newVal);
+        if(newVal == 'selected'){
+            this.disabledSliders = 'selected';
+        } else {
+            this.disabledSliders = 'not-selected';
+        }
+
+    }
     static get template() {
         return html`
         <style>
@@ -64,14 +118,14 @@ class AlgorithmSelection extends PolymerElement {
                 <div class="column algorithm-buttons">
  
                         <state-button
-                            strategy="maker"
-                            strategyOn = "[[makerOn]]"
+                            strategy = "maker"
+                            strategy-on = '{{makerOn}}'
                         >
                         </state-button>
 
                         <state-button
-                            strategy="taker"
-                            strategyOn = "[[takerOn]] " 
+                            strategy = "taker"
+                            strategy-on = '{{takerOn}}'
                         >
                         </state-button>
           
@@ -80,8 +134,8 @@ class AlgorithmSelection extends PolymerElement {
                 <div class="column sliders">
                     
                     <sensitivity-slider
-                        sensitivity="Order"
-                        disabledSlider ="[[disabledSliders]]"
+                        sensitivity = "Order"
+                        disabled-slider = '{{disabledSliders}}'
                         min = "0"
                         max = "10"
                         step = "0.1"
@@ -89,8 +143,8 @@ class AlgorithmSelection extends PolymerElement {
                     </sensitivity-slider>
 
                     <sensitivity-slider
-                        sensitivity="Inventory"
-                        disabledSlider = "[[disabledSliders]]"
+                        sensitivity = "Inventory"
+                        disabled-slider = '{{disabledSliders}}'
                         min = "0"
                         max = "10"
                         step = "0.1"
@@ -102,58 +156,6 @@ class AlgorithmSelection extends PolymerElement {
         `;
 
     }
-    static get properties(){
-        return {
-            makeron: {
-                type: String,
-                computed: '_algorithmRoleSelected()' 
-            },
-            takeron: {
-                type: String,
-                computed: '_algorithmRoleSelected()' 
-            },      
-            inventorySensitivityMin: {
-                type: Number 
-            }, 
-            inventorySensitivityMax: {
-                type: Number 
-            },
-            orderSensitivityMin: {
-                type: Number 
-            },
-            orderSensitivityMax: {
-                type: Number
-            },
-            sliderStep: {
-                type: Number
-            },
-            disabledSliders: {
-                type: String
-            },
-
-        }
-    }
-        
-    constructor(){
-        super();
-
-    }
-
-
-    updateState(){
-        //send this.socketMessage over socket
-
-        
-    } 
-    _algorithmRoleSelected(){
-        if(this.takerOn == "selected" || this.makerOn == "selected"){
-            this.disabledSliders = "selected";
-        } else {
-            this.disabledSliders = "";
-        }
-
-    }
-
 
     }
 

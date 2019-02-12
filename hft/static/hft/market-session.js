@@ -1,6 +1,7 @@
 
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market_elements.js'
+import './player-strategy/state-selection.js';
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -49,6 +50,7 @@ class MarketSession extends PolymerElement {
         this.playerId = 7
         this.orderBook = new PlayersOrderBook(this.playerId);
         console.log(this.websocketUrl)
+        this.role = 'out';
         this.addEventListener('message', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
     }
@@ -151,13 +153,47 @@ class MarketSession extends PolymerElement {
     }
 
     static get template() {return html`
+        <!--- 
+        To modularize I have to look into ELO.html,
+        but will manually style for now - Patrick 2/11 
+        --->
+        <style>
+            :host{
+                width:100vw;
+                height:100vh;
+            }
+            .table-selection-container{
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                width:100%;
+                background: #4F759B;
+            }
+        </style>
+
         <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-        <info-table inventory="{{inventory}}" cash={{cash}}
-            endowment={{endowment}} 
-            best-bid={{bestBid}}
-            best-offer={{bestOffer}} my-bid={{myBid}}
-            my-offer={{myOffer}}> 
-        </info-table>
+        <div class = "table-selection-container">
+           
+                <info-table inventory="{{inventory}}" cash={{cash}}
+                    endowment={{endowment}} 
+                    best-bid={{bestBid}}
+                    best-offer={{bestOffer}} my-bid={{myBid}}
+                    my-offer={{myOffer}}> 
+                </info-table>
+           
+          
+                <state-selection 
+                strategy = {{role}}
+                > 
+                </state-selection>
+
+        </div>
+
+        <!--- 
+        To modularize I have to look into ELO.html,
+        but will manually put html for now - Patrick 2/11 
+        --->
     `;}
 
 }

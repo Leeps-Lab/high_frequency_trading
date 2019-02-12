@@ -3,11 +3,18 @@
 {% load staticfiles %}
 
 {% block content %}
-<elo-experiment> </elo-experiment>
+<style>
+    .otree-body {
+        max-width: 100vw;
+        max-height: 100vh;
+    }
+</style>
+<elo-experiment style = "width:100%; "> </elo-experiment>
 {% endblock %}
 
 {% block scripts %}
     <script src="https://d3js.org/d3.v5.js"></script>
+    
     <link rel="manifest" href="{% static 'hft/manifest.json' %}">
     <script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
     <script type="module" src="{% static 'hft/bid-ask-spread.js' %}"></script>

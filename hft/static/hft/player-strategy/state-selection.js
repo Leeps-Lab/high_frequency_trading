@@ -4,6 +4,30 @@ import './algorithm-selection.js';
 import './speed-selection.js'
 
 class StateSelection extends PolymerElement {
+    static get properties() {
+        return {
+          strategy: {
+              type: String,
+              observer: '_confirmedStrategyChange'
+          },
+          maker:{
+              type: String
+          },
+          taker:{
+              type: String
+          },
+          manual:{
+              type: String
+          },
+          out:{
+              type: String
+          },
+          disabledSliders:{
+              type: String
+          }
+        }
+    }
+
     static get template() {
         return html`
         <style>
@@ -70,13 +94,13 @@ class StateSelection extends PolymerElement {
 
                             <state-button
                                 strategy="manual"
-                                strategyon = "[[manualState]]"
+                                strategy-on = '{{manual}}'
                             >
                             </state-button>
             
                             <state-button
                                 strategy="out"
-                                strategyon = "[[outState]]"
+                                strategy-on = '{{out}}'
                             >
                             </state-button>
 
@@ -85,13 +109,9 @@ class StateSelection extends PolymerElement {
 
                 <div class="column algorithm">
                     <algorithm-selection 
-                        <!---
-                            "selected" in this case means true so the
-                            start state for the sliders is disabled 
-                         --->
-                        disableSliders = "[[disabledSlider]]"
-                        makeron = "[[makerState]]"
-                        takeron = "[[takerState]]"
+                         disabled-sliders = '{{disabledSliders}}'
+                         maker-on = '{{maker}}'
+                         taker-on = '{{taker}}'
                     >
                     </algorithm-selection>
                     
@@ -101,40 +121,25 @@ class StateSelection extends PolymerElement {
         `;
     }
 
-    static get properties() {
-      return {
-        strategy: {
-            type: String,
-            computed: '_confirmedStrategyChange()'
-        },
-        makerState:{
-            type: String
-        },
-        takerState:{
-            type: String
-        },
-        manualState:{
-            type: String
-        },
-        outState:{
-            type: String
-        },
-      }
-    }
+
 
     constructor() {
         super();
     }
+
     ready(){
         super.ready();
 
-        if(this.strategy == "out"){
-            this.outState = true;
+        if(this.strategy == 'out'){
+            this.outState = 'selected';
         }
-        console.log(this.strategy); 
-    }
-    _confirmedStrategyChange(){
         console.log(this.strategy);
+
+    }
+
+    _confirmedStrategyChange(newVal , oldVal){
+        console.log('Shit' , newVal);
+
         /*
         To be configurable in markup for true or false 
             the presence of the attribute results in true
@@ -146,28 +151,40 @@ class StateSelection extends PolymerElement {
             the role being true or false using string comparisons in the 
             components to run actions based on the role being selected or not
         */
-        if (this.strategy == "out"){
+        if (newVal == 'out'){
 
-            this.outState = "selected";
-            this.diable
-            this.makerState = "";
-            this.takerState = "";
-            this.manualState = "";
-        } else if (this.strategy == "manual"){
-            this.manualState = "selected";
-            this.outState = "";
-            this.makerState = "";
-            this.takerState = "";
-        } else if (this.strategy == "maker"){
-            this.makerState = "selected";
-            this.outState = "";
-            this.takerState = "";
-            this.manualState = "";
-        } else if (this.strategy == "taker"){
-            this.takerState = "selected";
-            this.outState = "";
-            this.makerState = "";
-            this.manualState = "";
+            this.out = 'selected';
+            this.maker = 'not-selected';
+            this.taker = 'not-selected';
+            this.manual = 'not-selected';
+
+            this.disabledSliders = 'not-selected';
+
+        } else if (newVal == 'manual'){
+
+            this.manual = 'selected';
+            this.out = 'not-selected';
+            this.maker = 'not-selected';
+            this.taker = 'not-selected';
+
+            this.disabledSliders = 'not-selected';
+
+        } else if (newVal == 'maker'){
+
+            this.maker = 'selected';
+            this.out = 'not-selected';
+            this.taker = 'not-selected';
+            this.manual = 'not-selected';
+
+            this.disabledSliders = 'selected';
+
+        } else if (newVal == 'taker'){
+            this.taker = 'selected';
+            this.out = 'not-selected';
+            this.maker = 'not-selected';
+            this.manual = 'not-selected';
+
+            this.disabledSliders = 'selected';
         }
 
     }

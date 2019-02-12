@@ -10,6 +10,7 @@ class StateButton extends PolymerElement {
             }
 
             button{
+                font-family: monospace;
                 background-color:#7F9AB5;
                 color:#FFFFF0;
                 font-size:20px;
@@ -32,7 +33,7 @@ class StateButton extends PolymerElement {
             <button
                 id = 'stateButton'
                 class = ""
-            >[[strategy]]</button>
+            >{{strategy}}</button>
         </div>
         `;
     }
@@ -41,7 +42,7 @@ class StateButton extends PolymerElement {
             strategy:{
                 type: String
             },
-            strategyon: {
+            strategyOn: {
                 type: String,
                 observer:'_buttonOn'
             },
@@ -61,43 +62,42 @@ class StateButton extends PolymerElement {
     ready(){
         super.ready();
         if(this.strategy == "out"){
-            this.strategyon  = "selected";
+            this.strategyOn  = "selected";
         } else {
-            this.strategyon  = "";
+            this.strategyOn  = "";
         }
         
-        this.$.stateButton.addEventListener('click', this.updateState.bind(this));
+        this.$.stateButton.addEventListener('click', this._pendingState.bind(this));
         
-
     }
 
-    _buttonOn(){
-       
-      if(this.strategyon == "selected"){
-        this.$.stateButton.className = 'role-selected';
-      } else {
-        this.$.stateButton.className = '';
-      }
+
+    _buttonOn(newVal, oldVal){
+        if(newVal == 'selected'){
+            this.$.stateButton.className = 'role-selected';
+        } else {
+            this.$.stateButton.className = '';
+        }
     }
 
-    updateState(){
+
+    _pendingState(){
         this.socketMessage["state"] = this.strategy;
-        //send this.socketMessage over socket
-        
-        
         //ONLY CHANGE THIS FIELD IF MESSAGE RECIEVED IS ACCEPTED ROLE CHANGE FROM BACKEND TALK TO ALI
-        if(this.strategyon == "selected"){
-            this.strategyon = "";
-        } else {
-            this.strategyon = "selected";
-        }
         console.log(this.socketMessage);
 
     } 
 
-
-    
+    _confirmState(event){
+        console.log(event);
+        let strategy = event.detail.state;
+        if(strategy == this.strategy){
+            this.strategyOn = "selected";
+        } else {
+            this.strategyOn = "";
+        }
     }
 
+}
 
 customElements.define('state-button', StateButton);
