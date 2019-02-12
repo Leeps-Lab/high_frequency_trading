@@ -138,8 +138,6 @@ class StateSelection extends PolymerElement {
     }
 
     _confirmedStrategyChange(newVal , oldVal){
-        console.log('Shit' , newVal);
-
         /*
         To be configurable in markup for true or false 
             the presence of the attribute results in true

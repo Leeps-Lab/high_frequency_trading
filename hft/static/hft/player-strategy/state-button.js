@@ -45,19 +45,12 @@ class StateButton extends PolymerElement {
             strategyOn: {
                 type: String,
                 observer:'_buttonOn'
-            },
-            socketMessage: {
-                type: Object
             }
         }
     }
         
     constructor(){
         super();    
-        this.socketMessage =  {
-            type: "role_change",
-        };
-        
     }
     ready(){
         super.ready();
@@ -82,10 +75,17 @@ class StateButton extends PolymerElement {
 
 
     _pendingState(){
-        this.socketMessage["state"] = this.strategy;
-        //ONLY CHANGE THIS FIELD IF MESSAGE RECIEVED IS ACCEPTED ROLE CHANGE FROM BACKEND TALK TO ALI
-        console.log(this.socketMessage);
+        let socketMessage = {
+            type: 'role_change',
+            state: this.strategy,
+        }
 
+
+        //ONLY CHANGE THIS FIELD IF MESSAGE RECIEVED IS ACCEPTED ROLE CHANGE FROM BACKEND TALK TO ALI
+        let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
+            detail: socketMessage });
+            
+        this.dispatchEvent(userInputEvent);
     } 
 
     _confirmState(event){

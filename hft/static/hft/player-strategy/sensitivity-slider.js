@@ -52,17 +52,12 @@ class SensitivitySlider extends PolymerElement {
             },
             step: {
                 type: Number
-            },
-            socketMessage: {
-                type: Object
             }
         }
     }
         
     constructor(){
-        super();
-        this.socketMessage = {type: "slider"};
-        
+        super();  
     }
 
     ready(){
@@ -74,15 +69,19 @@ class SensitivitySlider extends PolymerElement {
 
     _sendValues(e){
 
-        //send this.socketMessage over socket
-        let variable = (this.sensitivity == "Order") ? "a_x" : "a_y";
-        this.socketMessage[variable] = parseFloat(e.target.value);
-   
-        console.log(this.socketMessage);  
+        let socketMessage = {
+            type:"slider",
+            title: this.sensitivity,
+            value: parseFloat(e.target.value)
+        };
+        
+        let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
+            detail: socketMessage });
+        
+        this.dispatchEvent(userInputEvent);
     } 
 
     _slidersDisabled(newVal , oldVal){
-        console.log("SHITFUCK " , newVal);
         if(newVal == 'selected'){
             this.$.slider.disabled = false;
         } else if(newVal == 'not-selected'){

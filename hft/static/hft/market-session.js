@@ -50,19 +50,21 @@ class MarketSession extends PolymerElement {
         this.playerId = 7
         this.orderBook = new PlayersOrderBook(this.playerId);
         console.log(this.websocketUrl)
-        this.role = 'out';
-        this.addEventListener('message', this.outboundMessage.bind(this))
+        this.role = 'maker';
+        this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
     }
 
     outboundMessage(event) {
-        const messagePayload = event.detail.payload
+        const messagePayload = event.detail
+        console.log("In outbound");
+        console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
         this.$.websocket.send(cleanMessage)
     }
     
     inboundMessage(event) {
-        const messagePayload = event.detail.payload
+        const messagePayload = event.detail
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]

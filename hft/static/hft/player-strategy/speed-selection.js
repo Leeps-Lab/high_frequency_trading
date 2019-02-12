@@ -35,7 +35,6 @@ class SpeedSelection extends PolymerElement {
             </p>
 
             <speed-switch 
-                checked = 'false'
             >
             </speed-switch>
             

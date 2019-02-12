@@ -42,7 +42,23 @@ const ELO = {
                 volume_offer: parseInt
             }
         },
-        outbound: {},
+        outbound: {
+            role_change:{ 
+                type: String,
+                state: String,
+            }, 
+            slider: { 
+                type: String,
+                title: String,
+                value: parseFloat,
+
+            },
+            speed:{ 
+                type: String,
+                state: Boolean,
+            }
+
+        },
     },
     eventHandlers: {
         confirmed: ['_handleExchangeMessage'],

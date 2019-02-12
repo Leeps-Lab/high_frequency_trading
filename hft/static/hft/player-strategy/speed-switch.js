@@ -81,30 +81,35 @@ class SpeedSwitch extends PolymerElement {
     static get properties(){
         return {
             checked: {
-                type: Boolean
-            },
-            socketMessage: {
-                type: Object
-            },
+                type: Boolean,
+                value: false
+            }
         };
     }
         
     constructor(){
         super();  
-        this.socketMessage = {type:"speed"};
     }
+
     ready(){
         super.ready();
-        this.$.speedCheck.addEventListener('click', this.updateState.bind(this));
+        this.$.speedCheck.addEventListener('click', this._updateState.bind(this));
     }
 
-    updateState(){
-   
-        this.socketMessage["state"] = this.checked;
+    _updateState(){
         this.checked = !this.checked;
 
+        let socketMessage = {
+            type:"speed",
+            state: this.checked,
+        };
+        
+        let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
+            detail: socketMessage });
+        
+        this.dispatchEvent(userInputEvent);
         //send this.socketMessage over socket
-        console.log(this.socketMessage);
+
     } 
 
         
