@@ -34,6 +34,24 @@ class Trade_Station(object):
         self.id = id
         self.cash = cash
         self.inventory = {}
+        self.order_tokens = {}  # key = order token and value = 'B' or 'S'
+        self.bid_stocks = {}  # stocks that you are bidding in market  key=order token and value = stock name
+        self.ask_stocks = {}  # same as bid_stocks for key and value, this is needed cause executed messages dont return stock name
+        self.bid_quantity = {}
+        self.ask_quantity = {}
+
+    def summary(self):  # should remove order_tokens when transaction is complete
+        print("id:{} cash:{}\n"
+              " inventory:{} \n"
+              "order_token:{}\n"
+              " bid_stocks{}\n"
+              " ask_stocks{}\n"
+              .format(self.id,
+                      self.cash,
+                      self.inventory,
+                      self.order_tokens,
+                      self.bid_stocks,
+                      self.ask_stocks))
 
     def buy_share(self, share, price, amt):
         if(share not in self.inventory):
@@ -74,170 +92,148 @@ class Trade_Station(object):
                 print("Please try again.")
 
 
+
+
+
+p = configargparse.ArgParser()
+p.add('--port', default=9001)
+p.add('--host', default='127.0.0.1', help="Address of server")
+options, args = p.parse_known_args()
+
+
 def main():
-    John = Trade_Station(1000, 1)
-    # Trade_Station.__init__('John', 1000, 1)
-    John.add_withdraw_cash()
-    print(John.get_id())
-    print(John.get_cash())
-    John.buy_share("APPL", 10, 20)
-    John.buy_share("GOOG", 10, 10)
-    print(John.get_id())
-    print(John.get_cash())
-    inventory = John.get_inventory()
-    for k, v in inventory.items():
-        print(k +' '+ str(v))
+    user = Trade_Station(1000000, 1)
 
-    John.sell_share("GOOG", 10, 3)
-    print(John.get_id())
-    print(John.get_cash())
-    for k, v in inventory.items():
-        print(k +' '+ str(v))
+    log.basicConfig(level=log.DEBUG)
+    log.debug(options)
 
+    async def client():
+        reader, writer = await asyncio.streams.open_connection(
+            options.host,
+            options.port,
+            loop=loop)
 
-#
-# p = configargparse.ArgParser()
-# p.add('--port', default=9001)
-# p.add('--host', default='127.0.0.1', help="Address of server")
-# options, args = p.parse_known_args()
-#
-# global id_list = []
-# def main():
-#
-#     Trade_Station user =  new Trade_Station(10000,)
-#
-#     log.basicConfig(level=log.DEBUG)
-#     log.debug(options)
-#     async def client():
-#         reader, writer = await asyncio.streams.open_connection(
-#             options.host,
-#             options.port,
-#             loop=loop)
-#
-#         async def send(request):
-#             writer.write(bytes(request))
-#             await writer.drain()
-#
-#         async def recv():
-#             try:
-#                 header = (await reader.readexactly(1))
-#             except asyncio.IncompleteReadError:
-#                 log.error('connection terminated without response')
-#                 return None
-#             message_type = OuchServerMessages.lookup_by_header_bytes(header)
-#             try:
-#                 payload = (await reader.readexactly(message_type.payload_size))
-#             except asyncio.IncompleteReadError as err:
-#                 log.error('Connection terminated mid-packet!')
-#                 return None
-#
-#             response_msg = message_type.from_bytes(payload, header=False)
-#             return response_msg
-#
-#     for index in itertools.count():
-#         print("Provide your order in the following format: <><><><>...<>")
-#         # order_token='{:014d}'.format(index).encode('ascii'),
-#
-#         print("<XXX>: stock symbol")
-#         print("<Price_of_exchange>")
-#         print("<Time_in_force> how long you want your order to be on market before it gets cancelled")
-#         print("<Owner_firm>")
-#
-#         try:
-#             message_type = OuchClientMessages.EnterOrder
-#                 order_token='{:014d}'.format(index).encode('ascii'),
-#
-#                 print("B for buy or S for sell")
-#                 buy_sell_input = input()
-#                 buy_sell_indicator = bin(buy_sell_input)
-#
-#                 print("Number_of_shares>: more than 0, less than a million")
-#                 shares = input()
-#                 #shares=randrange(1,10**6-1),
-#
-#                 stock_input = input()
-#
-#                 stock=b'AMAZGOOG',
-#                 price=randrange(1,10**9-100),
-#                 time_in_force=randrange(0,99999),
-#                 firm=b'OUCH',
-#                 request = message_type(
-#                     order_token='{:014d}'.format(index).encode('ascii'),
-#                     buy_sell_indicator=b'B',
-#                     shares=randrange(1,10**6-1),
-#                     stock=b'AMAZGOOG',
-#                     price=randrange(1,10**9-100),
-#                     time_in_force=randrange(0,99999),
-#                     firm=b'OUCH',
-#                     display=b'N',
-#                     capacity=b'O',
-#                     intermarket_sweep_eligibility=b'N',
-#                     minimum_quantity=1,
-#                     cross_type=b'N',
-#                     customer_type=b' ')
-#                 log.info("Sending Ouch message: %s", request)
-#                 await send(request)
-#                 response = await recv()
-#                 log.info("Received response Ouch message: %s:%d", response, len(response))
-#                 await asyncio.sleep(4.0)
-#         # except Exception as e:
-#         #     raise
-#                 writer.close()
-#                 await asyncio.sleep(0.5)
-#             loop = asyncio.get_event_loop()
-#
-#             # creates a client and connects to our server
-#             try:
-#                 loop.run_until_complete(client())
-#             finally:
-#                 loop.close()
-#
-#
-#
-# def buy_sell_input_function():
-#     print("Type B for buy and S for sell:")
-#     buy_sell_input = input()
-#     if(buy_sell_input=="q"):
-#
-#     elif (re.search("B"|"S", buy_sell_input)):
-#         buy_sell_indicator = bin(buy_sell_input)
-#     else:
-#         print("You have mistyped the order type.")
-#         buy_sell_input_function()
-#
-#
-# if __name__ == '__main__':
-#             main()
-def buy_share(self, share, price, amt):
-    if(share not in self.inventory):
-        self.inventory[share] = amt
-    else:
-        self.inventory[share] += amt
-    self.cash -= amt*price
+        async def send(request):
+            writer.write(bytes(request))
+            await writer.drain()
 
-def sell_share(self, share, price, amt):
-    if(share not in self.inventory):
-        #self.inventory[share] = amt
-        print("You do not own these shares")
-    else:
-        self.inventory[share] -= amt
-        self.cash += amt*price
+        async def recv():
+            try:
+                header = (await reader.readexactly(1))
+            except asyncio.IncompleteReadError:
+                log.error('connection terminated without response')
+                return None
+            message_type = OuchServerMessages.lookup_by_header_bytes(header)
+            try:
+                payload = (await reader.readexactly(message_type.payload_size))
+            except asyncio.IncompleteReadError as err:
+                log.error('Connection terminated mid-packet!')
+                return None
 
-# Task 6: Add and Withdraw Cash from Wallet
-def add_withdraw_cash(self):
-    print("Do you want to add or withdraw cash? ")
-    add_or_withdraw = input("Type A for add and W for withdraw. ")
-    while(1):
-        if (add_or_withdraw == 'A'):
-            add = input("How much money do you want to add? ")
-            self.cash += add
-            break;
-        elif (add_or_withdraw == 'B'):
-            sub = input("How much money do you want to withdraw? ")
-            self.cash -= sub
-            break;
-        else:
-            print("Please try again.")
+            response_msg = message_type.from_bytes(payload, header=False)
+            return response_msg
+
+        while True:
+            message_type = OuchClientMessages.EnterOrder
+            buy_sell = ""
+            for index in itertools.count():
+                b_or_sell = random.randint(0, 1)
+                if b_or_sell == 0:
+                    buy_sell = b'B'
+                else:
+                    buy_sell = b'S'
+
+                str_buy_sell = buy_sell.decode('ascii')
+                token = '{:014d}'.format(index).encode('ascii')
+                token = token.decode('ascii')
+                bstock = b'AMAZGOOG'
+                stock = bstock.decode('ascii')
+                price = 1000
+                time_in_force = randrange(0, 99999)
+                firm = b'OUCH'
+
+                user.order_tokens[token] = str_buy_sell
+                if (buy_sell == b'B'):
+                    user.bid_stocks[token] = stock
+                else:
+                    user.ask_stocks[token] = stock
+
+                request = message_type(
+                    order_token='{:014d}'.format(index).encode('ascii'),
+                    buy_sell_indicator = buy_sell,
+                    shares=randrange(100, 5000),
+                    stock=b'AMAZGOOG',
+                    price=1000,
+                    time_in_force=randrange(0, 99999),
+                    firm=b'OUCH',
+                    display=b'N',
+                    capacity=b'O',
+                    intermarket_sweep_eligibility=b'N',
+                    minimum_quantity=1,
+                    cross_type=b'N',
+                    customer_type=b' ')
+                log.info("Sending Ouch message: %s", request)
+                await send(request)
+                response = await recv()
+                log.info("Received response Ouch message: %s:%d", response, len(response))
+
+            # task 3 and 4, parses execute message and updates inventory and cash
+                output = str(response)
+                if output[0] == 'E':
+                    parsed_token = output[18:32]
+                    #cant just take preset list comprehension of this because prices and shares length is varied
+                    cat = output[35:] #find the price and share from searching @
+                    get_price = False
+                    executed_shares = []
+                    executed_price = []
+                    print("output={}".format(output))
+                    print("cat = {}".format(cat))
+                    for i in cat:
+                        if i == '@':
+                            get_price = True
+                        elif i == ':':
+                            break
+                        elif not get_price:
+                            executed_shares.append(i)
+                        else:
+                            executed_price.append(i)
+
+                    executed_shares = int(''.join(map(str,executed_shares)))
+                    executed_price = int(''.join(map(str, executed_price)))
+                    cost = executed_price * executed_shares
+                    print("\nHere is the parsed token:{}\n".format(parsed_token))
+                    print("\nHere are the executed_shares {}\n".format(executed_shares))
+                    print("\nHere are the executed_price {}\n".format(executed_price))
+                    if parsed_token in user.order_tokens and user.order_tokens[parsed_token] == 'B':
+
+                        user.cash -= cost
+                        share_name = [user.bid_stocks[i] for i in user.bid_stocks if i == parsed_token]
+                        print("share_name={}".format(share_name))
+                        user.inventory[share_name[0]] = executed_shares
 
 
-main()
+                    elif parsed_token in user.order_tokens and user.order_tokens[parsed_token] == 'S':
+                        user.cash += cost
+                        share_name = [user.ask_stocks[i] for i in user.ask_stocks if i == parsed_token]
+                        print("share_name={}".format(share_name))
+                        user.inventory[share_name[0]] - executed_shares
+                        if user.inventory[share_name[0]] == 0:
+                            del user.inventory[share_name[0]]
+
+                    user.summary()
+
+                await asyncio.sleep(4.0)
+
+        writer.close()
+        asyncio.sleep(0.5)
+
+    loop = asyncio.get_event_loop()
+# creates a client and connects to our server
+    try:
+        loop.run_until_complete(client())
+    finally:
+        loop.close()
+
+
+if __name__ == '__main__':
+    main()
