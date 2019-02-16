@@ -40,14 +40,6 @@ class Event:
                 outgoing messages: {self.outgoing_messages}
         """.format(self=self)
 
-    @classmethod   
-    def from_websocket_message(cls, *args, **kwargs):
-        raise NotImplementedError()
-
-    @classmethod
-    def from_exchange_message(cls, *args, **kwargs):
-        raise NotImplementedError()
-
 class LEEPSEvent(Event):
 
     @classmethod

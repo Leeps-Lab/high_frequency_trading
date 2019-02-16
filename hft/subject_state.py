@@ -49,6 +49,7 @@ class ELOSubjectState(BaseSubjectState):
 
 class LEEPSInvestorState(BaseSubjectState):
     orderstore_cls = OrderStore
-    __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'market_id')
+    __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'market_id', 'endowment',
+        'inventory', 'id')
     
 

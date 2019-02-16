@@ -81,13 +81,16 @@ def leeps_handle_market_message(event, **kwargs):
     market_id = event.message.get('market_id')
     if market_id is None:
         market_id = event.attachments.get('market_id')
+    fields = utility.kwargs_from_event(event)
+    if event.event_type == 'A' and fields['player_id'] != 0:
+        return event
     market_key = get_cache_key(market_id, 'market')
     market_data = cache.get(market_key)
     if market_data is None:
         raise Exception('market key: %s returned none, event: %s' % (market_key,
             event))
     market, version = market_data['market'], market_data['version']
-    fields = utility.kwargs_from_event(event)
+    
     attachments = market.receive(event.event_type, **fields)
     if attachments:
         event.attachments.update(attachments)

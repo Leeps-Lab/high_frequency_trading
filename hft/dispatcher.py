@@ -48,7 +48,7 @@ class LEEPSDispatcher(Dispatcher):
 
     topics = {
         'S': ['market'],
-        'A': ['trader'],
+        'A': ['trader', 'market'],
         'U': ['trader'],
         'C': ['trader'],
         'E': ['trader', 'market'],

@@ -8,7 +8,7 @@ from .subject_state import LEEPSInvestorState
 from .orderstore import OrderStore
 from .utility import format_message, MIN_BID, MAX_ASK, configure_model
 from .cache import initialize_player_cache
-from .equations import OrderImbalance
+from .equations import OrderImbalance, ReferencePrice
 log = logging.getLogger(__name__)
 
 class MarketFactory:
@@ -152,7 +152,8 @@ class BCSMarket(BaseMarket):
         host, port = self.exchange_address
         if self.investor is None:
             fields = {'exchange_host': host, 'exchange_port': port, 'market_id':
-                self.id, 'orderstore': OrderStore(int(self.id), 0)}
+                self.id, 'orderstore': OrderStore(int(self.id), 0), 'id': 0, 
+                'endowment': 0, 'inventory': 0}
             investor_state = LEEPSInvestorState(**fields)
             self.investor = LEEPSInvestor(investor_state)
         self.investor.invest(**kwargs)
@@ -169,7 +170,8 @@ min_bid = 0
 class ELOMarket(BCSMarket):
 
     market_events_dispatch = {
-        'E':'order_imbalance_change',
+        'E':'handle_executed',
+        'A': 'investor_order_accepted',
         'role_change': 'role_change',
         'fundamental_value_jumps': 'fundamental_price_change',
         'investor_arrivals': 'noise_trader_arrival',
@@ -189,8 +191,13 @@ class ELOMarket(BCSMarket):
         self.best_offer = max_ask
         self.volume_at_best_offer = 0
         self.order_imbalance = 0
+        self.reference_price = ReferencePrice()
         self.role_groups = {'maker': [], 'maker_basic':[], 'maker_2': [], 
             'sniper':[], 'taker': [], 'out': []}
+
+    def start_trade(self, *args, **kwargs):
+        super().start_trade(*args, **kwargs)
+        self.reference_price.reset()
 
     def role_change(self, **kwargs):
         player_id = kwargs['player_id']
@@ -223,11 +230,35 @@ class ELOMarket(BCSMarket):
     #     if old_role in self.role_groups:
     #         if player_id in self.role_groups[old_role]:
     #             self.role_groups[old_role].remove(player_id)
+
+    def investor_order_accepted(self, **kwargs):
+        assert kwargs['player_id'] == 0, 'received non-investor accept'
+        self.investor.accepted(**kwargs)
+        while self.investor.outgoing_messages:
+            message = self.investor.outgoing_messages.popleft()
+            self.outgoing_messages.append(message)
+
+    def handle_executed(self, **kwargs):
+        player_id = kwargs['player_id']
+        if player_id == 0:
+            self.investor.executed(**kwargs)
+            while self.investor.outgoing_messages:
+                message = self.investor.outgoing_messages.popleft()
+                self.outgoing_messages.append(message)
+        # self._reference_price_change(**kwargs)
+        self._order_imbalance_change(**kwargs)
+
+    def _reference_price_change(self, reference_price=ReferencePrice(), **kwargs):
+        price = kwargs['price']
+        reference_price = self.reference_price.step(price)
+        broadcast_content = {'type': 'reference_price', 'value': reference_price}
+        self.broadcast_to_subscribers(broadcast_content)
     
-    def order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
+    def _order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
         current_order_imbalance = order_imbalance.step(buy_sell_indicator)
         if current_order_imbalance != self.order_imbalance:
+            current_order_imbalance = round(current_order_imbalance, 2)
             self.order_imbalance = current_order_imbalance
             maker_ids = self.role_groups['maker_2'] + self.role_groups['taker']
             message_content = {
@@ -238,7 +269,10 @@ class ELOMarket(BCSMarket):
                 'subsession_id': self.subsession_id}
             internal_message = format_message('derived_event', **message_content)
             self.outgoing_messages.append(internal_message)
-
+            broadcast_content = {'type': 'order_imbalance', 
+                'value': current_order_imbalance}
+            self.broadcast_to_subscribers(broadcast_content)
+        
     def bbo_change(self, **kwargs):
         self.volume_at_best_bid = kwargs['volume_at_best_bid']
         self.volume_at_best_offer = kwargs['volume_at_best_ask']

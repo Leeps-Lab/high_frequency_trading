@@ -333,7 +333,7 @@ class BCSInvestor(BCSOut):
         self.outgoing_messages.append(internal_message)
 
 
-class LEEPSInvestor(BCSOut):
+class LEEPSInvestor(BCSTrader):
 
     def invest(self, **kwargs):
         host, port = self.exchange_host, self.exchange_port
@@ -343,7 +343,20 @@ class LEEPSInvestor(BCSOut):
                 0., 'order_info': order_info}
         internal_message = format_message('exchange', **message_content)
         self.outgoing_messages.append(internal_message)
-       
+    
+    def accepted(self, **kwargs):
+        super().accepted(**kwargs)
+
+    def executed(self, **kwargs):
+        order_info =  self.orderstore.confirm('executed', **kwargs)
+        buy_sell_indicator = order_info['buy_sell_indicator']
+        price = order_info['price']
+        order_token = kwargs['order_token']
+        message_content = { 'type': 'executed', 'price': price, 
+            'order_token': order_token, 'endowment': self.endowment,
+            'inventory': self.orderstore.inventory}
+        self.broadcast(**message_content)
+        return order_info
 
 
 Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')

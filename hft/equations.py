@@ -32,6 +32,7 @@ class OrderImbalance:
     def __init__(self):
         self.order_imbalance = 0
         self.latest_execution_time = None
+
     def step(self, buy_sell_indicator, constant=1):
         now = time.time()
         if self.latest_execution_time is None:
@@ -42,6 +43,32 @@ class OrderImbalance:
             offset + self.order_imbalance * math.e ** (-1 * constant * time_since_last_execution) 
         )
         self.latest_execution_time = now
+        self.order_imbalance = order_imbalance
+        return order_imbalance   
+
+
+class ReferencePrice:
+
+    discount_rate= math.log(2)
+    session_length = 240 
+
+    def __init__(self):
+        self.reference_price = 0
+        self.sum_weights = 0
+        self.reference_price = 0
+        self.latest_execution_time = None
+    
+    def reset(self):
+        self.latest_execution_time = time.time()
+
+    def step(self, price):
+        now = time.time()
+        weight = e ** ((now - self.latest_execution_time) * self.discount_rate)
+        self.sum_weights += weight
+        normal_weight = weight / self.sum_weights
+        weighted_price = price * normal_weight
+        self.reference_price
+        self.reference_price = now
         self.order_imbalance = order_imbalance
         return order_imbalance   
 

@@ -9,6 +9,8 @@ log = logging.getLogger(__name__)
 message_schemas = {
     'bbo': {'type': str, 'market_id': int, 'best_bid':int, 'best_offer':int, 
         'volume_bid': int, 'volume_offer': int},
+    'reference_price': {'type': str, 'market_id': int, 'value': int},
+    'order_imbalance': {'type': str, 'market_id': int, 'value': float},
     'confirmed': {'type': str, 'player_id': int, 'order_token': str, 'price': int},
     'replaced': {'type': str, 'player_id': int,  'price': int, 'order_token': str, 
         'old_token': str, 'old_price': int},
