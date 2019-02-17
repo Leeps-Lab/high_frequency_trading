@@ -87,7 +87,8 @@ class OrderStore:
         try:
             order_info = handler(**kwargs)
         except KeyError as e:
-            log.exception(e)
+            log.exception('error during orderstore operation: "%s", orderstore: %s', 
+                handler_name, self, e)
         else:
             return order_info
 

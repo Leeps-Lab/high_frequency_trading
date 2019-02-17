@@ -8,8 +8,8 @@ def hft_trader_checkpoint(player_id, subject_state, event):
     player_record = HFTPlayerStateRecord().from_event_and_player(event, player)
     player_record.save()
 
-def hft_event_checkpoint(event):
-    event_record = HFTEventRecord().from_event(event)
+def hft_event_checkpoint(event_dict):
+    event_record = HFTEventRecord().from_event(event_dict)
     event_record.save()
 
 def hft_investor_checkpoint(event):

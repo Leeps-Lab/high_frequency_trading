@@ -31,7 +31,7 @@ class TradeSession:
     def __init__(self, subsession, session_format):
         self.session_format = session_format
         self.subsession = subsession
-        self.id = str(subsession.code)
+        self.subsession_id = str(subsession.id)
         self.is_trading = False
         self.market_state = {}
         self.market_exchange_pairs = {}
@@ -48,7 +48,6 @@ class TradeSession:
 
     def create_market(self, exchange_host, exchange_port):
         market_cls = self.market_factory.get_market(self.session_format)
-        print(market_cls)
         market = market_cls(self.id)
         market.add_exchange(exchange_host, exchange_port)
         self.market_state[market.id] = False

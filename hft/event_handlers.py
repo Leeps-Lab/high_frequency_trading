@@ -40,27 +40,26 @@ class HandlerFactory:
 
 def leeps_handle_trader_message(event, exchange_format='CDA', session_format='elo', 
         **kwargs):
-    player_id = event.attachments.get('player_id')
+    player_id = event.player_id
+    # player_id = event.attachments.get('player_id')
+    # if player_id is None:
+    #     player_id = event.message.get('player_id')   
     if player_id is None:
-        player_id = event.message.get('player_id')   
-        if player_id is None:
-            raise Exception('player id is missing in event %s.' % event)
+        raise Exception('player id is missing in event %s.' % event)
     if player_id == 0:
         event.attachments['note'] = 'investor'
-        hft_background_task(checkpoints.hft_investor_checkpoint, event)
+        # hft_background_task(checkpoints.hft_investor_checkpoint, event)
         return event
     key = get_cache_key(player_id ,'trader')
     trader_data = cache.get(key)
     if trader_data is None:
         raise ValueError('trader key: %s returned none.' % key)
     if event.event_type == 'role_change':
-        trader_data['role'] = event.message.get('state')
+        trader_data['role'] = event.message.state
     role_name, subject_state = trader_data['role'], trader_data['subject_state']
     TraderFactory = trader_factory_map[session_format][exchange_format]
     trader = TraderFactory.get_trader(role_name, subject_state)
-    fields = event.message.copy()
-    fields.update(event.attachments)
-    trader.receive(event.event_type, **fields)
+    trader.receive(event.event_type, **event.to_kwargs())
     message_queue = trader.outgoing_messages.copy()
     trader.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
@@ -73,25 +72,21 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='el
     except ValueError:
         leeps_handle_trader_message(event, **kwargs)
     else:
-        hft_background_task(checkpoints.hft_trader_checkpoint, player_id, 
-            trader_state, event)  
+        # hft_background_task(checkpoints.hft_trader_checkpoint, player_id, 
+        #     trader_state, event)  
         return event
 
 def leeps_handle_market_message(event, **kwargs):
-    market_id = event.message.get('market_id')
-    if market_id is None:
-        market_id = event.attachments.get('market_id')
-    fields = utility.kwargs_from_event(event)
-    if event.event_type == 'A' and fields['player_id'] != 0:
+    # fields = utility.kwargs_from_event(event)
+    if event.event_type == 'A' and event.player_id!= 0:
         return event
-    market_key = get_cache_key(market_id, 'market')
+    market_key = get_cache_key(event.market_id, 'market')
     market_data = cache.get(market_key)
     if market_data is None:
         raise Exception('market key: %s returned none, event: %s' % (market_key,
             event))
-    market, version = market_data['market'], market_data['version']
-    
-    attachments = market.receive(event.event_type, **fields)
+    market, version = market_data['market'], market_data['version']  
+    attachments = market.receive(event.event_type, **event.to_kwargs())
     if attachments:
         event.attachments.update(attachments)
     message_queue = market.outgoing_messages.copy()
@@ -110,14 +105,12 @@ def leeps_handle_market_message(event, **kwargs):
 
 @atomic
 def leeps_handle_session_events(event, **kwargs):
-    message_type, market_id = event.event_type, event.message['market_id']
-    subsession_id = event.message['subsession_id']
-    session_key = get_cache_key(subsession_id, 'trade_session')
+    session_key = get_cache_key(event.subsession_id, 'trade_session')
     trade_session = cache.get(session_key)
     if trade_session.id not in SUBPROCESSES:
         SUBPROCESSES[trade_session.id] = {}
     trade_session.clients = SUBPROCESSES[trade_session.id]      
-    trade_session.receive(message_type, market_id)
+    trade_session.receive(event.event_type, event.market_id)
     SUBPROCESSES[trade_session.id] = trade_session.clients
     trade_session.clients = {}
     message_queue = trade_session.outgoing_messages.copy()
@@ -126,42 +119,20 @@ def leeps_handle_session_events(event, **kwargs):
     cache.set(session_key, trade_session, timeout=cache_timeout)
     return event
 
-integer_fields = ('price', 'time_in_force')
-def noise_trader_arrival(event, **kwargs):
-    event.attachments['market_id'] = str(event.message['market_id'])
-    event.message['price'] = int(event.message['price'] )
-    event.message['time_in_force'] = int(event.message['time_in_force'])
-    event = leeps_handle_market_message(event, **kwargs)
-    return event
-
 def marketwide_events(event, **kwargs):
-    market_id = event.message['market_id']
-    event.attachments['market_id'] = market_id
-    traders_in_market = get_trader_ids_by_market(market_id)
+    traders_in_market = get_trader_ids_by_market(event.market_id)
     for trader_id in traders_in_market:
-        event.attachments['player_id'] = trader_id
+        event.player_id = trader_id
         event = leeps_handle_trader_message(event, **kwargs)
     shuffle(event.outgoing_messages)
     return event
 
 def role_based_events(event, **kwargs):
-    market_id = event.message['market_id']
-    event.attachments['market_id'] = market_id
-    makers = event.message['maker_ids']
-    for trader_id in makers:
-        event.attachments['player_id'] = trader_id
-        event = leeps_handle_trader_message(event, **kwargs)
-    shuffle(event.outgoing_messages)
+    makers = event.message.maker_ids
+    print('makers', makers)
+    if makers:
+        for trader_id in makers:
+            event.player_id = trader_id
+            event = leeps_handle_trader_message(event, **kwargs)
+        shuffle(event.outgoing_messages)
     return event
-
-
-# def fundamental_price_change(event, **kwargs):
-#     market_id = int(event.message['market_id'])
-#     all_players_data = get_players_by_market(market_id)
-#     for player_data in all_players_data:
-#         player = player_data['model']
-#         event.message['player_id'] = player.id
-#         event = leeps_handle_trader_message(event, **kwargs)
-#     shuffle(event.outgoing_messages)
-#     event = leeps_handle_market_message(event, **kwargs)
-#     return event

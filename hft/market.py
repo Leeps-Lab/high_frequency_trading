@@ -9,6 +9,9 @@ from .orderstore import OrderStore
 from .utility import format_message, MIN_BID, MAX_ASK, configure_model
 from .cache import initialize_player_cache
 from .equations import OrderImbalance, ReferencePrice
+from .market_components.market_role import MarketRoleGroup
+from .utility import nanoseconds_since_midnight
+
 log = logging.getLogger(__name__)
 
 class MarketFactory:
@@ -136,11 +139,11 @@ class BCSMarket(BaseMarket):
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
 
-    def role_change(self, new_role:str, old_role:str, **kwargs):
-        if new_role not in self.roles:
-            raise KeyError('invalid role: %s' % new_role)
-        self.role_counts[new_role] += 1
-        self.role_counts[old_role] -= 1
+    # def role_change(self, new_role:str, old_role:str, **kwargs):
+    #     if new_role not in self.roles:
+    #         raise KeyError('invalid role: %s' % new_role)
+    #     self.role_counts[new_role] += 1
+    #     self.role_counts[old_role] -= 1
 
     def fundamental_price_change(self, **kwargs):
         new_fp = int(kwargs['new_fundamental'])
@@ -152,7 +155,7 @@ class BCSMarket(BaseMarket):
         host, port = self.exchange_address
         if self.investor is None:
             fields = {'exchange_host': host, 'exchange_port': port, 'market_id':
-                self.id, 'orderstore': OrderStore(int(self.id), 0), 'id': 0, 
+                self.id, 'orderstore': OrderStore(0, 0), 'id': 0, 
                 'endowment': 0, 'inventory': 0}
             investor_state = LEEPSInvestorState(**fields)
             self.investor = LEEPSInvestor(investor_state)
@@ -192,33 +195,45 @@ class ELOMarket(BCSMarket):
         self.volume_at_best_offer = 0
         self.order_imbalance = 0
         self.reference_price = ReferencePrice()
-        self.role_groups = {'maker': [], 'maker_basic':[], 'maker_2': [], 
-            'sniper':[], 'taker': [], 'out': []}
+        self.role_group = MarketRoleGroup('maker_basic', 'maker_2', 'taker', 'out')
 
     def start_trade(self, *args, **kwargs):
         super().start_trade(*args, **kwargs)
         self.reference_price.reset()
-
-    def role_change(self, **kwargs):
+    
+    def role_change(self, *args, **kwargs):
         player_id = kwargs['player_id']
         new_role = kwargs['state']
-        if new_role not in self.role_groups:
-            raise KeyError('invalid role: %s for market type: %s' % (new_role, 
-                self.__class__.__name__))
-        old_role = None
-        for k, v in self.role_groups.items():
-            if player_id in v:
-                old_role = k
-                break
-        if old_role:
-            self.role_groups[old_role].remove(player_id)
-        self.role_groups[new_role].append(player_id)
+        timestamp = nanoseconds_since_midnight()
+        self.role_group.update(timestamp, player_id, new_role)
         if new_role in ('maker_basic', 'maker_2', 'taker'):
             attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
                 'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
                 self.volume_at_best_bid, 'volume_at_best_ask': 
                 self.volume_at_best_offer}
             self.attachments_for_observers.update({'role_change':attached})
+        print(self.role_group)
+    
+    # def role_change(self, **kwargs):
+    #     player_id = kwargs['player_id']
+    #     new_role = kwargs['state']
+    #     if new_role not in self.role_groups:
+    #         raise KeyError('invalid role: %s for market type: %s' % (new_role, 
+    #             self.__class__.__name__))
+    #     old_role = None
+    #     for k, v in self.role_groups.items():
+    #         if player_id in v:
+    #             old_role = k
+    #             break
+    #     if old_role:
+    #         self.role_groups[old_role].remove(player_id)
+    #     self.role_groups[new_role].append(player_id)
+    #     if new_role in ('maker_basic', 'maker_2', 'taker'):
+    #         attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
+    #             'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
+    #             self.volume_at_best_bid, 'volume_at_best_ask': 
+    #             self.volume_at_best_offer}
+    #         self.attachments_for_observers.update({'role_change':attached})
 
     # def role_change(self, **kwargs):
     #     player_id = kwargs['player_id']
@@ -260,7 +275,7 @@ class ELOMarket(BCSMarket):
         if current_order_imbalance != self.order_imbalance:
             current_order_imbalance = round(current_order_imbalance, 2)
             self.order_imbalance = current_order_imbalance
-            maker_ids = self.role_groups['maker_2'] + self.role_groups['taker']
+            maker_ids = self.role_group['maker_2', 'taker']
             message_content = {
                 'type':'order_imbalance_change', 
                 'order_imbalance': current_order_imbalance, 
@@ -277,11 +292,10 @@ class ELOMarket(BCSMarket):
         self.volume_at_best_bid = kwargs['volume_at_best_bid']
         self.volume_at_best_offer = kwargs['volume_at_best_ask']
         self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
-        makers_ids = (self.role_groups['maker_basic'] + self.role_groups['maker_2'] +
-            self.role_groups['taker'])
+        maker_ids = self.role_group['maker_basic', 'maker_2', 'taker']
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
             'market_id': self.id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
-            'maker_ids': makers_ids, 'volume_at_best_bid': self.volume_at_best_bid,
+            'maker_ids': maker_ids, 'volume_at_best_bid': self.volume_at_best_bid,
             'volume_at_best_ask': self.volume_at_best_offer, 'subsession_id': self.subsession_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)

@@ -19,12 +19,12 @@ def price_grid(price, gridsize=1e4):
     """
     the grid
     """
-    price_in_range = price
-    if price < min_bid:
-        price_in_range = min_bid
-    elif price > max_ask:
-        price_in_range = max_ask
-    grid_formula = round((price_in_range - min_bid) / gridsize)
+    integer_price = int(price)
+    if integer_price < min_bid:
+        integer_price = min_bid
+    elif integer_price > max_ask:
+        integer_price = max_ask
+    grid_formula = round((integer_price - min_bid) / gridsize)
     grid_price = int(grid_formula * gridsize)
     return grid_price
 

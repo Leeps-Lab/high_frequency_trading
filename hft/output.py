@@ -19,15 +19,14 @@ class HFTPlayerStateRecord(Model):
     bid = models.IntegerField(blank=True)
     offer = models.IntegerField(blank=True)
 
-    def from_event_and_player(self, event, player):
+    def from_event_and_player(self, event_dict, player):
         for field in ('role', 'market_id', 'speed_on', 'inventory', 'bid', 
             'offer', 'orderstore'):
             setattr(self, field, getattr(player, field))  
-        self.trigger_event_type = str(event.event_type)  
-        self.event_no = int(event.reference_no)
-        self.session_id = int(player.session.id)
-        self.subsession_id = str(player.subsession.id)
         self.player_id = int(player.id)
+        self.trigger_event_type = str(event_dict['event'])  
+        self.event_no = int(event_dict['reference_no'])
+        self.subsession_id = str(event_dict['subsession_id'])
         return self
 
 class HFTEventRecord(Model):
@@ -42,15 +41,14 @@ class HFTEventRecord(Model):
     attachments = models.StringField()
     outgoing_messages = models.StringField()
 
-    def from_event(self, event):
-        self.subsession_id = str(event.attachments['subsession_id'])
-        self.market_id = str(event.attachments['market_id'])
-        self.event_no = int(event.reference_no)
-        self.event_type = str(event.event_type)
-        self.event_source = str(event.event_source)
-        self.original_message = str(event.message)
-        self.attachments = str(event.attachments)
-        self.outgoing_messages = str(event.outgoing_messages)
+    def from_event(self, event_dict):
+        self.subsession_id = str(event_dict['subsession_id'])
+        self.market_id = str(event_dict['market_id'])
+        self.event_no = int(event_dict['reference_no'])
+        self.event_type = str(event_dict['event_type'])
+        self.event_source = str(event_dict['event_source'])
+        self.all_keys = str(event_dict)
+        self.outgoing_messages = str(event_dict['outgoing_messages'])
         return self
 
 
@@ -66,19 +64,19 @@ class HFTInvestorRecord(Model):
     price = models.IntegerField()
 
     def from_event(self, event):
-        self.subsession_id = str(event.attachments['subsession_id'])
-        self.market_id = str(event.attachments['market_id'])
+        self.subsession_id = str(event_dict['subsession_id'])
+        self.market_id = str(event_dict['market_id'])       
         self.status = event.event_type
-        self.order_token = event.message['order_token']
-        if 'buy_sell_indicator' in event.message:
-            self.buy_sell_indicator = event.message['buy_sell_indicator']
+        self.order_token = event.message.data.order_token
+        if 'buy_sell_indicator' in event.message.data:
+            self.buy_sell_indicator = event.message.data.buy_sell_indicator
         else:
-            self.buy_sell_indicator = event.message['order_token'][4]
+            self.buy_sell_indicator = event.message.data.order_token[4]
         if 'price' in event.message:
-            self.price = event.message['price']
+            self.price = event.message.data.price
         else:
-            self.price = event.message['execution_price']
-        self.exchange_timestamp = event.message['timestamp']
+            self.price = event.message.data.execution_price
+        self.exchange_timestamp = event.message.data.timestamp
         return self
 
 
