@@ -81,17 +81,9 @@ def scale_configs(session_format, session_configs):
 
 
         
-def configure_model(model, session_format:dict, session_configs:dict):
-    def validate_model(model):
-        if isinstance(model, BasePlayer):
-            return 'player'
-        elif isinstance(model, BaseSubsession):
-            return 'subsession'
-        else:
-            raise ValueError('invalid model %s' % model.__class__.__name__)
-    model_type = validate_model(model)
+def configure_model_for_market(model_name, model, session_format:dict, session_configs:dict):
     market_settings = market_environments.environments[session_format]
-    mapping = market_settings.model_configuration[model_type]
+    mapping = market_settings.model_configuration[model_name]
     for k, v in mapping.items():
         field_value = session_configs[k]
         try:

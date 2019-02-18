@@ -30,7 +30,7 @@ class HandlerFactory:
         elif handler_type == 'trade_session':
             return leeps_handle_session_events
         elif handler_type == 'noise_trader_arrival':
-            return noise_trader_arrival
+            return leeps_handle_investor_event
         elif handler_type == 'marketwide_events':
             return marketwide_events
         elif handler_type == 'role_based_events':
@@ -47,9 +47,9 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='el
     if player_id is None:
         raise Exception('player id is missing in event %s.' % event)
     if player_id == 0:
-        event.attachments['note'] = 'investor'
+        return _handle_investors(event)
+        # event.attachments['note'] = 'investor'
         # hft_background_task(checkpoints.hft_investor_checkpoint, event)
-        return event
     key = get_cache_key(player_id ,'trader')
     trader_data = cache.get(key)
     if trader_data is None:
@@ -103,15 +103,28 @@ def leeps_handle_market_message(event, **kwargs):
     else:
         return event
 
+def _handle_investors(event):
+    key = get_cache_key(event.player_id, 'investor', market_id=event.market_id)
+    investor = cache.get(key)
+    if investor is None:
+        raise ValueError('investor key: %s returned none.' % key)
+    investor.receive(event.event_type, **event.to_kwargs())
+    message_queue = investor.outgoing_messages.copy()
+    investor.outgoing_messages.clear()
+    event.outgoing_messages.extend(message_queue)
+    cache.set(key, investor)
+    return event
+
 @atomic
 def leeps_handle_session_events(event, **kwargs):
     session_key = get_cache_key(event.subsession_id, 'trade_session')
     trade_session = cache.get(session_key)
-    if trade_session.id not in SUBPROCESSES:
-        SUBPROCESSES[trade_session.id] = {}
-    trade_session.clients = SUBPROCESSES[trade_session.id]      
+    subsession_id = trade_session.subsession_id
+    if subsession_id not in SUBPROCESSES:
+        SUBPROCESSES[subsession_id] = {}
+    trade_session.clients = SUBPROCESSES[subsession_id]      
     trade_session.receive(event.event_type, event.market_id)
-    SUBPROCESSES[trade_session.id] = trade_session.clients
+    SUBPROCESSES[subsession_id] = trade_session.clients
     trade_session.clients = {}
     message_queue = trade_session.outgoing_messages.copy()
     trade_session.outgoing_messages.clear()
@@ -129,7 +142,6 @@ def marketwide_events(event, **kwargs):
 
 def role_based_events(event, **kwargs):
     makers = event.message.maker_ids
-    print('makers', makers)
     if makers:
         for trader_id in makers:
             event.player_id = trader_id

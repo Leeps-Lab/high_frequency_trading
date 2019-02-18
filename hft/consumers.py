@@ -39,7 +39,8 @@ class InvestorConsumer(JsonWebsocketConsumer):
     @timer
     def raw_receive(self, message, subsession_id):
         try:
-            LEEPSDispatcher.dispatch('websocket', message, subsession_id=subsession_id)
+            LEEPSDispatcher.dispatch('websocket', message, subsession_id=subsession_id,
+                player_id=0)
         except Exception as e:
             log.exception('error processing investor arrival, ignoring. %s:%s', message.content, e)
 

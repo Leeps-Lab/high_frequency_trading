@@ -3,10 +3,8 @@ import logging
 from collections import deque
 import itertools
 from .subject_state import SubjectStateFactory
-from .trader import LEEPSInvestor
-from .subject_state import LEEPSInvestorState
 from .orderstore import OrderStore
-from .utility import format_message, MIN_BID, MAX_ASK, configure_model
+from .utility import format_message, MIN_BID, MAX_ASK
 from .cache import initialize_player_cache
 from .equations import OrderImbalance, ReferencePrice
 from .market_components.market_role import MarketRoleGroup
@@ -28,43 +26,41 @@ class BaseMarket:
     market_events_dispatch = {}
     _ids = itertools.count(1,1)
     state_factory = SubjectStateFactory
+    session_format = None
 
-    def __init__(self, trade_session_id, **kwargs):
-        self.trade_session = trade_session_id
-        self.session_format = None
+    def __init__(self, subsession_id, exchange_host, exchange_port, **kwargs):
+        self.subsession_id = subsession_id
+        self.exchange_address = (exchange_host, exchange_port)
         self.id = str(next(self._ids))
         self.is_trading = False
         self.ready_to_trade= False
-        self.exchange_address = None
-        self.subscriber_groups = {}
+        self.subscribers = {}
         self.players_in_market = {}
 
         self.attachments_for_observers = {}
         self.outgoing_messages = deque()
-    
- 
-    def add_exchange(self, host, port):
-        self.exchange_address = (host, port)
-    
-    def register_session(self, subsession_id):
-        self.subsession_id = subsession_id
-    
-    def register_group(self, group, session_configs):
-        self.subscriber_groups[group.id] = []
-        session_format = self.session_format
-        state_cls = self.state_factory.get_state(session_format)
-        exchange_host, exchange_port = self.exchange_address
-        for player in group.get_players():
-            self.subscriber_groups[group.id].append(player.id)
-            self.players_in_market[player.id] = False
-            player.exchange_host = exchange_host
-            player.exchange_port = exchange_port
-            player.market_id = self.id
-            player = configure_model(player, session_format, 
-                session_configs)
-            player.save()
-            trader_state = state_cls.from_otree_player(player)
-            initialize_player_cache(player, trader_state)
+
+    def register_player(self, group_id, player_id):
+        if group_id not in self.subscribers.keys():
+            self.subscribers[group_id] = []
+        self.subscribers[group_id].append(player_id)
+        self.players_in_market[player_id] = False
+   
+    # def register_group(self, group, session_configs):
+    #     self.subscriber_groups[group.id] = []
+    #     state_cls = self.state_factory.get_state(self.session_format)
+    #     exchange_host, exchange_port = self.exchange_address
+    #     for player in group.get_players():
+    #         self.subscriber_groups[group.id].append(player.id)
+    #         self.players_in_market[player.id] = False
+    #         player.exchange_host = exchange_host
+    #         player.exchange_port = exchange_port
+    #         player.market_id = self.id
+    #         player = configure_model(player, session_format, 
+    #             session_configs)
+    #         player.save()
+    #         trader_state = state_cls.from_otree_player(player)
+    #         initialize_player_cache(player, trader_state)
     
     def receive(self, event_type, *args, **kwargs):
         if event_type not in self.market_events_dispatch:
@@ -151,18 +147,18 @@ class BCSMarket(BaseMarket):
         broadcast_info = ('fundamental_price_change', {'new_price': new_fp})
         self.broadcast_to_subscribers(broadcast_info)   
     
-    def noise_trader_arrival(self, **kwargs):
-        host, port = self.exchange_address
-        if self.investor is None:
-            fields = {'exchange_host': host, 'exchange_port': port, 'market_id':
-                self.id, 'orderstore': OrderStore(0, 0), 'id': 0, 
-                'endowment': 0, 'inventory': 0}
-            investor_state = LEEPSInvestorState(**fields)
-            self.investor = LEEPSInvestor(investor_state)
-        self.investor.invest(**kwargs)
-        while self.investor.outgoing_messages:
-            message = self.investor.outgoing_messages.popleft()
-            self.outgoing_messages.append(message)
+    # def noise_trader_arrival(self, **kwargs):
+    #     host, port = self.exchange_address
+    #     if self.investor is None:
+    #         fields = {'exchange_host': host, 'exchange_port': port, 'market_id':
+    #             self.id, 'orderstore': OrderStore(0, 0), 'id': 0, 
+    #             'endowment': 0, 'inventory': 0}
+    #         investor_state = LEEPSInvestorState(**fields)
+    #         self.investor = LEEPSInvestor(investor_state)
+    #     self.investor.invest(**kwargs)
+    #     while self.investor.outgoing_messages:
+    #         message = self.investor.outgoing_messages.popleft()
+    #         self.outgoing_messages.append(message)
            
     def system_event(self, **kwargs):
         pass
@@ -171,13 +167,11 @@ max_ask = 2147483647
 min_bid = 0
 
 class ELOMarket(BCSMarket):
+    session_format = 'elo'
 
     market_events_dispatch = {
-        'E':'handle_executed',
-        'A': 'investor_order_accepted',
+        'E':'order_imbalance_change',
         'role_change': 'role_change',
-        'fundamental_value_jumps': 'fundamental_price_change',
-        'investor_arrivals': 'noise_trader_arrival',
         'player_ready': 'player_ready',
         'advance_me': 'player_reached_session_end',
         'S': 'system_event',
@@ -246,22 +240,22 @@ class ELOMarket(BCSMarket):
     #         if player_id in self.role_groups[old_role]:
     #             self.role_groups[old_role].remove(player_id)
 
-    def investor_order_accepted(self, **kwargs):
-        assert kwargs['player_id'] == 0, 'received non-investor accept'
-        self.investor.accepted(**kwargs)
-        while self.investor.outgoing_messages:
-            message = self.investor.outgoing_messages.popleft()
-            self.outgoing_messages.append(message)
+    # def investor_order_accepted(self, **kwargs):
+    #     assert kwargs['player_id'] == 0, 'received non-investor accept'
+    #     self.investor.accepted(**kwargs)
+    #     while self.investor.outgoing_messages:
+    #         message = self.investor.outgoing_messages.popleft()
+    #         self.outgoing_messages.append(message)
 
-    def handle_executed(self, **kwargs):
-        player_id = kwargs['player_id']
-        if player_id == 0:
-            self.investor.executed(**kwargs)
-            while self.investor.outgoing_messages:
-                message = self.investor.outgoing_messages.popleft()
-                self.outgoing_messages.append(message)
+    # def handle_executed(self, **kwargs):
+    #     player_id = kwargs['player_id']
+    #     if player_id == 0:
+    #         self.investor.executed(**kwargs)
+    #         while self.investor.outgoing_messages:
+    #             message = self.investor.outgoing_messages.popleft()
+    #             self.outgoing_messages.append(message)
         # self._reference_price_change(**kwargs)
-        self._order_imbalance_change(**kwargs)
+        # self._order_imbalance_change(**kwargs)
 
     def _reference_price_change(self, reference_price=ReferencePrice(), **kwargs):
         price = kwargs['price']
@@ -269,7 +263,7 @@ class ELOMarket(BCSMarket):
         broadcast_content = {'type': 'reference_price', 'value': reference_price}
         self.broadcast_to_subscribers(broadcast_content)
     
-    def _order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
+    def order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
         current_order_imbalance = order_imbalance.step(buy_sell_indicator)
         if current_order_imbalance != self.order_imbalance:

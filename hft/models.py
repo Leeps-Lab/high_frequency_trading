@@ -22,7 +22,8 @@ from .market import MarketFactory
 from .subject_state import SubjectStateFactory
 from .exchange import send_exchange
 from .cache import (initialize_market_cache, initialize_player_cache, initialize_session_cache,
-    get_cache_key, write_to_cache_with_version)
+    initialize_investor_cache, get_cache_key, write_to_cache_with_version)
+from .investor import InvestorFactory
 
 from . import market_environments
 
@@ -55,6 +56,7 @@ class Subsession(BaseSubsession):
             trade_session = trade_session_cls(subsession, session_format)
             environment = market_environments.environments[session_format]
             for event_type in environment.exogenous_events:
+                print(self.session.config)
                 filename  = self.session.config[event_type].pop(0)
                 trade_session.register_exogenous_event(event_type, filename)
             return trade_session
@@ -68,19 +70,33 @@ class Subsession(BaseSubsession):
         session_configs = self.session.config
         session_format = session_configs['environment']
         trade_session = create_trade_session(self, session_format)
-        self.session.vars['trade_sessions'][self.id] = trade_session.id
+        self.session.vars['trade_sessions'][self.id] = trade_session.subsession_id
         exchange_format = session_configs['auction_format']
         exchange_host = session_configs['exchange_host']
-        exchange_ports = copy.deepcopy(utility.available_exchange_ports)
+        all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         for group in self.get_groups():
-            exchange_port = exchange_ports[exchange_format].pop()
+            exchange_port = all_exchange_ports[exchange_format].pop()
             market = trade_session.create_market(exchange_host, exchange_port)
-            print(session_configs)
-            market.register_group(group, session_configs)
+            for player in group.get_players():
+                market.register_player(group.id, player.id)
+                player.configure_for_trade_session(exchange_host, exchange_port, 
+                    market.id, session_format)
+                trader_state_cls = market.state_factory.get_state(session_format)
+                trader_initial_state = trader_state_cls.from_otree_player(player)
+                initialize_player_cache(player, trader_initial_state)
             initialize_market_cache(market)
-        utility.configure_model(self, session_format, session_configs)
+            if 'investor_arrivals' in trade_session.exogenous_events.keys():
+                investor = InvestorFactory.get_investor(session_format, market.id, 
+                    exchange_host, exchange_port)
+                initialize_investor_cache(investor)
+        self.configure_for_trade_session(session_format)
         initialize_session_cache(trade_session)
         cache.set('trade_session_lock', 'unlocked', timeout=None)
+        self.save()
+    
+    def configure_for_trade_session(self, session_format:str):
+        utility.configure_model_for_market('subsession', self, session_format,
+            self.session.config)
         self.save()
             
     def save(self, *args, **kwargs):
@@ -135,3 +151,11 @@ class Player(BasePlayer):
     latent_offer = models.IntegerField(blank=True)
     sliders = models.StringField()
     orderstore = models.StringField(blank=True)
+
+    def configure_for_trade_session(self, exchange_host:str, exchange_port:int, 
+        market_id:str, session_format:str):
+        self.exchange_host = exchange_host
+        self.exchange_port = exchange_port
+        self.market_id = market_id
+        utility.configure_model_for_market('player', self, session_format, self.session.config)
+        self.save()

@@ -1,20 +1,21 @@
 from django.core.cache import cache
 
 cache_key_format = {
-    'player': 'PLAYER_DATA_{model_id}',
-    'trader': 'TRADER_DATA_{model_id}',
-    'market': 'MARKET_DATA_{model_id}',
-    'trade_session': 'SESSION_DATA_{model_id}',
+    'player': 'PLAYER_{model_id}',
+    'trader': 'TRADER_{model_id}',
+    'market': 'MARKET_{model_id}',
+    'investor': 'INVESTOR_{model_id}_{market_id}',
+    'trade_session': 'SESSION_{model_id}',
 }
 
 cache_timeout = 30 * 60 
 
-def get_cache_key(model_id, key_model_name):
+def get_cache_key(model_id, key_model_name, **kwargs):
     try:
         key_format = cache_key_format[key_model_name] 
     except KeyError:
         raise ValueError('invalid model: %s' % key_model_name)
-    key = key_format.format(model_id=model_id) 
+    key = key_format.format(model_id=model_id, **kwargs) 
     return key
 
 def write_to_cache_with_version(key, value, version, timeout=cache_timeout):
@@ -37,8 +38,12 @@ def initialize_market_cache(market, timeout=cache_timeout, **kwargs):
     return market_data
 
 def initialize_session_cache(session, timeout=cache_timeout, **kwargs):
-    session_key = get_cache_key(session.id, 'trade_session')
+    session_key = get_cache_key(session.subsession_id, 'trade_session')
     cache.set(session_key, session, timeout=timeout)
+
+def initialize_investor_cache(investor, timeout=cache_timeout, **kwargs):
+    investor_key = get_cache_key(investor.id, 'investor', market_id=investor.market_id)
+    cache.set(investor_key, investor, timeout=timeout)
 
 def get_trader_ids_by_market(market_id:str):
     market_key = get_cache_key(market_id, 'market')

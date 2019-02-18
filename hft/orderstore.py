@@ -14,8 +14,8 @@ class OrderStore:
         'executed': '_confirm_execution'
     }
 
-    def __init__(self, pid, in_group_id):
-        self.player_id = pid
+    def __init__(self, player_id, in_group_id):
+        self.player_id = player_id
         self.subject_code = chr(int(in_group_id) + 64)
         self.counter = itertools.count(1,1)
         self._orders = {}

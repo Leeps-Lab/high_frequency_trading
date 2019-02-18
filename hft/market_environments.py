@@ -18,7 +18,7 @@ elo = market_environment(
     },
     model_configuration={  
         'subsession': {
-        #   key in configs: name on model
+        #   key in configs: attribute on model
             'period_length': 'round_length',
             'auction_format': 'design',
             'batch_length': 'batch_length',

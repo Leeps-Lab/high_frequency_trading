@@ -52,7 +52,7 @@ class LEEPSDispatcher(Dispatcher):
 
     topics = {
         'S': ['market'],
-        'A': ['trader', 'market'],
+        'A': ['trader'],
         'U': ['trader'],
         'C': ['trader'],
         'E': ['trader', 'market'],
@@ -67,7 +67,7 @@ class LEEPSDispatcher(Dispatcher):
         'market_start': ['market'],
         'market_end': ['market'],
         'order_by_arrow': ['trader'],
-        'investor_arrivals': ['market'],
+        'investor_arrivals': ['trader'],
         'fundamental_value_jumps': ['fundamental_price_change'],
         'bbo_change': ['role_based_events'],
         'order_imbalance_change': ['role_based_events'],
