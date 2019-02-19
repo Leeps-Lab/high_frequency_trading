@@ -199,9 +199,6 @@ class BCSTrader(BaseTrader):
             buy_sell_indicator=buy_sell_indicator, player_id=self.id, model=self)
         return order_info
 
-
-
-
 Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
 Sliders.__new__.__defaults__ = (0, 0, 0, 0)
 
@@ -443,6 +440,7 @@ class ELONotSoBasicMaker(ELOTrader):
                         sell_message = self.exchange_message_from_order_info(order_info, 
                         delay, 'replace')
                         sells.append(sell_message)
+                self.latent_quote['S'] = latent_offer
             elif order_imbalance is None or self.no_enter_until_bbo['S'] is False:
                 sell_message = self.enter_with_latent_quote('S', price=latent_offer)
                 sells.append(sell_message)
@@ -462,6 +460,7 @@ class ELONotSoBasicMaker(ELOTrader):
                         buy_message = self.exchange_message_from_order_info(order_info, 
                             delay, 'replace')
                         buys.append(buy_message)
+                self.latent_quote['B'] = latent_bid
             elif order_imbalance is None or self.no_enter_until_bbo['B'] is False:
                     buy_message = self.enter_with_latent_quote('B', price=latent_bid)
                     buys.append(buy_message)

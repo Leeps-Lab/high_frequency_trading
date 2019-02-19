@@ -26,12 +26,13 @@ class HFTPlayerStateRecord(Model):
     implied_offer = models.IntegerField(blank=True)
     slider_a_x = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
     slider_a_y = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    order_imbalance = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
 
     def from_event_and_player(self, event_dict, player):
         for field in ('role', 'market_id', 'speed_on', 'inventory', 'bid', 
             'offer', 'orderstore', 'best_bid', 'best_offer', 'latent_bid', 
             'latent_offer', 'implied_bid', 'implied_offer', 'slider_a_x', 
-            'slider_a_y'):
+            'slider_a_y', 'order_imbalance'):
             setattr(self, field, getattr(player, field))  
         self.player_id = int(player.id)
         self.trigger_event_type = str(event_dict['type'])  
@@ -99,10 +100,11 @@ base_filename = 'market_{market_id}_record_type_{record_class}_subsession_{subse
 csv_headers = {
     'HFTEventRecord': ['event_no','timestamp', 'subsession_id', 'market_id', 
         'event_source', 'event_type', 'original_message', 'attachments', 'outgoing_messages'],
-    'HFTPlayerStateRecord': ['timestamp', 'session_id', 'subsession_id', 'player_id', 'market_id', 'role',
-        'speed_on', 'trigger_event_type', 'event_no', 'inventory', 'orderstore', 
+    'HFTPlayerStateRecord': ['timestamp', 'subsession_id', 'market_id', 'event_no',
+        'trigger_event_type', 'player_id', 'role', 'speed_on', 'orderstore', 
         'best_bid', 'best_offer', 'bid','offer', 'latent_bid', 'latent_offer', 
-        'implied_bid', 'implied_offer', 'slider_a_x','slider_a_y'],
+        'implied_bid', 'implied_offer', 'inventory', 'order_imbalance', 'slider_a_x',
+        'slider_a_y'],
     'HFTInvestorRecord': ['timestamp', 'exchange_timestamp', 'subsession_id', 
         'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']
 }
@@ -165,6 +167,9 @@ def _elo_fields(player, subject_state):
             player.implied_bid = int(subject_state.implied_quotes['B'])
         if subject_state.implied_quotes['S'] is not None:
             player.implied_offer = int(subject_state.implied_quotes['S'])
+    if subject_state.implied_quotes is not None:
+        player.order_imbalance = float(subject_state.order_imbalance)
+    player.inventory = int(subject_state.orderstore.inventory)
     player.orderstore = str(subject_state.orderstore)
     player.bid = subject_state.orderstore.bid
     player.offer = subject_state.orderstore.offer

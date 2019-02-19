@@ -154,6 +154,7 @@ class Player(BasePlayer):
     implied_offer = models.IntegerField(blank=True)
     slider_a_x = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
     slider_a_y = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    order_imbalance = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
 
 
     def configure_for_trade_session(self, exchange_host:str, exchange_port:int, 
