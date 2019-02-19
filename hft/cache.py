@@ -43,7 +43,8 @@ def initialize_session_cache(session, timeout=cache_timeout, **kwargs):
 
 def initialize_investor_cache(investor, timeout=cache_timeout, **kwargs):
     investor_key = get_cache_key(investor.id, 'investor', market_id=investor.market_id)
-    cache.set(investor_key, investor, timeout=timeout)
+    investor_data = {'version': 0, 'investor': investor}
+    cache.set(investor_key, investor_data, timeout=timeout)
 
 def get_trader_ids_by_market(market_id:str):
     market_key = get_cache_key(market_id, 'market')

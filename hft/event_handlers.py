@@ -70,6 +70,7 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='el
     try:
         write_to_cache_with_version(key, trader_data, version)
     except ValueError:
+        log.warning('version mismatch in key: %s, recalculating..' % key)
         leeps_handle_trader_message(event, **kwargs)
     else:
         hft_background_task(checkpoints.hft_trader_checkpoint, player_id, 
@@ -105,14 +106,21 @@ def leeps_handle_market_message(event, **kwargs):
 
 def _handle_investors(event):
     key = get_cache_key(event.player_id, 'investor', market_id=event.market_id)
-    investor = cache.get(key)
+    investor_data = cache.get(key)
+    investor, version = investor_data['investor'], investor_data['version']
     if investor is None:
         raise ValueError('investor key: %s returned none.' % key)
     investor.receive(event)
     message_queue = investor.outgoing_messages.copy()
     investor.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
-    cache.set(key, investor)
+    investor_data['investor'] = investor
+    new_version = version + 1
+    try:
+        write_to_cache_with_version(key, investor_data, new_version)
+    except ValueError:
+        log.warning('version mismatch in key: %s, recalculating..' % key)
+        _handle_investors(event)
     return event
 
 @atomic
