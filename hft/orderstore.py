@@ -69,7 +69,12 @@ class OrderStore:
             return out
 
     def register_replace(self, token, new_price):
-        order_info = self._orders[token]
+        try:
+            order_info = self._orders[token]
+        except KeyError as e:
+            log.exception('error register replace for token: %s, orderstore: %s' % ( 
+                token, self))
+            raise
         existing_token = order_info.get('replacement_order_token')
         if existing_token is None:
             existing_token = order_info['order_token']
@@ -86,9 +91,10 @@ class OrderStore:
         handler = getattr(self, handler_name)
         try:
             order_info = handler(**kwargs)
-        except KeyError as e:
-            log.exception('error during orderstore operation: "%s", orderstore: %s', 
-                handler_name, self, e)
+        except KeyError:
+            log.exception('error during orderstore operation: "%s", orderstore: %s: %s', 
+                handler_name, self)
+            raise
         else:
             return order_info
 

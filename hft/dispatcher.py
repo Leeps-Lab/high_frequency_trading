@@ -2,7 +2,7 @@ from .checkpoints import hft_event_checkpoint
 from .incoming_message import IncomingMessageFactory
 from .event import EventFactory
 from .event_handlers import HandlerFactory
-from .response import process_response
+from .response import process_response, new_broadcast
 from otree.timeout.tasks import hft_background_task
 import logging
 
@@ -42,6 +42,10 @@ class Dispatcher:
                 cls.responder(message)
             else:
                 resulting_events.append(message)
+        
+        while event.broadcast_messages:
+            message = event.broadcast_messages.pop()
+            new_broadcast(message)
 
         while resulting_events:
             message = resulting_events.pop(0)

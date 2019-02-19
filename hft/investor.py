@@ -38,8 +38,7 @@ class ELOInvestor(BCSTrader):
         buy_sell_indicator = order_info['buy_sell_indicator']
         price = order_info['price']
         order_token = kwargs['order_token']
-        message_content = { 'type': 'executed', 'price': price, 
-            'order_token': order_token, 'endowment': 0,
-            'inventory': self.orderstore.inventory}
-        self.broadcast(**message_content)
+        self.event.broadcast_messages('executed', price=price, order_token=order_token,
+            endowment=0, player_id=self.id, market_id=self.market_id, 
+            inventory=self.orderstore.inventory, buy_sell_indicator=buy_sell_indicator)
         return order_info

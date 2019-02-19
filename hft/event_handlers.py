@@ -59,7 +59,7 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='el
     role_name, subject_state = trader_data['role'], trader_data['subject_state']
     TraderFactory = trader_factory_map[session_format][exchange_format]
     trader = TraderFactory.get_trader(role_name, subject_state)
-    trader.receive(event.event_type, **event.to_kwargs())
+    trader.receive(event)
     message_queue = trader.outgoing_messages.copy()
     trader.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
@@ -72,8 +72,8 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='el
     except ValueError:
         leeps_handle_trader_message(event, **kwargs)
     else:
-        # hft_background_task(checkpoints.hft_trader_checkpoint, player_id, 
-        #     trader_state, event)  
+        hft_background_task(checkpoints.hft_trader_checkpoint, player_id, 
+            trader_state, event.to_kwargs())  
         return event
 
 def leeps_handle_market_message(event, **kwargs):
@@ -86,7 +86,7 @@ def leeps_handle_market_message(event, **kwargs):
         raise Exception('market key: %s returned none, event: %s' % (market_key,
             event))
     market, version = market_data['market'], market_data['version']  
-    attachments = market.receive(event.event_type, **event.to_kwargs())
+    attachments = market.receive(event)
     if attachments:
         event.attachments.update(attachments)
     message_queue = market.outgoing_messages.copy()
@@ -108,7 +108,7 @@ def _handle_investors(event):
     investor = cache.get(key)
     if investor is None:
         raise ValueError('investor key: %s returned none.' % key)
-    investor.receive(event.event_type, **event.to_kwargs())
+    investor.receive(event)
     message_queue = investor.outgoing_messages.copy()
     investor.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)

@@ -49,8 +49,8 @@ class TradeSession:
     def create_market(self, exchange_host, exchange_port):
         market_cls = self.market_factory.get_market(self.session_format)
         market = market_cls(self.subsession_id, exchange_host, exchange_port)
-        self.market_state[market.id] = False
-        self.market_exchange_pairs[market.id] = (exchange_host, exchange_port)
+        self.market_state[market.market_id] = False
+        self.market_exchange_pairs[market.market_id] = (exchange_host, exchange_port)
         return market
 
     def register_exogenous_event(self, client_type, filename):

@@ -56,7 +56,6 @@ class Subsession(BaseSubsession):
             trade_session = trade_session_cls(subsession, session_format)
             environment = market_environments.environments[session_format]
             for event_type in environment.exogenous_events:
-                print(self.session.config)
                 filename  = self.session.config[event_type].pop(0)
                 trade_session.register_exogenous_event(event_type, filename)
             return trade_session
@@ -80,13 +79,13 @@ class Subsession(BaseSubsession):
             for player in group.get_players():
                 market.register_player(group.id, player.id)
                 player.configure_for_trade_session(exchange_host, exchange_port, 
-                    market.id, session_format)
+                    market.market_id, session_format)
                 trader_state_cls = market.state_factory.get_state(session_format)
                 trader_initial_state = trader_state_cls.from_otree_player(player)
                 initialize_player_cache(player, trader_initial_state)
             initialize_market_cache(market)
             if 'investor_arrivals' in trade_session.exogenous_events.keys():
-                investor = InvestorFactory.get_investor(session_format, market.id, 
+                investor = InvestorFactory.get_investor(session_format, market.market_id, 
                     exchange_host, exchange_port)
                 initialize_investor_cache(investor)
         self.configure_for_trade_session(session_format)
@@ -151,6 +150,11 @@ class Player(BasePlayer):
     latent_offer = models.IntegerField(blank=True)
     sliders = models.StringField()
     orderstore = models.StringField(blank=True)
+    implied_bid = models.IntegerField(blank=True)
+    implied_offer = models.IntegerField(blank=True)
+    slider_a_x = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    slider_a_y = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+
 
     def configure_for_trade_session(self, exchange_host:str, exchange_port:int, 
         market_id:str, session_format:str):

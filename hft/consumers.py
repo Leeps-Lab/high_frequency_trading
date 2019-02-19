@@ -21,7 +21,6 @@ class SubjectConsumer(JsonWebsocketConsumer):
         player.channel = message.reply_channel
         player.save()
 
-    @timer
     def raw_receive(self, message, subsession_id, group_id, player_id):
         try:
             LEEPSDispatcher.dispatch('websocket', message, subsession_id=subsession_id,
@@ -36,7 +35,6 @@ class SubjectConsumer(JsonWebsocketConsumer):
 
 class InvestorConsumer(JsonWebsocketConsumer):
 
-    @timer
     def raw_receive(self, message, subsession_id):
         try:
             LEEPSDispatcher.dispatch('websocket', message, subsession_id=subsession_id,

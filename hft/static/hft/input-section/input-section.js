@@ -515,7 +515,7 @@ class InputSection extends PolymerElement {
 
     sendSpeed(){
         var speedMsg = {
-            type:"speed",
+            type:"speed_change",
             speed: inputSection.inputSectionShadowDOM.querySelector(".speed-input").checked
         };
         if(socketActions.socket.readyState === socketActions.socket.OPEN){

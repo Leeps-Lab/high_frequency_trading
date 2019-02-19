@@ -18,13 +18,23 @@ class HFTPlayerStateRecord(Model):
     orderstore = models.StringField()
     bid = models.IntegerField(blank=True)
     offer = models.IntegerField(blank=True)
+    best_bid = models.IntegerField(blank=True)
+    best_offer = models.IntegerField(blank=True)
+    latent_bid = models.IntegerField(blank=True)
+    latent_offer = models.IntegerField(blank=True)
+    implied_bid = models.IntegerField(blank=True)
+    implied_offer = models.IntegerField(blank=True)
+    slider_a_x = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    slider_a_y = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
 
     def from_event_and_player(self, event_dict, player):
         for field in ('role', 'market_id', 'speed_on', 'inventory', 'bid', 
-            'offer', 'orderstore'):
+            'offer', 'orderstore', 'best_bid', 'best_offer', 'latent_bid', 
+            'latent_offer', 'implied_bid', 'implied_offer', 'slider_a_x', 
+            'slider_a_y'):
             setattr(self, field, getattr(player, field))  
         self.player_id = int(player.id)
-        self.trigger_event_type = str(event_dict['event'])  
+        self.trigger_event_type = str(event_dict['type'])  
         self.event_no = int(event_dict['reference_no'])
         self.subsession_id = str(event_dict['subsession_id'])
         return self
@@ -39,16 +49,14 @@ class HFTEventRecord(Model):
     event_type = models.StringField()
     original_message = models.StringField()
     attachments = models.StringField()
-    outgoing_messages = models.StringField()
 
     def from_event(self, event_dict):
         self.subsession_id = str(event_dict['subsession_id'])
         self.market_id = str(event_dict['market_id'])
         self.event_no = int(event_dict['reference_no'])
-        self.event_type = str(event_dict['event_type'])
+        self.event_type = str(event_dict['type'])
         self.event_source = str(event_dict['event_source'])
         self.all_keys = str(event_dict)
-        self.outgoing_messages = str(event_dict['outgoing_messages'])
         return self
 
 
@@ -92,8 +100,9 @@ csv_headers = {
     'HFTEventRecord': ['event_no','timestamp', 'subsession_id', 'market_id', 
         'event_source', 'event_type', 'original_message', 'attachments', 'outgoing_messages'],
     'HFTPlayerStateRecord': ['timestamp', 'session_id', 'subsession_id', 'player_id', 'market_id', 'role',
-        'speed_on', 'trigger_event_type', 'event_no', 'inventory', 'orderstore', 'bid',
-        'offer'],
+        'speed_on', 'trigger_event_type', 'event_no', 'inventory', 'orderstore', 
+        'best_bid', 'best_offer', 'bid','offer', 'latent_bid', 'latent_offer', 
+        'implied_bid', 'implied_offer', 'slider_a_x','slider_a_y'],
     'HFTInvestorRecord': ['timestamp', 'exchange_timestamp', 'subsession_id', 
         'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']
 }
@@ -143,14 +152,19 @@ def _collect_and_dump(session_code, subsession_id:int, market_ids:list, round_no
 def _elo_fields(player, subject_state):
     player.best_bid = subject_state.best_quotes['B']
     player.best_offer = subject_state.best_quotes['S']
-    if subject_state.distance_from_best_quote is not None:
-        player.distance_from_bid = subject_state.distance_from_best_quote['B']
-        player.distance_from_offer = subject_state.distance_from_best_quote['S']
     if subject_state.latent_quote is not None:
-        player.latent_bid = subject_state.latent_quote['B']
-        player.latent_offer = subject_state.latent_quote['S']
+        if subject_state.latent_quote['B'] is not None:
+            player.latent_bid = int(subject_state.latent_quote['B'])
+        if subject_state.latent_quote['S'] is not None:
+            player.latent_offer = int(subject_state.latent_quote['S'])
     if subject_state.sliders is not None:
-        player.sliders = str(subject_state.sliders)
+        player.slider_a_x = float(subject_state.sliders.a_x)
+        player.slider_a_y = float(subject_state.sliders.a_y)
+    if subject_state.implied_quotes is not None:
+        if subject_state.implied_quotes['B'] is not None:
+            player.implied_bid = int(subject_state.implied_quotes['B'])
+        if subject_state.implied_quotes['S'] is not None:
+            player.implied_offer = int(subject_state.implied_quotes['S'])
     player.orderstore = str(subject_state.orderstore)
     player.bid = subject_state.orderstore.bid
     player.offer = subject_state.orderstore.offer

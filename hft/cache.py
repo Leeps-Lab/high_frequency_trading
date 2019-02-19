@@ -33,7 +33,7 @@ def initialize_player_cache(player, trader_state, timeout=cache_timeout):
 
 def initialize_market_cache(market, timeout=cache_timeout, **kwargs):
     market_data = {'version': 0, 'market': market}
-    market_key = get_cache_key(market.id, 'market')
+    market_key = get_cache_key(market.market_id, 'market')
     cache.set(market_key, market_data, timeout=timeout)
     return market_data
 

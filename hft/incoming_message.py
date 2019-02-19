@@ -15,7 +15,6 @@ class IncomingMessageFactory:
         else:
             raise Exception('invalid message source: %s' % message_source)
 
-
 class IncomingMessage:
 
     required_fields = ('subsession_id', 'market_id', 'player_id', 'type')
