@@ -19,14 +19,6 @@ class SpeedSelection extends PolymerElement {
                 justify-content: flex-start;
                 align-items: center;
             }
-
-            p{
-                text-align: center;
-                font-weight:bold;
-                font-size:14px;
-                background: #FFFFF0;
-                width:50%;
-            }
         </style>
 
         <div class = "speed-container">
@@ -34,9 +26,7 @@ class SpeedSelection extends PolymerElement {
                 [[title]]
             </p>
 
-            <speed-switch 
-            >
-            </speed-switch>
+            
             
         </div>
         `

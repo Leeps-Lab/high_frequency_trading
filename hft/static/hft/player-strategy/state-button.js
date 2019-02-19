@@ -28,6 +28,7 @@ class StateButton extends PolymerElement {
             .role-selected{
                 background-color:#008C4F;
             }
+            
         </style>
         <div class="button">
             <button

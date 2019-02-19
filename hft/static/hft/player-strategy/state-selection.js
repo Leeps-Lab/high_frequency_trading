@@ -41,6 +41,7 @@ class StateSelection extends PolymerElement {
                 flex-direction: row;
                 justify-content: flex-start;
                 align-items: center;
+                /* height:200px; */
                 width:100%;
             }
             .column {
@@ -66,47 +67,78 @@ class StateSelection extends PolymerElement {
                 align-items: center;
                 width:50%;
             }
-
-
+            p{
+                text-align: center;
+                font-weight:bold;
+                font-size:14px;
+                background: #FFFFF0;
+                width:50%;
+            }
         </style>
+
+            
             
              <div class = "state-container">
-                    <div class = "speed-basic-container">
-        
-                        <div class = "column speed-switch">
 
-                            <speed-selection
-                                title = "Speed"
-                            >
-                            </speed-selection>
-                        
-                        </div>
-                        <div class="column button-container">
-
-                            <state-button
-                                strategy='manual'
-                                strategy-on = '{{roles.manual}}'
-                            >
-                            </state-button>
-            
-                            <state-button
-                                strategy="out"
-                                strategy-on = '{{roles.out}}'
-                            >
-                            </state-button>
-
-                        </div>
-                    </div>
-
-                <div class="column algorithm">
-                    <algorithm-selection 
-                         disabled-sliders = '{{disabledSliders}}'
-                         maker-on = '{{roles.maker}}'
-                         taker-on = '{{roles.taker}}'
+                <div class = 'column-container speed-switch'>
+                    <p>
+                        Speed
+                    </p>
+                    <speed-switch 
                     >
-                    </algorithm-selection>
-                    
+                    </speed-switch>
                 </div>
+                
+                <div class = 'column-container button-container'>
+                    <state-button
+                    strategy='manual'
+                    strategy-on = '{{roles.manual}}'
+                    >
+                    </state-button>
+
+                    <state-button
+                        strategy="out"
+                        strategy-on = '{{roles.out}}'
+                    >
+                    </state-button>
+
+                    <state-button
+                        strategy = "maker"
+                        strategy-on = '{{roles.maker}}'
+                    >
+                    </state-button>
+
+                    <state-button
+                        strategy = "taker"
+                        strategy-on = '{{roles.taker}}'
+                    >
+                    </state-button>
+                </div>
+
+                <div class = 'column-container'>
+                    <p>
+                        Sensitivities
+                    </p>
+                    <hr style = 'width:90%;'>
+                    <sensitivity-slider
+                    sensitivity = "Order"
+                    disabled-slider = '{{disabledSliders}}'
+                    min = "0"
+                    max = "10"
+                    step = "0.1"
+                    >
+                    </sensitivity-slider>
+
+                    <sensitivity-slider
+                        sensitivity = "Inventory"
+                        disabled-slider = '{{disabledSliders}}'
+                        min = "0"
+                        max = "10"
+                        step = "0.1"
+                    >
+                    </sensitivity-slider>
+                </div>
+                        
             </div>
 
         `;
