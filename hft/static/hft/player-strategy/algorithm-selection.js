@@ -88,7 +88,6 @@ class AlgorithmSelection extends PolymerElement {
                 flex-direction: row;
                 justify-content: flex-start;
                 align-items: center;
-                border-left: 1px solid #FFFFF0;
             }
             
             .algorithm-buttons{

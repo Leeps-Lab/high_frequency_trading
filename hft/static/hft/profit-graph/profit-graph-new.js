@@ -1,84 +1,84 @@
 import {html, PolymerElement}  from '../node_modules/@polymer/polymer/polymer-element.js';
 
-/**
- * @customElement
- * @polymer
- */
-class ProfitGraph extends PolymerElement {
+
+class ProfitGraphNew extends PolymerElement {
+
+    static get template() {
+        return html`
+            <style>
+                .batch-line {
+                    stroke: #a7a7a7;
+                    stroke-width: 3px;
+                }
+
+                .batch-label-text {
+                    fill: rgb(150, 150, 150);
+                    font-size: 10px;
+                    -webkit-user-select: none;
+                    cursor: default;
+                }
+                .time-grid-box-dark {
+                    fill: rgb(211, 211, 211);
+                }
+                
+                .time-grid-line-text {
+                    fill: rgb(150, 150, 150);
+                    font-size: 10px;
+                    -webkit-user-select: none;
+                    cursor: default;
+                }
+                
+                .price-grid-line {
+                    stroke: rgb(230, 230, 230);
+                    stroke-width: 1;
+                }
+                
+                .price-grid-line-zero {
+                    stroke: rgb(168, 168, 168);
+                    stroke-width: 1;
+                }
+                
+                .price-grid-line-text {
+                    fill: rgb(150, 150, 150);
+                    font-size: 10px;
+                    -webkit-user-select: none;
+                    cursor: default;
+                }
+                
+                .my-profit-out {
+                    stroke: rgb(110, 110, 110);
+                    stroke-width: 3;
+                }
+                
+                .my-profit-snipe {
+                    stroke: rgb(200, 79, 34);
+                    stroke-width: 3;
+                }
+                
+                .my-profit-maker {
+                    stroke: rgb(26, 73, 232);
+                    stroke-width: 3;
+                }
+                
+                .my-positive-profit {
+                    stroke: green;
+                    stroke-width: 2;
+                }
+                
+                .my-negative-profit {
+                    stroke: red;
+                    stroke-width: 2;
+                }
+                #profit-graph{
+                    width:100%;
+                }
+            </style>
+            <svg id="profit-graph"></svg>
+        `;
+    }
   constructor(){
     super();
     let profitGraph = {};
-    profitGraph.shadow_dom = document.querySelector("profit-graph").shadowRoot;
-    profitGraph.shadow_dom.innerHTML = `
-<style>
-    .batch-line {
-        stroke: #a7a7a7;
-        stroke-width: 3px;
-    }
-
-    .batch-label-text {
-        fill: rgb(150, 150, 150);
-        font-size: 10px;
-        -webkit-user-select: none;
-        cursor: default;
-    }
-    .time-grid-box-dark {
-        fill: rgb(211, 211, 211);
-    }
-    
-    .time-grid-line-text {
-        fill: rgb(150, 150, 150);
-        font-size: 10px;
-        -webkit-user-select: none;
-        cursor: default;
-    }
-    
-    .price-grid-line {
-        stroke: rgb(230, 230, 230);
-        stroke-width: 1;
-    }
-    
-    .price-grid-line-zero {
-        stroke: rgb(168, 168, 168);
-        stroke-width: 1;
-    }
-    
-    .price-grid-line-text {
-        fill: rgb(150, 150, 150);
-        font-size: 10px;
-        -webkit-user-select: none;
-        cursor: default;
-    }
-    
-    .my-profit-out {
-        stroke: rgb(110, 110, 110);
-        stroke-width: 3;
-    }
-    
-    .my-profit-snipe {
-        stroke: rgb(200, 79, 34);
-        stroke-width: 3;
-    }
-    
-    .my-profit-maker {
-        stroke: rgb(26, 73, 232);
-        stroke-width: 3;
-    }
-    
-    .my-positive-profit {
-        stroke: green;
-        stroke-width: 2;
-    }
-    
-    .my-negative-profit {
-        stroke: red;
-        stroke-width: 2;
-    }
-</style>
-
-<svg id="profit-graph"></svg>
-    `;
-
     /*
      * Debug variables
      */
@@ -89,12 +89,11 @@ class ProfitGraph extends PolymerElement {
     /*
      * set of variables we added that were not part of the original solution
      */
-    profitGraph.maxSpread = otree.maxSpread;
     
     /*
      * Set of variables we update from oTree and manifest values 
      */ 
-    profitGraph.startingWealth = otree.startingWealth; 
+    profitGraph.startingWealth = OTREE_CONSTANTS.initialEndowment; 
     profitGraph.profit = profitGraph.startingWealth;                                           // Through Django Channels// Django Query
     profitGraph.profitElementWidth = profitGraph.profit_width - 10;
     profitGraph.profitElementHeight = profitGraph.profit_height;
@@ -102,7 +101,7 @@ class ProfitGraph extends PolymerElement {
     profitGraph.fastDelay = 1e8;
 
     profitGraph.profitGraph_svg = profitGraph.shadow_dom.querySelector("#profit-graph");
-
+    console.log(profitGraph.profitGraph_svg);
 
     
     /*
@@ -635,4 +634,4 @@ profitGraph.profitSVG.selectAll("rect.time-grid-box-dark")
     }
 }
 
-window.customElements.define('profit-graph', ProfitGraph);
+window.customElements.define('profit-graph-new', ProfitGraphNew);

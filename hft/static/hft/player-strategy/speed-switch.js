@@ -12,63 +12,66 @@ class SpeedSwitch extends PolymerElement {
             .switch {
                 position: relative;
                 display: inline-block;
-                width: 100px;
-                height: 50px;
-                
-            }
-
-            .switch input { 
+                width: 60px;
+                height: 35px;
+              }
+              
+              .switch #speedCheck { 
                 opacity: 0;
                 width: 0;
                 height: 0;
-            }
-
-            .slider {
-
+              }
+              
+              .slider {
                 position: absolute;
                 cursor: pointer;
                 top: 0;
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-color: #7F9AB5;
+                background-color: #ccc;
                 -webkit-transition: .4s;
                 transition: .4s;
-            }
-
-            .slider:before {
+              }
+              
+              .slider:before {
                 position: absolute;
                 content: "";
-                height: 42px;
-                width: 50px;
+                height: 26px;
+                width: 26px;
                 left: 4px;
                 bottom: 4px;
                 background-color: #FFFFF0;
-                -webkit-transition: .2s;
-                transition: .2s;
-            }
-
-            input:checked + .slider {
-                background-color:#008C4F;
-            }
-
-            input:focus + .slider {
-                box-shadow: 0 0 1px #008C4F;
-            }
-
-            input:checked + .slider:before {
-                -webkit-transform: translateX(42px);
-                -ms-transform: translateX(42px);
-                transform: translateX(42px);
-            }
-            /* Rounded sliders */
-            .slider.round {
-                border-radius: 20px
-            }
-
-            .slider.round:before {
-                border-radius: 20px;
-            }
+                -webkit-transition: .4s;
+                transition: .4s;
+              }
+              
+              #speedCheck:checked + .slider{
+                background-color: #008C4F;
+              }
+              
+              #speedCheck:focus + .slider{
+                box-shadow: 0 0 1px #2196F3;
+              }
+              
+              #speedCheck:checked + .slider:before {
+                -webkit-transform: translateX(26px);
+                -ms-transform: translateX(26px);
+                transform: translateX(26px);
+              }
+              
+              /* Rounded sliders */
+              .slider.round {
+                border-radius: 34px;
+              }
+              
+              .container-fluid {
+                height: 100%; 
+                margin: 0px;
+              }
+              .slider.round:before {
+                border-radius: 50%;
+              }
         </style>
         <label class="switch">
                 <input id="speedCheck"
@@ -81,30 +84,35 @@ class SpeedSwitch extends PolymerElement {
     static get properties(){
         return {
             checked: {
-                type: Boolean
-            },
-            socketMessage: {
-                type: Object
-            },
+                type: Boolean,
+                value: false
+            }
         };
     }
         
     constructor(){
         super();  
-        this.socketMessage = {type:"speed"};
     }
+
     ready(){
         super.ready();
-        this.$.speedCheck.addEventListener('click', this.updateState.bind(this));
+        this.$.speedCheck.addEventListener('click', this._updateState.bind(this));
     }
 
-    updateState(){
-   
-        this.socketMessage["state"] = this.checked;
+    _updateState(){
         this.checked = !this.checked;
 
+        let socketMessage = {
+            type:"speed",
+            state: this.checked,
+        };
+        
+        let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
+            detail: socketMessage });
+        
+        this.dispatchEvent(userInputEvent);
         //send this.socketMessage over socket
-        console.log(this.socketMessage);
+
     } 
 
         

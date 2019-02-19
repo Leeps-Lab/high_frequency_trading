@@ -58,14 +58,14 @@ class WSConnection extends PolymerElement {
         this.socket = null;
     };
 
-    _send(event) {
-        const message = JSON.stringify(event.detail.payload);
+    send(message) {
+        const jsonMessage = JSON.stringify(message);
 
-        if (socket.readyState != 1) {
-            this.pending.push(message);
+        if (this.socket.readyState != 1) {
+            this.pending.push(jsonMessage);
             return;
         }
-        this.socket.send(message);
+        this.socket.send(jsonMessage);
     }
 
     static get template() {return html``;}
