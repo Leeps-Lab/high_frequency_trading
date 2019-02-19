@@ -5,6 +5,15 @@ class PlayersOrderBook {
         this.playerId = playerId
         this._bidPriceSlots = {};
         this._offerPriceSlots = {};
+        /*
+        priceSlots = {
+            `price`: {
+                `order_id`: `volume`,
+                ...
+            },
+            ...
+        }
+        */
     }
 
     recv(message) {
@@ -25,7 +34,7 @@ class PlayersOrderBook {
                 break;
         }
     }
-    
+
     getOrders(buySellIndicator) {
         if (buySellIndicator === 'B') {
             return this._bidPriceSlots;
@@ -57,7 +66,6 @@ class PlayersOrderBook {
                 }
             }
         }
-
     }
 
     _replaceOrder(price, buySellIndicator, orderToken, playerId, oldPrice, oldToken) {

@@ -26,25 +26,31 @@ class MarketSession extends PolymerElement {
         cash: Number,
         playerId: Number,
         constants: Object,
-        endowment: {type: Number, 
-            computed: '_inventoryValueChange(inventory, cash, bestBid, bestOffer)'},
-        websocketUrl: {type: Object, value: function () {
-            let protocol = 'ws://';
-            if (window.location.protocol === 'https:') {
-                protocol = 'wss://';
-                }
-            const url = (
-                protocol +
-                window.location.host +
-                '/hft/' +
-                OTREE_CONSTANTS.subsessionId + '/' +
-                OTREE_CONSTANTS.marketId + '/' +
-                OTREE_CONSTANTS.playerId + '/'
+        endowment: {
+            type: Number, 
+            computed: '_inventoryValueChange(inventory, cash, bestBid, bestOffer)'
+        },
+        websocketUrl: {
+            type: Object,
+            value: function () {
+                let protocol = 'ws://';
+                if (window.location.protocol === 'https:') {
+                    protocol = 'wss://';
+                    }
+                const url = (
+                    protocol +
+                    window.location.host +
+                    '/hft/' +
+                    OTREE_CONSTANTS.subsessionId + '/' +
+                    OTREE_CONSTANTS.marketId + '/' +
+                    OTREE_CONSTANTS.playerId + '/'
                 )
-            return url
-        }}
+                return url
+            },
+        }
       }
     }
+
     constructor() {
         super();
         this.playerId = 7
@@ -103,7 +109,7 @@ class MarketSession extends PolymerElement {
                 break
         }
     }
-         
+
     _inventoryValueChange(inventory, cash, bestBid, bestOffer) {
         let result = null;
         if (inventory <= 0 && bestOffer != MAX_ASK) {
@@ -172,29 +178,33 @@ class MarketSession extends PolymerElement {
             }
         </style>
 
-        <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-        <div class = "table-selection-container">
-           
-                <info-table inventory="{{inventory}}" cash={{cash}}
-                    endowment={{endowment}} 
-                    best-bid={{bestBid}}
-                    best-offer={{bestOffer}} my-bid={{myBid}}
-                    my-offer={{myOffer}}> 
-                </info-table>
-           
-          
-                <state-selection 
-                strategy = {{role}}
-                > 
-                </state-selection>
+        <ws-connection
+            id="websocket"
+            url-to-connect={{websocketUrl}}
+        ></ws-connection>
 
+        <div class = "table-selection-container">
+            <info-table
+                inventory="{{inventory}}"
+                cash={{cash}}
+                endowment={{endowment}} 
+                best-bid={{bestBid}}
+                best-offer={{bestOffer}}
+                my-bid={{myBid}}
+                my-offer={{myOffer}}
+            ></info-table>
+        
+            <state-selection 
+                strategy = {{role}}
+            ></state-selection>
         </div>
 
         <!--- 
         To modularize I have to look into ELO.html,
         but will manually put html for now - Patrick 2/11 
         --->
-    `;}
+    `;
+    }
 
 }
 
