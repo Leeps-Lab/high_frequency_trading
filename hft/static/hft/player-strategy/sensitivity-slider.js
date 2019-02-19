@@ -19,11 +19,10 @@ class SensitivitySlider extends PolymerElement {
             </style>
             <div class="slider-container">
                 <p>
-                    {{sensitivity}}
+                    {{sensitivity}}: <span id='output'></span>
                 </p>
                 
-                <slider>
-                </slider>
+           
                 <input 
                     id = 'slider'
                     type="range" min = '{{min}}'
@@ -53,6 +52,7 @@ class SensitivitySlider extends PolymerElement {
             step: {
                 type: Number
             }
+
         }
     }
         
@@ -62,8 +62,18 @@ class SensitivitySlider extends PolymerElement {
 
     ready(){
         super.ready();
-        console.log(this.$.slider.disabled);
+    
         this.$.slider.addEventListener('mouseup',this._sendValues.bind(this));
+           
+        let sens = this.$.slider;
+        let sensOutput = this.$.output;
+      
+        sensOutput.innerHTML = sens.value;
+    
+        sens.oninput = function() {
+            sensOutput.innerHTML = this.value;
+        }
+        
 
     }
 

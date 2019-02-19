@@ -2,6 +2,8 @@
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market_elements.js'
 import './player-strategy/state-selection.js';
+import './profit-graph/profit-graph-new.js';
+import {ELO} from './market_environments.js';
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -15,6 +17,8 @@ class MarketSession extends PolymerElement {
         events: Object,
         active: {type: Boolean, observer: '_activateSession'},
         role: String,
+        roles: Object,
+        startRole: String,
         orderBook: Object,
         bestBid: Number,
         volumeBestBid: Number,
@@ -45,14 +49,46 @@ class MarketSession extends PolymerElement {
         }}
       }
     }
+
     constructor() {
         super();
         this.playerId = 7
         this.orderBook = new PlayersOrderBook(this.playerId);
-        console.log(this.websocketUrl)
-        this.role = 'maker';
+        // console.log(this.websocketUrl)
+
+        this.roles = ELO['roles'];
+        for(let role in this.roles){
+            if(this.roles[role] == 'selected'){
+                this.role = role;
+                break;
+            }
+        }
+
+        console.log("Your starting role is " , this.role);
+
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
+        this.addEventListener('sync', this._activateSession.bind(this));
+
+        setTimeout(this._activateSession.bind(this), 3000);
+    }
+
+    ready(){
+        super.ready();
+        
+        console.log("Representing class list next ", this.$.overlay.classList);
+        this.$.overlay.style.opacity = 0.1;
+        this.$.overlay.style.pointerEvents = 'none';
+
+
+        let playerReadyMessage = {
+            type: 'player_ready',
+        };
+
+       let playerReady = new CustomEvent('user-input', {bubbles: true, composed: true, 
+            detail: playerReadyMessage });
+        
+        this.dispatchEvent(playerReady);
     }
 
     outboundMessage(event) {
@@ -146,15 +182,18 @@ class MarketSession extends PolymerElement {
         else {
             console.error(`invalid message type: ${messagePayload.type} in ${messagePayload}`);
         }
-
     }
 
-    _activatesession(){
-        // change some classes do some css3/ keyframes action
-        // maybe add remove overlay
+    _activateSession(){   
+        this.$.overlay.style.opacity = 1;
+        this.$.overlay.style.pointerEvents = 'all';
+        this.$.overlay.style.backgroundColor = 'none';
+
+        //S
     }
 
-    static get template() {return html`
+    static get template() {
+        return html`
         <!--- 
         To modularize I have to look into ELO.html,
         but will manually style for now - Patrick 2/11 
@@ -172,26 +211,36 @@ class MarketSession extends PolymerElement {
                 width:100%;
                 background: #4F759B;
             }
+            .on{
+                opacitiy:1.0;
+                pointer-events:all;
+            }
+            .off{
+                opacitiy:0.3;
+                pointer-events:none;
+            }
         </style>
+        <div id = 'overlay'>
+            <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
+            <div class = "table-selection-container">
+            
+                    <info-table inventory="{{inventory}}" cash={{cash}}
+                        endowment={{endowment}} 
+                        best-bid={{bestBid}}
+                        best-offer={{bestOffer}} my-bid={{myBid}}
+                        my-offer={{myOffer}}> 
+                    </info-table>
+            
+            
+                    <state-selection 
+                    strategy = {{role}}
+                    roles = {{roles}}
+                    > 
+                    </state-selection>
 
-        <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-        <div class = "table-selection-container">
-           
-                <info-table inventory="{{inventory}}" cash={{cash}}
-                    endowment={{endowment}} 
-                    best-bid={{bestBid}}
-                    best-offer={{bestOffer}} my-bid={{myBid}}
-                    my-offer={{myOffer}}> 
-                </info-table>
-           
-          
-                <state-selection 
-                strategy = {{role}}
-                > 
-                </state-selection>
-
+            </div>
         </div>
-
+        
         <!--- 
         To modularize I have to look into ELO.html,
         but will manually put html for now - Patrick 2/11 

@@ -43,7 +43,7 @@ const ELO = {
             }
         },
         outbound: {
-            role_change:{ 
+            role_change: { 
                 type: String,
                 state: String,
             }, 
@@ -53,10 +53,14 @@ const ELO = {
                 value: parseFloat,
 
             },
-            speed:{ 
+            speed: { 
                 type: String,
                 state: Boolean,
+            },
+            player_ready: {
+                type: String
             }
+
 
         },
     },
@@ -66,7 +70,16 @@ const ELO = {
         executed: ['_handleExchangeMessage', '_handleExecuted'],
         canceled: ['_handleExchangeMessage'],
         bbo: ['_handleBestBidOfferUpdate']
-    }
+    },
+    //Have to organize all roles in an object
+    //in order to set as properties in state-selection
+    roles: {
+        manual: 'selected',
+        maker: 'not-selected',
+        out: 'not-selected', 
+        taker: 'not-selected'
+    },
+
 }
 
 export {ELO}

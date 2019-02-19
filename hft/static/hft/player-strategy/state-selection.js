@@ -10,21 +10,12 @@ class StateSelection extends PolymerElement {
               type: String,
               observer: '_confirmedStrategyChange'
           },
-          maker:{
-              type: String
-          },
-          taker:{
-              type: String
-          },
-          manual:{
-              type: String
-          },
-          out:{
-              type: String
+          roles: {
+              type: Object
           },
           disabledSliders:{
               type: String
-          }
+          },
         }
     }
 
@@ -93,14 +84,14 @@ class StateSelection extends PolymerElement {
                         <div class="column button-container">
 
                             <state-button
-                                strategy="manual"
-                                strategy-on = '{{manual}}'
+                                strategy='manual'
+                                strategy-on = '{{roles.manual}}'
                             >
                             </state-button>
             
                             <state-button
                                 strategy="out"
-                                strategy-on = '{{out}}'
+                                strategy-on = '{{roles.out}}'
                             >
                             </state-button>
 
@@ -110,8 +101,8 @@ class StateSelection extends PolymerElement {
                 <div class="column algorithm">
                     <algorithm-selection 
                          disabled-sliders = '{{disabledSliders}}'
-                         maker-on = '{{maker}}'
-                         taker-on = '{{taker}}'
+                         maker-on = '{{roles.maker}}'
+                         taker-on = '{{roles.taker}}'
                     >
                     </algorithm-selection>
                     
@@ -121,20 +112,8 @@ class StateSelection extends PolymerElement {
         `;
     }
 
-
-
     constructor() {
         super();
-    }
-
-    ready(){
-        super.ready();
-
-        if(this.strategy == 'out'){
-            this.outState = 'selected';
-        }
-        console.log(this.strategy);
-
     }
 
     _confirmedStrategyChange(newVal , oldVal){
@@ -149,46 +128,27 @@ class StateSelection extends PolymerElement {
             the role being true or false using string comparisons in the 
             components to run actions based on the role being selected or not
         */
-        if (newVal == 'out'){
+        
+        for(let role in this.roles){
+            if(role == newVal){
+                this.roles[role] = 'selected';
+            } else {
+                this.roles[role] = 'not-selected';
+            }
 
-            this.out = 'selected';
-            this.maker = 'not-selected';
-            this.taker = 'not-selected';
-            this.manual = 'not-selected';
+            //Absolutely necessary line below to 
+            //notfiy the roles object in markup (html) to change
+            this.notifyPath('roles.' + role);
 
-            this.disabledSliders = 'not-selected';
-
-        } else if (newVal == 'manual'){
-
-            this.manual = 'selected';
-            this.out = 'not-selected';
-            this.maker = 'not-selected';
-            this.taker = 'not-selected';
-
-            this.disabledSliders = 'not-selected';
-
-        } else if (newVal == 'maker'){
-
-            this.maker = 'selected';
-            this.out = 'not-selected';
-            this.taker = 'not-selected';
-            this.manual = 'not-selected';
-
-            this.disabledSliders = 'selected';
-
-        } else if (newVal == 'taker'){
-            this.taker = 'selected';
-            this.out = 'not-selected';
-            this.maker = 'not-selected';
-            this.manual = 'not-selected';
-
-            this.disabledSliders = 'selected';
+            //Below conditional is implementation specific to ELO
+            //Only algorithm roles can use the sliders
+            if(newVal == 'taker' || newVal == 'maker'){
+                this.disabledSliders = 'selected';
+            } else { 
+                this.disabledSliders = 'not-selected';
+            }
         }
 
     }
-  
-
- 
-  
   }
   customElements.define('state-selection', StateSelection)

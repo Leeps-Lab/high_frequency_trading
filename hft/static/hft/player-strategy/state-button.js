@@ -15,13 +15,13 @@ class StateButton extends PolymerElement {
                 color:#FFFFF0;
                 font-size:20px;
                 text-align:center;
-                width:100px;
-                height:50px;
+                width:90px;
+                height:45px;
                 border-radius: 6px;
                 margin-top:10px;
             }
 
-            button:active{
+            button:active{  
                 background-color:#42607F;
             }
 
@@ -54,12 +54,7 @@ class StateButton extends PolymerElement {
     }
     ready(){
         super.ready();
-        if(this.strategy == "out"){
-            this.strategyOn  = "selected";
-        } else {
-            this.strategyOn  = "";
-        }
-        
+
         this.$.stateButton.addEventListener('click', this._pendingState.bind(this));
         
     }
@@ -80,8 +75,6 @@ class StateButton extends PolymerElement {
             state: this.strategy,
         }
 
-
-        //ONLY CHANGE THIS FIELD IF MESSAGE RECIEVED IS ACCEPTED ROLE CHANGE FROM BACKEND TALK TO ALI
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });
             
