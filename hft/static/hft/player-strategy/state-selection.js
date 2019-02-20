@@ -197,7 +197,7 @@ class StateSelection extends PolymerElement {
             the role being true or false using string comparisons in the 
             components to run actions based on the role being selected or not
         */
-        
+
         for(var role in this.roles){
             if(role == newVal){
                 this.roles[role] = 'selected';

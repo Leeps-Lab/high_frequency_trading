@@ -4,9 +4,7 @@ class StateButton extends PolymerElement {
 
     static get properties(){
         return {
-            strategy:{
-                type: String
-            },
+            strategy: String,
             strategyOn: {
                 type: String,
                 observer:'_buttonOn'
@@ -34,18 +32,45 @@ class StateButton extends PolymerElement {
                 border-radius: 5px;
                 margin-top:10px;
             }
-
-            .role-selected{
-                animation-name: colorful;
-                animation-color: 4s;
-
+        
+            /*
+            [strategy-on=selected]{
+                animation-name: selected-animation;
+                animation-duration: 1s;
+                animation-fill-mode: forwards;
             }
-
-            @keyframes colorful {
+            */
+           
+            .role-selected{
+                animation-name: selected-animation;
+                animation-duration: 1s;
+                animation-fill-mode: forwards;
+            }
+            @keyframes selected-animation {
                 100% {
                   background-color: #ED6A5A;
                 }
-            
+            }
+
+            /*
+            [strategy-on=not-selected]{
+                animation-name: not-selected-animation;
+                animation-duration: 1s;
+                animation-fill-mode: forwards;
+            }
+            */
+           
+            .role-not-selected{
+                animation-name: not-selected-animation;
+                animation-duration: 1s;
+                animation-fill-mode: forwards;
+            }
+            @keyframes not-selected-animation {
+                100% {
+                  background-color: #7F9AB5;
+                }
+            }
+
         </style>
         <div class="button">
             <button
@@ -60,13 +85,6 @@ class StateButton extends PolymerElement {
     constructor(){
         super();    
     }
-
-    // ready(){
-    //     super.ready();
-
-    //     // this.$.stateButton.addEventListener('click', this._pendingState.bind(this));
-        
-    // }
 
     _handleClick(){
         let socketMessage = {
@@ -84,21 +102,9 @@ class StateButton extends PolymerElement {
         if(newVal == 'selected'){
             this.$.stateButton.className = 'role-selected';
         } else {
-            this.$.stateButton.className = '';
+            this.$.stateButton.className = 'role-not-selected';
         }
     }
-
-
-
-    // _confirmState(event){
-    //     console.log(event);
-    //     let strategy = event.detail.state;
-    //     if(strategy == this.strategy){
-    //         this.strategyOn = "selected";
-    //     } else {
-    //         this.strategyOn = "";
-    //     }
-    // }
 
 }
 
