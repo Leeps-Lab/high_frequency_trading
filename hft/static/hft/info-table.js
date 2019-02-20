@@ -40,7 +40,7 @@ class InfoTable extends PolymerElement {
 
         .title {
           display: inline-block;
-          width: 40%;
+          width: 33%;
           text-align: center;
           background: #FFFFF0;
         }
@@ -48,13 +48,13 @@ class InfoTable extends PolymerElement {
         .row {
           display: inline-block;
           margin: 5px;
-          width: 40%;
+          width: 33%;
           height: 100%;
         }
 
         #small-row {
           margin: 5px;
-          width: 20%;
+          width: 34%;
           height: 100%;
           align-items: flex-start;
         }

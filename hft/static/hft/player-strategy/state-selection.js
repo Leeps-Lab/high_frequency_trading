@@ -204,13 +204,11 @@ class StateSelection extends PolymerElement {
             } else {
                 this.roles[role] = 'not-selected';
             }
+            this.notifyPath('roles.' + role);
         }
-        this.notifyPath('roles.' + role);
-            //Absolutely necessary line below to 
-            //notfiy the roles object in markup (html) to change
-            // this.notifyPath('roles.' + role);
-            //Below conditional is implementation specific to ELO
-            //Only algorithm roles can use the sliders
+        
+        //Below conditional is implementation specific to ELO
+        //Only algorithm roles can use the sliders
         let sliders= this.shadowRoot.querySelectorAll('.slider-group')
         sliders.forEach( (element) => { 
             newVal == 'taker' || newVal == 'maker' ? element.disabled = false :

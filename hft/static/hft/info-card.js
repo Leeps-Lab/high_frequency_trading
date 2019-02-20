@@ -46,7 +46,6 @@ class InfoCard extends PolymerElement {
             justify-content: center;
             align-items: center;
             background: #FFFFF0;
-            height: 80%;
             width: 100%;
             border-radius: 5px;
             animation-name: shine;

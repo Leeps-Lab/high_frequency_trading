@@ -75,8 +75,8 @@ const ELO = {
     //in order to set as properties in state-selection
     roles: {
         manual: 'not-selected',
-        maker: 'selected',
-        out: 'not-selected', 
+        maker: 'not-selected',
+        out: 'selected', 
         taker: 'not-selected'
     },
 

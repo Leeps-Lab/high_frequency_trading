@@ -62,28 +62,22 @@ class MarketSession extends PolymerElement {
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
-        this.addEventListener('sync', this._activateSession.bind(this));
 
         setTimeout(this._activateSession.bind(this), 3000);
         setTimeout(this._setRole.bind(this), 4000);
         setTimeout(this._setRole2.bind(this), 6000);
+        setTimeout(this._setRole3.bind(this), 7000);
+
     }
 
     ready(){
         super.ready();
-        console.log(this.roles)
         for(let role in this.roles){
             if(this.roles[role] == 'selected'){
                 this.role = role;
                 break;
             }
         }
-        console.log("Your starting role is " , this.role);
-        
-        console.log("Representing class list next ", this.$.overlay.classList);
-        this.$.overlay.style.opacity = 0.1;
-        this.$.overlay.style.pointerEvents = 'none';
-
 
         let playerReadyMessage = {
             type: 'player_ready',
@@ -94,10 +88,14 @@ class MarketSession extends PolymerElement {
         
         this.dispatchEvent(playerReady);
     }
+
     _setRole(){
-        this.role = 'out';
+        this.role = 'maker';
     }
     _setRole2(){
+        this.role = 'manual';
+    }
+    _setRole3(){
         this.role = 'taker';
     }
 
@@ -194,12 +192,8 @@ class MarketSession extends PolymerElement {
         }
     }
 
-    _activateSession(){   
-        this.$.overlay.style.opacity = 1;
-        this.$.overlay.style.pointerEvents = 'all';
-        this.$.overlay.style.backgroundColor = 'none';
-
-        //S
+    _activateSession(){  
+        this.$.overlay.classList = 'on';
     }
 
     static get template() {
@@ -246,7 +240,7 @@ class MarketSession extends PolymerElement {
             }
         </style>
 
-        <div id = 'overlay'>
+        <div id = 'overlay' class = 'off'>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
             <div class = "middle-section-container">       
                 <info-table id="info-table" inventory="{{inventory}}" cash={{cash}}
