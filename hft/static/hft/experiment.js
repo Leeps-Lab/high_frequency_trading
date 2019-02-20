@@ -19,9 +19,11 @@ class ELOExperiment extends PolymerElement {
 
     static get template() {
       return html`
-        <market-session events={{environment.events}} 
-        event-listeners={{environment.eventListeners}}
-        event-handlers={{environment.eventHandlers}}
+        <market-session events=[[environment.events]] 
+        event-listeners=[[environment.eventListeners]]
+        event-handlers=[[environment.eventHandlers]]
+        roles=[[environment.roles]]
+        slider-defaults=[[environment.sliderProperties]]
         </market-session>
         `;
       }

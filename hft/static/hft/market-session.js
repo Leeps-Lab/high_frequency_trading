@@ -3,7 +3,6 @@ import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-el
 import {PlayersOrderBook} from './market_elements.js'
 import './player-strategy/state-selection.js';
 import './profit-graph/profit-graph-new.js';
-import {ELO} from './market_environments.js';
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -14,6 +13,7 @@ class MarketSession extends PolymerElement {
       return {
         eventListeners: Object,
         eventHandlers: Object,
+        sliderDefaults: Object,
         events: Object,
         active: {type: Boolean, observer: '_activateSession'},
         role: String,
@@ -54,27 +54,26 @@ class MarketSession extends PolymerElement {
         super();
         this.playerId = 7
         this.orderBook = new PlayersOrderBook(this.playerId);
-        // console.log(this.websocketUrl)
-
-        this.roles = ELO['roles'];
-        for(let role in this.roles){
-            if(this.roles[role] == 'selected'){
-                this.role = role;
-                break;
-            }
-        }
-
-        console.log("Your starting role is " , this.role);
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
         this.addEventListener('sync', this._activateSession.bind(this));
 
         setTimeout(this._activateSession.bind(this), 3000);
+        setTimeout(this._setRole.bind(this), 4000);
+        setTimeout(this._setRole2.bind(this), 6000);
     }
 
     ready(){
         super.ready();
+        console.log(this.roles)
+        for(let role in this.roles){
+            if(this.roles[role] == 'selected'){
+                this.role = role;
+                break;
+            }
+        }
+        console.log("Your starting role is " , this.role);
         
         console.log("Representing class list next ", this.$.overlay.classList);
         this.$.overlay.style.opacity = 0.1;
@@ -89,6 +88,12 @@ class MarketSession extends PolymerElement {
             detail: playerReadyMessage });
         
         this.dispatchEvent(playerReady);
+    }
+    _setRole(){
+        this.role = 'out';
+    }
+    _setRole2(){
+        this.role = 'taker';
     }
 
     outboundMessage(event) {
@@ -203,13 +208,28 @@ class MarketSession extends PolymerElement {
                 width:100vw;
                 height:100vh;
             }
-            .table-selection-container{
+
+            .middle-section-container{
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-start;
                 align-items: center;
-                width:100%;
+                font-weight: bold;
+                height: 27vh;
+                width: 100vw; 
                 background: #4F759B;
+                border-top: 3px solid #ED6A5A;
+                border-bottom: 3px solid #ED6A5A;
+            }
+
+            #info-table {
+                width: 60%;
+                height: 100%;
+            }
+
+            #input-section {
+                width: 40%;
+                height: 100%;
             }
             .on{
                 opacitiy:1.0;
@@ -220,24 +240,24 @@ class MarketSession extends PolymerElement {
                 pointer-events:none;
             }
         </style>
+
         <div id = 'overlay'>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-            <div class = "table-selection-container">
-            
-                    <info-table inventory="{{inventory}}" cash={{cash}}
-                        endowment={{endowment}} 
-                        best-bid={{bestBid}}
-                        best-offer={{bestOffer}} my-bid={{myBid}}
-                        my-offer={{myOffer}}> 
-                    </info-table>
-            
-            
-                    <state-selection 
-                    strategy = {{role}}
-                    roles = {{roles}}
-                    > 
-                    </state-selection>
+            <div class = "middle-section-container">       
+                <info-table id="info-table" inventory="{{inventory}}" cash={{cash}}
+                    endowment={{endowment}} 
+                    best-bid={{bestBid}}
+                    best-offer={{bestOffer}} my-bid={{myBid}}
+                    my-offer={{myOffer}}> 
+                </info-table>
 
+                <state-selection 
+                id="input-section"
+                strategy = {{role}}
+                roles = {{roles}}
+                slider-defaults = {{sliderDefaults}}
+                > 
+                </state-selection>
             </div>
         </div>
         

@@ -1,43 +1,7 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
 
 class StateButton extends PolymerElement {
-    static get template() {
-        return html`
-        <style>
-            :host {
-                display: inline-block;
-                font-family: monospace;
-            }
 
-            button{
-                font-family: monospace;
-                background-color:#7F9AB5;
-                color:#FFFFF0;
-                font-size:20px;
-                text-align:center;
-                width:90px;
-                height:45px;
-                border-radius: 6px;
-                margin-top:10px;
-            }
-
-            button:active{  
-                background-color:#42607F;
-            }
-
-            .role-selected{
-                background-color:#008C4F;
-            }
-            
-        </style>
-        <div class="button">
-            <button
-                id = 'stateButton'
-                class = ""
-            >{{strategy}}</button>
-        </div>
-        `;
-    }
     static get properties(){
         return {
             strategy:{
@@ -49,28 +13,55 @@ class StateButton extends PolymerElement {
             }
         }
     }
+
+    static get template() {
+        return html`
+        <style>
+            :host {
+                display: inline-block;
+                font-family: monospace;
+                font-weight: bold;
+            }
+
+            button{
+                font-family: monospace;
+                font-size: 16px;
+                background-color:#7F9AB5;
+                color:#FFFFF0;
+                text-align:center;
+                width:90px;
+                height:45px;
+                border-radius: 5px;
+                margin-top:10px;
+            }
+            
+            .role-selected{
+                background-color:#ED6A5A;
+            }
+            
+        </style>
+        <div class="button">
+            <button
+                id="stateButton"
+                on-click="_handleClick"
+                class = ""
+            > {{strategy}} </button>
+        </div>
+        `;
+    }
         
     constructor(){
         super();    
     }
-    ready(){
-        super.ready();
 
-        this.$.stateButton.addEventListener('click', this._pendingState.bind(this));
+    // ready(){
+    //     super.ready();
+
+    //     // this.$.stateButton.addEventListener('click', this._pendingState.bind(this));
         
-    }
+    // }
 
-
-    _buttonOn(newVal, oldVal){
-        if(newVal == 'selected'){
-            this.$.stateButton.className = 'role-selected';
-        } else {
-            this.$.stateButton.className = '';
-        }
-    }
-
-
-    _pendingState(){
+    _handleClick(){
         let socketMessage = {
             type: 'role_change',
             state: this.strategy,
@@ -82,15 +73,25 @@ class StateButton extends PolymerElement {
         this.dispatchEvent(userInputEvent);
     } 
 
-    _confirmState(event){
-        console.log(event);
-        let strategy = event.detail.state;
-        if(strategy == this.strategy){
-            this.strategyOn = "selected";
+    _buttonOn(newVal, oldVal){
+        if(newVal == 'selected'){
+            this.$.stateButton.className = 'role-selected';
         } else {
-            this.strategyOn = "";
+            this.$.stateButton.className = '';
         }
     }
+
+
+
+    // _confirmState(event){
+    //     console.log(event);
+    //     let strategy = event.detail.state;
+    //     if(strategy == this.strategy){
+    //         this.strategyOn = "selected";
+    //     } else {
+    //         this.strategyOn = "";
+    //     }
+    // }
 
 }
 

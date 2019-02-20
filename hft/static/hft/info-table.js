@@ -10,6 +10,7 @@ class InfoTable extends PolymerElement {
         inventory: {type: Number, value: null}, 
         cash: {type: Number, value: null},
         endowment: {type: Object, value: null},
+        imbalance: {type: Object, value: null}
       }
     }
     constructor() {
@@ -21,8 +22,9 @@ class InfoTable extends PolymerElement {
   
         <style>
         :host {
-          display: block;
-          height: 400px;
+          display: inline-block;
+          height: 100%;
+          width: 100%;
           font-family: monospace;
         }
   
@@ -45,9 +47,16 @@ class InfoTable extends PolymerElement {
   
         .row {
           display: inline-block;
-          margin: 10px;
-          width: 100%;
-          height: 100%
+          margin: 5px;
+          width: 40%;
+          height: 100%;
+        }
+
+        #small-row {
+          margin: 5px;
+          width: 20%;
+          height: 100%;
+          align-items: flex-start;
         }
   
         </style>
@@ -62,9 +71,9 @@ class InfoTable extends PolymerElement {
                 bid={{myBid}} ask={{myOffer}}>
               </bidask-spread>
             </div>
-            <div class="row">
+            <div id="small-row" class="row">
               <subject-wallet inventory={{inventory}} cash={{cash}}
-                endowment={{endowment}}> 
+                endowment={{endowment}} imbalance={{imbalance}}> 
               </subject-wallet>
             </div>
           </div>

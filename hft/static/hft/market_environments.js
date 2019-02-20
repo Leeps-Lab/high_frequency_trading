@@ -49,8 +49,8 @@ const ELO = {
             }, 
             slider: { 
                 type: String,
-                title: String,
-                value: parseFloat,
+                a_x: parseFloat,
+                a_y: parseFloat,
 
             },
             speed: { 
@@ -79,6 +79,12 @@ const ELO = {
         out: 'not-selected', 
         taker: 'not-selected'
     },
+
+    sliderProperties: {
+        minValue: 0,
+        maxValue: 10,
+        stepSize: 0.1
+    }
 
 }
 

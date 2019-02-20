@@ -15,7 +15,7 @@ input[type=range]::-webkit-slider-runnable-track {
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background:#1D8A53;
+  background:#ED6A5A;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -31,7 +31,7 @@ input[type=range]::-webkit-slider-thumb {
   margin-top: -14px;
 }
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: #1D8A53;
+  background: #ED6A5A;
 }
 input[type=range]::-moz-range-track {
   width: 100%;
