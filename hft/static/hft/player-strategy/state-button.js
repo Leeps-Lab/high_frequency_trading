@@ -34,10 +34,17 @@ class StateButton extends PolymerElement {
                 border-radius: 5px;
                 margin-top:10px;
             }
-            
+
             .role-selected{
-                background-color:#ED6A5A;
+                animation-name: colorful;
+                animation-color: 4s;
+
             }
+
+            @keyframes colorful {
+                100% {
+                  background-color: #ED6A5A;
+                }
             
         </style>
         <div class="button">

@@ -16,8 +16,8 @@ class SubjectConsumer(JsonWebsocketConsumer):
 
     def connect(self, message, subsession_id, group_id, player_id):
         player = Player.objects.get(id=player_id)
-        log.info('Player %s is connected to Group %s with in-group id %s.' % (
-            player_id, group_id, player.id_in_group))
+        log.info('player %s connected. subsession %s, market %s' % (
+            player_id, subsession_id, group_id))
         player.channel = message.reply_channel
         player.save()
 

@@ -8,6 +8,7 @@ const MIN_BID = 0;
 const MAX_ASK = 2147483647;
 
 
+
 class MarketSession extends PolymerElement {
     static get properties() {
       return {
@@ -78,40 +79,24 @@ class MarketSession extends PolymerElement {
                 break;
             }
         }
-
-        let playerReadyMessage = {
-            type: 'player_ready',
-        };
-
-       let playerReady = new CustomEvent('user-input', {bubbles: true, composed: true, 
-            detail: playerReadyMessage });
-        
-        this.dispatchEvent(playerReady);
-    }
-
-    _setRole(){
-        this.role = 'maker';
-    }
-    _setRole2(){
-        this.role = 'manual';
-    }
-    _setRole3(){
-        this.role = 'taker';
     }
 
     outboundMessage(event) {
         const messagePayload = event.detail
-        console.log("In outbound");
-        console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
-        this.$.websocket.send(cleanMessage)
+        let wsMessage = new CustomEvent('ws-message', {bubbles: true, composed: true, 
+            detail: messagePayload })
+        this.$.websocket.dispatchEvent(wsMessage)
     }
     
     inboundMessage(event) {
         const messagePayload = event.detail
+        console.log('message received: ', messagePayload)
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
+        console.log('cleaned message: ', cleanMessage)
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
+        console.log('handler for message: ', handlers)
         for (let i = 0; i < handlers.length; i++) {
             let handlerName = handlers[i]
             this[handlerName](cleanMessage)

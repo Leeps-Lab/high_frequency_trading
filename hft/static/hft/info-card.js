@@ -75,13 +75,13 @@ class InfoCard extends PolymerElement {
             [shineclass=shine-copy] {
                 animation-name: shine-more;
                 animation-duration: 0.6s;
-                animation-timing-function: ease-in-out;
+                animation-timing-function: ease-out;
               }
     
             [shineclass=shine] {
                 animation-name: shine;
                 animation-duration: 0.7s;
-                animation-timing-function: ease-in-out;
+                animation-timing-function: ease-out;
               }
     
               @keyframes shine{

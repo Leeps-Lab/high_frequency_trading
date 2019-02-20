@@ -91,13 +91,13 @@ class MarketPriceCard extends PolymerElement {
       [trend=price-down] {
         animation-name: decrease;
         animation-duration: 1s;
-        animation-timing-function: ease-in-out;
+        animation-timing-function: ease-out;
       }
 
       [trend=price-down-copy] {
         animation-name: decrease-more;
         animation-duration: 1s;
-        animation-timing-function: ease-in-out;
+        animation-timing-function: ease-out;
       }
 
       @keyframes increase{
@@ -122,18 +122,12 @@ class MarketPriceCard extends PolymerElement {
         100% {
         background-color: rgba(255,0,0,0.4)
         };
-        10% {
-          background-color: rgba(0,255,0,0.05)
-          };
       }
 
       @keyframes decrease-more{
         100% {
         background-color: rgba(255,0,0,0.4)
         };
-        10% {
-          background-color: rgba(0,255,0,0.05)
-          };
       }
 
       </style>
