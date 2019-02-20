@@ -30,23 +30,28 @@ class MarketSession extends PolymerElement {
         cash: Number,
         playerId: Number,
         constants: Object,
-        endowment: {type: Number, 
-            computed: '_inventoryValueChange(inventory, cash, bestBid, bestOffer)'},
-        websocketUrl: {type: Object, value: function () {
-            let protocol = 'ws://';
-            if (window.location.protocol === 'https:') {
-                protocol = 'wss://';
-                }
-            const url = (
-                protocol +
-                window.location.host +
-                '/hft/' +
-                OTREE_CONSTANTS.subsessionId + '/' +
-                OTREE_CONSTANTS.marketId + '/' +
-                OTREE_CONSTANTS.playerId + '/'
+        endowment: {
+            type: Number, 
+            computed: '_inventoryValueChange(inventory, cash, bestBid, bestOffer)'
+        },
+        websocketUrl: {
+            type: Object,
+            value: function () {
+                let protocol = 'ws://';
+                if (window.location.protocol === 'https:') {
+                    protocol = 'wss://';
+                    }
+                const url = (
+                    protocol +
+                    window.location.host +
+                    '/hft/' +
+                    OTREE_CONSTANTS.subsessionId + '/' +
+                    OTREE_CONSTANTS.marketId + '/' +
+                    OTREE_CONSTANTS.playerId + '/'
                 )
-            return url
-        }}
+                return url
+            },
+        }
       }
     }
 
@@ -146,7 +151,7 @@ class MarketSession extends PolymerElement {
                 break
         }
     }
-         
+
     _inventoryValueChange(inventory, cash, bestBid, bestOffer) {
         let result = null;
         if (inventory <= 0 && bestOffer != MAX_ASK) {
@@ -265,7 +270,8 @@ class MarketSession extends PolymerElement {
         To modularize I have to look into ELO.html,
         but will manually put html for now - Patrick 2/11 
         --->
-    `;}
+    `;
+    }
 
 }
 

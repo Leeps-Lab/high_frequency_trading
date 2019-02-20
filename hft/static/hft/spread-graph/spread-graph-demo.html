@@ -14,37 +14,20 @@
     ></spread-graph>
 
     <button type="button" onclick="add_order()">add random order</button>
-    <button type="button" onclick="remove_order()">remove random order</button>
 
-    <script>
+    <script type="module">
+        import {PlayersOrderBook} from '../market_elements.js'
+
         const spread_graph = document.querySelector('spread-graph');
-        spread_graph.setAttribute('orders', '[]')
+        const order_book = new PlayersOrderBook(1);
+        let order_num = 0
+        spread_graph.setAttribute('orders', JSON.stringify(order_book));
 
         spread_graph.addEventListener('order-entered', e => {  
-            const order = {
-                price: e.detail.price,
-            };
-            let cur_orders = JSON.parse(spread_graph.getAttribute('orders'));
-            cur_orders.push(order);
-            spread_graph.setAttribute('orders', JSON.stringify(cur_orders));
+            order_book._addOrder(e.detail.price, e.detail.type, order_num++, 1)
+            spread_graph.setAttribute('orders', JSON.stringify(order_book));
         });
 
-        function add_order() {
-            const order = {
-                price: 106 + Math.round(Math.random() * 14),
-            }
-
-            let cur_orders = JSON.parse(spread_graph.getAttribute('orders'));
-            cur_orders.push(order);
-            spread_graph.setAttribute('orders', JSON.stringify(cur_orders));
-        }
-
-        function remove_order() {
-            let cur_orders = JSON.parse(spread_graph.getAttribute('orders'));
-            if (!cur_orders) return;
-            cur_orders.splice(Math.floor(Math.random()*cur_orders.length), 1);
-            spread_graph.setAttribute('orders', JSON.stringify(cur_orders));
-        }
     </script>
 </body>
 </html>
