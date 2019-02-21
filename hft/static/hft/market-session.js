@@ -103,7 +103,7 @@ class MarketSession extends PolymerElement {
     constructor() {
         super();
 
-        this.orderBook = new PlayersOrderBook(this.playerId);
+        this.orderBook = new PlayersOrderBook(this.playerId, this, 'orderBook');
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
