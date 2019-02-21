@@ -15,7 +15,7 @@ input[type=range]::-webkit-slider-runnable-track {
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #ED6A5A;
+  background:#ED6A5A;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }
@@ -38,7 +38,7 @@ input[type=range]::-moz-range-track {
   height: 8.4px;
   cursor: pointer;
   box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: #ED6A5A;
+  background: #1D8A53;
   border-radius: 1.3px;
   border: 0.2px solid #010101;
 }

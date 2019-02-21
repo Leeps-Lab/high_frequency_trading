@@ -36,7 +36,7 @@ class BidAskSpread extends LitElement {
           .row-container {
             display: flex;
             flex-direction: row;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             width: 100%;
             height: 100%;

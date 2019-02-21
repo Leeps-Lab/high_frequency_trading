@@ -1,0 +1,33 @@
+<html>
+<head>
+    <script type="module" src="./spread-graph-new.js"></script>
+    <script src="../node_modules/d3.min.js"></script>
+    <style>        
+        spread-graph {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <spread-graph
+    ></spread-graph>
+
+    <button type="button" onclick="add_order()">add random order</button>
+
+    <script type="module">
+        import {PlayersOrderBook} from '../market_elements.js'
+
+        const spread_graph = document.querySelector('spread-graph');
+        const order_book = new PlayersOrderBook(1);
+        let order_num = 0
+        spread_graph.setAttribute('orders', JSON.stringify(order_book));
+
+        spread_graph.addEventListener('order-entered', e => {  
+            order_book._addOrder(e.detail.price, e.detail.type, order_num++, 1)
+            spread_graph.setAttribute('orders', JSON.stringify(order_book));
+        });
+
+    </script>
+</body>
+</html>
