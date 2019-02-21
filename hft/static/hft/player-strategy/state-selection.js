@@ -1,30 +1,8 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
-import './state-button.js';
-import './algorithm-selection.js';
-import './speed-selection.js'
+import './player-role-button.js';
+import './speed-switch.js'
 
 class StateSelection extends PolymerElement {
-    static get properties() {
-        return {
-          strategy: {
-              type: String,
-              observer: '_confirmedStrategyChange',
-              value: 'out'
-          },
-          roles: Object,
-          sliderDefaults: Object,
-          slider_a_x: {
-            type: Number,
-            observer: '_sliderValueChange',
-            value: 0
-          },
-          slider_a_y: {
-            type: Number,
-            observer: '_sliderValueChange',
-            value: 0
-          }
-        }
-    }
 
     static get template() {
         return html`
@@ -92,38 +70,24 @@ class StateSelection extends PolymerElement {
                     <div class="header-container">
                         Speed
                     </div>
-                    <speed-switch 
-                    >
-                    </speed-switch>
+                    <speed-switch> </speed-switch>
                 </div>
                 
                 <div id="second-column" class="column-container">
                     <div>
-                        <state-button
-                            strategy="manual"
-                            strategy-on = '{{roles.manual}}'
-                        >
-                        </state-button>
+                        <player-role-button role-name="manual" player-role=[[role]]>
+                        </player-role-button>
 
-                        <state-button
-                            strategy = "maker"
-                            strategy-on = '{{roles.maker}}'
-                        >
-                        </state-button>
+                        <player-role-button role-name="maker" player-role=[[role]]>
+                        </player-role-button>
                     </div>
 
                     <div>
-                        <state-button
-                            strategy="out"
-                            strategy-on = '{{roles.out}}'
-                        >
-                        </state-button>
+                        <player-role-button role-name="out" player-role=[[role]]>
+                        </player-role-button>
 
-                        <state-button
-                            strategy = "taker"
-                            strategy-on = '{{roles.taker}}'
-                        >
-                        </state-button>
+                        <player-role-button role-name="taker" player-role=[[role]]>
+                        </player-role-button>
                     </div>
                 </div>
 
@@ -131,40 +95,49 @@ class StateSelection extends PolymerElement {
                     <div class="header-container" style="height: 10%">
                         Sensitivities
                     </div>
-                    
 
-                    
                     <div class="header-container slider-header">
                         Inventory: {{slider_a_x}}
                     </div>
                     
             
-                    <input 
-                        class= "slider-group"
-                        type="range" 
-                        min = '{{sliderDefaults.minValue}}'
-                        max = '{{sliderDefaults.maxValue}}'
-                        value = '{{slider_a_x::mouseup}}'
-                        step = '{{sliderDefaults.stepSize}}'
-                    >
+                    <input class="slider-group" type="range" min='{{sliderDefaults.minValue}}'
+                        max='{{sliderDefaults.maxValue}}' value='{{slider_a_x::mouseup}}'
+                        step='{{sliderDefaults.stepSize}}'>
 
                     <div class="header-container slider-header">
                     Imbalance: {{slider_a_y}}
                     </div>
 
-                    <input 
-                        type="range" 
-                        class="slider-group"
-                        min = '[[sliderDefaults.minValue]]'
-                        max = '[[sliderDefaults.maxValue]]'
-                        value = '{{slider_a_y::mouseup}}'
-                        step = '[[sliderDefaults.stepSize]]'
-                    >
+                    <input type="range" class="slider-group" min='[[sliderDefaults.minValue]]'
+                        max='[[sliderDefaults.maxValue]]' value='{{slider_a_y::mouseup}}'
+                        step='[[sliderDefaults.stepSize]]'>
                 </div>
                         
             </div>
 
         `;
+    }
+
+    static get properties() {
+        return {
+          role: {
+              type: String,
+              observer: '_roleChange',
+              value: 'out'
+          },
+          sliderDefaults: Object,
+          slider_a_x: {
+            type: Number,
+            observer: '_sliderValueChange',
+            value: 0
+          },
+          slider_a_y: {
+            type: Number,
+            observer: '_sliderValueChange',
+            value: 0
+          }
+        }
     }
 
     constructor() {
@@ -184,31 +157,9 @@ class StateSelection extends PolymerElement {
         this.dispatchEvent(userInputEvent);
     }
 
-
-    _confirmedStrategyChange(newVal , oldVal){
-        /*
-        To be configurable in markup for true or false 
-            the presence of the attribute results in true
-            the oposite results to false
-            https://polymer-library.polymer-project.org/3.0/docs/devguide/properties#configuring-boolean-properties
-        This is undesirable because I want to be able to select
-            which state (maker,taker,out,manual) is selected or not
-        So in this case I use strings "selected" (true) and "" (false) to represent
-            the role being true or false using string comparisons in the 
-            components to run actions based on the role being selected or not
-        */
-
-        for(var role in this.roles){
-            if(role == newVal){
-                this.roles[role] = 'selected';
-            } else {
-                this.roles[role] = 'not-selected';
-            }
-            this.notifyPath('roles.' + role);
-        }
-        
-        //Below conditional is implementation specific to ELO
-        //Only algorithm roles can use the sliders
+    _roleChange(newVal , oldVal) {        
+        // since I can't set a disabled=false 
+        // on markup using data binding
         let sliders= this.shadowRoot.querySelectorAll('.slider-group')
         sliders.forEach( (element) => { 
             newVal == 'taker' || newVal == 'maker' ? element.disabled = false :

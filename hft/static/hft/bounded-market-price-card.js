@@ -26,7 +26,7 @@ class MarketPriceCard extends PolymerElement {
 
   _priceChanged(newValue, oldValue) {
     let theCard = this.shadowRoot.querySelector('.cardPrice')
-    if (price == MIN_BID || price == MAX_ASK) { 
+    if (newValue == MIN_BID || newValue == MAX_ASK) { 
       theCard.setAttribute("trend", "")
       return
     } 

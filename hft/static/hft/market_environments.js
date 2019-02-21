@@ -92,12 +92,6 @@ const ELO = {
         system_event: ['_handleSystemEvent'],
         order_imbalance: ['_handleOrderImbalance']
     },
-    roles: {
-        manual: 'not-selected',
-        maker: 'not-selected',
-        out: 'selected', 
-        taker: 'not-selected'
-    },
     sliderProperties: {
         minValue: 0,
         maxValue: 10,

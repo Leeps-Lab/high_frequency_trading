@@ -2,7 +2,7 @@
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market_elements.js'
 import './player-strategy/state-selection.js';
-import './profit-graph/profit-graph-new.js';
+// import './profit-graph/profit-graph-new.js';
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -10,18 +10,64 @@ const MAX_ASK = 2147483647;
 
 
 class MarketSession extends PolymerElement {
+
+    static get template() {
+        return html`
+        <style>
+            :host{
+                width:100vw;
+                height:100vh;
+            }
+
+            .middle-section-container{
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                font-weight: bold;
+                height: 27vh;
+                width: 100vw; 
+                background: #4F759B;
+                border-top: 3px solid #ED6A5A;
+                border-bottom: 3px solid #ED6A5A;
+            }
+
+            #info-table {
+                width: 60%;
+                height: 100%;
+            }
+
+            #input-section {
+                width: 40%;
+                height: 100%;
+            }
+        </style>
+
+            <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
+            <div class = "middle-section-container">       
+                <info-table id="info-table" inventory={{inventory}}
+                    cash={{cash}} order-imbalance={{orderImbalance}}
+                    endowment={{endowment}} best-bid={{bestBid}}
+                    best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
+                </info-table>
+
+                <state-selection id="input-section" role={{role}} 
+                    slider-defaults={{sliderDefaults}}> 
+                </state-selection>
+            </div>
+    `;
+    }
     static get properties() {
       return {
         eventListeners: Object,
         eventHandlers: Object,
         sliderDefaults: Object,
         events: Object,
-        active: {type: Boolean, observer: '_activateSession'},
         playerId: Number,
         role: String,
-        roles: Object,
         startRole: String,
-        orderImbalance: Number,
+        orderImbalance: {type: Number,
+            value: 0},
         orderBook: Object,
         bestBid: Number,
         volumeBestBid: Number,
@@ -29,7 +75,8 @@ class MarketSession extends PolymerElement {
         volumeBestOffer: Number,
         myBid: Number,
         myOffer: Number,
-        inventory: Number,
+        inventory: {type: Number,
+            value: 0},
         cash: Number,
         endowment: Number,
         websocketUrl: {
@@ -68,12 +115,6 @@ class MarketSession extends PolymerElement {
         this.playerId = OTREE_CONSTANTS.playerId
         this.inventory = 0
         this.orderImbalance = 0
-        for(let role in this.roles){
-            if(this.roles[role] == 'selected'){
-                this.role = role;
-                break;
-            }
-        }
     }
 
     outboundMessage(event) {
@@ -179,62 +220,6 @@ class MarketSession extends PolymerElement {
         else {
             console.error(`invalid message type: ${messagePayload.type} in ${messagePayload}`);
         }
-    }
-
-    static get template() {
-        return html`
-        <style>
-            :host{
-                width:100vw;
-                height:100vh;
-            }
-
-            .middle-section-container{
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-start;
-                align-items: center;
-                font-weight: bold;
-                height: 27vh;
-                width: 100vw; 
-                background: #4F759B;
-                border-top: 3px solid #ED6A5A;
-                border-bottom: 3px solid #ED6A5A;
-            }
-
-            #info-table {
-                width: 60%;
-                height: 100%;
-            }
-
-            #input-section {
-                width: 40%;
-                height: 100%;
-            }
-        </style>
-
-            <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-            <div class = "middle-section-container">       
-                <info-table id="info-table" 
-                    inventory={{inventory}}
-                    cash={{cash}}
-                    order-imbalance={{orderImbalance}}
-                    endowment={{endowment}} 
-                    best-bid={{bestBid}}
-                    best-offer={{bestOffer}} 
-                    my-bid={{myBid}}
-                    my-offer={{myOffer}}> 
-                </info-table>
-
-                <state-selection 
-                id="input-section"
-                strategy = {{role}}
-                roles = {{roles}}
-                slider-defaults = {{sliderDefaults}}
-                > 
-                </state-selection>
-            </div>
-    `;
     }
 
 }
