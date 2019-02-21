@@ -3,7 +3,7 @@ class PlayersOrderBook {
 
     constructor(playerId, polymerObject, polymerPropertyName) {
         this.polymerObject = polymerObject;
-        this.propertyName = polymerPropertyName;
+        this.polymerPropertyName = polymerPropertyName;
 
         this.playerId = playerId
         this._bidPriceSlots = {};
@@ -83,8 +83,8 @@ class PlayersOrderBook {
     _notifyPolymer(price, buySellIndicator, orderToken) {
         let path = this.polymerPropertyName;
         path += '.' + (buySellIndicator === 'B' ? '_bidPriceSlots' : '_offerPriceSlots');
-        path += ('' + price);
-        path += ('' + orderToken);
+        path += '.' + price;
+        path += '.' + orderToken;
         this.polymerObject.notifyPath(path);
     }
 }
