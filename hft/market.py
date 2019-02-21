@@ -144,7 +144,7 @@ class ELOMarket(BCSMarket):
         self.volume_offer = 0
         self.order_imbalance = 0
         self.reference_price = ReferencePrice()
-        self.role_group = MarketRoleGroup('maker_basic', 'maker_2', 'taker', 'out')
+        self.role_group = MarketRoleGroup('manual', 'maker', 'taker', 'out')
 
     def start_trade(self, *args, **kwargs):
         super().start_trade(*args, **kwargs)
@@ -155,7 +155,7 @@ class ELOMarket(BCSMarket):
         new_role = kwargs['state']
         timestamp = nanoseconds_since_midnight()
         self.role_group.update(timestamp, player_id, new_role)
-        if new_role in ('maker_basic', 'maker_2', 'taker'):
+        if new_role in ('maker', 'taker'):
             attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
                 'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
                 self.volume_bid, 'volume_at_best_ask': 
@@ -174,7 +174,7 @@ class ELOMarket(BCSMarket):
         if current_order_imbalance != self.order_imbalance:
             current_order_imbalance = round(current_order_imbalance, 2)
             self.order_imbalance = current_order_imbalance
-            maker_ids = self.role_group['maker_2', 'taker']
+            maker_ids = self.role_group['maker', 'taker']
             message_content = {
                 'type':'order_imbalance_change', 
                 'order_imbalance': current_order_imbalance, 
@@ -190,7 +190,7 @@ class ELOMarket(BCSMarket):
         self.volume_bid = kwargs['volume_at_best_bid']
         self.volume_offer = kwargs['volume_at_best_ask']
         self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
-        maker_ids = self.role_group['maker_basic', 'maker_2', 'taker']
+        maker_ids = self.role_group['maker', 'taker']
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
             'market_id': self.market_id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
             'maker_ids': maker_ids, 'volume_at_best_bid': self.volume_bid,

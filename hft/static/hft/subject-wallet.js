@@ -11,7 +11,7 @@ class WallletCard extends PolymerElement {
         inventory: Number,
         cash: Number,
         endowment: Number,
-        imbalance: Number
+        orderImbalance: Number
       };
     }
   
@@ -64,7 +64,7 @@ class WallletCard extends PolymerElement {
           <div class = 'column'>
             <info-card class="theCard" title="Inventory" currency="" value={{inventory}}>
             </info-card>
-            <info-card class="theCard" title="Imbalance" currency="" value={{imbalance}}>
+            <info-card class="theCard" title="Imbalance" currency="" value={{orderImbalance}}>
             </info-card>
           </div>
      

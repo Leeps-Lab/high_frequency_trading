@@ -21,12 +21,12 @@ class TraderFactory:
 class ELOTraderFactory:
     @staticmethod
     def get_trader(role_name, subject_state):
-        if role_name == 'maker_basic':
-            return ELOBasicMaker(subject_state)
+        if role_name == 'manual':
+            return ELOManual(subject_state)
         elif role_name == 'out':
             return ELOOut(subject_state)
-        elif role_name == 'maker_2':
-            return ELONotSoBasicMaker(subject_state)
+        elif role_name == 'maker':
+            return ELOMaker(subject_state)
         elif role_name == 'taker':
             return ELOTaker(subject_state)
         else:
@@ -246,7 +246,7 @@ class ELOOut(ELOTrader):
 MIN_BID = 0
 MAX_ASK = 2147483647
 
-class ELOBasicMaker(ELOTrader):
+class ELOManual(ELOTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
@@ -295,7 +295,7 @@ class ELOBasicMaker(ELOTrader):
         self.best_quotes['B'] = kwargs['best_bid']
         self.best_quotes['S'] = kwargs['best_offer']
 
-class ELONotSoBasicMaker(ELOTrader):
+class ELOMaker(ELOTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
@@ -492,7 +492,7 @@ class ELONotSoBasicMaker(ELOTrader):
             self.no_enter_until_bbo[buy_sell_indicator] = True
 
 
-class ELOTaker(ELONotSoBasicMaker):
+class ELOTaker(ELOMaker):
 
     def first_move(self, **kwargs):
         self.role = kwargs['state']

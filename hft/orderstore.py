@@ -44,8 +44,8 @@ class OrderStore:
         return order_info
 
     def __str__(self):
-        active_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
-        pending_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')
+        active_orders = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
+        pending_orders = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')
         ioc = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'ioc')       
         out = """Player {self.player_id} Orders:
                 Active:{active_orders}
@@ -107,6 +107,8 @@ class OrderStore:
             order_info['status'] = b'ioc'
         order_info['timestamp'] = kwargs['timestamp']
         order_info['confirmed_at'] = nanoseconds_since_midnight()
+        order_info['travel_time'] = (order_info['confirmed_at'] - 
+            order_info['created_at']) * 0.000001
         self._orders[token] = order_info
         price = order_info['price']
         direction = order_info['buy_sell_indicator']

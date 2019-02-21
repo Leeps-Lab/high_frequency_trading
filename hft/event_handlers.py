@@ -108,6 +108,7 @@ def _handle_investors(event):
     key = get_cache_key(event.player_id, 'investor', market_id=event.market_id)
     investor_data = cache.get(key)
     investor, version = investor_data['investor'], investor_data['version']
+    print('key: %s, version: %s' % (key, version))
     if investor is None:
         raise ValueError('investor key: %s returned none.' % key)
     investor.receive(event)

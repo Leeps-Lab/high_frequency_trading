@@ -17,9 +17,11 @@ class MarketSession extends PolymerElement {
         sliderDefaults: Object,
         events: Object,
         active: {type: Boolean, observer: '_activateSession'},
+        playerId: Number,
         role: String,
         roles: Object,
         startRole: String,
+        orderImbalance: Number,
         orderBook: Object,
         bestBid: Number,
         volumeBestBid: Number,
@@ -29,12 +31,7 @@ class MarketSession extends PolymerElement {
         myOffer: Number,
         inventory: Number,
         cash: Number,
-        playerId: Number,
-        constants: Object,
-        endowment: {
-            type: Number, 
-            computed: '_inventoryValueChange(inventory, cash, bestBid, bestOffer)'
-        },
+        endowment: Number,
         websocketUrl: {
             type: Object,
             value: function () {
@@ -58,7 +55,7 @@ class MarketSession extends PolymerElement {
 
     constructor() {
         super();
-        this.playerId = 7
+
         this.orderBook = new PlayersOrderBook(this.playerId);
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
@@ -68,6 +65,9 @@ class MarketSession extends PolymerElement {
 
     ready(){
         super.ready();
+        this.playerId = OTREE_CONSTANTS.playerId
+        this.inventory = 0
+        this.orderImbalance = 0
         for(let role in this.roles){
             if(this.roles[role] == 'selected'){
                 this.role = role;
@@ -86,12 +86,9 @@ class MarketSession extends PolymerElement {
     
     inboundMessage(event) {
         const messagePayload = event.detail
-        console.log('message received: ', messagePayload)
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
-        console.log('cleaned message: ', cleanMessage)
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
-        console.log('handler for message: ', handlers)
         for (let i = 0; i < handlers.length; i++) {
             let handlerName = handlers[i]
             this[handlerName](cleanMessage)
@@ -117,6 +114,18 @@ class MarketSession extends PolymerElement {
         this.bestOffer = message.best_offer
         this.volumeBestBid = message.volume_bid
         this.volumeBestOffer = message.volume_offer
+    }
+
+    _handleRoleConfirm(message) {
+        this.role = message.role_name
+    }
+
+    _handleSystemEvent(message){
+
+    }
+
+    _handleOrderImbalance(message){
+        this.orderImbalance = message.value
     }
     
     _myBidOfferUpdate(price, buySellIndicator, mode='add') {
@@ -172,16 +181,8 @@ class MarketSession extends PolymerElement {
         }
     }
 
-    _activateSession(){  
-        this.$.overlay.classList = 'on';
-    }
-
     static get template() {
         return html`
-        <!--- 
-        To modularize I have to look into ELO.html,
-        but will manually style for now - Patrick 2/11 
-        --->
         <style>
             :host{
                 width:100vw;
@@ -210,23 +211,18 @@ class MarketSession extends PolymerElement {
                 width: 40%;
                 height: 100%;
             }
-            .on{
-                opacitiy:1.0;
-                pointer-events:all;
-            }
-            .off{
-                opacitiy:0.3;
-                pointer-events:none;
-            }
         </style>
 
-        <div id = 'overlay' class = 'off'>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
             <div class = "middle-section-container">       
-                <info-table id="info-table" inventory="{{inventory}}" cash={{cash}}
+                <info-table id="info-table" 
+                    inventory={{inventory}}
+                    cash={{cash}}
+                    order-imbalance={{orderImbalance}}
                     endowment={{endowment}} 
                     best-bid={{bestBid}}
-                    best-offer={{bestOffer}} my-bid={{myBid}}
+                    best-offer={{bestOffer}} 
+                    my-bid={{myBid}}
                     my-offer={{myOffer}}> 
                 </info-table>
 
@@ -238,12 +234,6 @@ class MarketSession extends PolymerElement {
                 > 
                 </state-selection>
             </div>
-        </div>
-        
-        <!--- 
-        To modularize I have to look into ELO.html,
-        but will manually put html for now - Patrick 2/11 
-        --->
     `;
     }
 

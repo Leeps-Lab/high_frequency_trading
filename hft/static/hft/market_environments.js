@@ -7,12 +7,14 @@ const ELO = {
                 order_token: String,
                 price: parseInt,
                 player_id: String,
+                market_id: parseInt,
                 buy_sell_indicator: String
             },
             executed: {
                 type: String,
                 order_token: String,
                 player_id: parseInt,
+                market_id: parseInt,
                 price: parseInt,
                 inventory: parseInt,
                 endowment: parseInt,
@@ -23,6 +25,7 @@ const ELO = {
                 order_token: String,
                 old_token: String,
                 player_id: parseInt,
+                market_id: parseInt,
                 price: parseInt,
                 old_price: parseInt,
                 buy_sell_indicator: String
@@ -31,15 +34,32 @@ const ELO = {
                 type: String,
                 order_token: String,
                 player_id: parseInt,
+                market_id: parseInt,
                 price: parseInt,
                 buy_sell_indicator: String
             },
             bbo: {
                 type: String,
+                market_id: parseInt,
                 best_bid: parseInt,
                 best_offer: parseInt,
                 volume_bid: parseInt,
                 volume_offer: parseInt
+            },
+            order_imbalance: {
+                type: String,
+                market_id: parseInt,
+                value: parseFloat
+            },
+            role_confirm: {
+                type: String,
+                market_id: parseInt,
+                role_name: String
+            },
+            system_event: {
+                type: String,
+                market_id: parseInt,
+                code: String
             }
         },
         outbound: {
@@ -53,15 +73,13 @@ const ELO = {
                 a_y: parseFloat,
 
             },
-            speed: { 
+            speed_change: { 
                 type: String,
-                state: Boolean,
+                value: Boolean,
             },
             player_ready: {
                 type: String
             }
-
-
         },
     },
     eventHandlers: {
@@ -69,17 +87,17 @@ const ELO = {
         replaced: ['_handleExchangeMessage'],
         executed: ['_handleExchangeMessage', '_handleExecuted'],
         canceled: ['_handleExchangeMessage'],
-        bbo: ['_handleBestBidOfferUpdate']
+        bbo: ['_handleBestBidOfferUpdate'],
+        role_confirm: ['_handleRoleConfirm'],
+        system_event: ['_handleSystemEvent'],
+        order_imbalance: ['_handleOrderImbalance']
     },
-    //Have to organize all roles in an object
-    //in order to set as properties in state-selection
     roles: {
         manual: 'not-selected',
         maker: 'not-selected',
         out: 'selected', 
         taker: 'not-selected'
     },
-
     sliderProperties: {
         minValue: 0,
         maxValue: 10,

@@ -25,6 +25,11 @@ class MarketPriceCard extends PolymerElement {
   }
 
   _priceChanged(newValue, oldValue) {
+    let theCard = this.shadowRoot.querySelector('.cardPrice')
+    if (price == MIN_BID || price == MAX_ASK) { 
+      theCard.setAttribute("trend", "")
+      return
+    } 
     let incomingPriceTrend = oldValue > newValue ? 'price-down' : oldValue === newValue ? 
         '' : 'price-up';
     if (this.price_trend === incomingPriceTrend) {
@@ -32,7 +37,7 @@ class MarketPriceCard extends PolymerElement {
     }
 
     this.price_trend = incomingPriceTrend
-    this.shadowRoot.querySelector('.cardPrice').setAttribute("trend", incomingPriceTrend)
+    theCard.setAttribute("trend", incomingPriceTrend)
   }
 
   static get template() { 

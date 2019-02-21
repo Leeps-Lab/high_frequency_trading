@@ -26,9 +26,10 @@ class ELOInvestor(BCSTrader):
     def invest(self, **kwargs):
         order_info = self.orderstore.enter(**kwargs)
         message_content = {'host': self.exchange_host, 'port': self.exchange_port, 
-            'type': 'enter', 'delay':0., 'order_info': order_info}
+            'type': 'enter', 'delay':0.01, 'order_info': order_info}
         internal_message = format_message('exchange', **message_content)
         self.outgoing_messages.append(internal_message)
+        print('invested', self.orderstore)
     
     def accepted(self, **kwargs):
         super().accepted(**kwargs)
