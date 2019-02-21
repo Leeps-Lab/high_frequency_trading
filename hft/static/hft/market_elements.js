@@ -1,7 +1,10 @@
 
 class PlayersOrderBook {
 
-    constructor(playerId) {
+    constructor(playerId, polymerObject, polymerPropertyName) {
+        this.polymerObject = polymerObject;
+        this.propertyName = polymerPropertyName;
+
         this.playerId = playerId
         this._bidPriceSlots = {};
         this._offerPriceSlots = {};
@@ -50,6 +53,8 @@ class PlayersOrderBook {
             priceSlots[price] = {};
         }
         priceSlots[price][orderToken] = 1;
+
+        this._notifyPolymer(price, buySellIndicator, orderToken);
     }
 
     _removeOrder(price, buySellIndicator, orderToken, playerId) {
@@ -66,11 +71,21 @@ class PlayersOrderBook {
                 }
             }
         }
+
+        this._notifyPolymer(price, buySellIndicator, orderToken);
     }
 
     _replaceOrder(price, buySellIndicator, orderToken, playerId, oldPrice, oldToken) {
         this._removeOrder(oldPrice, buySellIndicator, oldToken, playerId);
         this._addOrder(price, buySellIndicator,  orderToken, playerId);
+    }
+
+    _notifyPolymer(price, buySellIndicator, orderToken) {
+        let path = this.polymerPropertyName;
+        path += '.' + (buySellIndicator === 'B' ? '_bidPriceSlots' : '_offerPriceSlots');
+        path += ('' + price);
+        path += ('' + orderToken);
+        this.polymerObject.notifyPath(path);
     }
 }
 
