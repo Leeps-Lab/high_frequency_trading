@@ -3,13 +3,14 @@ import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-el
 class InfoTable extends PolymerElement {
     static get properties() {
       return {
-        bestBid: {type: Number},
-        bestOffer: {type: Number, value: null},
-        myBid: {type: Number, value: null},
-        myOffer: {type: Number, value: null},        
-        inventory: {type: Number, value: null}, 
-        cash: {type: Number, value: null},
-        endowment: {type: Object, value: null},
+        bestBid: Number,
+        bestOffer: Number,
+        myBid: Number,
+        myOffer: Number,        
+        inventory: Number, 
+        cash: Number,
+        endowment: Number,
+        orderImbalance: Number
       }
     }
     constructor() {
@@ -21,8 +22,9 @@ class InfoTable extends PolymerElement {
   
         <style>
         :host {
-          display: block;
-          height: 400px;
+          display: inline-block;
+          height: 100%;
+          width: 100%;
           font-family: monospace;
         }
   
@@ -38,16 +40,23 @@ class InfoTable extends PolymerElement {
 
         .title {
           display: inline-block;
-          width: 40%;
+          width: 33%;
           text-align: center;
           background: #FFFFF0;
         }
   
         .row {
           display: inline-block;
-          margin: 10px;
-          width: 100%;
-          height: 100%
+          margin: 5px;
+          width: 33%;
+          height: 100%;
+        }
+
+        #small-row {
+          margin: 5px;
+          width: 34%;
+          height: 100%;
+          align-items: flex-start;
         }
   
         </style>
@@ -62,9 +71,9 @@ class InfoTable extends PolymerElement {
                 bid={{myBid}} ask={{myOffer}}>
               </bidask-spread>
             </div>
-            <div class="row">
+            <div id="small-row" class="row">
               <subject-wallet inventory={{inventory}} cash={{cash}}
-                endowment={{endowment}}> 
+                endowment={{endowment}} order-imbalance={{orderImbalance}}> 
               </subject-wallet>
             </div>
           </div>

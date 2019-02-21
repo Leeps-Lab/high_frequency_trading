@@ -1,142 +1,117 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
-import './state-button.js';
-import './algorithm-selection.js';
-import './speed-selection.js'
+import './player-role-button.js';
+import './speed-switch.js'
 
 class StateSelection extends PolymerElement {
-    static get properties() {
-        return {
-          strategy: {
-              type: String,
-              observer: '_confirmedStrategyChange'
-          },
-          roles: {
-              type: Object
-          },
-          disabledSliders:{
-              type: String
-          },
-        }
-    }
 
     static get template() {
         return html`
+        <link rel="stylesheet" href="/static/hft/input-section/range.css">
         <style>
             :host {
                 display: inline-block;
                 font-family: monospace;
+                font-weight: bold;
+                font-size: 14px;
                 height:100%;
                 width:100%;
-                background: #4F759B;
             }
     
-            .title-container{
+            .column-container{
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
+                text-align: center;
+                height: 100%;
+                width: 30%;
+                margin: 10px;
             }
+
+            .evenly-spaced-column {
+                justify-content: space-evenly;
+            }
+
+            .header-container {
+                background-color: #FFFFF0;
+                margin: 5px;
+                border-radius: 5%;
+                border: 1px solid #000;
+                width: 80%;
+            }
+
             .state-container{
                 display: flex;
                 flex-direction: row;
                 justify-content: flex-start;
                 align-items: center;
-                /* height:200px; */
                 width:100%;
-            }
-            .column {
-                display: inline-block;
                 height: 100%;
-                width: 100%;
             }
 
-            .button-container{
-                display: flex;
-                flex-direction: column;
-                justify-content: baseline;
-                align-items: center;
+            .slider-header {
+                font-size: 12px
             }
-            .algorithm{
-                width:50%;
+
+            #first-column {
+                width: 10%;
             }
-    
-            .speed-basic-container{
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                width:50%;
+
+            #second-column {
+                width: 50%;
+                align-items: space-evenly;
             }
-            p{
-                text-align: center;
-                font-weight:bold;
-                font-size:14px;
-                background: #FFFFF0;
-                width:50%;
-            }
+
         </style>
-
-            
-            
+           
              <div class = "state-container">
 
-                <div class = 'column-container speed-switch'>
-                    <p>
+                <div id="first-column" class="column-container" >
+                    <div class="header-container">
                         Speed
-                    </p>
-                    <speed-switch 
-                    >
-                    </speed-switch>
+                    </div>
+                    <speed-switch> </speed-switch>
                 </div>
                 
-                <div class = 'column-container button-container'>
-                    <state-button
-                    strategy='manual'
-                    strategy-on = '{{roles.manual}}'
-                    >
-                    </state-button>
+                <div id="second-column" class="column-container">
+                    <div>
+                        <player-role-button role-name="manual" player-role=[[role]]>
+                        </player-role-button>
 
-                    <state-button
-                        strategy="out"
-                        strategy-on = '{{roles.out}}'
-                    >
-                    </state-button>
+                        <player-role-button role-name="maker" player-role=[[role]]>
+                        </player-role-button>
+                    </div>
 
-                    <state-button
-                        strategy = "maker"
-                        strategy-on = '{{roles.maker}}'
-                    >
-                    </state-button>
+                    <div>
+                        <player-role-button role-name="out" player-role=[[role]]>
+                        </player-role-button>
 
-                    <state-button
-                        strategy = "taker"
-                        strategy-on = '{{roles.taker}}'
-                    >
-                    </state-button>
+                        <player-role-button role-name="taker" player-role=[[role]]>
+                        </player-role-button>
+                    </div>
                 </div>
 
-                <div class = 'column-container'>
-                    <p>
+                <div class = 'column-container evenly-spaced-column'>
+                    <div class="header-container" style="height: 10%">
                         Sensitivities
-                    </p>
-                    <hr style = 'width:90%;'>
-                    <sensitivity-slider
-                    sensitivity = "Order"
-                    disabled-slider = '{{disabledSliders}}'
-                    min = "0"
-                    max = "10"
-                    step = "0.1"
-                    >
-                    </sensitivity-slider>
+                    </div>
 
-                    <sensitivity-slider
-                        sensitivity = "Inventory"
-                        disabled-slider = '{{disabledSliders}}'
-                        min = "0"
-                        max = "10"
-                        step = "0.1"
-                    >
-                    </sensitivity-slider>
+                    <div class="header-container slider-header">
+                        Inventory: {{slider_a_x}}
+                    </div>
+                    
+            
+                    <input class="slider-group" type="range" min='{{sliderDefaults.minValue}}'
+                        max='{{sliderDefaults.maxValue}}' value='{{slider_a_x::mouseup}}'
+                        step='{{sliderDefaults.stepSize}}'>
+
+                    <div class="header-container slider-header">
+                    Imbalance: {{slider_a_y}}
+                    </div>
+
+                    <input type="range" class="slider-group" min='[[sliderDefaults.minValue]]'
+                        max='[[sliderDefaults.maxValue]]' value='{{slider_a_y::mouseup}}'
+                        step='[[sliderDefaults.stepSize]]'>
                 </div>
                         
             </div>
@@ -144,43 +119,52 @@ class StateSelection extends PolymerElement {
         `;
     }
 
+    static get properties() {
+        return {
+          role: {
+              type: String,
+              observer: '_roleChange',
+              value: 'out'
+          },
+          sliderDefaults: Object,
+          slider_a_x: {
+            type: Number,
+            observer: '_sliderValueChange',
+            value: 0
+          },
+          slider_a_y: {
+            type: Number,
+            observer: '_sliderValueChange',
+            value: 0
+          }
+        }
+    }
+
     constructor() {
         super();
     }
 
-    _confirmedStrategyChange(newVal , oldVal){
-        /*
-        To be configurable in markup for true or false 
-            the presence of the attribute results in true
-            the oposite results to false
-            https://polymer-library.polymer-project.org/3.0/docs/devguide/properties#configuring-boolean-properties
-        This is undesirable because I want to be able to select
-            which state (maker,taker,out,manual) is selected or not
-        So in this case I use strings "selected" (true) and "" (false) to represent
-            the role being true or false using string comparisons in the 
-            components to run actions based on the role being selected or not
-        */
+    _sliderValueChange(newVal,oldVal){
+        let socketMessage = {
+            type: "slider",
+            a_x: this.slider_a_x,
+            a_y: this.slider_a_y
+        };
         
-        for(let role in this.roles){
-            if(role == newVal){
-                this.roles[role] = 'selected';
-            } else {
-                this.roles[role] = 'not-selected';
-            }
+        let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
+            detail: socketMessage });
+        
+        this.dispatchEvent(userInputEvent);
+    }
 
-            //Absolutely necessary line below to 
-            //notfiy the roles object in markup (html) to change
-            this.notifyPath('roles.' + role);
-
-            //Below conditional is implementation specific to ELO
-            //Only algorithm roles can use the sliders
-            if(newVal == 'taker' || newVal == 'maker'){
-                this.disabledSliders = 'selected';
-            } else { 
-                this.disabledSliders = 'not-selected';
-            }
-        }
-
+    _roleChange(newVal , oldVal) {        
+        // since I can't set a disabled=false 
+        // on markup using data binding
+        let sliders= this.shadowRoot.querySelectorAll('.slider-group')
+        sliders.forEach( (element) => { 
+            newVal == 'taker' || newVal == 'maker' ? element.disabled = false :
+                element.disabled = true }
+        )     
     }
   }
   customElements.define('state-selection', StateSelection)

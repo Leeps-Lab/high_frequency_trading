@@ -10,7 +10,8 @@ class WallletCard extends PolymerElement {
         shineClass: String,
         inventory: Number,
         cash: Number,
-        endowment: Number
+        endowment: Number,
+        orderImbalance: Number
       };
     }
   
@@ -32,20 +33,43 @@ class WallletCard extends PolymerElement {
             height: 100%;
             width: 100%;
             display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+          }
+
+          .size-adjusted-card {
+            height: 25%;
+            width: 100%;
+          }
+          .column{
+            height: 100%;
+            width: 100%;
+            display: flex;
             flex-direction: column;
-            justify-content: space-evenly;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
           }
           
 
         </style>
+
         <div class="container"> 
-          <info-card class="thecard" title="Inventory" currency="" value={{inventory}}>
-          </info-card>
-          <info-card class="thecard" title="Cash" currency=$ value={{cash}}>
-          </info-card>
-          <info-card class="thecard" title="Endowment" currency=$ value={{endowment}}>
-          </info-card>
+          <div class = 'column' >
+            <info-card class="theCard" title="Endowment" currency=$ value={{endowment}}>
+            </info-card>
+            <info-card class="theCard" title="Cash" currency=$ value={{cash}}>
+            </info-card>
+          </div>
+          <div class = 'column'>
+            <info-card class="theCard" title="Inventory" currency="" value={{inventory}}>
+            </info-card>
+            <info-card class="theCard" title="Imbalance" currency="" value={{orderImbalance}}>
+            </info-card>
+          </div>
+     
+            
+       
         </div>
         `;
     }

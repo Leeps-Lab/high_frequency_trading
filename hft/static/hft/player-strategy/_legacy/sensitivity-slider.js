@@ -8,7 +8,7 @@ class SensitivitySlider extends PolymerElement {
                 :host {
                     display: inline-block;
                     font-family: monospace;
-                    width:auto;
+                    width:80%;
                 }
                 p{
                     text-align: center;
@@ -48,7 +48,7 @@ class SensitivitySlider extends PolymerElement {
             },
             max: {
                 type: Number
-            },
+             },
             step: {
                 type: Number
             }

@@ -19,12 +19,12 @@ def price_grid(price, gridsize=1e4):
     """
     the grid
     """
-    price_in_range = price
-    if price < min_bid:
-        price_in_range = min_bid
-    elif price > max_ask:
-        price_in_range = max_ask
-    grid_formula = round((price_in_range - min_bid) / gridsize)
+    integer_price = int(price)
+    if integer_price < min_bid:
+        integer_price = min_bid
+    elif integer_price > max_ask:
+        integer_price = max_ask
+    grid_formula = round((integer_price - min_bid) / gridsize)
     grid_price = int(grid_formula * gridsize)
     return grid_price
 
@@ -32,6 +32,7 @@ class OrderImbalance:
     def __init__(self):
         self.order_imbalance = 0
         self.latest_execution_time = None
+
     def step(self, buy_sell_indicator, constant=1):
         now = time.time()
         if self.latest_execution_time is None:
@@ -42,6 +43,32 @@ class OrderImbalance:
             offset + self.order_imbalance * math.e ** (-1 * constant * time_since_last_execution) 
         )
         self.latest_execution_time = now
+        self.order_imbalance = order_imbalance
+        return order_imbalance   
+
+
+class ReferencePrice:
+
+    discount_rate= math.log(2)
+    session_length = 240 
+
+    def __init__(self):
+        self.reference_price = 0
+        self.sum_weights = 0
+        self.reference_price = 0
+        self.latest_execution_time = None
+    
+    def reset(self):
+        self.latest_execution_time = time.time()
+
+    def step(self, price):
+        now = time.time()
+        weight = e ** ((now - self.latest_execution_time) * self.discount_rate)
+        self.sum_weights += weight
+        normal_weight = weight / self.sum_weights
+        weighted_price = price * normal_weight
+        self.reference_price
+        self.reference_price = now
         self.order_imbalance = order_imbalance
         return order_imbalance   
 
