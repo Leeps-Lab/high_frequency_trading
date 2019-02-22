@@ -3,14 +3,14 @@ import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-el
 class InfoTable extends PolymerElement {
     static get properties() {
       return {
-        bestBid: {type: Number},
-        bestOffer: {type: Number, value: null},
-        myBid: {type: Number, value: null},
-        myOffer: {type: Number, value: null},        
-        inventory: {type: Number, value: null}, 
-        cash: {type: Number, value: null},
-        endowment: {type: Object, value: null},
-        imbalance: {type: Object, value: null}
+        bestBid: Number,
+        bestOffer: Number,
+        myBid: Number,
+        myOffer: Number,        
+        inventory: Number, 
+        cash: Number,
+        endowment: Number,
+        orderImbalance: Number
       }
     }
     constructor() {
@@ -73,7 +73,7 @@ class InfoTable extends PolymerElement {
             </div>
             <div id="small-row" class="row">
               <subject-wallet inventory={{inventory}} cash={{cash}}
-                endowment={{endowment}} imbalance={{imbalance}}> 
+                endowment={{endowment}} order-imbalance={{orderImbalance}}> 
               </subject-wallet>
             </div>
           </div>

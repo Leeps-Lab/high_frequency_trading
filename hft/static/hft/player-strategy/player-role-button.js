@@ -1,16 +1,6 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
 
-class StateButton extends PolymerElement {
-
-    static get properties(){
-        return {
-            strategy: String,
-            strategyOn: {
-                type: String,
-                observer:'_buttonOn'
-            }
-        }
-    }
+class PlayerRoleButton extends PolymerElement {
 
     static get template() {
         return html`
@@ -73,18 +63,23 @@ class StateButton extends PolymerElement {
                   background-color: #7F9AB5;
                 }
             }
-
         </style>
+
         <div class="button">
-            <button
-                id="stateButton"
-                on-click="_handleClick"
-                class = ""
-            > {{strategy}} </button>
+            <button on-click="_handleClick" class$="{{_isSelected(roleName, playerRole)}}"> 
+            [[roleName]] 
+            </button>
         </div>
         `;
     }
-        
+
+    static get properties(){
+        return {
+            roleName: String,
+            playerRole: String
+        }
+    }
+            
     constructor(){
         super();    
     }
@@ -92,7 +87,7 @@ class StateButton extends PolymerElement {
     _handleClick(){
         let socketMessage = {
             type: 'role_change',
-            state: this.strategy,
+            state: this.roleName,
         }
 
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
@@ -101,14 +96,11 @@ class StateButton extends PolymerElement {
         this.dispatchEvent(userInputEvent);
     } 
 
-    _buttonOn(newVal, oldVal){
-        if(newVal == 'selected'){
-            this.$.stateButton.className = 'role-selected';
-        } else {
-            this.$.stateButton.className = 'role-not-selected';
-        }
+    _isSelected(roleName, playerRole) {
+        // use custom class names instead of bool
+        // since polymer and html does not like bools on markup
+        return roleName == playerRole ? 'role-selected' : 'role-not-selected'
     }
-
 }
 
-customElements.define('state-button', StateButton);
+customElements.define('player-role-button', PlayerRoleButton);

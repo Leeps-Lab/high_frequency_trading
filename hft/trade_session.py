@@ -31,7 +31,7 @@ class TradeSession:
     def __init__(self, subsession, session_format):
         self.session_format = session_format
         self.subsession = subsession
-        self.id = str(subsession.code)
+        self.subsession_id = str(subsession.id)
         self.is_trading = False
         self.market_state = {}
         self.market_exchange_pairs = {}
@@ -48,12 +48,9 @@ class TradeSession:
 
     def create_market(self, exchange_host, exchange_port):
         market_cls = self.market_factory.get_market(self.session_format)
-        print(market_cls)
-        market = market_cls(self.id)
-        market.add_exchange(exchange_host, exchange_port)
-        self.market_state[market.id] = False
-        self.market_exchange_pairs[market.id] = (exchange_host, exchange_port)
-        market.register_session(self.id)
+        market = market_cls(self.subsession_id, exchange_host, exchange_port)
+        self.market_state[market.market_id] = False
+        self.market_exchange_pairs[market.market_id] = (exchange_host, exchange_port)
         return market
 
     def register_exogenous_event(self, client_type, filename):
@@ -69,7 +66,7 @@ class TradeSession:
         if self.exogenous_events:
             for event_type, filename in self.exogenous_events.items():
                 url = exogenous_event_endpoints[event_type].format(subsession_id=
-                    self.subsession.id)
+                    self.subsession_id)
                 args = ['python', exogenous_event_client, event_type, url, filename]
                 process = subprocess.Popen(args)
                 self.clients[event_type] = process
@@ -85,7 +82,7 @@ class LEEPSTradeSession(TradeSession):
     def start_trade_session(self, market_id):
         def create_exchange_connection(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
-            exchange.connect(self.subsession.id, market_id, host, port, 
+            exchange.connect(self.subsession_id, market_id, host, port, 
                 LEEPSDispatcher, wait_for_connection=True)
         def reset_exchange(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
@@ -100,7 +97,7 @@ class LEEPSTradeSession(TradeSession):
                 create_exchange_connection(self, market_id)
                 reset_exchange(self, market_id)
                 message_content = {'type': 'market_start', 'market_id': market_id,
-                    'subsession_id': self.subsession.id}
+                    'subsession_id': self.subsession_id}
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
                 self.trading_markets.append(market_id)
@@ -118,7 +115,7 @@ class LEEPSTradeSession(TradeSession):
                 market_id = self.trading_markets.pop()
                 stop_exchange_connection(self, market_id)
                 message_content = {'type': 'market_end', 'market_id': market_id,
-                    'subsession_id': self.subsession.id}
+                    'subsession_id': self.subsession_id}
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
             self.stop_exogenous_events(clients=clients)

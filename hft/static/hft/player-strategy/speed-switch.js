@@ -47,7 +47,7 @@ class SpeedSwitch extends PolymerElement {
               }
               
               #speedCheck:checked + .slider{
-                background-color: #008C4F;
+                background-color: #ED6A5A;
               }
               
               #speedCheck:focus + .slider{
@@ -102,16 +102,10 @@ class SpeedSwitch extends PolymerElement {
     _updateState(){
         this.checked = !this.checked;
 
-        let socketMessage = {
-            type:"speed",
-            state: this.checked,
-        };
-        
+        let socketMessage = {type: 'speed_change', value: this.checked }        
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
-            detail: socketMessage });
-        
+            detail: socketMessage });   
         this.dispatchEvent(userInputEvent);
-        //send this.socketMessage over socket
 
     } 
 

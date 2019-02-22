@@ -1,8 +1,9 @@
 
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market_elements.js'
-import './player-strategy/state-selection.js';
-import './profit-graph/profit-graph-new.js';
+import './player-strategy/state-selection.js'
+import './spread-graph/spread-graph-new.js'
+// import './profit-graph/profit-graph-new.js';
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -10,16 +11,69 @@ const MAX_ASK = 2147483647;
 
 
 class MarketSession extends PolymerElement {
+
+    static get template() {
+        return html`
+        <style>
+            :host{
+                width:100vw;
+                height:100vh;
+            }
+
+            .middle-section-container{
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                font-weight: bold;
+                height: 27vh;
+                width: 100vw; 
+                background: #4F759B;
+                border-top: 3px solid #ED6A5A;
+                border-bottom: 3px solid #ED6A5A;
+            }
+
+            info-table {
+                width: 60%;
+                height: 100%;
+            }
+
+            state-selection {
+                width: 40%;
+                height: 100%;
+            }
+
+            spread-graph {
+                width: 100%;
+                height: 200px;
+            }
+
+        </style>
+            <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
+            <spread-graph orders={{orderBook}}> </spread-graph>
+            <div class = "middle-section-container">       
+                <info-table  inventory={{inventory}}
+                    cash={{cash}} order-imbalance={{orderImbalance}}
+                    endowment={{endowment}} best-bid={{bestBid}}
+                    best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
+                </info-table>
+
+                <state-selection role={{role}} slider-defaults={{sliderDefaults}}> 
+                </state-selection>
+            </div>
+    `;
+    }
     static get properties() {
       return {
         eventListeners: Object,
         eventHandlers: Object,
         sliderDefaults: Object,
         events: Object,
-        active: {type: Boolean, observer: '_activateSession'},
+        playerId: Number,
         role: String,
-        roles: Object,
         startRole: String,
+        orderImbalance: {type: Number,
+            value: 0},
         orderBook: Object,
         bestBid: Number,
         volumeBestBid: Number,
@@ -27,14 +81,10 @@ class MarketSession extends PolymerElement {
         volumeBestOffer: Number,
         myBid: Number,
         myOffer: Number,
-        inventory: Number,
+        inventory: {type: Number,
+            value: 0},
         cash: Number,
-        playerId: Number,
-        constants: Object,
-        endowment: {
-            type: Number, 
-            computed: '_inventoryValueChange(inventory, cash, bestBid, bestOffer)'
-        },
+        endowment: Number,
         websocketUrl: {
             type: Object,
             value: function () {
@@ -58,8 +108,8 @@ class MarketSession extends PolymerElement {
 
     constructor() {
         super();
-        this.playerId = 7
-        this.orderBook = new PlayersOrderBook(this.playerId);
+
+        this.orderBook = new PlayersOrderBook(this.playerId, this, 'orderBook');
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
@@ -69,12 +119,9 @@ class MarketSession extends PolymerElement {
 
     ready(){
         super.ready();
-        for(let role in this.roles){
-            if(this.roles[role] == 'selected'){
-                this.role = role;
-                break;
-            }
-        }
+        this.playerId = OTREE_CONSTANTS.playerId
+        this.inventory = 0
+        this.orderImbalance = 0
     }
 
     outboundMessage(event) {
@@ -87,12 +134,9 @@ class MarketSession extends PolymerElement {
     
     inboundMessage(event) {
         const messagePayload = event.detail
-        console.log('message received: ', messagePayload)
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
-        console.log('cleaned message: ', cleanMessage)
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
-        console.log('handler for message: ', handlers)
         for (let i = 0; i < handlers.length; i++) {
             let handlerName = handlers[i]
             this[handlerName](cleanMessage)
@@ -118,6 +162,18 @@ class MarketSession extends PolymerElement {
         this.bestOffer = message.best_offer
         this.volumeBestBid = message.volume_bid
         this.volumeBestOffer = message.volume_offer
+    }
+
+    _handleRoleConfirm(message) {
+        this.role = message.role_name
+    }
+
+    _handleSystemEvent(message){
+
+    }
+
+    _handleOrderImbalance(message){
+        this.orderImbalance = message.value
     }
     
     _myBidOfferUpdate(price, buySellIndicator, mode='add') {
@@ -171,81 +227,6 @@ class MarketSession extends PolymerElement {
         else {
             console.error(`invalid message type: ${messagePayload.type} in ${messagePayload}`);
         }
-    }
-
-    _activateSession(){  
-        this.$.overlay.classList = 'on';
-    }
-
-    static get template() {
-        return html`
-        <!--- 
-        To modularize I have to look into ELO.html,
-        but will manually style for now - Patrick 2/11 
-        --->
-        <style>
-            :host{
-                width:100vw;
-                height:100vh;
-            }
-
-            .middle-section-container{
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-start;
-                align-items: center;
-                font-weight: bold;
-                height: 27vh;
-                width: 100vw; 
-                background: #4F759B;
-                border-top: 3px solid #ED6A5A;
-                border-bottom: 3px solid #ED6A5A;
-            }
-
-            #info-table {
-                width: 60%;
-                height: 100%;
-            }
-
-            #input-section {
-                width: 40%;
-                height: 100%;
-            }
-            .on{
-                opacitiy:1.0;
-                pointer-events:all;
-            }
-            .off{
-                opacitiy:0.3;
-                pointer-events:none;
-            }
-        </style>
-
-        <div id = 'overlay' class = 'off'>
-            <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-            <div class = "middle-section-container">       
-                <info-table id="info-table" inventory="{{inventory}}" cash={{cash}}
-                    endowment={{endowment}} 
-                    best-bid={{bestBid}}
-                    best-offer={{bestOffer}} my-bid={{myBid}}
-                    my-offer={{myOffer}}> 
-                </info-table>
-
-                <state-selection 
-                id="input-section"
-                strategy = {{role}}
-                roles = {{roles}}
-                slider-defaults = {{sliderDefaults}}
-                > 
-                </state-selection>
-            </div>
-        </div>
-        
-        <!--- 
-        To modularize I have to look into ELO.html,
-        but will manually put html for now - Patrick 2/11 
-        --->
-    `;
     }
 
 }

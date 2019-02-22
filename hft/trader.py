@@ -21,12 +21,12 @@ class TraderFactory:
 class ELOTraderFactory:
     @staticmethod
     def get_trader(role_name, subject_state):
-        if role_name == 'maker_basic':
-            return ELOBasicMaker(subject_state)
+        if role_name == 'manual':
+            return ELOManual(subject_state)
         elif role_name == 'out':
             return ELOOut(subject_state)
-        elif role_name == 'maker_2':
-            return ELONotSoBasicMaker(subject_state)
+        elif role_name == 'maker':
+            return ELOMaker(subject_state)
         elif role_name == 'taker':
             return ELOTaker(subject_state)
         else:
@@ -69,14 +69,16 @@ class BaseTrader:
             setattr(self, slot, getattr(subject_state, slot))
         self.outgoing_messages = deque()
 
-    def receive(self, message_type, **kwargs) -> dict:
-        lookup_key = message_type
-        if lookup_key not in self.message_dispatch:
-            raise KeyError('Unknown message_type: %s for trader: %s' % (message_type,
+    def receive(self, event):
+        if event.event_type not in self.message_dispatch:
+            raise KeyError('Unknown message_type: %s for trader: %s' % (event.event_type,
                 self.__class__.__name__) )
-        handler_name = self.message_dispatch[lookup_key]
+        handler_name = self.message_dispatch[event.event_type]
         handler = getattr(self, handler_name)
-        handler(**kwargs)
+        self.event = event
+        handler(**event.to_kwargs())
+        self.event = None
+
 
 
     def first_move(self, **kwargs):
@@ -98,7 +100,7 @@ class BCSTrader(BaseTrader):
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'fundamental_value_jumps': 'jump', 'slider_change': 'slider_change',
-        'bbo_change': 'bbo_update', 'order_by_arrow': 'trader_bid_offer_change'}
+        'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change'}
 
     def speed_change(self, **kwargs):
         """
@@ -159,9 +161,10 @@ class BCSTrader(BaseTrader):
         self.orderstore.confirm('enter', **kwargs)
         order_token = kwargs['order_token']
         price = kwargs['price']
-        message_content = {'type': 'confirmed', 'order_token': order_token,
-            'price': price}
-        self.broadcast(**message_content)
+        buy_sell_indicator = kwargs['buy_sell_indicator']
+        self.event.broadcast_messages('confirmed', order_token=order_token,
+            price=price, buy_sell_indicator=buy_sell_indicator, 
+            player_id=self.id, model=self)
 
     def replaced(self, **kwargs):
         order_info = self.orderstore.confirm('replaced', **kwargs)  
@@ -169,23 +172,19 @@ class BCSTrader(BaseTrader):
         old_token = kwargs['previous_order_token']
         old_price = order_info['old_price']
         price = kwargs['price']
-        message_content = {'type': 'replaced', 'order_token': order_token,
-            'old_token': old_token, 'price': price, 'old_price': old_price}
-        self.broadcast(**message_content)
+        buy_sell_indicator = kwargs['buy_sell_indicator']
+        self.event.broadcast_messages('replaced', order_token=order_token,
+            price=price, buy_sell_indicator=buy_sell_indicator, 
+            old_token=old_token, old_price=old_price, player_id=self.id, model=self)
 
     def canceled(self, **kwargs):
         order_info = self.orderstore.confirm('canceled', **kwargs)
         order_token = kwargs['order_token']
         price = order_info['price']
-        message_content = {'type': 'canceled', 'order_token': order_token, 
-            'price': price}
-        self.broadcast(**message_content)
-
-    def broadcast(self, **kwargs):
-        message_content = {'player_id': self.id, 'market_id': self.market_id}
-        message_content.update(kwargs)      
-        internal_message = format_message('broadcast', **message_content)
-        self.outgoing_messages.append(internal_message)  
+        buy_sell_indicator = order_info['buy_sell_indicator']
+        self.event.broadcast_messages('canceled', order_token=order_token,
+            price=price, buy_sell_indicator=buy_sell_indicator, 
+            player_id=self.id, model=self)
 
     def executed(self, **kwargs):
         execution_price = kwargs['execution_price']
@@ -194,157 +193,11 @@ class BCSTrader(BaseTrader):
         self.update_cash_position(execution_price, buy_sell_indicator)
         price = order_info['price']
         order_token = kwargs['order_token']
-        message_content = { 'type': 'executed', 'price': price, 
-            'order_token': order_token, 'endowment': self.endowment,
-            'inventory': self.orderstore.inventory}
-        self.broadcast(**message_content)
+        buy_sell_indicator = order_info['buy_sell_indicator']
+        self.event.broadcast_messages('executed', order_token=order_token,
+            price=price, inventory=self.orderstore.inventory, 
+            buy_sell_indicator=buy_sell_indicator, player_id=self.id, model=self)
         return order_info
-            
-            
-class BCSMaker(BCSTrader):
-
-    def calc_price(self, buy_sell_indicator):
-        """
-        return order price for a maker order based on spread
-        """
-        leg_length = int(self.spread / 2)
-        multiplier = -1 if buy_sell_indicator == 'B' else 1
-        price = int(self.fp + multiplier * leg_length)
-        return price
-
-    def first_move(self, **kwargs):
-        self.role = self.__class__.__name__
-        delay = self.calc_delay()
-        for side in ('B', 'S'):
-            price = self.calc_price(side)
-            order_info = self.orderstore.enter(price=price, buy_sell_indicator=side, 
-                            time_in_force=99999)
-            host, port = self.exchange_host, self.exchange_port
-            message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
-                delay, 'order_info': order_info}
-            internal_message = format_message('exchange', **message_content)
-            self.outgoing_messages.append(internal_message)
-
-    def jump(self, **kwargs):
-        """
-        assumes trader has active/pending orders in market
-        reprice orders
-        replace sell order first if jump is positive
-        """
-        is_positive_jump = super().jump(**kwargs)
-        # get list of active or pending orders
-        self.makers_reprice(start_from_above=is_positive_jump)
-
-    def makers_reprice(self, start_from_above=True):
-        orders = self.orderstore.all_orders()
-        assert len(orders) <= 2, 'more than two orders in market: %s' % self.orderstore
-        sorted_orders = sorted(orders, key=lambda order: order['price'], 
-                            reverse=start_from_above)
-        delay = self.calc_delay()
-        for o in sorted_orders:
-            token, buy_sell_indicator = o['order_token'], o['buy_sell_indicator']
-            new_price = self.calc_price(buy_sell_indicator)
-            order_info = self.orderstore.register_replace(token, new_price)
-            host, port = self.exchange_host, self.exchange_port
-            message_content = {'host': host, 'port': port, 'type': 'replace', 'delay':
-                delay, 'order_info': order_info}
-            internal_message = format_message('exchange', **message_content)
-            self.outgoing_messages.append(internal_message)
-
-    def spread_change(self, **kwargs):
-        new_spread = int(kwargs['spread'])
-        self.spread = new_spread
-        self.makers_reprice()
-
-        
-    def maker_broadcast_info(self, order_token):
-        low_leg, high_leg = int(self.fp - self.spread / 2), int(self.fp + self.spread / 2)
-        message_content = { 'group_id': self.market_id, 'type': 'maker_confirm', 
-            'message': { 'leg_up': high_leg, 'leg_down': low_leg, 'order_token': order_token, 
-                'id': self.id_in_group }}
-        internal_message = format_message('broadcast', **message_content)     
-        return internal_message
-
-    def accepted(self, **kwargs):
-        super().accepted(**kwargs)
-        order_token = kwargs['order_token']
-        broadcast_info = self.maker_broadcast_info(order_token)
-        message_content = {}
-        self.outgoing_messages.append(broadcast_info)
-
-    def replaced(self, **kwargs):
-        super().replaced(**kwargs)  
-        order_token = kwargs['replacement_order_token']
-        broadcast_info = self.maker_broadcast_info(order_token)
-        self.outgoing_messages.append(broadcast_info)
-
-    def executed(self, **kwargs):
-        order_info = super().executed(**kwargs)
-        time_in_force = order_info['time_in_force']
-        side = order_info['buy_sell_indicator']
-        # make sure it is not a sniper order.
-        if time_in_force != 0:
-            host, port = self.exchange_host, self.exchange_port
-            price = self.calc_price(side)
-            delay = self.calc_delay()
-            order_info = self.orderstore.enter(price=price, buy_sell_indicator=side, 
-                            time_in_force=99999)
-            message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
-                delay, 'order_info': order_info}
-            internal_message = format_message('exchange', **message_content)
-            self.outgoing_messages.append(internal_message)
-    
-
-class BCSOut(BCSTrader):
-
-    def first_move(self, **kwargs):
-        self.role = self.__class__.__name__
-        self.leave_market()
-        message_content = { 'group_id': self.market_id, 'type': 'leave_market', 
-            'message': {'id': self.id_in_group }}
-        internal_message = format_message('broadcast', **message_content)    
-        self.outgoing_messages.append(internal_message)
-
-class BCSSniper(BCSOut):
-
-    def jump(self, **kwargs):
-        is_positive_jump = super().jump(**kwargs)
-        side = 'B' if is_positive_jump else 'S'
-        host, port = self.exchange_host, self.exchange_port
-        order_info = self.orderstore.enter(price=self.fp, buy_sell_indicator=side, 
-                            time_in_force=0)
-        delay = self.calc_delay()
-        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
-                delay, 'order_info': order_info}
-        internal_message = format_message('exchange', **message_content)
-        self.outgoing_messages.append(internal_message)
-
-class BCSInvestor(BCSOut):
-
-    def invest(self, **kwargs):
-        host, port = self.exchange_host, self.exchange_port
-        order_side = kwargs['side']
-        price = 2147483647  if order_side == 'B' else 0
-        order_info = self.orderstore.enter(price=price, buy_sell_indicator=order_side, 
-                                    time_in_force=0)
-        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
-                0., 'order_info': order_info}
-        internal_message = format_message('exchange', **message_content)
-        self.outgoing_messages.append(internal_message)
-
-
-class LEEPSInvestor(BCSOut):
-
-    def invest(self, **kwargs):
-        host, port = self.exchange_host, self.exchange_port
-        #TODO: add logic to do some field checks asap.
-        order_info = self.orderstore.enter(**kwargs)
-        message_content = {'host': host, 'port': port, 'type': 'enter', 'delay':
-                0., 'order_info': order_info}
-        internal_message = format_message('exchange', **message_content)
-        self.outgoing_messages.append(internal_message)
-       
-
 
 Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
 Sliders.__new__.__defaults__ = (0, 0, 0, 0)
@@ -386,16 +239,18 @@ class ELOOut(ELOTrader):
         self.best_quotes['B'] = None
         self.best_quotes['S'] = None
         self.order_imbalance = None
+        self.event.broadcast_messages('role_confirm', player_id=self.id, 
+            role_name=self.role, market_id=self.market_id)
         
 
 MIN_BID = 0
 MAX_ASK = 2147483647
 
-class ELOBasicMaker(ELOTrader):
+class ELOManual(ELOTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed', 'bbo_change': 'bbo_update', 'order_by_arrow': 'trader_bid_offer_change', 
+        'E': 'executed', 'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change', 
         }
 
     def __init__(self, subject_state):
@@ -405,10 +260,12 @@ class ELOBasicMaker(ELOTrader):
         super().first_move(**kwargs)
         self.leave_market()
         self.switch_to_market_tracking_role(**kwargs)
+        self.event.broadcast_messages('role_confirm', player_id=self.id, 
+            role_name=self.role, market_id=self.market_id)
 
     def trader_bid_offer_change(self, price=None, buy_sell_indicator=None, **kwargs):
         if buy_sell_indicator is None:
-            buy_sell_indicator = kwargs['side']
+            buy_sell_indicator = kwargs['buy_sell_indicator']
         if price is None:
             price = price_grid(kwargs['price'])
         if price == MIN_BID or price == MAX_ASK:
@@ -438,7 +295,7 @@ class ELOBasicMaker(ELOTrader):
         self.best_quotes['B'] = kwargs['best_bid']
         self.best_quotes['S'] = kwargs['best_offer']
 
-class ELONotSoBasicMaker(ELOTrader):
+class ELOMaker(ELOTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
@@ -460,6 +317,8 @@ class ELONotSoBasicMaker(ELOTrader):
         if self.best_quotes['S'] < MAX_ASK:
             sell_message = self.enter_with_latent_quote('S')
             self.outgoing_messages.append(sell_message)
+        self.event.broadcast_messages('role_confirm', player_id=self.id, 
+            role_name=self.role, market_id=self.market_id)
     
     def enter_with_latent_quote(self, buy_sell_indicator, price=None, 
             time_in_force=99999, latent_quote_formula=latent_bid_and_offer):
@@ -467,6 +326,7 @@ class ELONotSoBasicMaker(ELOTrader):
             latent_bid, latent_offer = latent_quote_formula(self.best_quotes['B'], 
                 self.best_quotes['S'], self.order_imbalance, self.orderstore.inventory, 
                 self.sliders)
+            self.implied_quotes = {'B': latent_bid, 'S': latent_offer}
             price = latent_bid if buy_sell_indicator == 'B' else latent_offer
         delay = self.calc_delay()
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=buy_sell_indicator, 
@@ -476,18 +336,8 @@ class ELONotSoBasicMaker(ELOTrader):
         self.latent_quote[buy_sell_indicator] = price
         return exchange_message
 
-    def slider_change(self, lower_bound=-1, upper_bound=1, **kwargs):
-        def slider_field_check(slider_value):
-            checked_value = float(slider_value) 
-            if checked_value < - 1:
-                checked_value = -1
-            elif checked_value > 1:
-                checked_value = 1
-            return checked_value
-        sliders_dict = {}
-        for field in ('a_x', 'a_y'):
-            sliders_dict[field] = slider_field_check(kwargs[field])
-        new_slider = Sliders(**sliders_dict)
+    def slider_change(self, **kwargs):
+        new_slider = Sliders(a_x=float(kwargs['a_x']), a_y=float(kwargs['a_y']))
         old_slider = self.sliders
         if old_slider != new_slider:
             self.latent_quote_update(sliders=new_slider)
@@ -513,7 +363,6 @@ class ELONotSoBasicMaker(ELOTrader):
             sliders = self.sliders
         else:
             self.sliders = sliders
-
         best_bid = kwargs.get('best_bid')
         if best_bid is None:
             best_bid = self.best_quotes['B']
@@ -538,11 +387,13 @@ class ELONotSoBasicMaker(ELOTrader):
         new_latent_bid, new_latent_offer = latent_quote_formula(best_bid, best_offer, 
             current_order_imbalance, self.orderstore.inventory, sliders)
 
+        self.implied_quotes = {'B': new_latent_bid, 'S': new_latent_offer}   
         current_bid = self.latent_quote['B']
         current_offer = self.latent_quote['S']    
 
         volume_at_best_offer = self.best_quote_volumes['S']
         volume_at_best_bid = self.best_quote_volumes['B']
+
 
         bid, offer = self.enter_rule(current_bid, current_offer, best_bid, 
             best_offer, new_latent_bid, new_latent_offer, volume_at_best_bid, 
@@ -589,6 +440,7 @@ class ELONotSoBasicMaker(ELOTrader):
                         sell_message = self.exchange_message_from_order_info(order_info, 
                         delay, 'replace')
                         sells.append(sell_message)
+                self.latent_quote['S'] = latent_offer
             elif order_imbalance is None or self.no_enter_until_bbo['S'] is False:
                 sell_message = self.enter_with_latent_quote('S', price=latent_offer)
                 sells.append(sell_message)
@@ -608,6 +460,7 @@ class ELONotSoBasicMaker(ELOTrader):
                         buy_message = self.exchange_message_from_order_info(order_info, 
                             delay, 'replace')
                         buys.append(buy_message)
+                self.latent_quote['B'] = latent_bid
             elif order_imbalance is None or self.no_enter_until_bbo['B'] is False:
                     buy_message = self.enter_with_latent_quote('B', price=latent_bid)
                     buys.append(buy_message)
@@ -639,7 +492,7 @@ class ELONotSoBasicMaker(ELOTrader):
             self.no_enter_until_bbo[buy_sell_indicator] = True
 
 
-class ELOTaker(ELONotSoBasicMaker):
+class ELOTaker(ELOMaker):
 
     def first_move(self, **kwargs):
         self.role = kwargs['state']
@@ -647,6 +500,8 @@ class ELOTaker(ELONotSoBasicMaker):
         self.switch_to_market_tracking_role(**kwargs)
         self.sliders = Sliders()
         self.latent_quote = {'B': None, 'S': None}
+        self.event.broadcast_messages('role_confirm', player_id=self.id, 
+            role_name=self.role, market_id=self.market_id)
     
     @staticmethod    
     def enter_rule(current_bid, current_offer, best_bid, best_offer, 
@@ -660,8 +515,6 @@ class ELOTaker(ELONotSoBasicMaker):
         if  best_offer < MAX_ASK  and implied_offer < best_offer:
             if implied_offer != current_offer:
                 offer = implied_offer
-        print('taker implied', implied_bid, implied_offer)
-        print('taker enter rule', bid, offer)
         return (bid, offer)
 
 

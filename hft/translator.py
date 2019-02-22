@@ -15,10 +15,11 @@ class Translator(object):
         payload_size = message_spec.payload_size
         payload_bytes = msg[1: 1 + payload_size]
         body = message_spec.from_bytes(payload_bytes, header=False)
-        fields = {k: v.decode('utf-8') if isinstance(v, bytes) else v for
+        message_dict = {k: v.decode('utf-8') if isinstance(v, bytes) else v for
                                                     k, v in body.iteritems()}
         msg_type = header.decode('utf-8')
-        return (msg_type, fields)
+        message_dict['type'] = msg_type
+        return message_dict
 
     @classmethod
     def encode(cls, type_spec, **kwargs):

@@ -1,7 +1,8 @@
 from .checkpoints import hft_event_checkpoint
+from .incoming_message import IncomingMessageFactory
 from .event import EventFactory
 from .event_handlers import HandlerFactory
-from .response import process_response
+from .response import process_response, new_broadcast
 from otree.timeout.tasks import hft_background_task
 import logging
 
@@ -12,12 +13,15 @@ class Dispatcher:
     topics = {}
     handler_factory = HandlerFactory
     event_factory = EventFactory
+    message_factory = IncomingMessageFactory
     responder = process_response
     outgoing_message_types = ()
 
     @classmethod
     def dispatch(cls, message_source, message, **kwargs):
-        event = EventFactory.get_event(message_source, message, **kwargs)
+        incoming_message = cls.message_factory.get_message(message_source, 
+            message, **kwargs)
+        event = EventFactory.get_event(message_source, incoming_message, **kwargs)
         if event.event_type not in cls.topics:
             log.exception(KeyError('unsupported event type: %s.' % event.event_type))
         else:
@@ -29,7 +33,7 @@ class Dispatcher:
 
         log.debug(event) 
         
-        hft_background_task(hft_event_checkpoint, event)   
+        hft_background_task(hft_event_checkpoint, event.to_kwargs())   
         resulting_events = []
         while event.outgoing_messages:
             message = event.outgoing_messages.popleft()
@@ -38,6 +42,10 @@ class Dispatcher:
                 cls.responder(message)
             else:
                 resulting_events.append(message)
+        
+        while event.broadcast_messages:
+            message = event.broadcast_messages.pop()
+            new_broadcast(message)
 
         while resulting_events:
             message = resulting_events.pop(0)
@@ -62,8 +70,8 @@ class LEEPSDispatcher(Dispatcher):
         'market_ready_to_end': ['trade_session'],
         'market_start': ['market'],
         'market_end': ['market'],
-        'order_by_arrow': ['trader'],
-        'investor_arrivals': ['noise_trader_arrival'],
+        'order_entered': ['trader'],
+        'investor_arrivals': ['trader'],
         'fundamental_value_jumps': ['fundamental_price_change'],
         'bbo_change': ['role_based_events'],
         'order_imbalance_change': ['role_based_events'],
