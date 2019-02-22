@@ -1,0 +1,30 @@
+<html>
+<head>
+    <script type="module" src="./profit-graph-new.js"></script>
+    <script src='https://code.highcharts.com/highcharts.js'></script>
+    <style>        
+        profit-graph {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <profit-graph
+    ></profit-graph>
+
+    <button type="button" id='button'>change profit</button>
+
+    <script>
+        window.addEventListener('load', () => {
+            const profit_graph = document.querySelector('profit-graph');
+            profit_graph.setAttribute('profit', 100);
+            profit_graph.start();
+
+            document.getElementById('button').addEventListener('click', () => {
+                profit_graph.setAttribute('profit', 95 + Math.random() * 10);
+            });
+        })
+    </script>
+</body>
+</html>
