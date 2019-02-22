@@ -70,7 +70,7 @@ class LEEPSDispatcher(Dispatcher):
         'market_ready_to_end': ['trade_session'],
         'market_start': ['market'],
         'market_end': ['market'],
-        'order_by_arrow': ['trader'],
+        'order_entered': ['trader'],
         'investor_arrivals': ['trader'],
         'fundamental_value_jumps': ['fundamental_price_change'],
         'bbo_change': ['role_based_events'],

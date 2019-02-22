@@ -155,12 +155,10 @@ class ELOMarket(BCSMarket):
         new_role = kwargs['state']
         timestamp = nanoseconds_since_midnight()
         self.role_group.update(timestamp, player_id, new_role)
-        if new_role in ('maker', 'taker'):
-            attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
-                'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
-                self.volume_bid, 'volume_at_best_ask': 
-                self.volume_offer}
-            self.attachments_for_observers.update({'role_change':attached})
+        attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
+            'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
+            self.volume_bid, 'volume_at_best_ask': self.volume_offer}
+        self.attachments_for_observers.update({'role_change':attached})
 
     # def _reference_price_change(self, reference_price=ReferencePrice(), **kwargs):
     #     price = kwargs['price']
