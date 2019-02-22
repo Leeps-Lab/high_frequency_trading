@@ -145,6 +145,7 @@ class StateSelection extends PolymerElement {
                         min = '{{sliderDefaults.minValue}}'
                         max = '{{sliderDefaults.maxValue}}'
                         value = '{{slider_a_x::mouseup}}'
+                        
                         step = '{{sliderDefaults.stepSize}}'
                     >
 

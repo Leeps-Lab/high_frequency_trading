@@ -34,7 +34,7 @@ class StateButton extends PolymerElement {
             }
         
             /*
-            [strategy-on=selected]{
+            button [strategy-on=selected]{
                 animation-name: selected-animation;
                 animation-duration: 1s;
                 animation-fill-mode: forwards;
@@ -46,6 +46,8 @@ class StateButton extends PolymerElement {
                 animation-duration: 1s;
                 animation-fill-mode: forwards;
             }
+            
+
             @keyframes selected-animation {
                 100% {
                   background-color: #ED6A5A;
@@ -53,18 +55,19 @@ class StateButton extends PolymerElement {
             }
 
             /*
-            [strategy-on=not-selected]{
+            button [strategy-on=not-selected]{
                 animation-name: not-selected-animation;
                 animation-duration: 1s;
                 animation-fill-mode: forwards;
             }
             */
-           
+            
             .role-not-selected{
                 animation-name: not-selected-animation;
                 animation-duration: 1s;
                 animation-fill-mode: forwards;
             }
+            
             @keyframes not-selected-animation {
                 100% {
                   background-color: #7F9AB5;

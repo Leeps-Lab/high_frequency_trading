@@ -63,7 +63,8 @@ class MarketSession extends PolymerElement {
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
-        
+
+        setTimeout(this._activateSession.bind(this), 3000);
     }
 
     ready(){
