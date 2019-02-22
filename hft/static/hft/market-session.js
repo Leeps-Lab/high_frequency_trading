@@ -1,7 +1,8 @@
 
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market_elements.js'
-import './player-strategy/state-selection.js';
+import './player-strategy/state-selection.js'
+import './spread-graph/spread-graph-new.js'
 // import './profit-graph/profit-graph-new.js';
 
 const MIN_BID = 0;
@@ -32,27 +33,32 @@ class MarketSession extends PolymerElement {
                 border-bottom: 3px solid #ED6A5A;
             }
 
-            #info-table {
+            info-table {
                 width: 60%;
                 height: 100%;
             }
 
-            #input-section {
+            state-selection {
                 width: 40%;
                 height: 100%;
             }
-        </style>
 
+            spread-graph {
+                width: 100%;
+                height: 200px;
+            }
+
+        </style>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
+            <spread-graph orders={{orderBook}}> </spread-graph>
             <div class = "middle-section-container">       
-                <info-table id="info-table" inventory={{inventory}}
+                <info-table  inventory={{inventory}}
                     cash={{cash}} order-imbalance={{orderImbalance}}
                     endowment={{endowment}} best-bid={{bestBid}}
                     best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
                 </info-table>
 
-                <state-selection id="input-section" role={{role}} 
-                    slider-defaults={{sliderDefaults}}> 
+                <state-selection role={{role}} slider-defaults={{sliderDefaults}}> 
                 </state-selection>
             </div>
     `;

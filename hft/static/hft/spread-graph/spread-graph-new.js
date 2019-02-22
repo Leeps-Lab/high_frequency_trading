@@ -282,14 +282,14 @@ class SpreadGraph extends PolymerElement {
             .style('opacity', 0)
             .remove();
 
-        this.dispatchEvent(new CustomEvent('order-entered', {
-            bubbles: true,
-            composed: true,
-            detail: {
-                type: order_type,
+        const orderEnteredEvent = new CustomEvent('user-input', {
+            bubbles: true, composed: true, detail: {
+                type: 'order_entered',
                 price: price,
-            },
-        }));
+                buy_sell_indicator: order_type
+            }
+        })
+        this.dispatchEvent(orderEnteredEvent)
     }
 }
 

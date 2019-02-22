@@ -63,6 +63,11 @@ const ELO = {
             }
         },
         outbound: {
+            order_entered: {
+                type: String,
+                price: parseInt,
+                buy_sell_indicator: String,
+            },
             role_change: { 
                 type: String,
                 state: String,
@@ -71,7 +76,6 @@ const ELO = {
                 type: String,
                 a_x: parseFloat,
                 a_y: parseFloat,
-
             },
             speed_change: { 
                 type: String,

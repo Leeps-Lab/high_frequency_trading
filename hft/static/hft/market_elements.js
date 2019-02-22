@@ -65,6 +65,7 @@ class PlayersOrderBook {
             if (!priceSlots[price].hasOwnProperty(orderToken)) {
                 console.error(`order token ${orderToken} is not in ${priceSlots}`)    
             } else {
+                console.log('price thingy', priceSlots)
                 delete priceSlots[price][orderToken]
                 if (Object.keys(priceSlots[price]).length == 0) {
                     delete priceSlots[price];
@@ -85,6 +86,7 @@ class PlayersOrderBook {
         path += '.' + (buySellIndicator === 'B' ? '_bidPriceSlots' : '_offerPriceSlots');
         path += '.' + price;
         path += '.' + orderToken;
+        console.log(`path: ${path} notified.`)
         this.polymerObject.notifyPath(path);
     }
 }

@@ -71,7 +71,7 @@ class BaseTrader:
 
     def receive(self, event):
         if event.event_type not in self.message_dispatch:
-            raise KeyError('Unknown message_type: %s for trader: %s' % (message_type,
+            raise KeyError('Unknown message_type: %s for trader: %s' % (event.event_type,
                 self.__class__.__name__) )
         handler_name = self.message_dispatch[event.event_type]
         handler = getattr(self, handler_name)
@@ -100,7 +100,7 @@ class BCSTrader(BaseTrader):
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'fundamental_value_jumps': 'jump', 'slider_change': 'slider_change',
-        'bbo_change': 'bbo_update', 'order_by_arrow': 'trader_bid_offer_change'}
+        'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change'}
 
     def speed_change(self, **kwargs):
         """
@@ -250,7 +250,7 @@ class ELOManual(ELOTrader):
 
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed', 'bbo_change': 'bbo_update', 'order_by_arrow': 'trader_bid_offer_change', 
+        'E': 'executed', 'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change', 
         }
 
     def __init__(self, subject_state):
@@ -265,7 +265,7 @@ class ELOManual(ELOTrader):
 
     def trader_bid_offer_change(self, price=None, buy_sell_indicator=None, **kwargs):
         if buy_sell_indicator is None:
-            buy_sell_indicator = kwargs['side']
+            buy_sell_indicator = kwargs['buy_sell_indicator']
         if price is None:
             price = price_grid(kwargs['price'])
         if price == MIN_BID or price == MAX_ASK:

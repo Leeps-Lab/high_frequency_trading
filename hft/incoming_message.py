@@ -1,5 +1,6 @@
 from .translator import LeepsOuchTranslator
 from .equations import price_grid
+from .utility import elo_scaler
 import json
 
 class IncomingMessageFactory:
@@ -72,21 +73,26 @@ class IncomingMessage:
 
 class IncomingWSMessage(IncomingMessage):
 
+    # mixin for 'elo' inbound ws messages
+
     def translate(self, message):
         translated_message = json.loads(message.content['text'])
         return translated_message
     
-    def sanitize(self, message):
+    def sanitize(self, message, scaler=elo_scaler):
         clean_message = message
+        if self.kwargs['player_id'] != 0:
+            clean_message = scaler(clean_message, direction='scale-up')
         if 'price' in clean_message:
-            clean_message['price'] = price_grid(message['price'])
+            clean_message['price'] = price_grid(clean_message['price'])
         if 'state' in clean_message:
-            clean_message['state'] = message['state'].lower()
+            clean_message['state'] = clean_message['state'].lower()
         if 'market_id' in clean_message:
             clean_message['market_id'] = str(clean_message['market_id'])
         if 'time_in_force' in clean_message:
             clean_message['time_in_force'] = int(clean_message['time_in_force'])
         return clean_message
+    
 
 
 class IncomingOuchMessage(IncomingMessage):

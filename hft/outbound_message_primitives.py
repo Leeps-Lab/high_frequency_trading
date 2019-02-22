@@ -60,7 +60,7 @@ class BroadcastWSMessage(OutboundMessage):
             fieldtype = cls.required_field_types[ix]
             clean_value = fieldtype(message_data[key])
             clean_message[key] = clean_value
-        clean_message = scaler(clean_message)
+        clean_message = scaler(clean_message, direction='scale-down')
         return clean_message
     
     def to_json(self): 
