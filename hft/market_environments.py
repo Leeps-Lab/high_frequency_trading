@@ -26,7 +26,7 @@ elo = market_environment(
         'player': {
             'fundamental_price': 'fp',
             'initial_spread': 'spread',
-            'initial_endowment': 'endowment',
+            'initial_endowment': 'cash',
             'speed_cost': 'speed_unit_cost',
             'max_spread': 'max_spread',
             'auction_format': 'design',

@@ -3,8 +3,8 @@ from .outbound_message_primitives import (OutboundExchangeMessage, BroadcastWSMe
 
 class BBOBroadcastMessage(BroadcastWSMessage):
 
-    required_fields = ('market_id', 'best_bid', 'best_offer', 'volume_bid', 
-        'volume_offer')
+    required_fields = ('market_id', 'best_bid', 'best_offer', 'volume_at_best_bid', 
+        'volume_at_best_offer')
     required_field_types = (int, int, int, int, int)
 
 class OrderConfirmedBroadcastMessage(BroadcastWSMessage):
@@ -26,7 +26,7 @@ class OrderCanceledBroadcastMessage(BroadcastWSMessage):
 class OrderExecutedBroadcastMessage(BroadcastWSMessage):
 
     required_fields = ('market_id', 'player_id', 'order_token',  'price', 'buy_sell_indicator',
-        'inventory', 'endowment')
+        'inventory', 'cash')
     required_field_types = (int, int, str, int, str, int, int)
 
 class SystemEventBroadcastMessage(BroadcastWSMessage):
@@ -41,6 +41,13 @@ class OrderImbalanceBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'value')
     required_field_types = (int, float) 
 
+class ELOTakerQuoteBroadcastMessage(BroadcastWSMessage):
+    required_fields = ('market_id', 'bid', 'offer')
+    required_field_types = (int, int, int)
+
+class ReferencePriceBroadcastMessage(BroadcastWSMessage):
+    required_fields = ('market_id', 'price')
+    required_field_types = (int, int)  
 
 class ELOBroadcastMessageFactory(BroadcastMessageFactory):
 
@@ -52,5 +59,7 @@ class ELOBroadcastMessageFactory(BroadcastMessageFactory):
         'executed': OrderExecutedBroadcastMessage,
         'system_event': SystemEventBroadcastMessage,
         'role_confirm': RoleConfirmedBroadcastMessage,
-        'order_imbalance': OrderImbalanceBroadcastMessage
+        'order_imbalance': OrderImbalanceBroadcastMessage,
+        'reference_price': ReferencePriceBroadcastMessage,
+        'elo_quote_cue': ELOTakerQuoteBroadcastMessage
     }

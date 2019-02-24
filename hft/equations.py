@@ -53,7 +53,7 @@ class ReferencePrice:
     session_length = 240 
 
     def __init__(self):
-        self.reference_price = 0
+        self.value = 0
         self.sum_weights = 0
         self.reference_price = 0
         self.latest_execution_time = None
@@ -62,15 +62,7 @@ class ReferencePrice:
         self.latest_execution_time = time.time()
 
     def step(self, price):
-        now = time.time()
-        weight = e ** ((now - self.latest_execution_time) * self.discount_rate)
-        self.sum_weights += weight
-        normal_weight = weight / self.sum_weights
-        weighted_price = price * normal_weight
-        self.reference_price
-        self.reference_price = now
-        self.order_imbalance = order_imbalance
-        return order_imbalance   
+        pass
 
 # def order_imbalance_function(constant=1):
 #     """

@@ -27,8 +27,10 @@ class BaseMarket:
     _ids = itertools.count(1,1)
     state_factory = SubjectStateFactory
     session_format = None
+    tag_all_events_with = ()
 
-    def __init__(self, subsession_id, exchange_host, exchange_port, **kwargs):
+    def __init__(self, id_in_subsession, subsession_id, exchange_host, exchange_port, **kwargs):
+        self.id_in_subsession = id_in_subsession
         self.subsession_id = subsession_id
         self.exchange_address = (exchange_host, exchange_port)
         self.market_id = str(next(self._ids))
@@ -51,11 +53,18 @@ class BaseMarket:
             raise KeyError('unknown market event.')
         else:
             self.event = event
-            handler_name = self.market_events_dispatch[event.event_type]
-            handler = getattr(self, handler_name)
-            attachments = handler(*args, **event.to_kwargs())
+            handler_info = self.market_events_dispatch[event.event_type]
+            kws = event.to_kwargs()
+            if isinstance(handler_info, tuple):
+                for handler_name in handler_info:
+                    handler = getattr(self, handler_name)
+                    handler(*args, **kws)
+            if isinstance(handler_info, str):
+                    handler = getattr(self, handler_info)
+                    handler(*args, **kws)
+            for field in self.tag_all_events_with:
+                event.attachments[field] = getattr(self, field)
             self.event = None
-            return attachments
      
     def start_trade(self, *args, **kwargs):
         if not self.ready_to_trade:
@@ -125,7 +134,7 @@ class ELOMarket(BCSMarket):
     session_format = 'elo'
 
     market_events_dispatch = {
-        'E':'order_imbalance_change',
+        'E': ('order_imbalance_change', 'reference_price_change'),
         'role_change': 'role_change',
         'player_ready': 'player_ready',
         'advance_me': 'player_reached_session_end',
@@ -134,37 +143,36 @@ class ELOMarket(BCSMarket):
         'market_end': 'end_trade',
         'Q': 'bbo_change'
     }
+    tag_all_events_with = ('best_bid', 'best_offer', 'volume_at_best_bid', 
+        'volume_at_best_offer', 'order_imbalance', 'reference_price')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.session_format = 'elo'
         self.best_bid = min_bid
-        self.volume_bid = 0
+        self.volume_at_best_bid = 0
         self.best_offer = max_ask
-        self.volume_offer = 0
+        self.volume_at_best_offer = 0
         self.order_imbalance = 0
-        self.reference_price = ReferencePrice()
+        self.reference_price = 0
         self.role_group = MarketRoleGroup('manual', 'maker', 'taker', 'out')
-
-    def start_trade(self, *args, **kwargs):
-        super().start_trade(*args, **kwargs)
-        self.reference_price.reset()
-    
+  
     def role_change(self, *args, **kwargs):
         player_id = kwargs['player_id']
         new_role = kwargs['state']
-        timestamp = nanoseconds_since_midnight()
-        self.role_group.update(timestamp, player_id, new_role)
-        attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
-            'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
-            self.volume_bid, 'volume_at_best_ask': self.volume_offer}
-        self.attachments_for_observers.update({'role_change':attached})
+        self.role_group.update(nanoseconds_since_midnight(), player_id, new_role)
+        # attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
+        #     'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
+        #     self.volume_bid, 'volume_at_best_ask': self.volume_offer, 'reference_price':
+        #     self.reference_price}
+        # self.attachments_for_observers.update({'role_change':attached})
 
-    # def _reference_price_change(self, reference_price=ReferencePrice(), **kwargs):
-    #     price = kwargs['price']
-    #     reference_price = self.reference_price.step(price)
-    #     broadcast_content = {'type': 'reference_price', 'value': reference_price}
-    #     self.broadcast_to_subscribers(broadcast_content)
+    def reference_price_change(self, reference_price=ReferencePrice(), **kwargs):
+        pass
+        # price = kwargs['execution_price']
+        # reference_price = reference_price.step(price)
+        # broadcast_content = {'type': 'reference_price', 'value': reference_price}
+        # self.broadcast_to_subscribers(broadcast_content)
     
     def order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
@@ -185,14 +193,14 @@ class ELOMarket(BCSMarket):
                 value=current_order_imbalance)
         
     def bbo_change(self, **kwargs):
-        self.volume_bid = kwargs['volume_at_best_bid']
-        self.volume_offer = kwargs['volume_at_best_ask']
+        self.volume_at_best_bid = kwargs['volume_at_best_bid']
+        self.volume_at_best_offer = kwargs['volume_at_best_ask']
         self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
         maker_ids = self.role_group['maker', 'taker']
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
             'market_id': self.market_id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
-            'maker_ids': maker_ids, 'volume_at_best_bid': self.volume_bid,
-            'volume_at_best_ask': self.volume_offer, 'subsession_id': self.subsession_id}
+            'maker_ids': maker_ids, 'volume_at_best_bid': self.volume_at_best_bid,
+            'volume_at_best_offer': self.volume_at_best_offer, 'subsession_id': self.subsession_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
         self.event.broadcast_messages('bbo', model=self)

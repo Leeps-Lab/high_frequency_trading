@@ -1,4 +1,4 @@
-time,market_id,price,time_in_force,buy_sell_indicator
+time,market_id_in_subsession,price,time_in_force,buy_sell_indicator
 7,1,947030,20,S
 15,1,1036016,20,B
 19,1,992004,20,B
