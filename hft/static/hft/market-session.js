@@ -1,8 +1,9 @@
+
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market_elements.js'
 import './player-strategy/state-selection.js'
 import './spread-graph/spread-graph-new.js'
-// import './overlay.js';
+// import './profit-graph/profit-graph-new.js';
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -18,13 +19,13 @@ class MarketSession extends PolymerElement {
                 width:100vw;
                 height:100vh;
             }
-
+            /* Overlay styling and animation  */
             #overlay{
                 width:100%;
                 height:100%;
                 position:absolute;
                 background-color:grey;
-                opacity:0.8;
+                opacity:0.3;
             }
             .session-on{
                 animation-name: activate-interface;
@@ -41,6 +42,7 @@ class MarketSession extends PolymerElement {
                     opacity:1;
                 }
             }
+            /* Overlay END */
 
             .middle-section-container{
                 display: flex;
@@ -73,7 +75,6 @@ class MarketSession extends PolymerElement {
         </style>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
-
                 <spread-graph orders={{orderBook}}> </spread-graph>
                 <div class = "middle-section-container">       
                     <info-table  inventory={{inventory}}
@@ -85,7 +86,6 @@ class MarketSession extends PolymerElement {
                     <state-selection role={{role}} slider-defaults={{sliderDefaults}}> 
                     </state-selection>
                 </div>
-
             </div>
     `;
     }
@@ -110,11 +110,11 @@ class MarketSession extends PolymerElement {
         inventory: {type: Number,
             value: 0},
         cash: Number,
-        endowment: Number,
         isSessionActive:{
             type: Boolean,
             value: false,
         },
+        endowment: Number,
         websocketUrl: {
             type: Object,
             value: function () {
@@ -143,10 +143,6 @@ class MarketSession extends PolymerElement {
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
-
-        setTimeout(() => {
-            this.isSessionActive = true;
-          }, 5000);
     }
 
     ready(){
@@ -207,7 +203,11 @@ class MarketSession extends PolymerElement {
 
     }
 
-    _handleSystemEvent(message){}
+    _handleSystemEvent(message){
+        if(message['code'] == "S"){
+            this.isSessionActive = true;
+        }
+    }
 
     _handleTakerCue(message) {}
 
@@ -238,7 +238,7 @@ class MarketSession extends PolymerElement {
 
     _activeSession(isActive){
         return (isActive == true) ? 'session-on' : 'session-off';
-    }   
+    }
 
     _msgSanitize (messagePayload, direction) {
         if (this.events[direction].hasOwnProperty(messagePayload.type)) {
@@ -275,4 +275,3 @@ class MarketSession extends PolymerElement {
 }
 
 customElements.define('market-session', MarketSession)
-
