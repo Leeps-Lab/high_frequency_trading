@@ -151,7 +151,10 @@ class MarketSession extends PolymerElement {
 
     ready(){
         super.ready();
+        // we need a proper way to scale initial values
+        // maybe a constants component
         this.playerId = OTREE_CONSTANTS.playerId
+        this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001
         this.inventory = 0
         this.orderImbalance = 0
     }
@@ -185,24 +188,28 @@ class MarketSession extends PolymerElement {
     }
     
     _handleExecuted(message) {
-        this.cash = message.endowment
+        this.cash = message.cash
         this.inventory = message.inventory
     }
     
     _handleBestBidOfferUpdate(message) {
         this.bestBid = message.best_bid
         this.bestOffer = message.best_offer
-        this.volumeBestBid = message.volume_bid
-        this.volumeBestOffer = message.volume_offer
+        this.volumeBestBid = message.volume_at_best_bid
+        this.volumeBestOffer = message.volume_at_best_offer
     }
 
     _handleRoleConfirm(message) {
-        this.role = message.role_name
+        console.log(message.player_id, this.playerId)
+        if (message.player_id == this.playerId) {
+            this.role = message.role_name
+        }
+
     }
 
-    _handleSystemEvent(message){
+    _handleSystemEvent(message){}
 
-    }
+    _handleTakerCue(message) {}
 
     _handleOrderImbalance(message){
         this.orderImbalance = message.value

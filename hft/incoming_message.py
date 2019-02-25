@@ -2,6 +2,10 @@ from .translator import LeepsOuchTranslator
 from .equations import price_grid
 from .utility import elo_scaler
 import json
+import logging
+from .cache import get_market_id_map
+
+log = logging.getLogger(__name__)
 
 class IncomingMessageFactory:
 
@@ -73,7 +77,6 @@ class IncomingMessage:
 
 class IncomingWSMessage(IncomingMessage):
 
-    # mixin for 'elo' inbound ws messages
 
     def translate(self, message):
         translated_message = json.loads(message.content['text'])
@@ -81,6 +84,14 @@ class IncomingWSMessage(IncomingMessage):
     
     def sanitize(self, message, scaler=elo_scaler):
         clean_message = message
+        if 'market_id_in_subsession' in clean_message:
+            try:
+                mapping = get_market_id_map(self.kwargs['subsession_id'])
+                market_id = mapping[clean_message['market_id_in_subsession']]
+            except Exception as e:
+                log.exception('unable to retrieve market id map from cache.')
+                raise
+            clean_message['market_id'] = market_id
         if self.kwargs['player_id'] != 0:
             clean_message = scaler(clean_message, direction='scale-up')
         if 'price' in clean_message:

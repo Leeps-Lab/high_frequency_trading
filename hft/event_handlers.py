@@ -78,21 +78,14 @@ def leeps_handle_trader_message(event, exchange_format='CDA', session_format='el
         return event
 
 def leeps_handle_market_message(event, **kwargs):
-    # fields = utility.kwargs_from_event(event)
-    if event.event_type == 'A' and event.player_id!= 0:
-        return event
     market_key = get_cache_key(event.market_id, 'market')
     market_data = cache.get(market_key)
     if market_data is None:
         raise Exception('market key: %s returned none, event: %s' % (market_key,
             event))
     market, version = market_data['market'], market_data['version']  
-    attachments = market.receive(event)
-    if attachments:
-        event.attachments.update(attachments)
+    market.receive(event)
     message_queue = market.outgoing_messages.copy()
-    if event.event_type in market.attachments_for_observers:
-        event.attachments.update(market.attachments_for_observers[event.event_type])
     market.outgoing_messages.clear()
     event.outgoing_messages.extend(message_queue)
     market_data['market'] = market
@@ -105,12 +98,13 @@ def leeps_handle_market_message(event, **kwargs):
         return event
 
 def _handle_investors(event):
-    key = get_cache_key(event.player_id, 'investor', market_id=event.market_id)
+    key = get_cache_key(event.player_id, 'investor', market_id=event.market_id,
+        subsession_id=event.subsession_id)
     investor_data = cache.get(key)
+    if investor_data is None:
+        raise ValueError('investor key: %s returned none.' % key)
     investor, version = investor_data['investor'], investor_data['version']
     print('key: %s, version: %s' % (key, version))
-    if investor is None:
-        raise ValueError('investor key: %s returned none.' % key)
     investor.receive(event)
     message_queue = investor.outgoing_messages.copy()
     investor.outgoing_messages.clear()

@@ -8,9 +8,9 @@ group:
 exogenous-events:
   investor-arrivals:
     - session_config/Pilot/Trial1/investors_trial.csv
-    - session_config/Pilot/Draw1/investors_period1.csv
-    - session_config/Pilot/Draw1/investors_period2.csv
-    - session_config/Pilot/Draw1/investors_period3.csv
+    - session_config/Pilot/Trial1/investors_trial.csv
+    - session_config/Pilot/Trial1/investors_trial.csv
+    
 market:
   auction-format: 'CDA'
   matching-engine-host: '127.0.0.1'

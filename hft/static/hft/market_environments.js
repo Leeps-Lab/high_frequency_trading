@@ -17,7 +17,7 @@ const ELO = {
                 market_id: parseInt,
                 price: parseInt,
                 inventory: parseInt,
-                endowment: parseInt,
+                cash: parseInt,
                 buy_sell_indicator: String
             },
             replaced: {
@@ -43,17 +43,24 @@ const ELO = {
                 market_id: parseInt,
                 best_bid: parseInt,
                 best_offer: parseInt,
-                volume_bid: parseInt,
-                volume_offer: parseInt
+                volume_at_best_bid: parseInt,
+                volume_at_best_offer: parseInt
             },
             order_imbalance: {
                 type: String,
                 market_id: parseInt,
                 value: parseFloat
             },
+            elo_quote_cue: {
+                type: String,
+                market_id: parseInt,
+                bid: parseInt,
+                offer: parseInt
+            },
             role_confirm: {
                 type: String,
                 market_id: parseInt,
+                player_id: parseInt,
                 role_name: String
             },
             system_event: {
@@ -94,7 +101,8 @@ const ELO = {
         bbo: ['_handleBestBidOfferUpdate'],
         role_confirm: ['_handleRoleConfirm'],
         system_event: ['_handleSystemEvent'],
-        order_imbalance: ['_handleOrderImbalance']
+        order_imbalance: ['_handleOrderImbalance'],
+        elo_quote_cue: ['_handleTakerCue']
     },
     sliderProperties: {
         minValue: 0,

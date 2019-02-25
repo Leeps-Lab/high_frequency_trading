@@ -4,12 +4,19 @@ import datetime
 import os
 import csv
 
+recorded_player_fields = ('role', 'market_id', 'speed_on', 'inventory', 'bid', 
+    'offer', 'orderstore', 'best_bid', 'best_offer', 'target_bid',
+    'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
+    'slider_a_y', 'order_imbalance', 'cash', 'wealth', 'reference_price')
+
 class HFTPlayerStateRecord(Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
     subsession_id = models.StringField()
     player_id = models.IntegerField()
     market_id = models.StringField()
+    wealth = models.IntegerField()
+    cash = models.IntegerField()
     role =  models.StringField()
     speed_on = models.BooleanField()
     trigger_event_type = models.StringField()
@@ -20,19 +27,18 @@ class HFTPlayerStateRecord(Model):
     offer = models.IntegerField(blank=True)
     best_bid = models.IntegerField(blank=True)
     best_offer = models.IntegerField(blank=True)
-    latent_bid = models.IntegerField(blank=True)
-    latent_offer = models.IntegerField(blank=True)
+    target_bid = models.IntegerField(blank=True)
+    target_offer = models.IntegerField(blank=True)
     implied_bid = models.IntegerField(blank=True)
     implied_offer = models.IntegerField(blank=True)
     slider_a_x = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
     slider_a_y = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
     order_imbalance = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    reference_price = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+
 
     def from_event_and_player(self, event_dict, player):
-        for field in ('role', 'market_id', 'speed_on', 'inventory', 'bid', 
-            'offer', 'orderstore', 'best_bid', 'best_offer', 'latent_bid', 
-            'latent_offer', 'implied_bid', 'implied_offer', 'slider_a_x', 
-            'slider_a_y', 'order_imbalance'):
+        for field in recorded_player_fields:
             setattr(self, field, getattr(player, field))  
         self.player_id = int(player.id)
         self.trigger_event_type = str(event_dict['type'])  
@@ -88,9 +94,6 @@ class HFTInvestorRecord(Model):
         self.exchange_timestamp = event.message.data.timestamp
         return self
 
-
-
-
 results_foldername = 'results'
 base_session_foldername = '{timestamp:%Y%m%d_%H:%M}_session_{session_code}'  
 base_subsession_foldername = 'subsession_{subsession_id}_round_{round_no}'                         
@@ -100,11 +103,8 @@ base_filename = 'market_{market_id}_record_type_{record_class}_subsession_{subse
 csv_headers = {
     'HFTEventRecord': ['event_no','timestamp', 'subsession_id', 'market_id', 
         'event_source', 'event_type', 'original_message', 'attachments', 'outgoing_messages'],
-    'HFTPlayerStateRecord': ['timestamp', 'subsession_id', 'market_id', 'event_no',
-        'trigger_event_type', 'player_id', 'role', 'speed_on', 'orderstore', 
-        'best_bid', 'best_offer', 'bid','offer', 'latent_bid', 'latent_offer', 
-        'implied_bid', 'implied_offer', 'inventory', 'order_imbalance', 'slider_a_x',
-        'slider_a_y'],
+    'HFTPlayerStateRecord': ('timestamp', 'subsession_id, player_id', 'trigger_event_type',
+        'event_no') + recorded_player_fields,
     'HFTInvestorRecord': ['timestamp', 'exchange_timestamp', 'subsession_id', 
         'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']
 }
@@ -152,23 +152,14 @@ def _collect_and_dump(session_code, subsession_id:int, market_ids:list, round_no
                     writer.writerow(row.__dict__)
 
 def _elo_fields(player, subject_state):
-    player.best_bid = subject_state.best_quotes['B']
-    player.best_offer = subject_state.best_quotes['S']
-    if subject_state.latent_quote is not None:
-        if subject_state.latent_quote['B'] is not None:
-            player.latent_bid = int(subject_state.latent_quote['B'])
-        if subject_state.latent_quote['S'] is not None:
-            player.latent_offer = int(subject_state.latent_quote['S'])
+    for field in recorded_player_fields:
+        if hasattr(subject_state, field):
+            value = getattr(subject_state, field)
+            if value is not None:
+                setattr(player, field, value)
     if subject_state.sliders is not None:
         player.slider_a_x = float(subject_state.sliders.a_x)
         player.slider_a_y = float(subject_state.sliders.a_y)
-    if subject_state.implied_quotes is not None:
-        if subject_state.implied_quotes['B'] is not None:
-            player.implied_bid = int(subject_state.implied_quotes['B'])
-        if subject_state.implied_quotes['S'] is not None:
-            player.implied_offer = int(subject_state.implied_quotes['S'])
-    if subject_state.implied_quotes is not None:
-        player.order_imbalance = float(subject_state.order_imbalance)
     player.inventory = int(subject_state.orderstore.inventory)
     player.orderstore = str(subject_state.orderstore)
     player.bid = subject_state.orderstore.bid
