@@ -4,10 +4,11 @@ import datetime
 import os
 import csv
 
-recorded_player_fields = ('role', 'market_id', 'speed_on', 'inventory', 'bid', 
+recorded_player_fields = ('wealth', 'cash', 'technology_cost', 'role', 
+    'market_id', 'speed_on', 'time_on_speed', 'inventory', 'bid', 
     'offer', 'orderstore', 'best_bid', 'best_offer', 'target_bid',
     'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
-    'slider_a_y', 'order_imbalance', 'cash', 'wealth', 'reference_price')
+    'slider_a_y', 'order_imbalance', 'reference_price')
 
 class HFTPlayerStateRecord(Model):
 
@@ -17,8 +18,10 @@ class HFTPlayerStateRecord(Model):
     market_id = models.StringField()
     wealth = models.IntegerField()
     cash = models.IntegerField()
+    technology_cost = models.IntegerField(initial=0)
     role =  models.StringField()
     speed_on = models.BooleanField()
+    time_on_speed = models.IntegerField()
     trigger_event_type = models.StringField()
     event_no = models.IntegerField()
     inventory = models.IntegerField()
@@ -103,7 +106,7 @@ base_filename = 'market_{market_id}_record_type_{record_class}_subsession_{subse
 csv_headers = {
     'HFTEventRecord': ['event_no','timestamp', 'subsession_id', 'market_id', 
         'event_source', 'event_type', 'original_message', 'attachments', 'outgoing_messages'],
-    'HFTPlayerStateRecord': ('timestamp', 'subsession_id, player_id', 'trigger_event_type',
+    'HFTPlayerStateRecord': ('timestamp', 'subsession_id', 'player_id', 'trigger_event_type',
         'event_no') + recorded_player_fields,
     'HFTInvestorRecord': ['timestamp', 'exchange_timestamp', 'subsession_id', 
         'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']

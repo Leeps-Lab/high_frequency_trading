@@ -72,7 +72,7 @@ def scale_configs(session_format, session_configs):
             continue
         else:
             try:
-                scaled_configs[k] = v * int(scale)
+                scaled_configs[k] = int(v * int(scale))
             except:
                 log.error('scaling failed for config key: %s and value: %s for scale: %s.' 
                     % (k, v, scale))
