@@ -118,6 +118,8 @@ class BCSTrader(BaseTrader):
             # player unsubscribes from speed
             time_on_speed = nanoseconds_since_midnight() - self.speed_on_start_time
             self.time_on_speed += time_on_speed
+        self.event.broadcast_messages('speed_confirm', value=self.speed_on,
+            player_id=self.id, model=self)
     
     def calc_delay(self) -> float:
         """
@@ -197,7 +199,7 @@ class BCSTrader(BaseTrader):
         order_token = kwargs['order_token']
         buy_sell_indicator = order_info['buy_sell_indicator']
         self.event.broadcast_messages('executed', order_token=order_token,
-            price=price, inventory=self.orderstore.inventory, 
+            price=price, inventory=self.orderstore.inventory, execution_price=execution_price,
             buy_sell_indicator=buy_sell_indicator, player_id=self.id, model=self)
         return order_info
 

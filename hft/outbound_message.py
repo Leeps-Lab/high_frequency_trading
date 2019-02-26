@@ -26,7 +26,7 @@ class OrderCanceledBroadcastMessage(BroadcastWSMessage):
 class OrderExecutedBroadcastMessage(BroadcastWSMessage):
 
     required_fields = ('market_id', 'player_id', 'order_token',  'price', 'buy_sell_indicator',
-        'inventory', 'cash')
+        'inventory', 'execution_price')
     required_field_types = (int, int, str, int, str, int, int)
 
 class SystemEventBroadcastMessage(BroadcastWSMessage):
@@ -47,7 +47,11 @@ class ELOTakerQuoteBroadcastMessage(BroadcastWSMessage):
 
 class ReferencePriceBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'price')
-    required_field_types = (int, int)  
+    required_field_types = (int, int) 
+
+class SpeedConfirmBroadcastMessage(BroadcastWSMessage):
+    required_fields = ('market_id', 'value')
+    required_field_types = (int, bool)  
 
 class ELOBroadcastMessageFactory(BroadcastMessageFactory):
 
@@ -61,5 +65,6 @@ class ELOBroadcastMessageFactory(BroadcastMessageFactory):
         'role_confirm': RoleConfirmedBroadcastMessage,
         'order_imbalance': OrderImbalanceBroadcastMessage,
         'reference_price': ReferencePriceBroadcastMessage,
-        'elo_quote_cue': ELOTakerQuoteBroadcastMessage
+        'elo_quote_cue': ELOTakerQuoteBroadcastMessage,
+        'speed_confirm': SpeedConfirmBroadcastMessage
     }
