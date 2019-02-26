@@ -31,12 +31,14 @@ class StepwiseCalculator extends PolymerElement {
     _run (newValue, oldValue) {     
       if (newValue) {
         this.lastCalcTime = Date.now()
-        setInterval(() => {if (this.runForever) {
-          let now = Date.now() 
-          let step = (now - this.lastCalcTime) * this.unitSize
-          this.lastCalcTime = now
-          this.value += step
-          }}, this.sleepDuration)
+        setInterval(() => {
+            if (this.runForever) {
+              let now = Date.now() 
+              let step = (now - this.lastCalcTime) * this.unitSize
+              this.lastCalcTime = now
+              this.value += step
+              }}, 
+          this.sleepDuration)
         }
     }
 

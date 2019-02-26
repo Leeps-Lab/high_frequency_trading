@@ -163,10 +163,6 @@ class StateSelection extends PolymerElement {
     }
 
     _roleChange(newVal , oldVal) {  
-        if (newVal != oldVal) {
-            this.speedOn = false
-            console.log('role chnage', this.speedOn, newVal, oldVal)
-        }
         // since I can't set a disabled=true
         // at init time on markup using data binding
         let sliders= this.shadowRoot.querySelectorAll('.slider-group')

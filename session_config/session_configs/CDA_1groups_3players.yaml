@@ -23,7 +23,7 @@ parameters:
   initial-spread: 1
   max-spread: 2
   period-length: 60
-  speed-cost: 0.022
+  technology-unit-cost: 0.022  # $/s
   grid-size: 1
 
 session:

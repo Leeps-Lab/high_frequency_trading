@@ -227,17 +227,16 @@ class MarketSession extends PolymerElement {
 
     }
 
-    _handleSystemEvent(message){
-        if(message['code'] == "S"){
-            this.isSessionActive = true;
+    _handleSystemEvent(message) {
+        if (message.code == 'S') {
+            this.isSessionActive = true
         }
     }
 
     _handleSpeedConfirm(message){
-        console.log('current subsrcibe speed', this.subscribesSpeed, message.value)
         if (message.player_id == this.playerId) {
             this.subscribesSpeed = message.value
-        console.log('changed subscribe speed', this.subscribesSpeed)
+            console.log('run forever in handle speed', this.subscribesSpeed)
         }  
     }
 
@@ -310,9 +309,11 @@ class MarketSession extends PolymerElement {
         console.log('rolling speed cost: ',speedCost)
         return Math.round(speedCost)
     }
+
     _calculateCash (totalCost) {
         return Math.round(this.cash - totalCost)
     }
+
     _calculateWealth(cash) {
         return Math.round(cash)
     }
