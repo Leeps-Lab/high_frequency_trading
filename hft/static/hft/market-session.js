@@ -20,6 +20,30 @@ class MarketSession extends PolymerElement {
                 width:100vw;
                 height:100vh;
             }
+            /* Overlay styling and animation  */
+            #overlay{
+                width:100%;
+                height:100%;
+                position:absolute;
+                background-color:grey;
+                opacity:0.3;
+            }
+            .session-on{
+                animation-name: activate-interface;
+                animation-duration: 1s;
+                animation-fill-mode: forwards;
+            }
+            .session-off{
+                pointer-events:none;
+            }
+            @keyframes activate-interface {
+                100% {
+                    pointer-events:all;
+                    background-color:transparent;
+                    opacity:1;
+                }
+            }
+            /* Overlay END */
 
             .middle-section-container{
                 display: flex;
@@ -53,17 +77,18 @@ class MarketSession extends PolymerElement {
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
             <stepwise-calculator run-forever={{subscribesSpeed}} value={{speedCost}}
                 unit-size={{speedUnitCost}}> </stepwise-calculator>
-            <spread-graph orders={{orderBook}}> </spread-graph>
-            <div class="middle-section-container">       
-                <info-table inventory={{inventory}}
-                    cash={{cash}} order-imbalance={{orderImbalance}}
-                    endowment={{wealth}} best-bid={{bestBid}}
-                    best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
-                </info-table>
+            <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
+                <spread-graph orders={{orderBook}}> </spread-graph>
+                <div class="middle-section-container">       
+                    <info-table inventory={{inventory}}
+                        cash={{cash}} order-imbalance={{orderImbalance}}
+                        endowment={{wealth}} best-bid={{bestBid}}
+                        best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
+                    </info-table>
 
-                <state-selection role={{role}} slider-defaults={{sliderDefaults}}
-                    speed-on={{subscribesSpeed}}> 
-                </state-selection>
+                    <state-selection role={{role}} slider-defaults={{sliderDefaults}}
+                        speed-on={{subscribesSpeed}}> 
+                    </state-selection>
             </div>
     `;
     }
@@ -106,6 +131,10 @@ class MarketSession extends PolymerElement {
             value: false,
             reflectToAttribute: true
         },
+        isSessionActive:{
+            type: Boolean,
+            value: false,
+        },
         websocketUrl: {
             type: Object,
             value: function () {
@@ -134,7 +163,6 @@ class MarketSession extends PolymerElement {
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
-        
     }
 
     ready(){
@@ -199,7 +227,11 @@ class MarketSession extends PolymerElement {
 
     }
 
-    _handleSystemEvent(message){}
+    _handleSystemEvent(message){
+        if(message['code'] == "S"){
+            this.isSessionActive = true;
+        }
+    }
 
     _handleSpeedConfirm(message){
         console.log('current subsrcibe speed', this.subscribesSpeed, message.value)
@@ -234,6 +266,10 @@ class MarketSession extends PolymerElement {
             result = inventory * bestBid
         }
         return result
+    }
+
+    _activeSession(isActive){
+        return (isActive == true) ? 'session-on' : 'session-off';
     }
 
     _msgSanitize (messagePayload, direction) {
@@ -284,4 +320,3 @@ class MarketSession extends PolymerElement {
 }
 
 customElements.define('market-session', MarketSession)
-
