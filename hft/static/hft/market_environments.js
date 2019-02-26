@@ -17,7 +17,7 @@ const ELO = {
                 market_id: parseInt,
                 price: parseInt,
                 inventory: parseInt,
-                cash: parseInt,
+                execution_price: parseInt,
                 buy_sell_indicator: String
             },
             replaced: {
@@ -63,6 +63,12 @@ const ELO = {
                 player_id: parseInt,
                 role_name: String
             },
+            speed_confirm: {
+                type: String,
+                market_id: parseInt,
+                player_id: parseInt,
+                value: Boolean
+            },
             system_event: {
                 type: String,
                 market_id: parseInt,
@@ -102,7 +108,8 @@ const ELO = {
         role_confirm: ['_handleRoleConfirm'],
         system_event: ['_handleSystemEvent'],
         order_imbalance: ['_handleOrderImbalance'],
-        elo_quote_cue: ['_handleTakerCue']
+        elo_quote_cue: ['_handleTakerCue'],
+        speed_confirm: ['_handleSpeedConfirm']
     },
     sliderProperties: {
         minValue: 0,

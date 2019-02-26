@@ -3,6 +3,7 @@ import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-el
 import {PlayersOrderBook} from './market_elements.js'
 import './player-strategy/state-selection.js'
 import './spread-graph/spread-graph-new.js'
+import './stepwise-calculator.js'
 // import './profit-graph/profit-graph-new.js';
 
 const MIN_BID = 0;
@@ -50,15 +51,18 @@ class MarketSession extends PolymerElement {
 
         </style>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
+            <stepwise-calculator run-forever={{subscribesSpeed}} value={{speedCost}}
+                unit-size={{speedUnitCost}}> </stepwise-calculator>
             <spread-graph orders={{orderBook}}> </spread-graph>
-            <div class = "middle-section-container">       
-                <info-table  inventory={{inventory}}
+            <div class="middle-section-container">       
+                <info-table inventory={{inventory}}
                     cash={{cash}} order-imbalance={{orderImbalance}}
-                    endowment={{endowment}} best-bid={{bestBid}}
+                    endowment={{wealth}} best-bid={{bestBid}}
                     best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
                 </info-table>
 
-                <state-selection role={{role}} slider-defaults={{sliderDefaults}}> 
+                <state-selection role={{role}} slider-defaults={{sliderDefaults}}
+                    speed-on={{subscribesSpeed}}> 
                 </state-selection>
             </div>
     `;
@@ -81,10 +85,27 @@ class MarketSession extends PolymerElement {
         volumeBestOffer: Number,
         myBid: Number,
         myOffer: Number,
+        wealth: {
+            type: Number,
+            computed: '_calculateWealth(cash, totalCost)'
+        },
         inventory: {type: Number,
             value: 0},
-        cash: Number,
-        endowment: Number,
+        cash: {
+            type: Number,
+            computed: '_calculateCash(totalCost)'
+        },
+        speedUnitCost: Number,
+        speedCost: {type: Number, value: 0},
+        totalCost: {
+            type: Number, 
+            value: 0, 
+            computed: '_calculateCost(speedCost)'},
+        subscribesSpeed: {
+            type: Boolean, 
+            value: false,
+            reflectToAttribute: true
+        },
         websocketUrl: {
             type: Object,
             value: function () {
@@ -122,6 +143,7 @@ class MarketSession extends PolymerElement {
         // maybe a constants component
         this.playerId = OTREE_CONSTANTS.playerId
         this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001
+        this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.orderImbalance = 0
     }
@@ -155,8 +177,12 @@ class MarketSession extends PolymerElement {
     }
     
     _handleExecuted(message) {
-        this.cash = message.cash
+        if (message.player_id == this.playerId) {
+        let cashChange = message.buy_sell_indicator == 'B' ?  - message.execution_price :
+            message.execution_price
+        this.cash += cashChange
         this.inventory = message.inventory
+        }
     }
     
     _handleBestBidOfferUpdate(message) {
@@ -167,7 +193,6 @@ class MarketSession extends PolymerElement {
     }
 
     _handleRoleConfirm(message) {
-        console.log(message.player_id, this.playerId)
         if (message.player_id == this.playerId) {
             this.role = message.role_name
         }
@@ -175,6 +200,14 @@ class MarketSession extends PolymerElement {
     }
 
     _handleSystemEvent(message){}
+
+    _handleSpeedConfirm(message){
+        console.log('current subsrcibe speed', this.subscribesSpeed, message.value)
+        if (message.player_id == this.playerId) {
+            this.subscribesSpeed = message.value
+        console.log('changed subscribe speed', this.subscribesSpeed)
+        }  
+    }
 
     _handleTakerCue(message) {}
 
@@ -233,6 +266,19 @@ class MarketSession extends PolymerElement {
         else {
             console.error(`invalid message type: ${messagePayload.type} in ${messagePayload}`);
         }
+    }
+
+    _calculateCost(speedCost) {
+        // we should revisit this rounding issue
+        // in general we want to integers
+        console.log('rolling speed cost: ',speedCost)
+        return Math.round(speedCost)
+    }
+    _calculateCash (totalCost) {
+        return Math.round(this.cash - totalCost)
+    }
+    _calculateWealth(cash) {
+        return Math.round(cash)
     }
 
 }
