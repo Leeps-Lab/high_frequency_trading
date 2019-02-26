@@ -34,24 +34,24 @@ class SystemEventBroadcastMessage(BroadcastWSMessage):
     required_field_types = (int, str)    
 
 class RoleConfirmedBroadcastMessage(BroadcastWSMessage):
-    required_fields = ('player_id', 'role_name')
-    required_field_types = (int, str)  
+    required_fields = ('market_id', 'player_id', 'role_name')
+    required_field_types = (int, int, str)  
 
 class OrderImbalanceBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'value')
     required_field_types = (int, float) 
 
 class ELOTakerQuoteBroadcastMessage(BroadcastWSMessage):
-    required_fields = ('market_id', 'bid', 'offer')
-    required_field_types = (int, int, int)
+    required_fields = ('market_id', 'player_id', 'bid', 'offer')
+    required_field_types = (int, int, int, int)
 
 class ReferencePriceBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'price')
     required_field_types = (int, int) 
 
 class SpeedConfirmBroadcastMessage(BroadcastWSMessage):
-    required_fields = ('market_id', 'value')
-    required_field_types = (int, bool)  
+    required_fields = ('market_id', 'player_id', 'value')
+    required_field_types = (int, int, bool)  
 
 class ELOBroadcastMessageFactory(BroadcastMessageFactory):
 
