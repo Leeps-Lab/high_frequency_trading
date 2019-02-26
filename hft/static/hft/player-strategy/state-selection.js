@@ -1,6 +1,6 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
 import './player-role-button.js';
-import './speed-switch.js'
+import './nice-checkbox.js'
 
 class StateSelection extends PolymerElement {
 
@@ -70,7 +70,7 @@ class StateSelection extends PolymerElement {
                     <div class="header-container">
                         Speed
                     </div>
-                    <speed-switch> </speed-switch>
+                    <nice-checkbox is-active={{speedOn}}> </nice-checkbox>
                 </div>
                 
                 <div id="second-column" class="column-container">
@@ -116,7 +116,7 @@ class StateSelection extends PolymerElement {
                         
             </div>
 
-        `;
+        `
     }
 
     static get properties() {
@@ -136,7 +136,12 @@ class StateSelection extends PolymerElement {
             type: Number,
             observer: '_sliderValueChange',
             value: 0
-          }
+          },
+          speedOn: {
+            type: Boolean, 
+            value: false,
+            reflectToAttribute: true
+            }
         }
     }
 
@@ -157,9 +162,13 @@ class StateSelection extends PolymerElement {
         this.dispatchEvent(userInputEvent);
     }
 
-    _roleChange(newVal , oldVal) {        
-        // since I can't set a disabled=false 
-        // on markup using data binding
+    _roleChange(newVal , oldVal) {  
+        if (newVal != oldVal) {
+            this.speedOn = false
+            console.log('role chnage', this.speedOn, newVal, oldVal)
+        }
+        // since I can't set a disabled=true
+        // at init time on markup using data binding
         let sliders= this.shadowRoot.querySelectorAll('.slider-group')
         sliders.forEach( (element) => { 
             newVal == 'taker' || newVal == 'maker' ? element.disabled = false :
