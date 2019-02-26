@@ -36,6 +36,7 @@ class PlayersOrderBook {
                     message.old_token)
                 break;
         }
+        this._notifyPolymer(message.price, message.buy_sell_indicator, message.orderToken);
     }
 
     getOrders(buySellIndicator) {
@@ -53,8 +54,6 @@ class PlayersOrderBook {
             priceSlots[price] = {};
         }
         priceSlots[price][orderToken] = 1;
-
-        this._notifyPolymer(price, buySellIndicator, orderToken);
     }
 
     _removeOrder(price, buySellIndicator, orderToken, playerId) {
@@ -72,8 +71,6 @@ class PlayersOrderBook {
                 }
             }
         }
-
-        this._notifyPolymer(price, buySellIndicator, orderToken);
     }
 
     _replaceOrder(price, buySellIndicator, orderToken, playerId, oldPrice, oldToken) {
