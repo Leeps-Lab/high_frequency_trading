@@ -110,16 +110,26 @@ class BCSTrader(BaseTrader):
         record time if player turns on speed
         to use to calculate technology cost
         """
-        self.speed_on = not self.speed_on
+        new_state = kwargs['value']
+        if new_state == self.speed_on:
+            return
+    
+        self.speed_on = new_state
+        
+        now = nanoseconds_since_midnight()
         if self.speed_on:
-            # player subscribes to speed
-            self.speed_on_start_time = nanoseconds_since_midnight()
+            # player subscribes to speed technology
+            self.speed_on_start_time = now
         else:
-            # player unsubscribes from speed
-            time_on_speed = nanoseconds_since_midnight() - self.speed_on_start_time
-            self.time_on_speed += time_on_speed
+            # player unsubscribes from speed technology
+            time_on_speed = int((now - self.speed_on_start_time) * 1e-6) # ms
+            self.time_on_speed += time_on_speed 
+            tech_cost_step = int(self.technology_unit_cost * time_on_speed * 1e-3)  # $/s
+            self.technology_cost += tech_cost_step
+            self.cash -= tech_cost_step
+
         self.event.broadcast_messages('speed_confirm', value=self.speed_on,
-            player_id=self.id, model=self)
+            player_id=self.id, market_id=self.market_id)
     
     def calc_delay(self) -> float:
         """
@@ -128,8 +138,8 @@ class BCSTrader(BaseTrader):
         delay = self.long_delay
         if self.speed_on is True:
             time_since_speed_change = nanoseconds_since_midnight() - self.speed_on_start_time 
-            if time_since_speed_change < 5 * 1e6: # wtf was this
-                # otherwise the order of messages may break
+            if time_since_speed_change < 5 * 1e6:
+                # so this order doesn't beat the previous
                 return delay
             delay = self.short_delay
         return delay
@@ -233,6 +243,7 @@ class ELOTrader(BCSTrader):
 
     def first_move(self, **kwargs):
         self.role = kwargs['state']
+        self.speed_change(value=False)
 
 class ELOOut(ELOTrader):
 
@@ -501,6 +512,7 @@ class ELOTaker(ELOMaker):
 
     def first_move(self, **kwargs):
         self.role = kwargs['state']
+        self.speed_change(value=False)
         self.leave_market()
         self.track_market(**kwargs)
         self.sliders = Sliders()
@@ -523,8 +535,8 @@ class ELOTaker(ELOMaker):
 
     def latent_quote_update(self, *args, **kwargs):
         super().latent_quote_update(*args, **kwargs)
-        self.event.broadcast_messages('elo_quote_cue', market_id=self.market_id,
-            bid=self.implied_bid, offer=self.implied_offer)
+        self.event.broadcast_messages('elo_quote_cue', player_id=self.player_id,
+            market_id=self.market_id, bid=self.implied_bid, offer=self.implied_offer)
 
     def move_bid_and_offer(self, target_bid=None, target_offer=None, start_from='B',
             order_imbalance=None):

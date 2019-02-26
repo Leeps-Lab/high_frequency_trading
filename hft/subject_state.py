@@ -42,11 +42,11 @@ class BCSSubjectState(BaseSubjectState):
 class ELOSubjectState(BaseSubjectState):
     orderstore_cls = OrderStore
     __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'group_id', 'id_in_group', 
-        'id', 'code', 'role', 'speed_on',  'speed_unit_cost', 'spread', 'speed_on_start_time', 
+        'id', 'code', 'role', 'speed_on',  'technology_unit_cost', 'spread', 'speed_on_start_time', 
         'wealth', 'cash', 'reference_price', 'cost', 'time_on_speed', 'last_message_time', 
         'market_id', 'sliders', 'best_bid', 'best_offer', 'target_bid', 'target_offer', 
         'order_imbalance', 'implied_bid', 'implied_offer', 'volume_at_best_offer', 
-        'volume_at_best_bid', 'wait_for_best_bid', 'wait_for_best_offer')    
+        'volume_at_best_bid', 'wait_for_best_bid', 'wait_for_best_offer', 'technology_cost')    
 
 class LEEPSInvestorState(BaseSubjectState):
     orderstore_cls = OrderStore
