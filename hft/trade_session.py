@@ -11,6 +11,7 @@ from . import exchange
 from .dispatcher import LEEPSDispatcher
 from functools import partial
 from .market import MarketFactory
+from itertools import count
 
 log = logging.getLogger(__name__)
 
@@ -39,6 +40,7 @@ class TradeSession:
         self.exogenous_events = {}
         self.trading_markets = []
         self.outgoing_messages = deque()
+        self.market_count = count(1,1)
    
     def start_trade_session(self, market_id=None):
         raise NotImplementedError()
@@ -47,8 +49,10 @@ class TradeSession:
         raise NotImplementedError()
 
     def create_market(self, exchange_host, exchange_port):
+        market_id_in_trade_session = str(next(self.market_count))
         market_cls = self.market_factory.get_market(self.session_format)
-        market = market_cls(self.subsession_id, exchange_host, exchange_port)
+        market = market_cls(market_id_in_trade_session, self.subsession_id, 
+            exchange_host, exchange_port)
         self.market_state[market.market_id] = False
         self.market_exchange_pairs[market.market_id] = (exchange_host, exchange_port)
         return market

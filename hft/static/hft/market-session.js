@@ -3,6 +3,7 @@ import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-el
 import {PlayersOrderBook} from './market_elements.js'
 import './player-strategy/state-selection.js'
 import './spread-graph/spread-graph-new.js'
+import './stepwise-calculator.js'
 // import './profit-graph/profit-graph-new.js';
 
 const MIN_BID = 0;
@@ -19,6 +20,30 @@ class MarketSession extends PolymerElement {
                 width:100vw;
                 height:100vh;
             }
+            /* Overlay styling and animation  */
+            #overlay{
+                width:100%;
+                height:100%;
+                position:absolute;
+                background-color:grey;
+                opacity:0.3;
+            }
+            .session-on{
+                animation-name: activate-interface;
+                animation-duration: 1s;
+                animation-fill-mode: forwards;
+            }
+            .session-off{
+                pointer-events:none;
+            }
+            @keyframes activate-interface {
+                100% {
+                    pointer-events:all;
+                    background-color:transparent;
+                    opacity:1;
+                }
+            }
+            /* Overlay END */
 
             .middle-section-container{
                 display: flex;
@@ -50,16 +75,20 @@ class MarketSession extends PolymerElement {
 
         </style>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-            <spread-graph orders={{orderBook}}> </spread-graph>
-            <div class = "middle-section-container">       
-                <info-table  inventory={{inventory}}
-                    cash={{cash}} order-imbalance={{orderImbalance}}
-                    endowment={{endowment}} best-bid={{bestBid}}
-                    best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
-                </info-table>
+            <stepwise-calculator run-forever={{subscribesSpeed}} value={{speedCost}}
+                unit-size={{speedUnitCost}}> </stepwise-calculator>
+            <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
+                <spread-graph orders={{orderBook}}> </spread-graph>
+                <div class="middle-section-container">       
+                    <info-table inventory={{inventory}}
+                        cash={{cash}} order-imbalance={{orderImbalance}}
+                        endowment={{wealth}} best-bid={{bestBid}}
+                        best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
+                    </info-table>
 
-                <state-selection role={{role}} slider-defaults={{sliderDefaults}}> 
-                </state-selection>
+                    <state-selection role={{role}} slider-defaults={{sliderDefaults}}
+                        speed-on={{subscribesSpeed}}> 
+                    </state-selection>
             </div>
     `;
     }
@@ -81,10 +110,31 @@ class MarketSession extends PolymerElement {
         volumeBestOffer: Number,
         myBid: Number,
         myOffer: Number,
+        wealth: {
+            type: Number,
+            computed: '_calculateWealth(cash, totalCost)'
+        },
         inventory: {type: Number,
             value: 0},
-        cash: Number,
-        endowment: Number,
+        cash: {
+            type: Number,
+            computed: '_calculateCash(totalCost)'
+        },
+        speedUnitCost: Number,
+        speedCost: {type: Number, value: 0},
+        totalCost: {
+            type: Number, 
+            value: 0, 
+            computed: '_calculateCost(speedCost)'},
+        subscribesSpeed: {
+            type: Boolean, 
+            value: false,
+            reflectToAttribute: true
+        },
+        isSessionActive:{
+            type: Boolean,
+            value: false,
+        },
         websocketUrl: {
             type: Object,
             value: function () {
@@ -113,12 +163,15 @@ class MarketSession extends PolymerElement {
 
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
-        
     }
 
     ready(){
         super.ready();
+        // we need a proper way to scale initial values
+        // maybe a constants component
         this.playerId = OTREE_CONSTANTS.playerId
+        this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001
+        this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.orderImbalance = 0
     }
@@ -152,24 +205,42 @@ class MarketSession extends PolymerElement {
     }
     
     _handleExecuted(message) {
-        this.cash = message.endowment
+        if (message.player_id == this.playerId) {
+        let cashChange = message.buy_sell_indicator == 'B' ?  - message.execution_price :
+            message.execution_price
+        this.cash += cashChange
         this.inventory = message.inventory
+        }
     }
     
     _handleBestBidOfferUpdate(message) {
         this.bestBid = message.best_bid
         this.bestOffer = message.best_offer
-        this.volumeBestBid = message.volume_bid
-        this.volumeBestOffer = message.volume_offer
+        this.volumeBestBid = message.volume_at_best_bid
+        this.volumeBestOffer = message.volume_at_best_offer
     }
 
     _handleRoleConfirm(message) {
-        this.role = message.role_name
+        if (message.player_id == this.playerId) {
+            this.role = message.role_name
+        }
+
     }
 
-    _handleSystemEvent(message){
-
+    _handleSystemEvent(message) {
+        if (message.code == 'S') {
+            this.isSessionActive = true
+        }
     }
+
+    _handleSpeedConfirm(message){
+        if (message.player_id == this.playerId) {
+            this.subscribesSpeed = message.value
+            console.log('run forever in handle speed', this.subscribesSpeed)
+        }  
+    }
+
+    _handleTakerCue(message) {}
 
     _handleOrderImbalance(message){
         this.orderImbalance = message.value
@@ -194,6 +265,10 @@ class MarketSession extends PolymerElement {
             result = inventory * bestBid
         }
         return result
+    }
+
+    _activeSession(isActive){
+        return (isActive == true) ? 'session-on' : 'session-off';
     }
 
     _msgSanitize (messagePayload, direction) {
@@ -228,7 +303,21 @@ class MarketSession extends PolymerElement {
         }
     }
 
+    _calculateCost(speedCost) {
+        // we should revisit this rounding issue
+        // in general we want to integers
+        console.log('rolling speed cost: ',speedCost)
+        return Math.round(speedCost)
+    }
+
+    _calculateCash (totalCost) {
+        return Math.round(this.cash - totalCost)
+    }
+
+    _calculateWealth(cash) {
+        return Math.round(cash)
+    }
+
 }
 
 customElements.define('market-session', MarketSession)
-

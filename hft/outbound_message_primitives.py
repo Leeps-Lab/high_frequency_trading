@@ -56,6 +56,9 @@ class BroadcastWSMessage(OutboundMessage):
     @classmethod
     def clean(cls, message_data, scaler=elo_scaler):
         clean_message =dict(message_data)
+        if len(cls.required_fields) != len(cls.required_field_types):
+            raise Exception('required fields length %d, required field types length: %d'
+                % (len(cls.required_fields), len(cls.required_field_types)))
         for ix, key in enumerate(cls.required_fields):
             fieldtype = cls.required_field_types[ix]
             clean_value = fieldtype(message_data[key])

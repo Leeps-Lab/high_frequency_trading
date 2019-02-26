@@ -64,7 +64,6 @@ class PlayersOrderBook {
             if (!priceSlots[price].hasOwnProperty(orderToken)) {
                 console.error(`order token ${orderToken} is not in ${priceSlots}`)    
             } else {
-                console.log('price thingy', priceSlots)
                 delete priceSlots[price][orderToken]
                 if (Object.keys(priceSlots[price]).length == 0) {
                     delete priceSlots[price];

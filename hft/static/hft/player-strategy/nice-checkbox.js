@@ -1,6 +1,6 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
 
-class SpeedSwitch extends PolymerElement {
+class NiceCheckbox extends PolymerElement {
     static get template() {
         return html`
         <style>
@@ -16,7 +16,7 @@ class SpeedSwitch extends PolymerElement {
                 height: 35px;
               }
               
-              .switch #speedCheck { 
+              .switch #nicecheckbox{ 
                 opacity: 0;
                 width: 0;
                 height: 0;
@@ -46,15 +46,15 @@ class SpeedSwitch extends PolymerElement {
                 transition: .4s;
               }
               
-              #speedCheck:checked + .slider{
+              #nicecheckbox[checked] + .slider{
                 background-color: #ED6A5A;
               }
               
-              #speedCheck:focus + .slider{
+              #nicecheckbox:focus + .slider{
                 box-shadow: 0 0 1px #2196F3;
               }
               
-              #speedCheck:checked + .slider:before {
+              #nicecheckbox[checked] + .slider:before {
                 -webkit-transform: translateX(26px);
                 -ms-transform: translateX(26px);
                 transform: translateX(26px);
@@ -69,24 +69,30 @@ class SpeedSwitch extends PolymerElement {
                 height: 100%; 
                 margin: 0px;
               }
+
               .slider.round:before {
                 border-radius: 50%;
               }
+
         </style>
         <label class="switch">
-                <input id="speedCheck"
-                 type="checkbox">
-                <span class="slider round"></span>
+            <input id="nicecheckbox" checked$=[[isActive]] type="checkbox" on-click="checkboxClicked">
+            <span class="slider round"></span>
         </label>
         `
     }
 
     static get properties(){
         return {
-            checked: {
-                type: Boolean,
-                value: false
-            }
+            isActive: {
+              type: Boolean,
+              value: false,
+              reflectToAtrribute: true
+            },
+            isChecked: {
+              type: Boolean,
+              reflectToAtrribute: true,
+            },
         };
     }
         
@@ -94,22 +100,14 @@ class SpeedSwitch extends PolymerElement {
         super();  
     }
 
-    ready(){
-        super.ready();
-        this.$.speedCheck.addEventListener('click', this._updateState.bind(this));
-    }
+    checkboxClicked(event) {
+      event.preventDefault();
 
-    _updateState(){
-        this.checked = !this.checked;
-
-        let socketMessage = {type: 'speed_change', value: this.checked }        
+      let socketMessage = {type: 'speed_change', value: !this.isActive }        
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });   
         this.dispatchEvent(userInputEvent);
-
-    } 
-
-        
     }
+  }
     
-customElements.define('speed-switch', SpeedSwitch);
+customElements.define('nice-checkbox', NiceCheckbox);

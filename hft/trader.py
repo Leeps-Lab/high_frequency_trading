@@ -13,6 +13,8 @@ from .equations import latent_bid_and_offer, price_grid
 log = logging.getLogger(__name__)
 
 
+# this module will be updated soon.
+
 class TraderFactory:
     
     def get_trader(self):
@@ -71,14 +73,14 @@ class BaseTrader:
 
     def receive(self, event):
         if event.event_type not in self.message_dispatch:
-            raise KeyError('Unknown message_type: %s for trader: %s' % (event.event_type,
+            log.exception('Unknown message_type: %s for trader: %s' % (event.event_type,
                 self.__class__.__name__) )
+            return
         handler_name = self.message_dispatch[event.event_type]
         handler = getattr(self, handler_name)
         self.event = event
         handler(**event.to_kwargs())
         self.event = None
-
 
 
     def first_move(self, **kwargs):
@@ -108,14 +110,26 @@ class BCSTrader(BaseTrader):
         record time if player turns on speed
         to use to calculate technology cost
         """
-        self.speed_on = not self.speed_on
+        new_state = kwargs['value']
+        if new_state == self.speed_on:
+            return
+    
+        self.speed_on = new_state
+        
+        now = nanoseconds_since_midnight()
         if self.speed_on:
-            # player subscribes to speed
-            self.speed_on_start_time = nanoseconds_since_midnight()
+            # player subscribes to speed technology
+            self.speed_on_start_time = now
         else:
-            # player unsubscribes from speed
-            time_on_speed = nanoseconds_since_midnight() - self.speed_on_start_time
-            self.time_on_speed += time_on_speed
+            # player unsubscribes from speed technology
+            time_on_speed = int((now - self.speed_on_start_time) * 1e-6) # ms
+            self.time_on_speed += time_on_speed 
+            tech_cost_step = int(self.technology_unit_cost * time_on_speed * 1e-3)  # $/s
+            self.technology_cost += tech_cost_step
+            self.cash -= tech_cost_step
+
+        self.event.broadcast_messages('speed_confirm', value=self.speed_on,
+            player_id=self.id, market_id=self.market_id)
     
     def calc_delay(self) -> float:
         """
@@ -125,12 +139,12 @@ class BCSTrader(BaseTrader):
         if self.speed_on is True:
             time_since_speed_change = nanoseconds_since_midnight() - self.speed_on_start_time 
             if time_since_speed_change < 5 * 1e6:
-                # otherwise the order of messages may break
+                # so this order doesn't beat the previous
                 return delay
             delay = self.short_delay
         return delay
 
-    def update_cash_position(self, exec_price, buy_sell_indicator) -> int:
+    def post_execution(self, exec_price, buy_sell_indicator) -> int:
         raise NotImplementedError()
 
     def jump(self, **kwargs):
@@ -190,43 +204,46 @@ class BCSTrader(BaseTrader):
         execution_price = kwargs['execution_price']
         order_info =  self.orderstore.confirm('executed', **kwargs)
         buy_sell_indicator = order_info['buy_sell_indicator']
-        self.update_cash_position(execution_price, buy_sell_indicator)
+        self.post_execution(execution_price, buy_sell_indicator)
         price = order_info['price']
         order_token = kwargs['order_token']
         buy_sell_indicator = order_info['buy_sell_indicator']
         self.event.broadcast_messages('executed', order_token=order_token,
-            price=price, inventory=self.orderstore.inventory, 
+            price=price, inventory=self.orderstore.inventory, execution_price=execution_price,
             buy_sell_indicator=buy_sell_indicator, player_id=self.id, model=self)
         return order_info
 
 Sliders = namedtuple('Sliders', 'a_x a_y b_x b_y')
 Sliders.__new__.__defaults__ = (0, 0, 0, 0)
 
-
 class ELOTrader(BCSTrader):
 
-    def update_cash_position(self, execution_price, buy_sell_indicator):
+    def post_execution(self, execution_price, buy_sell_indicator):
         if buy_sell_indicator == 'B':
-            self.endowment -= execution_price
+            self.cash -= execution_price
         elif buy_sell_indicator == 'S':
-            self.endowment += execution_price
+            self.cash += execution_price
+        if self.reference_price is not None:
+            self.wealth = self.reference_price * self.inventory + self.cash
 
-    def switch_to_market_tracking_role(self, **kwargs):
-        self.best_quotes = {'B': kwargs['best_bid'], 'S': kwargs['best_offer']}
-        self.best_quote_volumes = {'B': kwargs['volume_at_best_bid'], 
-            'S': kwargs['volume_at_best_ask']}
-        self.no_enter_until_bbo = {'B': False, 'S': False}
-        self.order_imbalance = kwargs.get('order_imbalance')
+    def track_market(self, **kwargs):
+        self.best_bid = kwargs['best_bid']
+        self.best_offer = kwargs['best_offer']
+        self.volume_at_best_bid = kwargs['volume_at_best_bid']
+        self.volume_at_best_offer = kwargs['volume_at_best_offer']
+        self.wait_for_best_bid = False
+        self.wait_for_best_offer = False
+        self.order_imbalance = kwargs['order_imbalance']
 
     def exchange_message_from_order_info(self, order_info, delay, order_type):
-        host, port = self.exchange_host, self.exchange_port
-        message_content = {'host': host, 'port': port, 'type': order_type, 'delay':
-            delay, 'order_info': order_info}
+        message_content = {'host': self.exchange_host, 'port': self.exchange_port, 
+            'type': order_type, 'delay': delay, 'order_info': order_info}
         exchange_message = format_message('exchange', **message_content)
         return exchange_message
 
     def first_move(self, **kwargs):
         self.role = kwargs['state']
+        self.speed_change(value=False)
 
 class ELOOut(ELOTrader):
 
@@ -236,11 +253,15 @@ class ELOOut(ELOTrader):
     def first_move(self, **kwargs):
         super().first_move(**kwargs)
         self.leave_market()
-        self.best_quotes['B'] = None
-        self.best_quotes['S'] = None
-        self.order_imbalance = None
+        self.track_market(**kwargs)
         self.event.broadcast_messages('role_confirm', player_id=self.id, 
             role_name=self.role, market_id=self.market_id)
+    
+    def bbo_update(self, **kwargs):
+        self.volume_at_best_bid = kwargs['volume_at_best_bid']
+        self.volume_at_best_offer = kwargs['volume_at_best_ask']
+        self.best_bid = kwargs['best_bid']
+        self.best_offer = kwargs['best_offer']
         
 
 MIN_BID = 0
@@ -259,7 +280,7 @@ class ELOManual(ELOTrader):
     def first_move(self, **kwargs):
         super().first_move(**kwargs)
         self.leave_market()
-        self.switch_to_market_tracking_role(**kwargs)
+        self.track_market(**kwargs)
         self.event.broadcast_messages('role_confirm', player_id=self.id, 
             role_name=self.role, market_id=self.market_id)
 
@@ -267,8 +288,13 @@ class ELOManual(ELOTrader):
         if buy_sell_indicator is None:
             buy_sell_indicator = kwargs['buy_sell_indicator']
         if price is None:
-            price = price_grid(kwargs['price'])
-        if price == MIN_BID or price == MAX_ASK:
+            price = kwargs['price']
+        if price == MIN_BID or price == MAX_ASK :
+            return
+        if (buy_sell_indicator == 'B' and self.target_offer is not None and 
+            price >= self.target_offer) or (
+            buy_sell_indicator == 'S' and self.target_bid is not None and 
+            price <= self.target_bid):
             return
         else:
             orders = self.orderstore.all_orders(direction=buy_sell_indicator)
@@ -288,12 +314,16 @@ class ELOManual(ELOTrader):
                 internal_message = self.exchange_message_from_order_info(order_info,
                     delay, 'enter')
                 self.outgoing_messages.append(internal_message)
+        if buy_sell_indicator == 'B':
+            self.target_bid = price
+        elif buy_sell_indicator == 'S':
+            self.target_offer = price
 
     def bbo_update(self, **kwargs):
-        self.best_quote_volumes['B'] = kwargs['volume_at_best_bid']
-        self.best_quote_volumes['S'] = kwargs['volume_at_best_ask']
-        self.best_quotes['B'] = kwargs['best_bid']
-        self.best_quotes['S'] = kwargs['best_offer']
+        self.volume_at_best_bid = kwargs['volume_at_best_bid']
+        self.volume_at_best_offer = kwargs['volume_at_best_ask']
+        self.best_bid = kwargs['best_bid']
+        self.best_offer = kwargs['best_offer']
 
 class ELOMaker(ELOTrader):
 
@@ -308,13 +338,12 @@ class ELOMaker(ELOTrader):
     def first_move(self, **kwargs):
         super().first_move(**kwargs)
         self.leave_market()
-        self.switch_to_market_tracking_role(**kwargs)
+        self.track_market(**kwargs)
         self.sliders = Sliders()
-        self.latent_quote = {'B': None, 'S': None}
-        if self.best_quotes['B'] > MIN_BID:
+        if self.best_bid > MIN_BID:
             buy_message = self.enter_with_latent_quote('B')
             self.outgoing_messages.append(buy_message)
-        if self.best_quotes['S'] < MAX_ASK:
+        if self.best_offer < MAX_ASK:
             sell_message = self.enter_with_latent_quote('S')
             self.outgoing_messages.append(sell_message)
         self.event.broadcast_messages('role_confirm', player_id=self.id, 
@@ -323,23 +352,24 @@ class ELOMaker(ELOTrader):
     def enter_with_latent_quote(self, buy_sell_indicator, price=None, 
             time_in_force=99999, latent_quote_formula=latent_bid_and_offer):
         if price is None:
-            latent_bid, latent_offer = latent_quote_formula(self.best_quotes['B'], 
-                self.best_quotes['S'], self.order_imbalance, self.orderstore.inventory, 
+            self.implied_bid, self.implied_offer = latent_quote_formula(self.best_bid, 
+                self.best_offer, self.order_imbalance, self.orderstore.inventory, 
                 self.sliders)
-            self.implied_quotes = {'B': latent_bid, 'S': latent_offer}
-            price = latent_bid if buy_sell_indicator == 'B' else latent_offer
+            price = self.implied_bid if buy_sell_indicator == 'B' else self.implied_offer 
         delay = self.calc_delay()
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=buy_sell_indicator, 
             time_in_force=time_in_force)
         exchange_message = self.exchange_message_from_order_info(order_info, 
             delay, 'enter')
-        self.latent_quote[buy_sell_indicator] = price
+        if buy_sell_indicator == 'B':
+            self.target_bid = price
+        elif buy_sell_indicator == 'S':
+            self.target_offer = price
         return exchange_message
 
     def slider_change(self, **kwargs):
         new_slider = Sliders(a_x=float(kwargs['a_x']), a_y=float(kwargs['a_y']))
-        old_slider = self.sliders
-        if old_slider != new_slider:
+        if self.sliders != new_slider:
             self.latent_quote_update(sliders=new_slider)
 
     @staticmethod    
@@ -363,41 +393,29 @@ class ELOMaker(ELOTrader):
             sliders = self.sliders
         else:
             self.sliders = sliders
-        best_bid = kwargs.get('best_bid')
-        if best_bid is None:
-            best_bid = self.best_quotes['B']
+
+        if 'best_bid' not in kwargs:
+            best_bid = self.best_bid
         else:
-            self.best_quotes['B'] = best_bid
-            self.best_quote_volumes['B'] = kwargs['volume_at_best_bid']
-
-        best_offer = kwargs.get('best_offer')
-        if best_offer is None:
-            best_offer = self.best_quotes['S']
+            self.best_bid = kwargs['best_bid']
+            self.volume_at_best_bid = kwargs['volume_at_best_bid']
+        if 'best_offer' not in kwargs:
+            best_offer = self.best_offer
         else:
-            self.best_quotes['S'] = best_offer
-            self.best_quote_volumes['S'] = kwargs['volume_at_best_ask']
+            self.best_offer = kwargs['best_offer']
+            self.volume_at_best_bid = kwargs['volume_at_best_offer']
 
-        previous_order_imbalance = float(self.order_imbalance)
-        current_order_imbalance = kwargs.get('order_imbalance')
-        if current_order_imbalance is not None:
-            self.order_imbalance = current_order_imbalance
-        else:
-            current_order_imbalance = previous_order_imbalance
+        order_imbalance_has_changed = False
+        if 'order_imbalance' in kwargs and self.order_imbalance != kwargs['order_imbalance']:
+            order_imbalance_has_changed = True
+            self.order_imbalance = kwargs['order_imbalance']
 
-        new_latent_bid, new_latent_offer = latent_quote_formula(best_bid, best_offer, 
-            current_order_imbalance, self.orderstore.inventory, sliders)
+        self.implied_bid, self.implied_offer = latent_quote_formula(self.best_bid, self.best_offer, 
+            self.order_imbalance, self.orderstore.inventory, sliders)
 
-        self.implied_quotes = {'B': new_latent_bid, 'S': new_latent_offer}   
-        current_bid = self.latent_quote['B']
-        current_offer = self.latent_quote['S']    
-
-        volume_at_best_offer = self.best_quote_volumes['S']
-        volume_at_best_bid = self.best_quote_volumes['B']
-
-
-        bid, offer = self.enter_rule(current_bid, current_offer, best_bid, 
-            best_offer, new_latent_bid, new_latent_offer, volume_at_best_bid, 
-            volume_at_best_offer)
+        bid, offer = self.enter_rule(self.target_bid, self.target_offer, self.best_bid, 
+            self.best_offer, self.implied_bid, self.implied_offer, self.volume_at_best_bid, 
+            self.volume_at_best_offer)
 
         start_from = 'B'
         if bid and offer:
@@ -405,29 +423,26 @@ class ELOMaker(ELOTrader):
             # the less aggressive price
             # in replaces.
             sell_is_aggressive = False
-            if current_offer is not None and current_offer > offer:
+            if self.target_offer is not None and self.target_offer > offer:
                 sell_is_aggressive = True
             buy_is_aggressive = False
-            if current_bid is not None and current_bid < bid:
+            if self.target_bid is not None and self.target_bid < bid:
                 buy_is_aggressive = True
             
             if buy_is_aggressive and not sell_is_aggressive:
                 start_from = 'S'
         
         if bid or offer:
-            order_imbalance = None
-            if current_order_imbalance != previous_order_imbalance:
-                order_imbalance = current_order_imbalance
-            self.move_bid_and_offer(latent_bid=bid, latent_offer=offer, start_from=
+            order_imbalance = self.order_imbalance if order_imbalance_has_changed else None
+            self.move_bid_and_offer(target_bid=bid, target_offer=offer, start_from=
                 start_from, order_imbalance=order_imbalance)
 
-    def move_bid_and_offer(self, latent_bid=None, latent_offer=None, start_from='B',
+    def move_bid_and_offer(self, target_bid=None, target_offer=None, start_from='B',
             order_imbalance=None):
-        buys = deque()
-        sells = deque()
         delay = self.calc_delay()
-        
-        if latent_offer is not None:
+
+        sells = deque()
+        if target_offer is not None:
             sell_orders = self.orderstore.all_orders('S')
             assert len(sell_orders) <= 1, 'more than one sell order in market: %s' % self.orderstore
             if sell_orders:
@@ -435,19 +450,19 @@ class ELOMaker(ELOTrader):
                     token = o['order_token']
                     order_price = o['price']
                     replace_price = o.get('replace_price', None)
-                    if latent_offer != order_price and latent_offer != replace_price:
-                        order_info = self.orderstore.register_replace(token, latent_offer)
+                    if target_offer != order_price and target_offer != replace_price:
+                        order_info = self.orderstore.register_replace(token, target_offer)
                         sell_message = self.exchange_message_from_order_info(order_info, 
                         delay, 'replace')
                         sells.append(sell_message)
-                self.latent_quote['S'] = latent_offer
-            elif order_imbalance is None or self.no_enter_until_bbo['S'] is False:
-                sell_message = self.enter_with_latent_quote('S', price=latent_offer)
+                self.target_offer = target_offer
+            elif order_imbalance is None or self.wait_for_best_offer is False:
+                sell_message = self.enter_with_latent_quote('S', price=target_offer)
                 sells.append(sell_message)
-                self.no_enter_until_bbo['S'] = False
+                self.wait_for_best_offer = False
 
-        
-        if latent_bid is not None:
+        buys = deque()
+        if target_bid is not None:
             buy_orders = self.orderstore.all_orders('B')
             assert len(buy_orders) <= 1, 'more than one buy order in market: %s' % self.orderstore
             if buy_orders:
@@ -455,18 +470,17 @@ class ELOMaker(ELOTrader):
                     token = o['order_token']
                     order_price = o['price']
                     replace_price = o.get('replace_price', None)
-                    if latent_bid != order_price and latent_bid != replace_price:
-                        order_info = self.orderstore.register_replace(token, latent_bid)
+                    if target_bid != order_price and target_bid != replace_price:
+                        order_info = self.orderstore.register_replace(token, target_bid)
                         buy_message = self.exchange_message_from_order_info(order_info, 
                             delay, 'replace')
                         buys.append(buy_message)
-                self.latent_quote['B'] = latent_bid
-            elif order_imbalance is None or self.no_enter_until_bbo['B'] is False:
-                    buy_message = self.enter_with_latent_quote('B', price=latent_bid)
+                self.target_bid = target_bid
+            elif order_imbalance is None or self.wait_for_best_bid is False:
+                    buy_message = self.enter_with_latent_quote('B', price=target_bid)
                     buys.append(buy_message)
-                    self.no_enter_until_bbo['B'] = False
+                    self.wait_for_best_bid = False
 
-        
         if start_from == 'B':
             self.outgoing_messages.extend(buys)
             self.outgoing_messages.extend(sells)
@@ -479,27 +493,29 @@ class ELOMaker(ELOTrader):
         price = order_info['price']          
         buy_sell_indicator = order_info['buy_sell_indicator']
 
-        latent_bid = self.latent_quote['B']
-        if  buy_sell_indicator == 'B' and latent_bid == price:
-            self.latent_quote['B'] = None
+        if  buy_sell_indicator == 'B' and self.target_bid == price:
+            self.target_bid = None
         
-        latent_offer = self.latent_quote['S']
-        if  buy_sell_indicator == 'S' and latent_offer == price:
-            self.latent_quote['S'] = None
+        if  buy_sell_indicator == 'S' and self.target_offer == price:
+            self.target_offer = None
 
-        if (self.best_quote_volumes[buy_sell_indicator] == 1 and 
-            self.best_quotes[buy_sell_indicator] == price):
-            self.no_enter_until_bbo[buy_sell_indicator] = True
+        if buy_sell_indicator == 'B':
+            if self.best_bid == 1 and self.best_bid == price:
+                self.wait_for_best_bid = True
+
+        if buy_sell_indicator == 'S':
+            if self.best_offer == 1 and self.best_offer == price:
+                self.wait_for_best_offer = True
 
 
 class ELOTaker(ELOMaker):
 
     def first_move(self, **kwargs):
         self.role = kwargs['state']
+        self.speed_change(value=False)
         self.leave_market()
-        self.switch_to_market_tracking_role(**kwargs)
+        self.track_market(**kwargs)
         self.sliders = Sliders()
-        self.latent_quote = {'B': None, 'S': None}
         self.event.broadcast_messages('role_confirm', player_id=self.id, 
             role_name=self.role, market_id=self.market_id)
     
@@ -517,18 +533,22 @@ class ELOTaker(ELOMaker):
                 offer = implied_offer
         return (bid, offer)
 
+    def latent_quote_update(self, *args, **kwargs):
+        super().latent_quote_update(*args, **kwargs)
+        self.event.broadcast_messages('elo_quote_cue', player_id=self.player_id,
+            market_id=self.market_id, bid=self.implied_bid, offer=self.implied_offer)
 
-    def move_bid_and_offer(self, latent_bid=None, latent_offer=None, start_from='B',
+    def move_bid_and_offer(self, target_bid=None, target_offer=None, start_from='B',
             order_imbalance=None):
         messages = deque()
         
         if latent_offer is not None:
-            sell_message = self.enter_with_latent_quote('S', price=latent_offer,
+            sell_message = self.enter_with_latent_quote('S', price=target_offer,
                 time_in_force=0)
             messages.append(sell_message)
        
         if latent_bid is not None:
-            buy_message = self.enter_with_latent_quote('B', price=latent_bid,
+            buy_message = self.enter_with_latent_quote('B', price=target_bid,
                 time_in_force=0)
             messages.append(buy_message)
 

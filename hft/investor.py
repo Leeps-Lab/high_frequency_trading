@@ -15,8 +15,9 @@ class ELOInvestor(BCSTrader):
     message_dispatch = { 'A': 'accepted', 'investor_arrivals': 'invest',
         'E': 'executed', 'C': 'canceled'}
 
-    def __init__(self, market_id, exchange_host, exchange_port):
+    def __init__(self, subsession_id, market_id, exchange_host, exchange_port):
         self.id = 0
+        self.subsession_id = subsession_id
         self.market_id = market_id
         self.exchange_host = exchange_host
         self.exchange_port = exchange_port
@@ -38,7 +39,8 @@ class ELOInvestor(BCSTrader):
         buy_sell_indicator = order_info['buy_sell_indicator']
         price = order_info['price']
         order_token = kwargs['order_token']
+        execution_price = kwargs['execution_price']
         self.event.broadcast_messages('executed', price=price, order_token=order_token,
-            endowment=0, player_id=self.id, market_id=self.market_id, 
+            cash=0, player_id=self.id, market_id=self.market_id, execution_price=execution_price,
             inventory=self.orderstore.inventory, buy_sell_indicator=buy_sell_indicator)
         return order_info

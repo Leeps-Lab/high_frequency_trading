@@ -4,7 +4,7 @@ cache_key_format = {
     'player': 'PLAYER_{model_id}',
     'trader': 'TRADER_{model_id}',
     'market': 'MARKET_{model_id}',
-    'investor': 'INVESTOR_{model_id}_{market_id}',
+    'investor': 'INVESTOR_{subsession_id}_{model_id}_{market_id}',
     'trade_session': 'SESSION_{model_id}',
 }
 
@@ -42,9 +42,12 @@ def initialize_session_cache(session, timeout=cache_timeout, **kwargs):
     cache.set(session_key, session, timeout=timeout)
 
 def initialize_investor_cache(investor, timeout=cache_timeout, **kwargs):
-    investor_key = get_cache_key(investor.id, 'investor', market_id=investor.market_id)
+    investor_key = get_cache_key(investor.id, 'investor', market_id=investor.market_id,
+        subsession_id=investor.subsession_id)
     investor_data = {'version': 0, 'investor': investor}
     cache.set(investor_key, investor_data, timeout=timeout)
+    cache.ttl(investor_key)
+    print('set key: %s' % investor_key)
 
 def get_trader_ids_by_market(market_id:str):
     market_key = get_cache_key(market_id, 'market')
@@ -52,3 +55,14 @@ def get_trader_ids_by_market(market_id:str):
     trader_ids =[player_id for player_id in group_players for group_players in 
         market_data['market'].subscriber_groups.values()]
     return trader_ids
+
+
+market_id_mapping_key = 'MARKET_ID_MAP_{subsession_id}'
+def set_market_id_map(subsession_id, mapping:dict, timeout=cache_timeout):
+    key = market_id_mapping_key.format(subsession_id=subsession_id)
+    cache.set(key, mapping, timeout=timeout)
+    print('set key: %s to %s' % (key, mapping))
+
+def get_market_id_map(subsession_id):
+    key = market_id_mapping_key.format(subsession_id=subsession_id)
+    return cache.get(key)
