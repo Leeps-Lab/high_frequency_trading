@@ -39,7 +39,12 @@ class ProfitGraph extends PolymerElement {
             },
             _defaultYRange: {
                 type: Array,
-                value: [95, 105],
+                value: [9800, 10200],
+            },
+            isRunning: {
+                type: Boolean,
+                value: false,
+                observer: '_runningChanged'
             },
         };
     }
@@ -90,6 +95,12 @@ class ProfitGraph extends PolymerElement {
         this.domYAxis = this.mainGroup.append("g")
             .attr("class", "axis axis-y")
             .call(this.yAxis);
+    }
+
+    _runningChanged(newValue, oldValue) {
+        if (newValue) {
+            this.start()
+        }
     }
 
     start() {
