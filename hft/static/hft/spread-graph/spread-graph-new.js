@@ -128,6 +128,7 @@ class SpreadGraph extends PolymerElement {
     }
 
     redrawOrderCircles(orders) {
+        console.log('redrawing spread graph..')
         if (!this.mainGroup) {
             return;
         }
@@ -161,6 +162,8 @@ class SpreadGraph extends PolymerElement {
                 bidProportion: bidVolume / (bidVolume + offerVolume)
             });
         });
+
+        console.log('volumes: ', volumes)
 
         const circles = this.volumeCircles.selectAll('circle')
             .data(volumes, d => d.price);

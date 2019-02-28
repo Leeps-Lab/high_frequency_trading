@@ -1,9 +1,9 @@
 
 class PlayersOrderBook {
 
-    constructor(playerId, polymerObject, polymerPropertyName) {
-        this.polymerObject = polymerObject;
-        this.polymerPropertyName = polymerPropertyName;
+    constructor(playerId) {
+        // this.polymerObject = polymerObject;
+        // this.polymerPropertyName = polymerPropertyName;
 
         this.playerId = playerId
         this._bidPriceSlots = {};
@@ -36,7 +36,6 @@ class PlayersOrderBook {
                     message.old_token)
                 break;
         }
-        this._notifyPolymer(message.price, message.buy_sell_indicator, message.orderToken);
     }
 
     getOrders(buySellIndicator) {
@@ -47,13 +46,23 @@ class PlayersOrderBook {
         } else {console.error(`invalid buy sell indicator: ${buySellIndicator}`)}
     }
 
+    setOrders(orders, buySellIndicator) {
+        if (buySellIndicator === 'B') {
+            this._bidPriceSlots = orders;
+        } else if (buySellIndicator === 'S') {
+            this._offerPriceSlots = orders;
+        } else {console.error(`invalid buy sell indicator: ${buySellIndicator}`)}
+    }
+
     _addOrder(price, buySellIndicator, orderToken, playerId) {
         let priceSlots = this.getOrders(buySellIndicator)
 
         if (!priceSlots.hasOwnProperty(price)) {
             priceSlots[price] = {};
+            console.log('added price: ', price, 'orders: ', priceSlots)
         }
         priceSlots[price][orderToken] = 1;
+        console.log('added token: ', orderToken, 'orders: ', priceSlots)
     }
 
     _removeOrder(price, buySellIndicator, orderToken, playerId) {
@@ -65,25 +74,19 @@ class PlayersOrderBook {
                 console.error(`order token ${orderToken} is not in ${priceSlots}`)    
             } else {
                 delete priceSlots[price][orderToken]
+                console.log('delete token: ', orderToken, 'orders: ', priceSlots)
                 if (Object.keys(priceSlots[price]).length == 0) {
                     delete priceSlots[price];
+                    console.log('delete price: ', price, 'orders: ', priceSlots)
                 }
             }
         }
+
     }
 
     _replaceOrder(price, buySellIndicator, orderToken, playerId, oldPrice, oldToken) {
         this._removeOrder(oldPrice, buySellIndicator, oldToken, playerId);
         this._addOrder(price, buySellIndicator,  orderToken, playerId);
-    }
-
-    _notifyPolymer(price, buySellIndicator, orderToken) {
-        let path = this.polymerPropertyName;
-        path += '.' + (buySellIndicator === 'B' ? '_bidPriceSlots' : '_offerPriceSlots');
-        path += '.' + price;
-        path += '.' + orderToken;
-        console.log(`path: ${path} notified.`)
-        this.polymerObject.notifyPath(path);
     }
 }
 

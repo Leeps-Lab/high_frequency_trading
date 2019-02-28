@@ -4,12 +4,10 @@ import {PlayersOrderBook} from './market_elements.js'
 import './player-strategy/state-selection.js'
 import './spread-graph/spread-graph-new.js'
 import './stepwise-calculator.js'
-// import './profit-graph/profit-graph-new.js';
+import './profit-graph/profit-graph-new.js'
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
-
-
 
 class MarketSession extends PolymerElement {
 
@@ -20,6 +18,40 @@ class MarketSession extends PolymerElement {
                 width:100vw;
                 height:100vh;
             }
+
+            .middle-section-container{
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                font-weight: bold;
+                height: 27vh;
+                width: 100vw; 
+                background: #4F759B;
+                border-top: 3px solid #ED6A5A;
+                border-bottom: 3px solid #ED6A5A;
+            }
+
+            info-table {
+                width: 60%;
+                height: 100%;
+            }
+
+            profit-graph {
+                width: 100%;
+                height: 300px;
+            }
+
+            state-selection {
+                width: 40%;
+                height: 100%;
+            }
+
+            spread-graph {
+                width: 100%;
+                height: 200px;
+            }
+
             /* Overlay styling and animation  */
             #overlay{
                 width:100%;
@@ -44,39 +76,11 @@ class MarketSession extends PolymerElement {
                 }
             }
             /* Overlay END */
-
-            .middle-section-container{
-                display: flex;
-                flex-direction: row;
-                justify-content: flex-start;
-                align-items: center;
-                font-weight: bold;
-                height: 27vh;
-                width: 100vw; 
-                background: #4F759B;
-                border-top: 3px solid #ED6A5A;
-                border-bottom: 3px solid #ED6A5A;
-            }
-
-            info-table {
-                width: 60%;
-                height: 100%;
-            }
-
-            state-selection {
-                width: 40%;
-                height: 100%;
-            }
-
-            spread-graph {
-                width: 100%;
-                height: 200px;
-            }
-
         </style>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
             <stepwise-calculator run-forever={{subscribesSpeed}} value={{speedCost}}
                 unit-size={{speedUnitCost}}> </stepwise-calculator>
+           
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
                 <spread-graph orders={{orderBook}}> </spread-graph>
                 <div class="middle-section-container">       
@@ -85,10 +89,12 @@ class MarketSession extends PolymerElement {
                         endowment={{wealth}} best-bid={{bestBid}}
                         best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
                     </info-table>
-
                     <state-selection role={{role}} slider-defaults={{sliderDefaults}}
                         speed-on={{subscribesSpeed}}> 
                     </state-selection>
+                </div>
+                <profit-graph profit={{wealth}} is-running={{isSessionActive}}>
+                </profit-graph>
             </div>
     `;
     }
@@ -202,6 +208,10 @@ class MarketSession extends PolymerElement {
                 'remove' : 'add'
             this._myBidOfferUpdate(message.price, message.buy_sell_indicator, mode=mode)
         }
+
+        // notify a subproperty 
+        // so observer on property is called
+        this.notifyPath('orderBook._bidPriceSlots')
     }
     
     _handleExecuted(message) {
