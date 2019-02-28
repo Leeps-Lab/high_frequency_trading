@@ -73,7 +73,7 @@ class BaseTrader:
 
     def receive(self, event):
         if event.event_type not in self.message_dispatch:
-            log.exception('Unknown message_type: %s for trader: %s' % (event.event_type,
+            log.debug('Unknown message_type: %s for trader: %s' % (event.event_type,
                 self.__class__.__name__) )
             return
         handler_name = self.message_dispatch[event.event_type]
@@ -314,10 +314,21 @@ class ELOManual(ELOTrader):
                 internal_message = self.exchange_message_from_order_info(order_info,
                     delay, 'enter')
                 self.outgoing_messages.append(internal_message)
-        if buy_sell_indicator == 'B':
-            self.target_bid = price
-        elif buy_sell_indicator == 'S':
-            self.target_offer = price
+            if buy_sell_indicator == 'B':
+                self.target_bid = price
+            elif buy_sell_indicator == 'S':
+                self.target_offer = price
+
+    def executed(self, **kwargs):
+        order_info = super().executed(**kwargs)
+        price = order_info['price']          
+        buy_sell_indicator = order_info['buy_sell_indicator']
+
+        if  buy_sell_indicator == 'B' and self.target_bid == price:
+            self.target_bid = None
+        
+        if  buy_sell_indicator == 'S' and self.target_offer == price:
+            self.target_offer = None
 
     def bbo_update(self, **kwargs):
         self.volume_at_best_bid = kwargs['volume_at_best_bid']
@@ -535,19 +546,19 @@ class ELOTaker(ELOMaker):
 
     def latent_quote_update(self, *args, **kwargs):
         super().latent_quote_update(*args, **kwargs)
-        self.event.broadcast_messages('elo_quote_cue', player_id=self.player_id,
+        self.event.broadcast_messages('elo_quote_cue', player_id=self.id,
             market_id=self.market_id, bid=self.implied_bid, offer=self.implied_offer)
 
     def move_bid_and_offer(self, target_bid=None, target_offer=None, start_from='B',
             order_imbalance=None):
         messages = deque()
         
-        if latent_offer is not None:
+        if target_offer is not None:
             sell_message = self.enter_with_latent_quote('S', price=target_offer,
                 time_in_force=0)
             messages.append(sell_message)
        
-        if latent_bid is not None:
+        if target_bid is not None:
             buy_message = self.enter_with_latent_quote('B', price=target_bid,
                 time_in_force=0)
             messages.append(buy_message)
