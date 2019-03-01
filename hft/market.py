@@ -161,11 +161,6 @@ class ELOMarket(BCSMarket):
         player_id = kwargs['player_id']
         new_role = kwargs['state']
         self.role_group.update(nanoseconds_since_midnight(), player_id, new_role)
-        # attached = {'best_bid': self.best_bid, 'best_offer': self.best_offer,
-        #     'order_imbalance': self.order_imbalance, 'volume_at_best_bid': 
-        #     self.volume_bid, 'volume_at_best_ask': self.volume_offer, 'reference_price':
-        #     self.reference_price}
-        # self.attachments_for_observers.update({'role_change':attached})
 
     def reference_price_change(self, reference_price=ReferencePrice(), **kwargs):
         pass
@@ -184,7 +179,7 @@ class ELOMarket(BCSMarket):
             message_content = {
                 'type':'order_imbalance_change', 
                 'order_imbalance': current_order_imbalance, 
-                'maker_ids': maker_ids,
+                'trader_ids': maker_ids,
                 'market_id': self.market_id,
                 'subsession_id': self.subsession_id}
             internal_message = format_message('derived_event', **message_content)
@@ -199,7 +194,7 @@ class ELOMarket(BCSMarket):
         maker_ids = self.role_group['maker', 'taker']
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
             'market_id': self.market_id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
-            'maker_ids': maker_ids, 'volume_at_best_bid': self.volume_at_best_bid,
+            'trader_ids': maker_ids, 'volume_at_best_bid': self.volume_at_best_bid,
             'volume_at_best_offer': self.volume_at_best_offer, 'subsession_id': self.subsession_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)

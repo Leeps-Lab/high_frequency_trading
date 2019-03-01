@@ -76,7 +76,6 @@ class BCSExogenousEvent(ExogenousEvent):
         time_prev = 0
         for row in range(len(self.data)):
             row = self.data.pop()
-            print(row)
             msg_time = float(row[0])
             sleep_time = msg_time - time_prev
             msg = {}
