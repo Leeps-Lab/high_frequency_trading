@@ -4,6 +4,7 @@ from .utility import exogenous_event_client, exogenous_event_endpoints
 import logging
 import os
 from twisted.internet import reactor
+from twisted.internet import task
 from .utility import format_message
 from .cache import get_cache_key
 from collections import deque
@@ -12,6 +13,9 @@ from .dispatcher import LEEPSDispatcher
 from functools import partial
 from .market import MarketFactory
 from itertools import count
+from .dispatcher import LEEPSDispatcher
+from otree.timeout.tasks import hft_background_task
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -107,22 +111,25 @@ class LEEPSTradeSession(TradeSession):
                 self.trading_markets.append(market_id)
             self.run_exogenous_events()
             self.is_trading = True
-            reactor.callLater(self.subsession.round_length, partial(self.stop_trade_session, 
-                clients=dict(self.clients)))
+            deferred = task.deferLater(reactor, self.subsession.round_length, 
+                partial(self.stop_trade_session, clients=dict(self.clients)))
             
     def stop_trade_session(self, *args, clients=None):
         def stop_exchange_connection(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             exchange.disconnect(market_id, host, port)
-        if self.is_trading:
-            while self.trading_markets:
-                market_id = self.trading_markets.pop()
-                stop_exchange_connection(self, market_id)
-                message_content = {'type': 'market_end', 'market_id': market_id,
-                    'subsession_id': self.subsession_id}
-                message = format_message('derived_event', **message_content)
-                self.outgoing_messages.append(message)
-            self.stop_exogenous_events(clients=clients)
-            self.subsession.session.advance_last_place_participants()
-            self.is_trading = False
+        try:
+            if self.is_trading:
+                while self.trading_markets:
+                    market_id = self.trading_markets.pop()
+                    stop_exchange_connection(self, market_id)
+                    message_content = {'type': 'market_end', 'market_id': market_id,
+                        'subsession_id': self.subsession_id}
+                    message = format_message('derived_event', **message_content)
+                    LEEPSDispatcher.dispatch(message['message_type'], message)
+                self.stop_exogenous_events(clients=clients)
+                self.subsession.session.advance_last_place_participants()
+                self.is_trading = False
+        except:
+            log.exception('session end procedure failed')
         

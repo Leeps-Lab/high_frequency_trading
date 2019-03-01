@@ -9,7 +9,6 @@ from . import translator as translate
 from .subject_state import *
 from collections import namedtuple
 from .equations import latent_bid_and_offer, price_grid
-
 log = logging.getLogger(__name__)
 
 
@@ -90,7 +89,8 @@ class BaseTrader:
         override this
         """
         pass
-        
+    
+
 
 class BCSTrader(BaseTrader):
 
@@ -102,8 +102,22 @@ class BCSTrader(BaseTrader):
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'fundamental_value_jumps': 'jump', 'slider_change': 'slider_change',
-        'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change'}
+        'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change', 
+        'market_end': 'close_session'}
+    
+    cost_fields = ('technology_cost',)
 
+    def close_session(self, **kwargs):
+        self.speed_change(value=False)
+        for field in self.cost_fields:
+            if hasattr(self, field):
+                trade_cost = getattr(self, field)
+                try:
+                    self.cost += trade_cost
+                except:
+                    log.exception('failed to add cost: {}'.format(trade_cost))
+            
+        
     def speed_change(self, **kwargs):
         """
         switch between on speed, off speed
@@ -127,7 +141,6 @@ class BCSTrader(BaseTrader):
             tech_cost_step = int(self.technology_unit_cost * time_on_speed * 1e-3)  # $/s
             self.technology_cost += tech_cost_step
             self.cash -= tech_cost_step
-
         self.event.broadcast_messages('speed_confirm', value=self.speed_on,
             player_id=self.id, market_id=self.market_id)
     
@@ -143,6 +156,8 @@ class BCSTrader(BaseTrader):
                 return delay
             delay = self.short_delay
         return delay
+    
+
 
     def post_execution(self, exec_price, buy_sell_indicator) -> int:
         raise NotImplementedError()
@@ -272,7 +287,7 @@ class ELOManual(ELOTrader):
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change', 
-        }
+        'market_end': 'close_session'}
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
@@ -341,7 +356,7 @@ class ELOMaker(ELOTrader):
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'slider': 'slider_change', 'bbo_change': 'latent_quote_update', 
-        'order_imbalance_change': 'latent_quote_update'}
+        'order_imbalance_change': 'latent_quote_update', 'market_end': 'close_session'}
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
