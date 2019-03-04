@@ -17,9 +17,15 @@ class SpreadGraph extends PolymerElement {
                     fill-opacity: 0.8;
                 }
 
-                .my-bid-and-offer {
+                .my-bid {
                     stroke: black;
-                    fill: lightgray;
+                    fill: #DCF763;
+                    fill-opacity: 0.8;
+                }
+
+                .my-offer {
+                    stroke: black;
+                    fill: #B81365;
                     fill-opacity: 0.8;
                 }
 
@@ -128,12 +134,12 @@ class SpreadGraph extends PolymerElement {
 
         const mboGroup = this.mainGroup.append('g');
         this.myBidCircle = mboGroup.append('circle')
-            .attr('class', 'my-bid-and-offer')
+            .attr('class', 'my-bid')
             .attr('cy', this.height / 2)
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
         this.myOfferCircle = mboGroup.append('circle')
-            .attr('class', 'my-bid-and-offer')
+            .attr('class', 'my-offer')
             .attr('cy', this.height / 2)
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);

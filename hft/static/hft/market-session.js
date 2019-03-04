@@ -82,7 +82,8 @@ class MarketSession extends PolymerElement {
                 unit-size={{speedUnitCost}}> </stepwise-calculator>
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
-                <spread-graph orders={{orderBook}}> </spread-graph>
+                <spread-graph orders={{orderBook}} my-bid={{myBid}} 
+                    my-offer={{myOffer}}> </spread-graph>
                 <div class="middle-section-container">       
                     <info-table inventory={{inventory}}
                         cash={{cash}} order-imbalance={{orderImbalance}}
