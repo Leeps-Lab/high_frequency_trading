@@ -33,15 +33,24 @@ class OrderImbalance:
         self.order_imbalance = 0
         self.latest_execution_time = None
 
-    def step(self, buy_sell_indicator, constant=1):
+    def step(self, execution_price, best_bid, best_offer, buy_sell_indicator, constant=1):
         now = time.time()
         if self.latest_execution_time is None:
             self.latest_execution_time = now 
         time_since_last_execution = now - self.latest_execution_time
-        offset = +1 if buy_sell_indicator == 'B' else -1
+        if execution_price == best_bid:
+            offset = -1 
+        elif execution_price == best_offer:
+            offset = +1
+        else:
+            raise ValueError('bad execution price: {}: best bid {}: best offer {}'.format(
+                execution_price, best_bid, best_offer))
+        new_exp = math.e ** (-1 * constant * time_since_last_execution) 
         order_imbalance = (
-            offset + self.order_imbalance * math.e ** (-1 * constant * time_since_last_execution) 
+            offset + self.order_imbalance * new_exp
         )
+        print('imbalance {} time since exec {}: offset {}: {}'.format(order_imbalance,
+            time_since_last_execution, offset, new_exp))
         self.latest_execution_time = now
         self.order_imbalance = order_imbalance
         return order_imbalance   

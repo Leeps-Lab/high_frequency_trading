@@ -31,8 +31,8 @@ class Dispatcher:
             handler = cls.handler_factory.get_handler(entity)
             event = handler(event)
 
-        log.debug('{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
-            event=event)) 
+   #     log.debug('{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
+    #        event=event)) 
         # log.debug(event)
         
         

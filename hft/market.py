@@ -171,7 +171,9 @@ class ELOMarket(BCSMarket):
     
     def order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
-        current_order_imbalance = order_imbalance.step(buy_sell_indicator)
+        execution_price = kwargs['execution_price']
+        current_order_imbalance = order_imbalance.step(execution_price, self.best_bid, 
+            self.best_offer, buy_sell_indicator)
         if current_order_imbalance != self.order_imbalance:
             current_order_imbalance = round(current_order_imbalance, 2)
             self.order_imbalance = current_order_imbalance
