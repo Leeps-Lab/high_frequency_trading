@@ -400,18 +400,34 @@ class ELOMaker(ELOTrader):
 
     @staticmethod    
     def enter_rule(current_bid, current_offer, best_bid, best_offer, 
-        implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer):
+        implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer, ticksize=10000):
         bid = None
-        if best_bid > MIN_BID and (current_bid != best_bid or 
-            volume_at_best_bid > 1):
-            if implied_bid != current_bid:
-                bid = implied_bid
+        offer = None
 
-        offer = None      
-        if  best_offer < MAX_ASK  and (current_offer != best_offer or
-            volume_at_best_offer > 1):
+        if best_bid > MIN_BID:
+            if implied_bid != current_bid:
+                if implied_offer and implied_bid >= implied_offer:
+                    bid = implied_offer - ticksize
+                elif not implied_offer and current_offer and implied_bid > current_offer:
+                        bid = current_offer - ticksize
+                else:
+                    bid = implied_bid
+                if bid >= best_offer:
+                    bid = best_offer - ticksize
+
+        if  best_offer < MAX_ASK:
             if implied_offer != current_offer:
-                offer = implied_offer
+                if implied_bid and implied_offer <= implied_bid:
+                    offer = implied_bid + ticksize
+                elif not implied_bid and current_bid and implied_offer > current_bid:
+                    offer = current_bid + ticksize
+                else:
+                    offer = implied_offer
+                if offer <= best_bid:
+                    offer = best_bid + ticksize
+        # print('target bid {} : target offer {} : current_bid {} : current_offer {} : best_bid {} : best_offer {} : implied_bid {} : implied_offer {} : volume_at_best_bid {} : volume_at_best_offer {}'.format(
+        #     bid, offer, current_bid, current_offer, best_bid, best_offer, implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer
+        # ))
         return (bid, offer)
 
     def latent_quote_update(self, latent_quote_formula=latent_bid_and_offer, sliders=None, **kwargs):

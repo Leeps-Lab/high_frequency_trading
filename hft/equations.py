@@ -38,7 +38,7 @@ class OrderImbalance:
         if self.latest_execution_time is None:
             self.latest_execution_time = now 
         time_since_last_execution = now - self.latest_execution_time
-        offset = -1 if buy_sell_indicator == 'B' else 1
+        offset = +1 if buy_sell_indicator == 'B' else -1
         order_imbalance = (
             offset + self.order_imbalance * math.e ** (-1 * constant * time_since_last_execution) 
         )
@@ -94,26 +94,13 @@ def sell_aggressiveness(a_x, a_y, x, y):
     """
     return a_x * x - a_y * y
  
-def latent_bid(bb, S, bid_aggressiveness):
-    """
-    LB(t)
-    bb: best bid
-    S: half a tick
-    """
-    return bb - S * bid_aggressiveness
 
-def latent_offer(bo, S, bid_aggressiveness):
-    """
-    LB(t)
-    bb: best offer
-    S: half a tick
-    """
-    return bo + S * sell_aggressiveness
-
-def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders, S=1e4,
+def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders, ticksize=1e4,
         bid_aggressiveness=bid_aggressiveness, sell_aggressiveness=sell_aggressiveness):
     b = bid_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
     a = sell_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
-    latent_bid = best_bid - 0.5 * S * b
-    latent_ask = best_offer + 0.5 * S * a
+    latent_bid = best_bid - 0.5 * ticksize * b
+    latent_ask = best_offer + 0.5 * ticksize * a
+    # print('a_x {} : a_y {} : order imbalance {} : inventory {} : latent_bid {} : latent_offer {} : bid agg {} : sell agg {}'.format(
+    #     sliders.a_x, sliders.a_y, order_imbalance, inventory, latent_bid, latent_ask, b, a))
     return price_grid(latent_bid), price_grid(latent_ask)
