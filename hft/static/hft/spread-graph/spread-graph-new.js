@@ -17,6 +17,12 @@ class SpreadGraph extends PolymerElement {
                     fill-opacity: 0.8;
                 }
 
+                .best-bid-and-offer {
+                    stroke: black;
+                    fill: lightgray;
+                    fill-opacity: 0.8;
+                }
+
                 .offer-entered-line, .bid-entered-line {
                     stroke-width: 2;
                     stroke-linecap: round;
@@ -44,9 +50,23 @@ class SpreadGraph extends PolymerElement {
             orders: {
                 type: Object,
             },
+            myBid: {
+                type: Number,
+                value: 0,
+                observer: 'drawMyBid',
+            },
+            myOffer: {
+                type: Number,
+                value: 100001,
+                observer: 'drawMyOffer',
+            },
             animationTime: {
                 type: Number,
                 value: 200,
+            },
+            minVolumeRadius: {
+                type: Number,
+                value: 10,
             },
             _domain: {
                 type: Array,
@@ -105,6 +125,18 @@ class SpreadGraph extends PolymerElement {
         
         this.volumeCircles = this.mainGroup.append('g');
         this.orderEnteredLines = this.mainGroup.append('g');
+
+        const mboGroup = this.mainGroup.append('g');
+        this.myBidCircle = mboGroup.append('circle')
+            .attr('class', 'best-bid-and-offer')
+            .attr('cy', this.height / 2)
+            .attr('r', this.minVolumeRadius)
+            .style('opacity', 0);
+        this.myOfferCircle = mboGroup.append('circle')
+            .attr('class', 'best-bid-and-offer')
+            .attr('cy', this.height / 2)
+            .attr('r', this.minVolumeRadius)
+            .style('opacity', 0);
         
         this.scale = d3.scaleLinear()
             .domain(this._domain)
@@ -125,6 +157,9 @@ class SpreadGraph extends PolymerElement {
         this.updateDomain(orders);
         this.updateScale();        
         this.redrawOrderCircles(orders);
+
+        this.drawMyBid(this.myBid, this.myBid);
+        this.drawMyOffer(this.myOffer, this.myOffer);
     }
 
     redrawOrderCircles(orders) {
@@ -171,8 +206,6 @@ class SpreadGraph extends PolymerElement {
             .attr('r', 0)
             .remove();
         
-        const MIN_CIRCLE_RADIUS = 10;
-
         circles.enter()
             .append('circle')
             .attr('cy', this.height / 2)
@@ -182,14 +215,71 @@ class SpreadGraph extends PolymerElement {
             .style('stroke', d => self._volumeStrokeGradient(d.bidProportion))
           .transition()
             .duration(this.animationTime)
-            .attr('r', d => Math.sqrt(d.volume) * MIN_CIRCLE_RADIUS);
+            .attr('r', d => Math.sqrt(d.volume) * self.minVolumeRadius);
         
         circles.transition()
             .duration(this.animationTime)
             .attr('cx', d => this.scale(d.price))
-            .attr('r', d => Math.sqrt(d.volume) * MIN_CIRCLE_RADIUS)
+            .attr('r', d => Math.sqrt(d.volume) * self.minVolumeRadius)
             .style('fill', d => self._volumeFillGradient(d.bidProportion))
             .style('stroke', d => self._volumeStrokeGradient(d.bidProportion));
+    }
+
+    drawMyBid(newBid, oldBid) {
+        if (!this.mainGroup) {
+            return;
+        }
+
+        if (newBid === 0) {
+            this.myBidCircle.transition()
+                .duration(this.animationTime)
+                .style('opacity', 0);
+        }
+        else {
+            if (oldBid === 0) {
+                this.myBidCircle
+                    .attr('cx', this.scale(newBid))
+                  .transition()
+                    .duration(this.animationTime)
+                    .style('opacity', 1);
+            }
+            else {
+                this.myBidCircle.transition()
+                    .duration(this.animationTime)
+                    .attr('cx', this.scale(newBid))
+                    .style('opacity', 1);
+            }
+        }
+    }
+
+    drawMyOffer(newOffer, oldOffer) {
+        if (!this.mainGroup) {
+            return;
+        }
+
+        // TODO: ali - fill this with correct max offer value
+        const MAX_OFFER = 100000
+
+        if (newOffer > MAX_OFFER) {
+            this.myOfferCircle.transition()
+                .duration(this.animationTime)
+                .style('opacity', 0);
+        }
+        else {
+            if (oldOffer > MAX_OFFER) {
+                this.myOfferCircle
+                    .attr('cx', this.scale(newOffer))
+                  .transition()
+                    .duration(this.animationTime)
+                    .style('opacity', 1);
+            }
+            else {
+                this.myOfferCircle.transition()
+                    .duration(this.animationTime)
+                    .attr('cx', this.scale(newOffer))
+                    .style('opacity', 1);
+            }
+        }
     }
 
     updateDomain(orders) {

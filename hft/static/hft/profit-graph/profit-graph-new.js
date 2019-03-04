@@ -33,13 +33,21 @@ class ProfitGraph extends PolymerElement {
                 type: Number,
                 value: 20000,
             },
+            yRange: {
+                type: Number,
+                value: 10,
+            },
+            defaultYCenter: {
+                type: Number,
+                value: 100,
+            },
+            animationTime: {
+                type: Number,
+                value: 2000,
+            },
             _profitHistory: {
                 type: Array,
                 value: () => [],
-            },
-            _defaultYRange: {
-                type: Array,
-                value: [95, 105],
             },
         };
     }
@@ -81,7 +89,10 @@ class ProfitGraph extends PolymerElement {
             .call(this.xAxis);
 
         this.yScale = d3.scaleLinear()
-            .domain(this._defaultYRange)
+            .domain([
+                this.defaultYCenter - this.yRange/2,
+                this.defaultYCenter + this.yRange/2
+            ])
             .range([this.height, 0]);
         
         this.yAxis = d3.axisLeft()
@@ -93,10 +104,15 @@ class ProfitGraph extends PolymerElement {
     }
 
     start() {
+        const self = this;
+
         this.startTime = performance.now();
 
         this.xScale.domain([this.startTime, this.startTime + this.xRange]);
-        this.xAxis.scale(this.xScale);
+
+        const xTickFormat = d3.timeFormat('%M:%S');
+        this.xAxis.scale(this.xScale)
+            .tickFormat(d => xTickFormat(d - self.startTime));
         this.domXAxis.call(this.xAxis);
 
         if (this.payoff) {
@@ -132,12 +148,15 @@ class ProfitGraph extends PolymerElement {
         window.requestAnimationFrame(this._tick.bind(this));
     }
 
-    _addPayoff(newPayoff, oldPayoff) {
+    _addPayoff(_newPayoff, oldPayoff) {
         const oldTime = this._lastPayoffChangeTime;
         this._lastPayoffChangeTime = performance.now();
         if (this._lastPayoffChangeTime) {
             this.push('_profitHistory', {payoff: oldPayoff, time: oldTime});
         }
+
+        this._updateYScale();
+        this._updateProfitLine();
     }
 
     _updateProfitLine() {
@@ -155,14 +174,29 @@ class ProfitGraph extends PolymerElement {
             .append('line')
             .attr('class', 'profit-line')
             .attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (d, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
+            .attr('x2', (_, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
             .attr('y1', d => self.yScale(d.payoff))
             .attr('y2', d => self.yScale(d.payoff));
         
-        lines.attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (d, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
-            .attr('y1', d => self.yScale(d.payoff))
-            .attr('y2', d => self.yScale(d.payoff));
+        lines
+            .attr('x1', d =>  self.xScale(d.time))
+            .attr('x2', (_, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time));
+    }
+
+    _updateYScale() {
+        const yDomain = this.yScale.domain();
+        const yRange = yDomain[1] - yDomain[0];
+        if (this.profit > yDomain[0] + yRange/4 && this.profit < yDomain[1] - yRange/4) {
+            return;
+        }
+        this.yScale.domain([
+            this.profit - yRange/2,
+            this.profit + yRange/2
+        ]);
+        this.yAxis.scale(this.yScale);
+        this.domYAxis.transition()
+            .duration(this.animationTime)
+            .call(this.yAxis);
     }
 
 }
