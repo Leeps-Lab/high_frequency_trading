@@ -61,7 +61,7 @@ class IncomingMessage:
         if attr_name in self.data:
             return self.data[attr_name]
         else:
-            raise Exception('key %s is not in message %s' % (attr_name, self))
+            raise AttributeError('key %s is not in message %s' % (attr_name, self))
 
     def __str__(self):
         class_name = '%s:  ' % self.__class__.__name__ 

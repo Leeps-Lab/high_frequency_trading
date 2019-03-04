@@ -104,7 +104,6 @@ def _handle_investors(event):
     if investor_data is None:
         raise ValueError('investor key: %s returned none.' % key)
     investor, version = investor_data['investor'], investor_data['version']
-    print('key: %s, version: %s' % (key, version))
     investor.receive(event)
     message_queue = investor.outgoing_messages.copy()
     investor.outgoing_messages.clear()
@@ -136,18 +135,13 @@ def leeps_handle_session_events(event, **kwargs):
     return event
 
 def marketwide_events(event, **kwargs):
-    traders_in_market = get_trader_ids_by_market(event.market_id)
-    for trader_id in traders_in_market:
-        event.player_id = trader_id
-        event = leeps_handle_trader_message(event, **kwargs)
-    shuffle(event.outgoing_messages)
-    return event
-
-def role_based_events(event, **kwargs):
-    makers = event.message.maker_ids
-    if makers:
-        for trader_id in makers:
+    try:
+        responding_trader_ids = event.message.trader_ids
+    except AttributeError:
+        responding_trader_ids = get_trader_ids_by_market(event.market_id)
+    if responding_trader_ids:
+        for trader_id in responding_trader_ids:
             event.player_id = trader_id
             event = leeps_handle_trader_message(event, **kwargs)
-        shuffle(event.outgoing_messages)
+    shuffle(event.outgoing_messages)
     return event

@@ -59,7 +59,7 @@ class WSConnection extends PolymerElement {
             let event = new CustomEvent('inbound-ws-message', {detail: payload,
                 bubbles: true, composed: true});
             this.dispatchEvent(event)
-        //    console.log('websocket received: ', payload, 'and dispatched event: ', event)
+ //          console.log('websocket received: ', payload, 'and dispatched event: ', event)
         } else { 
             console.log(`error: ${message}`);
         }
