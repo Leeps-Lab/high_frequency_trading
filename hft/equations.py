@@ -49,8 +49,8 @@ class OrderImbalance:
         order_imbalance = (
             offset + self.order_imbalance * new_exp
         )
-        print('imbalance {} time since exec {}: offset {}: {}'.format(order_imbalance,
-            time_since_last_execution, offset, new_exp))
+        # print('imbalance {} time since exec {}: offset {}: {}'.format(order_imbalance,
+        #     time_since_last_execution, offset, new_exp))
         self.latest_execution_time = now
         self.order_imbalance = order_imbalance
         return order_imbalance   
