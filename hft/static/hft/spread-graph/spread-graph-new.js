@@ -41,6 +41,12 @@ class SpreadGraph extends PolymerElement {
                 .bid-entered-line {
                     stroke: limegreen;
                 }
+
+                .tick text {
+                    font-family:monospace;
+                    font-size:14px;
+                    font-weight: bold;
+                }
             </style>
             
             <svg id="svg"></svg>
@@ -149,6 +155,7 @@ class SpreadGraph extends PolymerElement {
             .range([0, this.width]);
         
         this.xAxis = d3.axisBottom()
+            .tickSize(this.height / 4)
             .scale(this.scale);
 
         this.domXAxis = this.mainGroup.append("g")

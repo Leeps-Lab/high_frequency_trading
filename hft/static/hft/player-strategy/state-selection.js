@@ -37,7 +37,7 @@ class StateSelection extends PolymerElement {
                 margin: 5px;
                 border-radius: 5%;
                 border: 1px solid #000;
-                width: 80%;
+                width: 90%;
             }
 
             .state-container{
