@@ -13,17 +13,29 @@
     <spread-graph
     ></spread-graph>
 
+    <button id='remove_bid' type='button'>remove my bid</button>
+    <button id='remove_offer' type='button'>remove my ask</button>
+
     <script type="module">
         import {PlayersOrderBook} from '../market_elements.js'
 
         const spread_graph = document.querySelector('spread-graph');
-        const order_book = new PlayersOrderBook(1);
+        const order_book = new PlayersOrderBook(1, null, '');
         let order_num = 0
         spread_graph.setAttribute('orders', JSON.stringify(order_book));
 
-        spread_graph.addEventListener('order-entered', e => {  
-            order_book._addOrder(e.detail.price, e.detail.type, order_num++, 1)
+        spread_graph.addEventListener('user-input', e => {  
+            order_book._addOrder(e.detail.price, e.detail.buy_sell_indicator, order_num++, 1)
             spread_graph.setAttribute('orders', JSON.stringify(order_book));
+            spread_graph.setAttribute(e.detail.buy_sell_indicator == 'B' ? 'my-bid' : 'my-offer', e.detail.price);
+        });
+
+        document.getElementById('remove_bid').addEventListener('click', e => {
+            spread_graph.setAttribute('my-bid', 0);
+        });
+
+        document.getElementById('remove_offer').addEventListener('click', e => {
+            spread_graph.setAttribute('my-offer', 100001);
         });
 
     </script>
