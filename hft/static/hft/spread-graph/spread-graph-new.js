@@ -29,6 +29,14 @@ class SpreadGraph extends PolymerElement {
                     fill-opacity: 0.8;
                 }
 
+                .best-bid {
+                    stroke-width: 4;
+                }
+
+                .best-offer {
+                    stroke-width: 4;
+                }
+
                 .offer-entered-line, .bid-entered-line {
                     stroke-width: 2;
                     stroke-linecap: round;
@@ -71,6 +79,16 @@ class SpreadGraph extends PolymerElement {
                 type: Number,
                 value: 100001,
                 observer: 'drawMyOffer',
+            },
+            bestBid: {
+                type: Number,
+                value: 0,
+                observer: 'bestBidOrOfferChanged',
+            },
+            bestOffer: {
+                type: Number,
+                value: 0,
+                observer: 'bestBidOrOfferChanged',
             },
             animationTime: {
                 type: Number,
@@ -175,6 +193,11 @@ class SpreadGraph extends PolymerElement {
         this.drawMyOffer(this.myOffer, this.myOffer);
     }
 
+    bestBidOrOfferChanged() {
+        const orders = this.get('orders');
+        this.redrawOrderCircles(orders);
+    }
+
     redrawOrderCircles(orders) {
         console.log('redrawing spread graph..')
         if (!this.mainGroup) {
@@ -213,6 +236,16 @@ class SpreadGraph extends PolymerElement {
 
         console.log('volumes: ', volumes)
 
+        // function to assign classes to volume circles
+        function getClass(d) {
+            if (d.price == self.bestBid)
+                return 'volume best-bid';
+            else if (d.price == self.bestOffer)
+                return 'volume best-offer';
+            else
+                return 'volume';
+        }
+
         const circles = this.volumeCircles.selectAll('circle')
             .data(volumes, d => d.price);
         
@@ -226,7 +259,7 @@ class SpreadGraph extends PolymerElement {
             .append('circle')
             .attr('cy', this.height / 2)
             .attr('cx', d => this.scale(d.price))
-            .attr('class', 'volume')
+            .attr('class', getClass)
             .style('fill', d => self._volumeFillGradient(d.bidProportion))
             .style('stroke', d => self._volumeStrokeGradient(d.bidProportion))
           .transition()
@@ -237,6 +270,7 @@ class SpreadGraph extends PolymerElement {
             .duration(this.animationTime)
             .attr('cx', d => this.scale(d.price))
             .attr('r', d => Math.sqrt(d.volume) * self.minVolumeRadius)
+            .attr('class', getClass)
             .style('fill', d => self._volumeFillGradient(d.bidProportion))
             .style('stroke', d => self._volumeStrokeGradient(d.bidProportion));
     }
@@ -299,11 +333,15 @@ class SpreadGraph extends PolymerElement {
     }
 
     updateDomain(orders) {
+        if (!this.mainGroup) {
+            return;
+        }
+
         const prices = d3.keys(orders._bidPriceSlots)
             .concat(d3.keys(orders._offerPriceSlots))
             .map(e => parseFloat(e));
         
-        if (!this.mainGroup || !prices.length) {
+        if (!prices.length) {
             return;
         }
 
