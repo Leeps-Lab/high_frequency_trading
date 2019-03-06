@@ -90,9 +90,12 @@ class OrderStore:
         handler = getattr(self, handler_name)
         try:
             order_info = handler(**kwargs)
-        except KeyError:
-            log.exception('error during orderstore operation: "%s", orderstore: %s', 
-                handler_name, self)
+        except:
+            log.exception("""
+            error during orderstore operation: "%s" 
+            message: %s 
+            orderstore: %s
+""" % (handler_name, str(kwargs), self))
             raise
         else:
             return order_info
