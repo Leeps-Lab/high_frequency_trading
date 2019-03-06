@@ -28,6 +28,13 @@
             order_book._addOrder(e.detail.price, e.detail.buy_sell_indicator, order_num++, 1)
             spread_graph.setAttribute('orders', JSON.stringify(order_book));
             spread_graph.setAttribute(e.detail.buy_sell_indicator == 'B' ? 'my-bid' : 'my-offer', e.detail.price);
+            const prices = Object.keys(order_book.getOrders(e.detail.buy_sell_indicator));
+            if (e.detail.buy_sell_indicator == 'B' && e.detail.price === Math.max(...prices)) {
+                spread_graph.setAttribute('best-bid', e.detail.price);
+            }
+            else if (e.detail.buy_sell_indicator === 'S' && e.detail.price === Math.min(...prices)) {
+                spread_graph.setAttribute('best-offer', e.detail.price);
+            }
         });
 
         document.getElementById('remove_bid').addEventListener('click', e => {
