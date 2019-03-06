@@ -181,6 +181,7 @@ class BCSTrader(BaseTrader):
             delay = self.calc_delay()
             host, port = self.exchange_host, self.exchange_port
             for order_info in orders:
+                order_info['shares'] = 0    # cancel fully
                 message_content = {'host': host, 'port': port, 
                     'type': 'cancel', 'delay': delay, 'order_info': order_info}
                 internal_message = format_message('exchange', **message_content)
@@ -425,9 +426,6 @@ class ELOMaker(ELOTrader):
                     offer = implied_offer
                 if offer <= best_bid:
                     offer = best_bid + ticksize
-        # print('target bid {} : target offer {} : current_bid {} : current_offer {} : best_bid {} : best_offer {} : implied_bid {} : implied_offer {} : volume_at_best_bid {} : volume_at_best_offer {}'.format(
-        #     bid, offer, current_bid, current_offer, best_bid, best_offer, implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer
-        # ))
         return (bid, offer)
 
     def latent_quote_update(self, latent_quote_formula=latent_bid_and_offer, sliders=None, **kwargs):
@@ -565,12 +563,12 @@ class ELOTaker(ELOMaker):
     def enter_rule(current_bid, current_offer, best_bid, best_offer, 
         implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer):
         bid = None
-        if best_bid > MIN_BID and implied_bid > best_bid:
+        if best_bid > MIN_BID and implied_bid > best_offer:
             if implied_bid != current_bid:
                 bid = implied_bid
 
         offer = None      
-        if  best_offer < MAX_ASK  and implied_offer < best_offer:
+        if  best_offer < MAX_ASK  and implied_offer < best_bid:
             if implied_offer != current_offer:
                 offer = implied_offer
         return (bid, offer)
