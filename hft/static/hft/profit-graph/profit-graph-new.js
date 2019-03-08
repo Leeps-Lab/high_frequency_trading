@@ -79,11 +79,16 @@ class ProfitGraph extends PolymerElement {
         
         this.profitLines = this.mainGroup.append('g');
 
+        this.currentProfitLine = this.profitLines.append('line')
+            .attr('clip-path', 'url(#lines-clip)')
+            .attr('class', 'profit-line');
+
         this.xScale = d3.scaleTime()
             .domain([0, this.xRange])
             .range([0, this.width]);
         
         this.xAxis = d3.axisBottom()
+            .tickFormat(d3.timeFormat('%M:%S'))
             .scale(this.xScale);
 
         this.domXAxis = this.mainGroup.append("g")
@@ -134,12 +139,6 @@ class ProfitGraph extends PolymerElement {
         }
 
         if (this.profit) {
-            if (!this.currentProfitLine) {
-                this.currentProfitLine = this.profitLines.append('line')
-                    .attr('clip-path', 'url(#lines-clip)')
-                    .attr('class', 'profit-line');
-            }
-
             this.currentProfitLine
                 .attr('x1', this.xScale(this._lastPayoffChangeTime))
                 .attr('x2', this.xScale(now))
