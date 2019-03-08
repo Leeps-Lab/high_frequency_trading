@@ -71,6 +71,12 @@ class ProfitGraph extends PolymerElement {
           .append('g')
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
         
+        this.mainGroup.append('clipPath')
+            .attr('id', 'lines-clip')
+          .append('rect')
+            .attr('width', this.width)
+            .attr('height', this.height);
+        
         this.profitLines = this.mainGroup.append('g');
 
         this.xScale = d3.scaleTime()
@@ -130,6 +136,7 @@ class ProfitGraph extends PolymerElement {
         if (this.profit) {
             if (!this.currentProfitLine) {
                 this.currentProfitLine = this.profitLines.append('line')
+                    .attr('clip-path', 'url(#lines-clip)')
                     .attr('class', 'profit-line');
             }
 
@@ -143,7 +150,7 @@ class ProfitGraph extends PolymerElement {
         window.requestAnimationFrame(this._tick.bind(this));
     }
 
-    _addPayoff(newPayoff, oldPayoff) {
+    _addPayoff(_newPayoff, oldPayoff) {
         const oldTime = this._lastPayoffChangeTime;
         this._lastPayoffChangeTime = performance.now();
         if (this._lastPayoffChangeTime) {
@@ -164,14 +171,15 @@ class ProfitGraph extends PolymerElement {
 
         lines.enter()
             .append('line')
+            .attr('clip-path', 'url(#lines-clip)')
             .attr('class', 'profit-line')
             .attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (d, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
+            .attr('x2', (_, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
             .attr('y1', d => self.yScale(d.payoff))
             .attr('y2', d => self.yScale(d.payoff));
         
         lines.attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (d, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
+            .attr('x2', (_, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
             .attr('y1', d => self.yScale(d.payoff))
             .attr('y2', d => self.yScale(d.payoff));
     }

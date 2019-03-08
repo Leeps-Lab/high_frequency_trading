@@ -18,11 +18,11 @@
     <script>
         window.addEventListener('load', () => {
             const profit_graph = document.querySelector('profit-graph');
-            profit_graph.setAttribute('profit', 100);
+            profit_graph.setAttribute('profit', 10000);
             profit_graph.start();
 
             document.getElementById('button').addEventListener('click', () => {
-                profit_graph.setAttribute('profit', 95 + Math.random() * 10);
+                profit_graph.setAttribute('profit', 9800 + Math.random() * 400);
             });
         })
     </script>
