@@ -8,10 +8,17 @@ class ProfitGraph extends PolymerElement {
                 :host {
                     display: block;
                 }
-
+                :host #svg{
+                    background-color:#FFFFF0;
+                }
                 .profit-line {
                     stroke: black;
                     stroke-width: 3;
+                }
+                g text{
+                    font-family:monospace;
+                    font-size:10px;
+                    font-weight: bold; 
                 }
             </style>
             
@@ -101,6 +108,7 @@ class ProfitGraph extends PolymerElement {
             .range([this.height, 0]);
         
         this.yAxis = d3.axisLeft()
+            .tickSize(0)
             .scale(this.yScale);
 
         this.domYAxis = this.mainGroup.append("g")

@@ -8,7 +8,9 @@ class SpreadGraph extends PolymerElement {
                 :host {
                     display: block;
                 }
-
+                :host #svg{
+                    background-color:#FFFFF0;
+                }
                 * {
                     user-select: none;
                 }
@@ -56,7 +58,6 @@ class SpreadGraph extends PolymerElement {
                     font-weight: bold;
                 }
             </style>
-            
             <svg id="svg"></svg>
         `;
     }
