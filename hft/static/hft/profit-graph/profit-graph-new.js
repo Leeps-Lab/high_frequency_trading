@@ -33,6 +33,10 @@ class ProfitGraph extends PolymerElement {
                 type: Number,
                 value: 20000,
             },
+            animationTime: {
+                type: Number,
+                value: 400,
+            },
             _profitHistory: {
                 type: Array,
                 value: () => [],
@@ -79,7 +83,7 @@ class ProfitGraph extends PolymerElement {
         
         this.profitLines = this.mainGroup.append('g');
 
-        this.currentProfitLine = this.profitLines.append('line')
+        this.currentProfitLine = this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
             .attr('class', 'profit-line');
 
@@ -108,8 +112,8 @@ class ProfitGraph extends PolymerElement {
             .call(this.yAxis);
     }
 
-    _runningChanged(newValue, oldValue) {
-        if (newValue) {
+    _runningChanged(isRunning) {
+        if (isRunning) {
             this.start()
         }
     }
@@ -138,23 +142,70 @@ class ProfitGraph extends PolymerElement {
             this._updateProfitLine();
         }
 
-        if (this.profit) {
-            this.currentProfitLine
-                .attr('x1', this.xScale(this._lastPayoffChangeTime))
-                .attr('x2', this.xScale(now))
-                .attr('y1', this.yScale(this.profit))
-                .attr('y2', this.yScale(this.profit))
-        }
+        this.currentProfitLine
+            .attr('x1', this.xScale(this._lastPayoffChangeTime))
+            .attr('x2', this.xScale(now));
 
         window.requestAnimationFrame(this._tick.bind(this));
     }
 
-    _addPayoff(_newPayoff, oldPayoff) {
+    _addPayoff(newProfit, oldProfit) {
         const oldTime = this._lastPayoffChangeTime;
         this._lastPayoffChangeTime = performance.now();
         if (this._lastPayoffChangeTime) {
-            this.push('_profitHistory', {payoff: oldPayoff, time: oldTime});
+            this.push('_profitHistory', {payoff: oldProfit, time: oldTime});
         }
+
+        // update current profit line y value
+        this.currentProfitLine
+            .attr('y1', this.yScale(newProfit))
+            .attr('y2', this.yScale(newProfit));
+
+        this._updateYScale();
+        // this._updateProfitLine();
+    }
+
+    _updateYScale() {
+        if (!this.mainGroup || !this.startTime) {
+            return;
+        }
+
+        const self = this;
+
+        const yDomain = this.yScale.domain();
+        const yRange = yDomain[1] - yDomain[0];
+
+        // if current profit value is in middle half of current domain, do nothing
+        if (this.profit > yDomain[0] + yRange/4 && this.profit < yDomain[1] - yRange/4) {
+            return;
+        }
+
+        // change y scale
+        this.yScale.domain([
+            this.profit - yRange/2,
+            this.profit + yRange/2
+        ]);
+
+        // update y axis
+        this.yAxis.scale(this.yScale);
+        this.domYAxis.transition()
+            .duration(this.animationTime)
+            .call(this.yAxis);
+
+        // transition profit history to new y values
+        const profitHistory = this.get('_profitHistory');
+        this.profitLines.selectAll('line')
+            .data(profitHistory)
+          .transition()
+            .duration(this.animationTime)
+            .attr('y1', d => self.yScale(d.payoff))
+            .attr('y2', d => self.yScale(d.payoff));
+
+        // transition current profit line to new y value
+        this.currentProfitLine.transition()
+            .duration(this.animationTime)
+            .attr('y1', this.yScale(this.profit))
+            .attr('y2', this.yScale(this.profit));
     }
 
     _updateProfitLine() {
@@ -176,14 +227,12 @@ class ProfitGraph extends PolymerElement {
             .attr('x2', (_, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
             .attr('y1', d => self.yScale(d.payoff))
             .attr('y2', d => self.yScale(d.payoff));
-        
-        lines.attr('x1', d =>  self.xScale(d.time))
+
+        lines
+            .attr('x1', d =>  self.xScale(d.time))
             .attr('x2', (_, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
-            .attr('y1', d => self.yScale(d.payoff))
-            .attr('y2', d => self.yScale(d.payoff));
     }
 
 }
-
 
 window.customElements.define('profit-graph', ProfitGraph);
