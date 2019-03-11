@@ -250,6 +250,12 @@ class ELOTrader(BCSTrader):
         self.wait_for_best_bid = False
         self.wait_for_best_offer = False
         self.order_imbalance = kwargs['order_imbalance']
+    
+    def close_session(self, **kwargs):
+        super().close_session()
+        tax_rate = kwargs['tax_rate']
+        self.wealth += (1-tax_rate) * (self.reference_price * self.inventory)
+
 
     def exchange_message_from_order_info(self, order_info, delay, order_type):
         message_content = {'host': self.exchange_host, 'port': self.exchange_port, 

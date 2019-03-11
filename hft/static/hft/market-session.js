@@ -83,7 +83,7 @@ class MarketSession extends PolymerElement {
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
                 <spread-graph orders={{orderBook}} my-bid={{myBid}} 
-                    my-offer={{myOffer}}> </spread-graph>
+                    my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
                 <div class="middle-section-container">       
                     <info-table inventory={{inventory}}
                         cash={{cash}} order-imbalance={{orderImbalance}}
@@ -108,6 +108,8 @@ class MarketSession extends PolymerElement {
         playerId: Number,
         role: String,
         startRole: String,
+        referencePrice: {type: Number,
+            value: 0},
         orderImbalance: {type: Number,
             value: 0},
         orderBook: Object,
@@ -119,7 +121,7 @@ class MarketSession extends PolymerElement {
         myOffer: Number,
         wealth: {
             type: Number,
-            computed: '_calculateWealth(cash, totalCost)'
+            computed: '_calculateWealth(cash, totalCost, referencePrice, inventory)'
         },
         inventory: {type: Number,
             value: 0},
@@ -251,6 +253,11 @@ class MarketSession extends PolymerElement {
         }  
     }
 
+    _handleReferencePrice(message) {
+        console.log('handling reference price change ', message)
+        this.referencePrice = message.price
+    }
+
     _handleTakerCue(message) {}
 
     _handleOrderImbalance(message){
@@ -325,8 +332,8 @@ class MarketSession extends PolymerElement {
         return Math.round(this.cash - totalCost)
     }
 
-    _calculateWealth(cash) {
-        return Math.round(cash)
+    _calculateWealth(cash, totalCost, referencePrice, inventory) {
+        return Math.round(cash - totalCost + referencePrice * inventory) 
     }
 
 }

@@ -51,6 +51,10 @@ const ELO = {
                 market_id: parseInt,
                 value: parseFloat
             },
+            reference_price: {
+                type: String,
+                price: parseInt
+            },
             elo_quote_cue: {
                 type: String,
                 market_id: parseInt,
@@ -109,7 +113,8 @@ const ELO = {
         system_event: ['_handleSystemEvent'],
         order_imbalance: ['_handleOrderImbalance'],
         elo_quote_cue: ['_handleTakerCue'],
-        speed_confirm: ['_handleSpeedConfirm']
+        speed_confirm: ['_handleSpeedConfirm'],
+        reference_price: ['_handleReferencePrice']
     },
     sliderProperties: {
         minValue: 0,
