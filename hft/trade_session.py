@@ -105,7 +105,7 @@ class LEEPSTradeSession(TradeSession):
                 create_exchange_connection(self, market_id)
                 reset_exchange(self, market_id)
                 message_content = {'type': 'market_start', 'market_id': market_id,
-                    'subsession_id': self.subsession_id}
+                    'subsession_id': self.subsession_id, 'session_length': self.subsession.round_length}
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
                 self.trading_markets.append(market_id)

@@ -8,17 +8,17 @@ i = 0, 1, ....., n
 delta_h = i.h + p_0
 p_i = [(p-p_0) / delta_h]
 """
+
 import math
 import time
+import logging
 
+log = logging.getLogger(__name__)
 
 max_ask = 2147483647
 min_bid = 0
 
 def price_grid(price, gridsize=1e4):
-    """
-    the grid
-    """
     integer_price = int(price)
     if integer_price < min_bid:
         integer_price = min_bid
@@ -28,7 +28,9 @@ def price_grid(price, gridsize=1e4):
     grid_price = int(grid_formula * gridsize)
     return grid_price
 
+
 class OrderImbalance:
+
     def __init__(self):
         self.order_imbalance = 0
         self.latest_execution_time = None
@@ -43,11 +45,11 @@ class OrderImbalance:
         elif execution_price == best_offer:
             offset = +1
         else:
-            raise ValueError('bad execution price: {}: best bid {}: best offer {}'.format(
+            log.exception('bad execution price: {}: best bid {}: best offer {}'.format(
                 execution_price, best_bid, best_offer))
-        new_exp = math.e ** (-1 * constant * time_since_last_execution) 
+            return self.order_imbalance
         order_imbalance = (
-            offset + self.order_imbalance * new_exp
+            offset + self.order_imbalance *  math.e ** (-1 * constant * time_since_last_execution) 
         )
         # print('imbalance {} time since exec {}: offset {}: {}'.format(order_imbalance,
         #     time_since_last_execution, offset, new_exp))
@@ -58,34 +60,37 @@ class OrderImbalance:
 
 class ReferencePrice:
 
-    discount_rate= math.log(2)
-    session_length = 240 
-
-    def __init__(self):
-        self.value = 0
+    def __init__(self, discount_constant):
+        self.denominator = 0
         self.sum_weights = 0
+        self.discount_constant = discount_constant
         self.reference_price = 0
-        self.latest_execution_time = None
-    
-    def reset(self):
-        self.latest_execution_time = time.time()
+        self.session_start = None
+        self.session_duration = None
+
+    def start(self, session_duration=None):
+        if session_duration is not None:
+            self.session_duration = session_duration
+        if not isinstance(self.session_duration, int):
+            raise ValueError('invalid session duration {}:'.format(
+                session_duration, session_duration.__class__.__name__))
+        self.session_start = time.time()
+        self.discount_rate = self.discount_constant / self.session_duration
 
     def step(self, price):
-        pass
-
-# def order_imbalance_function(constant=1):
-#     """
-#     dan's order imbalance function
-#     """   
-#     order_imbalance = 0
-#     while True: 
-#         latest_execution_time = time.time()
-#         buy_sell_indicator = yield order_imbalance
-#         offset = -1 if buy_sell_indicator == 'B' else 1
-#         time_since_last_execution = time.time() - latest_execution_time
-#         order_imbalance = (
-#             offset + order_imbalance * math.e ** (-1 * constant * time_since_last_execution) 
-#         )
+        time_elapsed_since_session_start = time.time() - self.session_start
+        numerator = math.e ** (
+            (time_elapsed_since_session_start - self.session_duration) * self.discount_rate
+        )
+        self.denominator += numerator
+        weight_for_price = numerator / self.denominator
+        new_reference_price = int((price * weight_for_price) + ((1 - weight_for_price) * self.reference_price))
+  #      self.sum_weights += weight_for_price
+        print('time elapsed: {}, numera: {}, denum {}, reference price: {}, price: {}, weight_for_price: {}, current ref p: {}, sum weight: {}'.format(
+            time_elapsed_since_session_start, numerator, self.denominator, new_reference_price, 
+            price, weight_for_price, self.reference_price, self.sum_weights))
+        self.reference_price = price_grid(new_reference_price)
+        return new_reference_price
 
 def bid_aggressiveness(b_x, b_y, x, y):
     """
