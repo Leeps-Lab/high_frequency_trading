@@ -11,7 +11,9 @@ p_i = [(p-p_0) / delta_h]
 
 import math
 import time
+import logging
 
+log = logging.getLogger(__name__)
 
 max_ask = 2147483647
 min_bid = 0
@@ -43,8 +45,9 @@ class OrderImbalance:
         elif execution_price == best_offer:
             offset = +1
         else:
-            raise ValueError('bad execution price: {}: best bid {}: best offer {}'.format(
+            log.exception('bad execution price: {}: best bid {}: best offer {}'.format(
                 execution_price, best_bid, best_offer))
+            return self.order_imbalance
         order_imbalance = (
             offset + self.order_imbalance *  math.e ** (-1 * constant * time_since_last_execution) 
         )
@@ -77,14 +80,16 @@ class ReferencePrice:
     def step(self, price):
         time_elapsed_since_session_start = time.time() - self.session_start
         numerator = math.e ** (
-            (time_elapsed_since_session_start - self.session_duration) * self.discount_rate)
+            (time_elapsed_since_session_start - self.session_duration) * self.discount_rate
+        )
         self.denominator += numerator
         weight_for_price = numerator / self.denominator
-        self.sum_weights += weight_for_price
-        new_reference_price = (price * weight_for_price) + (self.reference_price * self.sum_weights)
-        print('reference price: {}, price: {}, weight_for_price: {}, current ref p: {}, sum weight: {}'.format(
-            new_reference_price, price, weight_for_price, self.reference_price, self.sum_weights))
-        self.reference_price = new_reference_price
+        new_reference_price = int((price * weight_for_price) + ((1 - weight_for_price) * self.reference_price))
+  #      self.sum_weights += weight_for_price
+        print('time elapsed: {}, numera: {}, denum {}, reference price: {}, price: {}, weight_for_price: {}, current ref p: {}, sum weight: {}'.format(
+            time_elapsed_since_session_start, numerator, self.denominator, new_reference_price, 
+            price, weight_for_price, self.reference_price, self.sum_weights))
+        self.reference_price = price_grid(new_reference_price)
         return new_reference_price
 
 def bid_aggressiveness(b_x, b_y, x, y):

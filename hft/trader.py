@@ -159,7 +159,7 @@ class BCSTrader(BaseTrader):
     
 
 
-    def post_execution(self, exec_price, buy_sell_indicator) -> int:
+    def post_execution(self, **kwargs):
         raise NotImplementedError()
 
     def jump(self, **kwargs):
@@ -220,10 +220,9 @@ class BCSTrader(BaseTrader):
         execution_price = kwargs['execution_price']
         order_info =  self.orderstore.confirm('executed', **kwargs)
         buy_sell_indicator = order_info['buy_sell_indicator']
-        self.post_execution(execution_price, buy_sell_indicator)
+        self.post_execution(buy_sell_indicator=buy_sell_indicator, **kwargs)
         price = order_info['price']
         order_token = kwargs['order_token']
-        buy_sell_indicator = order_info['buy_sell_indicator']
         self.event.broadcast_messages('executed', order_token=order_token,
             price=price, inventory=self.orderstore.inventory, execution_price=execution_price,
             buy_sell_indicator=buy_sell_indicator, player_id=self.id, model=self)
@@ -234,13 +233,15 @@ Sliders.__new__.__defaults__ = (0, 0, 0, 0)
 
 class ELOTrader(BCSTrader):
 
-    def post_execution(self, execution_price, buy_sell_indicator):
+    def post_execution(self, **kwargs):
+        buy_sell_indicator = kwargs['buy_sell_indicator']
+        execution_price = kwargs['execution_price']
         if buy_sell_indicator == 'B':
             self.cash -= execution_price
         elif buy_sell_indicator == 'S':
             self.cash += execution_price
         if self.reference_price is not None:
-            self.wealth = self.reference_price * self.inventory + self.cash
+            self.wealth = self.reference_price * self.orderstore.inventory + self.cash
 
     def track_market(self, **kwargs):
         self.best_bid = kwargs['best_bid']
@@ -254,8 +255,8 @@ class ELOTrader(BCSTrader):
     def close_session(self, **kwargs):
         super().close_session()
         tax_rate = kwargs['tax_rate']
-        self.wealth += (1-tax_rate) * (self.reference_price * self.inventory)
-
+        reference_price = kwargs['reference_price']
+        self.wealth += (1-tax_rate) * (reference_price * self.orderstore.inventory)
 
     def exchange_message_from_order_info(self, order_info, delay, order_type):
         message_content = {'host': self.exchange_host, 'port': self.exchange_port, 
@@ -266,6 +267,9 @@ class ELOTrader(BCSTrader):
     def first_move(self, **kwargs):
         self.role = kwargs['state']
         self.speed_change(value=False)
+    
+    def reference_price_update(self, **kwargs):
+        self.reference_price = kwargs['reference_price']
 
 class ELOOut(ELOTrader):
 
@@ -294,7 +298,7 @@ class ELOManual(ELOTrader):
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change', 
-        'market_end': 'close_session'}
+        'market_end': 'close_session', 'reference_price_change': 'reference_price_update'}
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
@@ -363,7 +367,8 @@ class ELOMaker(ELOTrader):
     message_dispatch = { 'spread_change': 'spread_change', 'speed_change': 'speed_change',
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'slider': 'slider_change', 'bbo_change': 'latent_quote_update', 
-        'order_imbalance_change': 'latent_quote_update', 'market_end': 'close_session'}
+        'order_imbalance_change': 'latent_quote_update', 'market_end': 'close_session',
+        'reference_price_change': 'reference_price_update'}
 
     def __init__(self, subject_state):
         super().__init__(subject_state)
