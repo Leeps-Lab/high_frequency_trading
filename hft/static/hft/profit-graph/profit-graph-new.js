@@ -83,10 +83,6 @@ class ProfitGraph extends PolymerElement {
         
         this.profitLines = this.mainGroup.append('g');
 
-        this.currentProfitLine = this.mainGroup.append('line')
-            .attr('clip-path', 'url(#lines-clip)')
-            .attr('class', 'profit-line');
-
         this.xScale = d3.scaleTime()
             .domain([0, this.xRange])
             .range([0, this.width]);
@@ -110,6 +106,11 @@ class ProfitGraph extends PolymerElement {
         this.domYAxis = this.mainGroup.append("g")
             .attr("class", "axis axis-y")
             .call(this.yAxis);
+
+        this.currentProfitLine = this.mainGroup.append('line')
+            .attr('clip-path', 'url(#lines-clip)')
+            .attr('class', 'profit-line');
+
     }
 
     _runningChanged(isRunning) {
@@ -125,8 +126,8 @@ class ProfitGraph extends PolymerElement {
         this.xAxis.scale(this.xScale);
         this.domXAxis.call(this.xAxis);
 
-        if (this.payoff) {
-            this._addPayoff(this.payoff);
+        if (this.profit) {
+            this._addPayoff(this.profit);
         }
 
         window.requestAnimationFrame(this._tick.bind(this));
@@ -150,6 +151,12 @@ class ProfitGraph extends PolymerElement {
     }
 
     _addPayoff(newProfit, oldProfit) {
+        if (!this.mainGroup || !this.startTime) {
+            return;
+        }
+
+        console.log('new profit', newProfit)
+
         const oldTime = this._lastPayoffChangeTime;
         this._lastPayoffChangeTime = performance.now();
         if (this._lastPayoffChangeTime) {
