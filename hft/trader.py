@@ -361,6 +361,8 @@ class ELOManual(ELOTrader):
         self.volume_at_best_offer = kwargs['volume_at_best_ask']
         self.best_bid = kwargs['best_bid']
         self.best_offer = kwargs['best_offer']
+        self.next_bid = kwargs['next_bid']
+        self.next_offer = kwargs['next_offer']
 
 class ELOMaker(ELOTrader):
 
@@ -409,26 +411,25 @@ class ELOMaker(ELOTrader):
         new_slider = Sliders(a_x=float(kwargs['a_x']), a_y=float(kwargs['a_y']))
         if self.sliders != new_slider:
             self.latent_quote_update(sliders=new_slider)
+    
+    def enter_rule(ticksize=10000):
 
-    @staticmethod    
-    def enter_rule(current_bid, current_offer, best_bid, best_offer, 
-        implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer, ticksize=10000):
         bid = None
         offer = None
 
-        if best_bid > MIN_BID:
-            if implied_bid != current_bid:
-                if implied_offer and implied_bid >= implied_offer:
-                    bid = implied_offer - ticksize
-                elif not implied_offer and current_offer and implied_bid > current_offer:
-                        bid = current_offer - ticksize
+        if self.best_bid > MIN_BID:
+            if self.implied_bid != self.target_bid:
+                if self.implied_offer and self.implied_bid >= self.implied_offer:
+                    bid = self.implied_offer - ticksize
+                elif not self.implied_offer and self.current_offer and self.implied_bid > self.target_offer:
+                        bid = self.target_offer - ticksize
                 else:
-                    bid = implied_bid
-                if bid >= best_offer:
-                    bid = best_offer - ticksize
+                    bid = self.implied_bid
+                if bid >= self.best_offer:
+                    bid = self.best_offer - ticksize
 
-        if  best_offer < MAX_ASK:
-            if implied_offer != current_offer:
+        if  self.best_offer < MAX_ASK:
+            if self.implied_offer != self.target_offer:
                 if implied_bid and implied_offer <= implied_bid:
                     offer = implied_bid + ticksize
                 elif not implied_bid and current_bid and implied_offer > current_bid:
@@ -450,23 +451,32 @@ class ELOMaker(ELOTrader):
         else:
             self.best_bid = kwargs['best_bid']
             self.volume_at_best_bid = kwargs['volume_at_best_bid']
+            self.next_bid = kwargs['next_bid']
         if 'best_offer' not in kwargs:
             best_offer = self.best_offer
         else:
             self.best_offer = kwargs['best_offer']
             self.volume_at_best_bid = kwargs['volume_at_best_offer']
+            self.next_offer = kwargs['next_offer']
 
         order_imbalance_has_changed = False
         if 'order_imbalance' in kwargs and self.order_imbalance != kwargs['order_imbalance']:
             order_imbalance_has_changed = True
             self.order_imbalance = kwargs['order_imbalance']
+        
+        best_bid_except_me = best_bid
+        best_offer_except_me = self.best_offer
+        if self.best_bid == self.target_bid and self.volume_at_best_bid == 1:
+            best_bid_except_me = self.next_bid
+        if self.best_offer == self.target_offer and self.volume_at_best_offer == 1:
+            best_offer_except_me = self.next_offer
 
-        self.implied_bid, self.implied_offer = latent_quote_formula(self.best_bid, self.best_offer, 
+        self.implied_bid, self.implied_offer = latent_quote_formula(best_bid_except_me, best_offer_except_me, 
             self.order_imbalance, self.orderstore.inventory, sliders)
 
         bid, offer = self.enter_rule(self.target_bid, self.target_offer, self.best_bid, 
             self.best_offer, self.implied_bid, self.implied_offer, self.volume_at_best_bid, 
-            self.volume_at_best_offer)
+            self.volume_at_best_offer, self.next_bid, self.next_offer)
 
         start_from = 'B'
         if bid and offer:
@@ -572,7 +582,8 @@ class ELOTaker(ELOMaker):
     
     @staticmethod    
     def enter_rule(current_bid, current_offer, best_bid, best_offer, 
-        implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer):
+        implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer,
+        next_bid, next_offer):
         bid = None
         if best_bid > MIN_BID and implied_bid > best_offer:
             if implied_bid != current_bid:

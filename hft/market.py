@@ -154,14 +154,17 @@ class ELOMarket(BCSMarket):
         'Q': 'bbo_change'
     }
     tag_all_events_with = ('best_bid', 'best_offer', 'volume_at_best_bid', 
-        'volume_at_best_offer', 'order_imbalance', 'reference_price.reference_price', 'tax_rate')
+        'volume_at_best_offer', 'order_imbalance', 'reference_price.reference_price', 'tax_rate',
+        'next_bid', 'next_offer')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.session_format = 'elo'
         self.best_bid = min_bid
+        self.next_bid = min_bid
         self.volume_at_best_bid = 0
         self.best_offer = max_ask
+        self.next_offer= max_ask
         self.volume_at_best_offer = 0
         self.order_imbalance = 0
         self.reference_price = ReferencePrice(math.log(2))
@@ -215,11 +218,13 @@ class ELOMarket(BCSMarket):
         self.volume_at_best_bid = kwargs['volume_at_best_bid']
         self.volume_at_best_offer = kwargs['volume_at_best_ask']
         self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
+        self.next_bid, self.next_offer = kwargs['next_bid'], kwargs['next_ask']
         maker_ids = self.role_group['maker', 'taker']
         message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
             'market_id': self.market_id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
             'trader_ids': maker_ids, 'volume_at_best_bid': self.volume_at_best_bid,
-            'volume_at_best_offer': self.volume_at_best_offer, 'subsession_id': self.subsession_id}
+            'volume_at_best_offer': self.volume_at_best_offer, 'next_bid': self.next_bid,
+            'next_offer': self.next_offer, 'subsession_id': self.subsession_id}
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
         self.event.broadcast_messages('bbo', model=self)
