@@ -8,7 +8,8 @@ const ELO = {
                 price: parseInt,
                 player_id: String,
                 market_id: parseInt,
-                buy_sell_indicator: String
+                buy_sell_indicator: String,
+                time_in_force: parseInt
             },
             executed: {
                 type: String,

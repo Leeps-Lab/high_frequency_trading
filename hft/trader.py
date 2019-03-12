@@ -192,8 +192,9 @@ class BCSTrader(BaseTrader):
         order_token = kwargs['order_token']
         price = kwargs['price']
         buy_sell_indicator = kwargs['buy_sell_indicator']
+        time_in_force = kwargs['time_in_force']
         self.event.broadcast_messages('confirmed', order_token=order_token,
-            price=price, buy_sell_indicator=buy_sell_indicator, 
+            price=price, buy_sell_indicator=buy_sell_indicator, time_in_force=time_in_force,
             player_id=self.id, model=self)
 
     def replaced(self, **kwargs):
@@ -575,13 +576,11 @@ class ELOTaker(ELOMaker):
         implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer):
         bid = None
         if best_bid > MIN_BID and implied_bid > best_offer:
-            if implied_bid != current_bid:
-                bid = implied_bid
+            bid = implied_bid
 
         offer = None      
         if  best_offer < MAX_ASK  and implied_offer < best_bid:
-            if implied_offer != current_offer:
-                offer = implied_offer
+            offer = implied_offer
         return (bid, offer)
 
     def latent_quote_update(self, *args, **kwargs):

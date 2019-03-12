@@ -9,8 +9,9 @@ class BBOBroadcastMessage(BroadcastWSMessage):
 
 class OrderConfirmedBroadcastMessage(BroadcastWSMessage):
 
-    required_fields = ('market_id', 'player_id', 'order_token', 'price', 'buy_sell_indicator')
-    required_field_types = (int, int, str, int, str)
+    required_fields = ('market_id', 'player_id', 'order_token', 'price', 'buy_sell_indicator',
+        'time_in_force')
+    required_field_types = (int, int, str, int, str, int)
 
 class OrderReplacedBroadcastMessage(BroadcastWSMessage):
 
