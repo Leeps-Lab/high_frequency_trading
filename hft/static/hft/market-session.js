@@ -324,7 +324,6 @@ class MarketSession extends PolymerElement {
     _calculateCost(speedCost) {
         // we should revisit this rounding issue
         // in general we want to integers
-        console.log('rolling speed cost: ',speedCost)
         return Math.round(speedCost)
     }
 
@@ -333,7 +332,9 @@ class MarketSession extends PolymerElement {
     }
 
     _calculateWealth(cash, totalCost, referencePrice, inventory) {
-        return Math.round(cash - totalCost + referencePrice * inventory) 
+        const out = Math.round(cash - totalCost + referencePrice * inventory) 
+        console.log('wealth changed to: ', out, ' input', cash, totalCost, referencePrice, inventory)
+        return out
     }
 
 }

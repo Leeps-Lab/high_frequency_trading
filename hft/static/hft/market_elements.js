@@ -59,10 +59,10 @@ class PlayersOrderBook {
 
         if (!priceSlots.hasOwnProperty(price)) {
             priceSlots[price] = {};
-            console.log('added price: ', price, 'orders: ', priceSlots)
+           // console.log('added price: ', price, 'orders: ', priceSlots)
         }
         priceSlots[price][orderToken] = 1;
-        console.log('added token: ', orderToken, 'orders: ', priceSlots)
+        // console.log('added token: ', orderToken, 'orders: ', priceSlots)
     }
 
     _removeOrder(price, buySellIndicator, orderToken, playerId) {
@@ -74,10 +74,10 @@ class PlayersOrderBook {
                 console.error(`order token ${orderToken} is not in ${priceSlots}`)    
             } else {
                 delete priceSlots[price][orderToken]
-                console.log('delete token: ', orderToken, 'orders: ', priceSlots)
+//                console.log('delete token: ', orderToken, 'orders: ', priceSlots)
                 if (Object.keys(priceSlots[price]).length == 0) {
                     delete priceSlots[price];
-                    console.log('delete price: ', price, 'orders: ', priceSlots)
+//                    console.log('delete price: ', price, 'orders: ', priceSlots)
                 }
             }
         }

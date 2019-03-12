@@ -78,53 +78,5 @@ class ELOEvent(Event):
     translator_cls = translator.LeepsOuchTranslator   
     broadcast_message_factory = ELOBroadcastMessageFactory
 
-# class LEEPSEvent(Event):
-
-    # @classmethod
-    # @inbound_ws_message_preprocess
-    # def from_subject_websocket_message(cls, message, **kwargs):
-    #     player_id = kwargs.get('player_id')
-    #     market_id = kwargs.get('market_id')
-    #     subsession_id = kwargs.get('subsession_id')
-    #     event_type = message['type']
-    #     return cls('websocket', event_type, message, player_id=player_id,
-    #         subsession_id=subsession_id, market_id=market_id)
-    
-    # @classmethod
-    # def from_exchange_message(cls, message, **kwargs):
-    #     def extract_player_id(**kwargs):
-    #         token = kwargs.get('order_token')
-    #         if token is None:
-    #             token = kwargs.get('replacement_order_token')
-    #         # index 3 is subject ID      
-    #         player_id = token[5:9]
-    #         if token[3] == '@':
-    #             #   way out for investor orders
-    #             return 0
-    #         return int(player_id)
-
-    #     market_id = kwargs.get('market_id')
-    #     subsession_id = kwargs.get('subsession_id')
-
-    #     translator_class = cls.translator_cls
-    #     message_type, message_content = translator_class.decode(message)
-
-    #     player_id = None
-    #     if message_type not in ('S', 'Q'):
-    #         player_id = extract_player_id(**message_content)
-
-    #     return cls('exchange', message_type, message_content, subsession_id=subsession_id,
-    #         player_id=player_id, market_id=market_id)
-    
-    # @classmethod
-    # def from_event_message(cls, message, **kwargs):
-    #     event_source = message['message_type']
-    #     event_type = message['payload']['type']
-    #     session_id = message['payload']['subsession_id']
-    #     return cls(event_source, event_type, message['payload'], subsession_id=session_id)
-    
-
-            
-
         
         

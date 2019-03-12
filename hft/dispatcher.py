@@ -31,9 +31,9 @@ class Dispatcher:
             handler = cls.handler_factory.get_handler(entity)
             event = handler(event)
 
-   #     log.debug('{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
-    #        event=event)) 
-        # log.debug(event)
+        log.debug('{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
+            event=event)) 
+   #     log.debug(event)
         
         
         hft_background_task(hft_event_checkpoint, event.to_kwargs())   
@@ -78,6 +78,7 @@ class LEEPSDispatcher(Dispatcher):
         'fundamental_value_jumps': ['fundamental_price_change'],
         'bbo_change': ['marketwide_events'],
         'order_imbalance_change': ['marketwide_events'],
+        'reference_price_change': ['marketwide_events'],
         'slider': ['trader']      
     }
     outgoing_message_types = ('exchange', 'broadcast')
