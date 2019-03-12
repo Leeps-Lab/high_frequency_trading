@@ -18,23 +18,23 @@ class SpreadGraph extends PolymerElement {
                 }
 
                 .my-bid {
-                    stroke: black;
+                    stroke-width: 7;
                     fill: #DCF763;
                     fill-opacity: 0.8;
                 }
 
                 .my-offer {
-                    stroke: black;
+                    stroke-width: 7;
                     fill: #B81365;
                     fill-opacity: 0.8;
                 }
 
                 .best-bid {
-                    stroke-width: 4;
+                    stroke-width: 7;
                 }
 
                 .best-offer {
-                    stroke-width: 4;
+                    stroke-width: 7;
                 }
 
                 .offer-entered-line, .bid-entered-line {
@@ -199,7 +199,6 @@ class SpreadGraph extends PolymerElement {
     }
 
     redrawOrderCircles(orders) {
-        console.log('redrawing spread graph..')
         if (!this.mainGroup) {
             return;
         }
@@ -233,8 +232,6 @@ class SpreadGraph extends PolymerElement {
                 bidProportion: bidVolume / (bidVolume + offerVolume)
             });
         });
-
-        console.log('volumes: ', volumes)
 
         // function to assign classes to volume circles
         function getClass(d) {

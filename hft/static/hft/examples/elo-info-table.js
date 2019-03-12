@@ -1,4 +1,6 @@
-import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
+import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
+import '../market-primitives/widgets/bid-ask-spread.js'
+import './elo-subject-wallet.js'
 
 class InfoTable extends PolymerElement {
     static get properties() {
@@ -62,22 +64,22 @@ class InfoTable extends PolymerElement {
         </style>
           <div class="container">
             <div class="row">
-              <bidask-spread title-left="Best Bid" title-right="Best Ask"
+              <bid-ask-spread title-left="Best Bid" title-right="Best Ask"
                 bid={{bestBid}} ask={{bestOffer}}>
-              </bidask-spread>
+              </bid-ask-spread>
             </div>
             <div class="row">
-              <bidask-spread title-left="My Bid" title-right="My Ask"
+              <bid-ask-spread title-left="My Bid" title-right="My Ask"
                 bid={{myBid}} ask={{myOffer}}>
-              </bidask-spread>
+              </bid-ask-spread>
             </div>
             <div id="small-row" class="row">
-              <subject-wallet inventory={{inventory}} cash={{cash}}
+              <elo-subject-wallet inventory={{inventory}} cash={{cash}}
                 endowment={{endowment}} order-imbalance={{orderImbalance}}> 
-              </subject-wallet>
+              </elo-subject-wallet>
             </div>
           </div>
         `;}
   
   }
-  customElements.define('info-table', InfoTable)
+  customElements.define('elo-info-table', InfoTable)

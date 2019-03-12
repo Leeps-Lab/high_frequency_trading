@@ -1,4 +1,4 @@
-import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
+import { PolymerElement, html } from '../../node_modules/@polymer/polymer/polymer-element.js';
 
 class NiceCheckbox extends PolymerElement {
     static get template() {
@@ -102,7 +102,7 @@ class NiceCheckbox extends PolymerElement {
 
     checkboxClicked(event) {
       event.preventDefault();
-
+      // TODO: pass in event name as a parameter to checkbox
       let socketMessage = {type: 'speed_change', value: !this.isActive }        
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });   

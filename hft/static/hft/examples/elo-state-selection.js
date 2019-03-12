@@ -1,12 +1,12 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
-import './player-role-button.js';
-import './nice-checkbox.js'
+import '../market-primitives/widgets/player-role-button.js'
+import '../market-primitives/widgets/nice-checkbox.js'
 
 class StateSelection extends PolymerElement {
 
     static get template() {
         return html`
-        <link rel="stylesheet" href="/static/hft/input-section/range.css">
+        <link rel="stylesheet" href="/static/hft/css/range.css">
         <style>
             :host {
                 display: inline-block;
@@ -172,4 +172,4 @@ class StateSelection extends PolymerElement {
         )     
     }
   }
-  customElements.define('state-selection', StateSelection)
+  customElements.define('elo-state-selection', StateSelection)

@@ -1,7 +1,7 @@
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 
-import {ELO} from './market_environments.js'
-
+import {ELO} from './market-environments.js'
+import './elo-market-session.js'
 
 class ELOExperiment extends PolymerElement {
 
@@ -19,12 +19,12 @@ class ELOExperiment extends PolymerElement {
 
     static get template() {
       return html`
-        <market-session events=[[environment.events]] 
+        <elo-market-session events=[[environment.events]] 
         event-listeners=[[environment.eventListeners]]
         event-handlers=[[environment.eventHandlers]]
         roles=[[environment.roles]]
         slider-defaults=[[environment.sliderProperties]]
-        </market-session>
+        </elo-market-session>
         `;
       }
     }

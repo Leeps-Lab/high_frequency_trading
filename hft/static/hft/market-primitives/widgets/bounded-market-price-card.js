@@ -1,26 +1,46 @@
-import { LitElement, html } from '../node_modules/lit-element/lit-element.js';
+import { PolymerElement, html } from '../../node_modules/@polymer/polymer/polymer-element.js';
 
-  
-class MarketPriceCard extends LitElement {
+const MIN_BID = 0;
+const MAX_ASK = 2147483647;
+
+class MarketPriceCard extends PolymerElement {
 
   static get properties(){
   return {
-    title: {type: String},
-    price: {type: Number},
-    price_trend: {type: String},
-    currency: {type: String}
+    title: String,
+    price: {type: String, observer: '_priceChanged'},
+    price_trend: String,
+    currency: String
     }
   }
 
   constructor(){
     super();
-    this.title = '';
-    this.price = 0;
     this.currency = '$';
-    this.price_trend = '';
   }
 
-  render(){ 
+  _displayPrice(price) {
+    let displayPrice = (price == MIN_BID || price == MAX_ASK) ? ' - ' : price
+    return displayPrice
+  }
+
+  _priceChanged(newValue, oldValue) {
+    let theCard = this.shadowRoot.querySelector('.cardPrice')
+    if (newValue == MIN_BID || newValue == MAX_ASK) { 
+      theCard.setAttribute("trend", "")
+      return
+    } 
+    let incomingPriceTrend = oldValue > newValue ? 'price-down' : oldValue === newValue ? 
+        '' : 'price-up';
+    if (this.price_trend === incomingPriceTrend) {
+      incomingPriceTrend = incomingPriceTrend + '-copy';
+    }
+
+    this.price_trend = incomingPriceTrend
+    theCard.setAttribute("trend", incomingPriceTrend)
+  }
+
+  static get template() { 
     return html`
       <style>
 
@@ -38,7 +58,7 @@ class MarketPriceCard extends LitElement {
         justify-content: center;
         border: 1px solid #ccc;
         border-radius: 5px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+        box-shadow: 10 0px 0px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
       }
 
       .cardTitle {
@@ -67,7 +87,7 @@ class MarketPriceCard extends LitElement {
         animation-timing-function: ease-in-out;
       }
 
-      [trend=price-up-backup]{
+      [trend=price-up-copy]{
         animation-name: increase-more;
         animation-duration: 1s;
         animation-timing-function: ease-in-out;
@@ -76,13 +96,13 @@ class MarketPriceCard extends LitElement {
       [trend=price-down] {
         animation-name: decrease;
         animation-duration: 1s;
-        animation-timing-function: ease-in-out;
+        animation-timing-function: ease-out;
       }
 
-      [trend=price-down-backup] {
+      [trend=price-down-copy] {
         animation-name: decrease-more;
         animation-duration: 1s;
-        animation-timing-function: ease-in-out;
+        animation-timing-function: ease-out;
       }
 
       @keyframes increase{
@@ -107,18 +127,12 @@ class MarketPriceCard extends LitElement {
         100% {
         background-color: rgba(255,0,0,0.4)
         };
-        10% {
-          background-color: rgba(0,255,0,0.05)
-          };
       }
 
       @keyframes decrease-more{
         100% {
         background-color: rgba(255,0,0,0.4)
         };
-        10% {
-          background-color: rgba(0,255,0,0.05)
-          };
       }
 
       </style>
@@ -127,15 +141,15 @@ class MarketPriceCard extends LitElement {
             <div class="cardContent">
               <div class="cardTitle">
                 <span class="title-text">
-                  ${this.title}
+                  {{title}}
                 </span>
               </div>
-              <div class="cardPrice" trend=${this.price_trend}>
+              <div class="cardPrice">
                 <h1>
-                  ${this.currency}
+                  {{currency}}
                 </h1>
                 <h1 id="the-price">
-                  ${this.price == 0 ? html` - `: html`${this.price}`}
+                  {{_displayPrice(price)}}
                 </h1>
               </div>
             </div>
@@ -144,4 +158,4 @@ class MarketPriceCard extends LitElement {
       }
  }
 
-customElements.define('market-price', MarketPriceCard)
+customElements.define('bounded-market-price-card', MarketPriceCard)

@@ -1,13 +1,13 @@
-import { LitElement, html } from '../node_modules/lit-element/lit-element.js';
+import { PolymerElement, html } from '../../node_modules/@polymer/polymer/polymer-element.js';
 
-class InfoCard extends LitElement {
+class InfoCard extends PolymerElement {
 
     static get properties(){
         return {
-        title: {type: String},
-        value: {type: Number},
-        currency: {type: String},
-        shineClass: {type: String}
+        title: String,
+        value: {type: Number, observer: '_makeMeShine'},
+        currency: String,
+        shineClass: String
         };
     }
         
@@ -15,11 +15,15 @@ class InfoCard extends LitElement {
         super();
         this.title = '#title';
         this.value = 0;
-        this.currency = '';
+        this.currency = '#currency';
         this.shineClass = '';
         }  
+    
+    _makeMeShine (newValue, oldValue) {
+        this.shine_class = this.shine_class == 'shine' ? 'shine-copy' : 'shine';
+    }
 
-    render () {
+    static get template() {
         return html`
         <style>
             :host {
@@ -28,11 +32,11 @@ class InfoCard extends LitElement {
             }
 
             .theCard {
-            width: 150px;
-            height: 60px;
+            width: 100px;
+            height: 40px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             }
 
@@ -56,33 +60,33 @@ class InfoCard extends LitElement {
             }
 
             h4 {
-                display: inline-block;
-                text-align: center;
-                background: #FFFFF0;
-                width: 80%;
-                margin: 0px;       
+            display: inline-block;
+            text-align: center;
+            background: #FFFFF0;
+            width: 80%;
+            margin: 0px;
+            
             }
-
             h3 {
-                display: inline-block;
-                text-align: center;
+            display: inline-block;
+            text-align: center;
             }
 
-            [shineclass=shine-backup] {
+            [shineclass=shine-copy] {
                 animation-name: shine-more;
                 animation-duration: 0.6s;
-                animation-timing-function: ease-in-out;
-              }
+                animation-timing-function: ease-out;
+            }
     
             [shineclass=shine] {
                 animation-name: shine;
                 animation-duration: 0.7s;
-                animation-timing-function: ease-in-out;
+                animation-timing-function: ease-out;
               }
     
               @keyframes shine{
                 100% {
-                background-color: #ECE2D0;
+                  background-color: #ECE2D0;
                 };     
               }
     
@@ -93,17 +97,13 @@ class InfoCard extends LitElement {
               }
         </style>
         <div class="theCard">
-            <h4> ${this.title}</h4>
-            <div class="price-holder border" shineClass=${this.shineClass}>
-                <h3 > ${this.currency} 
-                    ${(this.currency !== '' && this.value === 0) ? html`-` : 
-                        html`${this.value}`
-                    }
-                </h3>
+            <h4> {{title}}</h4>
+            <div class="price-holder border" shineClass={{shineClass}}>
+            <h3 > {{currency}} {{value}}</h3>
             </div>
         </div>
         `
-        }
+    }
     }
 
 

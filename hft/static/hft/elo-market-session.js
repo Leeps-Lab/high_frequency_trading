@@ -1,10 +1,13 @@
 
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
-import {PlayersOrderBook} from './market_elements.js'
-import './player-strategy/state-selection.js'
-import './spread-graph/spread-graph-new.js'
-import './stepwise-calculator.js'
-import './profit-graph/profit-graph-new.js'
+import {PlayersOrderBook} from './market-primitives/orderbook.js'
+
+import './examples/elo-state-selection.js'
+import './examples/elo-info-table.js'
+import './market-primitives/spread-graph.js'
+import './market-primitives/profit-graph.js'
+import './market-primitives/stepwise-calculator.js'
+import './market-primitives/ws.js'
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -52,7 +55,7 @@ class MarketSession extends PolymerElement {
                 height: 200px;
             }
 
-            /* Overlay styling and animation  */
+            // overlay styling and animation
             #overlay{
                 width:100%;
                 height:100%;
@@ -75,7 +78,6 @@ class MarketSession extends PolymerElement {
                     opacity:1;
                 }
             }
-            /* Overlay END */
         </style>
             <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
             <stepwise-calculator run-forever={{subscribesSpeed}} value={{speedCost}}
@@ -85,14 +87,14 @@ class MarketSession extends PolymerElement {
                 <spread-graph orders={{orderBook}} my-bid={{myBid}} 
                     my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
                 <div class="middle-section-container">       
-                    <info-table inventory={{inventory}}
+                    <elo-info-table inventory={{inventory}}
                         cash={{cash}} order-imbalance={{orderImbalance}}
                         endowment={{wealth}} best-bid={{bestBid}}
                         best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
-                    </info-table>
-                    <state-selection role={{role}} slider-defaults={{sliderDefaults}}
+                    </elo-info-table>
+                    <elo-state-selection role={{role}} slider-defaults={{sliderDefaults}}
                         speed-on={{subscribesSpeed}}> 
-                    </state-selection>
+                    </elo-state-selection>
                 </div>
                 <profit-graph profit={{wealth}} is-running={{isSessionActive}}>
                 </profit-graph>
@@ -324,6 +326,7 @@ class MarketSession extends PolymerElement {
     _calculateCost(speedCost) {
         // we should revisit this rounding issue
         // in general we want to integers
+        console.log('rolling speed cost: ', Math.round(speedCost))
         return Math.round(speedCost)
     }
 
@@ -339,4 +342,4 @@ class MarketSession extends PolymerElement {
 
 }
 
-customElements.define('market-session', MarketSession)
+customElements.define('elo-market-session', MarketSession)

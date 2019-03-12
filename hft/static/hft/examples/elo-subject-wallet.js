@@ -1,5 +1,5 @@
-import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
-
+import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
+import '../market-primitives/widgets/info-card.js'
 
 class WallletCard extends PolymerElement {
 
@@ -75,4 +75,4 @@ class WallletCard extends PolymerElement {
     }
   }  
   
-customElements.define('subject-wallet', WallletCard);
+customElements.define('elo-subject-wallet', WallletCard);
