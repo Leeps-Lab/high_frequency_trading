@@ -251,12 +251,10 @@ class MarketSession extends PolymerElement {
     _handleSpeedConfirm(message){
         if (message.player_id == this.playerId) {
             this.subscribesSpeed = message.value
-            console.log('run forever in handle speed', this.subscribesSpeed)
         }  
     }
 
     _handleReferencePrice(message) {
-        console.log('handling reference price change ', message)
         this.referencePrice = message.price
     }
 
@@ -326,7 +324,6 @@ class MarketSession extends PolymerElement {
     _calculateCost(speedCost) {
         // we should revisit this rounding issue
         // in general we want to integers
-        console.log('rolling speed cost: ', Math.round(speedCost))
         return Math.round(speedCost)
     }
 
@@ -336,7 +333,6 @@ class MarketSession extends PolymerElement {
 
     _calculateWealth(cash, totalCost, referencePrice, inventory) {
         const out = Math.round(cash - totalCost + referencePrice * inventory) 
-        console.log('wealth changed to: ', out, ' input', cash, totalCost, referencePrice, inventory)
         return out
     }
 

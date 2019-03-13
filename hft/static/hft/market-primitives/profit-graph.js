@@ -163,8 +163,6 @@ class ProfitGraph extends PolymerElement {
             return;
         }
 
-        console.log('new profit', newProfit)
-
         const oldTime = this._lastPayoffChangeTime;
         this._lastPayoffChangeTime = performance.now();
         if (this._lastPayoffChangeTime) {

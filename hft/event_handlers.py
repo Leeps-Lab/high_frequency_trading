@@ -41,9 +41,6 @@ class HandlerFactory:
 def leeps_handle_trader_message(event, exchange_format='CDA', session_format='elo', 
         **kwargs):
     player_id = event.player_id
-    # player_id = event.attachments.get('player_id')
-    # if player_id is None:
-    #     player_id = event.message.get('player_id')   
     if player_id is None:
         raise Exception('player id is missing in event %s.' % event)
     if player_id == 0:

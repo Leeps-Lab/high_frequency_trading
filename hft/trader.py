@@ -103,7 +103,7 @@ class BCSTrader(BaseTrader):
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'fundamental_value_jumps': 'jump', 'slider_change': 'slider_change',
         'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change', 
-        'market_end': 'close_session'}
+        'market_end': 'close_session', 'reference_price_change': 'reference_price_update'}
     
     cost_fields = ('technology_cost',)
 
@@ -496,7 +496,8 @@ class ELOMaker(ELOTrader):
         sells = deque()
         if target_offer is not None:
             sell_orders = self.orderstore.all_orders('S')
-            assert len(sell_orders) <= 1, 'more than one sell order in market: %s' % self.orderstore
+            if len(sell_orders) > 1:
+                log.warning('multiple sell orders in market: %s:%s' % (self.orderstore, sell_orders))
             if sell_orders:
                 for o in sell_orders:
                     token = o['order_token']
@@ -505,7 +506,7 @@ class ELOMaker(ELOTrader):
                     if target_offer != order_price and target_offer != replace_price:
                         order_info = self.orderstore.register_replace(token, target_offer)
                         sell_message = self.exchange_message_from_order_info(order_info, 
-                        delay, 'replace')
+                            delay, 'replace')
                         sells.append(sell_message)
                 self.target_offer = target_offer
             elif order_imbalance is None or self.wait_for_best_offer is False:
@@ -516,7 +517,8 @@ class ELOMaker(ELOTrader):
         buys = deque()
         if target_bid is not None:
             buy_orders = self.orderstore.all_orders('B')
-            assert len(buy_orders) <= 1, 'more than one buy order in market: %s' % self.orderstore
+            if len(buy_orders) > 1:
+                log.warning('multiple buy orders in market: %s:%s' % (self.orderstore, buy_orders))
             if buy_orders:
                 for o in buy_orders:
                     token = o['order_token']
