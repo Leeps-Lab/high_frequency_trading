@@ -1,0 +1,50 @@
+<html>
+<head>
+    <script type="module" src="./spread-graph-new.js"></script>
+    <script src="../node_modules/d3.min.js"></script>
+    <style>
+        spread-graph {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <spread-graph
+    ></spread-graph>
+
+    <button id='remove_bid' type='button'>remove my bid</button>
+    <button id='remove_offer' type='button'>remove my ask</button>
+
+    <script type="module">
+        import {PlayersOrderBook} from '../market_elements.js'
+
+        const spread_graph = document.querySelector('spread-graph');
+        const order_book = new PlayersOrderBook(1, null, '');
+        let order_num = 0
+        spread_graph.setAttribute('orders', JSON.stringify(order_book));
+
+        spread_graph.addEventListener('user-input', e => {  
+            order_book._addOrder(e.detail.price, e.detail.buy_sell_indicator, order_num++, 1)
+            spread_graph.setAttribute('orders', JSON.stringify(order_book));
+            spread_graph.setAttribute(e.detail.buy_sell_indicator == 'B' ? 'my-bid' : 'my-offer', e.detail.price);
+            const prices = Object.keys(order_book.getOrders(e.detail.buy_sell_indicator));
+            if (e.detail.buy_sell_indicator == 'B' && e.detail.price === Math.max(...prices)) {
+                spread_graph.setAttribute('best-bid', e.detail.price);
+            }
+            else if (e.detail.buy_sell_indicator === 'S' && e.detail.price === Math.min(...prices)) {
+                spread_graph.setAttribute('best-offer', e.detail.price);
+            }
+        });
+
+        document.getElementById('remove_bid').addEventListener('click', e => {
+            spread_graph.setAttribute('my-bid', 0);
+        });
+
+        document.getElementById('remove_offer').addEventListener('click', e => {
+            spread_graph.setAttribute('my-offer', 100001);
+        });
+
+    </script>
+</body>
+</html>

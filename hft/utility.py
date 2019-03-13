@@ -72,7 +72,7 @@ def scale_configs(session_format, session_configs):
             continue
         else:
             try:
-                scaled_configs[k] = v * int(scale)
+                scaled_configs[k] = int(v * int(scale))
             except:
                 log.error('scaling failed for config key: %s and value: %s for scale: %s.' 
                     % (k, v, scale))
@@ -81,17 +81,9 @@ def scale_configs(session_format, session_configs):
 
 
         
-def configure_model(model, session_format:dict, session_configs:dict):
-    def validate_model(model):
-        if isinstance(model, BasePlayer):
-            return 'player'
-        elif isinstance(model, BaseSubsession):
-            return 'subsession'
-        else:
-            raise ValueError('invalid model %s' % model.__class__.__name__)
-    model_type = validate_model(model)
+def configure_model_for_market(model_name, model, session_format:dict, session_configs:dict):
     market_settings = market_environments.environments[session_format]
-    mapping = market_settings.model_configuration[model_type]
+    mapping = market_settings.model_configuration[model_name]
     for k, v in mapping.items():
         field_value = session_configs[k]
         try:
@@ -128,6 +120,17 @@ def kwargs_from_event(event):
         if k not in kwargs and v is not None:
             kwargs[k] = v
     return kwargs
+
+scaled_fields = ('price', 'execution_price', 'old_price', 'reference_price', 'cash', 
+    'best_bid', 'best_offer', 'bid', 'offer')
+def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fields):
+    multiplier = 10000 if direction == 'scale-up' else 0.0001
+    clean_message = dict(message)
+    for field in fields_to_scale:
+        if field in clean_message and clean_message[field] not in (MIN_BID, MAX_ASK):
+            clean_message[field] = int(int(clean_message[field]) * multiplier)
+    return clean_message
+            
 
 
 

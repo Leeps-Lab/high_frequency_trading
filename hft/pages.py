@@ -26,6 +26,8 @@ class index(Page):
 class leeps(Page):
     pass
 
+class elo(Page):
+    pass
 
 class ResultsWaitPage(WaitPage):
 
@@ -42,7 +44,7 @@ class Results(Page):
 
 page_sequence = [
     PreWaitPage,
-    leeps,
+    elo,
     ResultsWaitPage,
     Results,
 ]

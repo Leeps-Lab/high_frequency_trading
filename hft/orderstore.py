@@ -14,8 +14,8 @@ class OrderStore:
         'executed': '_confirm_execution'
     }
 
-    def __init__(self, pid, in_group_id):
-        self.player_id = pid
+    def __init__(self, player_id, in_group_id):
+        self.player_id = player_id
         self.subject_code = chr(int(in_group_id) + 64)
         self.counter = itertools.count(1,1)
         self._orders = {}
@@ -44,8 +44,8 @@ class OrderStore:
         return order_info
 
     def __str__(self):
-        active_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
-        pending_orders = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')
+        active_orders = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
+        pending_orders = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')
         ioc = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'ioc')       
         out = """Player {self.player_id} Orders:
                 Active:{active_orders}
@@ -69,7 +69,11 @@ class OrderStore:
             return out
 
     def register_replace(self, token, new_price):
-        order_info = self._orders[token]
+        try:
+            order_info = self._orders[token]
+        except KeyError as e:
+            log.exception('error register replace for token: %s, orderstore: %s' % (token, self))
+            raise
         existing_token = order_info.get('replacement_order_token')
         if existing_token is None:
             existing_token = order_info['order_token']
@@ -78,7 +82,7 @@ class OrderStore:
         order_info['existing_order_token'] = existing_token
         order_info['replacement_order_token'] = replacement_token
         order_info['replace_price'] = new_price
-        self._orders[existing_token] = order_info
+        self._orders[token] = order_info
         return order_info
     
     def confirm(self, event_type, **kwargs):
@@ -86,8 +90,13 @@ class OrderStore:
         handler = getattr(self, handler_name)
         try:
             order_info = handler(**kwargs)
-        except KeyError as e:
-            log.exception(e)
+        except:
+            log.exception("""
+            error during orderstore operation: "%s" 
+            message: %s 
+            orderstore: %s
+""" % (handler_name, str(kwargs), self))
+            raise
         else:
             return order_info
 
@@ -101,6 +110,8 @@ class OrderStore:
             order_info['status'] = b'ioc'
         order_info['timestamp'] = kwargs['timestamp']
         order_info['confirmed_at'] = nanoseconds_since_midnight()
+        order_info['travel_time'] = (order_info['confirmed_at'] - 
+            order_info['created_at']) * 0.000001
         self._orders[token] = order_info
         price = order_info['price']
         direction = order_info['buy_sell_indicator']

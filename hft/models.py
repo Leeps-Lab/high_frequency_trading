@@ -22,7 +22,9 @@ from .market import MarketFactory
 from .subject_state import SubjectStateFactory
 from .exchange import send_exchange
 from .cache import (initialize_market_cache, initialize_player_cache, initialize_session_cache,
-    get_cache_key, write_to_cache_with_version)
+    initialize_investor_cache, get_cache_key, write_to_cache_with_version, set_market_id_map,
+    get_market_id_map)
+from .investor import InvestorFactory
 
 from . import market_environments
 
@@ -68,19 +70,36 @@ class Subsession(BaseSubsession):
         session_configs = self.session.config
         session_format = session_configs['environment']
         trade_session = create_trade_session(self, session_format)
-        self.session.vars['trade_sessions'][self.id] = trade_session.id
+        self.session.vars['trade_sessions'][self.id] = trade_session.subsession_id
         exchange_format = session_configs['auction_format']
         exchange_host = session_configs['exchange_host']
-        exchange_ports = copy.deepcopy(utility.available_exchange_ports)
+        all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
+        market_id_map = {}
         for group in self.get_groups():
-            exchange_port = exchange_ports[exchange_format].pop()
+            exchange_port = all_exchange_ports[exchange_format].pop()
             market = trade_session.create_market(exchange_host, exchange_port)
-            print(session_configs)
-            market.register_group(group, session_configs)
+            for player in group.get_players():
+                market.register_player(group.id, player.id)
+                player.configure_for_trade_session(exchange_host, exchange_port, 
+                    market.market_id, session_format)
+                trader_state_cls = market.state_factory.get_state(session_format)
+                trader_initial_state = trader_state_cls.from_otree_player(player)
+                initialize_player_cache(player, trader_initial_state)
             initialize_market_cache(market)
-        utility.configure_model(self, session_format, session_configs)
+            market_id_map[market.id_in_subsession] = market.market_id
+            if 'investor_arrivals' in trade_session.exogenous_events.keys():
+                investor = InvestorFactory.get_investor(session_format, market.subsession_id,
+                    market.market_id, exchange_host, exchange_port)
+                initialize_investor_cache(investor)
+        set_market_id_map(trade_session.subsession_id, market_id_map)
+        self.configure_for_trade_session(session_format)
         initialize_session_cache(trade_session)
         cache.set('trade_session_lock', 'unlocked', timeout=None)
+        self.save()
+    
+    def configure_for_trade_session(self, session_format:str):
+        utility.configure_model_for_market('subsession', self, session_format,
+            self.session.config)
         self.save()
             
     def save(self, *args, **kwargs):
@@ -107,31 +126,40 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
 
-    time_on_speed = models.IntegerField(initial=0)
+    consented = models.BooleanField(initial=True)
     exchange_host = models.StringField(initial='127.0.0.1')
     exchange_port = models.IntegerField()
     role = models.StringField(initial='out')
-    speed = models.BooleanField(initial=False)
-    spread = models.IntegerField()
     channel = models.CharField(max_length=255)
     cost = models.IntegerField(initial=0)
-    fp = models.IntegerField()
-    endowment = models.IntegerField()
-    prev_speed_update = models.BigIntegerField(initial=0)
+    technology_cost = models.IntegerField(initial=0)
+    cash = models.IntegerField(initial=0)
+    wealth = models.IntegerField(initial=0)
     speed_on = models.IntegerField(initial=0)
-    speed_unit_cost = models.FloatField()
-    max_spread = models.IntegerField()
+    time_on_speed = models.IntegerField(initial=0)
+    technology_unit_cost = models.IntegerField(initial=0)
     design =  models.CharField()
-    consent = models.BooleanField(initial=True)
     inventory = models.IntegerField(initial=0)
     market_id = models.StringField()
     best_bid = models.IntegerField()
     best_offer = models.IntegerField()
     bid = models.IntegerField()
     offer = models.IntegerField()
-    distance_from_bid = models.IntegerField(blank=True)
-    distance_from_offer = models.IntegerField(blank=True)
-    latent_bid = models.IntegerField(blank=True)
-    latent_offer = models.IntegerField(blank=True)
+    target_bid = models.IntegerField(blank=True)
+    target_offer = models.IntegerField(blank=True)
     sliders = models.StringField()
     orderstore = models.StringField(blank=True)
+    implied_bid = models.IntegerField(blank=True)
+    implied_offer = models.IntegerField(blank=True)
+    slider_a_x = models.FloatField(blank=True)
+    slider_a_y = models.FloatField(blank=True)
+    order_imbalance = models.FloatField(blank=True)
+    reference_price = models.FloatField(blank=True)
+
+    def configure_for_trade_session(self, exchange_host:str, exchange_port:int, 
+        market_id:str, session_format:str):
+        self.exchange_host = exchange_host
+        self.exchange_port = exchange_port
+        self.market_id = market_id
+        utility.configure_model_for_market('player', self, session_format, self.session.config)
+        self.save()

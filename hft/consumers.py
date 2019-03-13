@@ -16,12 +16,11 @@ class SubjectConsumer(JsonWebsocketConsumer):
 
     def connect(self, message, subsession_id, group_id, player_id):
         player = Player.objects.get(id=player_id)
-        log.info('Player %s is connected to Group %s with in-group id %s.' % (
-            player_id, group_id, player.id_in_group))
+        log.info('player %s connected. subsession %s, market %s' % (
+            player_id, subsession_id, group_id))
         player.channel = message.reply_channel
         player.save()
 
-    @timer
     def raw_receive(self, message, subsession_id, group_id, player_id):
         try:
             LEEPSDispatcher.dispatch('websocket', message, subsession_id=subsession_id,
@@ -36,10 +35,10 @@ class SubjectConsumer(JsonWebsocketConsumer):
 
 class InvestorConsumer(JsonWebsocketConsumer):
 
-    @timer
     def raw_receive(self, message, subsession_id):
         try:
-            LEEPSDispatcher.dispatch('websocket', message, subsession_id=subsession_id)
+            LEEPSDispatcher.dispatch('websocket', message, subsession_id=subsession_id,
+                player_id=0)
         except Exception as e:
             log.exception('error processing investor arrival, ignoring. %s:%s', message.content, e)
 

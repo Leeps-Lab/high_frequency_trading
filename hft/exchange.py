@@ -24,7 +24,6 @@ class OUCH(Protocol):
     def connectionMade(self):
         log.debug('connection made.')
     
-    @timer
     def dataReceived(self, data):
         header = chr(data[0])
         try:

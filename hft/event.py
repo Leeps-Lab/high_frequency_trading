@@ -2,99 +2,81 @@ from collections import deque
 from itertools import count
 from . import translator
 import json
-from .decorators import inbound_ws_message_preprocess
+from .message_registry import MessageRegistry
+from .outbound_message import ELOBroadcastMessageFactory
 
 class EventFactory:
 
     @staticmethod
     def get_event(message_source, message, **kwargs):
         if message_source == 'exchange':
-            event = LEEPSEvent.from_exchange_message(message, **kwargs)
+            event = ELOEvent(message_source, message, **kwargs)
         elif message_source == 'websocket':
-            event = LEEPSEvent.from_subject_websocket_message(message, **kwargs)
+            event = ELOEvent(message_source, message, **kwargs)
         elif message_source == 'derived_event':
-            event = LEEPSEvent.from_event_message(message, **kwargs)
+            event = ELOEvent(message_source, message, **kwargs)
         else:
             raise Exception('invalid message source: %s' % message_source)
         return event
 
 class Event:
 
-    __slots__ = ('resulting_events', 'attachments', 'outgoing_messages', 'message', 
-        'event_type', 'event_source', 'reference_no')
-    translator_cls = translator.LeepsOuchTranslator
-    event_id = count(0,1)
+    __slots__ = ('subsession_id', 'market_id', 'player_id', 'resulting_events', 
+        'attachments', 'outgoing_messages', 'message', 'event_type', 'event_source', 'reference_no')
+    translator_cls = None
+    broadcast_message_factory = None
+    event_id = count(1,1)
 
-    def __init__(self, event_source, event_type, message, **kwargs):
+    def __init__(self, event_source, message, **kwargs):
         self.reference_no = next(self.event_id)
+        self.subsession_id = message.subsession_id
+        self.market_id = message.market_id
+        self.player_id = message.player_id
+        self.event_type = message.type
         self.event_source = event_source
-        self.event_type = event_type
         self.message = message
-        self.attachments = kwargs
+        self.attachments = {}
 
+        self.broadcast_messages = MessageRegistry(self.broadcast_message_factory)
         self.outgoing_messages = deque()
     
     def __str__(self):
-        return """event {self.reference_no}: source:{self.event_source}, type:{self.event_type}
-                trigger_message: {self.message}:attachments: {self.attachments}
-                outgoing messages: {self.outgoing_messages}
+        return """
+    event: {self.reference_no}x{self.subsession_id}x{self.market_id}
+    source: {self.event_source} 
+    player: {self.player_id}
+    type: {self.event_type}
+    original message: 
+{self.message} 
+
+    broadcast messages: 
+{self.broadcast_messages}
+
+    attachments: 
+{self.attachments}
+
+    outgoing messages: 
+{self.outgoing_messages}
+
         """.format(self=self)
-
-    @classmethod   
-    def from_websocket_message(cls, *args, **kwargs):
-        raise NotImplementedError()
-
-    @classmethod
-    def from_exchange_message(cls, *args, **kwargs):
-        raise NotImplementedError()
-
-class LEEPSEvent(Event):
-
-    @classmethod
-    @inbound_ws_message_preprocess
-    def from_subject_websocket_message(cls, message, **kwargs):
-        player_id = kwargs.get('player_id')
-        market_id = kwargs.get('market_id')
-        subsession_id = kwargs.get('subsession_id')
-        event_type = message['type']
-        return cls('websocket', event_type, message, player_id=player_id,
-            subsession_id=subsession_id, market_id=market_id)
     
-    @classmethod
-    def from_exchange_message(cls, message, **kwargs):
-        def extract_player_id(**kwargs):
-            token = kwargs.get('order_token')
-            if token is None:
-                token = kwargs.get('replacement_order_token')
-            # index 3 is subject ID      
-            player_id = token[5:9]
-            if token[3] == '@':
-                #   way out for investor orders
-                return 0
-            return int(player_id)
+    def to_kwargs(self):
+        kwargs = self.message.data
+        for attr in ('event_source', 'reference_no'):
+            kwargs[attr] = getattr(self, attr)
+        if self.attachments:
+            for k, v in self.attachments.items():
+                if k not in kwargs:
+                    kwargs[k] = v
+        return kwargs
 
-        market_id = kwargs.get('market_id')
-        subsession_id = kwargs.get('subsession_id')
 
-        translator_class = cls.translator_cls
-        message_type, message_content = translator_class.decode(message)
-
-        player_id = None
-        if message_type not in ('S', 'Q'):
-            player_id = extract_player_id(**message_content)
-
-        return cls('exchange', message_type, message_content, subsession_id=subsession_id,
-            player_id=player_id, market_id=market_id)
-    
-    @classmethod
-    def from_event_message(cls, message, **kwargs):
-        event_source = message['message_type']
-        event_type = message['payload']['type']
-        session_id = message['payload']['subsession_id']
-        return cls(event_source, event_type, message['payload'], subsession_id=session_id)
-    
-
-            
+class ELOEvent(Event):
+    __slots__ = ('subsession_id', 'market_id', 'player_id', 'resulting_events', 
+        'attachments', 'outgoing_messages', 'message', 'event_type', 'event_source', 
+        'broadcast_messages', 'reference_no')
+    translator_cls = translator.LeepsOuchTranslator   
+    broadcast_message_factory = ELOBroadcastMessageFactory
 
         
         

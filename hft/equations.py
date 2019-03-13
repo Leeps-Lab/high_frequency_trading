@@ -8,56 +8,81 @@ i = 0, 1, ....., n
 delta_h = i.h + p_0
 p_i = [(p-p_0) / delta_h]
 """
+
 import math
 import time
+import logging
 
+log = logging.getLogger(__name__)
 
 max_ask = 2147483647
 min_bid = 0
 
 def price_grid(price, gridsize=1e4):
-    """
-    the grid
-    """
-    price_in_range = price
-    if price < min_bid:
-        price_in_range = min_bid
-    elif price > max_ask:
-        price_in_range = max_ask
-    grid_formula = round((price_in_range - min_bid) / gridsize)
+    integer_price = int(price)
+    if integer_price < min_bid:
+        integer_price = min_bid
+    elif integer_price > max_ask:
+        integer_price = max_ask
+    grid_formula = round((integer_price - min_bid) / gridsize)
     grid_price = int(grid_formula * gridsize)
     return grid_price
 
+
 class OrderImbalance:
+
     def __init__(self):
         self.order_imbalance = 0
         self.latest_execution_time = None
-    def step(self, buy_sell_indicator, constant=1):
+
+    def step(self, execution_price, best_bid, best_offer, buy_sell_indicator, constant=1):
         now = time.time()
         if self.latest_execution_time is None:
             self.latest_execution_time = now 
         time_since_last_execution = now - self.latest_execution_time
-        offset = -1 if buy_sell_indicator == 'B' else 1
+        if execution_price == best_bid:
+            offset = -1 
+        elif execution_price == best_offer:
+            offset = +1
+        else:
+            log.exception('bad execution price: {}: best bid {}: best offer {}'.format(
+                execution_price, best_bid, best_offer))
+            return self.order_imbalance
         order_imbalance = (
-            offset + self.order_imbalance * math.e ** (-1 * constant * time_since_last_execution) 
+            offset + self.order_imbalance *  math.e ** (-1 * constant * time_since_last_execution) 
         )
+        # print('imbalance {} time since exec {}: offset {}: {}'.format(order_imbalance,
+        #     time_since_last_execution, offset, new_exp))
         self.latest_execution_time = now
         self.order_imbalance = order_imbalance
         return order_imbalance   
 
-# def order_imbalance_function(constant=1):
-#     """
-#     dan's order imbalance function
-#     """   
-#     order_imbalance = 0
-#     while True: 
-#         latest_execution_time = time.time()
-#         buy_sell_indicator = yield order_imbalance
-#         offset = -1 if buy_sell_indicator == 'B' else 1
-#         time_since_last_execution = time.time() - latest_execution_time
-#         order_imbalance = (
-#             offset + order_imbalance * math.e ** (-1 * constant * time_since_last_execution) 
-#         )
+
+class ReferencePrice:
+
+    def __init__(self, discount_constant):
+        self.discount_constant = discount_constant
+        self.reference_price = 0
+        self.session_start = None
+        self.session_duration = None
+
+    def start(self, session_duration=None):
+        if session_duration is not None:
+            self.session_duration = session_duration
+        if not isinstance(self.session_duration, int):
+            raise ValueError('invalid session duration {}:'.format(
+                session_duration, session_duration.__class__.__name__))
+        self.session_start = time.time()
+        self.discount_rate = self.discount_constant / self.session_duration
+
+    def step(self, price):
+        time_elapsed_since_session_start = time.time() - self.session_start
+        weight_for_price = math.e ** (
+            (time_elapsed_since_session_start - self.session_duration) * self.discount_rate
+        )
+        new_reference_price = int((price * weight_for_price) + ((1 - weight_for_price) * self.reference_price))
+        self.reference_price = price_grid(new_reference_price)
+        return new_reference_price
 
 def bid_aggressiveness(b_x, b_y, x, y):
     """
@@ -75,26 +100,11 @@ def sell_aggressiveness(a_x, a_y, x, y):
     """
     return a_x * x - a_y * y
  
-def latent_bid(bb, S, bid_aggressiveness):
-    """
-    LB(t)
-    bb: best bid
-    S: half a tick
-    """
-    return bb - S * bid_aggressiveness
 
-def latent_offer(bo, S, bid_aggressiveness):
-    """
-    LB(t)
-    bb: best offer
-    S: half a tick
-    """
-    return bo + S * sell_aggressiveness
-
-def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders, S=1e4,
+def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders, ticksize=1e4,
         bid_aggressiveness=bid_aggressiveness, sell_aggressiveness=sell_aggressiveness):
     b = bid_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
     a = sell_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
-    latent_bid = best_bid - 0.5 * S * b
-    latent_ask = best_offer + 0.5 * S * a
+    latent_bid = best_bid - 0.5 * ticksize * b
+    latent_ask = best_offer + 0.5 * ticksize * a
     return price_grid(latent_bid), price_grid(latent_ask)
