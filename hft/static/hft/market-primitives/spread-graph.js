@@ -19,6 +19,7 @@ class SpreadGraph extends PolymerElement {
                     fill-opacity: 0.8;
                 }
 
+                /* make mbo more saturated than other orders / change bids and asks to blue and orange */
                 .my-bid {
                     stroke-width: 7;
                     fill: #DCF763;
@@ -31,6 +32,7 @@ class SpreadGraph extends PolymerElement {
                     fill-opacity: 0.8;
                 }
 
+                /* make bbo thinner/solid black */
                 .best-bid {
                     stroke-width: 7;
                 }
@@ -126,8 +128,16 @@ class SpreadGraph extends PolymerElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.width = this.offsetWidth - this.margin.left - this.margin.right;
-        this.height = this.offsetHeight - this.margin.top - this.margin.bottom;
+        window.addEventListener('resize', e => {
+            this.setSize(this.offsetWidth, this.offsetHeight);
+
+            const orders = this.get('orders');
+            if (orders) {
+                this.redrawOrderCircles(orders);
+            }
+            this.drawMyBid(this.myBid, this.myBid);
+            this.drawMyOffer(this.myOffer, this.myOffer);
+        });
 
         this._min_domain_size = this._domain[1] - this._domain[0];
 
@@ -141,16 +151,14 @@ class SpreadGraph extends PolymerElement {
 
     init() {
         this.$.svg.addEventListener('click', e => {
-            this.enterOrder(e.offsetX - this.margin.left, 'S');
+            this.enterOrder(e.offsetX - this.margin.left, 'B');
         });
         this.$.svg.addEventListener('contextmenu', e => {
             e.preventDefault();
-            this.enterOrder(e.offsetX - this.margin.left, 'B');
+            this.enterOrder(e.offsetX - this.margin.left, 'S');
         });
 
         this.mainGroup = d3.select(this.$.svg)
-            .attr('width', this.offsetWidth)
-            .attr('height', this.offsetHeight)
           .append('g')
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
         
@@ -160,25 +168,42 @@ class SpreadGraph extends PolymerElement {
         const mboGroup = this.mainGroup.append('g');
         this.myBidCircle = mboGroup.append('circle')
             .attr('class', 'my-bid')
-            .attr('cy', this.height / 2)
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
         this.myOfferCircle = mboGroup.append('circle')
             .attr('class', 'my-offer')
-            .attr('cy', this.height / 2)
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
         
         this.scale = d3.scaleLinear()
-            .domain(this._domain)
-            .range([0, this.width]);
+            .domain(this._domain);
         
-        this.xAxis = d3.axisBottom()
+        this.xAxis = d3.axisBottom();
+
+        this.domXAxis = this.mainGroup.append("g")
+            .attr("class", "axis");
+
+        this.setSize(this.offsetWidth, this.offsetHeight);
+    }
+
+    setSize(width, height) {
+        this.width = width - this.margin.left - this.margin.right;
+        this.height = height - this.margin.top - this.margin.bottom;
+
+        d3.select(this.$.svg)
+            .attr('width', width)
+            .attr('height', height);
+
+        this.myBidCircle.attr('cy', this.height / 2);
+        this.myOfferCircle.attr('cy', this.height / 2);
+
+        this.scale.range([0, this.width]);
+
+        this.xAxis
             .tickSize(this.height / 4)
             .scale(this.scale);
 
-        this.domXAxis = this.mainGroup.append("g")
-            .attr("class", "axis")
+        this.domXAxis
             .attr("transform", "translate(0," + this.height / 2 + ")")
             .call(this.xAxis);
     }
@@ -342,6 +367,14 @@ class SpreadGraph extends PolymerElement {
         if (!prices.length) {
             return;
         }
+
+        /* 
+        
+        add a min and max screen width
+        center screen around average of bbo, only move when bbo center gets to 80% extreme
+        
+        
+        */
 
         const min = d3.min(prices);
         const max = d3.max(prices);

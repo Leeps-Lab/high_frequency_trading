@@ -1,6 +1,6 @@
 <html>
 <head>
-    <script type="module" src="./spread-graph-new.js"></script>
+    <script type="module" src="./spread-graph.js"></script>
     <script src="../node_modules/d3.min.js"></script>
     <style>
         spread-graph {
@@ -17,7 +17,7 @@
     <button id='remove_offer' type='button'>remove my ask</button>
 
     <script type="module">
-        import {PlayersOrderBook} from '../market_elements.js'
+        import {PlayersOrderBook} from './orderbook.js'
 
         const spread_graph = document.querySelector('spread-graph');
         const order_book = new PlayersOrderBook(1, null, '');

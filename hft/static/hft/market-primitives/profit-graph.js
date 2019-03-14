@@ -69,56 +69,75 @@ class ProfitGraph extends PolymerElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.width = this.offsetWidth - this.margin.left - this.margin.right;
-        this.height = this.offsetHeight - this.margin.top - this.margin.bottom;
+        window.addEventListener('resize', e => {
+            this.setSize(this.offsetWidth, this.offsetHeight);
+            this._updateProfitLine();
+        });
 
         this.init();
     }
 
     init() {
         this.mainGroup = d3.select(this.$.svg)
-            .attr('width', this.offsetWidth)
-            .attr('height', this.offsetHeight)
           .append('g')
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
         
-        this.mainGroup.append('clipPath')
+        this.clipPath = this.mainGroup.append('clipPath')
             .attr('id', 'lines-clip')
-          .append('rect')
-            .attr('width', this.width)
-            .attr('height', this.height);
+          .append('rect');
         
         this.profitLines = this.mainGroup.append('g');
 
         this.xScale = d3.scaleTime()
-            .domain([0, this.xRange])
-            .range([0, this.width]);
+            .domain([0, this.xRange]);
         
         this.xAxis = d3.axisBottom()
-            .tickFormat(d3.timeFormat('%M:%S'))
-            .scale(this.xScale);
+            .tickFormat(d3.timeFormat('%M:%S'));
 
         this.domXAxis = this.mainGroup.append("g")
-            .attr("class", "axis axis-x")
-            .attr("transform", "translate(0," + this.height + ")")
-            .call(this.xAxis);
+            .attr("class", "axis axis-x");
 
         this.yScale = d3.scaleLinear()
-            .domain(this._defaultYRange)
-            .range([this.height, 0]);
+            .domain(this._defaultYRange);
         
         this.yAxis = d3.axisLeft()
-            .tickSize(0)
-            .scale(this.yScale);
+            .tickSize(0);
 
         this.domYAxis = this.mainGroup.append("g")
-            .attr("class", "axis axis-y")
-            .call(this.yAxis);
+            .attr("class", "axis axis-y");
 
         this.currentProfitLine = this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
             .attr('class', 'profit-line');
 
+        this.setSize(this.offsetWidth, this.offsetHeight);
+    }
+
+    setSize(width, height) {
+        this.width = width - this.margin.left - this.margin.right;
+        this.height = height - this.margin.top - this.margin.bottom;
+
+        d3.select(this.$.svg)
+            .attr('width', width)
+            .attr('height', height);
+
+        this.mainGroup
+            .attr('width', this.width)
+            .attr('height', this.height);
+        
+        this.clipPath
+            .attr('width', this.width)
+            .attr('height', this.height);
+
+        this.xScale.range([0, this.width]);
+        this.xAxis.scale(this.xScale);
+        this.domXAxis
+            .attr("transform", "translate(0," + this.height + ")")
+            .call(this.xAxis);
+
+        this.yScale.range([this.height, 0]);
+        this.yAxis.scale(this.yScale);
+        this.domYAxis.call(this.yAxis);
     }
 
     _runningChanged(isRunning) {
@@ -141,9 +160,7 @@ class ProfitGraph extends PolymerElement {
         window.requestAnimationFrame(this._tick.bind(this));
     }
 
-    _tick() {
-        const now = performance.now();
-
+    _tick(now) {
         if (now > this.startTime + this.xRange) {
             this.xScale.domain([now - this.xRange, now]);
             this.xAxis.scale(this.xScale);
