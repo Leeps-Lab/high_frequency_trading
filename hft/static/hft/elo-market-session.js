@@ -24,10 +24,13 @@ class MarketSession extends PolymerElement {
                 /* Custom Color Variables */
                 --my-bid-fill:#FCD997;
                 --my-offer-fill:#99E2FF;
+                /* Change in spread graph.js interpolateRGB */
+                /* Unable to call var(style) within the d3 function */
+                --other-bid-fill:#CC8400;
+                --other-offer-fill:#00719E;
 
                 --bid-line-stroke:#FCD997;
                 --offer-line-stroke:#99E2FF;
-
                 --background-color-white:#FFFFF0;
                 --background-color-blue:#4F759B;
             }
