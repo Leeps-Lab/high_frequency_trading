@@ -9,7 +9,7 @@ class SpreadGraph extends PolymerElement {
                     display: block;
                 }
                 :host #svg{
-                    background-color:#FFFFF0;
+                    background-color:var(--background-color-white);
                 }
                 * {
                     user-select: none;
@@ -22,23 +22,23 @@ class SpreadGraph extends PolymerElement {
                 /* make mbo more saturated than other orders / change bids and asks to blue and orange */
                 .my-bid {
                     stroke-width: 7;
-                    fill: #DCF763;
+                    fill: var(--my-bid-fill);
                     fill-opacity: 0.8;
                 }
 
                 .my-offer {
                     stroke-width: 7;
-                    fill: #B81365;
+                    fill: var(--my-offer-fill);
                     fill-opacity: 0.8;
                 }
 
                 /* make bbo thinner/solid black */
                 .best-bid {
-                    stroke-width: 7;
+                    stroke-width: 5;
                 }
 
                 .best-offer {
-                    stroke-width: 7;
+                    stroke-width: 5;
                 }
 
                 .offer-entered-line, .bid-entered-line {
@@ -47,11 +47,11 @@ class SpreadGraph extends PolymerElement {
                 }
 
                 .offer-entered-line {
-                    stroke: coral;
+                    stroke: var(--offer-line-stroke);
                 }
 
                 .bid-entered-line {
-                    stroke: limegreen;
+                    stroke: var(--bid-line-stroke);
                 }
 
                 .tick text {
@@ -110,11 +110,11 @@ class SpreadGraph extends PolymerElement {
             // the right color is used when a circle contains all bids
             _volumeFillGradient: {
                 type: Object,
-                value: () => d3.interpolateRgb('coral', 'limegreen'),
+                value: () => d3.interpolateRgb('#00719E', '#CC8400'),
             },
             _volumeStrokeGradient: {
                 type: Object,
-                value: () => d3.interpolateRgb('red', 'green'),
+                value: () => d3.interpolateRgb('#00719E', '#CC8400'),
             },
         };
     }
@@ -284,7 +284,7 @@ class SpreadGraph extends PolymerElement {
             .attr('cx', d => this.scale(d.price))
             .attr('class', getClass)
             .style('fill', d => self._volumeFillGradient(d.bidProportion))
-            .style('stroke', d => self._volumeStrokeGradient(d.bidProportion))
+            .style('stroke', 'black')
           .transition()
             .duration(this.animationTime)
             .attr('r', d => Math.sqrt(d.volume) * self.minVolumeRadius);
@@ -295,7 +295,7 @@ class SpreadGraph extends PolymerElement {
             .attr('r', d => Math.sqrt(d.volume) * self.minVolumeRadius)
             .attr('class', getClass)
             .style('fill', d => self._volumeFillGradient(d.bidProportion))
-            .style('stroke', d => self._volumeStrokeGradient(d.bidProportion));
+            .style('stroke', 'black');
     }
 
     drawMyBid(newBid, oldBid) {

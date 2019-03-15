@@ -20,6 +20,16 @@ class MarketSession extends PolymerElement {
             :host{
                 width:100vw;
                 height:100vh;
+
+                /* Custom Color Variables */
+                --my-bid-fill:#FCD997;
+                --my-offer-fill:#99E2FF;
+
+                --bid-line-stroke:#FCD997;
+                --offer-line-stroke:#99E2FF;
+
+                --background-color-white:#FFFFF0;
+                --background-color-blue:#4F759B;
             }
 
             .middle-section-container{
@@ -30,7 +40,7 @@ class MarketSession extends PolymerElement {
                 font-weight: bold;
                 height: 27vh;
                 width: 100vw; 
-                background: #4F759B;
+                background: var(--background-color-blue) ;
                 border-top: 3px solid #ED6A5A;
                 border-bottom: 3px solid #ED6A5A;
             }
