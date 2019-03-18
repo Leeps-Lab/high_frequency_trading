@@ -34,10 +34,10 @@ class HFTPlayerStateRecord(Model):
     target_offer = models.IntegerField(blank=True)
     implied_bid = models.IntegerField(blank=True)
     implied_offer = models.IntegerField(blank=True)
-    slider_a_x = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
-    slider_a_y = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
-    order_imbalance = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
-    reference_price = models.DecimalField(decimal_places=2, max_digits=4, blank=True)
+    slider_a_x = models.FloatField(blank=True)
+    slider_a_y = models.FloatField(blank=True)
+    order_imbalance = models.FloatField(blank=True)
+    reference_price = models.FloatField(blank=True)
 
 
     def from_event_and_player(self, event_dict, player):

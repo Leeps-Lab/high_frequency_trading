@@ -98,7 +98,7 @@ def bid_aggressiveness(b_x, b_y, x, y):
     x: order imbalance
     y: inventory position
     """
-    return - b_x * x + b_y * y
+    return b_x * x - b_y * y
 
 def sell_aggressiveness(a_x, a_y, x, y):
     """
@@ -106,15 +106,15 @@ def sell_aggressiveness(a_x, a_y, x, y):
     x: order imbalance
     y: inventory position
     """
-    return a_x * x - a_y * y
+    return - a_x * x + a_y * y
  
 
 def latent_bid_and_offer(best_bid, best_offer, order_imbalance, inventory, sliders, ticksize=1e4,
         bid_aggressiveness=bid_aggressiveness, sell_aggressiveness=sell_aggressiveness):
     b = bid_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
     a = sell_aggressiveness(sliders.a_x, sliders.a_y, order_imbalance, inventory)
-    latent_bid = best_bid - 0.5 * ticksize * b
-    latent_ask = best_offer + 0.5 * ticksize * a
+    latent_bid = best_bid + 0.5 * ticksize * b
+    latent_ask = best_offer - 0.5 * ticksize * a
     # print('a_x {} : a_y {} : order imbalance {} : inventory {} : latent_bid {} : latent_offer {} : bid agg {} : sell agg {}'.format(
     #     sliders.a_x, sliders.a_y, order_imbalance, inventory, latent_bid, latent_ask, b, a))
     return price_grid(latent_bid), price_grid(latent_ask)

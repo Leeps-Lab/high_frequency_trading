@@ -208,7 +208,8 @@ class ELOMarket(BCSMarket):
                 'order_imbalance': current_order_imbalance, 
                 'trader_ids': maker_ids,
                 'market_id': self.market_id,
-                'subsession_id': self.subsession_id}
+                'subsession_id': self.subsession_id,
+                'buy_sell_indicator': buy_sell_indicator}
             internal_message = format_message('derived_event', **message_content)
             self.outgoing_messages.append(internal_message)
             self.event.broadcast_messages('order_imbalance', model=self, 
