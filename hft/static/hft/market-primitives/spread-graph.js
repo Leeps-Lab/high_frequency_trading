@@ -14,12 +14,7 @@ class SpreadGraph extends PolymerElement {
                 * {
                     user-select: none;
                 }
-
-                .volume {
-                    fill-opacity: 0.8;
-                }
-
-                /* make mbo more saturated than other orders / change bids and asks to blue and orange */
+               
                 .my-bid {
                     stroke-width: 7;
                     fill: var(--my-bid-fill);
@@ -32,7 +27,6 @@ class SpreadGraph extends PolymerElement {
                     fill-opacity: 0.8;
                 }
 
-                /* make bbo thinner/solid black */
                 .best-bid {
                     stroke-width: 5;
                 }
