@@ -35,15 +35,15 @@ class OrderImbalance:
         self.order_imbalance = 0
         self.latest_execution_time = None
 
-    def step(self, execution_price, best_bid, best_offer, buy_sell_indicator, constant=1):
+    def step(self, execution_price, best_bid, best_offer, buy_sell_indicator, constant=0.01):
         now = time.time()
         if self.latest_execution_time is None:
             self.latest_execution_time = now 
         time_since_last_execution = now - self.latest_execution_time
         if execution_price == best_bid:
-            offset = -1 
+            offset = -0.5 
         elif execution_price == best_offer:
-            offset = +1
+            offset = +0.5
         else:
             log.exception('bad execution price: {}: best bid {}: best offer {}'.format(
                 execution_price, best_bid, best_offer))
