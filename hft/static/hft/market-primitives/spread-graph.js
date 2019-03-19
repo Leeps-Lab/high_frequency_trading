@@ -86,12 +86,10 @@ class SpreadGraph extends PolymerElement {
             bestBid: {
                 type: Number,
                 value: 0,
-                observer: 'bestBidOrOfferChanged',
             },
             bestOffer: {
                 type: Number,
                 value: 0,
-                observer: 'bestBidOrOfferChanged',
             },
             animationTime: {
                 type: Number,
@@ -101,9 +99,13 @@ class SpreadGraph extends PolymerElement {
                 type: Number,
                 value: 10,
             },
+            _domainWidth: {
+                type: Number,
+                value: 20,
+            },
             _domain: {
                 type: Array,
-                value: [100, 110],
+                value: [90, 110],
             },
             // these two properties define the color gradients used to color volume circles
             // the left color is the color used when a volume circle contains all offers,
@@ -122,6 +124,7 @@ class SpreadGraph extends PolymerElement {
     static get observers() {
         return [
             'ordersChanged(orders.*)',
+            'bestBidOrOfferChanged(bestBid, bestOffer)',
         ];
     }
 
@@ -138,8 +141,6 @@ class SpreadGraph extends PolymerElement {
             this.drawMyBid(this.myBid, this.myBid);
             this.drawMyOffer(this.myOffer, this.myOffer);
         });
-
-        this._min_domain_size = this._domain[1] - this._domain[0];
 
         this.init();
 
@@ -211,7 +212,6 @@ class SpreadGraph extends PolymerElement {
     ordersChanged() {
         const orders = this.get('orders');
 
-        this.updateDomain(orders);
         this.updateScale();        
         this.redrawOrderCircles(orders);
 
@@ -219,7 +219,10 @@ class SpreadGraph extends PolymerElement {
         this.drawMyOffer(this.myOffer, this.myOffer);
     }
 
-    bestBidOrOfferChanged() {
+    bestBidOrOfferChanged(bestBid, bestOffer) {
+        this.updateDomain(bestBid, bestOffer);
+        this.updateScale();
+
         const orders = this.get('orders');
         this.redrawOrderCircles(orders);
     }
@@ -355,51 +358,41 @@ class SpreadGraph extends PolymerElement {
         }
     }
 
-    updateDomain(orders) {
+    updateDomain(bestBid, bestOffer) {
         if (!this.mainGroup) {
             return;
         }
 
-        const prices = d3.keys(orders._bidPriceSlots)
-            .concat(d3.keys(orders._offerPriceSlots))
-            .map(e => parseFloat(e));
-        
-        if (!prices.length) {
+        // if both best bid and best offer don't exist
+        if (bestBid == 0 && bestOffer >= 100000) {
             return;
         }
 
-        /* 
-        
-        add a min and max screen width
-        center screen around average of bbo, only move when bbo center gets to 80% extreme
-        
-        
-        */
-
-        const min = d3.min(prices);
-        const max = d3.max(prices);
-
-        // if all prices are contained within the current domain and
-        // the price spread takes up at least half of the domain
-        // don't change the domain
-        if ( (min > this._domain[0] && max < this._domain[1]) &&
-             (max - min > (this._domain[1] - this._domain[0]) / 2) ) {
-            return;
+        let center;
+        // if best bid exists and best offer doesn't
+        if (bestBid == 0 && bestOffer < 100000) {
+            center = bestOffer;
         }
-
-        // if the price spread is less than the min domain size
-        // set domain size to min and center it around avg of max and min
-        if (max - min < this._min_domain_size) {
-            const center = (max + min) / 2;
-            this._domain = [
-                center - this._min_domain_size / 2,
-                center + this._min_domain_size / 2
-            ]
+        // if best offer exists and best offer doesn't
+        else if (bestBid > 0 && bestOffer >= 100000) {
+            center = bestBid;
         }
-        // otherwise fit domain to max and min of data
+        // if both best bid and best offer exist
         else {
-            this._domain = [min, max];
+            center = (bestBid + bestOffer) / 2;
         }
+
+        // if bbo center is contained within the center 80% of current domain, don't change domain
+        if (center > this._domain[0] + this._domainWidth*0.1 &&
+            center < this._domain[1] - this._domainWidth*0.1) {
+                return;
+        }
+
+        this._domain = [
+            center - this._domainWidth*0.5,
+            center + this._domainWidth*0.5,
+        ];
+
     }
 
     updateScale() {
