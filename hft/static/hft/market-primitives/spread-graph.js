@@ -384,8 +384,8 @@ class SpreadGraph extends PolymerElement {
         }
 
         // if bbo center is contained within the center 80% of current domain, don't change domain
-        if (center > this._domain[0] + this._domainWidth*0.1 &&
-            center < this._domain[1] - this._domainWidth*0.1) {
+        if (center > this._domain[0] + this._domainWidth*0.2 &&
+            center < this._domain[1] - this._domainWidth*0.2) {
                 return;
         }
 
