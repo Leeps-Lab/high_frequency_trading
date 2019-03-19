@@ -68,7 +68,7 @@ class SpreadGraph extends PolymerElement {
         return {
             margin: {
                 type: Object,
-                value: {top: 40, left: 10, right: 10, bottom: 40},
+                value: {top: 40, left: 15, right: 15, bottom: 40},
             },
             orders: {
                 type: Object,
@@ -179,7 +179,8 @@ class SpreadGraph extends PolymerElement {
         this.scale = d3.scaleLinear()
             .domain(this._domain);
         
-        this.xAxis = d3.axisBottom();
+        this.xAxis = d3.axisBottom()
+            .ticks(this._domainWidth);
 
         this.domXAxis = this.mainGroup.append("g")
             .attr("class", "axis");
