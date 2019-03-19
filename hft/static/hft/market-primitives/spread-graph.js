@@ -62,7 +62,7 @@ class SpreadGraph extends PolymerElement {
         return {
             margin: {
                 type: Object,
-                value: {top: 40, left: 10, right: 10, bottom: 40},
+                value: {top: 40, left: 15, right: 15, bottom: 40},
             },
             orders: {
                 type: Object,
@@ -173,7 +173,8 @@ class SpreadGraph extends PolymerElement {
         this.scale = d3.scaleLinear()
             .domain(this._domain);
         
-        this.xAxis = d3.axisBottom();
+        this.xAxis = d3.axisBottom()
+            .ticks(this._domainWidth);
 
         this.domXAxis = this.mainGroup.append("g")
             .attr("class", "axis");
@@ -377,8 +378,8 @@ class SpreadGraph extends PolymerElement {
         }
 
         // if bbo center is contained within the center 80% of current domain, don't change domain
-        if (center > this._domain[0] + this._domainWidth*0.1 &&
-            center < this._domain[1] - this._domainWidth*0.1) {
+        if (center > this._domain[0] + this._domainWidth*0.2 &&
+            center < this._domain[1] - this._domainWidth*0.2) {
                 return;
         }
 
