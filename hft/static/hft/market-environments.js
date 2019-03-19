@@ -8,7 +8,8 @@ const ELO = {
                 price: parseInt,
                 player_id: String,
                 market_id: parseInt,
-                buy_sell_indicator: String
+                buy_sell_indicator: String,
+                time_in_force: parseInt
             },
             executed: {
                 type: String,
@@ -118,7 +119,7 @@ const ELO = {
     },
     sliderProperties: {
         minValue: 0,
-        maxValue: 10,
+        maxValue: 4,
         stepSize: 0.1
     }
 

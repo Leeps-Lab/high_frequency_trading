@@ -8,33 +8,31 @@ class SpreadGraph extends PolymerElement {
                 :host {
                     display: block;
                 }
-
+                :host #svg{
+                    background-color:var(--background-color-white);
+                }
                 * {
                     user-select: none;
                 }
-
-                .volume {
-                    fill-opacity: 0.8;
-                }
-
+               
                 .my-bid {
                     stroke-width: 7;
-                    fill: #DCF763;
+                    fill: var(--my-bid-fill);
                     fill-opacity: 0.8;
                 }
 
                 .my-offer {
                     stroke-width: 7;
-                    fill: #B81365;
+                    fill: var(--my-offer-fill);
                     fill-opacity: 0.8;
                 }
 
                 .best-bid {
-                    stroke-width: 7;
+                    stroke-width: 5;
                 }
 
                 .best-offer {
-                    stroke-width: 7;
+                    stroke-width: 5;
                 }
 
                 .offer-entered-line, .bid-entered-line {
@@ -43,11 +41,11 @@ class SpreadGraph extends PolymerElement {
                 }
 
                 .offer-entered-line {
-                    stroke: coral;
+                    stroke: var(--offer-line-stroke);
                 }
 
                 .bid-entered-line {
-                    stroke: limegreen;
+                    stroke: var(--bid-line-stroke);
                 }
 
                 .tick text {
@@ -56,7 +54,6 @@ class SpreadGraph extends PolymerElement {
                     font-weight: bold;
                 }
             </style>
-            
             <svg id="svg"></svg>
         `;
     }
@@ -107,11 +104,11 @@ class SpreadGraph extends PolymerElement {
             // the right color is used when a circle contains all bids
             _volumeFillGradient: {
                 type: Object,
-                value: () => d3.interpolateRgb('coral', 'limegreen'),
+                value: () => d3.interpolateRgb('#00719E', '#CC8400'),
             },
             _volumeStrokeGradient: {
                 type: Object,
-                value: () => d3.interpolateRgb('red', 'green'),
+                value: () => d3.interpolateRgb('#00719E', '#CC8400'),
             },
         };
     }
@@ -125,8 +122,16 @@ class SpreadGraph extends PolymerElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.width = this.offsetWidth - this.margin.left - this.margin.right;
-        this.height = this.offsetHeight - this.margin.top - this.margin.bottom;
+        window.addEventListener('resize', e => {
+            this.setSize(this.offsetWidth, this.offsetHeight);
+
+            const orders = this.get('orders');
+            if (orders) {
+                this.redrawOrderCircles(orders);
+            }
+            this.drawMyBid(this.myBid, this.myBid);
+            this.drawMyOffer(this.myOffer, this.myOffer);
+        });
 
         this._min_domain_size = this._domain[1] - this._domain[0];
 
@@ -140,16 +145,14 @@ class SpreadGraph extends PolymerElement {
 
     init() {
         this.$.svg.addEventListener('click', e => {
-            this.enterOrder(e.offsetX - this.margin.left, 'S');
+            this.enterOrder(e.offsetX - this.margin.left, 'B');
         });
         this.$.svg.addEventListener('contextmenu', e => {
             e.preventDefault();
-            this.enterOrder(e.offsetX - this.margin.left, 'B');
+            this.enterOrder(e.offsetX - this.margin.left, 'S');
         });
 
         this.mainGroup = d3.select(this.$.svg)
-            .attr('width', this.offsetWidth)
-            .attr('height', this.offsetHeight)
           .append('g')
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
         
@@ -159,25 +162,42 @@ class SpreadGraph extends PolymerElement {
         const mboGroup = this.mainGroup.append('g');
         this.myBidCircle = mboGroup.append('circle')
             .attr('class', 'my-bid')
-            .attr('cy', this.height / 2)
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
         this.myOfferCircle = mboGroup.append('circle')
             .attr('class', 'my-offer')
-            .attr('cy', this.height / 2)
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
         
         this.scale = d3.scaleLinear()
-            .domain(this._domain)
-            .range([0, this.width]);
+            .domain(this._domain);
         
-        this.xAxis = d3.axisBottom()
+        this.xAxis = d3.axisBottom();
+
+        this.domXAxis = this.mainGroup.append("g")
+            .attr("class", "axis");
+
+        this.setSize(this.offsetWidth, this.offsetHeight);
+    }
+
+    setSize(width, height) {
+        this.width = width - this.margin.left - this.margin.right;
+        this.height = height - this.margin.top - this.margin.bottom;
+
+        d3.select(this.$.svg)
+            .attr('width', width)
+            .attr('height', height);
+
+        this.myBidCircle.attr('cy', this.height / 2);
+        this.myOfferCircle.attr('cy', this.height / 2);
+
+        this.scale.range([0, this.width]);
+
+        this.xAxis
             .tickSize(this.height / 4)
             .scale(this.scale);
 
-        this.domXAxis = this.mainGroup.append("g")
-            .attr("class", "axis")
+        this.domXAxis
             .attr("transform", "translate(0," + this.height / 2 + ")")
             .call(this.xAxis);
     }
@@ -258,7 +278,7 @@ class SpreadGraph extends PolymerElement {
             .attr('cx', d => this.scale(d.price))
             .attr('class', getClass)
             .style('fill', d => self._volumeFillGradient(d.bidProportion))
-            .style('stroke', d => self._volumeStrokeGradient(d.bidProportion))
+            .style('stroke', 'black')
           .transition()
             .duration(this.animationTime)
             .attr('r', d => Math.sqrt(d.volume) * self.minVolumeRadius);
@@ -269,7 +289,7 @@ class SpreadGraph extends PolymerElement {
             .attr('r', d => Math.sqrt(d.volume) * self.minVolumeRadius)
             .attr('class', getClass)
             .style('fill', d => self._volumeFillGradient(d.bidProportion))
-            .style('stroke', d => self._volumeStrokeGradient(d.bidProportion));
+            .style('stroke', 'black');
     }
 
     drawMyBid(newBid, oldBid) {
@@ -341,6 +361,14 @@ class SpreadGraph extends PolymerElement {
         if (!prices.length) {
             return;
         }
+
+        /* 
+        
+        add a min and max screen width
+        center screen around average of bbo, only move when bbo center gets to 80% extreme
+        
+        
+        */
 
         const min = d3.min(prices);
         const max = d3.max(prices);

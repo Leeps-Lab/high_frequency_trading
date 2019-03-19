@@ -61,8 +61,6 @@ class OrderImbalance:
 class ReferencePrice:
 
     def __init__(self, discount_constant):
-        self.denominator = 0
-        self.sum_weights = 0
         self.discount_constant = discount_constant
         self.reference_price = 0
         self.session_start = None
@@ -79,16 +77,10 @@ class ReferencePrice:
 
     def step(self, price):
         time_elapsed_since_session_start = time.time() - self.session_start
-        numerator = math.e ** (
+        weight_for_price = math.e ** (
             (time_elapsed_since_session_start - self.session_duration) * self.discount_rate
         )
-        self.denominator += numerator
-        weight_for_price = numerator / self.denominator
         new_reference_price = int((price * weight_for_price) + ((1 - weight_for_price) * self.reference_price))
-  #      self.sum_weights += weight_for_price
-        print('time elapsed: {}, numera: {}, denum {}, reference price: {}, price: {}, weight_for_price: {}, current ref p: {}, sum weight: {}'.format(
-            time_elapsed_since_session_start, numerator, self.denominator, new_reference_price, 
-            price, weight_for_price, self.reference_price, self.sum_weights))
         self.reference_price = price_grid(new_reference_price)
         return new_reference_price
 

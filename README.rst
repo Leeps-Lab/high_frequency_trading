@@ -36,9 +36,12 @@ Similarly, can download and install `Postgres here`_.
 We were able to run a couple of successful tests using SQLite (the default development
 database for otree) instead of Postgres.
 
+**Easy install**:
+See the `vagrant based setup`_.
+
+**OR**
 
 **Step-by-step tutorial to run a simple test**
-
 
 0. Open four terminals. 
 
@@ -167,3 +170,4 @@ In production mode, you should run each of these as a 'service'. The method abov
 .. _Redis here: https://redis.io/download#installation
 .. _Postgres here: https://www.postgresql.org/download/
 .. _localhost: http://localhost:8000
+.. _vagrant based setup: https://github.com/Leeps-Lab/high_frequency_trading/blob/master/vagrant/README.md

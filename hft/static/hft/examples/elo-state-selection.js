@@ -63,7 +63,7 @@ class StateSelection extends PolymerElement {
             }
 
         </style>
-           
+        
              <div class = "state-container">
 
                 <div id="first-column" class="column-container" >

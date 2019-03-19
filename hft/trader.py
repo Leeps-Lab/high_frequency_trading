@@ -103,7 +103,7 @@ class BCSTrader(BaseTrader):
         'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
         'E': 'executed', 'fundamental_value_jumps': 'jump', 'slider_change': 'slider_change',
         'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change', 
-        'market_end': 'close_session'}
+        'market_end': 'close_session', 'reference_price_change': 'reference_price_update'}
     
     cost_fields = ('technology_cost',)
 
@@ -192,8 +192,9 @@ class BCSTrader(BaseTrader):
         order_token = kwargs['order_token']
         price = kwargs['price']
         buy_sell_indicator = kwargs['buy_sell_indicator']
+        time_in_force = kwargs['time_in_force']
         self.event.broadcast_messages('confirmed', order_token=order_token,
-            price=price, buy_sell_indicator=buy_sell_indicator, 
+            price=price, buy_sell_indicator=buy_sell_indicator, time_in_force=time_in_force,
             player_id=self.id, model=self)
 
     def replaced(self, **kwargs):
@@ -511,7 +512,8 @@ class ELOMaker(ELOTrader):
         sells = deque()
         if target_offer is not None and self.wait_for_best_offer is False:
             sell_orders = self.orderstore.all_orders('S')
-            assert len(sell_orders) <= 1, 'more than one sell order in market: %s' % self.orderstore
+            if len(sell_orders) > 1:
+                log.warning('multiple sell orders in market: %s:%s' % (self.orderstore, sell_orders))
             if sell_orders:
                 for o in sell_orders:
                     token = o['order_token']
@@ -520,7 +522,7 @@ class ELOMaker(ELOTrader):
                     if target_offer != order_price and target_offer != replace_price:
                         order_info = self.orderstore.register_replace(token, target_offer)
                         sell_message = self.exchange_message_from_order_info(order_info, 
-                        delay, 'replace')
+                            delay, 'replace')
                         sells.append(sell_message)
                 self.target_offer = target_offer
             else:
@@ -530,7 +532,8 @@ class ELOMaker(ELOTrader):
         buys = deque()
         if target_bid is not None and self.wait_for_best_bid is False:
             buy_orders = self.orderstore.all_orders('B')
-            assert len(buy_orders) <= 1, 'more than one buy order in market: %s' % self.orderstore
+            if len(buy_orders) > 1:
+                log.warning('multiple buy orders in market: %s:%s' % (self.orderstore, buy_orders))
             if buy_orders:
                 for o in buy_orders:
                     token = o['order_token']
@@ -589,13 +592,11 @@ class ELOTaker(ELOMaker):
         best_bid, best_offer, implied_bid, implied_offer, volume_at_best_bid, volume_at_best_offer):
         bid = None
         if best_bid > MIN_BID and implied_bid > best_offer:
-            if implied_bid != current_bid:
-                bid = implied_bid
+            bid = implied_bid
 
         offer = None      
         if  best_offer < MAX_ASK  and implied_offer < best_bid:
-            if implied_offer != current_offer:
-                offer = implied_offer
+            offer = implied_offer
         return (bid, offer)
 
     def latent_quote_update(self, *args, **kwargs):

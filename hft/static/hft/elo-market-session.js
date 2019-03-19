@@ -20,6 +20,19 @@ class MarketSession extends PolymerElement {
             :host{
                 width:100vw;
                 height:100vh;
+
+                /* Custom Color Variables */
+                --my-bid-fill:#FAFF7F;
+                --my-offer-fill:#41EAD4;
+                /* Change in spread graph.js interpolateRGB */
+                /* Unable to call var(style) within the d3 function */
+                --other-bid-fill:#CC8400;
+                --other-offer-fill:#00719E;
+
+                --bid-line-stroke:#FCD997;
+                --offer-line-stroke:#99E2FF;
+                --background-color-white:#FFFFF0;
+                --background-color-blue:#4F759B;
             }
 
             .middle-section-container{
@@ -30,7 +43,7 @@ class MarketSession extends PolymerElement {
                 font-weight: bold;
                 height: 27vh;
                 width: 100vw; 
-                background: #4F759B;
+                background: var(--background-color-blue) ;
                 border-top: 3px solid #ED6A5A;
                 border-bottom: 3px solid #ED6A5A;
             }
@@ -53,6 +66,11 @@ class MarketSession extends PolymerElement {
             spread-graph {
                 width: 100%;
                 height: 200px;
+                cursor:pointer;
+            }
+            .graph-disabled  {
+                cursor:not-allowed;
+                pointer-events:none;
             }
 
             // overlay styling and animation
@@ -84,7 +102,7 @@ class MarketSession extends PolymerElement {
                 unit-size={{speedUnitCost}}> </stepwise-calculator>
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
-                <spread-graph orders={{orderBook}} my-bid={{myBid}} 
+                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' orders={{orderBook}} my-bid={{myBid}} 
                     my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
                 <div class="middle-section-container">       
                     <elo-info-table inventory={{inventory}}
@@ -171,7 +189,8 @@ class MarketSession extends PolymerElement {
         super();
 
         this.orderBook = new PlayersOrderBook(this.playerId, this, 'orderBook');
-
+        //Starting Role
+        this.role = 'out';
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
     }
@@ -241,7 +260,6 @@ class MarketSession extends PolymerElement {
         }
 
     }
-
     _handleSystemEvent(message) {
         if (message.code == 'S') {
             this.isSessionActive = true
@@ -251,12 +269,10 @@ class MarketSession extends PolymerElement {
     _handleSpeedConfirm(message){
         if (message.player_id == this.playerId) {
             this.subscribesSpeed = message.value
-            console.log('run forever in handle speed', this.subscribesSpeed)
         }  
     }
 
     _handleReferencePrice(message) {
-        console.log('handling reference price change ', message)
         this.referencePrice = message.price
     }
 
@@ -289,6 +305,9 @@ class MarketSession extends PolymerElement {
 
     _activeSession(isActive){
         return (isActive == true) ? 'session-on' : 'session-off';
+    }
+    _isSpreadGraphDisabled(playerRole){
+        return (playerRole == 'manual') ? '' : 'graph-disabled';
     }
 
     _msgSanitize (messagePayload, direction) {
@@ -326,7 +345,6 @@ class MarketSession extends PolymerElement {
     _calculateCost(speedCost) {
         // we should revisit this rounding issue
         // in general we want to integers
-        console.log('rolling speed cost: ', Math.round(speedCost))
         return Math.round(speedCost)
     }
 
@@ -336,7 +354,6 @@ class MarketSession extends PolymerElement {
 
     _calculateWealth(cash, totalCost, referencePrice, inventory) {
         const out = Math.round(cash - totalCost + referencePrice * inventory) 
-        console.log('wealth changed to: ', out, ' input', cash, totalCost, referencePrice, inventory)
         return out
     }
 

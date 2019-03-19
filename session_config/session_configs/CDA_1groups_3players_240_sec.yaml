@@ -1,9 +1,9 @@
 demo:
-  number-of-participants: 3
+  number-of-participants: 5
 
 group:
   number-of-groups: 1
-  players-per-group: 3
+  players-per-group: 5
 
 exogenous-events:
   investor-arrivals:

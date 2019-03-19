@@ -1,0 +1,15 @@
+[Unit]
+Description=oTree Experiment Server
+After=redis.service
+
+[Service]
+Environment=OTREE_PRODUCTION=1
+Environment=DATABASE_URL=postgres://otree_user:mydbpassword@localhost/django_db
+Environment=PATH=/opt/venv/bin:$PATH
+WorkingDirectory=/opt/high_frequency_trading
+ExecStart=/opt/venv/bin/otree run_huey
+ExecStop=/bin/kill -INT $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
