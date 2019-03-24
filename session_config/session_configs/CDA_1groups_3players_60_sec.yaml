@@ -1,8 +1,8 @@
 demo:
-  number-of-participants: 3
+  number-of-participants: 6
 
 group:
-  number-of-groups: 1
+  number-of-groups: 2
   players-per-group: 3
 
 exogenous-events:
@@ -14,7 +14,7 @@ exogenous-events:
 market:
   auction-format: 'CDA'
   matching-engine-host: '127.0.0.1'
-  number-of-markets: 1
+  number-of-markets: 2
 
 parameters:
   batch-length: 0

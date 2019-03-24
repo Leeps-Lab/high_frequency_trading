@@ -83,7 +83,6 @@ class TradeSession:
     def stop_exogenous_events(clients):
         for _, process in clients.items():
             process.kill()
-            print('kill', process)
 
         
 class LEEPSTradeSession(TradeSession):

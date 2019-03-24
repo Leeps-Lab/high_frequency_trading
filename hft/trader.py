@@ -471,21 +471,11 @@ class ELOMaker(ELOTrader):
             best_bid_except_me = self.next_bid
         if self.best_offer == self.target_offer and self.volume_at_best_offer == 1:
             best_offer_except_me = self.next_offer
-        # print('\n\n\n')
-        # print('best bid {} vol {} : best offer {} vol {}'.format(self.best_bid, self.volume_at_best_bid,
-        #     self.best_offer, self.volume_at_best_offer))
-        # print('next bid {} : next offer {}'.format(self.next_bid, self.next_offer))
-        # print('best bid except me {} : best offer except me {}'.format(best_bid_except_me, best_offer_except_me))
         self.implied_bid, self.implied_offer = latent_quote_formula(best_bid_except_me, best_offer_except_me, 
             self.order_imbalance, self.orderstore.inventory, self.sliders)
-        # print('implied bid {self.implied_bid} : implied offer {self.implied_offer}'.format(self=self))
-        # print('current bid {self.target_bid} : current offer {self.target_offer}'.format(self=self))
         bid, offer = self.enter_rule(self.target_bid, self.target_offer, best_bid_except_me, 
             best_offer_except_me, self.best_bid, self.best_offer, self.implied_bid, self.implied_offer, self.volume_at_best_bid, 
             self.volume_at_best_offer)
-        log.info('id: {} : bb: {} : vb: {} bbm {} : bo {} : vo {} : bom {} : bid {} : offer {}'.format(self.id, 
-            self.best_bid, self.volume_at_best_bid, best_bid_except_me , self.best_offer, 
-            self.volume_at_best_offer, best_offer_except_me, bid, offer))
 
         start_from = 'B'
         if bid and offer:

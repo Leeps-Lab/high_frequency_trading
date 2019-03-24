@@ -67,6 +67,15 @@ class Subsession(BaseSubsession):
             self.session.config = utility.scale_configs(session_format, 
                 self.session.config)
             self.session.vars['trade_sessions'] = {} 
+            # set groups as suggested in oTree docs.
+            group_matrix = []
+            players = self.get_players()
+            ppg = self.session.config['players_per_group']
+            for i in range(0, len(players), ppg):
+                group_matrix.append(players[i:i+ppg])
+            self.set_group_matrix(group_matrix)
+        else:
+            self.group_like_round(1)
         session_configs = self.session.config
         session_format = session_configs['environment']
         trade_session = create_trade_session(self, session_format)
