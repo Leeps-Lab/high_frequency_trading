@@ -2,7 +2,6 @@
 import logging
 from collections import deque
 import itertools
-import math
 from .subject_state import SubjectStateFactory
 from .orderstore import OrderStore
 from .utility import format_message, MIN_BID, MAX_ASK
@@ -10,6 +9,8 @@ from .cache import initialize_player_cache
 from .equations import OrderImbalance, ReferencePrice
 from .market_components.market_role import MarketRoleGroup
 from .utility import nanoseconds_since_midnight
+from datetime import datetime
+from django.utils.timezone import utc
 log = logging.getLogger(__name__)
 
 class MarketFactory:
@@ -29,15 +30,18 @@ class BaseMarket:
     session_format = None
     tag_all_events_with = ()
 
-    def __init__(self, id_in_subsession, subsession_id, exchange_host, exchange_port, **kwargs):
+    def __init__(self, group_id, id_in_subsession, subsession_id, exchange_host, exchange_port, **kwargs):
+        self.market_id = str(group_id)
         self.id_in_subsession = id_in_subsession
         self.subsession_id = subsession_id
         self.exchange_address = (exchange_host, exchange_port)
-        self.market_id = str(next(self._ids))
         self.is_trading = False
         self.ready_to_trade= False
         self.subscribers = {}
         self.players_in_market = {}
+
+        self.session_start = None
+        self.session_end = None
 
         self.attachments_for_observers = {}
         self.outgoing_messages = deque()
@@ -85,10 +89,12 @@ class BaseMarket:
             else:
                 self.is_trading = True
                 self.event.broadcast_messages('system_event', model=self, code='S')
+        self.session_start = datetime.utcnow().replace(tzinfo=utc)
 
     def end_trade(self, *args, **kwargs):
         if self.is_trading:
             self.is_trading = False
+        self.session_end = datetime.utcnow().replace(tzinfo=utc)
 
 class BCSMarket(BaseMarket):
     market_events_dispatch = {
@@ -105,9 +111,6 @@ class BCSMarket(BaseMarket):
         super().__init__(*args, **kwargs)
         for key in kwargs.keys():
             setattr(self, key, kwargs.get(key))
-        self.roles = ('maker', 'sniper', 'out')
-        self.role_counts = {role: 0 for role in self.roles}
-        self.investor = None
 
     def player_ready(self, **kwargs):
         player_id = int(kwargs.get('player_id'))
@@ -154,10 +157,11 @@ class ELOMarket(BCSMarket):
         'Q': 'bbo_change'
     }
     tag_all_events_with = ('best_bid', 'best_offer', 'volume_at_best_bid', 
-        'volume_at_best_offer', 'order_imbalance', 'reference_price.reference_price', 'tax_rate',
-        'next_bid', 'next_offer')
+        'volume_at_best_offer', 'order_imbalance.order_imbalance', 'reference_price.reference_price', 'tax_rate',
+        'next_bid', 'next_offer', 'session_start', 'session_end')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, reference_price_constant=1, imbalance_constant=1,
+            tax_rate=0, **kwargs):
         super().__init__(*args, **kwargs)
         self.session_format = 'elo'
         self.best_bid = min_bid
@@ -166,15 +170,24 @@ class ELOMarket(BCSMarket):
         self.best_offer = max_ask
         self.next_offer= max_ask
         self.volume_at_best_offer = 0
-        self.order_imbalance = 0
-        self.reference_price = ReferencePrice(math.log(2))
-        self.tax_rate = 0.1
+        self.order_imbalance = OrderImbalance(imbalance_constant)
+        self.reference_price = ReferencePrice(reference_price_constant)
+        self.tax_rate = tax_rate
         self.role_group = MarketRoleGroup('manual', 'maker', 'taker', 'out')
     
     def start_trade(self, *args, **kwargs):
         super().start_trade(*args, **kwargs)
         session_duration = kwargs['session_length']
         self.reference_price.start(session_duration=session_duration)
+        self.order_imbalance.start()
+        for pid in self.players_in_market.keys():
+            self.role_group.update(nanoseconds_since_midnight(), pid, 'out')
+
+    def end_trade(self, *args, **kwargs):
+        super().end_trade(*args, **kwargs)
+        for pid in self.players_in_market.keys():
+            self.role_group.update(nanoseconds_since_midnight(), pid, 'out')
+
 
     def role_change(self, *args, **kwargs):
         player_id = kwargs['player_id']
@@ -194,18 +207,18 @@ class ELOMarket(BCSMarket):
         internal_message = format_message('derived_event', **message_content)
         self.outgoing_messages.append(internal_message)
     
-    def order_imbalance_change(self, order_imbalance=OrderImbalance(), **kwargs):
+    def order_imbalance_change(self, **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
         execution_price = kwargs['execution_price']
-        current_order_imbalance = order_imbalance.step(execution_price, self.best_bid, 
+        current_order_imbalance = self.order_imbalance.order_imbalance
+        new_order_imbalance = self.order_imbalance.step(execution_price, self.best_bid, 
             self.best_offer, buy_sell_indicator)
-        if current_order_imbalance != self.order_imbalance:
-            current_order_imbalance = round(current_order_imbalance, 2)
-            self.order_imbalance = current_order_imbalance
+        if new_order_imbalance != self.order_imbalance:
+            new_order_imbalance = round(new_order_imbalance, 2)
             maker_ids = self.role_group['maker', 'taker']
             message_content = {
                 'type':'order_imbalance_change', 
-                'order_imbalance': current_order_imbalance, 
+                'order_imbalance': new_order_imbalance, 
                 'trader_ids': maker_ids,
                 'market_id': self.market_id,
                 'subsession_id': self.subsession_id,
@@ -213,7 +226,7 @@ class ELOMarket(BCSMarket):
             internal_message = format_message('derived_event', **message_content)
             self.outgoing_messages.append(internal_message)
             self.event.broadcast_messages('order_imbalance', model=self, 
-                value=current_order_imbalance)
+                value=new_order_imbalance)
         
     def bbo_change(self, **kwargs):
         self.volume_at_best_bid = kwargs['volume_at_best_bid']
@@ -221,7 +234,7 @@ class ELOMarket(BCSMarket):
         self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
         self.next_bid, self.next_offer = kwargs['next_bid'], kwargs['next_ask']
         maker_ids = self.role_group['maker', 'taker']
-        message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance, 
+        message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance.order_imbalance, 
             'market_id': self.market_id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
             'trader_ids': maker_ids, 'volume_at_best_bid': self.volume_at_best_bid,
             'volume_at_best_offer': self.volume_at_best_offer, 'next_bid': self.next_bid,

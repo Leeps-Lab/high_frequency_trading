@@ -52,11 +52,11 @@ class TradeSession:
     def stop_trade_session(self):
         raise NotImplementedError()
 
-    def create_market(self, exchange_host, exchange_port):
+    def create_market(self, group_id, exchange_host, exchange_port, **kwargs):
         market_id_in_trade_session = str(next(self.market_count))
         market_cls = self.market_factory.get_market(self.session_format)
-        market = market_cls(market_id_in_trade_session, self.subsession_id, 
-            exchange_host, exchange_port)
+        market = market_cls(group_id, market_id_in_trade_session, self.subsession_id, 
+            exchange_host, exchange_port, **kwargs)
         self.market_state[market.market_id] = False
         self.market_exchange_pairs[market.market_id] = (exchange_host, exchange_port)
         return market
@@ -83,6 +83,7 @@ class TradeSession:
     def stop_exogenous_events(clients):
         for _, process in clients.items():
             process.kill()
+            print('kill', process)
 
         
 class LEEPSTradeSession(TradeSession):
@@ -130,6 +131,6 @@ class LEEPSTradeSession(TradeSession):
                 self.stop_exogenous_events(clients=clients)
                 self.subsession.session.advance_last_place_participants()
                 self.is_trading = False
-        except:
+        except Exception:
             log.exception('session end procedure failed')
         

@@ -1,9 +1,9 @@
 demo:
-  number-of-participants: 3
+  number-of-participants: 5
 
 group:
   number-of-groups: 1
-  players-per-group: 3
+  players-per-group: 5
 
 exogenous-events:
   investor-arrivals:
@@ -14,16 +14,16 @@ exogenous-events:
 market:
   auction-format: 'CDA'
   matching-engine-host: '127.0.0.1'
-  number-of-markets: 1
 
 parameters:
-  batch-length: 0
-  fundamental-price: 100
   initial-endowment: 10000
   initial-spread: 1
   max-spread: 2
-  period-length: 60
+  period-length: 10
   technology-unit-cost: 0.022  # $/s
+  reference-price-discount-constant: 0.7
+  imbalance-discount-rate: 0.01
+  tax-rate: 0.1
   grid-size: 1
 
 session:
@@ -34,5 +34,5 @@ session:
   num-rounds: 3
   participation-fee: 4
   random-round-payment: off
-  session-name: ELO_Development_Session_3_rounds_1_market
+  session-name: ELO_Development_Session_3_rounds_1_market_10_sec
   exogenous-event-directory: Pilot

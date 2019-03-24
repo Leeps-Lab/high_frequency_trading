@@ -72,12 +72,13 @@ class Subsession(BaseSubsession):
         trade_session = create_trade_session(self, session_format)
         self.session.vars['trade_sessions'][self.id] = trade_session.subsession_id
         exchange_format = session_configs['auction_format']
-        exchange_host = session_configs['exchange_host']
+        exchange_host = session_configs['matching_engine_host']
         all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         market_id_map = {}
         for group in self.get_groups():
             exchange_port = all_exchange_ports[exchange_format].pop()
-            market = trade_session.create_market(exchange_host, exchange_port)
+            market = trade_session.create_market(group.id, exchange_host, exchange_port,
+                **session_configs)
             for player in group.get_players():
                 market.register_player(group.id, player.id)
                 player.configure_for_trade_session(exchange_host, exchange_port, 
@@ -89,7 +90,7 @@ class Subsession(BaseSubsession):
             market_id_map[market.id_in_subsession] = market.market_id
             if 'investor_arrivals' in trade_session.exogenous_events.keys():
                 investor = InvestorFactory.get_investor(session_format, market.subsession_id,
-                    market.market_id, exchange_host, exchange_port)
+                    market.market_id, market.id_in_subsession, exchange_host, exchange_port)
                 initialize_investor_cache(investor)
         set_market_id_map(trade_session.subsession_id, market_id_map)
         self.configure_for_trade_session(session_format)

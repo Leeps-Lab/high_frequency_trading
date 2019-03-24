@@ -21,14 +21,10 @@ elo = market_environment(
         #   key in configs: attribute on model
             'period_length': 'round_length',
             'auction_format': 'design',
-            'batch_length': 'batch_length',
         },
         'player': {
-            'fundamental_price': 'fp',
-            'initial_spread': 'spread',
             'initial_endowment': 'cash',
             'technology_unit_cost': 'technology_unit_cost',
-            'max_spread': 'max_spread',
             'auction_format': 'design',
         }
     })

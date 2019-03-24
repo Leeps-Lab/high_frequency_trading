@@ -3,6 +3,12 @@ from otree.db.models import Model, ForeignKey
 import datetime
 import os
 import csv
+import json
+import logging
+from .cache import get_cache_key
+from django.core.cache import cache
+
+log = logging.getLogger(__name__)
 
 recorded_player_fields = ('wealth', 'cash', 'technology_cost', 'role', 
     'market_id', 'speed_on', 'time_on_speed', 'inventory', 'bid', 
@@ -39,7 +45,6 @@ class HFTPlayerStateRecord(Model):
     order_imbalance = models.FloatField(blank=True)
     reference_price = models.FloatField(blank=True)
 
-
     def from_event_and_player(self, event_dict, player):
         for field in recorded_player_fields:
             setattr(self, field, getattr(player, field))  
@@ -48,6 +53,96 @@ class HFTPlayerStateRecord(Model):
         self.event_no = int(event_dict['reference_no'])
         self.subsession_id = str(event_dict['subsession_id'])
         return self
+
+class HFTPlayerSessionSummary(Model):
+    subsession_id = models.StringField()
+    player_id = models.IntegerField()
+    market_id = models.StringField()
+    imbalance_sensitivity = models.FloatField()
+    inventory_sensitivity = models.FloatField()
+    time_as_maker = models.FloatField()
+    time_as_out = models.FloatField()
+    time_as_taker = models.FloatField()
+    time_as_manual = models.FloatField()
+    wealth = models.IntegerField()
+
+def state_for_results_template(player):
+    summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
+        market_id=player.market_id)
+    payoffs = {str(o.player_id): int(o.wealth * 0.0001) for o in summary_objects}
+    names = {str(o.player_id): 'You' if o.player_id == player.id else 'Anonymous Trader' 
+        for o in summary_objects}
+    strategies = {str(o.player_id): {'maker': o.time_as_maker, 'taker': o.time_as_taker,
+        'manual': o.time_as_manual, 'out': o.time_as_out} for o in summary_objects}
+    inv_sensitivies = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
+    imbalance_sensitivies = {str(o.player_id): o.imbalance_sensitivity for o in summary_objects}
+    return {'payoffs': payoffs, 'names': names, 'strategies': strategies, 
+        'inv_sens': inv_sensitivies, 'imb_sens': imbalance_sensitivies}
+
+def elo_player_summary(player):
+    market = cache.get(get_cache_key(player.market_id, 'market'))['market']
+    session_length = market.session_end - market.session_start
+    average_sens = _get_average_sensitivies(player.subsession.id, player.market_id, player.id,
+        market.session_start, market.session_end)
+    session_length_seconds = session_length.seconds
+    percent_per_role = _calculate_role_time_percentage(market.role_group, player.id,
+        session_length_seconds)
+    summary_object = HFTPlayerSessionSummary(subsession_id=player.subsession.id, 
+        market_id=player.market_id,
+        player_id=player.id, 
+        imbalance_sensitivity=average_sens['slider_a_x'],
+        inventory_sensitivity=average_sens['slider_a_y'], 
+        time_as_maker=percent_per_role['maker'],
+        time_as_taker=percent_per_role['taker'], 
+        time_as_out=percent_per_role['out'],
+        time_as_manual=percent_per_role['manual'], 
+        wealth=player.cash)
+    summary_object.save()
+
+def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
+    session_end, default=0):
+    session_duration = session_end - session_start
+    session_duration = session_duration.seconds
+    player_state_records = HFTPlayerStateRecord.objects.filter(subsession_id=subsession_id,
+        market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('-timestamp')
+    slider_durations = {}
+    for slider_name in ('slider_a_x', 'slider_a_y'):
+        previous_slider_change_at = session_start
+        current_slider_value = default 
+        slider_values = {current_slider_value: 0}
+        for each in player_state_records:
+            new_slider_value = getattr(each, slider_name)
+            if new_slider_value != current_slider_value:
+                slider_values[new_slider_value] = 0
+                duration = each.timestamp - previous_slider_change_at
+                duration = duration.seconds
+                slider_values[current_slider_value] += duration
+                current_slider_value = new_slider_value
+                previous_slider_change_at = each.timestamp
+        closing_timedelta = session_end - previous_slider_change_at
+        slider_values[current_slider_value] += closing_timedelta.seconds
+        slider_durations[slider_name] = slider_values  
+    slider_averages = {}
+    for slider_name in ('slider_a_x', 'slider_a_y'):
+        slider_values = slider_durations[slider_name]
+        denum = sum(k for k in slider_values.values())
+        num = sum(k * v for k, v in slider_values.items())
+        slider_averages[slider_name] = round(num / denum, 1)
+    return slider_averages 
+
+def _calculate_role_time_percentage(market_role_group, player_id, session_length):
+    duration_per_role = {}
+    for role_name in market_role_group.role_names:
+        tracked_role = getattr(market_role_group, role_name)
+        try:
+            duration_per_role[role_name] = tracked_role.time_spent_per_player[player_id]
+        except KeyError:
+            duration_per_role[role_name] = 0
+    total_time_in_session = sum(duration_per_role.values())
+    if total_time_in_session == 0:
+        raise ValueError('total time in session is 0 for player {}'.format(player_id))
+    normal_dur_per_role = {k: round(v / total_time_in_session, 2) for k, v in duration_per_role.items()}
+    return normal_dur_per_role
 
 class HFTEventRecord(Model):
     
@@ -98,10 +193,13 @@ class HFTInvestorRecord(Model):
         return self
 
 results_foldername = 'results'
+if results_foldername not in os.listdir(os.getcwd()):
+    os.mkdir(results_foldername)
+
 base_session_foldername = '{timestamp:%Y%m%d_%H:%M}_session_{session_code}'  
 base_subsession_foldername = 'subsession_{subsession_id}_round_{round_no}'                         
 
-base_filename = 'market_{market_id}_record_type_{record_class}_subsession_{subsession_id}.csv'
+filename = 'market_{market_id}_record_type_{record_class}_subsession_{subsession_id}.csv'
 
 csv_headers = {
     'HFTEventRecord': ['event_no','timestamp', 'subsession_id', 'market_id', 
@@ -112,17 +210,16 @@ csv_headers = {
         'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']
 }
 
-def close_trade_session(trade_session):
-    current_session_code = trade_session.subsession.session.code
-    current_subsession_id = trade_session.subsession.id
-    markets_ids_in_session = trade_session.market_state.keys()
-    current_round_number = trade_session.subsession.round_number
-    _collect_and_dump(current_session_code, current_subsession_id, markets_ids_in_session,
-        current_round_number)
 
-def _collect_and_dump(session_code, subsession_id:int, market_ids:list, round_no:int):  
-    if results_foldername not in os.listdir(os.getcwd()):
-        os.mkdir(results_foldername)
+# def close_trade_session(trade_session):
+#     current_session_code = trade_session.subsession.session.code
+#     current_subsession_id = trade_session.subsession.id
+#     markets_ids_in_session = trade_session.market_state.keys()
+#     current_round_number = trade_session.subsession.round_number
+#     _collect_and_dump(current_session_code, current_subsession_id, markets_ids_in_session,
+#         current_round_number)
+
+def get_path(record_class, session_code, subsession_id:int, market_id:int, round_no:int):
     session_foldernames = [x for x in os.listdir(results_foldername) 
         if x.endswith(session_code)]
     if len(session_foldernames) > 1:
@@ -140,19 +237,25 @@ def _collect_and_dump(session_code, subsession_id:int, market_ids:list, round_no
     if subsession_foldername not in os.listdir(session_directory):
         os.mkdir(os.path.join(results_foldername, session_foldername, 
             subsession_foldername))
-    for record_class in HFTEventRecord, HFTPlayerStateRecord, HFTInvestorRecord:
-        all_records = record_class.objects.filter(subsession_id=subsession_id)
-        for market_id in market_ids:
-            market_records = all_records.filter(market_id=str(market_id))
-            filename = base_filename.format(market_id=market_id, record_class=
-                record_class.__name__, subsession_id=subsession_id)
-            path = os.path.join(session_directory, subsession_foldername, filename)
-            with open(path, 'w') as f:
+    filename = base_filename.format(market_id=market_id, record_class=
+        record_class.__name__, subsession_id=subsession_id)
+    path = os.path.join(session_directory, subsession_foldername, filename)
+    return path
+
+def export_trade_session_records(session_code, subsession_id:int, market_ids:list, round_no:int,
+        models:list):
+    for market_id in market_ids:
+        for record_class in models:
+            all_records = record_class.objects.filter(subsession_id=subsession_id,
+                market_id=str(market_id))
+            path = get_path(record_class, session_code, subsession_id, market_id, round_no)
+            with open(path, 'w') as filelike:
                 fieldnames = csv_headers[record_class.__name__]
-                writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
                 writer.writeheader()
                 for row in market_records:
                     writer.writerow(row.__dict__)
+
 
 def _elo_fields(player, subject_state):
     for field in recorded_player_fields:
@@ -177,4 +280,3 @@ def from_trader_to_player(player, subject_state, post=_elo_fields):
         post(player, subject_state)
     player.save()
     return player
-
