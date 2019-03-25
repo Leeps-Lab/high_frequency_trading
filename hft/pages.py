@@ -18,7 +18,7 @@ class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
         pass
 
-class Elo(Page):
+class EloExperiment(Page):
     pass
 
 class ResultsWaitPage(WaitPage):
@@ -61,7 +61,7 @@ class Results(Page):
 
 page_sequence = [
     PreWaitPage,
-    Elo,
+    EloExperiment,
     ResultsWaitPage,
     Results,
 ]
