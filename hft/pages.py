@@ -40,7 +40,7 @@ class ResultsWaitPage(WaitPage):
                 results_ready = True
                 break
             else:
-                log.warning('waiting for results for market {}'.format(p.market_id))
+                log.warning('waiting for results for market {}'.format(self.group.id))
                 time.sleep(sleep_time)
                 total_slept += sleep_time
         if results_ready:
