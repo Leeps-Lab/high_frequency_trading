@@ -107,10 +107,10 @@ export class ResultsCell extends PolymerElement {
         type: 'column'
       },
       title: {
-        text: 'Cash'
+        text: 'Payoff'
       },
       xAxis: {
-        categories: ["Payoff"],
+        categories: [" "],
         crosshair: true
       },
       yAxis: {

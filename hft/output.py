@@ -10,13 +10,16 @@ from django.core.cache import cache
 
 log = logging.getLogger(__name__)
 
-recorded_player_fields = ('wealth', 'cash', 'technology_cost', 'role', 
-    'market_id', 'speed_on', 'time_on_speed', 'inventory', 'bid', 
-    'offer', 'orderstore', 'best_bid', 'best_offer', 'target_bid',
+exported_player_fields = ('wealth', 'cash', 'technology_cost', 'role', 
+    'speed_on', 'time_on_speed', 'inventory', 'order_imbalance', 'reference_price'
+    'bid', 'offer', 'best_bid', 'best_offer', 'target_bid',
     'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
-    'slider_a_y', 'order_imbalance', 'reference_price')
+    'slider_a_y')
 
 class HFTPlayerStateRecord(Model):
+
+    csv_headers = ('timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
+        'event_no') + exported_player_fields
 
     timestamp = models.DateTimeField(auto_now_add=True)
     subsession_id = models.StringField()
@@ -46,7 +49,7 @@ class HFTPlayerStateRecord(Model):
     reference_price = models.FloatField(blank=True)
 
     def from_event_and_player(self, event_dict, player):
-        for field in recorded_player_fields:
+        for field in recorded_player_fields + ('orderstore'):
             setattr(self, field, getattr(player, field))  
         self.player_id = int(player.id)
         self.trigger_event_type = str(event_dict['type'])  
@@ -145,6 +148,9 @@ def _calculate_role_time_percentage(market_role_group, player_id, session_length
     return normal_dur_per_role
 
 class HFTEventRecord(Model):
+
+    csv_headers = ['event_no','timestamp', 'subsession_id', 'market_id', 
+        'event_source', 'event_type', 'original_message', 'attachments', 'outgoing_messages']
     
     subsession_id= models.StringField()
     market_id = models.StringField()
@@ -166,6 +172,9 @@ class HFTEventRecord(Model):
 
 
 class HFTInvestorRecord(Model):
+
+    csv_headers = ['timestamp', 'exchange_timestamp', 'subsession_id', 
+        'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']
 
     timestamp = models.DateTimeField(auto_now_add=True)
     exchange_timestamp = models.BigIntegerField()
@@ -192,73 +201,8 @@ class HFTInvestorRecord(Model):
         self.exchange_timestamp = event.message.data.timestamp
         return self
 
-results_foldername = 'results'
-if results_foldername not in os.listdir(os.getcwd()):
-    os.mkdir(results_foldername)
-
-base_session_foldername = '{timestamp:%Y%m%d_%H:%M}_session_{session_code}'  
-base_subsession_foldername = 'subsession_{subsession_id}_round_{round_no}'                         
-
-filename = 'market_{market_id}_record_type_{record_class}_subsession_{subsession_id}.csv'
-
-csv_headers = {
-    'HFTEventRecord': ['event_no','timestamp', 'subsession_id', 'market_id', 
-        'event_source', 'event_type', 'original_message', 'attachments', 'outgoing_messages'],
-    'HFTPlayerStateRecord': ('timestamp', 'subsession_id', 'player_id', 'trigger_event_type',
-        'event_no') + recorded_player_fields,
-    'HFTInvestorRecord': ['timestamp', 'exchange_timestamp', 'subsession_id', 
-        'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']
-}
-
-
-# def close_trade_session(trade_session):
-#     current_session_code = trade_session.subsession.session.code
-#     current_subsession_id = trade_session.subsession.id
-#     markets_ids_in_session = trade_session.market_state.keys()
-#     current_round_number = trade_session.subsession.round_number
-#     _collect_and_dump(current_session_code, current_subsession_id, markets_ids_in_session,
-#         current_round_number)
-
-def get_path(record_class, session_code, subsession_id:int, market_id:int, round_no:int):
-    session_foldernames = [x for x in os.listdir(results_foldername) 
-        if x.endswith(session_code)]
-    if len(session_foldernames) > 1:
-        raise ValueError('multiple matching folders in %s' % session_foldernames)
-    elif not session_foldernames:
-        now = datetime.datetime.now()
-        session_foldername = base_session_foldername.format(timestamp=now, 
-            session_code=session_code)
-        os.mkdir(os.path.join(results_foldername,session_foldername))
-    else:
-        session_foldername = session_foldernames.pop()   
-    session_directory = os.path.join(results_foldername, session_foldername) 
-    subsession_foldername = base_subsession_foldername.format(subsession_id=subsession_id, 
-        round_no=round_no)
-    if subsession_foldername not in os.listdir(session_directory):
-        os.mkdir(os.path.join(results_foldername, session_foldername, 
-            subsession_foldername))
-    filename = base_filename.format(market_id=market_id, record_class=
-        record_class.__name__, subsession_id=subsession_id)
-    path = os.path.join(session_directory, subsession_foldername, filename)
-    return path
-
-def export_trade_session_records(session_code, subsession_id:int, market_ids:list, round_no:int,
-        models:list):
-    for market_id in market_ids:
-        for record_class in models:
-            all_records = record_class.objects.filter(subsession_id=subsession_id,
-                market_id=str(market_id))
-            path = get_path(record_class, session_code, subsession_id, market_id, round_no)
-            with open(path, 'w') as filelike:
-                fieldnames = csv_headers[record_class.__name__]
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
-                writer.writeheader()
-                for row in market_records:
-                    writer.writerow(row.__dict__)
-
-
 def _elo_fields(player, subject_state):
-    for field in recorded_player_fields:
+    for field in recorded_player_fields + 'orderstore':
         if hasattr(subject_state, field):
             value = getattr(subject_state, field)
             if value is not None:
