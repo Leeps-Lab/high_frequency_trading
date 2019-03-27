@@ -10,16 +10,18 @@ from django.core.cache import cache
 
 log = logging.getLogger(__name__)
 
-exported_player_fields = ('wealth', 'cash', 'technology_cost', 'role', 
-    'speed_on', 'time_on_speed', 'inventory', 'order_imbalance', 'reference_price'
+exported_player_fields = ['wealth', 'cash', 'technology_cost', 'role', 
+    'speed_on', 'time_on_speed', 'inventory', 'order_imbalance', 'reference_price',
     'bid', 'offer', 'best_bid', 'best_offer', 'target_bid',
     'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
-    'slider_a_y')
+    'slider_a_y']
+
+recorded_player_fields = exported_player_fields + ['orderstore']
 
 class HFTPlayerStateRecord(Model):
 
-    csv_headers = ('timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
-        'event_no') + exported_player_fields
+    csv_headers = ['timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
+        'event_no'] + exported_player_fields
 
     timestamp = models.DateTimeField(auto_now_add=True)
     subsession_id = models.StringField()
@@ -49,7 +51,7 @@ class HFTPlayerStateRecord(Model):
     reference_price = models.FloatField(blank=True)
 
     def from_event_and_player(self, event_dict, player):
-        for field in exported_player_fields + ('orderstore'):
+        for field in recorded_player_fields:
             setattr(self, field, getattr(player, field))  
         self.player_id = int(player.id)
         self.trigger_event_type = str(event_dict['type'])  
@@ -202,7 +204,7 @@ class HFTInvestorRecord(Model):
         return self
 
 def _elo_fields(player, subject_state):
-    for field in exported_player_fields + 'orderstore':
+    for field in recorded_player_fields:
         if hasattr(subject_state, field):
             value = getattr(subject_state, field)
             if value is not None:
