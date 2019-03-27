@@ -49,7 +49,7 @@ class HFTPlayerStateRecord(Model):
     reference_price = models.FloatField(blank=True)
 
     def from_event_and_player(self, event_dict, player):
-        for field in recorded_player_fields + ('orderstore'):
+        for field in exported_player_fields + ('orderstore'):
             setattr(self, field, getattr(player, field))  
         self.player_id = int(player.id)
         self.trigger_event_type = str(event_dict['type'])  
@@ -202,7 +202,7 @@ class HFTInvestorRecord(Model):
         return self
 
 def _elo_fields(player, subject_state):
-    for field in recorded_player_fields + 'orderstore':
+    for field in exported_player_fields + 'orderstore':
         if hasattr(subject_state, field):
             value = getattr(subject_state, field)
             if value is not None:
