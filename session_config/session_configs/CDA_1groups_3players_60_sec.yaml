@@ -1,8 +1,8 @@
 demo:
-  number-of-participants: 6
+  number-of-participants: 3
 
 group:
-  number-of-groups: 2
+  number-of-groups: 1
   players-per-group: 3
 
 exogenous-events:
