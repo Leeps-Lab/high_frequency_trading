@@ -3,8 +3,6 @@ import "./results-cell.js";
 
 /*
  * This will hopefully be the component used for the results page at some point.
- *
- * Pie chart cannibalized from https://www.highcharts.com/demo/pie-legend
  */
 class ResultsPage extends PolymerElement {
   constructor(){
@@ -52,14 +50,22 @@ class ResultsPage extends PolymerElement {
 
   connectedCallback() {
     super.connectedCallback();
-    let payoffs = this.payoffs;
+    //let payoffs = this.payoffs;
+
+    // initialize arrays for Polymer arguments
+    let payoffs = this.nets;
     this.numPlayers = Object.keys(payoffs).length
     const strategies = this.strategies;
     const invs = this.invSensitivities;
     const imbs = this.imbSensitivities;
     const names = this.names;
+    const taxes = this.taxes;
+
+    // set number of rows equal to the closest perfect square
     const numRows = Math.round(Math.sqrt(this.numPlayers));
     const cellsPerRow = Math.round(this.numPlayers/numRows);
+
+    // set dimensions for cells
     let widthScale;
     if(cellsPerRow <= this.numPlayers/numRows) {
       widthScale = cellsPerRow;
@@ -73,6 +79,8 @@ class ResultsPage extends PolymerElement {
     let charts = document.createElement("table");
     charts.setAttribute("style", "display:inline-block");
     let rows = []
+
+    // create rows
     for(let i = 0; i < numRows; i++) {
       let row = document.createElement("tr");
       rows.push(row);
@@ -81,6 +89,7 @@ class ResultsPage extends PolymerElement {
     let currCell = 0;
     let cellCount = 0;
 
+    // iterate through dictionaries by net payoff order
     for(let i = 0; i < this.numPlayers; i++) {
       let low = Object.keys(payoffs)[0];
       for(let key in payoffs) {
@@ -89,7 +98,9 @@ class ResultsPage extends PolymerElement {
         }
       }
 
-      let myPayoff = payoffs[low];
+      // create cell
+      let myNet = payoffs[low];
+      let myTax = taxes[low];
       let myName = names[low];
       let myStrategies = strategies[low];
       let myInv = invs[low];
@@ -100,8 +111,9 @@ class ResultsPage extends PolymerElement {
       let node = document.createElement("div");
       node.setAttribute("class", "child");
       let child = document.createElement("results-cell");
-      console.log('mipayoff', myPayoff)
-      child.payoff = myPayoff;
+      //console.log('mipayoff', myPayoff)
+      child.net = myNet;
+      child.tax = myTax;
       child.name = myName;
       child.strategies = myStrategies;
       child.invSensitivity = myInv;
@@ -135,9 +147,18 @@ class ResultsPage extends PolymerElement {
       numPlayers: {
         type: Number,
       },
+      /*
       payoffs: {
         type: Object,
         //value: {player:30,foo:20,bar:90,the:40}
+      },*/
+      nets: {
+        type: Object,
+        //value: {player:30,foo:20,bar:90,the:40}
+      },
+      taxes: {
+        type: Object,
+        //value: {player:10,foo:15,bar:13,the:20}
       },
       names: {
         type: Object,

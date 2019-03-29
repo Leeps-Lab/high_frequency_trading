@@ -1,7 +1,7 @@
 import {html,PolymerElement} from '../node_modules/@polymer/polymer/polymer-element.js';
 
 /*
- * This will hopefully be the component used for the results page at some point.
+ * A single cell on the results page
  *
  * Pie chart cannibalized from https://www.highcharts.com/demo/pie-legend
  */
@@ -48,18 +48,22 @@ export class ResultsCell extends PolymerElement {
       })
     }
 
-    const payoff = this.payoff;
+    const payoff = this.net;
     let payoffData = [];
     payoffData.push(payoff);
+
+    const tax = this.tax;
+    let taxData = [];
+    taxData.push(tax);
 
     let lowVal = Math.min(this.width, this.height);
     let width = lowVal;
     let height = lowVal;
     const parentStyle = "text-align:center; line-height:10px; width:" + width + "px; height:" + height + "px";
-    width = width/1.4;
+    width = width/1.8;
     height = height/1.4;
     let containerStyle = "width:" + width + "px; height:" + height + "px";
-    width = width/3.5;
+    width = width/3;
     height = height;
     let container2Style = "width:" + width + "px; height:" + height + "px";
     this.$.parent.setAttribute("style", parentStyle);
@@ -128,15 +132,29 @@ export class ResultsCell extends PolymerElement {
       },
       plotOptions: {
         column: {
+          stacking: 'normal',
           pointPadding: 0,
           groupPadding: 0,
-          borderWidth: 0
+          borderWidth: 0,
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: true
+          },
+          showInLegend: false
         }
       },
       series: [{
-        name: "Payoff",
-        data: payoffData
-      }]
+        name: "Net Payoff",
+        data: payoffData,
+        index: 1
+      },
+      {
+        name: "Tax",
+        data: taxData,
+        index: 0
+      }
+      ]
     });
 
     chart1.setSize();
@@ -150,7 +168,10 @@ export class ResultsCell extends PolymerElement {
         type: Object,
         //value: {the:10, value:20}
       },
-      payoff: {
+      net: {
+        type: Number,
+      },
+      tax: {
         type: Number,
       },
       name: {
