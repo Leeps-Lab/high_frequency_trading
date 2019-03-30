@@ -18,8 +18,6 @@ POINTS_DECIMAL_PLACES = 2
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
 if environ.get('OTREE_PRODUCTION') not in {None, '', '0'}:
     DEBUG = False
-elif 'OTREE_PRODUCTION' not in os.environ:
-    DEBUG = False
 else:
     DEBUG = True
 
