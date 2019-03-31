@@ -3,6 +3,8 @@ import "./results-cell.js";
 
 /*
  * This will hopefully be the component used for the results page at some point.
+ *
+ * Pie chart cannibalized from https://www.highcharts.com/demo/pie-legend
  */
 class ResultsPage extends PolymerElement {
   constructor(){
@@ -79,8 +81,6 @@ class ResultsPage extends PolymerElement {
     let charts = document.createElement("table");
     charts.setAttribute("style", "display:inline-block");
     let rows = []
-
-    // create rows
     for(let i = 0; i < numRows; i++) {
       let row = document.createElement("tr");
       rows.push(row);
@@ -89,7 +89,6 @@ class ResultsPage extends PolymerElement {
     let currCell = 0;
     let cellCount = 0;
 
-    // iterate through dictionaries by net payoff order
     for(let i = 0; i < this.numPlayers; i++) {
       let low = Object.keys(payoffs)[0];
       for(let key in payoffs) {
@@ -98,7 +97,6 @@ class ResultsPage extends PolymerElement {
         }
       }
 
-      // create cell
       let myNet = payoffs[low];
       let myTax = taxes[low];
       let myName = names[low];

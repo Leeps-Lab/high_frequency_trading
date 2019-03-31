@@ -9,7 +9,7 @@
         max-height: 100vh;
     }
 </style>
-<results-page 
+<results-page
     payoffs="{{payoffs}}"
     names="{{names}}"
     strategies="{{strategies}}"
@@ -18,7 +18,7 @@
     style = "width:100%; "> </results-page>
 {% endblock %}
 
-{% block scripts %}   
+{% block scripts %}
     <link rel="manifest" href="{% static 'hft/manifest.json' %}">
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
