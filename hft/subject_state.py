@@ -47,7 +47,7 @@ class ELOSubjectState(BaseSubjectState):
         'market_id', 'sliders', 'best_bid', 'best_offer', 'target_bid', 'target_offer', 
         'order_imbalance', 'implied_bid', 'implied_offer', 'volume_at_best_offer', 
         'volume_at_best_bid', 'wait_for_best_bid', 'wait_for_best_offer', 'technology_cost',
-        'next_bid', 'next_offer')    
+        'next_bid', 'next_offer', 'tax')    
 
 class LEEPSInvestorState(BaseSubjectState):
     orderstore_cls = OrderStore

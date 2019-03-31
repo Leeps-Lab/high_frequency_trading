@@ -50,7 +50,7 @@ class ProfitGraph extends PolymerElement {
             },
             _defaultYRange: {
                 type: Array,
-                value: [9800, 10200],
+                value: [970, 1030],
             },
             isRunning: {
                 type: Boolean,

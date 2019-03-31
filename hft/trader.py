@@ -105,7 +105,7 @@ class BCSTrader(BaseTrader):
         'bbo_change': 'bbo_update', 'order_entered': 'trader_bid_offer_change', 
         'market_end': 'close_session', 'reference_price_change': 'reference_price_update'}
     
-    cost_fields = ('technology_cost',)
+    cost_fields = ('technology_cost', 'tax')
 
     def close_session(self, **kwargs):
         self.speed_change(value=False)
@@ -114,8 +114,10 @@ class BCSTrader(BaseTrader):
                 trade_cost = getattr(self, field)
                 try:
                     self.cost += trade_cost
+                    print('field {} cost {}'.format(field, trade_cost) )
                 except:
                     log.exception('failed to add cost: {}'.format(trade_cost))
+        self.wealth = self.cash - self.cost
             
         
     def speed_change(self, **kwargs):
@@ -140,7 +142,6 @@ class BCSTrader(BaseTrader):
             self.time_on_speed += time_on_speed 
             tech_cost_step = int(self.technology_unit_cost * time_on_speed * 1e-3)  # $/s
             self.technology_cost += tech_cost_step
-            self.cash -= tech_cost_step
         self.event.broadcast_messages('speed_confirm', value=self.speed_on,
             player_id=self.id, market_id=self.market_id)
     
@@ -241,8 +242,6 @@ class ELOTrader(BCSTrader):
             self.cash -= execution_price
         elif buy_sell_indicator == 'S':
             self.cash += execution_price
-        if self.reference_price is not None:
-            self.wealth = self.reference_price * self.orderstore.inventory + self.cash
 
     def track_market(self, **kwargs):
         self.best_bid = kwargs['best_bid']
@@ -254,10 +253,11 @@ class ELOTrader(BCSTrader):
         self.order_imbalance = kwargs['order_imbalance']
     
     def close_session(self, **kwargs):
-        super().close_session()
         tax_rate = kwargs['tax_rate']
         reference_price = kwargs['reference_price']
-        self.wealth += (1-tax_rate) * (reference_price * self.orderstore.inventory)
+        self.tax = tax_rate * (reference_price * self.orderstore.inventory)
+        self.cash += reference_price * self.orderstore.inventory
+        super().close_session()
 
     def exchange_message_from_order_info(self, order_info, delay, order_type):
         message_content = {'host': self.exchange_host, 'port': self.exchange_port, 

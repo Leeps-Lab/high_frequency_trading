@@ -16,7 +16,7 @@ market:
   matching-engine-host: '127.0.0.1'
 
 parameters:
-  initial-endowment: 10000
+  initial-endowment: 1000
   initial-spread: 1
   max-spread: 2
   period-length: 10

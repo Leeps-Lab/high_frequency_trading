@@ -16,7 +16,7 @@ exported_player_fields = ['wealth', 'cash', 'technology_cost', 'role',
     'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
     'slider_a_y']
 
-recorded_player_fields = exported_player_fields + ['orderstore']
+recorded_player_fields = exported_player_fields + ['orderstore', 'tax']
 
 class HFTPlayerStateRecord(Model):
 
@@ -30,6 +30,7 @@ class HFTPlayerStateRecord(Model):
     wealth = models.IntegerField()
     cash = models.IntegerField()
     technology_cost = models.IntegerField(initial=0)
+    tax = models.IntegerField()
     role =  models.StringField()
     speed_on = models.BooleanField()
     time_on_speed = models.IntegerField()
@@ -148,18 +149,20 @@ class HFTPlayerSessionSummary(Model):
     time_as_taker = models.FloatField()
     time_as_manual = models.FloatField()
     wealth = models.IntegerField()
+    tax = models.IntegerField()
 
 def state_for_results_template(player):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
         market_id=player.market_id)
-    payoffs = {str(o.player_id): int(o.wealth * 0.0001) for o in summary_objects}
+    nets = {str(o.player_id): int(o.wealth * 0.0001) for o in summary_objects}
+    taxes = {str(o.player_id): int(o.tax * 0.0001) for o in summary_objects}
     names = {str(o.player_id): 'You' if o.player_id == player.id else 'Anonymous Trader' 
         for o in summary_objects}
     strategies = {str(o.player_id): {'maker': o.time_as_maker, 'taker': o.time_as_taker,
         'manual': o.time_as_manual, 'out': o.time_as_out} for o in summary_objects}
     inv_sensitivies = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
     imbalance_sensitivies = {str(o.player_id): o.imbalance_sensitivity for o in summary_objects}
-    return {'payoffs': payoffs, 'names': names, 'strategies': strategies, 
+    return {'nets': nets, 'taxes': taxes, 'names': names, 'strategies': strategies, 
         'inv_sens': inv_sensitivies, 'imb_sens': imbalance_sensitivies}
 
 def elo_player_summary(player):
@@ -179,7 +182,8 @@ def elo_player_summary(player):
         time_as_taker=percent_per_role['taker'], 
         time_as_out=percent_per_role['out'],
         time_as_manual=percent_per_role['manual'], 
-        wealth=player.cash)
+        wealth=player.wealth,
+        tax=player.tax)
     summary_object.save()
 
 def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,

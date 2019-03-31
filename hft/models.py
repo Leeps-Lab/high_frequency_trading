@@ -165,6 +165,7 @@ class Player(BasePlayer):
     slider_a_y = models.FloatField(blank=True)
     order_imbalance = models.FloatField(blank=True)
     reference_price = models.FloatField(blank=True)
+    tax = models.IntegerField(blank=True)
 
     def configure_for_trade_session(self, exchange_host:str, exchange_port:int, 
         market_id:str, session_format:str):

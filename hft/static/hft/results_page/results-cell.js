@@ -12,7 +12,7 @@ export class ResultsCell extends PolymerElement {
 
   static get template() {
     return html `
-    <style>
+    <style> 
     </style>
 
     <div style="text-align:center" class="wrapper" id="parent">
@@ -22,7 +22,7 @@ export class ResultsCell extends PolymerElement {
           <td style="display:inline-block;">
             <div id="container" class="container"></div>
           </td>
-          <td style="display:inline-block;">
+          <td style="display:inline-block; margin=10px;">
             <div id="container2" class="container"></div>
           </td>
         </tr>
@@ -54,7 +54,9 @@ export class ResultsCell extends PolymerElement {
 
     const tax = this.tax;
     let taxData = [];
-    taxData.push(tax);
+    if (tax > 0) {
+      taxData.push(tax);
+    }
 
     let lowVal = Math.min(this.width, this.height);
     let width = lowVal;
@@ -125,7 +127,10 @@ export class ResultsCell extends PolymerElement {
         }
       },
       legend: {
-        enabled: false,
+        enabled: true,
+        align: 'right',
+        verticalAlign: 'top',
+        layout: 'vertical'
       },
       credits: {
         enabled: false
