@@ -19,7 +19,20 @@ class PreWaitPage(WaitPage):
         pass
 
 class EloExperiment(Page):
-    pass
+
+    def vars_for_template(self):
+
+        if not self.session.config['test_inputs_dir']:
+            inputs_addr = None
+        else:
+            inputs_addr = '/static/hft/test_input_files/{}/player_{}.csv'.format(
+                self.session.config['test_inputs_dir'],
+                self.player.id_in_group
+            )
+        print(inputs_addr)
+        return {
+            'inputs_addr': inputs_addr,
+        }
 
 class ResultsWaitPage(WaitPage):
 

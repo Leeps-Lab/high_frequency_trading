@@ -1,7 +1,7 @@
 import {PolymerElement}  from '../node_modules/@polymer/polymer/polymer-element.js';
 
 function emptyOrUndefined(input) {
-    return typeof input === 'undefined' || input === '';
+    return (typeof input === 'undefined' || input === '');
 }
 
 class TestInputs extends PolymerElement {
@@ -16,13 +16,21 @@ class TestInputs extends PolymerElement {
     }
 
     ready() {
+        if (!TEST_INPUTS_ADDRESS) {
+            return;
+        }
+
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', '/static/hft/test_input_files/inputs.csv', true);
+        xhr.open('GET', TEST_INPUTS_ADDRESS, true);
         xhr.setRequestHeader('cache-control', 'no-cache');
         xhr.onload = () => {
+            if (xhr.status != 200) {
+                return;
+            }
             // parse CSV into array of event objects
             // split into 2d array
             const rows = xhr.response.split('\n')
+                .filter(e => e !== '')
                 .map(e => e.split(','));
             const header = rows.shift();
 
