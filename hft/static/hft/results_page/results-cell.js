@@ -12,11 +12,17 @@ export class ResultsCell extends PolymerElement {
 
   static get template() {
     return html `
-    <style> 
+    <style>
+      .outer {
+        display: flex;
+        justify-content: space-around;
+        padding: 5px;
+      }
     </style>
 
     <div style="text-align:center" class="wrapper" id="parent">
       <h2>[[ name ]]</h2>
+      <!--
       <table style="display:inline-block; text-align:center;">
         <tr>
           <td style="display:inline-block;">
@@ -25,8 +31,13 @@ export class ResultsCell extends PolymerElement {
           <td style="display:inline-block; margin=10px;">
             <div id="container2" class="container"></div>
           </td>
+
         </tr>
-      </table>
+      </table> -->
+      <div class="outer">
+        <div id="container" class="container"></div>
+        <div id="container2" class="container"></div>
+      </div>
       <div style="display:inline-block; text-align:center;">
         <span>Average Sensitivity of Algorithms</span>
         <hr style="width: 60%">
@@ -58,15 +69,15 @@ export class ResultsCell extends PolymerElement {
       taxData.push(tax);
     }
 
-    let lowVal = Math.min(this.width, this.height);
-    let width = lowVal;
-    let height = lowVal;
+    //let lowVal = Math.min(this.width, this.height);
+    //let width = lowVal;
+    //let height = lowVal;
+    let width = this.width;
+    let height = this.height;
     const parentStyle = "text-align:center; line-height:10px; width:" + width + "px; height:" + height + "px";
-    width = width/1.8;
+    width = width/2.5;
     height = height/1.4;
     let containerStyle = "width:" + width + "px; height:" + height + "px";
-    width = width/3;
-    height = height;
     let container2Style = "width:" + width + "px; height:" + height + "px";
     this.$.parent.setAttribute("style", parentStyle);
     this.$.container.setAttribute("style", containerStyle);
@@ -96,7 +107,8 @@ export class ResultsCell extends PolymerElement {
           allowPointSelect: true,
           cursor: 'pointer',
           dataLabels: {
-            enabled: true
+            enabled: true,
+            padding: 0
           },
           showInLegend: false
         }
@@ -110,7 +122,8 @@ export class ResultsCell extends PolymerElement {
 
     let chart2 = Highcharts.chart(this.$.container2, {
       chart: {
-        type: 'column'
+        type: 'column',
+        size: '100%'
       },
       title: {
         text: 'Payoff'
@@ -125,12 +138,6 @@ export class ResultsCell extends PolymerElement {
         title: {
           text: ''
         }
-      },
-      legend: {
-        enabled: true,
-        align: 'right',
-        verticalAlign: 'top',
-        layout: 'vertical'
       },
       credits: {
         enabled: false
@@ -152,11 +159,13 @@ export class ResultsCell extends PolymerElement {
       series: [{
         name: "Net Payoff",
         data: payoffData,
+        showInLegend: true,
         index: 1
       },
       {
         name: "Tax",
         data: taxData,
+        showInLegend: true,
         index: 0
       }
       ]
