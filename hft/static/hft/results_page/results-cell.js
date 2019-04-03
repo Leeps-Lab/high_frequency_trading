@@ -166,7 +166,8 @@ export class ResultsCell extends PolymerElement {
         name: "Tax",
         data: taxData,
         showInLegend: true,
-        index: 0
+        index: 0,
+        color: '#FF0000'
       }
       ]
     });

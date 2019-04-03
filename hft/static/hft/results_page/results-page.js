@@ -45,6 +45,7 @@ class ResultsPage extends PolymerElement {
 
     </style>
 
+    <div style="text-align:center"><h1>Trade Session Results</h1></div>
     <div id="outer" class="parent" style="text-align:center;">
     </div>
     `;
