@@ -174,7 +174,6 @@ def elo_player_summary(player):
     session_length_seconds = session_length.seconds
     percent_per_role = _calculate_role_time_percentage(market.role_group, player.id,
         session_length_seconds)
-    print('summ', player.__dict__)
     summary_object = HFTPlayerSessionSummary(subsession_id=player.subsession.id, 
         market_id=player.market_id,
         player_id=player.id, 
