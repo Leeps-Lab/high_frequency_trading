@@ -1,6 +1,6 @@
 import subprocess
 from django.core.cache import cache
-from .utility import exogenous_event_client, exogenous_event_endpoints
+from . import utility
 import logging
 import os
 from twisted.internet import reactor
@@ -16,6 +16,8 @@ from itertools import count
 from .dispatcher import LEEPSDispatcher
 from otree.timeout.tasks import hft_background_task
 import sys
+from django.core import serializers
+from .exogenous_event import get_exogenous_event_queryset
 
 log = logging.getLogger(__name__)
 
@@ -61,21 +63,25 @@ class TradeSession:
         self.market_exchange_pairs[market.market_id] = (exchange_host, exchange_port)
         return market
 
-    def register_exogenous_event(self, client_type, filename):
-        path = os.path.join(os.getcwd(), filename)
-        self.exogenous_events[client_type] = path
+    def register_exogenous_event(self, client_type, rel_path):
+        self.exogenous_events[client_type] = rel_path
     
     def receive(self, event_type, market_id):
         handler_name = self.events_dispatch[event_type]
         handler = getattr(self, handler_name)
         handler(market_id)
 
-    def run_exogenous_events(self):
+    def start_exogenous_events(self):
         if self.exogenous_events:
             for event_type, filename in self.exogenous_events.items():
-                url = exogenous_event_endpoints[event_type].format(subsession_id=
+                url = utility.exogenous_event_endpoints[event_type].format(subsession_id=
                     self.subsession_id)
-                args = ['python', exogenous_event_client, event_type, url, filename]
+                exogenous_event_queryset = get_exogenous_event_queryset(event_type, 
+                    filename)
+                exogenous_event_json_formatted = serializers.serialize('json', 
+                    exogenous_event_queryset)
+                args = ['python', utility.exogenous_event_client, url, event_type, 
+                    exogenous_event_json_formatted]
                 process = subprocess.Popen(args)
                 self.clients[event_type] = process
 
@@ -109,7 +115,7 @@ class LEEPSTradeSession(TradeSession):
                 message = format_message('derived_event', **message_content)
                 self.outgoing_messages.append(message)
                 self.trading_markets.append(market_id)
-            self.run_exogenous_events()
+            self.start_exogenous_events()
             self.is_trading = True
             deferred = task.deferLater(reactor, self.subsession.round_length, 
                 partial(self.stop_trade_session, clients=dict(self.clients)))

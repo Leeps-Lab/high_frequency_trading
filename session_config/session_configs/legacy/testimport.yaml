@@ -1,9 +1,9 @@
 demo:
-  number-of-participants: 5
+  number-of-participants: 3
 
 group:
   number-of-groups: 1
-  players-per-group: 5
+  players-per-group: 3
 
 exogenous-events:
   investor-arrivals:
@@ -19,7 +19,7 @@ parameters:
   initial-endowment: 1000
   initial-spread: 1
   max-spread: 2
-  period-length: 240
+  period-length: 10
   technology-unit-cost: 0.022  # $/s
   reference-price-discount-constant: 0.7
   imbalance-discount-rate: 0.01
@@ -29,9 +29,9 @@ parameters:
 session:
   environment: elo
   currency: EUR
-  display-name: HFT - ELO - CDA - 3 Trade Sessions of 240 seconds - 5 traders
-  exchange-rate: 0.0001
+  display-name: config-testing
+  exchange-rate: 1.5
   num-rounds: 3
   participation-fee: 4
   random-round-payment: off
-  session-name: ELO_Development_Session_3_rounds_1_240_sec
+  session-name: test_import_session

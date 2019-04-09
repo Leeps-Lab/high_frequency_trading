@@ -75,13 +75,14 @@ def _elo_fields(player, subject_state):
     player.orderstore = str(subject_state.orderstore)
     player.bid = subject_state.orderstore.bid
     player.offer = subject_state.orderstore.offer
+    return player
 
 def from_trader_to_player(player, subject_state, post=_elo_fields):
     for field in subject_state.__slots__:
         if hasattr(player, field):
             setattr(player, field, getattr(subject_state, field))
     if post:
-        post(player, subject_state)
+        player = post(player, subject_state)
     player.save()
     return player
 
@@ -142,14 +143,14 @@ class HFTPlayerSessionSummary(Model):
     subsession_id = models.StringField()
     player_id = models.IntegerField()
     market_id = models.StringField()
-    imbalance_sensitivity = models.FloatField()
-    inventory_sensitivity = models.FloatField()
-    time_as_maker = models.FloatField()
-    time_as_out = models.FloatField()
-    time_as_taker = models.FloatField()
-    time_as_manual = models.FloatField()
-    wealth = models.IntegerField()
-    tax = models.IntegerField()
+    imbalance_sensitivity = models.FloatField(initial=0.0)
+    inventory_sensitivity = models.FloatField(initial=0.0)
+    time_as_maker = models.FloatField(initial=0.0)
+    time_as_out = models.FloatField(initial=0.0)
+    time_as_taker = models.FloatField(initial=0.0)
+    time_as_manual = models.FloatField(initial=0.0)
+    wealth = models.IntegerField(initial=0)
+    tax = models.IntegerField(initial=0)
 
 def state_for_results_template(player):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
@@ -173,6 +174,7 @@ def elo_player_summary(player):
     session_length_seconds = session_length.seconds
     percent_per_role = _calculate_role_time_percentage(market.role_group, player.id,
         session_length_seconds)
+    print('summ', player.__dict__)
     summary_object = HFTPlayerSessionSummary(subsession_id=player.subsession.id, 
         market_id=player.market_id,
         player_id=player.id, 

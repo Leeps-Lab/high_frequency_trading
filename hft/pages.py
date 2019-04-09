@@ -33,17 +33,21 @@ class ResultsWaitPage(WaitPage):
         timeout = 30
         sleep_time = 1
         total_slept = 0
-        while total_slept < timeout:            
-            if HFTPlayerStateRecord.objects.filter(subsession_id=
+        while total_slept < timeout:
+            num_results_ready = HFTPlayerStateRecord.objects.filter(subsession_id=
                 self.subsession.id, market_id=self.group.id, trigger_event_type=
-                'market_end').exists():
+                'market_end').count()
+            num_players = self.group.player_set.count()            
+            if  num_results_ready == num_players:
                 results_ready = True
                 break
             else:
-                log.warning('waiting for results for market {}'.format(self.group.id))
+                log.warning('waiting for results for market {}, {}/{} results ready'.format(
+                    self.group.id, num_results_ready, num_players))
                 time.sleep(sleep_time)
                 total_slept += sleep_time
         if results_ready:
+            time.sleep(sleep_time)
             try:
                 for p in self.group.get_players():
                     elo_player_summary(p)

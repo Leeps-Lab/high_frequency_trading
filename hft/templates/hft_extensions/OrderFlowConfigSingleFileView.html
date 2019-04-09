@@ -1,0 +1,28 @@
+{% extends "otree/BaseAdmin.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+
+    <table>
+        <tr>
+            <th>Arrival Time</th>
+            <th>Market ID</th>
+            <th>Price</th>
+            <th>Time In Force</th>
+            <th>Buy Sell Indicator</th>
+        </tr>
+        {% for item in object_list %}
+        <tr> 
+            <td>{{ item.arrival_time }}</td>
+            <td>{{ item.market_id_in_subsession }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.time_in_force }}</td>
+            <td>{{ item.buy_sell_indicator }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

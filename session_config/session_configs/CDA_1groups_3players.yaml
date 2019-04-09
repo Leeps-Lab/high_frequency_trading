@@ -1,15 +1,15 @@
 demo:
-  number-of-participants: 5
+  number-of-participants: 3
 
 group:
   number-of-groups: 1
-  players-per-group: 5
+  players-per-group: 3
 
 exogenous-events:
   investor-arrivals:
-    - session_config/Pilot/Trial1/investors_trial.csv
-    - session_config/Pilot/Trial1/investors_trial.csv
-    - session_config/Pilot/Trial1/investors_trial.csv
+    - investors_trial.csv
+    - investors_trial.csv
+    - investors_trial.csv
     
 market:
   auction-format: 'CDA'
@@ -29,10 +29,9 @@ parameters:
 session:
   environment: elo
   currency: EUR
-  display-name: CDA Production
+  display-name: HFT - ELO - CDA - 3 Trade Sessions of 10 seconds - 3 traders
   exchange-rate: 1.5
   num-rounds: 3
   participation-fee: 4
   random-round-payment: off
   session-name: ELO_Development_Session_3_rounds_1_market_10_sec
-  exogenous-event-directory: Pilot

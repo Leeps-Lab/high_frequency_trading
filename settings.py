@@ -18,8 +18,8 @@ POINTS_DECIMAL_PLACES = 2
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
 if environ.get('OTREE_PRODUCTION') not in {None, '', '0'}:
     DEBUG = False
-elif 'OTREE_PRODUCTION' not in os.environ:
-    DEBUG = False
+# elif 'OTREE_PRODUCTION' not in os.environ:
+#     DEBUG = False
 else:
     DEBUG = True
 
@@ -209,6 +209,7 @@ SESSION_CONFIG_DEFAULTS = {
     'doc': ''
 }
 
+order_flow_configs_directory = os.path.join(os.getcwd(), 'session_config/orderflows')
 SESSION_CONFIGS = []
 
 # read configurations
@@ -223,6 +224,5 @@ for config in custom_configs:
     else:
         otree_configs.append(otree_config)
 
-SESSION_CONFIGS.extend(otree_configs)
-
+SESSION_CONFIGS.extend(otree_configs) 
 otree.settings.augment_settings(globals())

@@ -26,7 +26,7 @@ exogenous_event_endpoints = {
     'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/{subsession_id}'
 }
 
-exogenous_event_client = 'hft/exogenous_event_client.py'
+exogenous_event_client = 'hft/exogenous_event_emitter.py'
 
 available_exchange_ports = {
     'CDA': list(range(9010, 9000, -1)),
@@ -130,8 +130,6 @@ def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fiel
         if field in clean_message and clean_message[field] not in (MIN_BID, MAX_ASK):
             clean_message[field] = int(int(clean_message[field]) * multiplier)
     return clean_message
-            
-
-
+        
 
 

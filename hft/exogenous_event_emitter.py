@@ -4,32 +4,18 @@ try:
 except ImportError:
     import _thread as thread
 import logging
-import csv
-from collections import deque
 import sys
-import os
 import time
 import json
 
 log = logging.getLogger(__name__)
 
+class ExogenousEventClient(object):
 
-class ExogenousEvent(object):
-
-    def __init__(self, url, filename):
+    def __init__(self, url, event_type, data):
         self.url = url
-        self.filename = filename
-        self.data = deque()
-
-    def read(self):
-        """
-        read arrival side&time
-        store as (time, side) tuples
-        """
-        with open(self.filename) as f:
-            reader=csv.reader(f)
-            for row in reader:
-                self.data.appendleft(row)
+        self.data = json.loads(data)
+        self.event_type = event_type
 
     def run(self):
         """
@@ -61,39 +47,28 @@ class ExogenousEvent(object):
         ws.on_open = on_open
         self.ws = ws
 
-class BCSExogenousEvent(ExogenousEvent):
-
-    def __init__(self, event_type, url, filename):
-        super().__init__(url, filename)
-        self.event_type = event_type
-        self.read()
+class ExogenousEventEmitter(ExogenousEventClient):
 
     def run(self):
         """
         Implements investor behaviour
         """
-        column_names = self.data.pop()
+        orders = self.data
         time_prev = 0
-        for row in range(len(self.data)):
-            row = self.data.pop()
-            msg_time = float(row[0])
+        for row in orders:
+            payload = row['fields']
+            msg_time = payload['arrival_time']
             sleep_time = msg_time - time_prev
-            msg = {}
-            for ix, field in enumerate(row):
-                key = column_names[ix]
-                msg[key] = field
-            msg['type'] = self.event_type
+            payload['type'] = self.event_type
             log.info('Sleep %f (%f:%f) seconds.' % (sleep_time, time_prev, msg_time))
             time.sleep(sleep_time)
-            self.ws.send(json.dumps(msg))
+            self.ws.send(json.dumps(payload))
             time_prev = msg_time
         time.sleep(0.5)
         self.ws.close()
 
-
 def main():
-    investor = BCSExogenousEvent(*sys.argv[1:])
-    investor.read()
+    investor = ExogenousEventEmitter(*sys.argv[1:])
     investor.add_ws()
     investor.ws.run_forever()
 

@@ -3,7 +3,6 @@
 
 import logging
 from jsonfield import JSONField
-
 from otree.db.models import Model, ForeignKey
 from otree.api import ( 
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
@@ -165,12 +164,14 @@ class Player(BasePlayer):
     slider_a_y = models.FloatField(blank=True)
     order_imbalance = models.FloatField(blank=True)
     reference_price = models.FloatField(blank=True)
-    tax = models.IntegerField(blank=True)
+    tax = models.IntegerField(initial=0)
 
     def configure_for_trade_session(self, exchange_host:str, exchange_port:int, 
         market_id:str, session_format:str):
         self.exchange_host = exchange_host
         self.exchange_port = exchange_port
         self.market_id = market_id
-        utility.configure_model_for_market('player', self, session_format, self.session.config)
+        utility.configure_model_for_market('player', self, session_format, 
+            self.session.config)
         self.save()
+

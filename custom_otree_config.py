@@ -84,6 +84,7 @@ config_maps = {
         },
     'elo': { 
         'name': ('session', 'session-name'),
+        'display_name': ('session', 'display-name'),
         'real_world_currency_per_point': ('session', 'exchange-rate'),
         'auction_format': ('market', 'auction-format'),
         'participation_fee': ('session', 'participation-fee'),
@@ -106,8 +107,6 @@ config_maps = {
         'period_length': ('parameters', 'period-length'),
         'group_matrix': ('group', 'group-assignments'),
         'batch_length': ('parameters', 'batch-length'),
-        'random_round_payment': ('session', 'random-round-payment'),
-        'exogenous_event_directory': ('session', 'exogenous-event-directory'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'grid_size': ('parameters', 'grid-size')
     }

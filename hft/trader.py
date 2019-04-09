@@ -114,12 +114,10 @@ class BCSTrader(BaseTrader):
                 trade_cost = getattr(self, field)
                 try:
                     self.cost += trade_cost
-                    print('field {} cost {}'.format(field, trade_cost) )
                 except:
                     log.exception('failed to add cost: {}'.format(trade_cost))
         self.wealth = self.cash - self.cost
-            
-        
+
     def speed_change(self, **kwargs):
         """
         switch between on speed, off speed
@@ -255,7 +253,7 @@ class ELOTrader(BCSTrader):
     def close_session(self, **kwargs):
         tax_rate = kwargs['tax_rate']
         reference_price = kwargs['reference_price']
-        self.tax = tax_rate * (reference_price * self.orderstore.inventory)
+        self.tax = abs(tax_rate * (reference_price * self.orderstore.inventory))
         self.cash += reference_price * self.orderstore.inventory
         super().close_session()
 

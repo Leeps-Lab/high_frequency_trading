@@ -6,19 +6,22 @@
 
 {% block content %}
 
-<h3>HFT Market data exports</h3>
-{% if sessions %}
-	<ul>
-		{% for session in sessions %}     
-		<li> 
-			<a href="{% url 'hft_export_csv' session.code %}">
-				<img src='{% static "glyphicons/download-alt.png" %}'>
-				Download in-session trader data for session {{ session.code }} 
-			</a>
-		</li>
-		{% endfor %}
-	</ul>
+	<h3>HFT Market data exports</h3>
+	{% if sessions %}
+		<ul>
+			{% for session in sessions %}     
+			<li> 
+				<a href="{% url 'hft_export_csv' session.code %}">
+					<img src='{% static "glyphicons/download-alt.png" %}'>
+					Download in-session trader data for session {{ session.code }} 
+				</a>
+			</li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<h3> No data to show.</h3>
 {% endif %}
+
 
 
 {% endblock %}

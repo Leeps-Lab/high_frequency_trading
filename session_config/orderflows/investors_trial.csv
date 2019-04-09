@@ -1,4 +1,4 @@
-time,market_id_in_subsession,price,time_in_force,buy_sell_indicator
+arrival_time,market_id_in_subsession,price,time_in_force,buy_sell_indicator
 2,1,1000000,40,S
 3,1,960000,40,B
 3.1,1,1000000,40,S
