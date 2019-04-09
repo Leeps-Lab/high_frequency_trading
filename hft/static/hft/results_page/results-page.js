@@ -45,7 +45,8 @@ class ResultsPage extends PolymerElement {
 
     </style>
 
-    <div id="outer" class="parent" style="text-align:center">
+    <div style="text-align:center"><h1>Trade Session Results</h1></div>
+    <div id="outer" class="parent" style="text-align:center;">
     </div>
     `;
   }
@@ -68,21 +69,23 @@ class ResultsPage extends PolymerElement {
     const cellsPerRow = Math.round(this.numPlayers/numRows);
 
     // set dimensions for cells
-    let widthScale;
+    let widthScale = cellsPerRow;
+    /*
     if(cellsPerRow <= this.numPlayers/numRows) {
       widthScale = cellsPerRow;
     }
     else {
       widthScale = cellsPerRow + this.numPlayers % numRows;
-    }
+    } */
     const width = (window.innerWidth * 0.85)/widthScale;
     const height = (window.innerHeight * 0.85)/numRows;
 
     let charts = document.createElement("table");
-    charts.setAttribute("style", "display:inline-block");
+    charts.setAttribute("style", "width:100%;");
     let rows = []
     for(let i = 0; i < numRows; i++) {
-      let row = document.createElement("tr");
+      let row = document.createElement("div");
+      row.setAttribute("style", "display:flex; justify-content:space-around;");
       rows.push(row);
     }
 
@@ -104,8 +107,8 @@ class ResultsPage extends PolymerElement {
       let myInv = invs[low];
       let myImb = imbs[low];
 
-      let cell = document.createElement("td");
-      cell.setAttribute("style", "display:inline-block");
+      //let cell = document.createElement("td");
+      //cell.setAttribute("style", "display:inline-block");
       let node = document.createElement("div");
       node.setAttribute("class", "child");
       let child = document.createElement("results-cell");
@@ -118,11 +121,15 @@ class ResultsPage extends PolymerElement {
       child.imbSensitivity = myImb;
       child.width = width;
       child.height = height;
+      node.width = width;
+      node.height = height;
       node.appendChild(child);
-      cell.appendChild(node);
+      //cell.appendChild(node);
       //const pos = Math.ceil(i/numRows - 1);
       //console.log(pos);
-      rows[currCell].appendChild(cell);
+      //rows[currCell].appendChild(cell);
+      rows[currCell].appendChild(node);
+
       cellCount++;
       if(cellCount >= cellsPerRow && currCell != numRows) {
         currCell++;
@@ -134,7 +141,10 @@ class ResultsPage extends PolymerElement {
     }
 
     for(let i = 0; i < rows.length; i++) {
-      charts.appendChild(rows[i]);
+      let bigRow = document.createElement("tr");
+      bigRow.appendChild(rows[i]);
+      //charts.appendChild(rows[i]);
+      charts.appendChild(bigRow);
     }
     this.$.outer.appendChild(charts);
   }
@@ -152,27 +162,27 @@ class ResultsPage extends PolymerElement {
       },*/
       nets: {
         type: Object,
-        //value: {player:30,foo:20,bar:90,the:40}
+        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
       },
       taxes: {
         type: Object,
-        //value: {player:10,foo:15,bar:13,the:20}
+        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
       },
       names: {
         type: Object,
-        //value: {player:"Player",foo:"Trader 1",bar:"Trader 2",the:"Trader 3"}
+        //value: {player:"Player",foo:"Trader 1",bar:"Trader 2",the:"Trader 3",a:"a",b:"b",c:"c",d:"d"}
       },
       strategies: {
         type: Object,
-        //value: {player:{player:30,foo:20,bar:90,the:40},foo:{player:30,foo:20,bar:90,the:40},bar:{player:30,foo:20,bar:90,the:40},the:{player:30,foo:20,bar:90,the:40}}
+        //value: {player:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},foo:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},bar:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},the:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},a:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},b:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},c:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},d:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}}
       },
       invSensitivities: {
         type: Object,
-        //value: {player:40,foo:10,bar:90,the:30}
+        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
       },
       imbSensitivities: {
         type: Object,
-        //value: {player:30,foo:20,bar:100,the:40}
+        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
       }
     }
   }
