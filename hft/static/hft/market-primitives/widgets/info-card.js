@@ -13,6 +13,7 @@ class InfoCard extends PolymerElement {
         
     constructor(){
         //Can't this be intialized in markup where this is used?
+        //Are these needed? They are initialized in markup
         super();
         this.title = '#title';
         this.value = 0;

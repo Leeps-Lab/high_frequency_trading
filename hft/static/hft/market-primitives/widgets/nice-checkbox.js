@@ -89,6 +89,8 @@ class NiceCheckbox extends PolymerElement {
               value: false,
               reflectToAtrribute: true
             },
+            //https://polymer-library.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties
+            //websocketMessage:Object,
             isChecked: {
               type: Boolean,
               reflectToAtrribute: true,
@@ -102,8 +104,11 @@ class NiceCheckbox extends PolymerElement {
 
     checkboxClicked(event) {
       event.preventDefault();
-      //Pass in message type as parameter
+      //Pass in within markup
+      //They can be configured within environment examples
+      //https://polymer-library.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties
       let socketMessage = {type: 'speed_change', value: !this.isActive }        
+      //If message obj passed through markup then we would have  to add in value field
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });   
         this.dispatchEvent(userInputEvent);

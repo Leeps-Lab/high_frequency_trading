@@ -78,7 +78,9 @@ class PlayerRoleButton extends PolymerElement {
     static get properties(){
         return {
             roleName: String,
-            playerRole: String
+            playerRole: String,
+            //https://polymer-library.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties
+            //websocketMessage:Object,
         }
     }
             
@@ -89,9 +91,13 @@ class PlayerRoleButton extends PolymerElement {
     _handleClick(){
         let socketMessage = {
             type: 'role_change',
+            //If initialized in markup we would
+            //just add the state tot he websocketMessage obj
             state: this.roleName,
         }
-        //Again predefined message type
+        //Pass in within markup
+        //They can be configured within environment examples
+        //https://polymer-library.polymer-project.org/1.0/docs/devguide/properties#configuring-object-and-array-properties
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });
             

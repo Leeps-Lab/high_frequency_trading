@@ -16,7 +16,7 @@ class MarketPriceCard extends PolymerElement {
 
   constructor(){
     super();
-    //SET CURRENCY WHERE INITIALIZED NO NEED FOR INSIDE CONSTRUCTOR
+    //Set currency within the markup where it is initialized
     this.currency = '$';
   }
 

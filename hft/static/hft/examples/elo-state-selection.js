@@ -3,7 +3,9 @@ import '../market-primitives/widgets/player-role-button.js'
 import '../market-primitives/widgets/nice-checkbox.js'
 
 class StateSelection extends PolymerElement {
-
+    //Since this is an ELO specific example
+    //We can deal with any number of sliders or buttons here
+    //It is not a primitive
     static get template() {
         return html`
         <link rel="stylesheet" href="/static/hft/css/range.css">
