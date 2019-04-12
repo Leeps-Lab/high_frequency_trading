@@ -1,0 +1,37 @@
+:host {
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    font-family: monospace;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    background: #4F759B;
+  }
+
+  .title {
+    display: inline-block;
+    width: 33%;
+    text-align: center;
+    background: #FFFFF0;
+  }
+
+  .row {
+    display: inline-block;
+    margin: 5px;
+    width: 33%;
+    height: 100%;
+  }
+
+  #small-row {
+    margin: 5px;
+    width: 34%;
+    height: 100%;
+    align-items: flex-start;
+  }

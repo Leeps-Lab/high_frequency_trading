@@ -16,6 +16,7 @@ class MarketPriceCard extends PolymerElement {
 
   constructor(){
     super();
+    //SET CURRENCY WHERE INITIALIZED NO NEED FOR INSIDE CONSTRUCTOR
     this.currency = '$';
   }
 
@@ -52,7 +53,7 @@ class MarketPriceCard extends PolymerElement {
       .fullCard {
         height: 100%;
         width: 100%;
-        background: #FFFFF0;
+        background:var(--background-color-white);
         display: flex;
         flex-direction: column;
         justify-content: center;

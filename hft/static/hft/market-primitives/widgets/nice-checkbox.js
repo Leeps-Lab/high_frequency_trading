@@ -102,7 +102,7 @@ class NiceCheckbox extends PolymerElement {
 
     checkboxClicked(event) {
       event.preventDefault();
-      // TODO: pass in event name as a parameter to checkbox
+      //Pass in message type as parameter
       let socketMessage = {type: 'speed_change', value: !this.isActive }        
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });   

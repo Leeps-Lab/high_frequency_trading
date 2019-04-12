@@ -91,7 +91,7 @@ class PlayerRoleButton extends PolymerElement {
             type: 'role_change',
             state: this.roleName,
         }
-
+        //Again predefined message type
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });
             

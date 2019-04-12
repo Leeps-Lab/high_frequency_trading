@@ -5,6 +5,7 @@ class BidAskSpread extends PolymerElement {
 
     static get properties(){
       return {
+        //FIND WAYS TO LOAD THESE VAUES IN ALL COMPONENTS?
         titleLeft: String,
         titleRight: String,
         bid: Number,
@@ -17,6 +18,7 @@ class BidAskSpread extends PolymerElement {
     }
 
     static get template() {
+      //Seperate HTML and CSS files into .tpl and .css files?
       return html`
         <style>
   
