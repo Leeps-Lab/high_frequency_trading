@@ -6,7 +6,6 @@ import os
 from twisted.internet import reactor
 from twisted.internet import task
 from .utility import format_message
-from .cache import get_cache_key
 from collections import deque
 from . import exchange
 from .dispatcher import LEEPSDispatcher
@@ -18,6 +17,7 @@ from otree.timeout.tasks import hft_background_task
 import sys
 from django.core import serializers
 from .exogenous_event import get_exogenous_event_queryset
+from .internal_event_message import MarketEndMessage
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +29,8 @@ class TradeSessionFactory:
 class TradeSession:
 
     market_factory = MarketFactory
+
+    model_name = 'trade_session'
 
     events_dispatch = {
         'market_ready_to_start': 'start_trade_session',
@@ -110,10 +112,8 @@ class LEEPSTradeSession(TradeSession):
             for market_id, _ in self.market_state.items():
                 create_exchange_connection(self, market_id)
                 reset_exchange(self, market_id)
-                message_content = {'type': 'market_start', 'market_id': market_id,
-                    'subsession_id': self.subsession_id, 'session_length': self.subsession.round_length}
-                message = format_message('derived_event', **message_content)
-                self.outgoing_messages.append(message)
+                self.event.internal_event_msgs(
+                    'market_start', market_id=market_id, model=self)
                 self.trading_markets.append(market_id)
             self.start_exogenous_events()
             self.is_trading = True
@@ -129,9 +129,8 @@ class LEEPSTradeSession(TradeSession):
                 while self.trading_markets:
                     market_id = self.trading_markets.pop()
                     stop_exchange_connection(self, market_id)
-                    message_content = {'type': 'market_end', 'market_id': market_id,
-                        'subsession_id': self.subsession_id}
-                    message = format_message('derived_event', **message_content)
+                    msg = MarketEndMessage(
+                        'market_end', market_id=market_id, model=self)
                     LEEPSDispatcher.dispatch(message['message_type'], message)
                 self.stop_exogenous_events(clients=clients)
                 self.subsession.session.advance_last_place_participants()

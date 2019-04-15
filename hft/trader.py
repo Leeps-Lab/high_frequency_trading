@@ -19,9 +19,9 @@ class TraderFactory:
     def get_trader(self):
         raise NotImplementedError()
 
-class ELOTraderFactory:
+class TraderFactory:
     @staticmethod
-    def get_trader(role_name, subject_state):
+    def get_trader(market_environment, role_name, subject_state):
         if role_name == 'manual':
             return ELOManual(subject_state)
         elif role_name == 'out':

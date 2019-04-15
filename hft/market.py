@@ -25,18 +25,18 @@ class MarketFactory:
 
 class BaseMarket:
     market_events_dispatch = {}
-    _ids = itertools.count(1,1)
     state_factory = SubjectStateFactory
     session_format = None
     tag_all_events_with = ()
 
-    def __init__(self, group_id, id_in_subsession, subsession_id, exchange_host, exchange_port, **kwargs):
+    def __init__(self, group_id, id_in_subsession, subsession_id, exchange_host, 
+                 exchange_port, **kwargs):
         self.market_id = str(group_id)
         self.id_in_subsession = id_in_subsession
         self.subsession_id = subsession_id
         self.exchange_address = (exchange_host, exchange_port)
         self.is_trading = False
-        self.ready_to_trade= False
+        self.ready_to_trade = False
         self.subscribers = {}
         self.players_in_market = {}
 
@@ -71,7 +71,8 @@ class BaseMarket:
                     handler = getattr(self, handler_info)
                     handler(*args, **kws)
             for field in self.tag_all_events_with:
-                path = list(reversed(field.split('.')))    # in case it is a subproperty
+                 # in case it is a subproperty
+                path = list(reversed(field.split('.')))   
                 field = path.pop()
                 value = getattr(self, field)
                 if len(path):
@@ -119,18 +120,12 @@ class BCSMarket(BaseMarket):
             else False)
         if market_ready_condition is True:
             self.ready_to_trade = True
-            message_content = {'type': 'market_ready_to_start', 'market_id': self.market_id,
-                'subsession_id': self.subsession_id}
-            internal_message = format_message('derived_event', **message_content)
-            self.outgoing_messages.append(internal_message)
+            self.event.internal_event_msgs('market_ready_to_start', model=self)
     
     def player_reached_session_end(self, **kwargs):
         player_id = int(kwargs.get('player_id'))
         self.players_in_market[player_id] = False
-        message_content = {'type': 'market_ready_to_end', 'market_id': self.market_id,
-                'subsession_id': self.subsession_id}
-        internal_message = format_message('derived_event', **message_content)
-        self.outgoing_messages.append(internal_message)
+        self.event.internal_event_msgs('market_ready_to_end', model=self)
 
     def fundamental_price_change(self, **kwargs):
         new_fp = int(kwargs['new_fundamental'])
@@ -188,7 +183,6 @@ class ELOMarket(BCSMarket):
         for pid in self.players_in_market.keys():
             self.role_group.update(nanoseconds_since_midnight(), pid, 'out')
 
-
     def role_change(self, *args, **kwargs):
         player_id = kwargs['player_id']
         new_role = kwargs['state']
@@ -199,13 +193,8 @@ class ELOMarket(BCSMarket):
         reference_price = self.reference_price.step(price)
         self.event.broadcast_messages('reference_price', market_id=self.market_id, 
             price=reference_price)
-        message_content = {
-            'type':'reference_price_change', 
-            'reference_price': reference_price, 
-            'market_id': self.market_id,
-            'subsession_id': self.subsession_id}
-        internal_message = format_message('derived_event', **message_content)
-        self.outgoing_messages.append(internal_message)
+        self.event.internal_event_msgs(
+            'reference_price_change', reference_price=reference_price, model=self)
     
     def order_imbalance_change(self, **kwargs):
         buy_sell_indicator = kwargs.get('buy_sell_indicator')
@@ -216,15 +205,10 @@ class ELOMarket(BCSMarket):
         if new_order_imbalance != self.order_imbalance:
             new_order_imbalance = round(new_order_imbalance, 2)
             maker_ids = self.role_group['maker', 'taker']
-            message_content = {
-                'type':'order_imbalance_change', 
-                'order_imbalance': new_order_imbalance, 
-                'trader_ids': maker_ids,
-                'market_id': self.market_id,
-                'subsession_id': self.subsession_id,
-                'buy_sell_indicator': buy_sell_indicator}
-            internal_message = format_message('derived_event', **message_content)
-            self.outgoing_messages.append(internal_message)
+            self.event.internal_event_msgs(
+                'order_imbalance_change', order_imbalance=new_order_imbalance, 
+                buy_sell_indicator=buy_sell_indicator, trader_ids=maker_ids,
+                model=self)
             self.event.broadcast_messages('order_imbalance', model=self, 
                 value=new_order_imbalance)
         
@@ -234,13 +218,9 @@ class ELOMarket(BCSMarket):
         self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
         self.next_bid, self.next_offer = kwargs['next_bid'], kwargs['next_ask']
         maker_ids = self.role_group['maker', 'taker']
-        message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance.order_imbalance, 
-            'market_id': self.market_id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
-            'trader_ids': maker_ids, 'volume_at_best_bid': self.volume_at_best_bid,
-            'volume_at_best_offer': self.volume_at_best_offer, 'next_bid': self.next_bid,
-            'next_offer': self.next_offer, 'subsession_id': self.subsession_id}
-        internal_message = format_message('derived_event', **message_content)
-        self.outgoing_messages.append(internal_message)
+        self.event.internal_event_msgs(
+            'bbo_change', order_imbalance=self.order_imbalance.order_imbalance,
+            model=self, trader_ids=maker_ids)
         self.event.broadcast_messages('bbo', model=self)
         
 

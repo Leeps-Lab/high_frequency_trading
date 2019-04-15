@@ -1,5 +1,5 @@
 from .cache import (get_cache_key, write_to_cache_with_version, cache_timeout,
-    get_trader_ids_by_market)
+        get_trader_ids_by_market)
 from . import utility
 from .subject_state import SubjectStateFactory
 from .trader import CDATraderFactory, FBATraderFactory, ELOTraderFactory 
@@ -21,6 +21,7 @@ SUBPROCESSES = {}
 
 class HandlerFactory:
 
+
     @staticmethod
     def get_handler(handler_type):
         if handler_type == 'trader':
@@ -37,6 +38,7 @@ class HandlerFactory:
             return role_based_events
         else:
             raise Exception('unknown event: %s' % handler_type)
+
 
 def leeps_handle_trader_message(event, exchange_format='CDA', session_format='elo', 
         **kwargs):

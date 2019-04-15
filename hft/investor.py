@@ -2,7 +2,7 @@ from .trader import BCSTrader
 from .orderstore import OrderStore
 from .utility import format_message
 from collections import deque
-
+import itertools
 
 class InvestorFactory:
     @staticmethod
@@ -15,13 +15,13 @@ class ELOInvestor(BCSTrader):
     message_dispatch = { 'A': 'accepted', 'investor_arrivals': 'invest',
         'E': 'executed', 'C': 'canceled'}
 
-    def __init__(self, subsession_id, market_id, market_id_in_subsession, exchange_host, exchange_port):
-        self.id = 0
+    def __init__(self, subsession_id, market_id, market_id_in_subsession, 
+                 exchange_host, exchange_port):
         self.subsession_id = subsession_id
-        self.market_id = market_id
+        self.id = market_id
         self.exchange_host = exchange_host
         self.exchange_port = exchange_port
-        self.orderstore = OrderStore(0, market_id_in_subsession)
+        self.orderstore = OrderStore(self.id, market_id_in_subsession, token_prefix='INV')
         self.outgoing_messages = deque()
 
     def invest(self, **kwargs):

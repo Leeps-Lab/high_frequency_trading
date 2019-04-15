@@ -2,7 +2,6 @@ from ._builtin import Page, WaitPage
 import logging
 from django.core.cache import cache
 from django.conf import settings
-from .cache import get_cache_key
 import json
 import time
 from .output import HFTPlayerStateRecord, elo_player_summary, state_for_results_template
@@ -37,13 +36,13 @@ class ResultsWaitPage(WaitPage):
             num_results_ready = HFTPlayerStateRecord.objects.filter(subsession_id=
                 self.subsession.id, market_id=self.group.id, trigger_event_type=
                 'market_end').count()
-            num_players = self.group.player_set.count()            
+            num_players = self.group.player_set.count()
+            log.warning('waiting for results for market {}, {}/{} results ready'.format(
+                self.group.id, num_results_ready, num_players))            
             if  num_results_ready == num_players:
                 results_ready = True
                 break
             else:
-                log.warning('waiting for results for market {}, {}/{} results ready'.format(
-                    self.group.id, num_results_ready, num_players))
                 time.sleep(sleep_time)
                 total_slept += sleep_time
         if results_ready:

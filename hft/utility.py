@@ -45,6 +45,13 @@ def format_message(message_type, **kwargs):
         message['payload'][k] = v
     return message
 
+def process_configs(session_format, session_configs):
+    clean_confs = type_check_configs(
+        session_format, session_configs)
+    clean_confs = scale_configs(
+        session_format, clean_confs)
+    return clean_confs
+
 def type_check_configs(session_format, session_configs):
     market_settings = market_environments.environments[session_format]
     cleaned_configs = dict(session_configs)

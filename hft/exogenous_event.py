@@ -4,8 +4,20 @@ from otree.api import models
 import csv
 from otree.common_internal import random_chars_8
 import logging
+from .investor import InvestorFactory
 
 log = logging.getLogger(__name__)
+
+
+class ExogenousEventModelFactory:
+
+    @staticmethod
+    def get_message(event_type_name, *args, **kwargs):
+        if event_type_name == 'investor_arrivals':
+            return InvestorFactory(*args, **kwargs)
+        else:
+            raise Exception('invalid message source: %s' % message_source)
+
 
 class ExogenousOrderFile(Model):
 

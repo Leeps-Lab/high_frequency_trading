@@ -10,9 +10,9 @@ class OutboundMessage:
 
     required_fields = ()
     type_field_name = 'type'
-    message_count = count(1,1)
+    message_count = count(1, 1)
 
-    def __init__(self, message_data:dict):
+    def __init__(self, message_data: dict):
         self.reference_no = next(self.message_count)    
         self.data = message_data  
 
@@ -46,7 +46,7 @@ class OutboundMessage:
 
     @classmethod           
     def clean(cls, message_data):
-        raise NotImplementedError()
+        return message_data
 
 
 class BroadcastWSMessage(OutboundMessage):
@@ -55,7 +55,7 @@ class BroadcastWSMessage(OutboundMessage):
 
     @classmethod
     def clean(cls, message_data, scaler=elo_scaler):
-        clean_message =dict(message_data)
+        clean_message = dict(message_data)
         if len(cls.required_fields) != len(cls.required_field_types):
             raise Exception('required fields length %d, required field types length: %d'
                 % (len(cls.required_fields), len(cls.required_field_types)))
@@ -69,7 +69,7 @@ class BroadcastWSMessage(OutboundMessage):
     def to_json(self): 
         return json.dumps(self.data)
 
-class BroadcastMessageFactory:
+class MessageFactory:
 
     message_types = {}
 
@@ -83,6 +83,11 @@ class BroadcastMessageFactory:
         else:
             message = message_class.create(message_type, **kwargs)
             return message
+
+
+class InternalEventMessage(OutboundMessage):
+    pass
+
 
 class OutboundExchangeMessage(OutboundMessage):
 

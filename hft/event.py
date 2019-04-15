@@ -3,7 +3,8 @@ from itertools import count
 from . import translator
 import json
 from .message_registry import MessageRegistry
-from .outbound_message import ELOBroadcastMessageFactory
+from .broadcast_message import ELOBroadcastMessageFactory
+from .internal_event_message import ELOInternalEventMessageFactory
 
 class EventFactory:
 
@@ -21,11 +22,14 @@ class EventFactory:
 
 class Event:
 
-    __slots__ = ('subsession_id', 'market_id', 'player_id', 'resulting_events', 
-        'attachments', 'outgoing_messages', 'message', 'event_type', 'event_source', 'reference_no')
+    __slots__ = (
+        'subsession_id', 'market_id', 'player_id', 'resulting_events', 
+        'attachments', 'outgoing_messages', 'message', 'event_type', 
+        'event_source', 'reference_no')
     translator_cls = None
-    broadcast_message_factory = None
-    event_id = count(1,1)
+    internal_event_msg_factory = None
+    broadcast_msg_factory = None
+    event_id = count(1, 1)
 
     def __init__(self, event_source, message, **kwargs):
         self.reference_no = next(self.event_id)
@@ -37,7 +41,8 @@ class Event:
         self.message = message
         self.attachments = {}
 
-        self.broadcast_messages = MessageRegistry(self.broadcast_message_factory)
+        self.internal_event_msgs = MessageRegistry(internal_event_msg_factory)
+        self.broadcast_msgs = MessageRegistry(broadcast_message_factory)
         self.outgoing_messages = deque()
     
     def __str__(self):
@@ -50,7 +55,10 @@ class Event:
 {self.message} 
 
     broadcast messages: 
-{self.broadcast_messages}
+{self.broadcast_msgs}
+
+    derived event messages:
+{self.internal_event_msgs}
 
     attachments: 
 {self.attachments}
@@ -76,7 +84,8 @@ class ELOEvent(Event):
         'attachments', 'outgoing_messages', 'message', 'event_type', 'event_source', 
         'broadcast_messages', 'reference_no')
     translator_cls = translator.LeepsOuchTranslator   
-    broadcast_message_factory = ELOBroadcastMessageFactory
+    broadcast_msg_factory = ELOBroadcastMessageFactory
+    internal_event_msg_factory = ELOInternalEventMessageFactory
 
         
         

@@ -5,7 +5,6 @@ import itertools
 log = logging.getLogger(__name__)
 
 class OrderStore:
-    token_prefix = 'SUB'
     order_format = '<Order{{ {order_token}:@{price}:{status}:{time_in_force} }}>'
     confirm_message_dispatch ={
         'enter': '_confirm_enter',
@@ -14,7 +13,7 @@ class OrderStore:
         'executed': '_confirm_execution'
     }
 
-    def __init__(self, player_id, in_group_id):
+    def __init__(self, player_id, in_group_id, token_prefix='SUB'):
         self.player_id = player_id
         self.subject_code = chr(int(in_group_id) + 64)
         self.counter = itertools.count(1,1)
