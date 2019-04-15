@@ -72,23 +72,23 @@ class StateSelection extends PolymerElement {
                     <div class="header-container">
                         Speed
                     </div>
-                    <nice-checkbox is-active={{speedOn}}> </nice-checkbox>
+                    <nice-checkbox event-dispatch="user-input" websocket-message='{"type": "speed_change"}' is-active={{speedOn}}> </nice-checkbox>
                 </div>
                 
                 <div id="second-column" class="column-container">
                     <div>
-                        <player-role-button role-name="manual" player-role=[[role]]>
+                        <player-role-button event-dispatch="user-input" websocket-message='{ "type": "role_change", "state": "manual" }' role-name="manual" player-role=[[role]]>
                         </player-role-button>
 
-                        <player-role-button role-name="maker" player-role=[[role]]>
+                        <player-role-button event-dispatch="user-input" websocket-message='{ "type": "role_change", "state": "maker" }' role-name="maker" player-role=[[role]]>
                         </player-role-button>
                     </div>
 
                     <div>
-                        <player-role-button role-name="out" player-role=[[role]]>
+                        <player-role-button event-dispatch="user-input" websocket-message='{ "type": "role_change", "state": "out" }' role-name="out" player-role=[[role]]>
                         </player-role-button>
 
-                        <player-role-button role-name="taker" player-role=[[role]]>
+                        <player-role-button event-dispatch="user-input" websocket-message='{ "type": "role_change", "state": "taker" }' role-name="taker" player-role=[[role]]>
                         </player-role-button>
                     </div>
                 </div>
