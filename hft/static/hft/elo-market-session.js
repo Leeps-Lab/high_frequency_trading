@@ -41,7 +41,7 @@ class MarketSession extends PolymerElement {
                 justify-content: flex-start;
                 align-items: center;
                 font-weight: bold;
-                height: 27vh;
+                height: 31vh;
                 width: 100vw; 
                 background: var(--background-color-blue) ;
                 border-top: 3px solid #ED6A5A;
@@ -55,7 +55,7 @@ class MarketSession extends PolymerElement {
 
             profit-graph {
                 width: 100%;
-                height: 300px;
+                height: 270px;
             }
 
             state-selection {

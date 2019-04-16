@@ -26,10 +26,9 @@ class algorithmSlider extends PolymerElement {
         <div class="header-container slider-header">
             [[sliderName]]: [[val]]
         </div>
-
         <input type="range" class="slider-group" min='[[minValue]]'
             max='[[maxValue]]' value='{{val::mouseup}}'
-            step='[[stepSize]]' >
+            step='[[stepSize]]' disabled$=[[isDisabled]]>
         `;
     }
 
@@ -43,16 +42,8 @@ class algorithmSlider extends PolymerElement {
             isDisabled:Boolean,
         }
     }
-            
     constructor(){
         super();    
-    }
-
-
-    _isSelected(roleName, playerRole) {
-        // use custom class names instead of bool
-        // since polymer and html does not like bools on markup
-        return roleName == playerRole ? 'role-selected' : 'role-not-selected'
     }
 }
 

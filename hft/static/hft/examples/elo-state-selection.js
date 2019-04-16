@@ -62,7 +62,7 @@ class StateSelection extends PolymerElement {
 
             #second-column {
                 width: 50%;
-                align-items: space-evenly;
+                align-items: left;
             }
 
         </style>
@@ -83,18 +83,14 @@ class StateSelection extends PolymerElement {
                             event-dispatch="user-input"  role-name="manual" player-role=[[role]]>
                         </player-role-button>
 
-                        <player-role-button websocket-message='{ "type": "role_change", "state": "maker" }' 
-                            event-dispatch="user-input" role-name="maker" player-role=[[role]]>
+                        <player-role-button websocket-message='{ "type": "role_change", "state": "out" }' 
+                            event-dispatch="user-input" role-name="out" player-role=[[role]]>
                         </player-role-button>
                     </div>
 
                     <div>
-                        <player-role-button websocket-message='{ "type": "role_change", "state": "out" }' 
-                            event-dispatch="user-input"  role-name="out" player-role=[[role]]>
-                        </player-role-button>
-
-                        <player-role-button websocket-message='{ "type": "role_change", "state": "taker"}' 
-                            event-dispatch="user-input" role-name="taker" player-role=[[role]]>
+                        <player-role-button websocket-message='{ "type": "role_change", "state": "maker" }' 
+                            event-dispatch="user-input"  role-name="maker" player-role=[[role]]>
                         </player-role-button>
                     </div>
                 </div>
@@ -118,7 +114,6 @@ class StateSelection extends PolymerElement {
                 </div>
                         
             </div>
-
         `
     }
 
@@ -163,21 +158,21 @@ class StateSelection extends PolymerElement {
             type: "slider",
             a_x: this.slider_a_x,
             a_y: this.slider_a_y,
+            //uncomment below when backend is ready for it
             // a_z: this.slider_a_z
         };
-
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });
-        
         this.dispatchEvent(userInputEvent);
     }
 
     _roleChange(newVal , oldVal) {  
         let sliders = this.shadowRoot.querySelectorAll('algorithm-slider')
         sliders.forEach( (element) => { 
-            console.log(element);
-            newVal == 'taker' || newVal == 'maker' ? element.disabled = false :
-                element.disabled = true }
+            //change "maker" to "algo" when backend has been hooked in
+            //to account for "algo" name
+            newVal != 'maker' ? element.isDisabled = true :
+            element.isDisabled = false }
         )     
     }
   }
