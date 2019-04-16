@@ -1,6 +1,7 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
 import '../market-primitives/widgets/player-role-button.js'
 import '../market-primitives/widgets/nice-checkbox.js'
+import '../market-primitives/widgets/algorithm-slider.js'
 
 class StateSelection extends PolymerElement {
     //Since this is an ELO specific example
@@ -72,23 +73,28 @@ class StateSelection extends PolymerElement {
                     <div class="header-container">
                         Speed
                     </div>
-                    <nice-checkbox event-dispatch="user-input" websocket-message='{"type": "speed_change"}' is-active={{speedOn}}> </nice-checkbox>
+                    <nice-checkbox websocket-message='{"type": "speed_change"}' 
+                        event-dispatch="user-input" is-active={{speedOn}}> </nice-checkbox>
                 </div>
                 
                 <div id="second-column" class="column-container">
                     <div>
-                        <player-role-button event-dispatch="user-input" websocket-message='{ "type": "role_change", "state": "manual" }' role-name="manual" player-role=[[role]]>
+                        <player-role-button websocket-message='{"type": "role_change", "state": "manual"}' 
+                            event-dispatch="user-input"  role-name="manual" player-role=[[role]]>
                         </player-role-button>
 
-                        <player-role-button event-dispatch="user-input" websocket-message='{ "type": "role_change", "state": "maker" }' role-name="maker" player-role=[[role]]>
+                        <player-role-button websocket-message='{ "type": "role_change", "state": "maker" }' 
+                            event-dispatch="user-input" role-name="maker" player-role=[[role]]>
                         </player-role-button>
                     </div>
 
                     <div>
-                        <player-role-button event-dispatch="user-input" websocket-message='{ "type": "role_change", "state": "out" }' role-name="out" player-role=[[role]]>
+                        <player-role-button websocket-message='{ "type": "role_change", "state": "out" }' 
+                            event-dispatch="user-input"  role-name="out" player-role=[[role]]>
                         </player-role-button>
 
-                        <player-role-button event-dispatch="user-input" websocket-message='{ "type": "role_change", "state": "taker" }' role-name="taker" player-role=[[role]]>
+                        <player-role-button websocket-message='{ "type": "role_change", "state": "taker"}' 
+                            event-dispatch="user-input" role-name="taker" player-role=[[role]]>
                         </player-role-button>
                     </div>
                 </div>
@@ -98,22 +104,17 @@ class StateSelection extends PolymerElement {
                         Sensitivities
                     </div>
 
-                    <div class="header-container slider-header">
-                        Inventory: {{slider_a_y}}
-                    </div>
+                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
+                        val='{{slider_a_y::mouseup}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
+                    </algorithm-slider>
+
+                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
+                        val='{{slider_a_x::mouseup}}' slider-name="Imbalence" step-size='[[sliderDefaults.stepSize]]'>
+                    </algorithm-slider>
                     
-            
-                    <input class="slider-group" type="range" min='{{sliderDefaults.minValue}}'
-                        max='{{sliderDefaults.maxValue}}' value='{{slider_a_y::mouseup}}'
-                        step='{{sliderDefaults.stepSize}}'>
-
-                    <div class="header-container slider-header">
-                    Imbalance: {{slider_a_x}}
-                    </div>
-
-                    <input type="range" class="slider-group" min='[[sliderDefaults.minValue]]'
-                        max='[[sliderDefaults.maxValue]]' value='{{slider_a_x::mouseup}}'
-                        step='[[sliderDefaults.stepSize]]'>
+                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
+                        val='{{slider_a_z::mouseup}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
+                    </algorithm-slider>
                 </div>
                         
             </div>
@@ -139,6 +140,11 @@ class StateSelection extends PolymerElement {
             observer: '_sliderValueChange',
             value: 0
           },
+          slider_a_z: {
+            type: Number,
+            observer: '_sliderValueChange',
+            value: 0
+          },
           speedOn: {
             type: Boolean, 
             value: false,
@@ -152,12 +158,14 @@ class StateSelection extends PolymerElement {
     }
 
     _sliderValueChange(newVal,oldVal){
+        
         let socketMessage = {
             type: "slider",
             a_x: this.slider_a_x,
-            a_y: this.slider_a_y
+            a_y: this.slider_a_y,
+            // a_z: this.slider_a_z
         };
-        
+
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });
         
@@ -165,10 +173,9 @@ class StateSelection extends PolymerElement {
     }
 
     _roleChange(newVal , oldVal) {  
-        // since I can't set a disabled=true
-        // at init time on markup using data binding
-        let sliders= this.shadowRoot.querySelectorAll('.slider-group')
+        let sliders = this.shadowRoot.querySelectorAll('algorithm-slider')
         sliders.forEach( (element) => { 
+            console.log(element);
             newVal == 'taker' || newVal == 'maker' ? element.disabled = false :
                 element.disabled = true }
         )     
