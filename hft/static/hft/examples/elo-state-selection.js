@@ -108,8 +108,8 @@ class StateSelection extends PolymerElement {
                         val='{{slider_a_x::mouseup}}' slider-name="Imbalence" step-size='[[sliderDefaults.stepSize]]'>
                     </algorithm-slider>
                     
-                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
-                        val='{{slider_a_z::mouseup}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
+                    <algorithm-slider max-value='1' min='0'
+                        val='{{slider_a_z::mouseup}}' slider-name="Inventory" step-size='1'>
                     </algorithm-slider>
                 </div>
                         

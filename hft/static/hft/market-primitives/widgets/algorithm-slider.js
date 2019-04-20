@@ -39,11 +39,20 @@ class algorithmSlider extends PolymerElement {
             maxValue:Number,
             minValue:Number,
             val:Number,
-            isDisabled:Boolean,
+            isDisabled:{
+                type: Boolean,
+                observer: '_resetVal'
+            },
         }
     }
     constructor(){
         super();    
+    }
+
+    _resetVal(newVal, oldVal){
+        //reseting the value of the sliders when
+        //the sliders are enabled
+        if(newVal == false){this.val = 0;}
     }
 }
 
