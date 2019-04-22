@@ -12,29 +12,24 @@ log = logging.getLogger(__name__)
 class ExogenousEventModelFactory:
 
     @staticmethod
-    def get_message(event_type_name, *args, **kwargs):
+    def get_model(event_type_name, market):
         if event_type_name == 'investor_arrivals':
-            return InvestorFactory(*args, **kwargs)
+            return InvestorFactory.get_model(market)
         else:
-            raise Exception('invalid message source: %s' % message_source)
+            log.warning('no in-memory model for event type %s' % event_type_name)
 
 
-class ExogenousOrderFile(Model):
+class ExogenousEventFile(Model):
 
     upload_time = models.DateTimeField(auto_now_add=True)
     upload_name = models.StringField()
     code = models.CharField(primary_key=True, default=random_chars_8, editable=False, 
         null=False)
+    record_type = models.StringField()
 
-class ExogenousOrderRecord(Model):
 
-    submitted_file = ForeignKey(ExogenousOrderFile, on_delete=models.CASCADE)
-    arrival_time = models.FloatField()
-    market_id_in_subsession = models.StringField()
-    price = models.IntegerField()
-    time_in_force = models.IntegerField()
-    buy_sell_indicator = models.StringField()
-
+class CSVRowMixIn:
+    
     @classmethod
     def from_csv_row(cls, csv_row:list, csv_headers:list, **kwargs):
         instance = cls.objects.create(**kwargs)
@@ -43,7 +38,27 @@ class ExogenousOrderRecord(Model):
             setattr(instance, fieldname, fieldvalue)
         return instance
 
-def handle_investor_file(filename, filelike):
+class ExogenousOrderRecord(Model, CSVRowMixIn):
+
+    submitted_file = ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
+    arrival_time = models.FloatField()
+    market_id_in_subsession = models.StringField()
+    price = models.IntegerField()
+    time_in_force = models.IntegerField()
+    buy_sell_indicator = models.StringField()
+
+
+class ExternalFeedRecord(Model, CSVRowMixIn):
+
+    submitted_file = ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
+    arrival_time = models.FloatField()
+    market_id_in_subsession = models.StringField()
+    e_best_bid = models.IntegerField()
+    e_best_offer = models.IntegerField()
+    e_signed_volume = models.FloatField()
+
+
+def handle_exogenous_event_file(filename, filelike, record_cls, record_type):
     if None in (filename, filelike):
         raise Exception('null input {}:{}'.format(filename, filelike))
     if not isinstance(filename, str):
@@ -53,19 +68,20 @@ def handle_investor_file(filename, filelike):
             raise Exception('invalid filename {}'.format(filename))
     if not len(filename):
         raise Exception('filename should have at least one character %s' % filename) 
-    if ExogenousOrderFile.objects.filter(upload_name=filename).exists():
-        log.warning('investor file: {} already in db, overwriting.'.format(filename))
-        file_record = ExogenousOrderFile.objects.get(upload_name=filename)
+    if ExogenousEventFile.objects.filter(upload_name=filename).exists():
+        log.warning('event file: {} already in db, overwriting.'.format(filename))
+        file_record = ExogenousEventFile.objects.get(upload_name=filename)
         file_record.delete()
         # should cascade
-        if ExogenousOrderRecord.objects.filter(submitted_file=file_record).exists():
-            raise Exception('investor file record delete and cascade failed.')
+        if record_cls.objects.filter(submitted_file=file_record).exists():
+            raise Exception('exogenous event record delete and cascade failed.')
     reader = csv.reader(filelike)
     rows = [row for row in reader]
     headers = rows[0]
-    file_record = ExogenousOrderFile.objects.create(upload_name=filename)
+    file_record = ExogenousEventFile.objects.create(
+        upload_name=filename, record_type=record_type)
     for row in rows[1:]:
-        ex_order = ExogenousOrderRecord.from_csv_row(row, 
+        ex_order = record_cls.from_csv_row(row, 
             headers, submitted_file=file_record)
         ex_order.save()
 
@@ -73,18 +89,22 @@ def handle_investor_file(filename, filelike):
 def get_exogenous_event_queryset(event_type, filename):
     try:
         queryset_info = exogenous_event_queryset[event_type]
+    except KeyError:
+        raise Exception('{}:{} not found'.format(event_type, filename))
+    else:
         event_file_model_cls = queryset_info['event_file_model']
         event_model_cls = queryset_info['event_model']
         event_file_model = event_file_model_cls.objects.get(upload_name=filename)
         queryset = event_model_cls.objects.filter(submitted_file=event_file_model).order_by(
                 queryset_info['order_by'])
-    except KeyError or not queryset:
-        raise Exception('{}:{} not found'.format(event_type, filename))
-    else:
         return queryset
 
 exogenous_event_queryset = {
-    'investor_arrivals': {'event_model': ExogenousOrderRecord, 'event_file_model': ExogenousOrderFile,
+    'investor_arrivals': {
+        'event_model': ExogenousOrderRecord, 'event_file_model': ExogenousEventFile,
+        'order_by': 'arrival_time'},
+    'external_feed': {
+        'event_model': ExternalFeedRecord, 'event_file_model': ExogenousEventFile,
         'order_by': 'arrival_time'}
 }
 

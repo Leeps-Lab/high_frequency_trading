@@ -1,0 +1,28 @@
+{% extends "otree/BaseAdmin.html" %}
+{% load staticfiles %}
+{% load otree_internal staticfiles %}
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+
+    <table class="table">
+        <tr>
+            <th>Arrival Time</th>
+            <th>Market ID</th>
+            <th>External Best Bid</th>
+            <th>External Best Offer</th>
+            <th>External Signed Volume</th>
+        </tr>
+        {% for item in object_list %}
+        <tr> 
+            <td>{{ item.arrival_time }}</td>
+            <td>{{ item.market_id_in_subsession }}</td>
+            <td>{{ item.e_best_bid }}</td>
+            <td>{{ item.e_best_offer }}</td>
+            <td>{{ item.e_signed_volume }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

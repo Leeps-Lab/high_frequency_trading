@@ -1,87 +1,103 @@
-from .cache import model_key_format_str_kw, lock_key_format_str
+from .cache import (
+    model_key_format_str_kw, lock_key_format_str, get_trader_ids_by_market)
 from django.core.cache import cache
 from otree.timeout.tasks import hft_background_task
 from . import checkpoints
 from random import shuffle
-import logging
 from .subject_state import SubjectStateFactory
-from .trader import TraderFactory 
+from .trader import TraderFactory
+import logging
 
 log = logging.getLogger(__name__)
 
 
-class EventHandler:
+class EventHandler(object):
 
+    model_id_field_name = None
     model_name = None
     background_logger = None
 
-    def __init__(self, event, model_id, model_name=model_name, 
-                 market_environment=''):
+    def __init__(self, event, market_environment=''):
         self.market_environment = market_environment
-        self.model_id = model_id
-        self.model_type = model_type
+        self.model_id = getattr(event, self.model_id_field_name)
+        print('handlerid', self.model_id, self.model_id_field_name)
         self.event = event
         self.model_cache_key = model_key_format_str_kw.format(
-            model_id=model_id, model_name=model_name,
-            subssession_id=event.subssession_id)
-        self.cache_lock_key = lock_key_format_str.format(self.model_cache_key)
+            model_id=self.model_id, model_name=self.model_name,
+            subsession_id=event.subsession_id)
+        self.cache_lock_key = lock_key_format_str.format(cache_key=self.model_cache_key)
 
-    def read_model(self):
+    def read_model(self, **kwargs):
         model = cache.get(self.model_cache_key)
         if model is None:
-            Exception('cache key: {self.model_cache_key} returned none,'
+            raise Exception('cache key: {self.model_cache_key} returned none,'
                       'event: {self.event}'.format(self=self))
         else:
             self.model = model
 
     def handle(self, **kwargs):
         with cache.lock(self.cache_lock_key):
-            self.read_model(model_data)
-            message_queue = self.model.outgoing_messages.copy()
+            self.read_model(**kwargs)
             self.model.receive(self.event)
-            self.model.outgoing_messages.clear()
-            self.event.outgoing_messages.extend(message_queue)
+            if hasattr(self.model, 'outgoing_messages'):
+                # old api compatibility
+                message_queue = self.model.outgoing_messages.copy()
+                self.model.outgoing_messages.clear()
+                self.event.outgoing_messages.extend(message_queue)
             self.post_handle()
             cache.set(self.model_cache_key, self.model)
+        return self.event
 
     def post_handle(self, **kwargs):
-        if self.background_logger is not None:
-            hft_background_task(self.background_logger, self.model, self.event.to_kwargs())
+        pass
 
 
-class TraderEventHandler(EventHandler):
+class TraderPostHandleMixIn:
 
+    # so I dont duplicate code
+    def post_handle(self):
+        subject_state_cls = SubjectStateFactory.get_state(self.market_environment) 
+        subject_state = subject_state_cls.from_trader(self.model)
+        hft_background_task(
+            checkpoints.hft_trader_checkpoint, subject_state, 
+            self.event.to_kwargs())
+
+class TraderEventHandler(EventHandler, TraderPostHandleMixIn):
+
+    model_id_field_name = 'player_id'
     model_name = 'trader'
-    background_logger = checkpoints.hft_trader_checkpoint
 
 
-class TraderRoleChangeEventHandler(EventHandler):
+
+class ELOTraderRoleChangeEventHandler(EventHandler, TraderPostHandleMixIn):
     # 'role_change' has its own code spec.
     # as it changes the trader implementation
 
+    model_id_field_name = 'player_id'
     model_name = 'trader'
-    background_logger = checkpoints.hft_trader_checkpoint
 
-    def read_model(self):
-        super().read_model()
+    def read_model(self, **kwargs):
+        super().read_model(**kwargs)
         trader_state_cls = SubjectStateFactory.get_state(
             self.market_environment) 
         trader_state = trader_state_cls.from_trader(self.model)
-        new_role = event.get_new_role()
-        trader = TraderFactory(
-            self.market_environment, new_role, subject_state)
+        new_role = self.event.message.state
+        trader = TraderFactory.get_trader(
+            self.market_environment, new_role, trader_state)
         self.model = trader
-        
+
 
 class MarketEventHandler(EventHandler):
 
+    model_id_field_name = 'market_id'
     model_name = 'market'
     background_logger = None
 
 
 class InvestorEventHandler(EventHandler):
 
-    model_name = 'investor'
+    model_id_field_name = 'player_id'
+    model_name = 'inv'
     background_logger = None
 
 
@@ -90,11 +106,12 @@ SUBPROCESSES = {}
 
 class TradeSessionEventHandler(EventHandler):
 
+    model_id_field_name = 'subsession_id'
     model_name = 'trade_session'
     background_logger = None
 
-    def read_model(self):
-        super().read_model()
+    def read_model(self, **kwargs):
+        super().read_model(**kwargs)
         subs_id = self.model.subsession_id
         if subs_id not in SUBPROCESSES:
             SUBPROCESSES[subs_id] = {}
@@ -106,17 +123,46 @@ class TradeSessionEventHandler(EventHandler):
         self.model.clients = {}
 
 
-
 class MarketWideEventHandler:
 
-    @staticmethod
-    def handle(event, **kwargs):
+    def __init__(self, event, **kwargs):
+        self.event = event
+        self.kwargs = kwargs
+
+    def handle(self, **kwargs):
         try:
-            responding_trader_ids = event.message.trader_ids
+            responding_trader_ids = self.event.message.trader_ids
         except AttributeError:
-            responding_trader_ids = get_trader_ids_by_market(event.market_id)
+            responding_trader_ids = get_trader_ids_by_market(
+                self.event.market_id, self.event.subsession_id)
         if responding_trader_ids:
             for trader_id in responding_trader_ids:
-                handler = TraderEventHandler(event, trader_id)
-                event = handler.handle()
-        shuffle(event.outgoing_messages)
+                self.event.player_id = trader_id
+                handler = TraderEventHandler(self.event)
+                handler.handle()
+        shuffle(self.event.outgoing_messages)
+        return self.event
+
+def is_investor(event):
+    return (hasattr(event.message, 'token_prefix') and event.message.token_prefix == 'inv') or (
+            event.message.type == 'investor_arrivals')
+
+class EventHandlerFactory:
+
+    @staticmethod
+    def get_handler(event, topic, **kwargs):
+        if topic == 'market':
+            return MarketEventHandler(event, **kwargs)
+        elif topic == 'trader':
+            if is_investor(event):
+                return InvestorEventHandler(event, **kwargs)
+            else:
+                return TraderEventHandler(event, **kwargs)
+        elif topic == 'trade_session':
+            return TradeSessionEventHandler(event, **kwargs)
+        elif topic == 'trader_role_change':
+            return ELOTraderRoleChangeEventHandler(event, **kwargs)
+        elif topic == 'marketwide_events':
+            return MarketWideEventHandler(event, **kwargs)
+        else:
+            raise Exception('invalid topic: %s' % topic)

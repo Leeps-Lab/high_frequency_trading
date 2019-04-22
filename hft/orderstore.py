@@ -21,6 +21,8 @@ class OrderStore:
         self.inventory = 0
         self.bid = None
         self.offer = None
+        self.token_prefix = token_prefix
+
     @property
     def orders(self):
         return self._orders
@@ -70,7 +72,7 @@ class OrderStore:
     def register_replace(self, token, new_price):
         try:
             order_info = self._orders[token]
-        except KeyError as e:
+        except KeyError:
             log.exception('error register replace for token: %s, orderstore: %s' % (token, self))
             raise
         existing_token = order_info.get('replacement_order_token')

@@ -13,7 +13,7 @@ class MarketReadyToEndMessage(InternalEventMessage):
 
 class MarketStartMessage(InternalEventMessage):
 
-    required_fields = ('market_id', 'subsession_id', 'session_length')
+    required_fields = ('market_id', 'subsession_id', 'session_duration')
 
 
 class MarketEndMessage(InternalEventMessage):
@@ -37,9 +37,12 @@ class BBOChangeMessage(InternalEventMessage):
 
     required_fields = (
         'best_bid', 'best_offer', 'volume_at_best_bid', 'volume_at_best_offer',
-        'next_offer', 'next_bid', 'order_imbalance', 'market_id', 
-        'subsession_id', 'buy_sell_indicator', 'trader_ids')
+        'next_offer', 'next_bid', 'market_id', 'subsession_id', 'trader_ids')
 
+class ExternalFeedChangeMessage(InternalEventMessage):
+
+    required_fields = (
+        'e_best_bid', 'e_best_offer', 'e_signed_volume')
 
 class ELOInternalEventMessageFactory(MessageFactory):
 
@@ -48,6 +51,7 @@ class ELOInternalEventMessageFactory(MessageFactory):
         'market_ready_to_end': MarketReadyToEndMessage,
         'reference_price_change': ReferencePriceChangeMessage,
         'order_imbalance_change': OrderImbalanceChangeMessage,
+        'external_feed_change': ExternalFeedChangeMessage,
         'bbo_change': BBOChangeMessage,
         'market_start': MarketStartMessage,
         'market_end': MarketEndMessage

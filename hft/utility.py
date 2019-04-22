@@ -21,10 +21,7 @@ exogenous_events = {
 market_events = ('S', 'player_ready', 'advance_me')
 trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
 
-exogenous_event_endpoints = {
-    'investor_arrivals': 'ws://127.0.0.1:8000/hft_investor/{subsession_id}',
-    'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/{subsession_id}'
-}
+exogenous_event_endpoint = 'ws://127.0.0.1:8000/hft_exogenous_event/{subsession_id}'
 
 exogenous_event_client = 'hft/exogenous_event_emitter.py'
 

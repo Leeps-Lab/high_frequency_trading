@@ -4,7 +4,7 @@ import json
 import logging
 from .cache import get_market_id_map
 from .message_sanitizer import (
-    ELOWSMessageSanitizer, ELOOuchMessageSanitizer, ELODerivedEventMessageSanitizer)
+    ELOWSMessageSanitizer, ELOOuchMessageSanitizer, ELOInternalEventMessageSanitizer)
 
 log = logging.getLogger(__name__)
 
@@ -12,15 +12,16 @@ log = logging.getLogger(__name__)
 class IncomingMessageFactory:
 
     @staticmethod
-    def get_message(message_source, message, **kwargs):
-        if message_source == 'exchange':
-            return IncomingOuchMessage(message, **kwargs)
-        elif message_source == 'websocket':
-            return IncomingWSMessage(message, **kwargs)
-        elif message_source == 'derived_event':
-            return DerivedEventMessage(message, **kwargs)
-        else:
-            raise Exception('invalid message source: %s' % message_source)
+    def get_message(message_source, message, market_environment, **kwargs):
+        if market_environment == 'elo':
+            if message_source == 'exchange':
+                return ELOIncomingOuchMessage(message, **kwargs)
+            elif message_source == 'websocket':
+                return ELOIncomingWSMessage(message, **kwargs)
+            elif message_source == 'internal_event':
+                return ELOInternalEventMessage(message, **kwargs)
+            else:
+                raise Exception('invalid message source: %s' % message_source)
 
 
 class IncomingMessage:
@@ -85,21 +86,11 @@ class IncomingWSMessage(IncomingMessage):
         return translated_message
 
 
-class ELOIncomingWSMessage(IncomingWSMessage):
-
-    sanitizer_cls = ELOWSMessageSanitizer
-
-
 class IncomingOuchMessage(IncomingMessage):
 
     def translate(self, message):
         translated_message = LeepsOuchTranslator.decode(message)
         return translated_message
-
-
-class ELOIncomingOuchMessage(IncomingOuchMessage):
-
-    sanitizer_cls = ELOOuchMessageSanitizer
 
 
 class InternalEventMessage(IncomingMessage):
@@ -108,8 +99,21 @@ class InternalEventMessage(IncomingMessage):
         kwargs = {}
         for field in message.required_fields:
             kwargs[field] = getattr(message, field)
+        # temporary fix
+        kwargs['type'] = getattr(message, 'type')
         return kwargs
 
-class ELOInternalEventMessage(DerivedEventMessage):
+
+class ELOIncomingOuchMessage(IncomingOuchMessage):
+
+    sanitizer_cls = ELOOuchMessageSanitizer
+
+
+class ELOIncomingWSMessage(IncomingWSMessage):
+
+    sanitizer_cls = ELOWSMessageSanitizer
+
+
+class ELOInternalEventMessage(InternalEventMessage):
     
-    sanitizer_cls = ELODerivedEventMessageSanitizer  
+    sanitizer_cls = ELOInternalEventMessageSanitizer  

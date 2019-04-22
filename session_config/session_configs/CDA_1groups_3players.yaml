@@ -10,19 +10,24 @@ exogenous-events:
     - investors_trial.csv
     - investors_trial.csv
     - investors_trial.csv
+  external-feed:
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv    
     
 market:
   auction-format: 'CDA'
   matching-engine-host: '127.0.0.1'
 
 parameters:
+  default-role: 'out'
   initial-endowment: 1000
   initial-spread: 1
   max-spread: 2
-  period-length: 10
+  session-duration: 10
   technology-unit-cost: 0.022  # $/s
-  reference-price-discount-constant: 0.7
-  imbalance-discount-rate: 0.01
+  k-reference-price: 0.7
+  k-signed-volume: 0.01
   tax-rate: 0.1
   grid-size: 1
 

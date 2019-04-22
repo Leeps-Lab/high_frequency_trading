@@ -51,9 +51,14 @@ class RoleConfirmedBroadcastMessage(BroadcastWSMessage):
     required_field_types = (int, int, str)  
 
 
-class OrderImbalanceBroadcastMessage(BroadcastWSMessage):
-    required_fields = ('market_id', 'value')
+class SignedVolumeBroadcastMessage(BroadcastWSMessage):
+    required_fields = ('market_id', 'signed_volume')
     required_field_types = (int, float) 
+
+
+class ExternalFeedBroadcastMessage(BroadcastWSMessage):
+    required_fields = ('market_id', 'e_best_bid', 'e_best_offer', 'e_signed_volume')
+    required_field_types = (int, int, int, float) 
 
 
 class ELOTakerQuoteBroadcastMessage(BroadcastWSMessage):
@@ -62,7 +67,7 @@ class ELOTakerQuoteBroadcastMessage(BroadcastWSMessage):
 
 
 class ReferencePriceBroadcastMessage(BroadcastWSMessage):
-    required_fields = ('market_id', 'price')
+    required_fields = ('market_id', 'reference_price')
     required_field_types = (int, int) 
 
 
@@ -81,7 +86,8 @@ class ELOBroadcastMessageFactory(MessageFactory):
         'executed': OrderExecutedBroadcastMessage,
         'system_event': SystemEventBroadcastMessage,
         'role_confirm': RoleConfirmedBroadcastMessage,
-        'order_imbalance': OrderImbalanceBroadcastMessage,
+        'signed_volume': SignedVolumeBroadcastMessage,
+        'external_feed': ExternalFeedBroadcastMessage,
         'reference_price': ReferencePriceBroadcastMessage,
         'elo_quote_cue': ELOTakerQuoteBroadcastMessage,
         'speed_confirm': SpeedConfirmBroadcastMessage

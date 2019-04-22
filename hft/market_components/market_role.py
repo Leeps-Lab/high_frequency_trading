@@ -24,12 +24,12 @@ class MarketRoleGroup:
     def __getitem__(self, role_names):
         player_ids = []
         if isinstance(role_names, abc.Sequence):
-            for name in role_names:
+            for name in self.role_names:
                 role_property = getattr(self, name)
                 if role_property:
                     player_ids.extend(role_property.get_player_ids())
         else:
-            role_property = getattr(self, name)
+            role_property = getattr(self, role_names)
             if role_property:
                 player_ids.extend(role_property.get_player_ids())
         return player_ids

@@ -7,7 +7,7 @@ market_environment.__new__.__defaults__ = (None, None, None)
 # elo
 
 elo = market_environment(
-    exogenous_events=('investor_arrivals', ),
+    exogenous_events=('investor_arrivals', 'external_feed'),
     config_field_type={
         'initial_endowment': int,
         'speed_cost': float
@@ -19,13 +19,13 @@ elo = market_environment(
     model_configuration={  
         'subsession': {
         #   key in configs: attribute on model
-            'period_length': 'round_length',
-            'auction_format': 'design',
+            'session_duration': 'session_duration',
+            'auction_format': 'auction_format',
         },
         'player': {
             'initial_endowment': 'cash',
             'technology_unit_cost': 'technology_unit_cost',
-            'auction_format': 'design',
+            'auction_format': 'auction_format',
         }
     })
 

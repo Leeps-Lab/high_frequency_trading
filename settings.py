@@ -209,7 +209,7 @@ SESSION_CONFIG_DEFAULTS = {
     'doc': ''
 }
 
-order_flow_configs_directory = os.path.join(os.getcwd(), 'session_config/orderflows')
+exogenous_event_configs_directory = os.path.join(os.getcwd(), 'session_config/exogenous_events')
 SESSION_CONFIGS = []
 
 # read configurations

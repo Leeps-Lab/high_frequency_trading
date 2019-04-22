@@ -1,0 +1,21 @@
+{% extends "otree/BaseAdmin.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+<h3>External Feed Configuration Files</h3>
+<ul>
+{% for conf in object_list %}
+    <li>{{ conf.upload_time|date }} - 
+        <a href="{% url 'external_event_config_view' conf.code %}"> 
+            {{ conf.upload_name }} 
+        </a>
+    </li>
+{% empty %}
+    <li>No configs yet.</li>
+{% endfor %}
+</ul>
+{% endblock %}
+

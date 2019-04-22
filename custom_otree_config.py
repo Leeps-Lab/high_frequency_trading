@@ -57,7 +57,8 @@ class CustomOtreeConfig:
         return custom_configs
 
 config_maps = {
-    'BCS': { 'name': ('session', 'session-name'),
+    'BCS': { 
+        'name': ('session', 'session-name'),
         'auction_format': ('market', 'auction-format'),
         'num_demo_participants': ('demo', 'number-of-participants'),
         'environment': ('session', 'environment'),
@@ -97,18 +98,20 @@ config_maps = {
         'num_markets': ('market', 'number-of-markets'),
         'number_of_groups': ('group', 'number-of-groups'),
         'players_per_group': ('group', 'players-per-group'),
-        'reference_price_constant': ('parameters', 'reference-price-discount-constant'),
-        'imbalance_constant': ('parameters', 'imbalance-discount-constant'),
+        'k_reference_price': ('parameters', 'k-reference-price'),
+        'k_signed_volume': ('parameters', 'k-signed-volume'),
         'tax_rate': ('parameters', 'tax-rate'),
         'initial_spread': ('parameters', 'initial-spread'),
         'technology_unit_cost': ('parameters', 'technology-unit-cost'),
         'max_spread': ('parameters', 'max-spread'),
         'initial_endowment': ('parameters', 'initial-endowment'),
-        'period_length': ('parameters', 'period-length'),
+        'session_duration': ('parameters', 'session-duration'),
         'group_matrix': ('group', 'group-assignments'),
         'batch_length': ('parameters', 'batch-length'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
-        'grid_size': ('parameters', 'grid-size')
+        'external_feed': ('exogenous-events', 'external-feed'),
+        'grid_size': ('parameters', 'grid-size'),
+        'default_role': ('parameters', 'default-role')
     }
 }
 

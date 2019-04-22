@@ -5,20 +5,21 @@ import os
 import csv
 import json
 import logging
-from .cache import get_cache_key
+from .cache import model_key_format_str_kw
 from django.core.cache import cache
+from .subject_state import ELOSubjectState
 
 log = logging.getLogger(__name__)
 
 exported_player_fields = ['wealth', 'cash', 'technology_cost', 'role', 
     'speed_on', 'time_on_speed', 'inventory', 'order_imbalance', 'reference_price',
-    'bid', 'offer', 'best_bid', 'best_offer', 'target_bid',
-    'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
-    'slider_a_y']
+    'bid', 'offer', 'best_bid', 'best_offer', 'e_best_bid', 'e_best_offer', 
+    'target_bid', 'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
+    'slider_a_y', 'slider_a_z', 'signed_volume', 'e_signed_volume']
 
 recorded_player_fields = exported_player_fields + ['orderstore', 'tax']
 
-class HFTPlayerStateRecord(Model):
+class HFTPlayerStateRecord(Model): 
 
     csv_headers = ['timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
         'event_no'] + exported_player_fields
@@ -26,7 +27,7 @@ class HFTPlayerStateRecord(Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     subsession_id = models.StringField()
     player_id = models.IntegerField()
-    market_id = models.StringField()
+    market_id = models.IntegerField()
     wealth = models.IntegerField()
     cash = models.IntegerField()
     technology_cost = models.IntegerField(initial=0)
@@ -42,47 +43,52 @@ class HFTPlayerStateRecord(Model):
     offer = models.IntegerField(blank=True)
     best_bid = models.IntegerField(blank=True)
     best_offer = models.IntegerField(blank=True)
+    e_best_bid = models.IntegerField(blank=True)
+    e_best_offer = models.IntegerField(blank=True)
     target_bid = models.IntegerField(blank=True)
     target_offer = models.IntegerField(blank=True)
     implied_bid = models.IntegerField(blank=True)
     implied_offer = models.IntegerField(blank=True)
     slider_a_x = models.FloatField(blank=True)
     slider_a_y = models.FloatField(blank=True)
-    order_imbalance = models.FloatField(blank=True)
+    slider_a_z = models.FloatField(blank=True)
+    signed_volume = models.FloatField(blank=True)
+    e_signed_volume = models.FloatField(blank=True)
     reference_price = models.FloatField(blank=True)
 
-    def from_event_and_player(self, event_dict, player):
+    def from_event_and_player(self, event, trader):
         for field in recorded_player_fields:
-            setattr(self, field, getattr(player, field))  
-        self.player_id = int(player.id)
-        self.market_id = str(player.market_id)
-        self.trigger_event_type = str(event_dict['type'])  
-        self.event_no = int(event_dict['reference_no'])
-        self.subsession_id = str(event_dict['subsession_id'])
+            setattr(self, field, getattr(trader, field))  
+        self.player_id = int(trader.id)
+        self.market_id = trader.market_id
+        self.trigger_event_type = str(event.event_type)  
+        self.event_no = int(event.reference_no)
+        self.subsession_id = str(event.subsession_id)
         return self
 
 
-def _elo_fields(player, subject_state):
+def _elo_fields(player, trader):
     for field in recorded_player_fields:
-        if hasattr(subject_state, field):
-            value = getattr(subject_state, field)
+        if hasattr(trader, field):
+            value = getattr(trader, field)
             if value is not None:
                 setattr(player, field, value)
-    if subject_state.sliders is not None:
-        player.slider_a_x = float(subject_state.sliders.a_x)
-        player.slider_a_y = float(subject_state.sliders.a_y)
-    player.inventory = int(subject_state.orderstore.inventory)
-    player.orderstore = str(subject_state.orderstore)
-    player.bid = subject_state.orderstore.bid
-    player.offer = subject_state.orderstore.offer
+    if trader.sliders is not None:
+        player.slider_a_x = float(trader.sliders.a_x)
+        player.slider_a_y = float(trader.sliders.a_y)
+        player.slider_a_z = float(trader.sliders.a_y) 
+    player.inventory = int(trader.orderstore.inventory)
+    player.orderstore = str(trader.orderstore)
+    player.bid = trader.orderstore.bid
+    player.offer = trader.orderstore.offer
     return player
 
-def from_trader_to_player(player, subject_state, post=_elo_fields):
-    for field in subject_state.__slots__:
+def from_trader_to_player(player, trader, state_cls=ELOSubjectState, post=_elo_fields):
+    for field in state_cls.__slots__:
         if hasattr(player, field):
-            setattr(player, field, getattr(subject_state, field))
+            setattr(player, field, getattr(trader, field))
     if post:
-        player = post(player, subject_state)
+        player = post(player, trader)
     player.save()
     return player
 
@@ -94,15 +100,15 @@ class HFTInvestorRecord(Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     exchange_timestamp = models.BigIntegerField()
     subsession_id= models.StringField()
-    market_id = models.StringField()
+    market_id = models.IntegerField()
     order_token = models.StringField()
     status = models.StringField()
     buy_sell_indicator = models.StringField()
     price = models.IntegerField()
 
     def from_event(self, event):
-        self.subsession_id = str(event_dict['subsession_id'])
-        self.market_id = str(event_dict['market_id'])       
+        self.subsession_id = str(event.subsession_id)
+        self.market_id = event.market_id    
         self.status = event.event_type
         self.order_token = event.message.data.order_token
         if 'buy_sell_indicator' in event.message.data:
@@ -132,7 +138,7 @@ class HFTEventRecord(Model):
 
     def from_event(self, event_dict):
         self.subsession_id = str(event_dict['subsession_id'])
-        self.market_id = str(event_dict['market_id'])
+        self.market_id = event_dict['market_id']
         self.event_no = int(event_dict['reference_no'])
         self.event_type = str(event_dict['type'])
         self.event_source = str(event_dict['event_source'])
@@ -142,7 +148,7 @@ class HFTEventRecord(Model):
 class HFTPlayerSessionSummary(Model):
     subsession_id = models.StringField()
     player_id = models.IntegerField()
-    market_id = models.StringField()
+    market_id = models.IntegerField()
     imbalance_sensitivity = models.FloatField(initial=0.0)
     inventory_sensitivity = models.FloatField(initial=0.0)
     time_as_maker = models.FloatField(initial=0.0)
@@ -163,11 +169,14 @@ def state_for_results_template(player):
         'manual': o.time_as_manual, 'out': o.time_as_out} for o in summary_objects}
     inv_sensitivies = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
     imbalance_sensitivies = {str(o.player_id): o.imbalance_sensitivity for o in summary_objects}
+    ext_sensitivies = {str(o.player_id): o.imbalance_sensitivity for o in summary_objects}
     return {'nets': nets, 'taxes': taxes, 'names': names, 'strategies': strategies, 
-        'inv_sens': inv_sensitivies, 'imb_sens': imbalance_sensitivies}
+        'inv_sens': inv_sensitivies, 'imb_sens': imbalance_sensitivies, 
+        'ext_sens': ext_sensitivies}
 
 def elo_player_summary(player):
-    market = cache.get(get_cache_key(player.market_id, 'market'))['market']
+    market = cache.get(model_key_format_str_kw.format(model_name='market',
+        model_id=player.market_id, subsession_id=player.subsession_id))
     session_length = market.session_end - market.session_start
     average_sens = _get_average_sensitivies(player.subsession.id, player.market_id, player.id,
         market.session_start, market.session_end)
@@ -179,6 +188,7 @@ def elo_player_summary(player):
         player_id=player.id, 
         imbalance_sensitivity=average_sens['slider_a_x'],
         inventory_sensitivity=average_sens['slider_a_y'], 
+        external_feed_sensitivity=average_sens['slider_a_z'],
         time_as_maker=percent_per_role['maker'],
         time_as_taker=percent_per_role['taker'], 
         time_as_out=percent_per_role['out'],
@@ -194,7 +204,7 @@ def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
     player_state_records = HFTPlayerStateRecord.objects.filter(subsession_id=subsession_id,
         market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('-timestamp')
     slider_durations = {}
-    for slider_name in ('slider_a_x', 'slider_a_y'):
+    for slider_name in ('slider_a_x', 'slider_a_y', 'slider_a_z'):
         previous_slider_change_at = session_start
         current_slider_value = default 
         slider_values = {current_slider_value: 0}
