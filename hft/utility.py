@@ -61,7 +61,7 @@ def type_check_configs(session_format, session_configs):
             try:
                 cleaned_configs[k] = field_cls(v)
             except:
-                log.error('type check/cast failed for config key: %s and value: %s for type: %s.' 
+                log.exception('type check/cast failed for config key: %s and value: %s for type: %s.' 
                     % (k, v, field_cls))
                 raise 
     return cleaned_configs

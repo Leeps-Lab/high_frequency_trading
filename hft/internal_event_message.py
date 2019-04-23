@@ -26,11 +26,10 @@ class ReferencePriceChangeMessage(InternalEventMessage):
     required_fields = ('reference_price', 'market_id', 'subsession_id')
 
 
-class OrderImbalanceChangeMessage(InternalEventMessage):
+class SignedVolumeChangeMessage(InternalEventMessage):
 
     required_fields = (
-        'order_imbalance', 'market_id', 'subsession_id', 'buy_sell_indicator',
-        'trader_ids')
+        'signed_volume', 'market_id', 'subsession_id', 'trader_ids')
 
 
 class BBOChangeMessage(InternalEventMessage):
@@ -50,7 +49,7 @@ class ELOInternalEventMessageFactory(MessageFactory):
         'market_ready_to_start': MarketReadyToStartMessage,
         'market_ready_to_end': MarketReadyToEndMessage,
         'reference_price_change': ReferencePriceChangeMessage,
-        'order_imbalance_change': OrderImbalanceChangeMessage,
+        'signed_volume_change': SignedVolumeChangeMessage,
         'external_feed_change': ExternalFeedChangeMessage,
         'bbo_change': BBOChangeMessage,
         'market_start': MarketStartMessage,

@@ -167,3 +167,8 @@ class Player(BasePlayer):
                                            self.session.config)
         self.save()
 
+    
+    def from_state_record(self, record_cls=ELOInSessionTraderRecord):
+        print(record_cls._meta.fields)
+
+

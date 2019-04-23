@@ -91,8 +91,6 @@ config_maps = {
         'participation_fee': ('session', 'participation-fee'),
         'num_demo_participants': ('demo', 'number-of-participants'),
         'environment': ('session', 'environment'),
-        'trial': ('session', 'trial'),
-        'trial_length': ('session', 'trial-length'),
         'num_rounds': ('session', 'num-rounds'),
         'matching_engine_host': ('market', 'matching-engine-host'),
         'num_markets': ('market', 'number-of-markets'),
@@ -101,16 +99,13 @@ config_maps = {
         'k_reference_price': ('parameters', 'k-reference-price'),
         'k_signed_volume': ('parameters', 'k-signed-volume'),
         'tax_rate': ('parameters', 'tax-rate'),
-        'initial_spread': ('parameters', 'initial-spread'),
         'technology_unit_cost': ('parameters', 'technology-unit-cost'),
-        'max_spread': ('parameters', 'max-spread'),
         'initial_endowment': ('parameters', 'initial-endowment'),
         'session_duration': ('parameters', 'session-duration'),
         'group_matrix': ('group', 'group-assignments'),
         'batch_length': ('parameters', 'batch-length'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'external_feed': ('exogenous-events', 'external-feed'),
-        'grid_size': ('parameters', 'grid-size'),
         'default_role': ('parameters', 'default-role')
     }
 }

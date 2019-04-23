@@ -48,7 +48,7 @@ class ExportHFTCSV(vanilla.View):
                 'HFT Session {} Events (accessed {}).csv'.format(
                     session_code,
                     datetime.date.today().isoformat()))
-            fieldnames = hft.output.HFTPlayerStateRecord.csv_headers
+            fieldnames = hft.output.HFTPlayerStateRecord.csv_meta
             writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction='ignore')
             writer.writeheader()
             for row in subsession_events:
