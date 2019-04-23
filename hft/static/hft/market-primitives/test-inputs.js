@@ -1,9 +1,5 @@
 import {PolymerElement}  from '../node_modules/@polymer/polymer/polymer-element.js';
 
-function emptyOrUndefined(input) {
-    return (typeof input === 'undefined' || input === '');
-}
-
 class TestInputs extends PolymerElement {
 
     static get properties() {
@@ -44,22 +40,17 @@ class TestInputs extends PolymerElement {
             });
 
             // convert types as appropriate
-            this._events = eventStrings.map(event => {
-                return {
-                    time: parseInt(event.time),
-                    role: emptyOrUndefined(event.role) ? null : event.role,
-                    speed: emptyOrUndefined(event.speed) ? null : (event.speed == 'TRUE'),
-                    bid: emptyOrUndefined(event.bid) ? null : parseFloat(event.bid),
-                    ask: emptyOrUndefined(event.ask) ? null : parseFloat(event.ask),
-                    slider: emptyOrUndefined(event.imbalance_sensitivity) ||
-                            emptyOrUndefined(event.inventory_sensitivity)
-                            ? null
-                            : {
-                                a_x: parseFloat(event.imbalance_sensitivity),
-                                a_y: parseFloat(event.inventory_sensitivity),
-                              },
-                };
-            });
+            this._events = eventStrings
+                .filter(e => parseInt(e.id) === OTREE_CONSTANTS.idInGroup)
+                .map(event => {
+                    const type = event['type:value'].split(':')[0];
+                    const value = event['type:value'].split(':')[1];
+                    return {
+                        time: parseInt(event.time),
+                        type: type,
+                        value: value,
+                    }
+                });
 
             // sort by time
             this._events.sort((a, b) => a.time - b.time);
@@ -93,56 +84,48 @@ class TestInputs extends PolymerElement {
         const curEvent = this._events[this._curIndex];
         console.log(curEvent);
 
-        for (let field in curEvent) {
-            const value = curEvent[field];
-            if (value === null) {
-                continue;
-            }
+        let message = null;
+        switch(curEvent.type) {
+            case 'role':
+                message = {
+                    type: 'role_change',
+                    state: value,
+                };
+                break;
+            case 'speed':
+                message = {
+                    type: 'speed_change',
+                    value: (value === 'TRUE'),
+                }
+                break;
+            case 'bid':
+                message = {
+                    type: 'order_entered',
+                    price: parseInt(value),
+                    buy_sell_indicator: 'B',
+                }
+                break;
+            case 'ask':
+                message = {
+                    type: 'order_entered',
+                    price: parseInt(value),
+                    buy_sell_indicator: 'S',
+                }
+                break;
+            case 'slider':
+                message = {
+                    type: 'slider',
+                    a_x: parseFloat(value.split('-')[0]),
+                    a_y: parseFloat(value.split('-')[1]),
+                }
+        }
 
-            let message;
-            switch(field) {
-                case 'role':
-                    message = {
-                        type: 'role_change',
-                        state: value,
-                    };
-                    break;
-                case 'speed':
-                    message = {
-                        type: 'speed_change',
-                        value: value,
-                    }
-                    break;
-                case 'bid':
-                    message = {
-                        type: 'order_entered',
-                        price: value,
-                        buy_sell_indicator: 'B',
-                    }
-                    break;
-                case 'ask':
-                    message = {
-                        type: 'order_entered',
-                        price: value,
-                        buy_sell_indicator: 'S',
-                    }
-                    break;
-                case 'slider':
-                    message = {
-                        type: 'slider',
-                        a_x: value.a_x,
-                        a_y: value.a_y,
-                    }
-                default:
-                    continue;
-            }
-
+        if (message) {
             this.dispatchEvent(new CustomEvent('user-input', {
                 bubbles: true,
                 composed: true,
                 detail: message,
             }));
-
         }
 
         this._curIndex++;

@@ -25,11 +25,9 @@ class EloExperiment(Page):
         if not self.session.config['test_inputs_dir']:
             inputs_addr = None
         else:
-            inputs_addr = '/static/hft/test_input_files/{}/player_{}.csv'.format(
+            inputs_addr = '/static/hft/test_input_files/{}'.format(
                 self.session.config['test_inputs_dir'],
-                self.player.id_in_group
             )
-        print(inputs_addr)
         return {
             'inputs_addr': inputs_addr,
         }

@@ -108,8 +108,6 @@ class MarketSession extends PolymerElement {
                 unit-size={{speedUnitCost}}
             ></stepwise-calculator>
             <test-inputs
-                role={{role}}
-                speed-on={{subscribesSpeed}}
                 is-running={{isSessionActive}}
             ></test-inputs>
            
