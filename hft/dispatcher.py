@@ -79,5 +79,6 @@ class ELODispatcher(Dispatcher):
         'bbo_change': ['marketwide_events'],
         'signed_volume_change': ['marketwide_events'],
         'reference_price_change': ['marketwide_events'],
+        'external_feed_change': ['marketwide_events'],
         'slider': ['trader']}
     outgoing_message_types = ('exchange', 'broadcast')

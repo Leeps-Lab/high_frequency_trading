@@ -293,11 +293,23 @@ MAX_ASK = 2147483647
 
 class ELOManualTrader(ELOTrader):
 
-    message_dispatch = {
-        'speed_change': 'speed_change', 'role_change': 'first_move', 'A': 'accepted', 
-        'U': 'replaced', 'C': 'canceled', 'E': 'executed', 'bbo_change': 'bbo_change', 
-        'order_entered': 'user_order', 'market_end': 'close_session', 
-        'reference_price_change': 'reference_price_update'}
+    message_dispatch = { 
+        'speed_change': 'speed_change',
+        'role_change': 'first_move', 
+        'A': 'accepted', 
+        'U': 'replaced', 
+        'C': 'canceled', 
+        'E': 'executed', 
+        'slider': 'slider_change', 
+        'bbo_change': 'bbo_change', 
+        'order_imbalance_change': 'order_imbalance_change', 
+        'market_end': 'close_session',
+        'market_start': 'market_start', 
+        'reference_price_change': 'reference_price_update',
+        'signed_volume_change': 'signed_volume_change', 
+        'external_feed_change': 'external_feed_update',
+        'reference_price_change': 'reference_price_update',
+        'order_entered': 'user_order'}
 
     # def __init__(self, subject_state):
     #     super().__init__(subject_state)
