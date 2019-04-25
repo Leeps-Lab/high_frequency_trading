@@ -1,5 +1,6 @@
 const ELO = {
-
+    // Added new messages signed_volume and external_feed
+    // Possible removing order_imbalence 
     events: {
         inbound:{
             confirmed: {
@@ -10,6 +11,20 @@ const ELO = {
                 market_id: parseInt,
                 buy_sell_indicator: String,
                 time_in_force: parseInt
+            },
+            signed_volume: {
+                //New Message
+                type: String,
+                market_id: parseInt,
+                value: parseFloat
+            },
+            external_feed: {
+                //New Message
+                type: String,
+                market_id: parseInt,
+                e_best_bid: parseInt,
+                e_best_offer: parseInt,
+                e_signed_volume: parseFloat
             },
             executed: {
                 type: String,
@@ -48,6 +63,8 @@ const ELO = {
                 volume_at_best_offer: parseInt
             },
             order_imbalance: {
+                //Remove this message?
+                // yeah, possibly in near future - ali
                 type: String,
                 market_id: parseInt,
                 value: parseFloat

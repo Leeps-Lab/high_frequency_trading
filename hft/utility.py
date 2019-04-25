@@ -21,10 +21,7 @@ exogenous_events = {
 market_events = ('S', 'player_ready', 'advance_me')
 trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
 
-exogenous_event_endpoints = {
-    'investor_arrivals': 'ws://127.0.0.1:8000/hft_investor/{subsession_id}',
-    'fundamental_value_jumps': 'ws://127.0.0.1:8000/hft_jump/{subsession_id}'
-}
+exogenous_event_endpoint = 'ws://127.0.0.1:8000/hft_exogenous_event/{subsession_id}'
 
 exogenous_event_client = 'hft/exogenous_event_emitter.py'
 
@@ -45,6 +42,13 @@ def format_message(message_type, **kwargs):
         message['payload'][k] = v
     return message
 
+def process_configs(session_format, session_configs):
+    clean_confs = type_check_configs(
+        session_format, session_configs)
+    clean_confs = scale_configs(
+        session_format, clean_confs)
+    return clean_confs
+
 def type_check_configs(session_format, session_configs):
     market_settings = market_environments.environments[session_format]
     cleaned_configs = dict(session_configs)
@@ -57,7 +61,7 @@ def type_check_configs(session_format, session_configs):
             try:
                 cleaned_configs[k] = field_cls(v)
             except:
-                log.error('type check/cast failed for config key: %s and value: %s for type: %s.' 
+                log.exception('type check/cast failed for config key: %s and value: %s for type: %s.' 
                     % (k, v, field_cls))
                 raise 
     return cleaned_configs
@@ -121,6 +125,7 @@ def kwargs_from_event(event):
             kwargs[k] = v
     return kwargs
 
+
 scaled_fields = ('price', 'execution_price', 'old_price', 'reference_price', 'cash', 
     'best_bid', 'best_offer', 'bid', 'offer')
 def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fields):
@@ -131,5 +136,20 @@ def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fiel
             clean_message[field] = int(int(clean_message[field]) * multiplier)
     return clean_message
         
-
-
+def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
+                         timeout=30, sleep_time=1):
+    total_slept = 0
+    results_ready = False
+    while total_slept < timeout:
+        num_results_ready = record_cls.objects.filter(subsession_id=
+            subsession_id, market_id=market_id, trigger_event_type=
+            'market_end').count()
+        log.warning('waiting results for market {}, {}/{} results ready'.format(
+            market_id, num_results_ready, num_players))            
+        if  num_results_ready == num_players:
+            results_ready = True
+            break
+        else:
+            time.sleep(sleep_time)
+            total_slept += sleep_time
+    return results_ready

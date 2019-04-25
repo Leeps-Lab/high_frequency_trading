@@ -19,4 +19,4 @@ class MessageRegistry:
 
     def pop(self):
         if len(self.outgoing_messages):
-            return self.outgoing_messages.pop()
+            return self.outgoing_messages.popleft()

@@ -6,29 +6,29 @@ import os
 from twisted.internet import reactor
 from twisted.internet import task
 from .utility import format_message
-from .cache import get_cache_key
 from collections import deque
 from . import exchange
-from .dispatcher import LEEPSDispatcher
 from functools import partial
 from .market import MarketFactory
 from itertools import count
-from .dispatcher import LEEPSDispatcher
-from otree.timeout.tasks import hft_background_task
 import sys
 from django.core import serializers
 from .exogenous_event import get_exogenous_event_queryset
+from .internal_event_message import MarketEndMessage
+from .dispatcher import ELODispatcher
 
 log = logging.getLogger(__name__)
 
 class TradeSessionFactory:
     @staticmethod
     def get_session(session_format):
-        return LEEPSTradeSession
+        return ELOTradeSession
 
 class TradeSession:
 
     market_factory = MarketFactory
+
+    model_name = 'trade_session'
 
     events_dispatch = {
         'market_ready_to_start': 'start_trade_session',
@@ -48,7 +48,7 @@ class TradeSession:
         self.outgoing_messages = deque()
         self.market_count = count(1,1)
    
-    def start_trade_session(self, market_id=None):
+    def start_trade_session(self):
         raise NotImplementedError()
     
     def stop_trade_session(self):
@@ -66,15 +66,17 @@ class TradeSession:
     def register_exogenous_event(self, client_type, rel_path):
         self.exogenous_events[client_type] = rel_path
     
-    def receive(self, event_type, market_id):
-        handler_name = self.events_dispatch[event_type]
+    def receive(self, event):
+        self.event = event
+        handler_name = self.events_dispatch[event.event_type]
         handler = getattr(self, handler_name)
-        handler(market_id)
+        handler(event.market_id)
+        self.event = None
 
     def start_exogenous_events(self):
         if self.exogenous_events:
             for event_type, filename in self.exogenous_events.items():
-                url = utility.exogenous_event_endpoints[event_type].format(subsession_id=
+                url = utility.exogenous_event_endpoint.format(subsession_id=
                     self.subsession_id)
                 exogenous_event_queryset = get_exogenous_event_queryset(event_type, 
                     filename)
@@ -91,13 +93,15 @@ class TradeSession:
             process.kill()
 
         
-class LEEPSTradeSession(TradeSession):
+class ELOTradeSession(TradeSession):
+    dispatcher_cls = ELODispatcher
+
 
     def start_trade_session(self, market_id):
         def create_exchange_connection(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             exchange.connect(self.subsession_id, market_id, host, port, 
-                LEEPSDispatcher, wait_for_connection=True)
+                self.dispatcher_cls, wait_for_connection=True)
         def reset_exchange(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             message_content = {'host': host, 'port': port, 'type': 'reset_exchange', 'delay':
@@ -110,14 +114,13 @@ class LEEPSTradeSession(TradeSession):
             for market_id, _ in self.market_state.items():
                 create_exchange_connection(self, market_id)
                 reset_exchange(self, market_id)
-                message_content = {'type': 'market_start', 'market_id': market_id,
-                    'subsession_id': self.subsession_id, 'session_length': self.subsession.round_length}
-                message = format_message('derived_event', **message_content)
-                self.outgoing_messages.append(message)
+                self.event.internal_event_msgs(
+                    'market_start', market_id=market_id, model=self, 
+                    session_duration=self.subsession.session_duration)
                 self.trading_markets.append(market_id)
             self.start_exogenous_events()
             self.is_trading = True
-            deferred = task.deferLater(reactor, self.subsession.round_length, 
+            deferred = task.deferLater(reactor, self.subsession.session_duration, 
                 partial(self.stop_trade_session, clients=dict(self.clients)))
             
     def stop_trade_session(self, *args, clients=None):
@@ -129,10 +132,9 @@ class LEEPSTradeSession(TradeSession):
                 while self.trading_markets:
                     market_id = self.trading_markets.pop()
                     stop_exchange_connection(self, market_id)
-                    message_content = {'type': 'market_end', 'market_id': market_id,
-                        'subsession_id': self.subsession_id}
-                    message = format_message('derived_event', **message_content)
-                    LEEPSDispatcher.dispatch(message['message_type'], message)
+                    ex_event_msg = MarketEndMessage.create(
+                        'market_end', market_id=market_id, model=self)
+                    self.dispatcher_cls.dispatch('internal_event', ex_event_msg)
                 self.stop_exogenous_events(clients=clients)
                 self.subsession.session.advance_last_place_participants()
                 self.is_trading = False

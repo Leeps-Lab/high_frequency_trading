@@ -1,59 +1,50 @@
 
 import logging
-from collections import deque
-import itertools
-from .subject_state import SubjectStateFactory
-from .orderstore import OrderStore
 from .utility import format_message, MIN_BID, MAX_ASK
-from .cache import initialize_player_cache
-from .equations import OrderImbalance, ReferencePrice
 from .market_components.market_role import MarketRoleGroup
+from .market_components.hft_facts import (
+    BestBidOffer, ELOExternalFeed, ReferencePrice, SignedVolume)
 from .utility import nanoseconds_since_midnight
 from datetime import datetime
 from django.utils.timezone import utc
+
+
 log = logging.getLogger(__name__)
+
 
 class MarketFactory:
     @staticmethod
     def get_market(session_format):
-        if session_format == 'BCS':
-            return BCSMarket
-        elif session_format == 'elo':
+        if session_format == 'elo':
             return ELOMarket
         else:
             raise ValueError('unknown format %s' % session_format)
 
+
 class BaseMarket:
     market_events_dispatch = {}
-    _ids = itertools.count(1,1)
-    state_factory = SubjectStateFactory
     session_format = None
-    tag_all_events_with = ()
+    model_name = 'market'
+    mark_events_with_props = ()
+    mark_events_with_stats = ()
 
-    def __init__(self, group_id, id_in_subsession, subsession_id, exchange_host, exchange_port, **kwargs):
-        self.market_id = str(group_id)
+    def __init__(self, group_id, id_in_subsession, subsession_id, exchange_host, 
+                 exchange_port, **kwargs):
+        self.market_id = group_id
         self.id_in_subsession = id_in_subsession
         self.subsession_id = subsession_id
-        self.exchange_address = (exchange_host, exchange_port)
+        self.exchange_host = exchange_host 
+        self.exchange_port = exchange_port
         self.is_trading = False
-        self.ready_to_trade= False
-        self.subscribers = {}
+        self.ready_to_trade = False
         self.players_in_market = {}
-
-        self.session_start = None
-        self.session_end = None
-
-        self.attachments_for_observers = {}
-        self.outgoing_messages = deque()
-
+        self.time_session_start = None
+        self.time_session_end = None
         for k, v in kwargs.items():
             if hasattr(self, k):
                 setattr(self, k, v)
 
     def register_player(self, group_id, player_id):
-        if group_id not in self.subscribers.keys():
-            self.subscribers[group_id] = []
-        self.subscribers[group_id].append(player_id)
         self.players_in_market[player_id] = False
     
     def receive(self, event, *args, **kwargs):
@@ -70,14 +61,13 @@ class BaseMarket:
             if isinstance(handler_info, str):
                     handler = getattr(self, handler_info)
                     handler(*args, **kws)
-            for field in self.tag_all_events_with:
-                path = list(reversed(field.split('.')))    # in case it is a subproperty
-                field = path.pop()
-                value = getattr(self, field)
-                if len(path):
-                    for name in path:
-                        value = getattr(value, name)
-                event.attachments[field] = value
+            attachments = {}
+            for prop in self.mark_events_with_props:
+                attachments[prop] = getattr(self, prop)
+            for subprop in self.mark_events_with_stats:
+                market_stat = getattr(self, subprop)
+                attachments.update(market_stat.to_kwargs())
+            self.event.attach(attachments)
             self.event = None
      
     def start_trade(self, *args, **kwargs):
@@ -88,98 +78,57 @@ class BaseMarket:
                 raise ValueError('market %s already trading.' % self.market_id)
             else:
                 self.is_trading = True
-                self.event.broadcast_messages('system_event', model=self, code='S')
-        self.session_start = datetime.utcnow().replace(tzinfo=utc)
+                self.event.broadcast_msgs('system_event', model=self, code='S')
+        self.time_session_start = datetime.utcnow().replace(tzinfo=utc)
 
     def end_trade(self, *args, **kwargs):
-        if self.is_trading:
-            self.is_trading = False
-        self.session_end = datetime.utcnow().replace(tzinfo=utc)
-
-class BCSMarket(BaseMarket):
-    market_events_dispatch = {
-        'fundamental_value_jumps': 'fundamental_price_change',
-        'investor_arrivals': 'noise_trader_arrival',
-        'player_ready': 'player_ready',
-        'advance_me': 'player_reached_session_end',
-        'S': 'system_event',
-        'market_start': 'start_trade',
-        'market_end': 'end_trade'
-    }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for key in kwargs.keys():
-            setattr(self, key, kwargs.get(key))
+        self.is_trading = False
+        self.time_session_end = datetime.utcnow().replace(tzinfo=utc)
 
     def player_ready(self, **kwargs):
-        player_id = int(kwargs.get('player_id'))
+        player_id = int(kwargs['player_id'])
         self.players_in_market[player_id] = True
-        market_ready_condition = (True if False not in self.players_in_market.values() 
-            else False)
+        market_ready_condition = (
+            True if False not in self.players_in_market.values() else False)
         if market_ready_condition is True:
             self.ready_to_trade = True
-            message_content = {'type': 'market_ready_to_start', 'market_id': self.market_id,
-                'subsession_id': self.subsession_id}
-            internal_message = format_message('derived_event', **message_content)
-            self.outgoing_messages.append(internal_message)
-    
-    def player_reached_session_end(self, **kwargs):
-        player_id = int(kwargs.get('player_id'))
-        self.players_in_market[player_id] = False
-        message_content = {'type': 'market_ready_to_end', 'market_id': self.market_id,
-                'subsession_id': self.subsession_id}
-        internal_message = format_message('derived_event', **message_content)
-        self.outgoing_messages.append(internal_message)
-
-    def fundamental_price_change(self, **kwargs):
-        new_fp = int(kwargs['new_fundamental'])
-        self.fp = new_fp
-        self.event.broadcast_messages('fundamental_price_change', new_price=new_fp)
+            self.event.internal_event_msgs('market_ready_to_start', model=self)
 
     def system_event(self, **kwargs):
         pass
 
-max_ask = 2147483647
-min_bid = 0
 
-class ELOMarket(BCSMarket):
+class ELOMarket(BaseMarket):
     session_format = 'elo'
-
     market_events_dispatch = {
-        'E': ('order_imbalance_change', 'reference_price_change'),
+        'E': ('signed_volume_change', 'reference_price_change'),
         'role_change': 'role_change',
         'player_ready': 'player_ready',
-        'advance_me': 'player_reached_session_end',
         'S': 'system_event',
         'market_start': 'start_trade',
         'market_end': 'end_trade',
-        'Q': 'bbo_change'
-    }
-    tag_all_events_with = ('best_bid', 'best_offer', 'volume_at_best_bid', 
-        'volume_at_best_offer', 'order_imbalance.order_imbalance', 'reference_price.reference_price', 'tax_rate',
-        'next_bid', 'next_offer', 'session_start', 'session_end')
+        'Q': 'bbo_change',
+        'external_feed': 'external_feed_change'} 
+    mark_events_with_props = (
+        'tax_rate', 'time_session_start', 'time_session_end')
+    mark_events_with_stats = ('bbo', 'signed_volume', 'external_feed', 'reference_price')
 
-    def __init__(self, *args, reference_price_constant=1, imbalance_constant=1,
-            tax_rate=0, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.session_format = 'elo'
-        self.best_bid = min_bid
-        self.next_bid = min_bid
-        self.volume_at_best_bid = 0
-        self.best_offer = max_ask
-        self.next_offer= max_ask
-        self.volume_at_best_offer = 0
-        self.order_imbalance = OrderImbalance(imbalance_constant)
-        self.reference_price = ReferencePrice(reference_price_constant)
-        self.tax_rate = tax_rate
-        self.role_group = MarketRoleGroup('manual', 'maker', 'taker', 'out')
+        self.bbo = BestBidOffer()
+        self.external_feed = ELOExternalFeed()
+        self.signed_volume = SignedVolume(**kwargs) 
+        self.reference_price = ReferencePrice(**kwargs)
+        self.role_group = MarketRoleGroup('manual', 'automated', 'out')
+        self.tax_rate = kwargs.get('tax_rate', 0)
     
-    def start_trade(self, *args, **kwargs):
+    def start_trade(self, *args, **kwargs): 
         super().start_trade(*args, **kwargs)
-        session_duration = kwargs['session_length']
-        self.reference_price.start(session_duration=session_duration)
-        self.order_imbalance.start()
+        for time_aware_stat in ('signed_volume', 'reference_price'):
+            attr = getattr(self, time_aware_stat)
+            attr.reset_timer()
+        # next is not really ok. 
+        # will change later.
         for pid in self.players_in_market.keys():
             self.role_group.update(nanoseconds_since_midnight(), pid, 'out')
 
@@ -188,60 +137,47 @@ class ELOMarket(BCSMarket):
         for pid in self.players_in_market.keys():
             self.role_group.update(nanoseconds_since_midnight(), pid, 'out')
 
-
     def role_change(self, *args, **kwargs):
-        player_id = kwargs['player_id']
-        new_role = kwargs['state']
+        player_id, new_role = kwargs['player_id'], kwargs['state']
         self.role_group.update(nanoseconds_since_midnight(), player_id, new_role)
 
     def reference_price_change(self, **kwargs):
-        price = kwargs['execution_price']
-        reference_price = self.reference_price.step(price)
-        self.event.broadcast_messages('reference_price', market_id=self.market_id, 
-            price=reference_price)
-        message_content = {
-            'type':'reference_price_change', 
-            'reference_price': reference_price, 
-            'market_id': self.market_id,
-            'subsession_id': self.subsession_id}
-        internal_message = format_message('derived_event', **message_content)
-        self.outgoing_messages.append(internal_message)
+        self.reference_price.update(**kwargs)
+        if self.reference_price.has_changed:
+            self.event.broadcast_msgs(
+                'reference_price', market_id=self.market_id, 
+                **self.reference_price.to_kwargs())
+            self.event.internal_event_msgs(
+                'reference_price_change', model=self, 
+                **self.reference_price.to_kwargs())
     
-    def order_imbalance_change(self, **kwargs):
-        buy_sell_indicator = kwargs.get('buy_sell_indicator')
-        execution_price = kwargs['execution_price']
-        current_order_imbalance = self.order_imbalance.order_imbalance
-        new_order_imbalance = self.order_imbalance.step(execution_price, self.best_bid, 
-            self.best_offer, buy_sell_indicator)
-        if new_order_imbalance != self.order_imbalance:
-            new_order_imbalance = round(new_order_imbalance, 2)
-            maker_ids = self.role_group['maker', 'taker']
-            message_content = {
-                'type':'order_imbalance_change', 
-                'order_imbalance': new_order_imbalance, 
-                'trader_ids': maker_ids,
-                'market_id': self.market_id,
-                'subsession_id': self.subsession_id,
-                'buy_sell_indicator': buy_sell_indicator}
-            internal_message = format_message('derived_event', **message_content)
-            self.outgoing_messages.append(internal_message)
-            self.event.broadcast_messages('order_imbalance', model=self, 
-                value=new_order_imbalance)
+    def signed_volume_change(self, **kwargs):
+        kwargs.update(self.bbo.to_kwargs())
+        self.signed_volume.update(**kwargs)
+        if self.signed_volume.has_changed:
+            maker_ids = self.role_group['automated', 'manual', 'out']
+            self.event.internal_event_msgs(
+                'signed_volume_change', trader_ids=maker_ids,
+                model=self, **self.signed_volume.to_kwargs())
+            self.event.broadcast_msgs('signed_volume', model=self, 
+                **self.signed_volume.to_kwargs())
         
     def bbo_change(self, **kwargs):
-        self.volume_at_best_bid = kwargs['volume_at_best_bid']
-        self.volume_at_best_offer = kwargs['volume_at_best_ask']
-        self.best_bid, self.best_offer = kwargs['best_bid'], kwargs['best_ask']
-        self.next_bid, self.next_offer = kwargs['next_bid'], kwargs['next_ask']
-        maker_ids = self.role_group['maker', 'taker']
-        message_content = {'type': 'bbo_change', 'order_imbalance': self.order_imbalance.order_imbalance, 
-            'market_id': self.market_id, 'best_bid': self.best_bid, 'best_offer': self.best_offer,
-            'trader_ids': maker_ids, 'volume_at_best_bid': self.volume_at_best_bid,
-            'volume_at_best_offer': self.volume_at_best_offer, 'next_bid': self.next_bid,
-            'next_offer': self.next_offer, 'subsession_id': self.subsession_id}
-        internal_message = format_message('derived_event', **message_content)
-        self.outgoing_messages.append(internal_message)
-        self.event.broadcast_messages('bbo', model=self)
+        self.bbo.update(**kwargs)
+        if self.bbo.has_changed:
+            hft_traders = self.role_group['automated', 'manual', 'out']
+            self.event.internal_event_msgs(
+                'bbo_change', model=self, trader_ids=hft_traders, **self.bbo.to_kwargs())
+            self.event.broadcast_msgs('bbo', model=self, **self.bbo.to_kwargs())
+    
+    def external_feed_change(self, **kwargs):
+        self.external_feed.update(**kwargs)
+        if self.external_feed.has_changed:
+            hft_traders = self.role_group['automated', 'manual', 'out']
+            self.event.internal_event_msgs(
+                'external_feed_change', model=self, trader_ids=hft_traders, **self.external_feed.to_kwargs())
+            self.event.broadcast_msgs('external_feed', model=self, **self.external_feed.to_kwargs())
+
         
 
 
