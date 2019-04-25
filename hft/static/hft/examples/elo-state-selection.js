@@ -89,8 +89,8 @@ class StateSelection extends PolymerElement {
                     </div>
 
                     <div>
-                        <player-role-button websocket-message='{ "type": "role_change", "state": "maker" }' 
-                            event-dispatch="user-input"  role-name="maker" player-role=[[role]]>
+                        <player-role-button websocket-message='{ "type": "role_change", "state": "automated" }' 
+                            event-dispatch="user-input"  role-name="automated" player-role=[[role]]>
                         </player-role-button>
                     </div>
                 </div>
@@ -159,7 +159,7 @@ class StateSelection extends PolymerElement {
             a_x: this.slider_a_x,
             a_y: this.slider_a_y,
             //uncomment below when backend is ready for it
-            // a_z: this.slider_a_z
+            a_z: this.slider_a_z
         };
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });
@@ -171,7 +171,7 @@ class StateSelection extends PolymerElement {
         sliders.forEach( (element) => { 
             //change "maker" to "algo" when backend has been hooked in
             //to account for "algo" name
-            newVal != 'maker' ? element.isDisabled = true :
+            newVal != 'automated' ? element.isDisabled = true :
             element.isDisabled = false }
         )     
     }

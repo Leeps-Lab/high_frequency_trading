@@ -208,6 +208,7 @@ class MarketSession extends PolymerElement {
 
     outboundMessage(event) {
         const messagePayload = event.detail
+        console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
         let wsMessage = new CustomEvent('ws-message', {bubbles: true, composed: true, 
             detail: messagePayload })
@@ -216,6 +217,7 @@ class MarketSession extends PolymerElement {
     
     inboundMessage(event) {
         const messagePayload = event.detail
+        console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]

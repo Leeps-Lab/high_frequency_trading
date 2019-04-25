@@ -16,7 +16,8 @@ const ELO = {
                 //New Message
                 type: String,
                 market_id: parseInt,
-                value: parseFloat
+                k_signed_volume: parseFloat,
+                signed_volume: parseFloat
             },
             external_feed: {
                 //New Message
@@ -71,7 +72,9 @@ const ELO = {
             },
             reference_price: {
                 type: String,
-                price: parseInt
+                market_id: parseInt,
+                k_reference_price: parseInt,
+                reference_price: parseInt
             },
             elo_quote_cue: {
                 type: String,
@@ -111,6 +114,7 @@ const ELO = {
                 type: String,
                 a_x: parseFloat,
                 a_y: parseFloat,
+                a_z: parseFloat,
             },
             speed_change: { 
                 type: String,
