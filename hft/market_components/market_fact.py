@@ -18,14 +18,10 @@ class MarketFact:
         if self.is_time_aware is True:
             session_duration = kwargs.get('session_duration')
             self.timer = FactTimer(session_duration=session_duration)
-        self.__has_changed = False
-
-    @property
-    def has_changed(self):
-        return self.__has_changed
+        self.has_changed = False
 
     def update(self, **kwargs):
-        self.__has_changed = False
+        self.has_changed = False
         for k in self.required_input_fields:
             attr_name = k
             if k in self.input_to_attr_map:
@@ -36,7 +32,7 @@ class MarketFact:
                     new_value = kwargs[k]
                     if old_value != new_value:
                         setattr(self, attr_name, new_value)
-                        self.__has_changed = True
+                        self.has_changed = True
                 except KeyError:
                     raise Exception('input missing key %s : input %s' % (k, kwargs))
         if self.is_time_aware:

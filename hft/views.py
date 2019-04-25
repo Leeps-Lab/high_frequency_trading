@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.views.generic.list import ListView
 from .exogenous_event import (
     handle_exogenous_event_file, ExogenousEventFile, ExogenousOrderRecord, ExternalFeedRecord)
-
+from .output import ELOInSessionTraderRecord
 
 class HFTOutputView(vanilla.TemplateView):
 	
@@ -40,7 +40,7 @@ class ExportHFTCSV(vanilla.View):
             session = Session.objects.get(code=session_code)
             subsession_ids = [sub.id for sub in 
                 hft.models.Subsession.objects.filter(session=session)]
-            subsession_events = hft.output.HFTPlayerStateRecord.objects.filter(
+            subsession_events = hft.output.ELOInSessionTraderRecord.objects.filter(
                 subsession_id__in=subsession_ids).order_by('subsession_id',
                     'market_id','timestamp')
             response = HttpResponse(content_type='text/csv')
@@ -48,7 +48,7 @@ class ExportHFTCSV(vanilla.View):
                 'HFT Session {} Events (accessed {}).csv'.format(
                     session_code,
                     datetime.date.today().isoformat()))
-            fieldnames = hft.output.HFTPlayerStateRecord.csv_meta
+            fieldnames = hft.output.ELOInSessionTraderRecord.csv_meta
             writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction='ignore')
             writer.writeheader()
             for row in subsession_events:

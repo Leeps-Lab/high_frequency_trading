@@ -318,7 +318,7 @@ class MarketSession extends PolymerElement {
             for (let key in fieldsTypes) {
                 let fieldParser = fieldsTypes[key]
                 if (!messagePayload.hasOwnProperty(key)) {
-                    console.error(`error: ${key} missing in ${messagePayload}`)
+                    console.error(`error: ${key} missing in `, messagePayload)
                     return ;
                 }
 
@@ -338,7 +338,7 @@ class MarketSession extends PolymerElement {
             return cleanMessage;
         }
         else {
-            console.error(`invalid message type: ${messagePayload.type} in ${messagePayload}`);
+            console.error(`invalid message type: ${messagePayload.type} in `, messagePayload);
         }
     }
 

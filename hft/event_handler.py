@@ -2,11 +2,11 @@ from .cache import (
     model_key_format_str_kw, lock_key_format_str, get_trader_ids_by_market)
 from django.core.cache import cache
 from otree.timeout.tasks import hft_background_task
-from . import checkpoints
 from random import shuffle
 from .subject_state import SubjectStateFactory
 from .trader import TraderFactory
 import logging
+from .output import trader_checkpoint
 
 log = logging.getLogger(__name__)
 
@@ -17,10 +17,9 @@ class EventHandler(object):
     model_name = None
     background_logger = None
 
-    def __init__(self, event, market_environment=''):
+    def __init__(self, event, market_environment):
         self.market_environment = market_environment
         self.model_id = getattr(event, self.model_id_field_name)
-        print('handlerid', self.model_id, self.model_id_field_name)
         self.event = event
         self.model_cache_key = model_key_format_str_kw.format(
             model_id=self.model_id, model_name=self.model_name,
@@ -47,7 +46,7 @@ class EventHandler(object):
             self.post_handle()
             cache.set(self.model_cache_key, self.model)
         return self.event
-
+    
     def post_handle(self, **kwargs):
         pass
 
@@ -55,21 +54,22 @@ class EventHandler(object):
 class TraderPostHandleMixIn:
 
     # so I dont duplicate code
-    def post_handle(self):
+    def post_handle(self, **kwargs):
         subject_state_cls = SubjectStateFactory.get_state(self.market_environment) 
         subject_state = subject_state_cls.from_trader(self.model)
-        hft_background_task(
-            checkpoints.hft_trader_checkpoint, subject_state, 
-            self.event.to_kwargs())
+        hft_background_task(trader_checkpoint, subject_state, 
+                            self.market_environment, 
+                            event_type=self.event.event_type,
+                            event_no=self.event.reference_no)
 
-class TraderEventHandler(EventHandler, TraderPostHandleMixIn):
+
+class TraderEventHandler(TraderPostHandleMixIn, EventHandler):
 
     model_id_field_name = 'player_id'
     model_name = 'trader'
 
 
-
-class ELOTraderRoleChangeEventHandler(EventHandler, TraderPostHandleMixIn):
+class ELOTraderRoleChangeEventHandler(TraderPostHandleMixIn, EventHandler):
     # 'role_change' has its own code spec.
     # as it changes the trader implementation
 
@@ -125,9 +125,10 @@ class TradeSessionEventHandler(EventHandler):
 
 class MarketWideEventHandler:
 
-    def __init__(self, event, **kwargs):
+    def __init__(self, event, market_environment, **kwargs):
         self.event = event
         self.kwargs = kwargs
+        self.market_environment = market_environment
 
     def handle(self, **kwargs):
         try:
@@ -138,7 +139,7 @@ class MarketWideEventHandler:
         if responding_trader_ids:
             for trader_id in responding_trader_ids:
                 self.event.player_id = trader_id
-                handler = TraderEventHandler(self.event)
+                handler = TraderEventHandler(self.event, self.market_environment)
                 handler.handle()
         shuffle(self.event.outgoing_messages)
         return self.event
@@ -150,19 +151,19 @@ def is_investor(event):
 class EventHandlerFactory:
 
     @staticmethod
-    def get_handler(event, topic, **kwargs):
+    def get_handler(event, topic, market_environment, **kwargs):
         if topic == 'market':
-            return MarketEventHandler(event, **kwargs)
+            return MarketEventHandler(event, market_environment, **kwargs)
         elif topic == 'trader':
             if is_investor(event):
-                return InvestorEventHandler(event, **kwargs)
+                return InvestorEventHandler(event, market_environment, **kwargs)
             else:
-                return TraderEventHandler(event, **kwargs)
+                return TraderEventHandler(event, market_environment, **kwargs)
         elif topic == 'trade_session':
-            return TradeSessionEventHandler(event, **kwargs)
+            return TradeSessionEventHandler(event, market_environment, **kwargs)
         elif topic == 'trader_role_change':
-            return ELOTraderRoleChangeEventHandler(event, **kwargs)
+            return ELOTraderRoleChangeEventHandler(event, market_environment, **kwargs)
         elif topic == 'marketwide_events':
-            return MarketWideEventHandler(event, **kwargs)
+            return MarketWideEventHandler(event, market_environment, **kwargs)
         else:
             raise Exception('invalid topic: %s' % topic)

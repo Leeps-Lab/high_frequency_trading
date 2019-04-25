@@ -22,6 +22,7 @@ from .subject_state import SubjectStateFactory
 from .cache import initialize_model_cache, set_market_id_map, get_market_id_map
 from .exogenous_event import ExogenousEventModelFactory
 from . import market_environments
+from .output import ELOInSessionTraderRecord
 
 log = logging.getLogger(__name__)
 
@@ -166,9 +167,8 @@ class Player(BasePlayer):
         utility.configure_model_for_market('player', self, session_format, 
                                            self.session.config)
         self.save()
-
     
-    def from_state_record(self, record_cls=ELOInSessionTraderRecord):
+    def update_from_state_record(self, record_cls=ELOInSessionTraderRecord):
         print(record_cls._meta.fields)
 
 

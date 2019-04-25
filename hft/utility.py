@@ -125,6 +125,7 @@ def kwargs_from_event(event):
             kwargs[k] = v
     return kwargs
 
+
 scaled_fields = ('price', 'execution_price', 'old_price', 'reference_price', 'cash', 
     'best_bid', 'best_offer', 'bid', 'offer')
 def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fields):
@@ -135,5 +136,20 @@ def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fiel
             clean_message[field] = int(int(clean_message[field]) * multiplier)
     return clean_message
         
-
-
+def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
+                         timeout=30, sleep_time=1):
+    total_slept = 0
+    results_ready = False
+    while total_slept < timeout:
+        num_results_ready = record_cls.objects.filter(subsession_id=
+            subsession_id, market_id=market_id, trigger_event_type=
+            'market_end').count()
+        log.warning('waiting results for market {}, {}/{} results ready'.format(
+            market_id, num_results_ready, num_players))            
+        if  num_results_ready == num_players:
+            results_ready = True
+            break
+        else:
+            time.sleep(sleep_time)
+            total_slept += sleep_time
+    return results_ready

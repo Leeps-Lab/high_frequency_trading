@@ -213,6 +213,10 @@ class ELOTrader(BaseTrader):
     def external_feed_update(self, **kwargs):
         for k in ('e_best_bid','e_best_offer', 'e_signed_volume'):
             setattr(self, k, kwargs[k])
+        
+    def signed_volume_change(self, **kwargs):
+        if self.signed_volume != kwargs['signed_volume']:
+            self.signed_volume = kwargs['signed_volume']
 
 
 Sliders = namedtuple('Sliders', 'a_x a_y a_z')

@@ -22,9 +22,9 @@ const ELO = {
                 //New Message
                 type: String,
                 market_id: parseInt,
-                best_bid: parseInt,
-                best_offer: parseInt,
-                signed_volume: parseFloat
+                e_best_bid: parseInt,
+                e_best_offer: parseInt,
+                e_signed_volume: parseFloat
             },
             executed: {
                 type: String,
@@ -64,6 +64,7 @@ const ELO = {
             },
             order_imbalance: {
                 //Remove this message?
+                // yeah, possibly in near future - ali
                 type: String,
                 market_id: parseInt,
                 value: parseFloat

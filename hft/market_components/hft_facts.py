@@ -50,9 +50,9 @@ class ReferencePrice(MarketFact):
              (1 - weight_for_price) * self.reference_price))
         if self.reference_price != new_reference_price:
             self.reference_price = new_reference_price
-            self.__has_changed = True
+            self.has_changed = True
         else:
-            self.__has_changed = False
+            self.has_changed = False
 
 
 class SignedVolume(MarketFact):
@@ -73,6 +73,6 @@ class SignedVolume(MarketFact):
              -1 * self.k_signed_volume * self.timer.time_since_previous_step), 2)
         if self.signed_volume != new_signed_volume:
             self.signed_volume = new_signed_volume
-            self.__has_changed = True
+            self.has_changed = True
         else:
-            self.__has_changed = False
+            self.has_changed = False

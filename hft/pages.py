@@ -4,7 +4,9 @@ from django.core.cache import cache
 from django.conf import settings
 import json
 import time
-from .output import HFTPlayerStateRecord, elo_player_summary, state_for_results_template
+from .output import ELOInSessionTraderRecord
+from .session_results import elo_player_summary, state_for_results_template
+from .utility import ensure_results_ready
 
 log = logging.getLogger(__name__)
 
@@ -28,27 +30,13 @@ class ResultsWaitPage(WaitPage):
         # for results being ready without
         # blocking a worker.
         # this should do it for now.
-        results_ready = False
-        timeout = 30
-        sleep_time = 1
-        total_slept = 0
-        while total_slept < timeout:
-            num_results_ready = HFTPlayerStateRecord.objects.filter(subsession_id=
-                self.subsession.id, market_id=self.group.id, trigger_event_type=
-                'market_end').count()
-            num_players = self.group.player_set.count()
-            log.warning('waiting for results for market {}, {}/{} results ready'.format(
-                self.group.id, num_results_ready, num_players))            
-            if  num_results_ready == num_players:
-                results_ready = True
-                break
-            else:
-                time.sleep(sleep_time)
-                total_slept += sleep_time
-        if results_ready:
-            time.sleep(sleep_time)
+        players_query = self.group.get_players()
+        if ensure_results_ready(self.subsession.id, self.group.id, ELOInSessionTraderRecord,
+            len(players_query)):
+            for p in players_query:
+                    p.update_from_state_record()
             try:
-                for p in self.group.get_players():
+                for p in players_query:
                     elo_player_summary(p)
             except Exception:
                 log.exception('error transform results group {}'.format(self.group.id))

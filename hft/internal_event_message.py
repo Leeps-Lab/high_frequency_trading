@@ -41,7 +41,8 @@ class BBOChangeMessage(InternalEventMessage):
 class ExternalFeedChangeMessage(InternalEventMessage):
 
     required_fields = (
-        'e_best_bid', 'e_best_offer', 'e_signed_volume')
+        'market_id', 'subsession_id', 'e_best_bid', 'e_best_offer', 
+        'e_signed_volume')
 
 class ELOInternalEventMessageFactory(MessageFactory):
 

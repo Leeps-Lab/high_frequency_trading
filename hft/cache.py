@@ -19,7 +19,7 @@ def get_trader_ids_by_market(market_id: str, subsession_id: str):
     market_key = model_key_format_str_kw.format(
         model_name='market', model_id=market_id, subsession_id=subsession_id)
     market = cache.get(market_key)
-    trader_ids = [market.players_in_market.keys()]
+    trader_ids = list(market.players_in_market.keys())
     return trader_ids
 
 market_id_mapping_key = 'MARKET_ID_MAP_{subsession_id}'

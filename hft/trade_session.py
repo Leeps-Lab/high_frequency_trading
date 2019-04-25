@@ -78,7 +78,6 @@ class TradeSession:
             for event_type, filename in self.exogenous_events.items():
                 url = utility.exogenous_event_endpoint.format(subsession_id=
                     self.subsession_id)
-                print('ss', event_type, filename)
                 exogenous_event_queryset = get_exogenous_event_queryset(event_type, 
                     filename)
                 exogenous_event_json_formatted = serializers.serialize('json', 

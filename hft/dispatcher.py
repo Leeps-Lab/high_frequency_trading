@@ -1,4 +1,3 @@
-from .checkpoints import hft_event_checkpoint
 from .incoming_message import IncomingMessageFactory
 from .event import EventFactory
 from .event_handler import EventHandlerFactory
@@ -22,8 +21,7 @@ class Dispatcher:
     @classmethod
     def dispatch(cls, message_source, message, **kwargs):
         incoming_message = cls.message_factory.get_message(
-            message_source, message, market_environment=cls.market_environment,
-            **kwargs)
+            message_source, message, cls.market_environment, **kwargs)
         event = EventFactory.get_event(message_source, incoming_message, **kwargs)
         if event.event_type not in cls.topics:
             log.warning('unsupported event type: %s.' % event.event_type)
@@ -33,11 +31,13 @@ class Dispatcher:
 
         for topic in observers:
             handler = cls.handler_factory.get_handler(
-                event, topic, market_environment=cls.market_environment)
+                event, topic, cls.market_environment)
             event = handler.handle()
 
-   #    log.debug('{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(event=event))
-        log.debug(event)
+        log.debug(
+            '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
+             event=event))
+      # log.debug(event)
 
         while event.outgoing_messages:
             message = event.outgoing_messages.popleft()
@@ -79,6 +79,5 @@ class ELODispatcher(Dispatcher):
         'bbo_change': ['marketwide_events'],
         'signed_volume_change': ['marketwide_events'],
         'reference_price_change': ['marketwide_events'],
-        'slider': ['trader']
-    }
+        'slider': ['trader']}
     outgoing_message_types = ('exchange', 'broadcast')

@@ -79,7 +79,7 @@ class BaseMarket:
             else:
                 self.is_trading = True
                 self.event.broadcast_msgs('system_event', model=self, code='S')
-        self.time_session_start = str(datetime.utcnow().replace(tzinfo=utc))
+        self.time_session_start = datetime.utcnow().replace(tzinfo=utc)
 
     def end_trade(self, *args, **kwargs):
         self.is_trading = False
@@ -111,7 +111,7 @@ class ELOMarket(BaseMarket):
         'external_feed': 'external_feed_change'} 
     mark_events_with_props = (
         'tax_rate', 'time_session_start', 'time_session_end')
-    mark_events_with_stats = ('bbo', 'signed_volume', 'external_feed')
+    mark_events_with_stats = ('bbo', 'signed_volume', 'external_feed', 'reference_price')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

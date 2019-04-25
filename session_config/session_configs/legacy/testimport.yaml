@@ -10,28 +10,29 @@ exogenous-events:
     - investors_trial.csv
     - investors_trial.csv
     - investors_trial.csv
-    
+  external-feed:
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+        
 market:
   auction-format: 'CDA'
   matching-engine-host: '127.0.0.1'
 
 parameters:
+  default-role: 'out'
   initial-endowment: 1000
-  initial-spread: 1
-  max-spread: 2
-  period-length: 10
+  session-duration: 10
   technology-unit-cost: 0.022  # $/s
   reference-price-discount-constant: 0.7
   imbalance-discount-rate: 0.01
   tax-rate: 0.1
-  grid-size: 1
 
 session:
+  session-name: dummy_config
+  display-name: dummy config for upload testing
   environment: elo
-  currency: EUR
-  display-name: config-testing
-  exchange-rate: 1.5
   num-rounds: 3
+  currency: EUR
+  exchange-rate: 1.5
   participation-fee: 4
-  random-round-payment: off
-  session-name: test_import_session
