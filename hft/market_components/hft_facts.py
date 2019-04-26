@@ -1,6 +1,9 @@
 from .market_fact import *
 import math
 from hft.equations import price_grid
+import logging
+
+log = logging.getLogger(__name__)
 
 max_offer = 2147483647
 min_bid = 0
@@ -59,15 +62,23 @@ class SignedVolume(MarketFact):
 
     defaults = {'signed_volume': 0, 'k_signed_volume': 0}
     name = 'signed_volume'
-    external_inputs = ('buy_sell_indicator', 'best_bid', 'best_offer')
+    external_inputs = ('buy_sell_indicator', 'best_bid', 'best_offer', 'execution_price')
     is_time_aware = True
 
 
     def update(self, *args, **kwargs):
         super().update(*args, **kwargs)
-        # 4 character in order token is also buy_sell_indicator
-        bsi = kwargs['order_token'][3]
-        offset = 0.5 if bsi == 'S' else - 0.5
+        price = kwargs['execution_price']
+        best_offer = kwargs['best_offer']
+        best_bid = kwargs['best_bid']
+        if price == best_offer:
+            offset = 0.5
+        elif price == best_bid:
+            offset = - 0.5
+        else:
+            log.debug('bad execution price %d:%s' % (
+                      price, kwargs['buy_sell_indicator']))
+            return
         new_signed_volume = round(
             offset + self.signed_volume * math.e ** (
              -1 * self.k_signed_volume * self.timer.time_since_previous_step), 2)

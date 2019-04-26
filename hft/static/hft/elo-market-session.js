@@ -106,7 +106,7 @@ class MarketSession extends PolymerElement {
                     my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
                 <div class="middle-section-container">       
                     <elo-info-table inventory={{inventory}}
-                        cash={{cash}} order-imbalance={{orderImbalance}}
+                        cash={{cash}} signed-volume={{signedVolume}}
                         endowment={{wealth}} best-bid={{bestBid}}
                         best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
                     </elo-info-table>
@@ -130,7 +130,7 @@ class MarketSession extends PolymerElement {
         startRole: String,
         referencePrice: {type: Number,
             value: 0},
-        orderImbalance: {type: Number,
+        signedVolume: {type: Number,
             value: 0},
         orderBook: Object,
         bestBid: Number,
@@ -139,6 +139,8 @@ class MarketSession extends PolymerElement {
         volumeBestOffer: Number,
         myBid: Number,
         myOffer: Number,
+        eBestBid: Number,
+        eBestOffer: Number,
         wealth: {
             type: Number,
             computed: '_calculateWealth(cash, totalCost, referencePrice, inventory)'
@@ -203,7 +205,7 @@ class MarketSession extends PolymerElement {
         this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
-        this.orderImbalance = 0
+        this.signedVolume = 0
     }
 
     outboundMessage(event) {
@@ -275,13 +277,16 @@ class MarketSession extends PolymerElement {
     }
 
     _handleReferencePrice(message) {
-        this.referencePrice = message.price
+        this.referencePrice = message.reference_price
     }
 
-    _handleTakerCue(message) {}
+    _handleExternalFeed(message) {
+        this.eBestBid = message.e_best_bid
+        this.eBestOffer = message.e_best_offer
+    }
 
-    _handleOrderImbalance(message){
-        this.orderImbalance = message.value
+    _handleSignedVolume(message){
+        this.signedVolume = message.signed_volume
     }
     
     _myBidOfferUpdate(price, buySellIndicator, mode='add') {

@@ -16,7 +16,6 @@ const ELO = {
                 //New Message
                 type: String,
                 market_id: parseInt,
-                k_signed_volume: parseFloat,
                 signed_volume: parseFloat
             },
             external_feed: {
@@ -73,7 +72,6 @@ const ELO = {
             reference_price: {
                 type: String,
                 market_id: parseInt,
-                k_reference_price: parseInt,
                 reference_price: parseInt
             },
             elo_quote_cue: {
@@ -133,7 +131,8 @@ const ELO = {
         bbo: ['_handleBestBidOfferUpdate'],
         role_confirm: ['_handleRoleConfirm'],
         system_event: ['_handleSystemEvent'],
-        order_imbalance: ['_handleOrderImbalance'],
+        signed_volume: ['_handleSignedVolume'],
+        external_feed: ['_handleExternalFeed'],
         elo_quote_cue: ['_handleTakerCue'],
         speed_confirm: ['_handleSpeedConfirm'],
         reference_price: ['_handleReferencePrice']

@@ -49,12 +49,6 @@ class BaseTrader(object):
         handler(**event.to_kwargs())
         self.event = None
 
-    def market_start(self, **kwargs):
-        for k, v in kwargs:
-            if hasattr(self, k):
-                setattr(self, k, v)
-
-
     def first_move(self, **kwargs):
         """
         this gets called on a role 
@@ -70,12 +64,20 @@ class ELOTrader(BaseTrader):
     short_delay = 0.1
     long_delay = 0.5
 
-    message_dispatch = { 'speed_change': 'speed_change',
-        'role_change': 'first_move', 'A': 'accepted', 'U': 'replaced', 'C': 'canceled', 
-        'E': 'executed', 'slider': 'slider_change', 'bbo_change': 'bbo_change', 
-        'order_imbalance_change': 'order_imbalance_change', 'market_end': 'close_session',
-        'market_start': 'market_start', 'reference_price_change': 'reference_price_update',
-        'signed_volume_change': 'signed_volume_change', 'external_feed_change': 'external_feed_update'}
+    message_dispatch = { 
+        'market_start': 'open_session', 
+        'market_end': 'close_session',
+        'A': 'accepted', 
+        'U': 'replaced', 
+        'C': 'canceled', 
+        'E': 'executed', 
+        'speed_change': 'speed_change',
+        'role_change': 'first_move', 
+        'slider': 'slider_change', 
+        'bbo_change': 'bbo_change', 
+        'reference_price_change': 'reference_price_update',
+        'signed_volume_change': 'signed_volume_change', 
+        'external_feed_change': 'external_feed_change'}
     
     cost_fields = ('technology_cost', 'tax')
 
@@ -94,7 +96,11 @@ class ELOTrader(BaseTrader):
         for field in ('best_bid', 'volume_at_best_bid', 'next_bid', 'best_offer',
             'volume_at_best_offer', 'next_offer', 'signed_volume', 'e_best_bid',
             'e_best_offer', 'e_signed_volume','tax_rate'):
-                setattr(self, field, kwargs[field])
+            value = kwargs[field]
+            if value is None:
+                raise ValueError('%s is required for %s' % (field, self.__class__.name))
+            else:    
+                setattr(self, field, value)
 
     def speed_change(self, **kwargs):
         new_state = kwargs['value']
@@ -135,14 +141,18 @@ class ELOTrader(BaseTrader):
         """
         orders = self.orderstore.all_orders()
         if orders:
-            delay = self.delay
             host, port = self.exchange_host, self.exchange_port
             for order_info in orders:
                 order_info['shares'] = 0    # cancel fully
                 message_content = {'host': host, 'port': port, 
-                    'type': 'cancel', 'delay': delay, 'order_info': order_info}
+                    'type': 'cancel', 'delay': self.delay, 'order_info': order_info}
                 internal_message = format_message('exchange', **message_content)
                 self.outgoing_messages.append(internal_message)
+                if order_info['buy_sell_indicator'] == 'B':
+                    self.target_bid = None
+                else:
+                    self.target_offer = None
+
 
     def first_move(self, **kwargs):
         self.role = kwargs['state']
@@ -210,7 +220,7 @@ class ELOTrader(BaseTrader):
     def reference_price_update(self, **kwargs):
         self.reference_price = kwargs['reference_price']
 
-    def external_feed_update(self, **kwargs):
+    def external_feed_change(self, **kwargs):
         for k in ('e_best_bid','e_best_offer', 'e_signed_volume'):
             setattr(self, k, kwargs[k])
         
@@ -219,7 +229,7 @@ class ELOTrader(BaseTrader):
             self.signed_volume = kwargs['signed_volume']
 
 
-Sliders = namedtuple('Sliders', 'a_x a_y a_z')
+Sliders = namedtuple('Sliders', 'slider_a_x slider_a_y slider_a_z')
 Sliders.__new__.__defaults__ = (0, 0, 0)
 
 
@@ -294,21 +304,19 @@ MAX_ASK = 2147483647
 class ELOManualTrader(ELOTrader):
 
     message_dispatch = { 
-        'speed_change': 'speed_change',
-        'role_change': 'first_move', 
+        'market_start': 'open_session', 
+        'market_end': 'close_session',
         'A': 'accepted', 
         'U': 'replaced', 
         'C': 'canceled', 
         'E': 'executed', 
+        'speed_change': 'speed_change',
+        'role_change': 'first_move', 
         'slider': 'slider_change', 
         'bbo_change': 'bbo_change', 
-        'order_imbalance_change': 'order_imbalance_change', 
-        'market_end': 'close_session',
-        'market_start': 'market_start', 
         'reference_price_change': 'reference_price_update',
         'signed_volume_change': 'signed_volume_change', 
-        'external_feed_change': 'external_feed_update',
-        'reference_price_change': 'reference_price_update',
+        'external_feed_change': 'external_feed_change',
         'order_entered': 'user_order'}
 
     # def __init__(self, subject_state):
@@ -330,6 +338,9 @@ class ELOManualTrader(ELOTrader):
         price = kwargs['price']
         if price == MIN_BID or price == MAX_ASK :
             return
+        print(
+            'bs', buy_sell_indicator, self.target_bid, self.target_offer, price
+        )
         if (buy_sell_indicator == 'B' and self.target_offer is not None and 
             price >= self.target_offer) or (
             buy_sell_indicator == 'S' and self.target_bid is not None and 
@@ -396,9 +407,10 @@ class ELOAutomatedTrader(ELOTrader):
     def enter_with_latent_quote(self, buy_sell_indicator, price=None, 
             time_in_force=99999, latent_quote_formula=latent_bid_and_offer):
         if price is None:
-            self.implied_bid, self.implied_offer = latent_quote_formula(self.best_bid, 
-                self.best_offer, self.order_imbalance, self.orderstore.inventory, 
-                self.sliders)
+            self.implied_bid, self.implied_offer = latent_quote_formula(
+                self.best_bid_except_me, self.best_offer_except_me, self.signed_volume, 
+                self.e_best_bid, self.e_best_offer, self.e_signed_volume,
+                self.orderstore.inventory, self.sliders)
             price = self.implied_bid if buy_sell_indicator == 'B' else self.implied_offer 
         # delay = self.calc_delay()
         order_info = self.orderstore.enter(price=price, buy_sell_indicator=buy_sell_indicator, 
@@ -416,7 +428,7 @@ class ELOAutomatedTrader(ELOTrader):
         #     'volume_at_best_offer', 'next_offer'):
         #     if field in kwargs:
         #         setattr(self, field, kwargs[field])
-        super().bbo_update(**kwargs)
+        super().bbo_change(**kwargs)
         self.wait_for_best_bid = False
         self.wait_for_best_offer = False
         self.latent_quote_update(**kwargs)
@@ -426,20 +438,22 @@ class ELOAutomatedTrader(ELOTrader):
         self.latent_quote_update(**kwargs)
 
     def signed_volume_change(self, **kwargs):
-        buy_sell_indicator = kwargs['buy_sell_indicator']
+        # buy_sell_indicator = kwargs['buy_sell_indicator']
         if self.signed_volume != kwargs['signed_volume']:
             self.signed_volume = kwargs['signed_volume']
             # wait if I am at the bbo because it might change
             # what if I am not alone ??
-            if (buy_sell_indicator == 'B' and self.best_bid == self.target_bid):
-                self.wait_for_best_bid = True
-            if (buy_sell_indicator == 'S' and self.best_offer == self.target_offer):
-                self.wait_for_best_offer = True
+            # if (buy_sell_indicator == 'B' and self.best_bid == self.target_bid):
+            #     self.wait_for_best_bid = True
+            # if (buy_sell_indicator == 'S' and self.best_offer == self.target_offer):
+            #     self.wait_for_best_offer = True
             self.latent_quote_update(**kwargs)
 
     def slider_change(self, **kwargs):
         new_slider = Sliders(
-            a_x=float(kwargs['a_x']), a_y=float(kwargs['a_y'], a_z=float(kwargs['a_z'])))
+            slider_a_x=kwargs['a_x'], 
+            slider_a_y=kwargs['a_y'],
+            slider_a_z=kwargs['a_z'])
         if self.sliders != new_slider:
             self.sliders = new_slider
             self.latent_quote_update(sliders=new_slider)
@@ -527,7 +541,6 @@ class ELOAutomatedTrader(ELOTrader):
                 start_from)
 
     def move_bid_and_offer(self, target_bid=None, target_offer=None, start_from='B'):
-        delay = self.calc_delay()
 
         sells = deque()
         if target_offer is not None and self.wait_for_best_offer is False:
@@ -542,7 +555,7 @@ class ELOAutomatedTrader(ELOTrader):
                     if target_offer != order_price and target_offer != replace_price:
                         order_info = self.orderstore.register_replace(token, target_offer)
                         sell_message = self.exchange_message_from_order_info(order_info, 
-                            delay, 'replace')
+                            self.delay, 'replace')
                         sells.append(sell_message)
                 self.target_offer = target_offer
             else:
@@ -562,7 +575,7 @@ class ELOAutomatedTrader(ELOTrader):
                     if target_bid != order_price and target_bid != replace_price:
                         order_info = self.orderstore.register_replace(token, target_bid)
                         buy_message = self.exchange_message_from_order_info(order_info, 
-                            delay, 'replace')
+                            self.delay, 'replace')
                         buys.append(buy_message)
                 self.target_bid = target_bid
             else:
@@ -588,11 +601,13 @@ class ELOAutomatedTrader(ELOTrader):
             self.target_offer = None
 
         if buy_sell_indicator == 'B':
-            if self.best_bid == 1 and self.best_bid == price:
+            # if execution is at bb and available volume was 1
+            # expect a bbo change immediately afterwards.
+            if self.volume_at_best_bid == 1 and self.best_bid == price:
                 self.wait_for_best_bid = True
 
         if buy_sell_indicator == 'S':
-            if self.best_offer == 1 and self.best_offer == price:
+            if self.volume_at_best_offer == 1 and self.best_offer == price:
                 self.wait_for_best_offer = True
 
 

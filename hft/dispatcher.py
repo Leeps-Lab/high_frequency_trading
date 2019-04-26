@@ -34,10 +34,10 @@ class Dispatcher:
                 event, topic, cls.market_environment)
             event = handler.handle()
 
-        log.debug(
-            '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
-             event=event))
-      # log.debug(event)
+        # log.debug(
+        #     '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
+        #      event=event))
+        log.debug(event)
 
         while event.outgoing_messages:
             message = event.outgoing_messages.popleft()
@@ -71,7 +71,7 @@ class ELODispatcher(Dispatcher):
         'speed_change': ['trader'],
         'market_ready_to_start': ['trade_session'],
         'market_ready_to_end': ['trade_session'],
-        'market_start': ['market'],
+        'market_start': ['market', 'marketwide_events'],
         'market_end': ['market', 'marketwide_events'],
         'order_entered': ['trader'],
         'investor_arrivals': ['trader'],

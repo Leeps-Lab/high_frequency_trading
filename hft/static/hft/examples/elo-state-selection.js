@@ -27,7 +27,7 @@ class StateSelection extends PolymerElement {
                 align-items: center;
                 text-align: center;
                 height: 100%;
-                width: 30%;
+                width: 55%;
                 margin: 10px;
             }
 
@@ -40,7 +40,7 @@ class StateSelection extends PolymerElement {
                 margin: 5px;
                 border-radius: 5%;
                 border: 1px solid #000;
-                width: 90%;
+                width: 60%;
             }
 
             .state-container{
@@ -57,11 +57,11 @@ class StateSelection extends PolymerElement {
             }
 
             #first-column {
-                width: 10%;
+                width: 5%;
             }
 
             #second-column {
-                width: 50%;
+                width: 40%;
                 align-items: left;
             }
 
@@ -97,7 +97,7 @@ class StateSelection extends PolymerElement {
 
                 <div class = 'column-container evenly-spaced-column'>
                     <div class="header-container" style="height: 10%">
-                        Sensitivities
+                        Sensitivity to:
                     </div>
 
                     <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
@@ -105,11 +105,11 @@ class StateSelection extends PolymerElement {
                     </algorithm-slider>
 
                     <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
-                        val='{{slider_a_x::mouseup}}' slider-name="Imbalence" step-size='[[sliderDefaults.stepSize]]'>
+                        val='{{slider_a_x::mouseup}}' slider-name="Signed Volume" step-size='[[sliderDefaults.stepSize]]'>
                     </algorithm-slider>
                     
                     <algorithm-slider max-value='1' min='0'
-                        val='{{slider_a_z::mouseup}}' slider-name="Inventory" step-size='1'>
+                        val='{{slider_a_z::mouseup}}' slider-name="External Feed" step-size='0.1'>
                     </algorithm-slider>
                 </div>
                         

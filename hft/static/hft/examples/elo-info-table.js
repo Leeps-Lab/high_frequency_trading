@@ -12,7 +12,7 @@ class InfoTable extends PolymerElement {
         inventory: Number, 
         cash: Number,
         endowment: Number,
-        orderImbalance: Number
+        signedVolume: Number
       }
     }
     constructor() {
@@ -75,7 +75,7 @@ class InfoTable extends PolymerElement {
             </div>
             <div id="small-row" class="row">
               <elo-subject-wallet inventory={{inventory}} cash={{cash}}
-                endowment={{endowment}} order-imbalance={{orderImbalance}}> 
+                endowment={{endowment}} signed-volume={{signedVolume}}> 
               </elo-subject-wallet>
             </div>
           </div>

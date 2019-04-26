@@ -20,6 +20,8 @@ class ELOInvestor(ELOTrader):
     def __init__(self, market):
         self.subsession_id = market.subsession_id
         self.player_id = market.market_id
+        # for compatibility with trader base class
+        self.market_id = market.market_id
         self.exchange_host = market.exchange_host
         self.exchange_port = market.exchange_port
         self.orderstore = OrderStore(

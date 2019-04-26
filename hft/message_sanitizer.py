@@ -35,6 +35,9 @@ class ELOWSMessageSanitizer(MessageSanitizer):
             clean_message['time_in_force'] = int(clean_message['time_in_force'])
         if clean_message['type'] == 'investor_arrivals':
             clean_message['player_id'] = clean_message['market_id']
+        if clean_message['type'] == 'slider':
+            for s in ('a_x', 'a_y', 'a_z'):
+                clean_message[s] = float(clean_message[s])
         return clean_message
     
 

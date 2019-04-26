@@ -127,7 +127,8 @@ def kwargs_from_event(event):
 
 
 scaled_fields = ('price', 'execution_price', 'old_price', 'reference_price', 'cash', 
-    'best_bid', 'best_offer', 'bid', 'offer')
+    'best_bid', 'best_offer', 'bid', 'offer', 'next_bid', 'next_offer', 'e_best_bid',
+    'e_best_offer')
 def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fields):
     multiplier = 10000 if direction == 'scale-up' else 0.0001
     clean_message = dict(message)
