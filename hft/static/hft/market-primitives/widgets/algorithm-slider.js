@@ -10,13 +10,13 @@ class algorithmSlider extends PolymerElement {
                 display: inline-block;
                 font-family: monospace;
                 font-weight: bold;
+                width: 85%;
             }
             .header-container {
                 background-color: #FFFFF0;
                 margin: 5px;
                 border-radius: 5%;
                 border: 1px solid #000;
-                width: 90%;
             }
             .slider-header {
                 font-size: 12px
