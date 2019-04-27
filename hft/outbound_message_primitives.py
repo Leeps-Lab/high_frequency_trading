@@ -18,7 +18,7 @@ class OutboundMessage:
 
     @classmethod
     def create(cls, message_type, model=None, **kwargs):
-        message_data = dict(kwargs)
+        message_data = {}
         for key in cls.required_fields:
             if key in kwargs:
                 message_data[key] = kwargs[key]
