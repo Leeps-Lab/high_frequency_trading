@@ -60,7 +60,8 @@ class ResultsPage extends PolymerElement {
     this.numPlayers = Object.keys(payoffs).length
     const strategies = this.strategies;
     const invs = this.invSensitivities;
-    const imbs = this.imbSensitivities;
+    const sigs = this.signedVolumes;
+    const feeds = this.externalFeeds;
     const names = this.names;
     const taxes = this.taxes;
 
@@ -105,7 +106,8 @@ class ResultsPage extends PolymerElement {
       let myName = names[low];
       let myStrategies = strategies[low];
       let myInv = invs[low];
-      let myImb = imbs[low];
+      let mySig = sigs[low];
+      let myFeed = feeds[low];
 
       //let cell = document.createElement("td");
       //cell.setAttribute("style", "display:inline-block");
@@ -118,7 +120,8 @@ class ResultsPage extends PolymerElement {
       child.name = myName;
       child.strategies = myStrategies;
       child.invSensitivity = myInv;
-      child.imbSensitivity = myImb;
+      child.signedVolume = mySig;
+      child.externalFeed = myFeed;
       child.width = width;
       child.height = height;
       node.width = width;
@@ -180,7 +183,11 @@ class ResultsPage extends PolymerElement {
         type: Object,
         //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
       },
-      imbSensitivities: {
+      signedVolumes: {
+        type: Object,
+        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
+      },
+      externalFeeds: {
         type: Object,
         //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
       }
