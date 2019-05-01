@@ -91,6 +91,16 @@ class SpreadGraph extends PolymerElement {
                 type: Number,
                 value: 0,
             },
+            bidCue: {
+                type: Number,
+                value: 0,
+                observer: 'drawBidCue',
+            },
+            offerCue: {
+                type: Number,
+                value: 100001,
+                observer: 'drawOfferCue',
+            },
             animationTime: {
                 type: Number,
                 value: 200,
@@ -118,6 +128,11 @@ class SpreadGraph extends PolymerElement {
                 type: Object,
                 value: () => d3.interpolateRgb('red', 'green'),
             },
+            // TODO: ali - fill this with correct max offer value
+            _MAX_OFFER: {
+                type: Number,
+                value: 100000,
+            }
         };
     }
 
@@ -166,14 +181,20 @@ class SpreadGraph extends PolymerElement {
         this.volumeCircles = this.mainGroup.append('g');
         this.orderEnteredLines = this.mainGroup.append('g');
 
-        const mboGroup = this.mainGroup.append('g');
-        this.myBidCircle = mboGroup.append('circle')
+        const mboAndCueGroup = this.mainGroup.append('g');
+        this.myBidCircle = mboAndCueGroup.append('circle')
             .attr('class', 'my-bid')
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
-        this.myOfferCircle = mboGroup.append('circle')
+        this.myOfferCircle = mboAndCueGroup.append('circle')
             .attr('class', 'my-offer')
             .attr('r', this.minVolumeRadius)
+            .style('opacity', 0);
+        this.bidCueLine = mboAndCueGroup.append('line')
+            .attr('class', 'bid-cue')
+            .style('opacity', 0);
+        this.offerCueLine = mboAndCueGroup.append('line')
+            .attr('class', 'bid-cue')
             .style('opacity', 0);
         
         this.scale = d3.scaleLinear()
@@ -198,6 +219,13 @@ class SpreadGraph extends PolymerElement {
 
         this.myBidCircle.attr('cy', this.height / 2);
         this.myOfferCircle.attr('cy', this.height / 2);
+
+        this.bidCueLine
+            .attr('y1', this.height / 4)
+            .attr('y2', 3 * this.height / 4);
+        this.offerCueLine
+            .attr('y1', this.height / 4)
+            .attr('y2', 3 * this.height / 4);
 
         this.scale.range([0, this.width]);
 
@@ -334,16 +362,13 @@ class SpreadGraph extends PolymerElement {
             return;
         }
 
-        // TODO: ali - fill this with correct max offer value
-        const MAX_OFFER = 100000
-
-        if (newOffer > MAX_OFFER) {
+        if (newOffer > this._MAX_OFFER) {
             this.myOfferCircle.transition()
                 .duration(this.animationTime)
                 .style('opacity', 0);
         }
         else {
-            if (oldOffer > MAX_OFFER) {
+            if (oldOffer > this._MAX_OFFER) {
                 this.myOfferCircle
                     .attr('cx', this.scale(newOffer))
                   .transition()
@@ -359,23 +384,80 @@ class SpreadGraph extends PolymerElement {
         }
     }
 
+    drawBidCue(newBid, oldBid) {
+        if (!this.mainGroup) {
+            return;
+        }
+
+        if (newBid === 0) {
+            this.bidCueLine.transition()
+                .duration(this.animationTime)
+                .style('opacity', 0);
+        }
+        else {
+            if (oldBid === 0) {
+                this.bidCueLine
+                    .attr('x1', this.scale(newBid))
+                    .attr('x2', this.scale(newBid))
+                  .transition()
+                    .duration(this.animationTime)
+                    .style('opacity', 1);
+            }
+            else {
+                this.bidCueLine.transition()
+                    .duration(this.animationTime)
+                    .attr('cx', this.scale(newBid))
+                    .style('opacity', 1);
+            }
+        }
+    }
+
+    drawOfferCue(newOffer, oldOffer) {
+        if (!this.mainGroup) {
+            return;
+        }
+
+        if (newOffer > this._MAX_OFFER) {
+            this.offerCueLine.transition()
+                .duration(this.animationTime)
+                .style('opacity', 0);
+        }
+        else {
+            if (oldOffer > this._MAX_OFFER) {
+                this.offerCueLine
+                    .attr('x1', this.scale(newOffer))
+                    .attr('x2', this.scale(newOffer))
+                  .transition()
+                    .duration(this.animationTime)
+                    .style('opacity', 1);
+            }
+            else {
+                this.offerCueLine.transition()
+                    .duration(this.animationTime)
+                    .attr('x1', this.scale(newOffer))
+                    .attr('x2', this.scale(newOffer))
+                    .style('opacity', 1);
+            }
+        }
+    }
+
     updateDomain(bestBid, bestOffer) {
         if (!this.mainGroup) {
             return;
         }
 
         // if both best bid and best offer don't exist
-        if (bestBid == 0 && bestOffer >= 100000) {
+        if (bestBid == 0 && bestOffer >= this._MAX_OFFER) {
             return;
         }
 
         let center;
         // if best bid exists and best offer doesn't
-        if (bestBid == 0 && bestOffer < 100000) {
+        if (bestBid == 0 && bestOffer < this._MAX_OFFER) {
             center = bestOffer;
         }
         // if best offer exists and best offer doesn't
-        else if (bestBid > 0 && bestOffer >= 100000) {
+        else if (bestBid > 0 && bestOffer >= this._MAX_OFFER) {
             center = bestBid;
         }
         // if both best bid and best offer exist
