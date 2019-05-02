@@ -59,6 +59,14 @@ class SpreadGraph extends PolymerElement {
                     font-size:14px;
                     font-weight: bold;
                 }
+                .bid-cue{
+                    stroke:darkgrey;
+                    stroke-width:5px;
+                }
+                .offer-cue{
+                    stroke:darkgrey;
+                    stroke-width:5px;
+                }
             </style>
             <svg id="svg"></svg>
         `;
@@ -98,7 +106,7 @@ class SpreadGraph extends PolymerElement {
             },
             offerCue: {
                 type: Number,
-                value: 100001,
+                value: 0,
                 observer: 'drawOfferCue',
             },
             animationTime: {
@@ -194,7 +202,7 @@ class SpreadGraph extends PolymerElement {
             .attr('class', 'bid-cue')
             .style('opacity', 0);
         this.offerCueLine = mboAndCueGroup.append('line')
-            .attr('class', 'bid-cue')
+            .attr('class', 'offer-cue')
             .style('opacity', 0);
         
         this.scale = d3.scaleLinear()
@@ -222,10 +230,10 @@ class SpreadGraph extends PolymerElement {
 
         this.bidCueLine
             .attr('y1', this.height / 4)
-            .attr('y2', 3 * this.height / 4);
+            .attr('y2', 1.5 * this.height / 4);
         this.offerCueLine
             .attr('y1', this.height / 4)
-            .attr('y2', 3 * this.height / 4);
+            .attr('y2', 1.5 * this.height / 4);
 
         this.scale.range([0, this.width]);
 
@@ -389,7 +397,7 @@ class SpreadGraph extends PolymerElement {
             return;
         }
 
-        if (newBid === 0) {
+        if (newBid  > this._MAX_OFFER) {
             this.bidCueLine.transition()
                 .duration(this.animationTime)
                 .style('opacity', 0);
@@ -406,7 +414,8 @@ class SpreadGraph extends PolymerElement {
             else {
                 this.bidCueLine.transition()
                     .duration(this.animationTime)
-                    .attr('cx', this.scale(newBid))
+                    .attr('x1', this.scale(newBid))
+                    .attr('x2', this.scale(newBid))
                     .style('opacity', 1);
             }
         }
@@ -423,7 +432,7 @@ class SpreadGraph extends PolymerElement {
                 .style('opacity', 0);
         }
         else {
-            if (oldOffer > this._MAX_OFFER) {
+            if (oldOffer === 0) {
                 this.offerCueLine
                     .attr('x1', this.scale(newOffer))
                     .attr('x2', this.scale(newOffer))
