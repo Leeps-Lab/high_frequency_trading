@@ -141,7 +141,28 @@ const ELO = {
         minValue: 0,
         maxValue: 4,
         stepSize: 0.1
-    }
+    },
+    buttons: ["out","manual","automated"],
+    sliders: [
+        {
+            name: "Inventory",
+            minValue: 0,
+            maxValue: 4,
+            stepSize:0.1
+        },
+        {
+            name: "Signed Volume",
+            minValue: 0,
+            maxValue: 4,
+            stepSize:0.1
+        },
+        {
+            name: "External Feed",
+            minValue: 0,
+            maxValue: 1,
+            stepSize:0.2
+        }
+    ]
 
 }
 

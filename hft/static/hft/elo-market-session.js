@@ -110,7 +110,7 @@ class MarketSession extends PolymerElement {
                         endowment={{wealth}} best-bid={{bestBid}}
                         best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
                     </elo-info-table>
-                    <elo-state-selection role={{role}} slider-defaults={{sliderDefaults}}
+                    <elo-state-selection role={{role}} buttons={{buttons}} slider-defaults={{sliderDefaults}}
                         speed-on={{subscribesSpeed}}> 
                     </elo-state-selection>
                 </div>
@@ -124,6 +124,7 @@ class MarketSession extends PolymerElement {
         eventListeners: Object,
         eventHandlers: Object,
         sliderDefaults: Object,
+        buttons:Array,
         events: Object,
         playerId: Number,
         role: String,
@@ -189,7 +190,6 @@ class MarketSession extends PolymerElement {
 
     constructor() {
         super();
-
         this.orderBook = new PlayersOrderBook(this.playerId, this, 'orderBook');
         //Starting Role
         this.role = 'out';

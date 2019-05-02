@@ -1,12 +1,13 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
+import {} from '../node_modules/@polymer/polymer/lib/elements/dom-repeat.js';
 import '../market-primitives/widgets/player-role-button.js'
+import '../market-primitives/widgets/buttons-container.js'
 import '../market-primitives/widgets/nice-checkbox.js'
 import '../market-primitives/widgets/algorithm-slider.js'
 
 class StateSelection extends PolymerElement {
-    //Since this is an ELO specific example
-    //We can deal with any number of sliders or buttons here
-    //It is not a primitive
+     //dom-repeat
+     //https://polymer-library.polymer-project.org/3.0/api/elements/dom-repeat
     static get template() {
         return html`
         <link rel="stylesheet" href="/static/hft/css/range.css">
@@ -77,39 +78,22 @@ class StateSelection extends PolymerElement {
                 </div>
                 
                 <div id="second-column" class="column-container">
-                    <div>
-                        <player-role-button websocket-message='{"type": "role_change", "state": "manual"}' 
-                            event-dispatch="user-input"  role-name="manual" player-role=[[role]]>
+                    <template is="dom-repeat" items="{{buttons}}">
+                        <player-role-button websocket-message='{"type": "role_change", "state": "[[item]]"}' 
+                            event-dispatch="user-input"  role-name="[[item]]" player-role=[[role]]>
                         </player-role-button>
-
-                        <player-role-button websocket-message='{ "type": "role_change", "state": "out" }' 
-                            event-dispatch="user-input" role-name="out" player-role=[[role]]>
-                        </player-role-button>
-                    </div>
-
-                    <div>
-                        <player-role-button websocket-message='{ "type": "role_change", "state": "automated" }' 
-                            event-dispatch="user-input"  role-name="automated" player-role=[[role]]>
-                        </player-role-button>
-                    </div>
+                    </template>  
                 </div>
-
+                
                 <div class = 'column-container evenly-spaced-column'>
                     <div class="header-container" style="height: 10%">
                         Sensitivity to:
                     </div>
-
-                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
-                        val='{{slider_a_y::mouseup}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
-                    </algorithm-slider>
-
-                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
-                        val='{{slider_a_x::mouseup}}' slider-name="Signed Volume" step-size='[[sliderDefaults.stepSize]]'>
-                    </algorithm-slider>
-                    
-                    <algorithm-slider max-value='1' min='0'
-                        val='{{slider_a_z::mouseup}}' slider-name="External Feed" step-size='0.1'>
-                    </algorithm-slider>
+                    <template is="dom-repeat" items="{{sliders}}">
+                        <algorithm-slider max-value='[[item.maxValue]]' min='[[item.minValue]]'
+                            val='{{ [[item.propName]]:mouseup}}' slider-name="[[item.name]]" step-size='[[item.stepSize]]'>
+                        </algorithm-slider>
+                    </template>          
                 </div>
                         
             </div>
@@ -124,6 +108,30 @@ class StateSelection extends PolymerElement {
               value: 'out'
           },
           sliderDefaults: Object,
+          sliders:{value:[
+            {
+                name: "Inventory",
+                minValue: 0,
+                maxValue: 4,
+                stepSize:0.1,
+                propName: "slider_a_x"
+            },
+            {
+                name: "Signed Volume",
+                minValue: 0,
+                maxValue: 4,
+                stepSize:0.1,
+                propName: "slider_a_y"
+            },
+            {
+                name: "External Feed",
+                minValue: 0,
+                maxValue: 1,
+                stepSize:0.2,
+                propName: "slider_a_z"
+            }
+        ]},
+          buttons:{value:["out","manual","automated"]},
           slider_a_x: {
             type: Number,
             observer: '_sliderValueChange',
@@ -157,7 +165,6 @@ class StateSelection extends PolymerElement {
             type: "slider",
             a_x: this.slider_a_x,
             a_y: this.slider_a_y,
-            //uncomment below when backend is ready for it
             a_z: this.slider_a_z
         };
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
@@ -168,8 +175,6 @@ class StateSelection extends PolymerElement {
     _roleChange(newVal , oldVal) {  
         let sliders = this.shadowRoot.querySelectorAll('algorithm-slider')
         sliders.forEach( (element) => { 
-            //change "maker" to "algo" when backend has been hooked in
-            //to account for "algo" name
             newVal != 'automated' ? element.isDisabled = true :
             element.isDisabled = false }
         )     
