@@ -1,180 +1,90 @@
 from otree.api import models
 from otree.db.models import Model, ForeignKey
-import datetime
-import os
-import csv
+from . import market_environments
+from django.utils import timezone
+import logging
 
-recorded_player_fields = ('wealth', 'cash', 'technology_cost', 'role', 
-    'market_id', 'speed_on', 'time_on_speed', 'inventory', 'bid', 
-    'offer', 'orderstore', 'best_bid', 'best_offer', 'target_bid',
-    'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
-    'slider_a_y', 'order_imbalance', 'reference_price')
+log = logging.getLogger(__name__)
 
-class HFTPlayerStateRecord(Model):
 
-    timestamp = models.DateTimeField(auto_now_add=True)
-    subsession_id = models.StringField()
+def serialize_in_memo_model(in_memo_model, req_subprops=None):
+    # assumes no name clash in tuple elements and dict keys
+    result = {}
+    for prop_name in in_memo_model.__class__.__slots__:
+        value = getattr(in_memo_model, prop_name)
+        if value is not None:
+            result[prop_name] = value
+    for prop_name, subprop_names in req_subprops.items():
+        attr = getattr(in_memo_model, prop_name)
+        if attr is not None:
+            for subprop_name in subprop_names:
+                value = getattr(attr, subprop_name)
+                result[subprop_name] = value
+    return result
+
+
+class ELOInSessionTraderRecord(Model):
+    
+    csv_meta = (
+    'timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
+    'wealth', 'cash', 'technology_cost', 'role', 'speed_on', 'time_on_speed', 
+    'inventory', 'reference_price',
+    'bid', 'offer', 'best_bid', 'best_offer', 'e_best_bid', 'e_best_offer', 
+    'target_bid', 'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
+    'slider_a_y', 'slider_a_z', 'signed_volume', 'e_signed_volume')
+
+    timestamp = models.DateTimeField(default=timezone.now)
+    trigger_event_type = models.StringField()
+    event_no = models.IntegerField()
+    subsession_id = models.CharField()
+    market_id = models.IntegerField()
     player_id = models.IntegerField()
-    market_id = models.StringField()
-    wealth = models.IntegerField()
-    cash = models.IntegerField()
+    wealth = models.IntegerField(default=0)
+    cash = models.IntegerField(default=0)
     technology_cost = models.IntegerField(initial=0)
+    tax = models.IntegerField(blank=True)
     role =  models.StringField()
     speed_on = models.BooleanField()
     time_on_speed = models.IntegerField()
-    trigger_event_type = models.StringField()
-    event_no = models.IntegerField()
+    reference_price = models.IntegerField(blank=True)
     inventory = models.IntegerField()
-    orderstore = models.StringField()
     bid = models.IntegerField(blank=True)
     offer = models.IntegerField(blank=True)
-    best_bid = models.IntegerField(blank=True)
-    best_offer = models.IntegerField(blank=True)
     target_bid = models.IntegerField(blank=True)
     target_offer = models.IntegerField(blank=True)
     implied_bid = models.IntegerField(blank=True)
     implied_offer = models.IntegerField(blank=True)
+    best_bid = models.IntegerField(blank=True)
+    best_offer = models.IntegerField(blank=True)
+    e_best_bid = models.IntegerField(blank=True)
+    e_best_offer = models.IntegerField(blank=True)
     slider_a_x = models.FloatField(blank=True)
     slider_a_y = models.FloatField(blank=True)
-    order_imbalance = models.FloatField(blank=True)
-    reference_price = models.FloatField(blank=True)
+    slider_a_z = models.FloatField(blank=True)
+    signed_volume = models.FloatField(blank=True)
+    e_signed_volume = models.FloatField(blank=True)
 
 
-    def from_event_and_player(self, event_dict, player):
-        for field in recorded_player_fields:
-            setattr(self, field, getattr(player, field))  
-        self.player_id = int(player.id)
-        self.trigger_event_type = str(event_dict['type'])  
-        self.event_no = int(event_dict['reference_no'])
-        self.subsession_id = str(event_dict['subsession_id'])
-        return self
-
-class HFTEventRecord(Model):
-    
-    subsession_id= models.StringField()
-    market_id = models.StringField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-    event_no = models.IntegerField()
-    event_source = models.StringField()
-    event_type = models.StringField()
-    original_message = models.StringField()
-    attachments = models.StringField()
-
-    def from_event(self, event_dict):
-        self.subsession_id = str(event_dict['subsession_id'])
-        self.market_id = str(event_dict['market_id'])
-        self.event_no = int(event_dict['reference_no'])
-        self.event_type = str(event_dict['type'])
-        self.event_source = str(event_dict['event_source'])
-        self.all_keys = str(event_dict)
-        return self
-
-
-class HFTInvestorRecord(Model):
-
-    timestamp = models.DateTimeField(auto_now_add=True)
-    exchange_timestamp = models.BigIntegerField()
-    subsession_id= models.StringField()
-    market_id = models.StringField()
-    order_token = models.StringField()
-    status = models.StringField()
-    buy_sell_indicator = models.StringField()
-    price = models.IntegerField()
-
-    def from_event(self, event):
-        self.subsession_id = str(event_dict['subsession_id'])
-        self.market_id = str(event_dict['market_id'])       
-        self.status = event.event_type
-        self.order_token = event.message.data.order_token
-        if 'buy_sell_indicator' in event.message.data:
-            self.buy_sell_indicator = event.message.data.buy_sell_indicator
-        else:
-            self.buy_sell_indicator = event.message.data.order_token[4]
-        if 'price' in event.message:
-            self.price = event.message.data.price
-        else:
-            self.price = event.message.data.execution_price
-        self.exchange_timestamp = event.message.data.timestamp
-        return self
-
-results_foldername = 'results'
-base_session_foldername = '{timestamp:%Y%m%d_%H:%M}_session_{session_code}'  
-base_subsession_foldername = 'subsession_{subsession_id}_round_{round_no}'                         
-
-base_filename = 'market_{market_id}_record_type_{record_class}_subsession_{subsession_id}.csv'
-
-csv_headers = {
-    'HFTEventRecord': ['event_no','timestamp', 'subsession_id', 'market_id', 
-        'event_source', 'event_type', 'original_message', 'attachments', 'outgoing_messages'],
-    'HFTPlayerStateRecord': ('timestamp', 'subsession_id', 'player_id', 'trigger_event_type',
-        'event_no') + recorded_player_fields,
-    'HFTInvestorRecord': ['timestamp', 'exchange_timestamp', 'subsession_id', 
-        'market_id', 'status', 'buy_sell_indicator', 'price', 'order_token']
+IN_SESSION_STATE_MODELS = {
+    '1': ELOInSessionTraderRecord
 }
 
-def close_trade_session(trade_session):
-    current_session_code = trade_session.subsession.session.code
-    current_subsession_id = trade_session.subsession.id
-    markets_ids_in_session = trade_session.market_state.keys()
-    current_round_number = trade_session.subsession.round_number
-    _collect_and_dump(current_session_code, current_subsession_id, markets_ids_in_session,
-        current_round_number)
 
-def _collect_and_dump(session_code, subsession_id:int, market_ids:list, round_no:int):  
-    if results_foldername not in os.listdir(os.getcwd()):
-        os.mkdir(results_foldername)
-    session_foldernames = [x for x in os.listdir(results_foldername) 
-        if x.endswith(session_code)]
-    if len(session_foldernames) > 1:
-        raise ValueError('multiple matching folders in %s' % session_foldernames)
-    elif not session_foldernames:
-        now = datetime.datetime.now()
-        session_foldername = base_session_foldername.format(timestamp=now, 
-            session_code=session_code)
-        os.mkdir(os.path.join(results_foldername,session_foldername))
-    else:
-        session_foldername = session_foldernames.pop()   
-    session_directory = os.path.join(results_foldername, session_foldername) 
-    subsession_foldername = base_subsession_foldername.format(subsession_id=subsession_id, 
-        round_no=round_no)
-    if subsession_foldername not in os.listdir(session_directory):
-        os.mkdir(os.path.join(results_foldername, session_foldername, 
-            subsession_foldername))
-    for record_class in HFTEventRecord, HFTPlayerStateRecord, HFTInvestorRecord:
-        all_records = record_class.objects.filter(subsession_id=subsession_id)
-        for market_id in market_ids:
-            market_records = all_records.filter(market_id=str(market_id))
-            filename = base_filename.format(market_id=market_id, record_class=
-                record_class.__name__, subsession_id=subsession_id)
-            path = os.path.join(session_directory, subsession_foldername, filename)
-            with open(path, 'w') as f:
-                fieldnames = csv_headers[record_class.__name__]
-                writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
-                writer.writeheader()
-                for row in market_records:
-                    writer.writerow(row.__dict__)
-
-def _elo_fields(player, subject_state):
-    for field in recorded_player_fields:
-        if hasattr(subject_state, field):
-            value = getattr(subject_state, field)
-            if value is not None:
-                setattr(player, field, value)
-    if subject_state.sliders is not None:
-        player.slider_a_x = float(subject_state.sliders.a_x)
-        player.slider_a_y = float(subject_state.sliders.a_y)
-    player.inventory = int(subject_state.orderstore.inventory)
-    player.orderstore = str(subject_state.orderstore)
-    player.bid = subject_state.orderstore.bid
-    player.offer = subject_state.orderstore.offer
-    player.market_id = str(subject_state.market_id)
-
-def from_trader_to_player(player, subject_state, post=_elo_fields):
-    for field in subject_state.__slots__:
-        if hasattr(player, field):
-            setattr(player, field, getattr(subject_state, field))
-    if post:
-        post(player, subject_state)
-    player.save()
-    return player
-
+def trader_checkpoint(in_memo_model, session_format, event_type='', event_no=None,
+                       market_environments=market_environments):
+    def ensure_valid_kws(record_cls, kwas: dict):
+        keys = list(kwas.keys())
+        fields_names = [f.name for f in record_cls._meta.fields]
+        for k in keys:
+            if k not in fields_names:
+                del kwas[k]
+        return kwas
+    market_env = market_environments.environments[session_format]
+    req_subpros = market_env.checkpoint['subproperties_to_serialize']
+    kws = serialize_in_memo_model(in_memo_model, req_subprops=req_subpros)
+    record_model_code = market_env.checkpoint['record_model_code']
+    record_cls = IN_SESSION_STATE_MODELS[record_model_code]
+    kws = ensure_valid_kws(record_cls, kws)
+    record = record_cls.objects.create(trigger_event_type=event_type,
+        event_no=event_no, **kws)
+    return record

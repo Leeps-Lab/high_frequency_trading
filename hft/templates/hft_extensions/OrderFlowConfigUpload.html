@@ -1,0 +1,15 @@
+{% extends "otree/BaseAdmin.html" %}
+{% load staticfiles %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+<form enctype="multipart/form-data" action="{% url 'order_flow_config_upload' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <br>
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}
+

@@ -57,7 +57,8 @@ class CustomOtreeConfig:
         return custom_configs
 
 config_maps = {
-    'BCS': { 'name': ('session', 'session-name'),
+    'BCS': { 
+        'name': ('session', 'session-name'),
         'auction_format': ('market', 'auction-format'),
         'num_demo_participants': ('demo', 'number-of-participants'),
         'environment': ('session', 'environment'),
@@ -84,30 +85,28 @@ config_maps = {
         },
     'elo': { 
         'name': ('session', 'session-name'),
+        'display_name': ('session', 'display-name'),
         'real_world_currency_per_point': ('session', 'exchange-rate'),
         'auction_format': ('market', 'auction-format'),
         'participation_fee': ('session', 'participation-fee'),
         'num_demo_participants': ('demo', 'number-of-participants'),
         'environment': ('session', 'environment'),
-        'trial': ('session', 'trial'),
-        'trial_length': ('session', 'trial-length'),
         'num_rounds': ('session', 'num-rounds'),
-        'exchange_host': ('market', 'matching-engine-host'),
+        'matching_engine_host': ('market', 'matching-engine-host'),
         'num_markets': ('market', 'number-of-markets'),
         'number_of_groups': ('group', 'number-of-groups'),
         'players_per_group': ('group', 'players-per-group'),
-        'fundamental_price': ('parameters', 'fundamental-price'),
-        'initial_spread': ('parameters', 'initial-spread'),
+        'k_reference_price': ('parameters', 'k-reference-price'),
+        'k_signed_volume': ('parameters', 'k-signed-volume'),
+        'tax_rate': ('parameters', 'tax-rate'),
         'technology_unit_cost': ('parameters', 'technology-unit-cost'),
-        'max_spread': ('parameters', 'max-spread'),
         'initial_endowment': ('parameters', 'initial-endowment'),
-        'period_length': ('parameters', 'period-length'),
+        'session_duration': ('parameters', 'session-duration'),
         'group_matrix': ('group', 'group-assignments'),
         'batch_length': ('parameters', 'batch-length'),
-        'random_round_payment': ('session', 'random-round-payment'),
-        'exogenous_event_directory': ('session', 'exogenous-event-directory'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
-        'grid_size': ('parameters', 'grid-size')
+        'external_feed': ('exogenous-events', 'external-feed'),
+        'default_role': ('parameters', 'default-role')
     }
 }
 

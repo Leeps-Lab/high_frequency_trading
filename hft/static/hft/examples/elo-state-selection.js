@@ -63,7 +63,7 @@ class StateSelection extends PolymerElement {
             }
 
         </style>
-           
+        
              <div class = "state-container">
 
                 <div id="first-column" class="column-container" >
@@ -97,20 +97,20 @@ class StateSelection extends PolymerElement {
                     </div>
 
                     <div class="header-container slider-header">
-                        Inventory: {{slider_a_x}}
+                        Inventory: {{slider_a_y}}
                     </div>
                     
             
                     <input class="slider-group" type="range" min='{{sliderDefaults.minValue}}'
-                        max='{{sliderDefaults.maxValue}}' value='{{slider_a_x::mouseup}}'
+                        max='{{sliderDefaults.maxValue}}' value='{{slider_a_y::mouseup}}'
                         step='{{sliderDefaults.stepSize}}'>
 
                     <div class="header-container slider-header">
-                    Imbalance: {{slider_a_y}}
+                    Imbalance: {{slider_a_x}}
                     </div>
 
                     <input type="range" class="slider-group" min='[[sliderDefaults.minValue]]'
-                        max='[[sliderDefaults.maxValue]]' value='{{slider_a_y::mouseup}}'
+                        max='[[sliderDefaults.maxValue]]' value='{{slider_a_x::mouseup}}'
                         step='[[sliderDefaults.stepSize]]'>
                 </div>
                         

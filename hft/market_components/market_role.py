@@ -9,26 +9,27 @@ class MarketRoleGroup:
             self.role_names.append(name)
 
     def update(self, timestamp, player_id, new_role_name):
+        int_player_id = int(player_id)
         new_role = getattr(self, new_role_name, None) 
         if not isinstance(new_role, TrackedMarketRole):
             raise ValueError('invalid role names for %s, new_role: %s' % (
                 self, new_role))
         for name in self.role_names:
             role = getattr(self, name)
-            if player_id in role:
-                role.remove(timestamp, player_id)
+            if int_player_id in role:
+                role.remove(timestamp, int_player_id)
                 break
-        new_role.add(timestamp, player_id)
+        new_role.add(timestamp, int_player_id)
 
     def __getitem__(self, role_names):
         player_ids = []
         if isinstance(role_names, abc.Sequence):
-            for name in role_names:
+            for name in self.role_names:
                 role_property = getattr(self, name)
                 if role_property:
                     player_ids.extend(role_property.get_player_ids())
         else:
-            role_property = getattr(self, name)
+            role_property = getattr(self, role_names)
             if role_property:
                 player_ids.extend(role_property.get_player_ids())
         return player_ids
@@ -60,9 +61,10 @@ class TrackedMarketRole:
             time_spent = timestamp - start_time
             self.time_spent_per_player[player_id] += time_spent
         del self.players[player_id]
+
     
     def __str__(self):
-        return '%s: %s' % (self.role_id, ' '.join(self.players.keys()))
+        return '%s: %s' % (self.role_id, ' '.join(str(k) for k in self.players.keys()))
     
     def __contains__(self, player_id):
         return player_id in self.players.keys()

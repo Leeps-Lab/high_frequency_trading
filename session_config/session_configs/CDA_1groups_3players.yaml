@@ -7,32 +7,32 @@ group:
 
 exogenous-events:
   investor-arrivals:
-    - session_config/Pilot/Trial1/investors_trial.csv
-    - session_config/Pilot/Trial1/investors_trial.csv
-    - session_config/Pilot/Trial1/investors_trial.csv
-    
+    - investors_trial.csv
+    - investors_trial.csv
+    - investors_trial.csv
+  external-feed:
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+        
 market:
   auction-format: 'CDA'
   matching-engine-host: '127.0.0.1'
-  number-of-markets: 1
 
 parameters:
-  batch-length: 0
-  fundamental-price: 100
-  initial-endowment: 10000
-  initial-spread: 1
-  max-spread: 2
-  period-length: 60
+  default-role: 'out'
+  initial-endowment: 1000
+  session-duration: 10
   technology-unit-cost: 0.022  # $/s
-  grid-size: 1
+  reference-price-discount-constant: 0.7
+  imbalance-discount-rate: 0.01
+  tax-rate: 0.1
 
 session:
+  session-name: ELO_Development_Session_3_rounds_1_10_sec
+  display-name: HFT - ELO - CDA - 3 Trade Sessions of 10 seconds - 3 traders
   environment: elo
-  currency: EUR
-  display-name: CDA Production
-  exchange-rate: 1.5
   num-rounds: 3
+  currency: EUR
+  exchange-rate: 1.5
   participation-fee: 4
-  random-round-payment: off
-  session-name: ELO_Development_Session_3_rounds_1_market
-  exogenous-event-directory: Pilot

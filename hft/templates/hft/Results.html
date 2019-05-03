@@ -3,149 +3,29 @@
 {% load staticfiles %}
 
 {% block title %}
-    Results
+    Trade Session Results
 {% endblock %}
 
-{% block content %}
-<h3>Player <strong>{{player.id_in_group}}</strong> in Group <strong>{{group.id_in_subsession}}</strong>:</h3>
-<div id="dual_x_div" style="width: 55%; height: 500px; float: left;"></div>
-<div id="piechart" style="width: 45%; height: 400px; float: right;"></div>
-
-
-
-
-<!-- <ul class="legend">
-    <li><span class="fastinside"></span> Fast Inside Maker Profit/Min</li>
-    <li><span class="slowinside"></span> Slow Inside Maker Profit/Min</li>
-    <li><span class="fastoutside"></span> Fast Outside Maker Profit/Min</li>
-    <li><span class="slowoutside"></span> Slow Outside Maker Profit/Min</li>
-    <li><span class="fastsniper"></span> Fast Sniper Profit/Min</li>
-    <li><span class="slowsniper"></span> Slow Sniper Profit/Min</li>
-</ul> -->
-
-{% endblock %}
-
-
-{% block app_styles %}
-
-<!-- <style type="text/css">
-    /* basic positioning */
-    .legend {font-family: Arial; font-size: 14px; float: left; }
-    .legend { list-style: none; }
-    .legend li { float: left; margin-right: 10px; }
-    .legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
-    /* your colors */
-    .legend .fastinside { background-color: #0033FF; }
-    .legend .slowinside { background-color: #0099FF; }
-    .legend .fastoutside { background-color: #6633FF; }
-    .legend .slowoutside { background-color: #6699FF; }
-    .legend .fastsniper { background-color: #FF9900; }
-    .legend .slowsniper { background-color: #FFCC66; }
-</style> -->
-
+{% block body_main %}
+<style>
+    .otree-body {
+        max-width: 100vw;
+        max-height: 100vh;
+    }
+</style>
+<results-page
+    nets="{{nets}}"
+    taxes="{{taxes}}"
+    names="{{names}}"
+    strategies="{{strategies}}"
+    inv-sensitivities="{{inv_sens}}"
+    imb-sensitivities="{{imb_sens}}"
+    style = "width:100%; "> </results-page>
 {% endblock %}
 
 {% block scripts %}
-
-
-
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    
-    <script type="text/javascript">      
-           google.charts.load('visualization', '1', {packages:['corechart'], callback: drawStuff});
-
-        function drawStuff() {
-            var data = new google.visualization.DataTable();
-                data.addColumn('string', 'Type');
-                data.addColumn('number', 'Fast');
-                data.addColumn({type: 'string', role: 'style'});
-                data.addColumn({type: 'string', role: 'annotation'});
-                data.addColumn('number', 'Slow');
-                data.addColumn({type: 'string', role: 'style'});
-                data.addColumn({type: 'string', role: 'annotation'});;
-        var options = {
-          "title":"Profit by Strategy (ECUs)",
-          bars: 'vertical', 
-          series: {
-            0: { axis: 'distance' }, 
-            1: { axis: 'brightness' } 
-          },
-          legend: {position: 'none'},
-          vAxis:{
-              textStyle: {
-                  color: 'black', 
-                  // fontName: 'Arial Black',
-                   fontSize: 18,
-                   bold:true
-               }
-          },
-          hAxis:{
-              textStyle: {
-                  color: 'black', 
-                  // fontName: 'Arial Black',
-                   fontSize: 14,
-                   // bold:true
-               },
-               slantedText: true,
-          },
-          annotations: {
-            alwaysOutside: true,
-            textStyle: {
-                fontSize: 10,
-                color: '#000',
-                auraColor: 'none'
-            }
-        },
-
-        };
-
-      var chart = new google.visualization.ColumnChart(document.getElementById('dual_x_div'));
-      chart.draw(data, options);
-    };
-    </script>
-
-
-    
-    <script type="text/javascript">      
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(drawChart);
-
-        function drawChart() {
-
-        var data = google.visualization.arrayToDataTable([
-          ['Type', 'Time per session'],
-          ['Out Time', {{duration.out}}],
-          ['Fast Sniper', {{duration.fast_sniper}}],
-          ['Slow Sniper', {{duration.slow_sniper}}],
-          ['Fast Maker', {{duration.fast_maker}}],
-          ['Slow Maker', {{duration.slow_maker}}]
-        ]);
-
-        var options = {
-            title: 'Time Spent per Strategy (Percentage)',
-            pieHole: 0.4,
-            pieSliceText: 'none',
-            chartArea: {width: '100%'},
-            colors: ['#C2C2D6', '#FF9900', '#FFCC66', '#0033FF', '#0099FF'],
-           
-            legend: {
-                        position: 'labeled',
-                        textStyle: { fontSize: 10 }
-            },
-            annotations: {
-                alwaysOutside: true,
-                textStyle: {
-                    fontSize: 14,
-                    color: '#000',
-                    auraColor: 'none'
-                }
-            },
-        };
-
-        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-
-        chart.draw(data, options);
-        }
-    </script>
-
+    <link rel="manifest" href="{% static 'hft/manifest.json' %}">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
+    <script type="module" src="{% static 'hft/results_page/results-page.js' %}"></script>
 {% endblock %}

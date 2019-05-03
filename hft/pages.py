@@ -1,12 +1,12 @@
 from ._builtin import Page, WaitPage
-from otree.api import Currency as c
-from .models import Constants
 import logging
 from django.core.cache import cache
 from django.conf import settings
-from .output import close_trade_session
-from .cache import get_cache_key
-from django.core.cache import cache
+import json
+import time
+from .output import ELOInSessionTraderRecord
+from .session_results import elo_player_summary, state_for_results_template
+from .utility import ensure_results_ready
 
 log = logging.getLogger(__name__)
 
@@ -19,32 +19,40 @@ class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
         pass
 
-class index(Page):
-    pass
-
-
-class leeps(Page):
-    pass
-
-class elo(Page):
+class EloExperiment(Page):
     pass
 
 class ResultsWaitPage(WaitPage):
 
     def after_all_players_arrive(self):
-        trade_session_id = self.session.vars['trade_sessions'][self.subsession.id]
-        ts_key = get_cache_key(trade_session_id, 'trade_session')
-        trade_session = cache.get(ts_key)
-        close_trade_session(trade_session)
-        
+        # at some point we should add a
+        # wait page to otree that checks
+        # for results being ready without
+        # blocking a worker.
+        # this should do it for now.
+        players_query = self.group.get_players()
+        if ensure_results_ready(self.subsession.id, self.group.id, ELOInSessionTraderRecord,
+            len(players_query)):
+            for p in players_query:
+                    p.update_from_state_record()
+            try:
+                for p in players_query:
+                    elo_player_summary(p)
+            except Exception:
+                log.exception('error transform results group {}'.format(self.group.id))
+        else:
+            log.error('timeout transform results group {}'.format(self.group.id))
 
 class Results(Page):
-    pass
-
+    def vars_for_template(self):
+        page_state = state_for_results_template(self.player)
+        # send as json so polymer likes it
+        out = {k: json.dumps(v) for k, v in page_state.items()}
+        return out
 
 page_sequence = [
     PreWaitPage,
-    elo,
+    EloExperiment,
     ResultsWaitPage,
     Results,
 ]

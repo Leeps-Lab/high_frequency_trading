@@ -18,8 +18,8 @@ POINTS_DECIMAL_PLACES = 2
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
 if environ.get('OTREE_PRODUCTION') not in {None, '', '0'}:
     DEBUG = False
-elif 'OTREE_PRODUCTION' not in os.environ:
-    DEBUG = False
+# elif 'OTREE_PRODUCTION' not in os.environ:
+#     DEBUG = False
 else:
     DEBUG = True
 
@@ -99,7 +99,7 @@ LANGUAGE_CODE = 'en'
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
 INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
-#EXTENSION_APPS = ['otree_redwood']
+EXTENSION_APPS = ['hft']
 
 # SENTRY_DSN = ''
 
@@ -205,18 +205,11 @@ SESSION_CONFIG_DEFAULTS = {
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['hft'],
-    'exchange_host': '127.0.0.1',
-    'speed_cost': 0.01,
-    'fundamental_price': 100,
-    'initial_spread': 1,
-    'initial_endowment': 20,
     'session_length': 240, 
-    'number_of_groups': 1,
-    'players_per_group': 3,
-    'max_spread': 2,
     'doc': ''
 }
 
+exogenous_event_configs_directory = os.path.join(os.getcwd(), 'session_config/exogenous_events')
 SESSION_CONFIGS = []
 
 # read configurations
@@ -231,6 +224,5 @@ for config in custom_configs:
     else:
         otree_configs.append(otree_config)
 
-SESSION_CONFIGS.extend(otree_configs)
-
+SESSION_CONFIGS.extend(otree_configs) 
 otree.settings.augment_settings(globals())

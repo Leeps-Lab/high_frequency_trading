@@ -9,6 +9,7 @@ class PlayerRoleButton extends PolymerElement {
                 display: inline-block;
                 font-family: monospace;
                 font-weight: bold;
+               
             }
 
             button{
@@ -21,6 +22,7 @@ class PlayerRoleButton extends PolymerElement {
                 height:45px;
                 border-radius: 5px;
                 margin-top:10px;
+                cursor:pointer;
             }
         
             /*

@@ -25,6 +25,8 @@ class BaseSubjectState:
         kwargs = {slot: getattr(player, slot, None) for slot in cls.__slots__}
         orderstore = cls.orderstore_cls(player.id, player.id_in_group)
         kwargs['orderstore'] = orderstore
+        # special treatment for player id
+        kwargs['player_id'] = player.id
         return cls(**kwargs)
 
     @classmethod
@@ -41,16 +43,20 @@ class BCSSubjectState(BaseSubjectState):
 
 class ELOSubjectState(BaseSubjectState):
     orderstore_cls = OrderStore
-    __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'group_id', 'id_in_group', 
-        'id', 'code', 'role', 'speed_on',  'technology_unit_cost', 'spread', 'speed_on_start_time', 
+    __slots__ = (
+        'subsession_id', 'market_id', 'player_id',
+        'orderstore', 'exchange_host', 'exchange_port', 'group_id', 'id_in_group', 
+        'code', 'role', 'speed_on',  'technology_unit_cost', 'spread', 'speed_on_start_time', 
         'wealth', 'cash', 'reference_price', 'cost', 'time_on_speed', 'last_message_time', 
-        'market_id', 'sliders', 'best_bid', 'best_offer', 'target_bid', 'target_offer', 
-        'order_imbalance', 'implied_bid', 'implied_offer', 'volume_at_best_offer', 
-        'volume_at_best_bid', 'wait_for_best_bid', 'wait_for_best_offer', 'technology_cost')    
+        'sliders', 'best_bid', 'best_offer', 'target_bid', 'target_offer', 
+        'signed_volume', 'e_signed_volume', 'e_best_bid', 'e_best_offer',
+        'implied_bid', 'implied_offer', 'volume_at_best_offer', 'volume_at_best_bid', 
+        'wait_for_best_bid', 'wait_for_best_offer', 'technology_cost',
+        'next_bid', 'next_offer', 'tax', )    
 
 class LEEPSInvestorState(BaseSubjectState):
     orderstore_cls = OrderStore
     __slots__ = ('orderstore', 'exchange_host', 'exchange_port', 'market_id', 'endowment',
-        'inventory', 'id')
+        'inventory', 'player_id')
     
 
