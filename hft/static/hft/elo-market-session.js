@@ -102,7 +102,7 @@ class MarketSession extends PolymerElement {
                 unit-size={{speedUnitCost}}> </stepwise-calculator>
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
-                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' orders={{orderBook}} my-bid={{myBid}} 
+                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' bid-cue={{eBestBid}} offer-cue={{eBestOffer}} orders={{orderBook}} my-bid={{myBid}} 
                     my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
                 <div class="middle-section-container">       
                     <elo-info-table inventory={{inventory}}
@@ -124,6 +124,9 @@ class MarketSession extends PolymerElement {
         eventListeners: Object,
         eventHandlers: Object,
         sliderDefaults: Object,
+        eBestBid: Number,
+        eBestOffer: Number,
+        eSignedVolume:Number,
         events: Object,
         playerId: Number,
         role: String,
@@ -223,6 +226,14 @@ class MarketSession extends PolymerElement {
             let handlerName = handlers[i]
             this[handlerName](cleanMessage)
         }
+    }
+
+    _handleExternalFeed(message){
+        //Have to remove *1e-4 below
+        this.eBestBid = message.e_best_bid*1e-4;
+        this.eBestOffer = message.e_best_offer*1e-4;
+        this.eSignedVolume = message.e_signed_volume;
+        console.log("External Feed ",this.eBestBid ,this.eBestOffer, this.eSignedVolume);
     }
     
     _handleExchangeMessage(message) {

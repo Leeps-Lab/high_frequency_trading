@@ -132,7 +132,8 @@ const ELO = {
         order_imbalance: ['_handleOrderImbalance'],
         elo_quote_cue: ['_handleTakerCue'],
         speed_confirm: ['_handleSpeedConfirm'],
-        reference_price: ['_handleReferencePrice']
+        reference_price: ['_handleReferencePrice'],
+        external_feed: ['_handleExternalFeed']
     },
     sliderProperties: {
         minValue: 0,

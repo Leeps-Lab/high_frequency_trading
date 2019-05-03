@@ -387,6 +387,7 @@ class SpreadGraph extends PolymerElement {
     }
 
     drawBidCue(newBid, oldBid) {
+        console.log("new bid cue",newBid);
         if (!this.mainGroup) {
             return;
         }
@@ -416,6 +417,7 @@ class SpreadGraph extends PolymerElement {
     }
 
     drawOfferCue(newOffer, oldOffer) {
+        console.log("new offer cue",newOffer);
         if (!this.mainGroup) {
             return;
         }
