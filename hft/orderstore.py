@@ -145,7 +145,6 @@ class OrderStore:
         price = order_info['price']
         self.update_spread(price, direction, clear=True)   
         return order_info
-
     
     def _confirm_execution(self, **kwargs):
         token = kwargs['order_token']

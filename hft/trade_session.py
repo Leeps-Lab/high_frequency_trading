@@ -104,10 +104,13 @@ class ELOTradeSession(TradeSession):
                 self.dispatcher_cls, wait_for_connection=True)
         def reset_exchange(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
-            message_content = {'host': host, 'port': port, 'type': 'reset_exchange', 'delay':
-                    0., 'order_info': {'event_code': 'S', 'timestamp': 0}}
-            internal_message = format_message('exchange', **message_content)
-            self.outgoing_messages.append(internal_message)
+            self.event.exchange_msgs(
+                exchange_host=host, exchange_port=port, delay=0, event_code='S',
+                timestamp=0)
+            # message_content = {'host': host, 'port': port, 'type': 'reset_exchange', 'delay':
+            #         0., 'order_info': {'event_code': 'S', 'timestamp': 0}}
+            # internal_message = format_message('exchange', **message_content)
+            # self.outgoing_messages.append(internal_message)
         self.market_state[market_id] = True
         is_ready = (True if False not in self.market_state.values() else False)
         if is_ready and not self.is_trading:

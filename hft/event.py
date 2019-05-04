@@ -27,10 +27,13 @@ class Event:
     __slots__ = (
         'subsession_id', 'market_id', 'player_id',
         'attachments', 'outgoing_messages', 'message', 'event_type',
-        'event_source', 'reference_no', 'broadcast_msgs', 'internal_event_msgs')
+        'event_source', 'reference_no', 'broadcast_msgs', 'internal_event_msgs',
+        'exchange_msgs')
+
     translator_cls = None
     internal_event_msg_factory = None
     broadcast_msg_factory = None
+    exchange_msg_factory = None
     event_id = count(1, 1)
 
     def __init__(self, event_source, message, **kwargs):
@@ -46,6 +49,7 @@ class Event:
 
         self.internal_event_msgs = MessageRegistry(self.internal_event_msg_factory)
         self.broadcast_msgs = MessageRegistry(self.broadcast_msg_factory)
+        self.exchange_msgs = MessageRegistry(self.exchange_msg_factory)
         self.outgoing_messages = deque()
 
     def __str__(self):
@@ -62,6 +66,9 @@ class Event:
 
     internal event messages:
 {self.internal_event_msgs}
+
+    exchange messages:
+{self.exchange_msgs}
 
     attachments:
 {self.attachments}

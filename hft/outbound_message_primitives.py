@@ -95,14 +95,13 @@ class InternalEventMessage(OutboundMessage):
 
 class OutboundExchangeMessage(OutboundMessage):
 
-
-    #TODO: this should somehow inherit from
-    # OUCHMessage, I will think about it later.
-    # this should do it for now.
     translator_cls = LeepsOuchTranslator
 
     @classmethod
-    def clean(cls, message_data): return message_data
+    def clean(cls, message_data): 
+        if message_data['type'] == 'replace':
+            message_data['price'] = message_data['replace_price']
+        return message_data
     
     def translate(self, message_data) -> bytes:
         return LeepsOuchTranslator.encode(message_data['type'], **message_data)

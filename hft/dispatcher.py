@@ -1,8 +1,9 @@
 from .incoming_message import IncomingMessageFactory
 from .event import EventFactory
 from .event_handler import EventHandlerFactory
-from .response import process_response, new_broadcast
+from .broadcast_message import broadcast_to_market
 from otree.timeout.tasks import hft_background_task
+from .exchange import send_exchange
 import logging
 
 log = logging.getLogger(__name__)
@@ -14,7 +15,6 @@ class Dispatcher:
     handler_factory = EventHandlerFactory
     event_factory = EventFactory
     message_factory = IncomingMessageFactory
-    responder = process_response
     market_environment = None
     outgoing_message_types = ()
 
@@ -39,15 +39,16 @@ class Dispatcher:
         #      event=event))
         log.debug(event)
 
-        while event.outgoing_messages:
-            message = event.outgoing_messages.popleft()
-            message_type = message['message_type']
-            if message_type in cls.outgoing_message_types:
-                cls.responder(message)
+
+        while event.exchange_msgs:
+            message = event.exchange_msgs.pop()
+            send_exchange(
+                message.exchange_host, message.exchange, message.translate(), 
+                message.delay)
 
         while event.broadcast_msgs:
             message = event.broadcast_msgs.pop()
-            new_broadcast(message)
+            broadcast_to_market(message)
 
         while event.internal_event_msgs:
             message = event.internal_event_msgs.pop()
@@ -66,9 +67,9 @@ class ELODispatcher(Dispatcher):
         'Q': ['market'],
         'player_ready': ['market'],
         'advance_me': ['market'],
-        'role_change': ['market', 'trader_role_change'],
+        'role_change': ['market', 'trader'],
         'spread_change': ['trader'],
-        'speed_change': ['trader'],
+        'speed_change': ['market', 'trader'],
         'market_ready_to_start': ['trade_session'],
         'market_ready_to_end': ['trade_session'],
         'market_start': ['market', 'marketwide_events'],

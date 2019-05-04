@@ -23,6 +23,7 @@ from .cache import initialize_model_cache, set_market_id_map, get_market_id_map
 from .exogenous_event import ExogenousEventModelFactory
 from . import market_environments
 from .output import ELOInSessionTraderRecord
+from django.utils import timezone
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +62,6 @@ class Subsession(BaseSubsession):
         trade_session = create_trade_session(session_format)
         exchange_format = session_configs['auction_format']
         exchange_host = session_configs['matching_engine_host']
-        default_trader_role = session_configs['default_role']
         all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         market_id_map = {}
         for group in self.get_groups():
@@ -72,9 +72,7 @@ class Subsession(BaseSubsession):
             for player in group.get_players():
                 market.register_player(group_id, player.id)
                 player.configure_for_trade_session(market, session_format)
-                trader_state_cls = SubjectStateFactory.get_state(session_format)
-                trader_state = trader_state_cls.from_otree_player(player)
-                trader = TraderFactory.get_trader(session_format, default_trader_role, trader_state)
+                trader = TraderFactory.get_trader(session_format, player)
                 initialize_model_cache(trader)
             initialize_model_cache(market)
             market_id_map[market.id_in_subsession] = market.market_id
@@ -128,47 +126,71 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
 
-    model_name = models.StringField(initial='trader')
-    consented = models.BooleanField(initial=True)
-    exchange_host = models.StringField(initial='127.0.0.1')
-    exchange_port = models.IntegerField()
-    role = models.StringField(initial='out')
     channel = models.CharField(max_length=255)
-    cost = models.IntegerField(initial=0)
-    technology_cost = models.IntegerField(initial=0)
-    cash = models.IntegerField(initial=0)
-    wealth = models.IntegerField(initial=0)
-    speed_on = models.IntegerField(initial=0)
-    time_on_speed = models.IntegerField(initial=0)
-    technology_unit_cost = models.IntegerField(initial=0)
-    inventory = models.IntegerField(initial=0)
-    market_id = models.StringField()
-    best_bid = models.IntegerField()
-    best_offer = models.IntegerField()
-    e_best_bid = models.IntegerField(blank=True)
-    e_best_offer = models.IntegerField(blank=True)
+    consented = models.BooleanField(initial=False)
+    exchange_host = models.CharField()
+    exchange_port = models.IntegerField()
+    subsession_id = models.CharField()
+    market_id = models.CharField()
+    id_in_market = models.IntegerField()
+    speed_unit_cost = models.IntegerField()
+    net_worth = models.IntegerField()
+    cash = models.IntegerField()
+    cost = models.IntegerField()
+    speed_cost = models.IntegerField()
+    tax_paid = models.IntegerField()
+    reference_price = models.IntegerField()
+    inventory = models.IntegerField()
     bid = models.IntegerField()
     offer = models.IntegerField()
-    target_bid = models.IntegerField(blank=True)
-    target_offer = models.IntegerField(blank=True)
-    orderstore = models.StringField(blank=True)
-    implied_bid = models.IntegerField(blank=True)
-    implied_offer = models.IntegerField(blank=True)
-    slider_a_x = models.FloatField(blank=True)
-    slider_a_y = models.FloatField(blank=True)
-    slider_a_z = models.FloatField(blank=True)
-    order_imbalance = models.FloatField(blank=True)
-    reference_price = models.FloatField(blank=True)
-    tax = models.IntegerField(initial=0)
+    staged_bid = models.IntegerField()
+    staged_offer = models.IntegerField()
+    implied_bid = models.IntegerField()
+    implied_offer = models.IntegerField()
+    best_bid = models.IntegerField()
+    best_offer = models.IntegerField()
+    e_best_bid = models.IntegerField()
+    e_best_offer = models.IntegerField()
+    slider_a_x = models.FloatField()
+    slider_a_y = models.FloatField()
+    slider_a_z = models.FloatField()
+    signed_volume = models.FloatField()
+    e_signed_volume = models.FloatField()
+
 
     def configure_for_trade_session(self, market, session_format: str):
-        for field in ('exchange_host', 'exchange_port', 'market_id'):
+        for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):
             setattr(self, field, getattr(market, field))
         utility.configure_model_for_market('player', self, session_format, 
                                            self.session.config)
         self.save()
     
-    def update_from_state_record(self, record_cls=ELOInSessionTraderRecord):
-        print(record_cls._meta.fields)
+    def update_from_state_record(self, state_record):
+        for field in state_record._meta.fields:
+            if hasattr(self, field):
+                attr = getattr(self, field)
+                if attr is None:
+                    log.debug('attr %s is set for player %s from record %s' % (
+                        field, self.id, state_record.id))
+                    setattr(self, field, attr)
+
+
+class InSessionTraderRecord(Player):
+    
+    csv_meta = (
+    'timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
+    'net_worth', 'cash', 'technology_cost', 'role', 'speed_on', 'time_on_speed', 
+    'inventory', 'reference_price',
+    'bid', 'offer', 'best_bid', 'best_offer', 'e_best_bid', 'e_best_offer', 
+    'target_bid', 'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
+    'slider_a_y', 'slider_a_z', 'signed_volume', 'e_signed_volume')
+
+    timestamp = models.DateTimeField(default=timezone.now)
+    trigger_event_type = models.CharField()
+    event_no = models.IntegerField()
+    trader_role =  models.CharField(null=True)
+    delayed = models.BooleanField(initial=False)
+    player_id = models.IntegerField()
+    
 
 

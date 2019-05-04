@@ -1,0 +1,314 @@
+from .equations import latent_bid_and_offer
+import logging
+
+log = logging.getLogger(__name__)
+
+
+class TraderStateFactory:
+    @staticmethod
+    def get_trader_state(model_id: str):
+        if model_id == 'manual':
+            return ELOManualTrader()
+        elif model_id == 'out':
+            return ELOOutState()
+        elif model_id == 'automated':
+            return ELOAutomatedTraderState()
+        else:
+            raise Exception('unknown role: %s' % model_id)
+
+
+class TraderState(object):
+
+    event_dispatch = {}
+    model_id = ''
+
+    def handle_event(self, trader, event):
+        event_type = event.event_type
+        if event_type in self.event_dispatch:
+            handler = getattr(self, handler_name)
+            handler(trader, event)
+        else:
+            log.debug('trader role %s ignores event %s' % (self.model_id, event_type))
+
+    def state_change(self, trader, event):
+        pass
+    
+    def cancel_all_orders(self, trader, event):
+        all_orders = trader.orderstore.all_orders()
+        if all_orders:
+            for order in all_orders:
+                event.exchange_msgs(type='cancel', model=trader, **order)
+                if order['buy_sell_indicator'] == 'B':
+                    trader.staged_bid = None
+                elif order['buy_sell_indicator'] == 'S':
+                    trader.staged_offer = None   
+
+MIN_BID = 0
+MAX_ASK = 2147483647
+
+
+class ELOTraderState(TraderState):
+
+    short_delay = 0.1
+    long_delay = 0.5
+    event_dispatch = { 
+        'market_start': 'open_session', 
+        'market_end': 'close_session',
+        'speed_change': 'speed_technology_change',
+        'role_change': 'state_change', 
+        'slider': 'user_slider_change', 
+        'bbo_change': 'bbo_change', 
+        'reference_price_change': 'reference_price_update',
+        'signed_volume_change': 'signed_volume_change', 
+        'external_feed_change': 'external_feed_change'}
+
+    def state_change(self, trader, event):
+        self.speed_technology_change(trader, event, value=False)
+        self.cancel_all_orders(trader, event)
+        trader.disable_bid = False
+        trader.disable_offer = False        
+
+    def speed_technology_change(self, trader, event, short_delay=short_delay, 
+                                long_delay=long_delay, **kwargs):
+        try:
+            new_state = event.message.value
+        except AttributeError:
+            new_state = kwargs['value']
+        trader.delayed = new_state
+        if new_state is True:
+            trader.delay = short_delay
+        else:
+            trader.delay = long_delay
+        event.broadcast_msgs('speed_confirm', value=new_state, model=trader)
+    
+    def bbo_change(self, trader, event):
+        for field in ('best_bid', 'volume_at_best_bid', 'next_bid', 'best_offer',
+            'volume_at_best_offer', 'next_offer'):
+                trader.market_facts[field] = event.message[field]
+
+    def reference_price_update(self, trader, event):
+        trader.market_facts.reference_price = event.message.reference_price
+
+    def external_feed_change(self, trader, event):
+        for field in ('e_best_bid','e_best_offer', 'e_signed_volume'):
+            trader.market_facts[field] = event.message[field]
+        
+    def signed_volume_change(self, trader, event):
+        signed_vol = event.message.signed_volume
+        if trader.signed_volume != signed_vol:
+            trader.signed_volume = signed_vol
+        
+    
+class ELOOutState(ELOTraderState):
+    model_id = 'out'
+
+
+class ELOManualTrader(ELOTraderState):
+    model_id = 'manual'
+    event_dispatch = ELOTraderState.event_dispatch.copy().update(
+        {'E': 'executed',
+        'order_entered': 'user_order'})
+
+    def user_order(self, trader, event):
+        buy_sell_indicator = event.buy_sell_indicator
+        price = event.price
+        if price == MIN_BID or price == MAX_ASK :
+            return
+        if (buy_sell_indicator == 'B' and trader.staged_offer is not None and 
+            price >= trader.staged_offer) or (
+            buy_sell_indicator == 'S' and trader.staged_bid is not None and 
+            price <= trader.staged_bid):
+            return
+        else:
+            orders = trader.orderstore.all_orders(direction=buy_sell_indicator)
+            if orders:
+                for o in orders:
+                    existing_token = o['order_token']
+                    existing_buy_sell_indicator = o['buy_sell_indicator']
+                    if buy_sell_indicator == existing_buy_sell_indicator:
+                        order_info = trader.orderstore.register_replace(existing_token, price)
+                        event.exchange_msgs(type='replace', model=trader, **order_info)
+            else:
+                order_info = trader.orderstore.enter(price=price, 
+                    buy_sell_indicator=buy_sell_indicator, time_in_force=99999)
+                event.exchange_msgs(type='enter', model=trader, **order_info)
+            if buy_sell_indicator == 'B':
+                trader.staged_bid = price
+            elif buy_sell_indicator == 'S':
+                trader.staged_offer = price
+
+    def order_executed(self, trader, event):
+        order_token = event.message.order_token
+        order_info = trader.orderstore.orders[order_token]
+        price = order_info['price']          
+        buy_sell_indicator = order_info['buy_sell_indicator']      
+        # do this check via order tokens if possible  
+        if  buy_sell_indicator == 'B' and trader.staged_bid == price:
+            trader.staged_bid = None   
+        if  buy_sell_indicator == 'S' and trader.staged_offer == price:
+            trader.staged_offer = None
+
+
+class ELOAutomatedTraderState(ELOTraderState):
+    model_id = 'automated'
+    event_dispatch = ELOTraderState.event_dispatch.copy().update(
+        {'E': 'executed'})
+
+    def state_change(self, trader, event):
+        super().state_change(trader, event)
+        if trader.market_facts.best_bid > MIN_BID:
+            self.enter_order(trader, event, 'B')
+        if trader.market_facts.best_offer > MAX_ASK:
+            self.enter_order(trader, event, 'S')
+    
+    def enter_order(self, trader, event, buy_sell_indicator, price=None,
+            price_producer=latent_bid_and_offer, time_in_force=99999):
+        if price is None: # then produce a price
+            mf = trader.market_facts
+            trader.implied_bid, trader.implied_offer = price_producer(
+                trader.best_bid_except_me,
+                trader.best_offer_except_me,
+                mf.signed_volume,
+                mf.e_best_bid,
+                mf.e_best_offer,
+                mf.e_signed_volume,
+                trader.inventory.position,
+                trader.sliders)
+            price = (trader.implied_bid if buy_sell_indicator == 'B' 
+                                        else trader.implied_offer)            
+        order_info = trader.orderstore.enter(
+            price=price, buy_sell_indicator=buy_sell_indicator, 
+            time_in_force=time_in_force)
+        if buy_sell_indicator == 'B':
+            trader.staged_bid = price
+        elif buy_sell_indicator == 'S':
+            trader.staged_offer = price       
+        event.exchange_msgs(type='enter', model=trader, **order_info)
+                       
+    def bbo_change(self, trader, event):
+        super().bbo_change(trader, event)
+        trader.disable_bid = False
+        trader.disable_offer = False
+        self.recalculate_market_position(trader, event)
+    
+    def external_feed_change(self, trader, event):
+        super().external_feed_change(trader, event)
+        self.recalculate_market_position(trader, event)
+    
+    def signed_volume_change(self, trader, event):
+        super().signed_volume_change(trader, event)
+        self.recalculate_market_position(trader, event)
+    
+    def user_slider_change(self, trader, event):
+        self.recalculate_market_position(trader, event)
+
+    def validate_market_position(self, trader):
+        bid, offer = None, None
+        if (trader.best_bid_except_me > MIN_BID) and (
+            trader.implied_bid != trader.staged_bid):
+            bid = trader.implied_bid
+        if (trader.best_offer_except_me < MAX_ASK) and (
+            trader.implied_offer != trader.staged_offer):
+            offer = trader.implied_offer
+        return bid, offer
+    
+    def recalculate_market_position(self, trader, event, 
+                               price_producer=latent_bid_and_offer):
+        mf = trader.market_facts
+        trader.implied_bid, trader.implied_offer = price_producer(
+            trader.best_bid_except_me,
+            trader.best_offer_except_me,
+            mf.signed_volume,
+            mf.e_best_bid,
+            mf.e_best_offer,
+            mf.e_signed_volume,
+            trader.inventory.position,
+            trader.sliders)
+        bid, offer = self.validate_market_position(trader)
+        start_from = 'B'
+        if bid and offer:
+            # start from the direction towards
+            # the less aggressive price
+            # in replaces.
+            sell_is_aggressive = False
+            existing_offer = trader.staged_offer
+            if existing_offer is not None and existing_offer > offer:
+                sell_is_aggressive = True
+            buy_is_aggressive = False
+            existing_bid = trader.staged_bid
+            if existing_bid is not None and existing_bid < bid:
+                buy_is_aggressive = True
+            
+            if buy_is_aggressive and not sell_is_aggressive:
+                start_from = 'S'
+        if bid or offer:
+            self.adjust_market_position(
+                trader, event, target_bid=bid, target_offer=offer, 
+                start_from=start_from)
+
+    def adjust_market_position(self, trader, event, target_bid=None, target_offer=None, 
+            start_from='B'):
+        sells = []
+        if target_offer is not None and trader.disable_offer is False:
+            current_sell_orders = trader.orderstore.all_orders('S')
+            if len(current_sell_orders) > 1:
+                log.warning(
+                    'multiple sell orders in market: %s:%s' % (
+                        trader.orderstore, current_sell_orders))
+            if current_sell_orders:
+                for order in current_sell_orders:
+                    if (target_offer != order['price'] and 
+                        target_offer != order.get('replace_price', None)):
+                        order_info = trader.orderstore.register_replace(
+                            order['order_token'], target_offer)
+                        sells.append(order_info)
+                trader.staged_offer = target_offer
+            else:
+                self.enter_order(trader, event, 'S', price=target_offer)
+
+        buys = []
+        if target_bid is not None and trader.disable_bid is False:
+            current_buy_orders = trader.orderstore.all_orders('B')
+            if len(current_buy_orders) > 1:
+                log.warning(
+                    'multiple buy orders in market: %s:%s' % (
+                        trader.orderstore, current_buy_orders))
+            if current_buy_orders:
+                for order in current_buy_orders:
+                    if (target_bid != order['price'] and 
+                        target_bid != order.get('replace_price', None)):
+                        order_info = trader.orderstore.register_replace(
+                            order['order_token'], target_bid)
+                        buys.append(order_info)
+                trader.staged_bid = target_bid
+            else:
+                self.enter_order(trader, event, 'B', price=target_bid)
+
+        if start_from == 'B':
+            all_orders = buys + sells
+        else:
+            all_orders = sells + buys
+        if all_orders:
+            for order in all_orders:
+                event.exchange_msgs('replace', model=trader, **order)
+
+    def order_executed(self, trader, event):
+        order_token = event.message.order_token
+        order_info = trader.orderstore.orders[order_token]
+        price = order_info['price']          
+        buy_sell_indicator = order_info['buy_sell_indicator']
+
+        if  buy_sell_indicator == 'B' and trader.staged_bid == price:
+            trader.staged_bid = None        
+        if  buy_sell_indicator == 'S' and trader.staged_offer == price:
+            trader.staged_offer = None
+
+        # given conditions below
+        # bbo is stale
+        mf = trader.market_facts
+        if buy_sell_indicator == 'B':
+            if mf.volume_at_best_bid == 1 and mf.best_bid == price:
+                trader.disable_bid = True
+        if buy_sell_indicator == 'S':
+            if mf.volume_at_best_offer == 1 and mf.best_offer == price:
+                trader.disable_offer = True

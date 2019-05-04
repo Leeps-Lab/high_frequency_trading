@@ -26,16 +26,18 @@ elo = market_environment(
         },
         'player': {
             'initial_endowment': 'cash',
-            'technology_unit_cost': 'technology_unit_cost',
-            'auction_format': 'auction_format',
+            'speed_unit_cost': 'speed_unit_cost',
+            'default_role': 'default_role'
         }
     },
     checkpoint={
         'subproperties_to_serialize': {
             'sliders': ('slider_a_x', 'slider_a_y', 'slider_a_z'),
             'orderstore': ('inventory', 'bid', 'offer'),
-        },
-        'record_model_code': '1'
+            'inventory': ('position'),
+            'market_facts': ('best_bid', 'best_offer', 'signed_volume', 'e_best_bid',
+                'e_best_offer', 'e_signed_volume')
+        }
     }
     )
 

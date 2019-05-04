@@ -69,22 +69,22 @@ class TraderEventHandler(TraderPostHandleMixIn, EventHandler):
     model_name = 'trader'
 
 
-class ELOTraderRoleChangeEventHandler(TraderPostHandleMixIn, EventHandler):
-    # 'role_change' has its own code spec.
-    # as it changes the trader implementation
+# class ELOTraderRoleChangeEventHandler(TraderPostHandleMixIn, EventHandler):
+#     # 'role_change' has its own code spec.
+#     # as it changes the trader implementation
 
-    model_id_field_name = 'player_id'
-    model_name = 'trader'
+#     model_id_field_name = 'player_id'
+#     model_name = 'trader'
 
-    def read_model(self, **kwargs):
-        super().read_model(**kwargs)
-        trader_state_cls = SubjectStateFactory.get_state(
-            self.market_environment) 
-        trader_state = trader_state_cls.from_trader(self.model)
-        new_role = self.event.message.state
-        trader = TraderFactory.get_trader(
-            self.market_environment, new_role, trader_state)
-        self.model = trader
+#     def read_model(self, **kwargs):
+#         super().read_model(**kwargs)
+#         trader_state_cls = SubjectStateFactory.get_state(
+#             self.market_environment) 
+#         trader_state = trader_state_cls.from_trader(self.model)
+#         new_role = self.event.message.state
+#         trader = TraderFactory.get_trader(
+#             self.market_environment, new_role, trader_state)
+#         self.model = trader
 
 
 class MarketEventHandler(EventHandler):
@@ -161,8 +161,6 @@ class EventHandlerFactory:
                 return TraderEventHandler(event, market_environment, **kwargs)
         elif topic == 'trade_session':
             return TradeSessionEventHandler(event, market_environment, **kwargs)
-        elif topic == 'trader_role_change':
-            return ELOTraderRoleChangeEventHandler(event, market_environment, **kwargs)
         elif topic == 'marketwide_events':
             return MarketWideEventHandler(event, market_environment, **kwargs)
         else:

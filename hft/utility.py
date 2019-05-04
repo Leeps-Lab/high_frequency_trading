@@ -6,6 +6,7 @@ from . import market_environments
 from otree.api import ( 
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
+from collections import namedtuple
 
 SESSION_FORMAT = None
 EXCHANGES = None
@@ -18,11 +19,8 @@ exogenous_events = {
     'BCS': ['investor_arrivals', 'fundamental_value_jumps'],
     'LEEPS': ['investor_arrivals']
 }  
-market_events = ('S', 'player_ready', 'advance_me')
-trader_events = ('spread_change', 'speed_change', 'role_change', 'A', 'U', 'C', 'E')
 
 exogenous_event_endpoint = 'ws://127.0.0.1:8000/hft_exogenous_event/{subsession_id}'
-
 exogenous_event_client = 'hft/exogenous_event_emitter.py'
 
 available_exchange_ports = {
@@ -31,16 +29,22 @@ available_exchange_ports = {
     'IEX': list(range(9210, 9200, -1))
 }
 
-ouch_fields = ('price', 'time_in_force', 'display', 'buy_sell_indicator')
-
 MAX_ASK = 2147483647
 MIN_BID = 0
 
-def format_message(message_type, **kwargs):
-    message = {'message_type': message_type, 'payload': {} }
-    for k, v in kwargs.items():
-        message['payload'][k] = v
-    return message
+
+class dotdict(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+
+# def format_message(message_type, **kwargs):
+#     message = {'message_type': message_type, 'payload': {} }
+#     for k, v in kwargs.items():
+#         message['payload'][k] = v
+#     return message
 
 def process_configs(session_format, session_configs):
     clean_confs = type_check_configs(
@@ -117,15 +121,6 @@ def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     timestamp *= 10**3  # microseconds -> nanoseconds
     return timestamp
 
-
-def kwargs_from_event(event):
-    kwargs = event.message.copy()
-    for k, v in event.attachments.items():
-        if k not in kwargs and v is not None:
-            kwargs[k] = v
-    return kwargs
-
-
 scaled_fields = ('price', 'execution_price', 'old_price', 'reference_price', 'cash', 
     'best_bid', 'best_offer', 'bid', 'offer', 'next_bid', 'next_offer', 'e_best_bid',
     'e_best_offer')
@@ -154,3 +149,17 @@ def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
             time.sleep(sleep_time)
             total_slept += sleep_time
     return results_ready
+
+
+ELOSliders = namedtuple('Sliders', 'slider_a_x slider_a_y slider_a_z')
+ELOSliders.__new__.__defaults__ = (0, 0, 0)
+
+
+elo_args_fields = (
+    'subsession_id', 'market_id', 'id', 'id_in_group', 'exchange_id', 'default_role'
+        'exchange_port')
+elo_kwargs_fields = ('cash')
+def elo_otree_player_converter(otree_player):
+    args = [getattr(otree_player, field) for field in elo_args_fields]
+    kwargs = {field: getattr(otree_player, field) for field in elo_kwargs_fields}
+    return args, kwargs
