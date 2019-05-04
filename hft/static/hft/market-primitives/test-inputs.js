@@ -12,6 +12,7 @@ class TestInputs extends PolymerElement {
     }
 
     ready() {
+        console.log("Component is ready!");
         if (!TEST_INPUTS_ADDRESS) {
             return;
         }
@@ -54,7 +55,7 @@ class TestInputs extends PolymerElement {
 
             // sort by time
             this._events.sort((a, b) => a.time - b.time);
-
+           
             if (this.isRunning && this._startTime) {
                 this._start();
                 console.log(this._events);
@@ -74,7 +75,7 @@ class TestInputs extends PolymerElement {
         if (!this._events) {
             return;
         }
-
+        
         this._curIndex = 0;
         const delay = this._startTime + this._events[this._curIndex].time - performance.now();
         window.setTimeout(this._tick.bind(this), delay);
@@ -89,34 +90,35 @@ class TestInputs extends PolymerElement {
             case 'role':
                 message = {
                     type: 'role_change',
-                    state: value,
+                    state: curEvent.value,
                 };
                 break;
             case 'speed':
                 message = {
                     type: 'speed_change',
-                    value: (value === 'TRUE'),
+                    value: (curEvent.value === 'TRUE'),
                 }
                 break;
             case 'bid':
                 message = {
                     type: 'order_entered',
-                    price: parseInt(value),
+                    price: parseInt(curEvent.value),
                     buy_sell_indicator: 'B',
                 }
                 break;
             case 'ask':
                 message = {
                     type: 'order_entered',
-                    price: parseInt(value),
+                    price: parseInt(curEvent.value),
                     buy_sell_indicator: 'S',
                 }
                 break;
             case 'slider':
                 message = {
                     type: 'slider',
-                    a_x: parseFloat(value.split('-')[0]),
-                    a_y: parseFloat(value.split('-')[1]),
+                    a_x: parseFloat(curEvent.value.split('-')[0]),
+                    a_y: parseFloat(curEvent.value.split('-')[1]),
+                    a_z: parseFloat(curEvent.value.split('-')[2]),
                 }
         }
 

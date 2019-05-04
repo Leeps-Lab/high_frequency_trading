@@ -22,12 +22,13 @@ class EloExperiment(Page):
 
     def vars_for_template(self):
 
-        if not self.session.config['test_inputs_dir']:
-            inputs_addr = None
-        else:
-            inputs_addr = '/static/hft/test_input_files/{}'.format(
-                self.session.config['test_inputs_dir'],
-            )
+        # if not self.session.config['test_inputs_dir']:
+        #     inputs_addr = None
+        # else:
+        #     inputs_addr = '/static/hft/test_input_files/{}'.format(
+        #         self.session.config['test_inputs_dir'],
+        #     )
+        inputs_addr = '/static/hft/test_input_files/test_input.csv'
         return {
             'inputs_addr': inputs_addr,
         }
