@@ -29,10 +29,15 @@ class MarketSession extends PolymerElement {
                 --other-bid-fill:#CC8400;
                 --other-offer-fill:#00719E;
 
+                --bid-cue-fill:#DEB05C;
+                --offer-cue-fill:#5CA4C1;
+
                 --bid-line-stroke:#FCD997;
                 --offer-line-stroke:#99E2FF;
                 --background-color-white:#FFFFF0;
                 --background-color-blue:#4F759B;
+
+                --global-font:monospace;
             }
 
             .middle-section-container{

@@ -49,17 +49,17 @@ class SpreadGraph extends PolymerElement {
                 }
 
                 .tick text {
-                    font-family:monospace;
+                    font-family:var(--global-font);
                     font-size:14px;
                     font-weight: bold;
                 }
                 .bid-cue{
-                    stroke:darkgrey;
-                    stroke-width:5px;
+                    fill:var(--bid-cue-fill);
+                    border:none;
                 }
                 .offer-cue{
-                    stroke:darkgrey;
-                    stroke-width:5px;
+                    fill:var(--offer-cue-fill);
+                    border:none;
                 }
             </style>
             <svg id="svg"></svg>
@@ -192,11 +192,13 @@ class SpreadGraph extends PolymerElement {
             .attr('class', 'my-offer')
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
-        this.bidCueLine = mboAndCueGroup.append('line')
+        this.bidCueCircle = mboAndCueGroup.append('circle')
             .attr('class', 'bid-cue')
+            .attr('r', 0.75 * this.minVolumeRadius)
             .style('opacity', 0);
-        this.offerCueLine = mboAndCueGroup.append('line')
+        this.offerCueCircle = mboAndCueGroup.append('circle')
             .attr('class', 'offer-cue')
+            .attr('r', 0.75 * this.minVolumeRadius)
             .style('opacity', 0);
         
         this.scale = d3.scaleLinear()
@@ -221,13 +223,9 @@ class SpreadGraph extends PolymerElement {
 
         this.myBidCircle.attr('cy', this.height / 2);
         this.myOfferCircle.attr('cy', this.height / 2);
-
-        this.bidCueLine
-            .attr('y1', this.height / 4)
-            .attr('y2', 1.5 * this.height / 4);
-        this.offerCueLine
-            .attr('y1', this.height / 4)
-            .attr('y2', 1.5 * this.height / 4);
+        
+        this.bidCueCircle.attr('cy', this.height / 5);
+        this.offerCueCircle.attr('cy', this.height / 5);
 
         this.scale.range([0, this.width]);
 
@@ -248,6 +246,8 @@ class SpreadGraph extends PolymerElement {
 
         this.drawMyBid(this.myBid, this.myBid);
         this.drawMyOffer(this.myOffer, this.myOffer);
+        this.drawBidCue(this.bidCue, this.bidCue);
+        this.drawOfferCue(this.offerCue, this.offerCue);
     }
 
     bestBidOrOfferChanged(bestBid, bestOffer) {
@@ -346,7 +346,7 @@ class SpreadGraph extends PolymerElement {
             if (oldBid === 0) {
                 this.myBidCircle
                     .attr('cx', this.scale(newBid))
-                  .transition()
+                    .transition()
                     .duration(this.animationTime)
                     .style('opacity', 1);
             }
@@ -373,7 +373,7 @@ class SpreadGraph extends PolymerElement {
             if (oldOffer > this._MAX_OFFER) {
                 this.myOfferCircle
                     .attr('cx', this.scale(newOffer))
-                  .transition()
+                    .transition()
                     .duration(this.animationTime)
                     .style('opacity', 1);
             }
@@ -387,60 +387,58 @@ class SpreadGraph extends PolymerElement {
     }
 
     drawBidCue(newBid, oldBid) {
-        console.log("new bid cue",newBid);
+
         if (!this.mainGroup) {
             return;
         }
 
         if (newBid  > this._MAX_OFFER) {
-            this.bidCueLine.transition()
+            this.bidCueCircle.transition()
                 .duration(this.animationTime)
                 .style('opacity', 0);
+            
         }
         else {
             if (oldBid === 0) {
-                this.bidCueLine
-                    .attr('x1', this.scale(newBid))
-                    .attr('x2', this.scale(newBid))
-                  .transition()
+                this.bidCueCircle
+                    .attr('cx', this.scale(newBid))
+                    .transition()
                     .duration(this.animationTime)
                     .style('opacity', 1);
+              
             }
             else {
-                this.bidCueLine.transition()
-                    .duration(this.animationTime)
-                    .attr('x1', this.scale(newBid))
-                    .attr('x2', this.scale(newBid))
-                    .style('opacity', 1);
+                this.bidCueCircle.transition()
+                .duration(this.animationTime)
+                .attr('cx', this.scale(newBid))
+                .style('opacity', 1);
             }
         }
     }
 
     drawOfferCue(newOffer, oldOffer) {
-        console.log("new offer cue",newOffer);
+
         if (!this.mainGroup) {
             return;
         }
 
         if (newOffer > this._MAX_OFFER) {
-            this.offerCueLine.transition()
+            this.offerCueCircle.transition()
                 .duration(this.animationTime)
                 .style('opacity', 0);
         }
         else {
             if (oldOffer === 0) {
-                this.offerCueLine
-                    .attr('x1', this.scale(newOffer))
-                    .attr('x2', this.scale(newOffer))
-                  .transition()
+                this.offerCueCircle
+                    .attr('cx', this.scale(newOffer))
+                    .transition()
                     .duration(this.animationTime)
                     .style('opacity', 1);
             }
             else {
-                this.offerCueLine.transition()
+                this.offerCueCircle.transition()
                     .duration(this.animationTime)
-                    .attr('x1', this.scale(newOffer))
-                    .attr('x2', this.scale(newOffer))
+                    .attr('cx', this.scale(newOffer))
                     .style('opacity', 1);
             }
         }
