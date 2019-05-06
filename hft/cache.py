@@ -36,7 +36,7 @@ def get_market_id_map(subsession_id):
 
 
 id_fields = {
-    'inv': 'player_id', 'market': 'market_id', 'trade_session': 'subsession_id',
+    'inv': 'market_id', 'market': 'market_id', 'trade_session': 'subsession_id',
     'trader': 'player_id'}
 
 def get_model_ids(model):

@@ -4,7 +4,7 @@ from otree.api import models
 from otree.db.models import Model, ForeignKey
 from .cache import model_key_format_str_kw
 from django.core.cache import cache
-from .output import ELOInSessionTraderRecord
+from .output import InSessionTraderRecord
 
 class HFTPlayerSessionSummary(Model):
     subsession_id = models.StringField()

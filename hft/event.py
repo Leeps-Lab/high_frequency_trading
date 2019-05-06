@@ -5,6 +5,7 @@ import json
 from .message_registry import MessageRegistry
 from .broadcast_message import ELOBroadcastMessageFactory
 from .internal_event_message import ELOInternalEventMessageFactory
+from .exchange_message import OutboundExchangeMessageFactory
 
 
 class EventFactory:
@@ -73,9 +74,6 @@ class Event:
     attachments:
 {self.attachments}
 
-    outgoing messages:
-{self.outgoing_messages}
-
         """.format(self=self)
 
     def to_kwargs(self):
@@ -88,8 +86,8 @@ class Event:
                     kwargs[k] = v
         return kwargs
 
-    def attach(self, attachments):
-        self.attachments.update(attachments)
+    def attach(self, **attachments):
+        self.attachments.update(**attachments)
 
 
 class ELOEvent(Event):
@@ -100,3 +98,4 @@ class ELOEvent(Event):
     translator_cls = translator.LeepsOuchTranslator
     broadcast_msg_factory = ELOBroadcastMessageFactory
     internal_event_msg_factory = ELOInternalEventMessageFactory
+    exchange_msg_factory = OutboundExchangeMessageFactory

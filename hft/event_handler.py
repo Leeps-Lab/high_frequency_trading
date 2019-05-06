@@ -3,7 +3,6 @@ from .cache import (
 from django.core.cache import cache
 from otree.timeout.tasks import hft_background_task
 from random import shuffle
-from .subject_state import SubjectStateFactory
 from .trader import TraderFactory
 import logging
 from .output import trader_checkpoint
@@ -15,9 +14,8 @@ class EventHandler(object):
 
     model_id_field_name = None
     model_name = None
-    background_logger = None
 
-    def __init__(self, event, market_environment):
+    def __init__(self, event, market_environment, state_serializer=None):
         self.market_environment = market_environment
         self.model_id = getattr(event, self.model_id_field_name)
         self.event = event
@@ -25,6 +23,7 @@ class EventHandler(object):
             model_id=self.model_id, model_name=self.model_name,
             subsession_id=event.subsession_id)
         self.cache_lock_key = lock_key_format_str.format(cache_key=self.model_cache_key)
+        self.state_serializer = state_serializer
 
     def read_model(self, **kwargs):
         model = cache.get(self.model_cache_key)
@@ -37,12 +36,7 @@ class EventHandler(object):
     def handle(self, **kwargs):
         with cache.lock(self.cache_lock_key):
             self.read_model(**kwargs)
-            self.model.receive(self.event)
-            if hasattr(self.model, 'outgoing_messages'):
-                # old api compatibility
-                message_queue = self.model.outgoing_messages.copy()
-                self.model.outgoing_messages.clear()
-                self.event.outgoing_messages.extend(message_queue)
+            self.model.handle_event(self.event)
             self.post_handle()
             cache.set(self.model_cache_key, self.model)
         return self.event
@@ -54,10 +48,8 @@ class EventHandler(object):
 class TraderPostHandleMixIn:
 
     # so I dont duplicate code
-    def post_handle(self, **kwargs):
-        subject_state_cls = SubjectStateFactory.get_state(self.market_environment) 
-        subject_state = subject_state_cls.from_trader(self.model)
-        hft_background_task(trader_checkpoint, subject_state, 
+    def post_handle(self):
+        hft_background_task(self.state_serializer, self.model, 
                             self.market_environment, 
                             event_type=self.event.event_type,
                             event_no=self.event.reference_no)
@@ -69,36 +61,17 @@ class TraderEventHandler(TraderPostHandleMixIn, EventHandler):
     model_name = 'trader'
 
 
-# class ELOTraderRoleChangeEventHandler(TraderPostHandleMixIn, EventHandler):
-#     # 'role_change' has its own code spec.
-#     # as it changes the trader implementation
-
-#     model_id_field_name = 'player_id'
-#     model_name = 'trader'
-
-#     def read_model(self, **kwargs):
-#         super().read_model(**kwargs)
-#         trader_state_cls = SubjectStateFactory.get_state(
-#             self.market_environment) 
-#         trader_state = trader_state_cls.from_trader(self.model)
-#         new_role = self.event.message.state
-#         trader = TraderFactory.get_trader(
-#             self.market_environment, new_role, trader_state)
-#         self.model = trader
-
-
 class MarketEventHandler(EventHandler):
 
     model_id_field_name = 'market_id'
     model_name = 'market'
-    background_logger = None
 
 
-class InvestorEventHandler(EventHandler):
+class InvestorEventHandler(TraderPostHandleMixIn, EventHandler):
 
-    model_id_field_name = 'player_id'
+    model_id_field_name = 'market_id'
     model_name = 'inv'
-    background_logger = None
+
 
 
 SUBPROCESSES = {}

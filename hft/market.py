@@ -1,10 +1,8 @@
-
-import logging
-from .utility import format_message, MIN_BID, MAX_ASK
 from .market_components.market_role import MarketRoleGroup
 from .market_components.hft_facts import (
     BestBidOffer, ELOExternalFeed, ReferencePrice, SignedVolume)
-from .utility import nanoseconds_since_midnight
+from .utility import nanoseconds_since_midnight, MIN_BID, MAX_ASK
+import logging
 from datetime import datetime
 from django.utils.timezone import utc
 
@@ -47,7 +45,7 @@ class BaseMarket:
     def register_player(self, group_id, player_id):
         self.players_in_market[player_id] = False
     
-    def receive(self, event, *args, **kwargs):
+    def handle_event(self, event, *args, **kwargs):
         if event.event_type not in self.market_events_dispatch:
             raise KeyError('unknown market event.')
         else:
@@ -67,7 +65,7 @@ class BaseMarket:
             for subprop in self.mark_events_with_stats:
                 market_stat = getattr(self, subprop)
                 attachments.update(market_stat.to_kwargs())
-            self.event.attach(attachments)
+            self.event.attach(**attachments)
             self.event = None
      
     def start_trade(self, *args, **kwargs):
@@ -123,6 +121,7 @@ class ELOMarket(BaseMarket):
         self.tax_rate = kwargs.get('tax_rate', 0)
     
     def start_trade(self, *args, **kwargs): 
+        print(self.__dict__)
         super().start_trade(*args, **kwargs)
         for time_aware_stat in ('signed_volume', 'reference_price'):
             attr = getattr(self, time_aware_stat)
@@ -155,9 +154,9 @@ class ELOMarket(BaseMarket):
         kwargs.update(self.bbo.to_kwargs())
         self.signed_volume.update(**kwargs)
         if self.signed_volume.has_changed:
-            maker_ids = self.role_group['automated', 'manual', 'out']
+            # maker_ids = self.role_group['automated', 'manual', 'out']
             self.event.internal_event_msgs(
-                'signed_volume_change', trader_ids=maker_ids,
+                'signed_volume_change',
                 model=self, **self.signed_volume.to_kwargs())
             self.event.broadcast_msgs('signed_volume', model=self, 
                 **self.signed_volume.to_kwargs())
@@ -165,9 +164,9 @@ class ELOMarket(BaseMarket):
     def bbo_change(self, **kwargs):
         self.bbo.update(**kwargs)
         if self.bbo.has_changed:
-            hft_traders = self.role_group['automated', 'manual', 'out']
+            # hft_traders = self.role_group['automated', 'manual', 'out']
             self.event.internal_event_msgs(
-                'bbo_change', model=self, trader_ids=hft_traders, **self.bbo.to_kwargs())
+                'bbo_change', model=self, **self.bbo.to_kwargs())
             self.event.broadcast_msgs('bbo', model=self, **self.bbo.to_kwargs())
     
     def external_feed_change(self, **kwargs):

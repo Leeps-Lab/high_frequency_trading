@@ -62,11 +62,6 @@ class ExternalFeedBroadcastMessage(BroadcastWSMessage):
     required_field_types = (int, int, int, float) 
 
 
-class ELOTakerQuoteBroadcastMessage(BroadcastWSMessage):
-    required_fields = ('market_id', 'player_id', 'bid', 'offer')
-    required_field_types = (int, int, int, int)
-
-
 class ReferencePriceBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'reference_price')
     required_field_types = (int, int) 
@@ -90,7 +85,6 @@ class ELOBroadcastMessageFactory(MessageFactory):
         'signed_volume': SignedVolumeBroadcastMessage,
         'external_feed': ExternalFeedBroadcastMessage,
         'reference_price': ReferencePriceBroadcastMessage,
-        'elo_quote_cue': ELOTakerQuoteBroadcastMessage,
         'speed_confirm': SpeedConfirmBroadcastMessage
     }
 

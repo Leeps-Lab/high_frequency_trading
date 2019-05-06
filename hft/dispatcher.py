@@ -8,6 +8,11 @@ import logging
 
 log = logging.getLogger(__name__)
 
+class DispatcherFactory:
+
+    @staticmethod
+    def get_dispatcher(session_format):
+        return ELODispatcher
 
 class Dispatcher:
 
@@ -34,16 +39,16 @@ class Dispatcher:
                 event, topic, cls.market_environment)
             event = handler.handle()
 
-        # log.debug(
-        #     '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
-        #      event=event))
-        log.debug(event)
+        log.debug(
+            '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
+             event=event))
+        #log.debug(event)
 
 
         while event.exchange_msgs:
             message = event.exchange_msgs.pop()
             send_exchange(
-                message.exchange_host, message.exchange, message.translate(), 
+                message.exchange_host, message.exchange_port, message.translate(), 
                 message.delay)
 
         while event.broadcast_msgs:
@@ -69,7 +74,7 @@ class ELODispatcher(Dispatcher):
         'advance_me': ['market'],
         'role_change': ['market', 'trader'],
         'spread_change': ['trader'],
-        'speed_change': ['market', 'trader'],
+        'speed_change': ['trader'],
         'market_ready_to_start': ['trade_session'],
         'market_ready_to_end': ['trade_session'],
         'market_start': ['market', 'marketwide_events'],

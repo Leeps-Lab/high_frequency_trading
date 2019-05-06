@@ -4,7 +4,7 @@ from django.core.cache import cache
 from django.conf import settings
 import json
 import time
-from .output import ELOInSessionTraderRecord
+from .output import InSessionTraderRecord
 from .session_results import elo_player_summary, state_for_results_template
 from .utility import ensure_results_ready
 
@@ -31,17 +31,24 @@ class ResultsWaitPage(WaitPage):
         # blocking a worker.
         # this should do it for now.
         players_query = self.group.get_players()
-        if ensure_results_ready(self.subsession.id, self.group.id, ELOInSessionTraderRecord,
-            len(players_query)):
+        subsession_id = self.subsession.id
+        market_id = self.group.id
+        if ensure_results_ready(
+            subsession_id, market_id, InSessionTraderRecord, len(players_query)):
             for p in players_query:
-                    p.update_from_state_record()
+                    most_recent_state_record = InSessionTraderRecord(
+                        subsession_id=subsession_id, 
+                        market_id=market_id, 
+                        player_id=p.id,
+                        trigger_event_type='market_end')
+                    p.update_from_state_record(most_recent_state_record)
             try:
                 for p in players_query:
                     elo_player_summary(p)
             except Exception:
-                log.exception('error transform results group {}'.format(self.group.id))
+                log.exception('error transform results group {}'.format(market_id))
         else:
-            log.error('timeout transform results group {}'.format(self.group.id))
+            log.error('timeout transform results group {}'.format(market_id))
 
 class Results(Page):
     def vars_for_template(self):

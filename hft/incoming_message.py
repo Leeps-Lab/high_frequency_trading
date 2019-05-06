@@ -72,7 +72,7 @@ class IncomingMessage:
 
     def __str__(self):
         class_name = '%s:  ' % self.__class__.__name__ 
-        content = ' '.join('{}:{}'.format(k, v) for k, v in self.data.items())
+        content = ':'.join('{}:{}'.format(k, v) for k, v in self.data.items())
         return class_name + content
 
     def translate(self, message):

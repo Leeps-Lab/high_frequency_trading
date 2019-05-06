@@ -21,7 +21,8 @@ class Inventory:
     @property
     def cost(self):
         return self.__cost
-    
+
+    @property    
     def position(self):
         return self.__units
 

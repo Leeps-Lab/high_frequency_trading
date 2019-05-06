@@ -99,7 +99,7 @@ config_maps = {
         'k_reference_price': ('parameters', 'k-reference-price'),
         'k_signed_volume': ('parameters', 'k-signed-volume'),
         'tax_rate': ('parameters', 'tax-rate'),
-        'technology_unit_cost': ('parameters', 'technology-unit-cost'),
+        'speed_unit_cost': ('parameters', 'technology-unit-cost'),
         'initial_endowment': ('parameters', 'initial-endowment'),
         'session_duration': ('parameters', 'session-duration'),
         'group_matrix': ('group', 'group-assignments'),

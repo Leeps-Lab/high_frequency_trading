@@ -1,4 +1,4 @@
-from market_fact import FactTimer
+from .market_fact import FactTimer
 from itertools import count
 from math import ceil
 import time

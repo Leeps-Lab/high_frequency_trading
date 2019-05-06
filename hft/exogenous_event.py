@@ -3,8 +3,8 @@ from otree.db.models import Model, ForeignKey
 from otree.api import models
 import csv
 from otree.common_internal import random_chars_8
+from .trader import InvestorFactory
 import logging
-from .investor import InvestorFactory
 
 log = logging.getLogger(__name__)
 

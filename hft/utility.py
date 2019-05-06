@@ -33,11 +33,11 @@ MAX_ASK = 2147483647
 MIN_BID = 0
 
 
-class dotdict(dict):
-    """dot.notation access to dictionary attributes"""
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
+# class dotdict(dict):
+#     """dot.notation access to dictionary attributes"""
+#     __getattr__ = dict.get
+#     __setattr__ = dict.__setitem__
+#     __delattr__ = dict.__delitem__
 
 
 # def format_message(message_type, **kwargs):
@@ -151,14 +151,10 @@ def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
     return results_ready
 
 
-ELOSliders = namedtuple('Sliders', 'slider_a_x slider_a_y slider_a_z')
-ELOSliders.__new__.__defaults__ = (0, 0, 0)
-
-
 elo_args_fields = (
-    'subsession_id', 'market_id', 'id', 'id_in_group', 'exchange_id', 'default_role'
-        'exchange_port')
-elo_kwargs_fields = ('cash')
+    'subsession_id', 'market_id', 'id', 'id_in_group', 'default_role', 
+    'exchange_host', 'exchange_port')
+elo_kwargs_fields = ('cash', )
 def elo_otree_player_converter(otree_player):
     args = [getattr(otree_player, field) for field in elo_args_fields]
     kwargs = {field: getattr(otree_player, field) for field in elo_kwargs_fields}

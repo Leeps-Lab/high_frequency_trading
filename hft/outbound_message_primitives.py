@@ -38,7 +38,7 @@ class OutboundMessage:
     def __str__(self):
         class_name = '%s:  ' % self.__class__.__name__ 
         message_type = '%s:  ' % getattr(self, self.type_field_name)
-        content = ' '.join('{}:{}'.format(attr, getattr(self, attr)) for attr in 
+        content = ':'.join('{}:{}'.format(attr, getattr(self, attr)) for attr in 
             self.required_fields)
         return  class_name + message_type + content 
     
@@ -103,6 +103,6 @@ class OutboundExchangeMessage(OutboundMessage):
             message_data['price'] = message_data['replace_price']
         return message_data
     
-    def translate(self, message_data) -> bytes:
-        return LeepsOuchTranslator.encode(message_data['type'], **message_data)
+    def translate(self) -> bytes:
+        return LeepsOuchTranslator.encode(self.data['type'], **self.data)
 

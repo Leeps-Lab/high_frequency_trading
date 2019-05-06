@@ -1,7 +1,8 @@
 
 import logging
-from .utility import (nanoseconds_since_midnight, ouch_fields, format_message,
-    MIN_BID, MAX_ASK, dotdict, ELOSliders)
+from .utility import (
+    nanoseconds_since_midnight,MIN_BID, MAX_ASK,
+    elo_otree_player_converter)
 from .market_components.inventory import Inventory
 from collections import namedtuple
 from .equations import latent_bid_and_offer, price_grid
@@ -27,21 +28,25 @@ class BaseTrader(object):
     model_name = 'trader'
     trader_state_factory = TraderStateFactory
     tracked_market_facts = ()
-    otree_player_converter = None
+    otree_player_converter = elo_otree_player_converter
     orderstore_cls = OrderStore
     event_dispatch = {}
     default_delay = 0
 
     def __init__(self, subsession_id, market_id, player_id, id_in_market,
-            default_role, exchange_host, exchange_port, cash=0, delayed=False):
+            default_role, exchange_host, exchange_port, cash=0, delayed=False, 
+            **kwargs):
         self.subsession_id = subsession_id
         self.market_id = market_id
         self.id_in_market = id_in_market
         self.player_id = player_id
-        self.orderstore = self.orderstore_cls(player_id, id_in_market)
+        self.exchange_host = exchange_host
+        self.exchange_port = exchange_port
+        self.orderstore = self.orderstore_cls(player_id, id_in_market, 
+            token_prefix=kwargs.get('token_prefix', 'SUB'))
         self.inventory = Inventory()
         self.trader_role = TraderStateFactory.get_trader_state(default_role)
-        self.market_facts = dotdict(**{k: None for k in self.tracked_market_facts})
+        self.market_facts = {k: None for k in self.tracked_market_facts}
         self.delayed = delayed
         self.delay = 0
         self.staged_bid = None
@@ -58,12 +63,13 @@ class BaseTrader(object):
         return cls(*args, **kwargs)
 
     def open_session(self, event):
+        event_as_kws = event.to_kwargs()
         for field in self.tracked_market_facts:
-            value = event.message[field]
+            value = event_as_kws[field]
             if value is None:
                 raise ValueError('%s is required to open session.' % field)
             else:    
-                self.tracked_market_facts[field] = value
+                self.market_facts[field] = value
     
     def close_session(self, event):
         pass
@@ -77,17 +83,17 @@ class BaseTrader(object):
         return event
     
     def state_change(self, event):
-        new_state = event.message.new_state
-        state_cls = self.trader_state_factory.get_trader_state(new_state)
-        self.trader_role = state_cls()
+        new_state = event.message.state
+        trader_state = self.trader_state_factory.get_trader_state(new_state)
+        self.trader_role = trader_state
         event.broadcast_msgs(
             'role_confirm', role_name=new_state, model=self)
 
     @property
-    def delay(self, default_delay=default_delay):
+    def delay(self):
         is_delayed_trader = self.delayed
         if is_delayed_trader is False:
-            return default_delay
+            return self.default_delay
         elif is_delayed_trader is True:
             return self.__delay
 
@@ -98,11 +104,12 @@ class BaseTrader(object):
 
 class ELOTrader(BaseTrader):
 
+    default_delay = 0.5
     short_delay = 0.1
     long_delay = 0.5
     tracked_market_facts = ('best_bid', 'volume_at_best_bid', 'next_bid', 'best_offer',
         'volume_at_best_offer', 'next_offer', 'signed_volume', 'e_best_bid',
-        'e_best_offer', 'e_signed_volume', 'tax_rate')
+        'e_best_offer', 'e_signed_volume', 'tax_rate', 'reference_price')
     event_dispatch = { 
         'market_start': 'open_session', 
         'market_end': 'close_session',
@@ -112,47 +119,48 @@ class ELOTrader(BaseTrader):
         'E': 'order_executed', 
         'role_change': 'state_change', 
         'slider': 'user_slider_change'}
+    otree_player_converter = elo_otree_player_converter
 
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.technology_subscription = Subscription(
             'speed_tech', self.player_id, kwargs.get('speed_unit_cost', 0))
-        self.sliders = ELOSliders()
+        self.sliders = {'slider_a_x': 0, 'slider_a_y': 0, 'slider_a_z': 0}
 
     def close_session(self, event):
         self.inventory.liquidify(
-            event.message.reference_price, discount_rate=event.message.tax_rate)
+            event.attachments['reference_price'], 
+            discount_rate=event.attachments['tax_rate'])
         self.cash += self.inventory.cash
         self.cost += self.inventory.cost
         self.cost += self.technology_subscription.invoice()
     
-    def user_slider_change(self, trader, event):
-        self.sliders = ELOSliders(
-            slider_a_x=event.message.a_x, 
-            slider_a_y=event.message.a_y,
-            slider_a_z=event.message.a_z)       
+    def user_slider_change(self, event):
+        self.sliders = {
+            'slider_a_x': event.message.a_x, 'slider_a_y': event.message.a_y,
+            'slider_a_z': event.message.a_z}       
 
     @property
     def best_bid_except_me(self):
-        if (self.market_facts.best_bid == self.staged_bid and 
-                self.market_facts.volume_at_best_bid == 1):
-            return self.market_facts.next_bid
+        if (self.market_facts['best_bid'] == self.staged_bid and 
+                self.market_facts['volume_at_best_bid'] == 1):
+            return self.market_facts['next_bid']
         else:
-            return self.market_facts.best_bid        
+            return self.market_facts['best_bid']      
 
     @property
     def best_offer_except_me(self):
-        if (self.market_facts.best_offer == self.staged_offer and 
-                self.market_facts.volume_at_best_offer == 1):
-            return self.market_facts.next_offer
+        if (self.market_facts['best_offer'] == self.staged_offer and 
+                self.market_facts['volume_at_best_offer'] == 1):
+            return self.market_facts['next_offer']
         else:
-            return self.market_facts.best_offer
+            return self.market_facts['best_offer']
 
     def order_accepted(self, event):
         event_as_kws = event.to_kwargs()
         self.orderstore.confirm('enter', **event_as_kws)
-        event.broadcast_msgs('confirmed', model=self, *event_as_kws)
+        event.broadcast_msgs('confirmed', model=self, **event_as_kws)
     
     def order_replaced(self, event):
         event_as_kws = event.to_kwargs()
@@ -180,7 +188,7 @@ class ELOTrader(BaseTrader):
             elif buy_sell_indicator == 'S':
                 self.inventory.remove()
         def adjust_net_worth():
-            reference_price = self.market_facts.reference_price
+            reference_price = self.market_facts['reference_price']
             cash_value_of_stock = self.inventory.valuate(reference_price)
             self.net_worth = self.cash + cash_value_of_stock
         def adjust_cash_position(execution_price, buy_sell_indicator):
@@ -194,9 +202,37 @@ class ELOTrader(BaseTrader):
         buy_sell_indicator = order_info['buy_sell_indicator']
         price = order_info['price']
         order_token = event.message.order_token
-        event.broadcast_msgs('executed', order_token=order_token,
-            price=price, inventory=self.orderstore.inventory, execution_price=execution_price,
-            buy_sell_indicator=buy_sell_indicator, model=self)
         adjust_inventory(buy_sell_indicator)
+        event.broadcast_msgs(
+            'executed', order_token=order_token, price=price, 
+            inventory=self.inventory.position, execution_price=execution_price,
+            buy_sell_indicator=buy_sell_indicator, model=self)
+        # orderstore deletse order 
+        # data after execution, hence
+        # event carries order_info around
+        # this way rest of the handlers in the chain 
+        # can access order data
+        event.attach(order_info=order_info)
         adjust_cash_position(execution_price, buy_sell_indicator)
         adjust_net_worth()
+
+
+class InvestorFactory:
+    @staticmethod
+    def get_model(market):
+        return ELOInvestor.from_otree_market(market)
+
+class ELOInvestor(ELOTrader):
+    model_name = 'inv'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.market_facts = {k: 0 for k in self.tracked_market_facts}
+
+    @classmethod
+    def from_otree_market(cls, market):
+        args = (market.subsession_id, market.market_id, 1, market.id_in_subsession,
+            'investor', market.exchange_host, market.exchange_port)  # one investor per market
+        kwargs = {'token_prefix': 'INV'}
+        return cls(*args, **kwargs)
+        

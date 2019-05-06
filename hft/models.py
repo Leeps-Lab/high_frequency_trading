@@ -18,12 +18,12 @@ from . import utility
 from .trader import TraderFactory
 from .trade_session import TradeSessionFactory
 from .market import MarketFactory
-from .subject_state import SubjectStateFactory
 from .cache import initialize_model_cache, set_market_id_map, get_market_id_map
 from .exogenous_event import ExogenousEventModelFactory
 from . import market_environments
-from .output import ELOInSessionTraderRecord
 from django.utils import timezone
+
+from .dispatcher import DispatcherFactory
 
 log = logging.getLogger(__name__)
 
@@ -43,7 +43,8 @@ class Subsession(BaseSubsession):
     def creating_session(self):
         def create_trade_session(session_format):
             trade_session_cls = TradeSessionFactory.get_session(session_format)
-            trade_session = trade_session_cls(self, session_format)
+            dispatcher = DispatcherFactory.get_dispatcher(session_format)
+            trade_session = trade_session_cls(self, session_format, dispatcher)
             environment = market_environments.environments[session_format]
             for event_type in environment.exogenous_events:
                 event_filename = self.session.config[event_type].pop(0)
@@ -73,6 +74,7 @@ class Subsession(BaseSubsession):
                 market.register_player(group_id, player.id)
                 player.configure_for_trade_session(market, session_format)
                 trader = TraderFactory.get_trader(session_format, player)
+                print(trader.__dict__)
                 initialize_model_cache(trader)
             initialize_model_cache(market)
             market_id_map[market.id_in_subsession] = market.market_id
@@ -130,7 +132,7 @@ class Player(BasePlayer):
     consented = models.BooleanField(initial=False)
     exchange_host = models.CharField()
     exchange_port = models.IntegerField()
-    subsession_id = models.CharField()
+    # subsession_id = models.CharField()
     market_id = models.CharField()
     id_in_market = models.IntegerField()
     speed_unit_cost = models.IntegerField()
@@ -173,24 +175,4 @@ class Player(BasePlayer):
                     log.debug('attr %s is set for player %s from record %s' % (
                         field, self.id, state_record.id))
                     setattr(self, field, attr)
-
-
-class InSessionTraderRecord(Player):
-    
-    csv_meta = (
-    'timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
-    'net_worth', 'cash', 'technology_cost', 'role', 'speed_on', 'time_on_speed', 
-    'inventory', 'reference_price',
-    'bid', 'offer', 'best_bid', 'best_offer', 'e_best_bid', 'e_best_offer', 
-    'target_bid', 'target_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
-    'slider_a_y', 'slider_a_z', 'signed_volume', 'e_signed_volume')
-
-    timestamp = models.DateTimeField(default=timezone.now)
-    trigger_event_type = models.CharField()
-    event_no = models.IntegerField()
-    trader_role =  models.CharField(null=True)
-    delayed = models.BooleanField(initial=False)
-    player_id = models.IntegerField()
-    
-
 

@@ -9,8 +9,8 @@ class EnterOrderMessage(OutboundExchangeMessage):
 
 class ReplaceOrderMessage(OutboundExchangeMessage):
     required_fields = (
-        'existing_order_token', 'replacement_order_token', 'price', 'time_in_force',
-        'exchange_host', 'exchange_port', 'delay')
+        'existing_order_token', 'replacement_order_token', 'price', 'replace_price',
+        'time_in_force', 'exchange_host', 'exchange_port', 'delay')
 
 
 class CancelOrderMessage(OutboundExchangeMessage):
@@ -18,7 +18,8 @@ class CancelOrderMessage(OutboundExchangeMessage):
 
 
 class ResetMessage(OutboundExchangeMessage):
-    required_fields = ('event_code', 'timestamp', 'exchange_host', 'exchange_port')
+    required_fields = ('event_code', 'timestamp', 'exchange_host', 'exchange_port',
+        'delay')
 
 
 class OutboundExchangeMessageFactory(MessageFactory):

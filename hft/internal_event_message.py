@@ -29,14 +29,14 @@ class ReferencePriceChangeMessage(InternalEventMessage):
 class SignedVolumeChangeMessage(InternalEventMessage):
 
     required_fields = (
-        'signed_volume', 'market_id', 'subsession_id', 'trader_ids')
+        'signed_volume', 'market_id', 'subsession_id')
 
 
 class BBOChangeMessage(InternalEventMessage):
 
     required_fields = (
         'best_bid', 'best_offer', 'volume_at_best_bid', 'volume_at_best_offer',
-        'next_offer', 'next_bid', 'market_id', 'subsession_id', 'trader_ids')
+        'next_offer', 'next_bid', 'market_id', 'subsession_id')
 
 class ExternalFeedChangeMessage(InternalEventMessage):
 

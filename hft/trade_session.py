@@ -5,8 +5,6 @@ import logging
 import os
 from twisted.internet import reactor
 from twisted.internet import task
-from .utility import format_message
-from collections import deque
 from . import exchange
 from functools import partial
 from .market import MarketFactory
@@ -15,7 +13,7 @@ import sys
 from django.core import serializers
 from .exogenous_event import get_exogenous_event_queryset
 from .internal_event_message import MarketEndMessage
-from .dispatcher import ELODispatcher
+
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +33,7 @@ class TradeSession:
         'market_ready_to_end': 'stop_trade_session'
     }
 
-    def __init__(self, subsession, session_format):
+    def __init__(self, subsession, session_format, event_dispatcher_cls):
         self.session_format = session_format
         self.subsession = subsession
         self.subsession_id = str(subsession.id)
@@ -45,8 +43,8 @@ class TradeSession:
         self.clients = {}
         self.exogenous_events = {}
         self.trading_markets = []
-        self.outgoing_messages = deque()
         self.market_count = count(1,1)
+        self.event_dispatcher_cls = event_dispatcher_cls
    
     def start_trade_session(self):
         raise NotImplementedError()
@@ -66,7 +64,7 @@ class TradeSession:
     def register_exogenous_event(self, client_type, rel_path):
         self.exogenous_events[client_type] = rel_path
     
-    def receive(self, event):
+    def handle_event(self, event):
         self.event = event
         handler_name = self.events_dispatch[event.event_type]
         handler = getattr(self, handler_name)
@@ -94,23 +92,17 @@ class TradeSession:
 
         
 class ELOTradeSession(TradeSession):
-    dispatcher_cls = ELODispatcher
-
 
     def start_trade_session(self, market_id):
         def create_exchange_connection(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             exchange.connect(self.subsession_id, market_id, host, port, 
-                self.dispatcher_cls, wait_for_connection=True)
+                self.event_dispatcher_cls, wait_for_connection=True)
         def reset_exchange(self, market_id):
             host, port = self.market_exchange_pairs[market_id]
             self.event.exchange_msgs(
-                exchange_host=host, exchange_port=port, delay=0, event_code='S',
-                timestamp=0)
-            # message_content = {'host': host, 'port': port, 'type': 'reset_exchange', 'delay':
-            #         0., 'order_info': {'event_code': 'S', 'timestamp': 0}}
-            # internal_message = format_message('exchange', **message_content)
-            # self.outgoing_messages.append(internal_message)
+                'reset_exchange', exchange_host=host, exchange_port=port, 
+                delay=0, event_code='S', timestamp=0)
         self.market_state[market_id] = True
         is_ready = (True if False not in self.market_state.values() else False)
         if is_ready and not self.is_trading:
@@ -137,7 +129,7 @@ class ELOTradeSession(TradeSession):
                     stop_exchange_connection(self, market_id)
                     ex_event_msg = MarketEndMessage.create(
                         'market_end', market_id=market_id, model=self)
-                    self.dispatcher_cls.dispatch('internal_event', ex_event_msg)
+                    self.event_dispatcher_cls.dispatch('internal_event', ex_event_msg)
                 self.stop_exogenous_events(clients=clients)
                 self.subsession.session.advance_last_place_participants()
                 self.is_trading = False
