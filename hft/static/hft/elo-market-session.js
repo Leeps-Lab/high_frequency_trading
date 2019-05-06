@@ -8,6 +8,7 @@ import './market-primitives/spread-graph.js'
 import './market-primitives/profit-graph.js'
 import './market-primitives/stepwise-calculator.js'
 import './market-primitives/ws.js'
+import './market-primitives/test-inputs.js'
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -102,25 +103,43 @@ class MarketSession extends PolymerElement {
                 }
             }
         </style>
-            <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-            <stepwise-calculator run-forever={{subscribesSpeed}} value={{speedCost}}
-                unit-size={{speedUnitCost}}> </stepwise-calculator>
+            <ws-connection
+                id="websocket"
+                url-to-connect={{websocketUrl}}
+            ></ws-connection>
+            <stepwise-calculator
+                run-forever={{subscribesSpeed}}
+                value={{speedCost}}
+                unit-size={{speedUnitCost}}
+            ></stepwise-calculator>
+            <test-inputs
+                is-running={{isSessionActive}}
+            ></test-inputs>
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
                 <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' bid-cue={{eBestBid}} offer-cue={{eBestOffer}} orders={{orderBook}} my-bid={{myBid}} 
                     my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
                 <div class="middle-section-container">       
-                    <elo-info-table inventory={{inventory}}
-                        cash={{cash}} order-imbalance={{orderImbalance}}
-                        endowment={{wealth}} best-bid={{bestBid}}
-                        best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
-                    </elo-info-table>
-                    <elo-state-selection role={{role}} slider-defaults={{sliderDefaults}}
-                        speed-on={{subscribesSpeed}}> 
-                    </elo-state-selection>
+                    <elo-info-table
+                        inventory={{inventory}}
+                        cash={{cash}}
+                        order-imbalance={{orderImbalance}}
+                        endowment={{wealth}}
+                        best-bid={{bestBid}}
+                        best-offer={{bestOffer}}
+                        my-bid={{myBid}}
+                        my-offer={{myOffer}}
+                    ></elo-info-table>
+                    <elo-state-selection
+                        role={{role}}
+                        slider-defaults={{sliderDefaults}}
+                        speed-on={{subscribesSpeed}}
+                    ></elo-state-selection>
                 </div>
-                <profit-graph profit={{wealth}} is-running={{isSessionActive}}>
-                </profit-graph>
+                <profit-graph
+                    profit={{wealth}}
+                    is-running={{isSessionActive}}
+                ></profit-graph>
             </div>
     `;
     }
