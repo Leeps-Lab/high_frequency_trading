@@ -8,6 +8,7 @@ import './market-primitives/spread-graph.js'
 import './market-primitives/profit-graph.js'
 import './market-primitives/stepwise-calculator.js'
 import './market-primitives/ws.js'
+import './market-primitives/test-inputs.js'
 
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
@@ -29,10 +30,15 @@ class MarketSession extends PolymerElement {
                 --other-bid-fill:#CC8400;
                 --other-offer-fill:#00719E;
 
+                --bid-cue-fill:#DEB05C;
+                --offer-cue-fill:#5CA4C1;
+
                 --bid-line-stroke:#FCD997;
                 --offer-line-stroke:#99E2FF;
                 --background-color-white:#FFFFF0;
                 --background-color-blue:#4F759B;
+
+                --global-font:monospace;
             }
 
             .middle-section-container{
@@ -97,12 +103,21 @@ class MarketSession extends PolymerElement {
                 }
             }
         </style>
-            <ws-connection id="websocket" url-to-connect={{websocketUrl}}> </ws-connection>
-            <stepwise-calculator run-forever={{subscribesSpeed}} value={{speedCost}}
-                unit-size={{speedUnitCost}}> </stepwise-calculator>
+            <ws-connection
+                id="websocket"
+                url-to-connect={{websocketUrl}}
+            ></ws-connection>
+            <stepwise-calculator
+                run-forever={{subscribesSpeed}}
+                value={{speedCost}}
+                unit-size={{speedUnitCost}}
+            ></stepwise-calculator>
+            <test-inputs
+                is-running={{isSessionActive}}
+            ></test-inputs>
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
-                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' orders={{orderBook}} my-bid={{myBid}} 
+                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' bid-cue={{eBestBid}} offer-cue={{eBestOffer}} orders={{orderBook}} my-bid={{myBid}} 
                     my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
                 <div class="middle-section-container">       
                     <elo-info-table inventory={{inventory}}
@@ -114,8 +129,10 @@ class MarketSession extends PolymerElement {
                         speed-on={{subscribesSpeed}}> 
                     </elo-state-selection>
                 </div>
-                <profit-graph profit={{wealth}} is-running={{isSessionActive}}>
-                </profit-graph>
+                <profit-graph
+                    profit={{wealth}}
+                    is-running={{isSessionActive}}
+                ></profit-graph>
             </div>
     `;
     }
@@ -125,6 +142,9 @@ class MarketSession extends PolymerElement {
         eventHandlers: Object,
         sliderDefaults: Object,
         buttons:Array,
+        eBestBid: Number,
+        eBestOffer: Number,
+        eSignedVolume:Number,
         events: Object,
         playerId: Number,
         role: String,
@@ -219,7 +239,6 @@ class MarketSession extends PolymerElement {
     
     inboundMessage(event) {
         const messagePayload = event.detail
-        console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
@@ -227,6 +246,14 @@ class MarketSession extends PolymerElement {
             let handlerName = handlers[i]
             this[handlerName](cleanMessage)
         }
+    }
+
+    _handleExternalFeed(message){
+        //Have to remove *1e-4 below
+        this.eBestBid = message.e_best_bid*1e-4;
+        this.eBestOffer = message.e_best_offer*1e-4;
+        this.eSignedVolume = message.e_signed_volume;
+        console.log("External Feed ",this.eBestBid ,this.eBestOffer, this.eSignedVolume);
     }
     
     _handleExchangeMessage(message) {

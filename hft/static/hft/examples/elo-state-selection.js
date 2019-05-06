@@ -78,22 +78,44 @@ class StateSelection extends PolymerElement {
                 </div>
                 
                 <div id="second-column" class="column-container">
+                    <!---
                     <template is="dom-repeat" items="{{buttons}}">
                         <player-role-button websocket-message='{"type": "role_change", "state": "[[item]]"}' 
                             event-dispatch="user-input"  role-name="[[item]]" player-role=[[role]]>
                         </player-role-button>
                     </template>  
+                    --->
+                    <player-role-button websocket-message='{"type": "role_change", "state": "out"}' 
+                            event-dispatch="user-input"  role-name="out" player-role=[[role]]>
+                    </player-role-button>
+                    <player-role-button websocket-message='{"type": "role_change", "state": "manual"}' 
+                            event-dispatch="user-input"  role-name="manual" player-role=[[role]]>
+                    </player-role-button>
+                    <player-role-button websocket-message='{"type": "role_change", "state": "automated"}' 
+                            event-dispatch="user-input"  role-name="automated" player-role=[[role]]>
+                    </player-role-button>
                 </div>
                 
                 <div class = 'column-container evenly-spaced-column'>
                     <div class="header-container" style="height: 10%">
                         Sensitivity to:
                     </div>
+                    <!---
                     <template is="dom-repeat" items="{{sliders}}">
                         <algorithm-slider max-value='[[item.maxValue]]' min='[[item.minValue]]'
                             val='{{ [[item.propName]]:mouseup}}' slider-name="[[item.name]]" step-size='[[item.stepSize]]'>
                         </algorithm-slider>
-                    </template>          
+                    </template>     
+                    ---> 
+                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
+                            val='{{slider_a_x:mouseup}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
+                    </algorithm-slider>
+                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
+                            val='{{slider_a_y:mouseup}}' slider-name="Signed Volume" step-size='[[sliderDefaults.stepSize]]'>
+                    </algorithm-slider>
+                    <algorithm-slider max-value='1' min='0'
+                            val='{{slider_a_z:mouseup}}' slider-name="External Feed" step-size='0.2'>
+                    </algorithm-slider>     
                 </div>
                         
             </div>

@@ -206,6 +206,7 @@ SESSION_CONFIG_DEFAULTS = {
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['hft'],
     'session_length': 240, 
+    'test_inputs_dir': '',
     'doc': ''
 }
 
