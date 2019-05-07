@@ -120,5 +120,4 @@ def send_exchange(host, port, message, delay):
     if addr not in exchanges:
         raise FileNotFoundError('connection at %s not found.', addr)
     conn = exchanges[addr].connection
-    print('delaying', delay)
     conn.sendMessage(message, delay)

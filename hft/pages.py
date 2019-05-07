@@ -36,7 +36,7 @@ class ResultsWaitPage(WaitPage):
         if ensure_results_ready(
             subsession_id, market_id, InSessionTraderRecord, len(players_query)):
             for p in players_query:
-                    most_recent_state_record = InSessionTraderRecord(
+                    most_recent_state_record = InSessionTraderRecord.objects.get(
                         subsession_id=subsession_id, 
                         market_id=market_id, 
                         player_id=p.id,

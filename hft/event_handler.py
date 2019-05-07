@@ -5,7 +5,7 @@ from otree.timeout.tasks import hft_background_task
 from random import shuffle
 from .trader import TraderFactory
 import logging
-from .output import trader_checkpoint
+from .output import serialize_in_memo_model, trader_checkpoint, get_required_model_fields
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class EventHandler(object):
     model_id_field_name = None
     model_name = None
 
-    def __init__(self, event, market_environment, state_serializer=None):
+    def __init__(self, event, market_environment):
         self.market_environment = market_environment
         self.model_id = getattr(event, self.model_id_field_name)
         self.event = event
@@ -23,7 +23,6 @@ class EventHandler(object):
             model_id=self.model_id, model_name=self.model_name,
             subsession_id=event.subsession_id)
         self.cache_lock_key = lock_key_format_str.format(cache_key=self.model_cache_key)
-        self.state_serializer = state_serializer
 
     def read_model(self, **kwargs):
         model = cache.get(self.model_cache_key)
@@ -46,13 +45,16 @@ class EventHandler(object):
 
 
 class TraderPostHandleMixIn:
+    state_recorder = trader_checkpoint
 
-    # so I dont duplicate code
     def post_handle(self):
-        hft_background_task(self.state_serializer, self.model, 
-                            self.market_environment, 
-                            event_type=self.event.event_type,
-                            event_no=self.event.reference_no)
+        event_no = int(self.event.reference_no)
+        event_type = str(self.event.event_type)
+        props, subprops = get_required_model_fields(self.market_environment)
+        model_as_dict = serialize_in_memo_model(self.model, props, subprops)
+        hft_background_task(
+            trader_checkpoint, model_as_dict, self.market_environment, 
+            event_type=event_type, event_no=event_no)
 
 
 class TraderEventHandler(TraderPostHandleMixIn, EventHandler):
@@ -81,7 +83,6 @@ class TradeSessionEventHandler(EventHandler):
 
     model_id_field_name = 'subsession_id'
     model_name = 'trade_session'
-    background_logger = None
 
     def read_model(self, **kwargs):
         super().read_model(**kwargs)

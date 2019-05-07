@@ -48,7 +48,6 @@ class BaseTrader(object):
         self.trader_role = TraderStateFactory.get_trader_state(default_role)
         self.market_facts = {k: None for k in self.tracked_market_facts}
         self.delayed = delayed
-        self.delay = 0
         self.staged_bid = None
         self.staged_offer = None
         self.disable_bid = False
@@ -127,14 +126,20 @@ class ELOTrader(BaseTrader):
         self.technology_subscription = Subscription(
             'speed_tech', self.player_id, kwargs.get('speed_unit_cost', 0))
         self.sliders = {'slider_a_x': 0, 'slider_a_y': 0, 'slider_a_z': 0}
+        self.tax_paid = 0
+        self.speed_cost = 0
+
 
     def close_session(self, event):
         self.inventory.liquidify(
             event.attachments['reference_price'], 
             discount_rate=event.attachments['tax_rate'])
         self.cash += self.inventory.cash
-        self.cost += self.inventory.cost
-        self.cost += self.technology_subscription.invoice()
+        tax_paid = self.inventory.cost
+        speed_cost = self.technology_subscription.invoice()
+        self.cost += tax_paid + speed_cost
+        self.tax_paid += tax_paid
+        self.speed_cost += speed_cost
     
     def user_slider_change(self, event):
         self.sliders = {

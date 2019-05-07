@@ -121,7 +121,6 @@ class ELOMarket(BaseMarket):
         self.tax_rate = kwargs.get('tax_rate', 0)
     
     def start_trade(self, *args, **kwargs): 
-        print(self.__dict__)
         super().start_trade(*args, **kwargs)
         for time_aware_stat in ('signed_volume', 'reference_price'):
             attr = getattr(self, time_aware_stat)

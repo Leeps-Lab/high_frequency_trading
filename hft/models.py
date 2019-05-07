@@ -74,7 +74,6 @@ class Subsession(BaseSubsession):
                 market.register_player(group_id, player.id)
                 player.configure_for_trade_session(market, session_format)
                 trader = TraderFactory.get_trader(session_format, player)
-                print(trader.__dict__)
                 initialize_model_cache(trader)
             initialize_model_cache(market)
             market_id_map[market.id_in_subsession] = market.market_id
@@ -169,10 +168,7 @@ class Player(BasePlayer):
     
     def update_from_state_record(self, state_record):
         for field in state_record._meta.fields:
-            if hasattr(self, field):
-                attr = getattr(self, field)
+            if hasattr(self, field.name):
+                attr = getattr(self, field.name)
                 if attr is None:
-                    log.debug('attr %s is set for player %s from record %s' % (
-                        field, self.id, state_record.id))
-                    setattr(self, field, attr)
-
+                    setattr(self, field.name, getattr(state_record, field.name))

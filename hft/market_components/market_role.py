@@ -35,7 +35,7 @@ class MarketRoleGroup:
         return player_ids
     
     def __str__(self):
-        roles = ' '.join(str(getattr(self, role_name)) for role_name in self.role_names)
+        roles = ':::'.join(str(getattr(self, role_name)) for role_name in self.role_names)
         out = 'Market Roles: {roles}'.format(roles=roles)
         return out
 
@@ -64,7 +64,7 @@ class TrackedMarketRole:
 
     
     def __str__(self):
-        return '%s: %s' % (self.role_id, ' '.join(str(k) for k in self.players.keys()))
+        return '%s::%s' % (self.role_id, ':'.join(str(k) for k in self.players.keys()))
     
     def __contains__(self, player_id):
         return player_id in self.players.keys()

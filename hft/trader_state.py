@@ -22,7 +22,7 @@ class TraderStateFactory:
 class TraderState(object):
 
     event_dispatch = {}
-    model_id = ''
+    trader_model_name = ''
 
     def handle_event(self, trader, event):
         event_type = event.event_type
@@ -31,7 +31,8 @@ class TraderState(object):
             handler = getattr(self, handler_name)
             handler(trader, event)
         else:
-            log.debug('trader role %s ignores event %s' % (self.model_id, event_type))
+            log.debug('trader role %s ignores event %s' % (
+                self.trader_model_name, event_type))
 
     def state_change(self, trader, event):
         pass
@@ -78,8 +79,12 @@ class ELOTraderState(TraderState):
         trader.delayed = new_state
         if new_state is True:
             trader.delay = short_delay
+            trader.technology_subscription.activate()
         else:
             trader.delay = long_delay
+            trader.technology_subscription.deactivate()
+            speed_cost = trader.technology_subscription.invoice()
+            trader.speed_cost += speed_cost
         event.broadcast_msgs('speed_confirm', value=new_state, model=trader)
     
     def bbo_change(self, trader, event):
@@ -102,11 +107,11 @@ class ELOTraderState(TraderState):
         
     
 class ELOOutState(ELOTraderState):
-    model_id = 'out'
+    trader_model_name = 'out'
 
 
 class ELOManualTrader(ELOTraderState):
-    model_id = 'manual'
+    trader_model_name = 'manual'
     event_dispatch = dict(**ELOTraderState.event_dispatch)
     event_dispatch.update(
         {'E': 'order_executed',
@@ -316,7 +321,7 @@ class ELOAutomatedTraderState(ELOTraderState):
 
 
 class ELOInvestorState(TraderState):
-    model_id = 'investor'
+    trader_model_name = 'investor'
     event_dispatch = dict(**ELOTraderState.event_dispatch)
     event_dispatch.update({'investor_arrivals': 'enter_order'})
 

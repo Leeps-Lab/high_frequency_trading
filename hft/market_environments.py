@@ -31,14 +31,19 @@ elo = market_environment(
         }
     },
     checkpoint={
+        'properties_to_serialize': (
+            'subsession_id', 'market_id', 'id_in_market', 'player_id', 'delay', 
+            'staged_bid', 'staged_offer', 'net_worth', 'cash', 'cost', 'tax_paid',
+            'speed_cost'),
         'subproperties_to_serialize': {
+            'trader_role': ('trader_model_name', ),
             'sliders': ('slider_a_x', 'slider_a_y', 'slider_a_z'),
             'orderstore': ('inventory', 'bid', 'offer'),
-            'inventory': ('position'),
-            'market_facts': ('best_bid', 'best_offer', 'signed_volume', 'e_best_bid',
-                'e_best_offer', 'e_signed_volume')
+            'inventory': ('position', ),
+            'market_facts': ('reference_price', 'best_bid', 'best_offer', 
+                'signed_volume', 'e_best_bid', 'e_best_offer', 'e_signed_volume')
         }
-    }
+     }
     )
 
 environments = {
