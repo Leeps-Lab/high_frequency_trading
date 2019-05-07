@@ -43,10 +43,7 @@ class InfoCard extends PolymerElement {
             }
 
             .price-holder {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
             background: #FFFFF0;
             width: 100%;
             border-radius: 5px;
