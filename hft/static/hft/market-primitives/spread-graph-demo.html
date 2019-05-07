@@ -17,6 +17,8 @@
 
     <button id='remove_bid' type='button'>remove my bid</button>
     <button id='remove_offer' type='button'>remove my ask</button>
+    <button id='add_bid_cue' type='button'>add bid cue</button>
+    <button id='add_offer_cue' type='button'>add offer cue</button>
 
     <script type="module">
         import {PlayersOrderBook} from './orderbook.js'
@@ -44,9 +46,17 @@
         });
 
         document.getElementById('remove_offer').addEventListener('click', e => {
-            spread_graph.setAttribute('my-offer', 100001);
+            spread_graph.setAttribute('my-offer', 990000);
         });
-
+        
+        document.getElementById('add_bid_cue').addEventListener('click', e => {
+            console.log("Adding Bid Cue");
+            spread_graph.setAttribute('bid-cue', 93);
+        });
+        
+        document.getElementById('add_offer_cue').addEventListener('click', e => {
+            spread_graph.setAttribute('offer-cue', 91);
+        });
     </script>
 </body>
 </html>

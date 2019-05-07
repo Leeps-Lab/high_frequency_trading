@@ -135,13 +135,35 @@ const ELO = {
         external_feed: ['_handleExternalFeed'],
         elo_quote_cue: ['_handleTakerCue'],
         speed_confirm: ['_handleSpeedConfirm'],
-        reference_price: ['_handleReferencePrice']
+        reference_price: ['_handleReferencePrice'],
+        external_feed: ['_handleExternalFeed']
     },
     sliderProperties: {
         minValue: 0,
         maxValue: 4,
         stepSize: 0.1
-    }
+    },
+    buttons: ["out","manual","automated"],
+    sliders: [
+        {
+            name: "Inventory",
+            minValue: 0,
+            maxValue: 4,
+            stepSize:0.1
+        },
+        {
+            name: "Signed Volume",
+            minValue: 0,
+            maxValue: 4,
+            stepSize:0.1
+        },
+        {
+            name: "External Feed",
+            minValue: 0,
+            maxValue: 1,
+            stepSize:0.2
+        }
+    ]
 
 }
 

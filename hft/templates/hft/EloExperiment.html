@@ -24,9 +24,14 @@
        subsessionId: "{{player.subsession.id}}",
        marketId: "{{player.market_id}}",
        initialEndowment: "{{player.cash}}",
-       speedCost: "{{player.technology_unit_cost}}"
-       
+       speedCost: "{{player.technology_unit_cost}}",
+       idInGroup: parseInt("{{player.id_in_group}}"),
    };
+
+   let TEST_INPUTS_ADDRESS =  "";
+   {% if inputs_addr %}
+   TEST_INPUTS_ADDRESS = "{{inputs_addr}}";
+   {% endif %}
 </script>
 
 
