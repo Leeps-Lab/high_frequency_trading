@@ -1,4 +1,5 @@
 from .equations import latent_bid_and_offer
+from .utility import market_is_valid
 import logging
 
 log = logging.getLogger(__name__)
@@ -157,7 +158,7 @@ class ELOManualTrader(ELOTraderState):
 
 
 class ELOAutomatedTraderState(ELOTraderState):
-    model_id = 'automated'
+    trader_model_name = 'automated'
     event_dispatch = dict(**ELOTraderState.event_dispatch)
     event_dispatch.update({'E': 'order_executed'})
 
@@ -170,8 +171,10 @@ class ELOAutomatedTraderState(ELOTraderState):
     
     def enter_order(self, trader, event, buy_sell_indicator, price=None,
             price_producer=latent_bid_and_offer, time_in_force=99999):
-        if price is None: # then produce a price
+        if price is None: # then produce a price         
             mf = trader.market_facts
+            if not market_is_valid(trader.market_facts):
+                return
             trader.implied_bid, trader.implied_offer = price_producer(
                 trader.best_bid_except_me,
                 trader.best_offer_except_me,
@@ -180,7 +183,10 @@ class ELOAutomatedTraderState(ELOTraderState):
                 mf['e_best_offer'],
                 mf['e_signed_volume'],
                 trader.inventory.position,
-                trader.sliders)
+                a_x=trader.sliders['slider_a_x'],
+                a_y=trader.sliders['slider_a_y'],
+                a_z=trader.sliders['slider_a_z']
+                )
             price = (trader.implied_bid if buy_sell_indicator == 'B' 
                                         else trader.implied_offer)            
         order_info = trader.orderstore.enter(
@@ -222,15 +228,19 @@ class ELOAutomatedTraderState(ELOTraderState):
     def recalculate_market_position(self, trader, event, 
                                price_producer=latent_bid_and_offer):
         mf = trader.market_facts
+        if not market_is_valid(trader.market_facts):
+            return
         trader.implied_bid, trader.implied_offer = price_producer(
-            trader.best_bid_except_me,
-            trader.best_offer_except_me,
-            mf['signed_volume'],
-            mf['e_best_bid'],
-            mf['e_best_offer'],
-            mf['e_signed_volume'],
-            trader.inventory.position,
-            trader.sliders)
+                trader.best_bid_except_me,
+                trader.best_offer_except_me,
+                mf['signed_volume'],
+                mf['e_best_bid'],
+                mf['e_best_offer'],
+                mf['e_signed_volume'],
+                trader.inventory.position,
+                a_x=trader.sliders['slider_a_x'],
+                a_y=trader.sliders['slider_a_y'],
+                a_z=trader.sliders['slider_a_z'])
         bid, offer = self.validate_market_position(trader)
         start_from = 'B'
         if bid and offer:

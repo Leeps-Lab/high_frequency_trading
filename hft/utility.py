@@ -159,3 +159,14 @@ def elo_otree_player_converter(otree_player):
     args = [getattr(otree_player, field) for field in elo_args_fields]
     kwargs = {field: getattr(otree_player, field) for field in elo_kwargs_fields}
     return args, kwargs
+
+
+def validate_bbo(bb, bo):
+    if bb == MIN_BID or bo == MAX_ASK:
+        return False
+    else: return True
+
+def market_is_valid(market_facts):
+    focal_bbo_is_valid = validate_bbo(market_facts['best_bid'], market_facts['best_offer'])
+    external_bbo_is_valid = validate_bbo(market_facts['e_best_bid'], market_facts['e_best_offer'])
+    return focal_bbo_is_valid and external_bbo_is_valid

@@ -50,6 +50,8 @@ class BaseTrader(object):
         self.delayed = delayed
         self.staged_bid = None
         self.staged_offer = None
+        self.implied_bid = None
+        self.implied_offer = None
         self.disable_bid = False
         self.disable_offer = False
         self.cash = cash
