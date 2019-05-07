@@ -18,9 +18,15 @@ export class ResultsCell extends PolymerElement {
         justify-content: space-around;
         padding: 5px;
       }
+      .data {
+	display: inline-block;
+      }
+      h2 {
+	margin: 2%;
+      }
     </style>
 
-    <div style="text-align:center" class="wrapper" id="parent">
+    <div style="text-align:center; padding:10px;" class="wrapper" id="parent">
       <h2>[[ name ]]</h2>
       <!--
       <table style="display:inline-block; text-align:center;">
@@ -41,8 +47,9 @@ export class ResultsCell extends PolymerElement {
       <div style="display:inline-block; text-align:center;">
         <span>Average Sensitivity of Algorithms</span>
         <hr style="width: 60%">
-        <span><strong>Inventory:</strong> [[ invSensitivity ]]</span>
-        <span><strong>Imbalance:</strong> [[ imbSensitivity ]]</span>
+        <span class="data"><strong>Inventory:</strong> [[ invSensitivity ]]</span>
+        <span class="data"><strong>Signed Volume:</strong> [[ signedVolume ]]</span>
+        <span class="data"><strong>External Feed:</strong> [[ externalFeed ]]</span>
       </div>
     </div>
     `;
@@ -197,9 +204,13 @@ export class ResultsCell extends PolymerElement {
         type: Number,
         //value: 5.1
       },
-      imbSensitivity: {
+      signedVolume: {
         type: Number,
         //value: 3.7
+      },
+      externalFeed: {
+        type: Number,
+        //value: 4.0
       },
       width: {
         type: Number,
