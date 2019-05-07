@@ -15,7 +15,7 @@ class HFTPlayerSessionSummary(Model):
     subsession_id = models.StringField()
     player_id = models.IntegerField()
     market_id = models.IntegerField()
-    imbalance_sensitivity = models.FloatField(initial=0.0)
+    signed_vol_sensitivity = models.FloatField(initial=0.0)
     inventory_sensitivity = models.FloatField(initial=0.0)
     external_feed_sensitivity = models.FloatField(initial=0.0)
     time_as_automated = models.FloatField(initial=0.0)
@@ -33,12 +33,11 @@ def state_for_results_template(player):
         for o in summary_objects}
     strategies = {str(o.player_id): {'automated': o.time_as_automated, 
         'manual': o.time_as_manual, 'out': o.time_as_out} for o in summary_objects}
-    inv_sensitivies = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
-    imbalance_sensitivies = {str(o.player_id): o.imbalance_sensitivity for o in summary_objects}
+    inv_sens = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
+    signed_vol_sens = {str(o.player_id): o.signed_vol_sensitivity for o in summary_objects}
     ext_sensitivies = {str(o.player_id): o.external_feed_sensitivity for o in summary_objects}
     return {'nets': nets, 'taxes': taxes, 'names': names, 'strategies': strategies, 
-        'inv_sens': inv_sensitivies, 'imb_sens': imbalance_sensitivies, 
-        'ext_sens': ext_sensitivies}
+        'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies}
 
 def elo_player_summary(player):
     market = cache.get(model_key_format_str_kw.format(model_name='market',
@@ -52,7 +51,7 @@ def elo_player_summary(player):
     summary_object = HFTPlayerSessionSummary.objects.create(subsession_id=player.subsession.id, 
         market_id=player.market_id,
         player_id=player.id, 
-        imbalance_sensitivity=average_sens['slider_a_x'],
+        signed_vol_sensitivity=average_sens['slider_a_x'],
         inventory_sensitivity=average_sens['slider_a_y'], 
         external_feed_sensitivity=average_sens['slider_a_z'],
         time_as_automated=percent_per_role['automated'],
