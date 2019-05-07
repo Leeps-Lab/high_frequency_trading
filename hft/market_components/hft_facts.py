@@ -77,7 +77,7 @@ class SignedVolume(MarketFact):
             offset = - 0.5
         else:
             log.debug('bad execution price %d:%s' % (
-                      price, kwargs['buy_sell_indicator']))
+                      price, kwargs['execution_price']))
             return
         new_signed_volume = round(
             offset + self.signed_volume * math.e ** (
