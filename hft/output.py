@@ -11,6 +11,7 @@ class InSessionTraderRecord(Model):
     
     csv_meta = (
     'timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
+    'event_no', 'delay',
     'net_worth', 'cash', 'tax_paid', 'speed_cost', 'trader_model_name', 'inventory', 'reference_price', 
     'bid', 'offer', 'best_bid', 'best_offer', 'e_best_bid', 'e_best_offer', 
     'staged_bid', 'staged_offer', 'implied_bid', 'implied_offer', 'slider_a_x',
