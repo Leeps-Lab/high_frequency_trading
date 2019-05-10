@@ -3,7 +3,7 @@ import pandas as pd
 import pdb
 import os
 
-def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,filePath,lambdaJ,lambdaI,startPrice,sigJump):
+def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,lambdaJ,lambdaI,startPrice,sigJump,muI,sigI,lambdaTIF,tifRandomFlag,csvFlag):
 
     # Parameters for jump distribution
     startPrice = startPrice
@@ -14,7 +14,8 @@ def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,filePath,lamb
     nSimJ = int(2*periodLength*lambdaJ)
   
     # Investor parameters
-    nSimI = int(2*periodLength*lambdaI)
+    #nSimI = int(2*periodLength*lambdaI)
+    nSimI = np.random.poisson(lam=lambdaI*periodLength,size=1)
     buyProb = 0.5
   
     # Simulate times and sizes
@@ -26,27 +27,36 @@ def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,filePath,lamb
     jumpSizes = (10000*jumpSizes).astype(int)
 
     # Save jumps to CSV
-    jumpData = pd.DataFrame({'time':jumpTimes,'size':jumpSizes},columns=['time','size'])
-    if os.path.isfile(rootPath+'/'+jumpFile):
-        raise OSError('Attempted to create a file that already exists.')
-    if os.path.isdir(os.path.dirname(rootPath+'/'+jumpFile))==False:
-        os.makedirs(os.path.dirname(rootPath+'/'+jumpFile))
-    jumpData.to_csv(rootPath+'/'+jumpFile,index=False)
+    jumpData = pd.DataFrame({'Time':jumpTimes,'V':jumpSizes})
+    if csvFlag:
+        if os.path.isfile(rootPath+'/'+jumpFile):
+            raise OSError('Attempted to create a file that already exists.')
+        if os.path.isdir(os.path.dirname(rootPath+'/'+jumpFile))==False:
+            os.makedirs(os.path.dirname(rootPath+'/'+jumpFile))
+        jumpData.to_csv(rootPath+'/'+jumpFile,index=False)
 
     # Simulate investor arrivals and directions
-    investorTimes = np.cumsum(np.random.exponential(1/lambdaI,nSimI))
-    investorTimes = np.hstack((investorTimes[investorTimes < periodLength], investorTimes[investorTimes >= periodLength][0]))
+    investorTimes = np.sort(np.random.uniform(low=0,high=periodLength,size=nSimI))
     investorTimes = np.around(investorTimes,3)
-    nInvestor = len(investorTimes)
-    investorDirections = np.random.binomial(1,buyProb,nInvestor)
+    investorDirections = 2*np.random.binomial(1,buyProb,nSimI) - 1
+    investorV = jumpData.V.asof(investorTimes)
+    investorPrices = (investorV + 10000*np.random.normal(muI,sigI,nSimI)*investorDirections).astype('int')
     investorDirections = investorDirections.astype(str)
-    investorDirections[investorDirections=='1'] = 'B'
-    investorDirections[investorDirections=='0'] = 'S'
-
+    investorDirections[investorDirections=='1'] = 'S'
+    investorDirections[investorDirections=='-1'] = 'B'
+    if tifRandomFlag:
+        investorTimeInForces = np.random.exponential(lambdaTIF,nSimI)
+    else:
+        investorTimeInForces = lambdaTIF
+    
     # Save investor arrivals to CSV
-    investorData = pd.DataFrame({'time':investorTimes,'direction':investorDirections},columns=['time','direction'])
-    if os.path.isfile(rootPath+'/'+investorFile):
-        raise OSError('Attempted to create a file that already exists.')
-    if os.path.isdir(os.path.dirname(rootPath+'/'+investorFile))==False:
-        os.makedirs(os.path.dirname(rootPath+'/'+investorFile))
-    investorData.to_csv(rootPath+'/'+investorFile,index=False)
+    investorData = pd.DataFrame({'arrival_time':investorTimes,'buy_sell_indicator':investorDirections,
+                                 'price':investorPrices,'time_in_force':investorTimeInForces})
+    if csvFlag:
+        if os.path.isfile(rootPath+'/'+investorFile):
+            raise OSError('Attempted to create a file that already exists.')
+        if os.path.isdir(os.path.dirname(rootPath+'/'+investorFile))==False:
+            os.makedirs(os.path.dirname(rootPath+'/'+investorFile))
+        investorData.to_csv(rootPath+'/'+investorFile,index=False)
+    else:
+        return(investorData)

@@ -3,8 +3,6 @@ import logging
 import sys
 import yaml
 
-log = logging.getLogger(__name__)
-
 
 class CustomOtreeConfig:
     otree_default_required = {'app_sequence': ['hft']}
@@ -21,8 +19,6 @@ class CustomOtreeConfig:
                 configs = yaml.load(f)
             except yaml.YAMLError as e:
                 raise e
-            else:
-                log.debug('custom config: %s.' % path_to_file)
         return cls(configs, path_to_file)
 
     def get_otree_config(self) -> dict:
@@ -33,7 +29,7 @@ class CustomOtreeConfig:
             try:
                 otree_configs[otree_config_key] = self.base_configs[parent_key][child_key]
             except KeyError:
-                log.info('%s:%s is missing in %s, set to none.' % (
+                sys.stdout.write('%s:%s is missing in %s, set to none.\n' % (
                     parent_key, child_key, self.filename))
         otree_configs.update(self.otree_default_required)
         return otree_configs
@@ -51,7 +47,7 @@ class CustomOtreeConfig:
             try:
                config  = cls.from_yaml(f)
             except Exception as e:
-                log.exception('failed to read file %s:%s', f, e)
+                sys.stdout.write('failed to read file %s:%s\n', f, e)
             else:
                 custom_configs.append(config)
         return custom_configs
@@ -93,7 +89,6 @@ config_maps = {
         'environment': ('session', 'environment'),
         'num_rounds': ('session', 'num-rounds'),
         'matching_engine_host': ('market', 'matching-engine-host'),
-        'num_markets': ('market', 'number-of-markets'),
         'number_of_groups': ('group', 'number-of-groups'),
         'players_per_group': ('group', 'players-per-group'),
         'k_reference_price': ('parameters', 'k-reference-price'),
@@ -102,7 +97,6 @@ config_maps = {
         'speed_unit_cost': ('parameters', 'technology-unit-cost'),
         'initial_endowment': ('parameters', 'initial-endowment'),
         'session_duration': ('parameters', 'session-duration'),
-        'group_matrix': ('group', 'group-assignments'),
         'batch_length': ('parameters', 'batch-length'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'external_feed': ('exogenous-events', 'external-feed'),
