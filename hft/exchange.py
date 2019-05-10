@@ -45,7 +45,7 @@ class OUCH(Protocol):
         if len(data):
             self.dataReceived(data)
 
-    def handle_incoming_data(self, data):
+    def handle_incoming_data(self):
         market_id = self.factory.market
         try:
             self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
