@@ -24,8 +24,8 @@ parameters:
   initial-endowment: 1000
   session-duration: 60
   technology-unit-cost: 0.022  # $/s
-  reference-price-discount-constant: 0.7
-  imbalance-discount-rate: 0.01
+  k-reference-price: 0.7
+  k-signed-volume: 0.5
   tax-rate: 0.1
 
 session:

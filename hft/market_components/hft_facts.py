@@ -76,12 +76,12 @@ class SignedVolume(MarketFact):
         elif price == best_bid:
             offset = - 0.5
         else:
-            log.debug('bad execution price %d:%s' % (
-                      price, kwargs['execution_price']))
+            log.debug('bad execution price %d' % price)
             return
-        new_signed_volume = round(
-            offset + self.signed_volume * math.e ** (
-             -1 * self.k_signed_volume * self.timer.time_since_previous_step), 2)
+        discount_multiplier = math.e ** (
+             -1 * self.k_signed_volume * self.timer.time_since_previous_step)
+        discounted_sig_vol = self.signed_volume * discount_multiplier
+        new_signed_volume = round(offset + discounted_sig_vol, 2)
         if self.signed_volume != new_signed_volume:
             self.signed_volume = new_signed_volume
             self.has_changed = True
