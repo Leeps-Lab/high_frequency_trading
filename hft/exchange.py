@@ -36,20 +36,23 @@ class OUCH(Protocol):
             self.buffer.extend(data[:remainder])
             data = data[remainder:]
             try:
-                market_id = self.factory.market
-                try:
-                    self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
-                        subsession_id=self.factory.subsession_id, market_id=market_id)
-                except Exception as e:
-                    log.exception('error processing exchange message (type:%s, market:%s), ignoring..: %s', 
-                        header, market_id, e)
-            except AttributeError as e:
+                self.handle_incoming_data()
+            except Exception as e:
                 log.exception(e)
             finally:
                 self.buffer.clear()
 
         if len(data):
             self.dataReceived(data)
+
+    def handle_incoming_data(self, data):
+        market_id = self.factory.market
+        try:
+            self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
+                subsession_id=self.factory.subsession_id, market_id=market_id)
+        except Exception as e:
+            log.exception('error processing exchange message (type:%s, market:%s), ignoring..: %s', 
+                header, market_id, e)
 
     def sendMessage(self, msg, delay):
         if not isinstance(msg, bytes):

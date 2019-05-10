@@ -31,10 +31,7 @@ class TraderState(object):
             handler_name = self.event_dispatch[event_type]
             handler = getattr(self, handler_name)
             handler(trader, event)
-        else:
-            log.debug('trader role %s ignores event %s' % (
-                self.trader_model_name, event_type))
-
+ 
     def state_change(self, trader, event):
         pass
     
