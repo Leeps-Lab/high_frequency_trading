@@ -80,7 +80,7 @@ for draw in range(nDraws):
     for period in range(nPeriodsWithTrial):
         if createDraws == True:
             createMarketEvents(rootPath,investorFilesForGroup[period],jumpFilesForGroup[period],
-                               periodLengthSeconds,filePath,lambdaJ,lambdaI,startingPrice,sigJump)
+                               periodLengthSeconds,lambdaJ,lambdaI,startingPrice,sigJump)
         else:
             if ((os.path.isfile(rootPath+'/'+jumpFilesForGroup[period])==False)| 
                 (os.path.isfile(rootPath+'/'+investorFilesForGroup[period])==False)):
