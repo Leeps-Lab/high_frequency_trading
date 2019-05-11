@@ -1,6 +1,7 @@
 from hft.trader import ELOInvestor
 from hft.event import ELOEvent
 from .utility import MockWSMessage, generate_random_test_orders
+from .random_order_set import RandomOrderSet
 import logging
 
 log = logging.getLogger(__name__)
@@ -10,20 +11,21 @@ ws_message_defaults = {
     'type': 'investor_arrivals'}
 
 NUM_ORDERS = 60
-SESSION_DURATION = 60
 
 class TraderBot:
 
     default_trader_model_args = (0, 0, 0, 1, 'investor', 0, 0)
     message_class = MockWSMessage
-    required_message_fields = ('price', 'buy_sell_indicator', )
+    required_message_fields = {
+        'arrival_time': float, 'price': int, 'buy_sell_indicator': str, 
+        'time_in_force': int}
     trader_model_cls = ELOInvestor
 
-    def __init__(self):
+    def __init__(self, session_duration=60, random_order_file=None):
         self.trader_model = self.trader_model_cls(
             *self.default_trader_model_args)
-        self.random_order_generator = generate_random_test_orders(
-                                        NUM_ORDERS, SESSION_DURATION)
+        self.random_order_generator = RandomOrderSet.from_csv(random_order_file)
+        self.session_duration = session_duration
         self.exchange_connection = None
 
     @property
@@ -47,11 +49,15 @@ class TraderBot:
 
     def generate_order(self, *args, **kwargs):
         new_order = next(self.random_order_generator)
-        for field in self.required_message_fields:
+        req_flds = self.required_message_fields
+        for field, value in req_flds.items():
             if field not in new_order:
                 raise Exception('key %s is missing in %s' % (field, new_order))
             else:
-                return new_order
+                required_type = req_flds[field]
+                if not isinstance(new_order[field], required_type):
+                    new_order[field] = required_type(new_order[field])
+        return new_order
 
     def enter_order(self, order, delay):
         message = MockWSMessage(order, **ws_message_defaults)
