@@ -3,7 +3,31 @@ import pandas as pd
 import pdb
 import os
 
-def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,lambdaJ,lambdaI,startPrice,sigJump,muI,sigI,lambdaTIF,tifRandomFlag,csvFlag):
+
+# grid definition
+
+max_ask = 2147483647
+min_bid = 0
+
+
+def price_grid(price, gridsize=1e4):
+    integer_price = int(price)
+    if integer_price < min_bid:
+        integer_price = min_bid
+    elif integer_price > max_ask:
+        integer_price = max_ask
+    grid_formula = round((integer_price - min_bid) / gridsize)
+    grid_price = int(grid_formula * gridsize)
+    return grid_price
+
+vector_grid = np.vectorize(price_grid)
+
+
+def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,lambdaJ,lambdaI,startPrice,
+                       sigJump,muI,sigI,lambdaTIF,tifRandomFlag,csvFlag, grid=vector_grid):
+
+
+    # JUMPS
 
     # Parameters for jump distribution
     startPrice = startPrice
@@ -12,13 +36,9 @@ def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,lambdaJ,lambd
     
     # Parameters for jump times
     nSimJ = int(2*periodLength*lambdaJ)
-  
-    # Investor parameters
-    #nSimI = int(2*periodLength*lambdaI)
-    nSimI = np.random.poisson(lam=lambdaI*periodLength,size=1)
-    buyProb = 0.5
-  
+
     # Simulate times and sizes
+    np.random.seed(59337)
     jumpTimes = np.cumsum(np.random.exponential(1/lambdaJ,nSimJ))
     jumpTimes = np.hstack((jumpTimes[jumpTimes < periodLength], jumpTimes[jumpTimes >= periodLength][0]))
     jumpTimes = np.around(jumpTimes,3)
@@ -35,12 +55,19 @@ def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,lambdaJ,lambd
             os.makedirs(os.path.dirname(rootPath+'/'+jumpFile))
         jumpData.to_csv(rootPath+'/'+jumpFile,index=False)
 
+    # Investor parameters
+    #nSimI = int(2*periodLength*lambdaI)
+    nSimI = np.random.poisson(lam=lambdaI*periodLength,size=1)
+    buyProb = 0.5
+
     # Simulate investor arrivals and directions
+    np.random.seed(2)
     investorTimes = np.sort(np.random.uniform(low=0,high=periodLength,size=nSimI))
     investorTimes = np.around(investorTimes,3)
     investorDirections = 2*np.random.binomial(1,buyProb,nSimI) - 1
     investorV = jumpData.V.asof(investorTimes)
     investorPrices = (investorV + 10000*np.random.normal(muI,sigI,nSimI)*investorDirections).astype('int')
+    investorPrices = vector_grid(investorPrices)
     investorDirections = investorDirections.astype(str)
     investorDirections[investorDirections=='1'] = 'S'
     investorDirections[investorDirections=='-1'] = 'B'
