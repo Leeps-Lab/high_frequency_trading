@@ -7,9 +7,9 @@ group:
 
 exogenous-events:
   investor-arrivals:
-    - investors_trial.csv
-    - investors_trial.csv
-    - investors_trial.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
   external-feed:
     - external_feed_trial.csv
     - external_feed_trial.csv
@@ -21,7 +21,7 @@ market:
 
 parameters:
   default-role: 'out'
-  initial-endowment: 1000
+  initial-endowment: 2000
   session-duration: 60
   technology-unit-cost: 0.022  # $/s
   k-reference-price: 0.7
@@ -30,7 +30,7 @@ parameters:
 
 session:
   session-name: ELO_Development_Session_3_rounds_1_60_sec
-  display-name: HFT - ELO - CDA - 3 Trade Sessions of 60 seconds - 3 traders
+  display-name: HFT - ELO - CDA - 3 Trade Sessions of 60 seconds - 3 traders - Very Frequent Order Flow
   environment: elo
   num-rounds: 3
   currency: EUR

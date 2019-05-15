@@ -7,8 +7,8 @@ EXCHANGE_HOST = '127.0.0.1'
 EXCHANGE_PORT = 9001
 
 SESSION_DURATION = 60
-HISTORY_DUMP_FILE = 'test.csv'
-RANDOM_ORDER_FILE = 'my_file.csv'
+HISTORY_DUMP_FILE = 'session_config/exogenous_events/test.csv'
+RANDOM_ORDER_FILE = 'simulations/inputs/random_order_inputs_set_2.csv'
 
 def run():
     trader = TraderBot(session_duration=SESSION_DURATION, 

@@ -2,7 +2,7 @@ from createMarketEvents import createMarketEvents
 import os
 
 root_path = os.getcwd()
-investor_file = 'my_file.csv'
+investor_file = 'random_order_inputs_set_2.csv'
 jump_file = 'my_jump.csv'
 period_length = 240
 lambda_j = 1/3 # freq of value changes

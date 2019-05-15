@@ -61,7 +61,7 @@ def createMarketEvents(rootPath,investorFile,jumpFile,periodLength,lambdaJ,lambd
     buyProb = 0.5
 
     # Simulate investor arrivals and directions
-    np.random.seed(2)
+#    np.random.seed(2)
     investorTimes = np.sort(np.random.uniform(low=0,high=periodLength,size=nSimI))
     investorTimes = np.around(investorTimes,3)
     investorDirections = 2*np.random.binomial(1,buyProb,nSimI) - 1

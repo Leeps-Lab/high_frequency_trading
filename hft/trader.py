@@ -214,7 +214,7 @@ class ELOTrader(BaseTrader):
             'executed', order_token=order_token, price=price, 
             inventory=self.inventory.position, execution_price=execution_price,
             buy_sell_indicator=buy_sell_indicator, model=self)
-        # orderstore deletse order 
+        # orderstore delete order 
         # data after execution, hence
         # event carries order_info around
         # this way rest of the handlers in the chain 

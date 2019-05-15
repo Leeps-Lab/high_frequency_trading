@@ -163,7 +163,7 @@ class ELOAutomatedTraderState(ELOTraderState):
         super().state_change(trader, event)
         if trader.market_facts['best_bid'] > MIN_BID:
             self.enter_order(trader, event, 'B')
-        if trader.market_facts['best_offer'] > MAX_ASK:
+        if trader.market_facts['best_offer'] < MAX_ASK:
             self.enter_order(trader, event, 'S')
     
     def enter_order(self, trader, event, buy_sell_indicator, price=None,
@@ -185,7 +185,7 @@ class ELOAutomatedTraderState(ELOTraderState):
                 a_z=trader.sliders['slider_a_z']
                 )
             price = (trader.implied_bid if buy_sell_indicator == 'B' 
-                                        else trader.implied_offer)            
+                                        else trader.implied_offer)      
         order_info = trader.orderstore.enter(
             price=price, buy_sell_indicator=buy_sell_indicator, 
             time_in_force=time_in_force)
@@ -205,9 +205,9 @@ class ELOAutomatedTraderState(ELOTraderState):
         super().external_feed_change(trader, event)
         self.recalculate_market_position(trader, event)
     
-    def signed_volume_change(self, trader, event):
-        super().signed_volume_change(trader, event)
-        self.recalculate_market_position(trader, event)
+    # def signed_volume_change(self, trader, event):
+    #     super().signed_volume_change(trader, event)
+    #     self.recalculate_market_position(trader, event)
     
     def user_slider_change(self, trader, event):
         self.recalculate_market_position(trader, event)

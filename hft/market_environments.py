@@ -34,14 +34,17 @@ elo = market_environment(
         'properties_to_serialize': (
             'subsession_id', 'market_id', 'id_in_market', 'player_id', 'delay', 
             'staged_bid', 'staged_offer', 'net_worth', 'cash', 'cost', 'tax_paid',
-            'speed_cost', 'implied_bid', 'implied_offer'),
+            'speed_cost', 'implied_bid', 'implied_offer', 'best_bid_except_me',
+            'best_offer_except_me'),
         'subproperties_to_serialize': {
             'trader_role': ('trader_model_name', ),
             'sliders': ('slider_a_x', 'slider_a_y', 'slider_a_z'),
             'orderstore': ('inventory', 'bid', 'offer'),
             'inventory': ('position', ),
-            'market_facts': ('reference_price', 'best_bid', 'best_offer', 
-                'signed_volume', 'e_best_bid', 'e_best_offer', 'e_signed_volume')
+            'market_facts': (
+                'reference_price', 'best_bid', 'best_offer', 
+                'signed_volume', 'e_best_bid', 'e_best_offer', 'e_signed_volume',
+                'next_bid', 'next_offer', 'volume_at_best_bid', 'volume_at_best_offer')
         }
      }
     )
