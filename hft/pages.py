@@ -34,6 +34,14 @@ class EloExperiment(Page):
             'inputs_addr': inputs_addr,
         }
 
+class PostSessionWaitPage(WaitPage):
+    # I need an extra wait page
+    # since I am blocking at
+    # after all players arrive
+    # at actual wait page
+    title_text = "Custom title text"
+    body_text = "Custom body text"
+
 class ResultsWaitPage(WaitPage):
 
     def after_all_players_arrive(self):
@@ -72,6 +80,7 @@ class Results(Page):
 page_sequence = [
     PreWaitPage,
     EloExperiment,
+    PostSessionWaitPage,
     ResultsWaitPage,
     Results,
 ]
