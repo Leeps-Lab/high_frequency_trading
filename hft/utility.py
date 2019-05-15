@@ -130,7 +130,7 @@ def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fiel
     return clean_message
         
 def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
-                         timeout=30, sleep_time=1):
+                         timeout=90, sleep_time=1):
     total_slept = 0
     results_ready = False
     while total_slept < timeout:

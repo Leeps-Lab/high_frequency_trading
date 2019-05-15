@@ -156,8 +156,11 @@ class ProfitGraph extends PolymerElement {
         if (this.profit) {
             this._addPayoff(this.profit);
         }
-
-        window.requestAnimationFrame(this._tick.bind(this));
+        window.setInterval(function(){
+        	window.requestAnimationFrame(this._tick.bind(this))
+        }.bind(this)
+        ,1000)
+        
     }
 
     _tick(now) {
@@ -171,8 +174,7 @@ class ProfitGraph extends PolymerElement {
         this.currentProfitLine
             .attr('x1', this.xScale(this._lastPayoffChangeTime))
             .attr('x2', this.xScale(now));
-
-        window.requestAnimationFrame(this._tick.bind(this));
+        //window.requestAnimationFrame(this._tick.bind(this));
     }
 
     _addPayoff(newProfit, oldProfit) {
