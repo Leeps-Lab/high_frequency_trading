@@ -29,6 +29,7 @@ class CustomOtreeConfig:
             try:
                 otree_configs[otree_config_key] = self.base_configs[parent_key][child_key]
             except KeyError:
+                otree_configs[otree_config_key] = None
                 sys.stdout.write('%s:%s is missing in %s, set to none.\n' % (
                     parent_key, child_key, self.filename))
         otree_configs.update(self.otree_default_required)
@@ -100,7 +101,8 @@ config_maps = {
         'batch_length': ('parameters', 'batch-length'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'external_feed': ('exogenous-events', 'external-feed'),
-        'default_role': ('parameters', 'default-role')
+        'default_role': ('parameters', 'default-role'),
+        'test_input_file': ('tests', 'test_input_file')
     }
 }
 

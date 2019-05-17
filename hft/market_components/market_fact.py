@@ -54,9 +54,8 @@ class MarketFact:
 class FactTimer:
 
     def __init__(self, session_duration=None):
-        now = time.time()
-        self.time_origin = now
-        self.time_last_step = now
+        self.time_origin = time.time()
+        self.time_last_step = None
         self.time_elapsed = 0
         self.time_since_previous_step = 0
         if session_duration is not None:
@@ -67,7 +66,11 @@ class FactTimer:
 
     def step(self):
         now = time.time()
-        self.time_since_previous_step = now - self.time_last_step
+        if self.time_last_step:
+            self.time_since_previous_step = now - self.time_last_step
+        else:
+            # this is the first step.
+            self.time_since_previous_step = 0
         self.time_last_step = now
         self.time_elapsed = self.time_last_step - self.time_origin
 

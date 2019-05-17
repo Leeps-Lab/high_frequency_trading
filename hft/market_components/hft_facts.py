@@ -1,6 +1,7 @@
 from .market_fact import *
 import math
 from hft.equations import price_grid
+from itertools import count
 import logging
 
 log = logging.getLogger(__name__)
@@ -39,18 +40,27 @@ class ReferencePrice(MarketFact):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.transaction_counter = count(1, 1)
+        self.sum_weights = 0
         self.discount_rate = round(
             self.k_reference_price * self.timer.session_duration, 2)
 
     def update(self, *args, **kwargs):
         super().update(*args, **kwargs)
         new_price = kwargs['execution_price']
-        weight_for_price = math.e ** (
-            (self.timer.time_elapsed - self.timer.session_duration) *
-            self.discount_rate)
+        n_transaction = next(self.transaction_counter)
+        if n_transaction == 1:
+            # recursive formula holds for n > 1
+            # also for first transaction below is
+            # obvious
+            self.reference_price = new_price
+        discount_multiplier = math.e **  - (
+            self.timer.time_since_previous_step * self.discount_rate)
+        self.sum_weights = 1 + self.sum_weights * discount_multiplier
         new_reference_price = price_grid(
-            (new_price * weight_for_price) + (
-             (1 - weight_for_price) * self.reference_price))
+            (new_price * (1 - self.sum_weights ** -1 ) + (
+                self.reference_price * self.sum_weights ** -1)))
+#        print('ref price', self.timer.time_since_previous_step, discount_multiplier, n_transaction, self.sum_weights, self.reference_price)
         if self.reference_price != new_reference_price:
             self.reference_price = new_reference_price
             self.has_changed = True

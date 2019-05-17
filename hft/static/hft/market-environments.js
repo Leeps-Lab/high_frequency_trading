@@ -140,7 +140,7 @@ const ELO = {
     },
     sliderProperties: {
         minValue: 0,
-        maxValue: 4,
+        maxValue: 2,
         stepSize: 0.1
     },
     buttons: ["out","manual","automated"],

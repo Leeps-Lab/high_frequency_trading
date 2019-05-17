@@ -206,11 +206,11 @@ SESSION_CONFIG_DEFAULTS = {
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['hft'],
     'session_length': 240, 
-    'test_inputs_dir': '',
     'doc': ''
 }
 
 exogenous_event_configs_directory = os.path.join(os.getcwd(), 'session_config/exogenous_events')
+test_inputs_dir = '/static/hft/test_input_files/{}'
 SESSION_CONFIGS = []
 
 # read configurations

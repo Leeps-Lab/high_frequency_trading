@@ -226,6 +226,7 @@ class ELOAutomatedTraderState(ELOTraderState):
                                price_producer=latent_bid_and_offer):
         mf = trader.market_facts
         if not market_is_valid(trader.market_facts):
+            log.debug('market not valid: ' % trader.market_facts)
             return
         trader.implied_bid, trader.implied_offer = price_producer(
                 trader.best_bid_except_me,
@@ -262,6 +263,7 @@ class ELOAutomatedTraderState(ELOTraderState):
 
     def adjust_market_position(self, trader, event, target_bid=None, target_offer=None, 
             start_from='B'):
+        print('adjust called')
         sells = []
         if target_offer is not None and trader.disable_offer is False:
             current_sell_orders = trader.orderstore.all_orders('S')
@@ -312,19 +314,19 @@ class ELOAutomatedTraderState(ELOTraderState):
         buy_sell_indicator = order_info['buy_sell_indicator']
 
         if  buy_sell_indicator == 'B' and trader.staged_bid == price:
-            trader.staged_bid = None        
+            trader.staged_bid = None      
         if  buy_sell_indicator == 'S' and trader.staged_offer == price:
             trader.staged_offer = None
 
         # given conditions below
         # bbo is stale
         mf = trader.market_facts
-        if buy_sell_indicator == 'B':
-            if mf['volume_at_best_bid'] == 1 and mf['best_bid'] == price:
-                trader.disable_bid = True
-        if buy_sell_indicator == 'S':
-            if mf['volume_at_best_offer'] == 1 and mf['best_offer'] == price:
-                trader.disable_offer = True
+        # if buy_sell_indicator == 'B':
+        #     if mf['volume_at_best_bid'] == 1 and mf['best_bid'] == price:
+        #         trader.disable_bid = True
+        # if buy_sell_indicator == 'S':
+        #     if mf['volume_at_best_offer'] == 1 and mf['best_offer'] == price:
+        #         trader.disable_offer = True
 
 
 class ELOInvestorState(TraderState):

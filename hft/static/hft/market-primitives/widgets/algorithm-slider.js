@@ -24,10 +24,10 @@ class algorithmSlider extends PolymerElement {
         </style>
 
         <div class="header-container slider-header">
-            [[sliderName]]: [[val]]
+            [[sliderName]]: [[sliderValue]]
         </div>
         <input type="range" class="slider-group" min='[[minValue]]'
-            max='[[maxValue]]' value='{{val::mouseup}}'
+            max='[[maxValue]]' value='{{sliderValue::mouseup}}'
             step='[[stepSize]]' disabled$=[[isDisabled]]>
         `;
     }
@@ -38,7 +38,11 @@ class algorithmSlider extends PolymerElement {
             stepSize:Number,
             maxValue:Number,
             minValue:Number,
-            val:Number,
+            sliderValue:{
+                type: Number,
+                reflectToAttribute: true,
+                notify: true,
+            },
             isDisabled:{
                 type: Boolean,
                 observer: '_resetVal'

@@ -108,13 +108,13 @@ class StateSelection extends PolymerElement {
                     </template>     
                     ---> 
                     <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
-                            val='{{slider_a_x:mouseup}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
+                        slider-value='{{slider_a_x}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
                     </algorithm-slider>
                     <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
-                            val='{{slider_a_y:mouseup}}' slider-name="Signed Volume" step-size='[[sliderDefaults.stepSize]]'>
+                        slider-value='{{slider_a_y}}' slider-name="Signed Volume" step-size='[[sliderDefaults.stepSize]]'>
                     </algorithm-slider>
                     <algorithm-slider max-value='1' min='0'
-                            val='{{slider_a_z:mouseup}}' slider-name="External Feed" step-size='0.2'>
+                        slider-value='{{slider_a_z}}' slider-name="External Feed" step-size='0.2'>
                     </algorithm-slider>     
                 </div>
                         
@@ -189,6 +189,7 @@ class StateSelection extends PolymerElement {
             a_y: this.slider_a_y,
             a_z: this.slider_a_z
         };
+        
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });
         this.dispatchEvent(userInputEvent);

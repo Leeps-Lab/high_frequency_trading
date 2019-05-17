@@ -7,9 +7,9 @@ group:
 
 exogenous-events:
   investor-arrivals:
-    - investors_trial.csv
-    - investors_trial.csv
-    - investors_trial.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
   external-feed:
     - external_feed_trial.csv
     - external_feed_trial.csv
@@ -36,3 +36,6 @@ session:
   currency: EUR
   exchange-rate: 1.5
   participation-fee: 4
+
+tests:
+  test_input_file: 'test_input.csv'

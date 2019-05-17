@@ -7,6 +7,7 @@ import time
 from .output import InSessionTraderRecord
 from .session_results import elo_player_summary, state_for_results_template
 from .utility import ensure_results_ready
+from settings import test_inputs_dir
 
 log = logging.getLogger(__name__)
 
@@ -22,25 +23,33 @@ class PreWaitPage(WaitPage):
 class EloExperiment(Page):
 
     def vars_for_template(self):
-
-        # if not self.session.config['test_inputs_dir']:
-        #     inputs_addr = None
-        # else:
-        #     inputs_addr = '/static/hft/test_input_files/{}'.format(
-        #         self.session.config['test_inputs_dir'],
-        #     )
-        inputs_addr = '/static/hft/test_input_files/test_input.csv'
+        if not self.session.config['test_input_file']:
+            inputs_addr = None
+        else:
+            inputs_addr = test_inputs_dir.format(
+                self.session.config['test_input_file'])
         return {
-            'inputs_addr': inputs_addr,
-        }
+            'inputs_addr': inputs_addr}
 
-class PostSessionWaitPage(WaitPage):
-    # I need an extra wait page
-    # since I am blocking at
-    # after all players arrive
-    # at actual wait page
-    title_text = "Custom title text"
-    body_text = "Custom body text"
+# class PostSessionWaitPage(WaitPage):
+#     # I need an extra wait page
+#     # since I am blocking at
+#     # after all players arrive
+#     # at actual wait page
+#     template_name = 'hft/PostSessionWaitPage.html'
+
+#     def socket_url(self):
+#         return '/wait_page_results/{},{},{}/'.format(
+#             self._session_pk,
+#             self._index_in_pages,
+#             self._channels_group_id_in_subsession()
+#         )
+#     def after_all_players_arrive(self):
+#         print('arrived')
+
+class PostSession(Page):
+    timeout_seconds = 10
+    timer_text = 'Processing results..'
 
 class ResultsWaitPage(WaitPage):
 
@@ -80,7 +89,7 @@ class Results(Page):
 page_sequence = [
     PreWaitPage,
     EloExperiment,
-    PostSessionWaitPage,
+    PostSession,
     ResultsWaitPage,
     Results,
 ]
