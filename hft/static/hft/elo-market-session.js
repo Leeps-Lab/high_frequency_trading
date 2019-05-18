@@ -239,6 +239,14 @@ class MarketSession extends PolymerElement {
     
     inboundMessage(event) {
         const messagePayload = event.detail
+        // this api is to handle updates as single messages
+        // it is also possible to batch these messages for performance
+        // and take the exit below.
+        console.log(messagePayload)
+        if (messagePayload.type == 'batch'){
+            this._handleBatchMessage(messagePayload)
+            return
+        }
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
@@ -248,12 +256,76 @@ class MarketSession extends PolymerElement {
         }
     }
 
+    _handleBatchMessage(message) {
+        let marketState = {}
+        let myState = {'cash': this.cash}
+        for (let msg of message.batch) {
+            let cleanMsg = this._msgSanitize(msg, 'inbound')
+            switch (cleanMsg.type) {
+                case 'bbo':
+                    marketState.bestBid = cleanMsg.best_bid
+                    marketState.bestOffer = cleanMsg.best_offer
+                    marketState.volumeBestBid = cleanMsg.volume_at_best_bid
+                    marketState.volumeBestOffer = cleanMsg.volume_at_best_offer
+                    break
+                case 'signed_volume':
+                    marketState.signedVolume = cleanMsg.signed_volume
+                    break
+                case 'reference_price':
+                    marketState.referencePrice = cleanMsg.reference_price
+                    break
+                case 'external_feed':
+                    marketState.eBestBid = cleanMsg.e_best_bid
+                    marketState.eBestOffer = cleanMsg.e_best_offer
+                    marketState.eSignedVolume = cleanMsg.e_signed_volume
+                case 'confirmed':
+                case 'replaced':
+                case 'executed':
+                case 'canceled':
+                    this.orderBook.recv(cleanMsg)
+            }
+            if (cleanMsg.player_id == this.playerId) {
+                if (cleanMsg.type == 'executed' || cleanMsg.type == 'cancel') {
+                    switch (cleanMsg.buy_sell_indicator) {
+                        case 'B':
+                            myState.myBid = 0
+                            break
+                        case 'S':
+                            myState.myOffer = 0
+                            break
+                        }
+                    }
+                if (cleanMsg.type == 'executed') {
+                    myState.inventory = cleanMsg.inventory
+                    let cashChange = cleanMsg.buy_sell_indicator == 'B' ?  - cleanMsg.execution_price :
+                    cleanMsg.execution_price
+                    myState.cash += cashChange
+                }
+                else if (cleanMsg.type == 'confirmed') {
+                    switch (cleanMsg.buy_sell_indicator) {
+                        case 'B':
+                            myState.myBid = cleanMsg.price
+                            break
+                        case 'S':
+                            myState.myOffer = cleanMsg.price
+                            break
+                    }
+                }
+            }
+            let states = [myState, marketState]
+            for (let newState of states) {
+                for (let key in newState) {
+                    this[key] = newState[key]
+                }
+            }
+            this.notifyPath('orderBook._bidPriceSlots')
+        }
+    }
+
     _handleExternalFeed(message){
-        //Have to remove *1e-4 below
-        this.eBestBid = message.e_best_bid*1e-4;
-        this.eBestOffer = message.e_best_offer*1e-4;
+        this.eBestBid = message.e_best_bid
+        this.eBestOffer = message.e_best_offer
         this.eSignedVolume = message.e_signed_volume;
-        console.log("External Feed ",this.eBestBid ,this.eBestOffer, this.eSignedVolume);
     }
     
     _handleExchangeMessage(message) {
@@ -327,19 +399,10 @@ class MarketSession extends PolymerElement {
         }
     }
 
-    _inventoryValueChange(inventory, cash, bestBid, bestOffer) {
-        let result = null;
-        if (inventory <= 0 && bestOffer != MAX_ASK) {
-            result = inventory * bestOffer
-        } else if (inventory > 0 && bestBid) {
-            result = inventory * bestBid
-        }
-        return result
-    }
-
     _activeSession(isActive){
         return (isActive == true) ? 'session-on' : 'session-off';
     }
+
     _isSpreadGraphDisabled(playerRole){
         return (playerRole == 'manual') ? '' : 'graph-disabled';
     }
@@ -387,6 +450,7 @@ class MarketSession extends PolymerElement {
     }
 
     _calculateWealth(cash, totalCost, referencePrice, inventory) {
+        console.log('wealth', cash, totalCost, referencePrice, inventory)
         const out = Math.round(cash - totalCost + referencePrice * inventory) 
         return out
     }
