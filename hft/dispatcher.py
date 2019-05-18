@@ -1,7 +1,7 @@
 from .incoming_message import IncomingMessageFactory
 from .event import EventFactory
 from .event_handler import EventHandlerFactory
-from .broadcast_message import broadcast_to_market
+from .broadcaster import Broadcaster
 from otree.timeout.tasks import hft_background_task
 from .exchange import send_exchange
 import logging
@@ -24,7 +24,7 @@ class Dispatcher:
     outgoing_message_types = ()
 
     @classmethod
-    def dispatch(cls, message_source, message, **kwargs):
+    def dispatch(cls, message_source, message, broadcaster=Broadcaster(), **kwargs):
         incoming_message = cls.message_factory.get_message(
             message_source, message, cls.market_environment, **kwargs)
         event = EventFactory.get_event(message_source, incoming_message, **kwargs)
@@ -53,7 +53,7 @@ class Dispatcher:
 
         while event.broadcast_msgs:
             message = event.broadcast_msgs.pop()
-            broadcast_to_market(message)
+            broadcaster.broadcast(message, batch=True)
 
         while event.internal_event_msgs:
             message = event.internal_event_msgs.pop()

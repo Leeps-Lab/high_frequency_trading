@@ -1,6 +1,6 @@
 from .outbound_message_primitives import (
     OutboundExchangeMessage, BroadcastWSMessage, MessageFactory)
-from channels import Group as CGroup, Channel
+
 
 
 class BBOBroadcastMessage(BroadcastWSMessage):
@@ -87,8 +87,3 @@ class ELOBroadcastMessageFactory(MessageFactory):
         'reference_price': ReferencePriceBroadcastMessage,
         'speed_confirm': SpeedConfirmBroadcastMessage
     }
-
-
-def broadcast_to_market(message):
-    channel_group = CGroup(str(message.market_id))
-    channel_group.send({"text": message.to_json()}) 

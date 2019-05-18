@@ -263,7 +263,6 @@ class ELOAutomatedTraderState(ELOTraderState):
 
     def adjust_market_position(self, trader, event, target_bid=None, target_offer=None, 
             start_from='B'):
-        print('adjust called')
         sells = []
         if target_offer is not None and trader.disable_offer is False:
             current_sell_orders = trader.orderstore.all_orders('S')

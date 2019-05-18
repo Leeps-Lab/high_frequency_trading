@@ -36,7 +36,7 @@ class OUCH(Protocol):
             self.buffer.extend(data[:remainder])
             data = data[remainder:]
             try:
-                self.handle_incoming_data()
+                self.handle_incoming_data(header)
             except Exception as e:
                 log.exception(e)
             finally:
@@ -45,7 +45,7 @@ class OUCH(Protocol):
         if len(data):
             self.dataReceived(data)
 
-    def handle_incoming_data(self):
+    def handle_incoming_data(self, header):
         market_id = self.factory.market
         try:
             self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
