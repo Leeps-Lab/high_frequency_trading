@@ -5,8 +5,8 @@ from otree.timeout.tasks import hft_background_task
 from random import shuffle
 from .trader import TraderFactory
 import logging
-from .output import serialize_in_memo_model, trader_checkpoint, get_required_model_fields
-
+from .output import serialize_in_memo_model, checkpoint, get_required_model_fields
+from .market_environments import environments
 log = logging.getLogger(__name__)
 
 
@@ -44,36 +44,39 @@ class EventHandler(object):
         pass
 
 
-class TraderPostHandleMixIn:
-    state_recorder = trader_checkpoint
+class PostEventHandleCheckpointMixIn:
 
     def post_handle(self):
-        event_no = int(self.event.reference_no)
+
         event_type = str(self.event.event_type)
-        props, subprops = get_required_model_fields(self.market_environment)
-        model_as_dict = serialize_in_memo_model(self.model, props, subprops)
-        hft_background_task(
-            trader_checkpoint, model_as_dict, self.market_environment, 
-            event_type=event_type, event_no=event_no)
+        session_format = self.market_environment
+        model_name = self.model_name
+        env_settings = environments[session_format]
+        if event_type in env_settings.checkpoint[model_name]['events_to_capture']:
+            props, subprops = get_required_model_fields(
+                session_format, model_name) 
+            model_as_dict = serialize_in_memo_model(self.model, props, subprops)
+            hft_background_task(
+                checkpoint, model_as_dict, session_format, model_name,
+                event_type=event_type, event_no=int(self.event.reference_no))
 
 
-class TraderEventHandler(TraderPostHandleMixIn, EventHandler):
+class TraderEventHandler(PostEventHandleCheckpointMixIn, EventHandler):
 
     model_id_field_name = 'player_id'
     model_name = 'trader'
 
 
-class MarketEventHandler(EventHandler):
+class MarketEventHandler(PostEventHandleCheckpointMixIn, EventHandler):
 
     model_id_field_name = 'market_id'
     model_name = 'market'
 
 
-class InvestorEventHandler(TraderPostHandleMixIn, EventHandler):
+class InvestorEventHandler(PostEventHandleCheckpointMixIn, EventHandler):
 
     model_id_field_name = 'market_id'
     model_name = 'inv'
-
 
 
 SUBPROCESSES = {}

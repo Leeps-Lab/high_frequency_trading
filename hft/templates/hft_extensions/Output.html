@@ -11,7 +11,12 @@
 		<ul>
 			{% for session in sessions %}     
 			<li> 
-				<a href="{% url 'hft_export_csv' session.code %}">
+				<a href="{% url 'hft_export_csv' session.code 'market'%}">
+					<img src='{% static "glyphicons/download-alt.png" %}'>
+					Download in-session market data for session {{ session.code }} 
+				</a>
+				<br>
+				<a href="{% url 'hft_export_csv' session.code 'trader'%}">
 					<img src='{% static "glyphicons/download-alt.png" %}'>
 					Download in-session trader data for session {{ session.code }} 
 				</a>

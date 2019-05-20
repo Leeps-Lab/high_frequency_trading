@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.views.generic.list import ListView
 from .exogenous_event import (
     handle_exogenous_event_file, ExogenousEventFile, ExogenousOrderRecord, ExternalFeedRecord)
-from .output import InSessionTraderRecord
+from .output import IN_SESSION_RECORD_CLASSES
 
 class HFTOutputView(vanilla.TemplateView):
 	
@@ -32,23 +32,26 @@ class HFTOutputView(vanilla.TemplateView):
 class ExportHFTCSV(vanilla.View):
 
     url_name = 'hft_export_csv'
-    url_pattern = r"^ExportHFTCSV/(?P<session_code>[\w.]+)/$"
+    url_pattern = r"^ExportHFTCSV/(?P<session_code>[\w.]+)/(?P<type>[\w.]+)/$"
 
     def get(self, request, *args, **kwargs):
         session_code = kwargs['session_code']
+        record_type = kwargs['type']
         if Session.objects.filter(code=session_code).exists():
             session = Session.objects.get(code=session_code)
             subsession_ids = [sub.id for sub in 
                 hft.models.Subsession.objects.filter(session=session)]
-            subsession_events = hft.output.InSessionTraderRecord.objects.filter(
+            record_class = IN_SESSION_RECORD_CLASSES[record_type]
+            subsession_events = record_class.objects.filter(
                 subsession_id__in=subsession_ids).order_by('subsession_id',
                     'market_id','timestamp')
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="{}"'.format(
-                'HFT Session {} Events (accessed {}).csv'.format(
+                'HFT Session {} - {} Records (accessed {}).csv'.format(
                     session_code,
+                    record_type,
                     datetime.date.today().isoformat()))
-            fieldnames = hft.output.InSessionTraderRecord.csv_meta
+            fieldnames = record_class.csv_meta
             writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction='ignore')
             writer.writeheader()
             for row in subsession_events:
