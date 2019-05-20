@@ -312,14 +312,15 @@ class MarketSession extends PolymerElement {
                     }
                 }
             }
-            let states = [myState, marketState]
-            for (let newState of states) {
-                for (let key in newState) {
-                    this[key] = newState[key]
-                }
-            }
-            this.notifyPath('orderBook._bidPriceSlots')
         }
+        let states = [myState, marketState]
+        for (let newState of states) {
+            for (let key in newState) {
+                console.log('updateing', key, 'with', newState[key])
+                this[key] = newState[key]
+            }
+        }
+        this.notifyPath('orderBook._bidPriceSlots')
     }
 
     _handleExternalFeed(message){
