@@ -159,7 +159,7 @@ class ProfitGraph extends PolymerElement {
         window.setInterval(function(){
         	window.requestAnimationFrame(this._tick.bind(this))
         }.bind(this)
-        ,1000)
+        ,500)
         
     }
 
