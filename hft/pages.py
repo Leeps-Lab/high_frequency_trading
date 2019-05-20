@@ -4,7 +4,7 @@ from django.core.cache import cache
 from django.conf import settings
 import json
 import time
-from .output import InSessionTraderRecord
+from .output import TraderRecord
 from .session_results import elo_player_summary, state_for_results_template
 from .utility import ensure_results_ready
 from settings import test_inputs_dir
@@ -48,7 +48,7 @@ class EloExperiment(Page):
 #         print('arrived')
 
 class PostSession(Page):
-    timeout_seconds = 10
+    timeout_seconds = 45
     timer_text = 'Processing results..'
 
 class ResultsWaitPage(WaitPage):
@@ -63,9 +63,9 @@ class ResultsWaitPage(WaitPage):
         subsession_id = self.subsession.id
         market_id = self.group.id
         if ensure_results_ready(
-            subsession_id, market_id, InSessionTraderRecord, len(players_query)):
+            subsession_id, market_id, TraderRecord, len(players_query)):
             for p in players_query:
-                    most_recent_state_record = InSessionTraderRecord.objects.get(
+                    most_recent_state_record = TraderRecord.objects.get(
                         subsession_id=subsession_id, 
                         market_id=market_id, 
                         player_id=p.id,

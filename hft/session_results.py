@@ -5,7 +5,7 @@ from otree.api import models
 from otree.db.models import Model, ForeignKey
 from .cache import model_key_format_str_kw
 from django.core.cache import cache
-from .output import InSessionTraderRecord
+from .output import TraderRecord
 import logging
 
 log = logging.getLogger(__name__)
@@ -64,7 +64,7 @@ def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
     session_end, default=0):
     session_duration = session_end - session_start
     session_duration = session_duration.seconds
-    player_state_records = InSessionTraderRecord.objects.filter(subsession_id=subsession_id,
+    player_state_records = TraderRecord.objects.filter(subsession_id=subsession_id,
         market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('-timestamp')
     slider_durations = {}
     for slider_name in ('slider_a_x', 'slider_a_y', 'slider_a_z'):

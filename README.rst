@@ -7,7 +7,7 @@ of the experiment in [Aldrich_LopezVargas]_. It now supports a large set of fina
 environments. 
 
 This application connects to a remote exchange server, and human participants operate
-as traders.
+as traders. See more details in [Aldrich_Demirci_LopezVargas]_.
 
 In this paradigm, each oTree subsession corresponds to a trading day and one webpage
 where subjects participate in a market by interacting with the components on the user interface.
@@ -161,6 +161,7 @@ In production mode, you should run each of these as a 'service'. The method abov
 
 .. _oTree: http://www.otree.org/
 .. [Aldrich_LopezVargas] https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3154070
+.. [Aldrich_Demirci_LopezVargas] https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3354426
 .. _interface server: https://github.com/django/daphne
 .. _OUCH: http://www.nasdaqtrader.com/content/technicalsupport/specifications/tradingproducts/ouch4.2.pdf
 .. _exchange server instructions: https://github.com/Leeps-Lab/exchange_server/blob/4cf00614917e792957579ecdd0f5719f9780b94c/README.rst

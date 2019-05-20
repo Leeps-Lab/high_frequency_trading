@@ -51,8 +51,8 @@ class OUCH(Protocol):
             self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
                 subsession_id=self.factory.subsession_id, market_id=market_id)
         except Exception as e:
-            log.exception('error processing exchange message (type:%s, market:%s), ignoring..: %s', 
-                header, market_id, e)
+            log.exception('error processing exchange message (market:%s), ignoring..: %s', 
+                market_id, e)
 
     def sendMessage(self, msg, delay):
         if not isinstance(msg, bytes):

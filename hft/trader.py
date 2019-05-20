@@ -1,11 +1,10 @@
 
+# GoF - Design Patterns pg.291 - State
 import logging
-from .utility import (
-    nanoseconds_since_midnight,MIN_BID, MAX_ASK,
-    elo_otree_player_converter)
+from .utility import (MIN_BID, MAX_ASK, elo_otree_player_converter)
 from .market_components.inventory import Inventory
 from collections import namedtuple
-from .equations import latent_bid_and_offer, price_grid
+from .equations import latent_bid_and_offer
 from .market_components.subscription import Subscription
 from .orderstore import OrderStore
 from .trader_state import TraderStateFactory
