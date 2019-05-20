@@ -59,6 +59,7 @@ elo = market_environment(
                         'volume_at_best_bid', 'volume_at_best_offer'),
                 'external_feed': ('e_best_bid', 'e_best_offer', 'e_signed_volume'),
                 'signed_volume': ('signed_volume', ),
+                'reference_price': ('reference_price', )
             }
         },
         'inv': {
