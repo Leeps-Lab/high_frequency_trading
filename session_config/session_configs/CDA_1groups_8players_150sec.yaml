@@ -1,9 +1,9 @@
 demo:
-  number-of-participants: 14
+  number-of-participants: 8
 
 group:
   number-of-groups: 1
-  players-per-group: 14
+  players-per-group: 8
 
 exogenous-events:
   investor-arrivals:
@@ -29,8 +29,8 @@ parameters:
   tax-rate: 0.1
 
 session:
-  session-name: ELO_Development_Session_3_rounds_1_60_sec_14_traders
-  display-name: HFT - ELO - CDA - 3 Trade Sessions of 60 seconds - 14 traders - Frequent Order Flow
+  session-name: ELO_Development_Session_3_rounds_1_150_sec_8_traders
+  display-name: HFT - ELO - CDA - 3 Trade Sessions of 150 seconds - 8 traders - Frequent Order Flow
   environment: elo
   num-rounds: 3
   currency: EUR
