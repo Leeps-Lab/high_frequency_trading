@@ -1,0 +1,11 @@
+time,id,type:value
+4000,1,role:automated
+5000,1,slider:0.7-0.8-0.5
+7000,2,role:automated
+8000,2,slider:0.4-1.2-0.4
+9000,3,role:automated
+10000,3,slider:1.5-0.8-0.3
+11000,4,role:automated
+12000,4,slider:0-0-0
+13000,5,role:automated
+14000,5,slider:0.2-3-0.3
