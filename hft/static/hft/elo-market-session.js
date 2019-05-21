@@ -298,6 +298,16 @@ class MarketSession extends PolymerElement {
                             break
                     }
                 }
+                else if (cleanMsg.type == 'replaced') {
+                    switch (cleanMsg.buy_sell_indicator) {
+                        case 'B':
+                            myState.myBid = cleanMsg.price
+                            break
+                        case 'S':
+                            myState.myOffer = cleanMsg.price
+                            break
+                    }
+                }
             }
         }
         let states = [myState, marketState]

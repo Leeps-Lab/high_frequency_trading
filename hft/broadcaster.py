@@ -2,7 +2,9 @@ from channels import Group as CGroup, Channel
 from collections import deque
 import json
 import time
+import logging
 
+log = logging.getLogger(__name__)
 
 class  Broadcaster:
 
@@ -44,7 +46,7 @@ class  Broadcaster:
             json_msg = json.dumps({'type': 'batch', 'batch': batched_messages})
             self.broadcast_to_market(json_msg, market_id=market_id)
             self.flush_history[market_id] = now
-            print('flushed:', now)
+            log.info('flushed broadcast queue %s messages', num_msg_to_batch)
 
 
 

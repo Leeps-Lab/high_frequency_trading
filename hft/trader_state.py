@@ -120,11 +120,6 @@ class ELOManualTrader(ELOTraderState):
         price = event.message.price
         if price == MIN_BID or price == MAX_ASK :
             return
-        if (buy_sell_indicator == 'B' and trader.staged_offer is not None and 
-            price >= trader.staged_offer) or (
-            buy_sell_indicator == 'S' and trader.staged_bid is not None and 
-            price <= trader.staged_bid):
-            return
         else:
             orders = trader.orderstore.all_orders(direction=buy_sell_indicator)
             if orders:
