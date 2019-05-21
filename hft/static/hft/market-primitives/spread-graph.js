@@ -224,8 +224,8 @@ class SpreadGraph extends PolymerElement {
         this.myBidCircle.attr('cy', this.height / 2);
         this.myOfferCircle.attr('cy', this.height / 2);
         
-        this.bidCueCircle.attr('cy', this.height / 5);
-        this.offerCueCircle.attr('cy', this.height / 5);
+        this.bidCueCircle.attr('cy', this.height / 6);
+        this.offerCueCircle.attr('cy', this.height / 6);
 
         this.scale.range([0, this.width]);
 

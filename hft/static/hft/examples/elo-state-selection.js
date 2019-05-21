@@ -17,8 +17,6 @@ class StateSelection extends PolymerElement {
                 font-family: monospace;
                 font-weight: bold;
                 font-size: 14px;
-                height:100%;
-                width:100%;
             }
     
             .column-container{

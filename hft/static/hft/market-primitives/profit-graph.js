@@ -13,7 +13,7 @@ class ProfitGraph extends PolymerElement {
                 }
                 .profit-line {
                     stroke: black;
-                    stroke-width: 3;
+                    stroke-width: 2;
                 }
                 g text{
                     font-family:monospace;
@@ -40,6 +40,10 @@ class ProfitGraph extends PolymerElement {
                 type: Number,
                 value: 20000,
             },
+            xTimeOffset: {
+                type: Number,
+                value: 2000,
+            },
             animationTime: {
                 type: Number,
                 value: 400,
@@ -50,7 +54,7 @@ class ProfitGraph extends PolymerElement {
             },
             _defaultYRange: {
                 type: Array,
-                value: [970, 1030],
+                value: [1850, 2150],
             },
             isRunning: {
                 type: Boolean,
@@ -163,7 +167,8 @@ class ProfitGraph extends PolymerElement {
         
     }
 
-    _tick(now) {
+    _tick() {
+        const now = performance.now()
         if (now > this.startTime + this.xRange) {
             this.xScale.domain([now - this.xRange, now]);
             this.xAxis.scale(this.xScale);
@@ -185,13 +190,16 @@ class ProfitGraph extends PolymerElement {
         const oldTime = this._lastPayoffChangeTime;
         this._lastPayoffChangeTime = performance.now();
         if (this._lastPayoffChangeTime) {
+            // this.push('_profitHistory', {payoff: oldProfit, time: oldTime, endTime: performance.now()});
             this.push('_profitHistory', {payoff: oldProfit, time: oldTime});
+
         }
 
         // update current profit line y value
         this.currentProfitLine
             .attr('y1', this.yScale(newProfit))
-            .attr('y2', this.yScale(newProfit));
+            .attr('y2', this.yScale(newProfit))
+            .attr('x1', this.xScale(this._lastPayoffChangeTime));
 
         this._updateYScale();
         // this._updateProfitLine();
@@ -208,7 +216,7 @@ class ProfitGraph extends PolymerElement {
         const yRange = yDomain[1] - yDomain[0];
 
         // if current profit value is in middle half of current domain, do nothing
-        if (this.profit > yDomain[0] + yRange/4 && this.profit < yDomain[1] - yRange/4) {
+        if(this.profit > yDomain[0] + yRange/5 && this.profit < yDomain[1] - yRange/5) {
             return;
         }
 
@@ -229,13 +237,13 @@ class ProfitGraph extends PolymerElement {
         this.profitLines.selectAll('line')
             .data(profitHistory)
           .transition()
-            .duration(this.animationTime)
+            // .duration(this.animationTime)
             .attr('y1', d => self.yScale(d.payoff))
             .attr('y2', d => self.yScale(d.payoff));
 
         // transition current profit line to new y value
         this.currentProfitLine.transition()
-            .duration(this.animationTime)
+            // .duration(this.animationTime)
             .attr('y1', this.yScale(this.profit))
             .attr('y2', this.yScale(this.profit));
     }

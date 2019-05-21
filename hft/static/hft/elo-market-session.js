@@ -19,9 +19,6 @@ class MarketSession extends PolymerElement {
         return html`
         <style>
             :host{
-                width:100vw;
-                height:100vh;
-
                 /* Custom Color Variables */
                 --my-bid-fill:#FAFF7F;
                 --my-offer-fill:#41EAD4;
@@ -40,6 +37,22 @@ class MarketSession extends PolymerElement {
 
                 --global-font:monospace;
             }
+            spread-graph{
+                width:100vw;
+                height:20vh;
+            }
+            profit-graph{
+                width:100vw;
+                height:48vh;
+            }
+            elo-info-table{
+                height:32vh;
+                width:100vw;
+            }
+            elo-state-selection{
+                height:32vh;
+                width:100vw;
+            }
 
             .middle-section-container{
                 display: flex;
@@ -47,32 +60,9 @@ class MarketSession extends PolymerElement {
                 justify-content: flex-start;
                 align-items: center;
                 font-weight: bold;
-                height: 31vh;
-                width: 100vw; 
                 background: var(--background-color-blue) ;
                 border-top: 3px solid #ED6A5A;
                 border-bottom: 3px solid #ED6A5A;
-            }
-
-            info-table {
-                width: 60%;
-                height: 100%;
-            }
-
-            profit-graph {
-                width: 100%;
-                height: 270px;
-            }
-
-            state-selection {
-                width: 40%;
-                height: 100%;
-            }
-
-            spread-graph {
-                width: 100%;
-                height: 200px;
-                cursor:pointer;
             }
             .graph-disabled  {
                 cursor:not-allowed;
@@ -81,9 +71,6 @@ class MarketSession extends PolymerElement {
 
             // overlay styling and animation
             #overlay{
-                width:100%;
-                height:100%;
-                position:absolute;
                 background-color:grey;
                 opacity:0.3;
             }
@@ -230,7 +217,7 @@ class MarketSession extends PolymerElement {
 
     outboundMessage(event) {
         const messagePayload = event.detail
-        console.log(messagePayload);
+        // console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
         let wsMessage = new CustomEvent('ws-message', {bubbles: true, composed: true, 
             detail: messagePayload })
@@ -242,7 +229,7 @@ class MarketSession extends PolymerElement {
         // this api is to handle updates as single messages
         // it is also possible to batch these messages for performance
         // and take the exit below.
-        console.log(messagePayload)
+        // console.log(messagePayload)
         if (messagePayload.type == 'batch'){
             this._handleBatchMessage(messagePayload)
             return
@@ -316,7 +303,7 @@ class MarketSession extends PolymerElement {
         let states = [myState, marketState]
         for (let newState of states) {
             for (let key in newState) {
-                console.log('updateing', key, 'with', newState[key])
+                // console.log('updateing', key, 'with', newState[key])
                 this[key] = newState[key]
             }
         }
@@ -451,7 +438,7 @@ class MarketSession extends PolymerElement {
     }
 
     _calculateWealth(cash, totalCost, referencePrice, inventory) {
-        console.log('wealth', cash, totalCost, referencePrice, inventory)
+        // console.log('wealth', cash, totalCost, referencePrice, inventory)
         const out = Math.round(cash - totalCost + referencePrice * inventory) 
         return out
     }
