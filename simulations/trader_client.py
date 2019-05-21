@@ -24,7 +24,7 @@ class MyOuch(OUCH):
         self.factory.market.reset()
         self.factory.trader.run()
 
-    def handle_incoming_data(self):
+    def handle_incoming_data(self, header):
         msg = IncomingOuchMessage(
             bytes(self.buffer), **incoming_message_defaults)
         event = ELOEvent('exchange', msg)

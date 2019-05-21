@@ -1,15 +1,15 @@
 demo:
-  number-of-participants: 5
+  number-of-participants: 3
 
 group:
   number-of-groups: 1
-  players-per-group: 5
+  players-per-group: 3
 
 exogenous-events:
   investor-arrivals:
-    - investors_trial.csv
-    - investors_trial.csv
-    - investors_trial.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
   external-feed:
     - external_feed_trial.csv
     - external_feed_trial.csv
@@ -21,16 +21,16 @@ market:
 
 parameters:
   default-role: 'out'
-  initial-endowment: 1000
-  session-duration: 240
+  initial-endowment: 2000
+  session-duration: 150
   technology-unit-cost: 0.022  # $/s
   k-reference-price: 0.7
   k-signed-volume: 0.5
   tax-rate: 0.1
 
 session:
-  session-name: ELO_Development_Session_3_rounds_1_240_sec
-  display-name: HFT - ELO - CDA - 3 Trade Sessions of 240 seconds - 5 traders
+  session-name: ELO_Development_Session_3_rounds_3_150_sec
+  display-name: HFT - ELO - CDA - 3 Trade Sessions of 150 seconds - 3 traders - Frequent Order Flow
   environment: elo
   num-rounds: 3
   currency: EUR

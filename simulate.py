@@ -6,7 +6,7 @@ from simulations.utility import MockMarket
 EXCHANGE_HOST = '127.0.0.1'
 EXCHANGE_PORT = 9001
 
-SESSION_DURATION = 60
+SESSION_DURATION = 150
 HISTORY_DUMP_FILE = 'session_config/exogenous_events/test.csv'
 RANDOM_ORDER_FILE = 'simulations/inputs/random_order_inputs_set_2.csv'
 

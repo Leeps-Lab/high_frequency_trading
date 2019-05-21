@@ -47,7 +47,7 @@ class ExportHFTCSV(vanilla.View):
                     'market_id','timestamp')
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="{}"'.format(
-                'HFT Session {} - {} Records (accessed {}).csv'.format(
+                'HFT Session {} - {} records (accessed {}).csv'.format(
                     session_code,
                     record_type,
                     datetime.date.today().isoformat()))
