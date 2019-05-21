@@ -48,7 +48,7 @@ class EloExperiment(Page):
 #         print('arrived')
 
 class PostSession(Page):
-    timeout_seconds = 45
+    timeout_seconds = 25
     timer_text = 'Processing results..'
 
 class ResultsWaitPage(WaitPage):
