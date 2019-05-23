@@ -17,7 +17,7 @@ and high-frequency trading.
 
 Demo
 ================
-There is a simple demo available for the most recent implementation called 'Exogenous Limit Orders' environment, which can be accessed through `this link`_ . To run a session in this environment, select a the configurations on the landing page and follow the instructions. You will participate in a trading session, equipped with a tunable trading bot. 
+There is a simple demo available for the most recent implementation called 'Exogenous Limit Orders' environment, which can be accessed through `this link`_. To run a session in this environment, select one of the configurations presented on the landing page and follow the instructions. You will participate in a trading session, equipped with a tunable trading bot. 
 
 Setting Up
 =============
