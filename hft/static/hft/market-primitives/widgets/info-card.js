@@ -31,13 +31,14 @@ class InfoCard extends PolymerElement {
             :host {
             display: inline-block;
             font-family: monospace;
+            width:60%;
             }
 
             .theCard {
-            width: 100px;
-            height: 40px;
+            width: 100%;
             display: flex;
             flex-direction: column;
+            background: #FFFFF0;
             justify-content: center;
             align-items: center;
             }
@@ -46,6 +47,7 @@ class InfoCard extends PolymerElement {
             text-align: center;
             background: #FFFFF0;
             width: 100%;
+            height:30px;
             border-radius: 5px;
             animation-name: shine;
             animation-duration: 1s;
@@ -53,22 +55,19 @@ class InfoCard extends PolymerElement {
             }
 
             .border {
-            border-style: solid;
-            border-width: 1px;
-            border-color: #black;
+            border:solid black 1px;
             }
 
             h4 {
             display: inline-block;
             text-align: center;
-            background: #FFFFF0;
-            width: 80%;
             margin: 0px;
             
             }
             h3 {
             display: inline-block;
             text-align: center;
+            margin:0px;
             }
 
             [shineclass=shine-copy] {

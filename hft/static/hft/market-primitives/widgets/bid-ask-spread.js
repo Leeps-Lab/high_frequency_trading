@@ -23,29 +23,16 @@ class BidAskSpread extends PolymerElement {
         <style>
   
           :host {
-            display: inline-block;
-            width: 100%;
-            height: 100%;
-          }
-  
-          .row-container {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
+            height:100%;
+            width:100%;
           }
 
-          .bo {
-            width: 40%;
-          }
         </style>
   
         <div class="row-container">
-          <bounded-market-price-card id="bid" class="bo" title={{titleLeft}} price={{bid}}> 
+          <bounded-market-price-card-BBO id="bid"  title={{titleLeft}} price={{bid}}> 
           </bounded-market-price-card>
-          <bounded-market-price-card id="ask" class="bo" title={{titleRight}} price={{ask}}> 
+          <bounded-market-price-card-BBO id="ask" title={{titleRight}} price={{ask}}> 
           </bounded-market-price-card>
         </div>
         `;

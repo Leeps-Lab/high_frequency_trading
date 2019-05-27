@@ -39,18 +39,18 @@ class MarketSession extends PolymerElement {
             }
             spread-graph{
                 width:100vw;
-                height:20vh;
+                height:17vh;
             }
             profit-graph{
                 width:100vw;
                 height:48vh;
             }
             elo-info-table{
-                height:32vh;
+                height:35vh;
                 width:100vw;
             }
             elo-state-selection{
-                height:32vh;
+                height:35vh;
                 width:100vw;
             }
 

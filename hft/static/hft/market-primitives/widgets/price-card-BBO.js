@@ -3,8 +3,13 @@ import { PolymerElement, html } from '../../node_modules/@polymer/polymer/polyme
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
 
-class MarketPriceCard extends PolymerElement {
+class PriceCardBBO extends PolymerElement {
+     /*
+    
+        Market Best Bid and Offer Cards
+        Bigger sizing than playerBBO cards
 
+    */
   static get properties(){
   return {
     title: String,
@@ -156,4 +161,4 @@ class MarketPriceCard extends PolymerElement {
       }
  }
 
-customElements.define('bounded-market-price-card', MarketPriceCard)
+customElements.define('price-card-bbo', PriceCardBBO)

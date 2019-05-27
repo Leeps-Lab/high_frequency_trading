@@ -1,5 +1,6 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
-import '../market-primitives/widgets/bid-ask-spread.js'
+import '../market-primitives/widgets/price-card-BBO.js'
+import '../market-primitives/widgets/price-card-MBBO.js'
 import './elo-subject-wallet.js'
 
 class InfoTable extends PolymerElement {
@@ -26,52 +27,56 @@ class InfoTable extends PolymerElement {
         :host {
           display: inline-block;
           font-family: monospace;
+          height: 100%;
+          width: 100%;
         }
   
         .container {
           display: flex;
-          flex-direction: row;
-          justify-content: flex-start;
-          align-items: center;
-          height: 100%;
-          width: 100%;
-          background: #4F759B;
+          justify-content:space-evenly;
+          height:100%;
         }
 
-        .title {
-          display: inline-block;
-          width: 33%;
-          text-align: center;
-          background: #FFFFF0;
+        .bid-ask-container {
+          margin:5px;
+          display: flex;
+          flex-direction: column;
+          justify-content:center;
         }
-  
-        .row {
-          display: inline-block;
-          margin: 5px;
-          width: 33%;
-          height: 100%;
+        #bbo{
+          display: flex;
+          flex-direction: row;
+          justify-content:center;
+        }
+        #mbbo{
+          display: flex;
+          flex-direction: row;
+          justify-content:center;
         }
 
         #small-row {
-          margin: 5px;
-          width: 34%;
+          width: 35%;
           height: 100%;
-          align-items: flex-start;
+          align-items: center;
         }
   
         </style>
           <div class="container">
-            <div class="row">
-              <bid-ask-spread title-left="Best Bid" title-right="Best Ask"
-                bid={{bestBid}} ask={{bestOffer}}>
-              </bid-ask-spread>
+            <div class="bid-ask-container">
+              <div id="bbo">
+                <price-card-bbo id="bid"  title="Best Bid" price={{bestBid}}> 
+                </price-card-bbo>
+                <price-card-bbo id="ask" title="Best Ask" price={{bestOffer}}> 
+                </price-card-bbo>
+              </div>
+              <div id="mbbo">
+                <price-card-mbbo id="bid"  title="My Bid" price={{myBid}}> 
+                </price-card-mbbo>
+                <price-card-mbbo id="ask" title="My Ask" price={{myOffer}}> 
+                </price-card-mbbo>
+              </div>
             </div>
-            <div class="row">
-              <bid-ask-spread title-left="My Bid" title-right="My Ask"
-                bid={{myBid}} ask={{myOffer}}>
-              </bid-ask-spread>
-            </div>
-            <div id="small-row" class="row">
+            <div id="small-row">
               <elo-subject-wallet inventory={{inventory}} cash={{cash}}
                 endowment={{endowment}} signed-volume={{signedVolume}}> 
               </elo-subject-wallet>
