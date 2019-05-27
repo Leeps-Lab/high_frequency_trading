@@ -13,6 +13,9 @@ def generate_random_test_orders(num_orders, session_duration):
             } for o in range(50))
 
 
+incoming_message_defaults = {
+    'subsession_id': 0,  'market_id': 0, 'player_id': 0}
+
 class MockMarket:
 
     export_file_meta_table = {

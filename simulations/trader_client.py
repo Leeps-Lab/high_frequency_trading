@@ -3,6 +3,7 @@ from twisted.internet.protocol import ClientFactory
 from .trader_bot import TraderBot
 from hft.incoming_message import IncomingOuchMessage
 from hft.event import ELOEvent
+from .utility import incoming_message_defaults
 import logging
 
 logging.basicConfig(format='%(asctime)s %(message)s', 
@@ -10,10 +11,6 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.DEBUG)
 
 log = logging.getLogger(__name__)
-
-
-incoming_message_defaults = {
-    'subsession_id': 0,  'market_id': 0, 'player_id': 0}
 
 
 class MyOuch(OUCH):
