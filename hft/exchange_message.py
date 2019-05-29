@@ -3,18 +3,19 @@ from .outbound_message_primitives import OutboundExchangeMessage, MessageFactory
 
 class EnterOrderMessage(OutboundExchangeMessage):
     required_fields = (
-        'order_token', 'buy_sell_indicator', 'price', 'time_in_force',
-        'exchange_host', 'exchange_port', 'delay')
+        'order_token', 'buy_sell_indicator', 'price', 'time_in_force', 'firm',
+        'shares', 'stock', 'exchange_host', 'exchange_port', 'delay')
 
 
 class ReplaceOrderMessage(OutboundExchangeMessage):
     required_fields = (
         'existing_order_token', 'replacement_order_token', 'price', 'replace_price',
-        'time_in_force', 'exchange_host', 'exchange_port', 'delay')
+        'time_in_force', 'exchange_host', 'exchange_port', 'delay', 'shares')
 
 
 class CancelOrderMessage(OutboundExchangeMessage):
-    required_fields = ('order_token', 'exchange_host', 'exchange_port', 'delay')
+    required_fields = ('order_token', 'exchange_host', 'exchange_port', 'delay', 
+        'shares')
 
 
 class ResetMessage(OutboundExchangeMessage):

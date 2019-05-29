@@ -4,6 +4,7 @@ import datetime
 import pytz
 from random import randrange
 
+
 class Translator(object):
     defaults = {}
     message_type_map = {}
@@ -40,18 +41,15 @@ class Translator(object):
 class LeepsOuchTranslator(Translator):
 
     defaults = {
-            'shares': 1,
-            'stock': b'AMAZGOOG',
-            'display': b'Y',
-            'capacity': b'P',
-            'iso': b'N',
-            'min_quantity': 0,
-            'cross_type': b'N',
-            'customer_type': b'R',
-            'intermarket_sweep_eligibility': b'N',
-            'firm': b'LEEPS',
-            'minimum_quantity': 1
-        }
+        'display': b'Y',
+        'capacity': b'P',
+        'iso': b'N',
+        'min_quantity': 0,
+        'cross_type': b'N',
+        'customer_type': b'R',
+        'intermarket_sweep_eligibility': b'N',
+        'minimum_quantity': 1
+    }
 
     message_type_map = {
         'enter': OuchClientMessages.EnterOrder,

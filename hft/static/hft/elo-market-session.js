@@ -285,7 +285,7 @@ class MarketSession extends PolymerElement {
                     this.orderBook.recv(cleanMsg)
             }
             if (cleanMsg.player_id == this.playerId) {
-                if (cleanMsg.type == 'executed' || cleanMsg.type == 'cancel') {
+                if (cleanMsg.type == 'executed' || cleanMsg.type == 'canceled') {
                     switch (cleanMsg.buy_sell_indicator) {
                         case 'B':
                             myState.myBid = 0

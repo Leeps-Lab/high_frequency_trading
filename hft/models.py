@@ -12,8 +12,6 @@ from otree.models import Session
 from django.core.cache import cache
 import copy
 from otree.common_internal import random_chars_8
-
-from .orderstore import OrderStore
 from . import utility
 from .trader import TraderFactory
 from .trade_session import TradeSessionFactory
@@ -164,7 +162,6 @@ class Player(BasePlayer):
             setattr(self, field, getattr(market, field))
         utility.configure_model_for_market('player', self, session_format, 
                                            self.session.config)
-        print('player speed cost', player.speed_unit_cost)
         self.save()
     
     def update_from_state_record(self, state_record):

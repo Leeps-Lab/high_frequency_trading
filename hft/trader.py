@@ -1,5 +1,5 @@
-
 # GoF - Design Patterns pg.291 - State
+
 import logging
 from .utility import (MIN_BID, MAX_ASK, elo_otree_player_converter)
 from .market_components.inventory import Inventory
@@ -41,8 +41,8 @@ class BaseTrader(object):
         self.player_id = player_id
         self.exchange_host = exchange_host
         self.exchange_port = exchange_port
-        self.orderstore = self.orderstore_cls(player_id, id_in_market, 
-            token_prefix=kwargs.get('token_prefix', 'SUB'))
+        self.orderstore = self.orderstore_cls(player_id, in_group_id=id_in_market, 
+            **kwargs)
         self.inventory = Inventory()
         self.trader_role = TraderStateFactory.get_trader_state(default_role)
         self.market_facts = {k: None for k in self.tracked_market_facts}
@@ -143,8 +143,9 @@ class ELOTrader(BaseTrader):
         self.speed_cost += speed_cost
     
     def user_slider_change(self, event):
+        msg = event.message
         self.sliders = {
-            'slider_a_x': event.message.a_x, 'slider_a_y': event.message.a_y,
+            'slider_a_x': msg.a_x, 'slider_a_y': msg.a_y,
             'slider_a_z': event.message.a_z}       
 
     @property
@@ -239,6 +240,6 @@ class ELOInvestor(ELOTrader):
     def from_otree_market(cls, market):
         args = (market.subsession_id, market.market_id, 1, market.id_in_subsession,
             'investor', market.exchange_host, market.exchange_port)  # one investor per market
-        kwargs = {'token_prefix': 'INV'}
+        kwargs = {'firm': 'INVE'}
         return cls(*args, **kwargs)
         

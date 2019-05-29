@@ -122,8 +122,8 @@ class MarketWideEventHandler:
         return self.event
 
 def is_investor(event):
-    return (hasattr(event.message, 'token_prefix') and event.message.token_prefix == 'inv') or (
-            event.message.type == 'investor_arrivals')
+    return (hasattr(event.message, 'firm') and event.message.firm == 'inve') or (
+        event.message.type == 'investor_arrivals')
 
 class EventHandlerFactory:
 
