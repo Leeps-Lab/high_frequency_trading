@@ -95,7 +95,9 @@ class ELOTraderState(TraderState):
 
     def external_feed_change(self, trader, event):
         for field in ('e_best_bid','e_best_offer', 'e_signed_volume'):
-            trader.market_facts[field] = getattr(event.message, field)
+            value = getattr(event.message, field)
+            if value:
+                trader.market_facts[field] = value
             
         
     def signed_volume_change(self, trader, event):
@@ -112,8 +114,7 @@ class ELOManualTrader(ELOTraderState):
     trader_model_name = 'manual'
     event_dispatch = dict(**ELOTraderState.event_dispatch)
     event_dispatch.update(
-        {'E': 'order_executed',
-        'order_entered': 'user_order'})
+        {'E': 'order_executed', 'order_entered': 'user_order'})
 
     def user_order(self, trader, event):
         buy_sell_indicator = event.message.buy_sell_indicator
