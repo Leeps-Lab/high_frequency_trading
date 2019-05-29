@@ -2,10 +2,10 @@
 
 import logging
 from .utility import (MIN_BID, MAX_ASK, elo_otree_player_converter)
-from .market_components.inventory import Inventory
+from .market_elements.inventory import Inventory
 from collections import namedtuple
 from .equations import latent_bid_and_offer
-from .market_components.subscription import Subscription
+from .market_elements.subscription import Subscription
 from .orderstore import OrderStore
 from .trader_state import TraderStateFactory
 

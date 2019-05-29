@@ -1,5 +1,6 @@
 from math import ceil
 
+
 class Inventory:
 
     default_ticker = 'LEEPZ'

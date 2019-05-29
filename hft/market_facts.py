@@ -1,6 +1,6 @@
-from .market_fact import *
+from .market_elements.market_fact import *
+from .equations import price_grid
 import math
-from hft.equations import price_grid
 from itertools import count
 import logging
 

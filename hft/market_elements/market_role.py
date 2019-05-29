@@ -1,5 +1,6 @@
 from collections import abc
 
+
 class MarketRoleGroup:
 
     def __init__(self, *args):
