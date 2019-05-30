@@ -113,7 +113,9 @@ class MarketSession extends PolymerElement {
                         best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
                     </elo-info-table>
                     <elo-state-selection role={{role}} buttons={{buttons}} slider-defaults={{sliderDefaults}}
-                        speed-on={{subscribesSpeed}}> 
+                        speed-on={{subscribesSpeed}} 
+                        out-displayed={{outDisplayed}} 
+                        sv-displayed={{svDisplayed}}> 
                     </elo-state-selection>
                 </div>
                 <profit-graph
@@ -128,7 +130,8 @@ class MarketSession extends PolymerElement {
         eventListeners: Object,
         eventHandlers: Object,
         sliderDefaults: Object,
-        buttons:Array,
+        outDisplayed:Boolean,
+        svDisplayed:Boolean,
         eBestBid: Number,
         eBestOffer: Number,
         eSignedVolume:Number,

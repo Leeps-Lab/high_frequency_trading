@@ -104,8 +104,10 @@ class ProfitGraph extends PolymerElement {
         this.yScale = d3.scaleLinear()
             .domain(this._defaultYRange);
         
-        this.yAxis = d3.axisLeft()
+        this.yAxisLeft = d3.axisLeft()
             .tickSize(0);
+        // this.yAxisRight = d3.axisRight()
+        //     .tickSize(0);
 
         this.domYAxis = this.mainGroup.append("g")
             .attr("class", "axis axis-y");
@@ -140,8 +142,10 @@ class ProfitGraph extends PolymerElement {
             .call(this.xAxis);
 
         this.yScale.range([this.height, 0]);
-        this.yAxis.scale(this.yScale);
-        this.domYAxis.call(this.yAxis);
+        this.yAxisLeft.scale(this.yScale);
+        // this.yAxisRight.scale(this.yScale);
+        this.domYAxis.call(this.yAxisLeft);
+        // this.domYAxis.call(this.yAxisRight);
     }
 
     _runningChanged(isRunning) {
@@ -227,10 +231,14 @@ class ProfitGraph extends PolymerElement {
         ]);
 
         // update y axis
-        this.yAxis.scale(this.yScale);
+        this.yAxisLeft.scale(this.yScale);
+        // this.yAxisRight.scale(this.yScale);
         this.domYAxis.transition()
             .duration(this.animationTime)
-            .call(this.yAxis);
+            .call(this.yAxisLeft);
+        // this.domYAxis.transition()
+        //     .duration(this.animationTime)
+        //     .call(this.yAxisRight);
 
         // transition profit history to new y values
         const profitHistory = this.get('_profitHistory');
