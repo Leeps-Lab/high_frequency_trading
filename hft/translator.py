@@ -1,4 +1,4 @@
-from exchange_server.OuchServer.ouch_messages import OuchClientMessages, OuchServerMessages
+from high_frequency_trading.exchange_server.OuchServer.ouch_messages import OuchClientMessages, OuchServerMessages
 import time
 import datetime
 import pytz
@@ -12,7 +12,10 @@ class Translator(object):
     @staticmethod
     def decode(msg):
         header = msg[:1]
-        message_spec = OuchServerMessages.lookup_by_header_bytes(header)
+        try:
+            message_spec = OuchServerMessages.lookup_by_header_bytes(header)
+        except KeyError:
+            message_spec = OuchClientMessages.lookup_by_header_bytes(header)
         payload_size = message_spec.payload_size
         payload_bytes = msg[1: 1 + payload_size]
         body = message_spec.from_bytes(payload_bytes, header=False)

@@ -15,6 +15,7 @@ class OUCH(Protocol):
         'U': 80,
         'A': 66,
         'Q': 41,
+        'O': 49
     }
 
     def __init__(self):
@@ -29,16 +30,16 @@ class OUCH(Protocol):
         try:
             bytes_needed = self.bytes_needed[header]
         except KeyError:
-             raise ValueError('unknown header %s.' % header)
-
+             log.exception('unknown header %s, ignoring..' % header)
+             return
         if len(data) >= bytes_needed:
             remainder = bytes_needed
             self.buffer.extend(data[:remainder])
             data = data[remainder:]
             try:
                 self.handle_incoming_data(header)
-            except Exception as e:
-                log.exception(e)
+            except Exception:
+                log.exception('error reading msg with header %s' % header)
             finally:
                 self.buffer.clear()
 
@@ -50,9 +51,9 @@ class OUCH(Protocol):
         try:
             self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
                 subsession_id=self.factory.subsession_id, market_id=market_id)
-        except Exception as e:
-            log.exception('error processing exchange message (market:%s), ignoring..: %s', 
-                market_id, e)
+        except Exception:
+            log.exception('error processing exchange message (market:%s), ignoring..', 
+                market_id)
 
     def sendMessage(self, msg, delay):
         if not isinstance(msg, bytes):
