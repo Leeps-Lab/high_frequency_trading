@@ -39,7 +39,7 @@ class OUCH(Protocol):
             try:
                 self.handle_incoming_data(header)
             except Exception:
-                log.exception('error reading msg with header %s' % header)
+                log.exception('error handling buffer: %s' % self.buffer)
             finally:
                 self.buffer.clear()
 
