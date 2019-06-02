@@ -30,6 +30,11 @@ class WallletCard extends PolymerElement {
             display: flex;
             align-items: center;
           }
+
+          info-card{
+            margin-top:5px;
+          }
+
           .column{
             width: 100%;
             display: flex;

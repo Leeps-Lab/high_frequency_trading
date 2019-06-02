@@ -21,7 +21,6 @@ class ProfitGraphFixed extends PolymerElement {
                     font-weight: bold; 
                 }
             </style>
-            
             <svg id="svg"></svg>
         `;
     }

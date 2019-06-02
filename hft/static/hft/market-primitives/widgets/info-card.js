@@ -49,17 +49,16 @@ class InfoCard extends PolymerElement {
             }
 
             .border {
-              border:solid var(--background-color-blue) 1px;
               border-radius: 5px;
             }
 
             h4 {
-              margin: 0px;
+              margin: 0px 0px 0px 10px;
             }
             h3 {
               display: inline-block;
               text-align: center;
-              margin:0px;
+              margin:0px 10px 0px 0px;
             }
 
             [shineclass=shine-copy] {
