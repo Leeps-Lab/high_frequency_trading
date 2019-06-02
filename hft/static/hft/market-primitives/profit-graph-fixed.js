@@ -1,6 +1,6 @@
 import {html, PolymerElement}  from '../node_modules/@polymer/polymer/polymer-element.js';
 
-class ProfitGraph extends PolymerElement {
+class ProfitGraphFixed extends PolymerElement {
 
     static get template() {
         return html`
@@ -38,11 +38,11 @@ class ProfitGraph extends PolymerElement {
             },
             xRange: {
                 type: Number,
-                value: 20000,
+                value: 150000,
             },
             xTimeOffset: {
                 type: Number,
-                value: 2000,
+                value: 0,
             },
             animationTime: {
                 type: Number,
@@ -294,4 +294,4 @@ class ProfitGraph extends PolymerElement {
 
 }
 
-window.customElements.define('profit-graph', ProfitGraph);
+window.customElements.define('profit-graph-fixed', ProfitGraphFixed);

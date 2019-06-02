@@ -6,6 +6,7 @@ import './examples/elo-state-selection.js'
 import './examples/elo-info-table.js'
 import './market-primitives/spread-graph.js'
 import './market-primitives/profit-graph.js'
+import './market-primitives/profit-graph-fixed.js'
 import './market-primitives/stepwise-calculator.js'
 import './market-primitives/ws.js'
 import './market-primitives/test-inputs.js'
@@ -42,6 +43,10 @@ class MarketSession extends PolymerElement {
                 height:17vh;
             }
             profit-graph{
+                width:100vw;
+                height:48vh;
+            }
+            profit-graph-fixed{
                 width:100vw;
                 height:48vh;
             }
@@ -114,14 +119,22 @@ class MarketSession extends PolymerElement {
                     </elo-info-table>
                     <elo-state-selection role={{role}} buttons={{buttons}} slider-defaults={{sliderDefaults}}
                         speed-on={{subscribesSpeed}} 
-                        out-displayed={{outDisplayed}} 
-                        sv-displayed={{svDisplayed}}> 
+                        manual-button-displayed={{manualButtonDisplayed}} 
+                        sv-slider-displayed={{svSliderDisplayed}}> 
                     </elo-state-selection>
                 </div>
+
+                <!---
                 <profit-graph
                     profit={{wealth}}
                     is-running={{isSessionActive}}
                 ></profit-graph>
+                --->
+
+                <profit-graph-fixed
+                    profit={{wealth}}
+                    is-running={{isSessionActive}}
+                ></profit-graph-fixed>
             </div>
     `;
     }
@@ -130,8 +143,8 @@ class MarketSession extends PolymerElement {
         eventListeners: Object,
         eventHandlers: Object,
         sliderDefaults: Object,
-        outDisplayed:Boolean,
-        svDisplayed:Boolean,
+        manualButtonDisplayed:Boolean,
+        svSliderDisplayed:Boolean,
         eBestBid: Number,
         eBestOffer: Number,
         eSignedVolume:Number,

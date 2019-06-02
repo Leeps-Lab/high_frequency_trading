@@ -20,8 +20,8 @@ class ELOExperiment extends PolymerElement {
     static get template() {
       return html`
         <elo-market-session events=[[environment.events]] 
-          out-displayed=[[environment.outDisplayed]]
-          sv-displayed=[[environment.svDisplayed]]
+          manual-button-displayed=[[environment.manualButtonDisplayed]]
+          sv-slider-displayed=[[environment.svSliderDisplayed]]
           event-listeners=[[environment.eventListeners]]
           event-handlers=[[environment.eventHandlers]]
           slider-defaults=[[environment.sliderProperties]]

@@ -23,29 +23,17 @@ class WallletCard extends PolymerElement {
       return html`  
         <style>
           :host {
-            display: inline-block;
             font-family: monospace;
-            width: 100%;
-            height: 100%;
           }
-          #inv-sv{
-            margin-top:0px;
-          }
-
           .container {
             height: 100%;
-            width: 100%;
             display: flex;
-            flex-direction: row;
-            justify-content: center;
             align-items: center;
           }
-
           .column{
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
           }
           
 
@@ -61,7 +49,6 @@ class WallletCard extends PolymerElement {
             </info-card>
             <info-card class="theCard" title="Signed Volume" currency="" value={{signedVolume}}>
             </info-card>
-            
           </div>
         </div>
         `;

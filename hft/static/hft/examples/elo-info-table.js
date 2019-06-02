@@ -70,10 +70,11 @@ class InfoTable extends PolymerElement {
                 </price-card-bbo>
               </div>
               <div id="mbbo">
-                <price-card-mbbo id="bid"  title="My Bid" price={{myBid}}> 
-                </price-card-mbbo>
-                <price-card-mbbo id="ask" title="My Ask" price={{myOffer}}> 
-                </price-card-mbbo>
+                <price-card-bbo id="bid"  title="My Bid" price={{myBid}}> 
+                </price-card-bbo>
+                <br>
+                <price-card-bbo id="ask" title="My Ask" price={{myOffer}}> 
+                </price-card-bbo>
               </div>
             </div>
             <div id="small-row">

@@ -29,45 +29,37 @@ class InfoCard extends PolymerElement {
         return html`
         <style>
             :host {
-            display: inline-block;
-            font-family: monospace;
-            width:60%;
+              font-family: monospace;
+              width:100%;
             }
 
             .theCard {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            background: #FFFFF0;
-            justify-content: center;
-            align-items: center;
+              display: flex;
+              background: #FFFFF0;
+              align-items: center;
             }
 
             .price-holder {
-            text-align: center;
-            background: #FFFFF0;
-            width: 100%;
-            height:30px;
-            border-radius: 5px;
-            animation-name: shine;
-            animation-duration: 1s;
-            animation-timing-function: linear;
+              text-align: right;
+              width: 100%;
+              height:30px;
+              animation-name: shine;
+              animation-duration: 1s;
+              animation-timing-function: linear;
             }
 
             .border {
-            border:solid black 1px;
+              border:solid var(--background-color-blue) 1px;
+              border-radius: 5px;
             }
 
             h4 {
-            display: inline-block;
-            text-align: center;
-            margin: 0px;
-            
+              margin: 0px;
             }
             h3 {
-            display: inline-block;
-            text-align: center;
-            margin:0px;
+              display: inline-block;
+              text-align: center;
+              margin:0px;
             }
 
             [shineclass=shine-copy] {
@@ -94,9 +86,9 @@ class InfoCard extends PolymerElement {
                 };
               }
         </style>
-        <div class="theCard">
-            <h4> {{title}}</h4>
-            <div class="price-holder border" shineClass={{shineClass}}>
+        <div class="theCard border">
+            <h4> {{title}}: </h4>
+            <div class="price-holder" shineClass={{shineClass}}>
             <h3 > {{currency}} {{value}}</h3>
             </div>
         </div>

@@ -80,7 +80,7 @@ class StateSelection extends PolymerElement {
                             event-dispatch="user-input"  role-name="out" player-role=[[role]]>
                     </player-role-button>
 
-                    <template is="dom-if" if="{{outDisplayed}}">
+                    <template is="dom-if" if="{{manualButtonDisplayed}}">
                         <player-role-button websocket-message='{"type": "role_change", "state": "manual"}' 
                                 event-dispatch="user-input"  role-name="manual" player-role=[[role]]>
                         </player-role-button>
@@ -99,7 +99,7 @@ class StateSelection extends PolymerElement {
                         slider-value='{{slider_a_x}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
                     </algorithm-slider>
 
-                    <template is="dom-if" if="{{svDisplayed}}">
+                    <template is="dom-if" if="{{svSliderDisplayed}}">
                         <algorithm-slider max-value='[[sliderDefaults.maxValue]]' 
                             min='[[sliderDefaults.minValue]]' slider-value='{{slider_a_y}}' 
                             slider-name="Signed Volume" step-size='[[sliderDefaults.stepSize]]'
@@ -124,11 +124,11 @@ class StateSelection extends PolymerElement {
               observer: '_roleChange',
               value: 'out'
           },
-          outDisplayed: {
+          manualButtonDisplayed: {
               type: Boolean,
             //   value: true
           },
-          svDisplayed:  {
+          svSliderDisplayed:  {
             type: Boolean,
             // value: true
           },
