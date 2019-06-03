@@ -20,7 +20,14 @@ class ProfitGraphFixed extends PolymerElement {
                     font-size:10px;
                     font-weight: bold; 
                 }
+                #zoom{
+                    display:flex;
+                }
             </style>
+            <div id="zoom">
+                <button onclick={{_yZoomIn}} class="btn">zoom in</button>
+                <button onclick={{_yZoomOut}} class="btn">zoom out</button>
+            </div>
             <svg id="svg"></svg>
         `;
     }
@@ -115,8 +122,7 @@ class ProfitGraphFixed extends PolymerElement {
             .attr("class", "axis axis-y");
         this.domYAxisLeft = this.mainGroup.append("g")
             .attr("class", "axis axis-y");
-        
-
+    
         this.currentProfitLine = this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
             .attr('class', 'profit-line');
@@ -155,6 +161,14 @@ class ProfitGraphFixed extends PolymerElement {
 
         this.domYAxisLeft.call(this.yAxisLeft);
         this.domYAxisRight.call(this.yAxisRight);
+    }
+
+    _yZoomIn(){
+
+    }
+
+    _yZoomOut(){
+        
     }
 
     _runningChanged(isRunning) {
