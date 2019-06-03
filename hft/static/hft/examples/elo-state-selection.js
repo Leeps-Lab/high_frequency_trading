@@ -164,13 +164,10 @@ class StateSelection extends PolymerElement {
         let socketMessage = {
             type: "slider",
             a_x: this.slider_a_x,
+            a_y: this.slider_a_y,
             a_z: this.slider_a_z
         };
-        //Only add the signed volume value if we decide to display it
-        if(this.svDisplayed){
-            socketMessage["a_y"] = this.slider_a_y;
-        }
-
+       
         let userInputEvent = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: socketMessage });
         this.dispatchEvent(userInputEvent);

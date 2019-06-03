@@ -111,6 +111,7 @@ const ELO = {
             slider: { 
                 type: String,
                 a_x: parseFloat,
+                a_y: parseFloat,
                 a_z: parseFloat,
             },
             speed_change: { 
@@ -144,15 +145,6 @@ const ELO = {
     },
     manualButtonDisplayed: true,
     svSliderDisplayed: true,
-}
-//Conditional 
-if(ELO.svSliderDisplayed){
-    ELO["slider"] = { 
-        type: String,
-        a_x: parseFloat,
-        a_y: parseFloat,
-        a_z: parseFloat,
-    }
 }
 
 export {ELO}

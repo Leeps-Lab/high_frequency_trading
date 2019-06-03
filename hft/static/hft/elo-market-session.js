@@ -128,7 +128,7 @@ class MarketSession extends PolymerElement {
                 <profit-graph
                     profit={{wealth}}
                     is-running={{isSessionActive}}
-                    x-range="150000"
+                    x-range="{{sessionLengthMS}}"
                 ></profit-graph>
     
                 <!---
@@ -191,6 +191,11 @@ class MarketSession extends PolymerElement {
         isSessionActive:{
             type: Boolean,
             value: false,
+        },
+        sessionLengthMS:{
+            //In Milliseconds to pass to profit graph
+            type:Number,
+            value: OTREE_CONSTANTS.sessionLength*1e3,
         },
         scaleForDisplay:{
             type: Boolean,
