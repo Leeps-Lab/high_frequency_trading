@@ -1,6 +1,7 @@
 
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market-primitives/orderbook.js'
+import {scaler} from './util.js'
 
 import './examples/elo-state-selection.js'
 import './examples/elo-info-table.js'
@@ -191,6 +192,10 @@ class MarketSession extends PolymerElement {
             type: Boolean,
             value: false,
         },
+        scaleForDisplay:{
+            type: Boolean,
+            value: true
+        },
         websocketUrl: {
             type: Object,
             value: function () {
@@ -236,6 +241,10 @@ class MarketSession extends PolymerElement {
         const messagePayload = event.detail
         // console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
+        if (this.scaleForDisplay) {
+            cleanMessage = scaler(cleanMessage, 1)
+            console.log('outbound scaled message', cleanMessage)
+        }     
         let wsMessage = new CustomEvent('ws-message', {bubbles: true, composed: true, 
             detail: messagePayload })
         this.$.websocket.dispatchEvent(wsMessage)
@@ -252,6 +261,10 @@ class MarketSession extends PolymerElement {
             return
         }
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
+        if (this.scaleForDisplay) {
+            cleanMessage = scaler(cleanMessage, 2)
+            console.log('inbound scaled message non batch', cleanMessage)
+        }      
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
         for (let i = 0; i < handlers.length; i++) {
@@ -265,6 +278,10 @@ class MarketSession extends PolymerElement {
         let myState = {'cash': this.cash}
         for (let msg of message.batch) {
             let cleanMsg = this._msgSanitize(msg, 'inbound')
+            if (this.scaleForDisplay) {
+                cleanMsg = scaler(cleanMsg, 2)
+                console.log('scaled message handle batch', cleanMsg)
+            }    
             switch (cleanMsg.type) {
                 case 'bbo':
                     marketState.bestBid = cleanMsg.best_bid

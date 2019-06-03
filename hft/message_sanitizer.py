@@ -1,11 +1,8 @@
 
-from .utility import elo_scaler
 from .cache import get_market_id_map
 from .equations import price_grid
 
 class MessageSanitizer:
-
-    scaler = None
     
     @classmethod
     def sanitize(cls, message, **kwargs):
@@ -14,8 +11,6 @@ class MessageSanitizer:
 
 class ELOWSMessageSanitizer(MessageSanitizer):
 
-    scaler = elo_scaler
-
     @classmethod
     def sanitize(cls, message, **kwargs):
         clean_message = message
@@ -23,8 +18,6 @@ class ELOWSMessageSanitizer(MessageSanitizer):
             mapping = get_market_id_map(kwargs['subsession_id'])
             market_id = mapping[clean_message['market_id_in_subsession']]
             clean_message['market_id'] = market_id
-        if kwargs['player_id'] != 0:
-            clean_message = cls.scaler(clean_message, direction='scale-up')
         if 'price' in clean_message:
             clean_message['price'] = price_grid(clean_message['price'])
         if 'state' in clean_message:

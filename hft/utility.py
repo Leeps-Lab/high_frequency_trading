@@ -118,16 +118,6 @@ def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     timestamp *= 10**3  # microseconds -> nanoseconds
     return timestamp
 
-scaled_fields = ('price', 'execution_price', 'old_price', 'reference_price', 'cash', 
-    'best_bid', 'best_offer', 'bid', 'offer', 'next_bid', 'next_offer', 'e_best_bid',
-    'e_best_offer')
-def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fields):
-    multiplier = 10000 if direction == 'scale-up' else 0.0001
-    clean_message = dict(message)
-    for field in fields_to_scale:
-        if field in clean_message and clean_message[field] not in (MIN_BID, MAX_ASK):
-            clean_message[field] = int(int(clean_message[field]) * multiplier)
-    return clean_message
         
 def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
                          timeout=90, sleep_time=1):
