@@ -1,6 +1,5 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
-import '../market-primitives/widgets/price-card-BBO.js'
-import '../market-primitives/widgets/price-card-MBBO.js'
+import '../market-primitives/widgets/bounded-market-price-card.js'
 import './elo-subject-wallet.js'
 
 class InfoTable extends PolymerElement {
@@ -64,17 +63,17 @@ class InfoTable extends PolymerElement {
           <div class="container">
             <div class="bid-ask-container">
               <div id="bbo">
-                <price-card-bbo id="bid"  title="Best Bid" price={{bestBid}}> 
-                </price-card-bbo>
-                <price-card-bbo id="ask" title="Best Ask" price={{bestOffer}}> 
-                </price-card-bbo>
+                <bounded-market-price-card id="bid"  title="Best Bid" price={{bestBid}}> 
+                </bounded-market-price-card>
+                <bounded-market-price-card id="ask" title="Best Ask" price={{bestOffer}}> 
+                </bounded-market-price-card>
               </div>
               <div id="mbbo">
-                <price-card-bbo id="bid"  title="My Bid" price={{myBid}}> 
-                </price-card-bbo>
+                <bounded-market-price-card id="bid"  title="My Bid" price={{myBid}}> 
+                </bounded-market-price-card>
                 <br>
-                <price-card-bbo id="ask" title="My Ask" price={{myOffer}}> 
-                </price-card-bbo>
+                <bounded-market-price-card id="ask" title="My Ask" price={{myOffer}}> 
+                </bounded-market-price-card>
               </div>
             </div>
             <div id="small-row">
