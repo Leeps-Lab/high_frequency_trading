@@ -40,11 +40,11 @@ class MarketSession extends PolymerElement {
             }
             spread-graph{
                 width:100vw;
-                height:17vh;
+                height:20vh;
             }
             profit-graph{
                 width:100vw;
-                height:48vh;
+                height:45vh;
             }
             profit-graph-fixed{
                 width:100vw;
@@ -124,17 +124,18 @@ class MarketSession extends PolymerElement {
                     </elo-state-selection>
                 </div>
 
-                <!---
                 <profit-graph
                     profit={{wealth}}
                     is-running={{isSessionActive}}
+                    x-range="150000"
                 ></profit-graph>
-                --->
-
+    
+                <!---
                 <profit-graph-fixed
                     profit={{wealth}}
                     is-running={{isSessionActive}}
                 ></profit-graph-fixed>
+                --->
             </div>
     `;
     }

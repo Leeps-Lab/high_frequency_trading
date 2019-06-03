@@ -34,7 +34,7 @@ class ProfitGraph extends PolymerElement {
             },
             margin: {
                 type: Object,
-                value: {top: 40, left: 40, right: 40, bottom: 40},
+                value: {top: 10, left: 40, right: 40, bottom: 30},
             },
             xRange: {
                 type: Number,
@@ -137,7 +137,7 @@ class ProfitGraph extends PolymerElement {
             .attr('width', this.width)
             .attr('height', this.height);
         this.rightGroup
-            .attr('width', (window.outerWidth - this.margin.right))
+            .attr('width', this.width)
             .attr('height', this.height);
         
         this.clipPath
@@ -155,7 +155,9 @@ class ProfitGraph extends PolymerElement {
         this.yAxisRight.scale(this.yScale);
 
         this.domYAxisLeft.call(this.yAxisLeft);
-        this.domYAxisRight.call(this.yAxisRight);
+        this.domYAxisRight
+            // .attr("transform", "translate("+ this.width +",0)")
+            .call(this.yAxisRight);
     }
 
     _runningChanged(isRunning) {
