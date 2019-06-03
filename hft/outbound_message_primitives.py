@@ -2,7 +2,6 @@ from itertools import count
 import json
 import logging
 from .translator import LeepsOuchTranslator
-from .utility import elo_scaler
 
 log = logging.getLogger(__name__)
 
@@ -58,7 +57,7 @@ class BroadcastWSMessage(OutboundMessage):
     required_field_types = ()
 
     @classmethod
-    def clean(cls, message_data, scaler=elo_scaler):
+    def clean(cls, message_data):
         clean_message = dict(message_data)
         if len(cls.required_fields) != len(cls.required_field_types):
             raise Exception('required fields length %d, required field types length: %d'
@@ -67,7 +66,6 @@ class BroadcastWSMessage(OutboundMessage):
             fieldtype = cls.required_field_types[ix]
             clean_value = fieldtype(message_data[key])
             clean_message[key] = clean_value
-        clean_message = scaler(clean_message, direction='scale-down')
         return clean_message
     
     def to_json(self): 
