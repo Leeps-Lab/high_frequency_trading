@@ -53,7 +53,7 @@ class ProfitGraphFixed extends PolymerElement {
             },
             _defaultYRange: {
                 type: Array,
-                value: [-100, 100],
+                value: [-20, 20],
             },
             isRunning: {
                 type: Boolean,
@@ -122,6 +122,7 @@ class ProfitGraphFixed extends PolymerElement {
             .attr('class', 'profit-line');
 
         this.setSize(this.offsetWidth, this.offsetHeight);
+        console.log('profit graph range', this._defaultYRange)
     }
 
     setSize(width, height) {

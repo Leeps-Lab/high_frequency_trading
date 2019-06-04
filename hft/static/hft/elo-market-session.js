@@ -169,20 +169,13 @@ class MarketSession extends PolymerElement {
         eBestOffer: Number,
         wealth: {
             type: Number,
-            computed: '_calculateWealth(cash, previousSpeedCostStep, referencePrice, inventory)'
+            computed: '_calculateWealth(cash, speedCost, referencePrice, inventory)'
         },
         inventory: {type: Number,
             value: 0},
-        cash: {
-            type: Number,
-            computed: '_calculateCash(previousSpeedCostStep)'
-        },
+        cash: Number,
         speedUnitCost: Number,
         speedCost: {type: Number, value: 0},
-        previousSpeedCostStep: Number, 
-        totalCost: {
-            type: Number, 
-            value: 0},
         subscribesSpeed: {
             type: Boolean, 
             value: false,
@@ -236,7 +229,11 @@ class MarketSession extends PolymerElement {
         // we need a proper way to scale initial values
         // maybe a constants component
         this.playerId = OTREE_CONSTANTS.playerId
+        this.manualButtonDisplayed = OTREE_CONSTANTS.manualButtonDisplayed
+        this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed
+        this.referencePrice = 0
         this.cash = 0
+        this.wealth = 0
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.signedVolume = 0
@@ -410,7 +407,6 @@ class MarketSession extends PolymerElement {
     }
 
     _handleReferencePrice(message) {
-        console.log('handle refere', message)
         this.referencePrice = message.reference_price
     }
 
@@ -480,13 +476,7 @@ class MarketSession extends PolymerElement {
         return Math.round(speedCost)
     }
 
-    _calculateCash (costStep) {
-        console.log('recalcualting cost', this.cash, costStep)
-        return Math.round(this.cash - costStep)
-    }
-
     _calculateWealth(cash, costStep, referencePrice, inventory) {
-        console.log('wealth', cash, costStep, referencePrice, inventory)
         const out = Math.round(cash - costStep + referencePrice * inventory) 
         return out
     }

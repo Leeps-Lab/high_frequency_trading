@@ -54,12 +54,13 @@ class InfoCard extends PolymerElement {
             }
 
             h4 {
-              margin: 0px 0px 0px 10px;
+              display: inline-block;
+              margin: 2px 0px 0px 10px;
             }
+
             h3 {
               display: inline-block;
-              text-align: center;
-              margin: 0px 0px 0px 10px;
+              margin: 2px 10px 0px 2px;
             }
 
             [shine-class=shine-copy] {
@@ -78,16 +79,16 @@ class InfoCard extends PolymerElement {
     
               @keyframes shine{
                 100% {
-                  background-color: #F26419
+                  background-color: #ED6A5A
                   };    
               }
     
               @keyframes shine-more {
                 100% {
-                  background-color: #F26419
+                  background-color: #ED6A5A
                   };
                   10% {
-                  background-color: #F26419
+                  background-color: #ED6A5A
                   };
               }
         </style>

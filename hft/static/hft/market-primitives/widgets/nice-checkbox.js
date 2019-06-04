@@ -116,9 +116,7 @@ class NiceCheckbox extends PolymerElement {
 
     checkboxClicked(event) {
       event.preventDefault();
-      console.log('clickable', this.clickable, 'is active', this.isActive)
       if (this.clickable || !this.isActive) {
-        console.log('wsms', this.websocketMessage)
         this.websocketMessage["value"] = !this.isActive;    
         let userInputEvent = new CustomEvent(this.eventDispatch, {bubbles: true, 
           composed: true, detail: this.websocketMessage });   

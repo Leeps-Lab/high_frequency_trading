@@ -39,7 +39,6 @@ class StepwiseCalculator extends PolymerElement {
               let step = (now - this.lastCalcTime) * this.unitSize
               this.lastCalcTime = now
               this.value += step
-              this.lastStep = step
             }}, 
           this.sleepDuration)
         }
