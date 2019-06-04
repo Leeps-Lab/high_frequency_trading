@@ -104,6 +104,7 @@ class MarketSession extends PolymerElement {
                 run-forever={{subscribesSpeed}}
                 value={{speedCost}}
                 unit-size={{speedUnitCost}}
+                last-step={{previousSpeedCostStep}}
             ></stepwise-calculator>
             <test-inputs
                 is-running={{isSessionActive}}
@@ -154,8 +155,7 @@ class MarketSession extends PolymerElement {
         playerId: Number,
         role: String,
         startRole: String,
-        referencePrice: {type: Number,
-            value: 0},
+        referencePrice: Number,
         signedVolume: {type: Number,
             value: 0},
         orderBook: Object,
@@ -169,20 +169,20 @@ class MarketSession extends PolymerElement {
         eBestOffer: Number,
         wealth: {
             type: Number,
-            computed: '_calculateWealth(cash, totalCost, referencePrice, inventory)'
+            computed: '_calculateWealth(cash, previousSpeedCostStep, referencePrice, inventory)'
         },
         inventory: {type: Number,
             value: 0},
         cash: {
             type: Number,
-            computed: '_calculateCash(totalCost)'
+            computed: '_calculateCash(previousSpeedCostStep)'
         },
         speedUnitCost: Number,
         speedCost: {type: Number, value: 0},
+        previousSpeedCostStep: Number, 
         totalCost: {
             type: Number, 
-            value: 0, 
-            computed: '_calculateCost(speedCost)'},
+            value: 0},
         subscribesSpeed: {
             type: Boolean, 
             value: false,
@@ -236,7 +236,7 @@ class MarketSession extends PolymerElement {
         // we need a proper way to scale initial values
         // maybe a constants component
         this.playerId = OTREE_CONSTANTS.playerId
-        this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001
+        this.cash = 0
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.signedVolume = 0
@@ -248,7 +248,6 @@ class MarketSession extends PolymerElement {
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
         if (this.scaleForDisplay) {
             cleanMessage = scaler(cleanMessage, 1)
-            console.log('outbound scaled message', cleanMessage)
         }     
         let wsMessage = new CustomEvent('ws-message', {bubbles: true, composed: true, 
             detail: messagePayload })
@@ -268,7 +267,6 @@ class MarketSession extends PolymerElement {
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
         if (this.scaleForDisplay) {
             cleanMessage = scaler(cleanMessage, 2)
-            console.log('inbound scaled message non batch', cleanMessage)
         }      
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
@@ -285,7 +283,6 @@ class MarketSession extends PolymerElement {
             let cleanMsg = this._msgSanitize(msg, 'inbound')
             if (this.scaleForDisplay) {
                 cleanMsg = scaler(cleanMsg, 2)
-                console.log('scaled message handle batch', cleanMsg)
             }    
             switch (cleanMsg.type) {
                 case 'bbo':
@@ -413,6 +410,7 @@ class MarketSession extends PolymerElement {
     }
 
     _handleReferencePrice(message) {
+        console.log('handle refere', message)
         this.referencePrice = message.reference_price
     }
 
@@ -482,13 +480,14 @@ class MarketSession extends PolymerElement {
         return Math.round(speedCost)
     }
 
-    _calculateCash (totalCost) {
-        return Math.round(this.cash - totalCost)
+    _calculateCash (costStep) {
+        console.log('recalcualting cost', this.cash, costStep)
+        return Math.round(this.cash - costStep)
     }
 
-    _calculateWealth(cash, totalCost, referencePrice, inventory) {
-        // console.log('wealth', cash, totalCost, referencePrice, inventory)
-        const out = Math.round(cash - totalCost + referencePrice * inventory) 
+    _calculateWealth(cash, costStep, referencePrice, inventory) {
+        console.log('wealth', cash, costStep, referencePrice, inventory)
+        const out = Math.round(cash - costStep + referencePrice * inventory) 
         return out
     }
 

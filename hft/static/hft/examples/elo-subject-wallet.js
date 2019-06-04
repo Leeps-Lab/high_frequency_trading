@@ -48,7 +48,8 @@ class WallletCard extends PolymerElement {
           <div class='column'>
             <info-card class="theCard" title="Cash" currency=$ value={{cash}}>
             </info-card>
-            <info-card class="theCard" title="Inventory" currency="" value={{inventory}}>
+            <info-card class="theCard" title="Inventory" currency="" value={{inventory}}
+              animated>
             </info-card>
             <info-card class="theCard" title="Wealth" currency=$ value={{endowment}}>
             </info-card>

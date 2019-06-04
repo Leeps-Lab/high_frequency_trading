@@ -39,9 +39,9 @@ class Dispatcher:
                 event, topic, cls.market_environment)
             event = handler.handle()
 
-        log.debug(
-            '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
-             event=event))
+        # log.debug(
+        #     '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
+        #      event=event))
         #log.debug(event)
 
 

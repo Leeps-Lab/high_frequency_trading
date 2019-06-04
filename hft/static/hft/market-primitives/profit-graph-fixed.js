@@ -53,7 +53,7 @@ class ProfitGraphFixed extends PolymerElement {
             },
             _defaultYRange: {
                 type: Array,
-                value: [1850, 2150],
+                value: [-100, 100],
             },
             isRunning: {
                 type: Boolean,

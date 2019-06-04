@@ -9,6 +9,7 @@ class MarketPriceCard extends PolymerElement {
   return {
     title: String,
     price: {type: String, value:0 ,observer: '_priceChanged'},
+    animated: Boolean,
     price_trend: String,
     currency: String
     }
@@ -18,6 +19,7 @@ class MarketPriceCard extends PolymerElement {
     super();
     //Set currency within the markup where it is initialized
     this.currency = '$';
+    this.animated = false
   }
 
   _displayPrice(price) {
@@ -26,19 +28,21 @@ class MarketPriceCard extends PolymerElement {
   }
 
   _priceChanged(newValue, oldValue) {
-    let theCard = this.shadowRoot.querySelector('.cardPrice')
-    if (newValue == MIN_BID || newValue == MAX_ASK) { 
-      theCard.setAttribute("trend", "")
-      return
-    } 
-    let incomingPriceTrend = oldValue > newValue ? 'price-down' : oldValue === newValue ? 
-        '' : 'price-up';
-    if (this.price_trend === incomingPriceTrend) {
-      incomingPriceTrend = incomingPriceTrend + '-copy';
-    }
+    if (this.animated) {
+      let theCard = this.shadowRoot.querySelector('.cardPrice')
+      if (newValue == MIN_BID || newValue == MAX_ASK) { 
+        theCard.setAttribute("trend", "")
+        return
+      } 
+      let incomingPriceTrend = oldValue > newValue ? 'price-down' : oldValue === newValue ? 
+          '' : 'price-up';
+      if (this.price_trend === incomingPriceTrend) {
+        incomingPriceTrend = incomingPriceTrend + '-copy';
+      }
 
-    this.price_trend = incomingPriceTrend
-    theCard.setAttribute("trend", incomingPriceTrend)
+      this.price_trend = incomingPriceTrend
+      theCard.setAttribute("trend", incomingPriceTrend)
+    }
   }
 
   static get template() { 
@@ -81,25 +85,25 @@ class MarketPriceCard extends PolymerElement {
 
       [trend=price-up]{
         animation-name: increase;
-        animation-duration: 1s;
+        animation-duration: 0.4s;
         animation-timing-function: ease-in-out;
       }
 
       [trend=price-up-copy]{
         animation-name: increase-more;
-        animation-duration: 1s;
+        animation-duration: 0.4s;
         animation-timing-function: ease-in-out;
       }
 
       [trend=price-down] {
         animation-name: decrease;
-        animation-duration: 1s;
+        animation-duration: 0.4s;
         animation-timing-function: ease-out;
       }
 
       [trend=price-down-copy] {
         animation-name: decrease-more;
-        animation-duration: 1s;
+        animation-duration: 0.4s;
         animation-timing-function: ease-out;
       }
 

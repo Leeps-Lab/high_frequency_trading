@@ -87,28 +87,44 @@ class NiceCheckbox extends PolymerElement {
             isActive: {
               type: Boolean,
               value: false,
-              reflectToAtrribute: true
-            },
-            websocketMessage:Object,
-            eventDispatch:String,
-            isChecked: {
-              type: Boolean,
               reflectToAtrribute: true,
+              observer: '_trigDisableTimer'
             },
+            clickable: Boolean,
+            websocketMessage: Object,
+            eventDispatch: String,
+            expiryDuration: Number //ms
+            // isChecked: {
+            //   type: Boolean,
+            //   reflectToAtrribute: true,
+            // },
         };
     }
         
     constructor(){
         super();  
+        this.clickable = true
+        this.expiryDuration = 4000;
+    }
+
+    _trigDisableTimer(newValue, oldValue){
+      if (newValue){
+        this.clickable = false
+        setTimeout(() => {this.clickable = true}, this.expiryDuration)
+      }
     }
 
     checkboxClicked(event) {
       event.preventDefault();
-      this.websocketMessage["value"] = !this.isActive;    
-      let userInputEvent = new CustomEvent(this.eventDispatch, {bubbles: true, composed: true, 
-          detail: this.websocketMessage });   
-      this.dispatchEvent(userInputEvent);
+      console.log('clickable', this.clickable, 'is active', this.isActive)
+      if (this.clickable || !this.isActive) {
+        console.log('wsms', this.websocketMessage)
+        this.websocketMessage["value"] = !this.isActive;    
+        let userInputEvent = new CustomEvent(this.eventDispatch, {bubbles: true, 
+          composed: true, detail: this.websocketMessage });   
+        this.dispatchEvent(userInputEvent);
     }
   }
+}
     
 customElements.define('nice-checkbox', NiceCheckbox);
