@@ -91,7 +91,7 @@ class ProfitGraph extends PolymerElement {
         
         this.clipPath = this.mainGroup.append('clipPath')
             .attr('id', 'lines-clip')
-          .append('rect');
+            .append('rect');
         
         this.profitLines = this.mainGroup.append('g');
 
@@ -173,14 +173,12 @@ class ProfitGraph extends PolymerElement {
         this.xAxis.scale(this.xScale);
         this.domXAxis.call(this.xAxis);
 
-        if (this.profit) {
-            this._addPayoff(this.profit);
-        }
+        this._addPayoff(0,0); //fixes out of bounds starting profit is 0!
         window.setInterval(function(){
         	window.requestAnimationFrame(this._tick.bind(this))
         }.bind(this)
         ,500)
-        
+
     }
 
     _tick() {
