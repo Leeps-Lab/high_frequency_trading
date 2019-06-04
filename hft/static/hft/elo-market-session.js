@@ -186,9 +186,8 @@ class MarketSession extends PolymerElement {
             value: false,
         },
         sessionLengthMS:{
-            //In Milliseconds to pass to profit graph
-            type:Number,
-            value: OTREE_CONSTANTS.sessionLength*1e3,
+            type: Number, // milliseconds
+            value: OTREE_CONSTANTS.sessionLength * 1e3,
         },
         scaleForDisplay:{
             type: Boolean,
