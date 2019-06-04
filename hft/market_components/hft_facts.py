@@ -54,13 +54,14 @@ class ReferencePrice(MarketFact):
             # also for first transaction below is
             # obvious
             self.reference_price = new_price
+            self.has_changed = True
+            return
         discount_multiplier = math.e **  - (
             self.timer.time_since_previous_step * self.discount_rate)
         self.sum_weights = 1 + self.sum_weights * discount_multiplier
         new_reference_price = price_grid(
             (new_price * (1 - self.sum_weights ** -1 ) + (
                 self.reference_price * self.sum_weights ** -1)))
-#        print('ref price', self.timer.time_since_previous_step, discount_multiplier, n_transaction, self.sum_weights, self.reference_price)
         if self.reference_price != new_reference_price:
             self.reference_price = new_reference_price
             self.has_changed = True
