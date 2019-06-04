@@ -131,13 +131,6 @@ class MarketSession extends PolymerElement {
                     is-running={{isSessionActive}}
                     x-range="{{sessionLengthMS}}"
                 ></profit-graph>
-    
-                <!---
-                <profit-graph-fixed
-                    profit={{wealth}}
-                    is-running={{isSessionActive}}
-                ></profit-graph-fixed>
-                --->
             </div>
     `;
     }

@@ -30,7 +30,7 @@ class ProfitGraph extends PolymerElement {
         return {
             profit: {
                 type: Number,
-                observer: '_addPayoff',
+                observer: '_addPayoff'
             },
             margin: {
                 type: Object,
@@ -87,7 +87,7 @@ class ProfitGraph extends PolymerElement {
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
         this.rightGroup = d3.select(this.$.svg)
             .append('g')
-            .attr('transform', 'translate(' + (window.outerWidth - this.margin.right) + ',' + this.margin.top + ')');
+            .attr('transform', 'translate(0,' + this.margin.top + ')');
         
         this.clipPath = this.mainGroup.append('clipPath')
             .attr('id', 'lines-clip')
@@ -155,8 +155,9 @@ class ProfitGraph extends PolymerElement {
         this.yAxisRight.scale(this.yScale);
 
         this.domYAxisLeft.call(this.yAxisLeft);
+        
         this.domYAxisRight
-            // .attr("transform", "translate("+ this.width +",0)")
+            .attr('transform', 'translate(' + (this.width + this.margin.right) + ',' + this.margin.top + ')')
             .call(this.yAxisRight);
     }
 
@@ -173,7 +174,7 @@ class ProfitGraph extends PolymerElement {
         this.xAxis.scale(this.xScale);
         this.domXAxis.call(this.xAxis);
 
-        this._addPayoff(0,0); //fixes out of bounds starting profit is 0!
+        this._addPayoff(this.profit,this.profit); 
         window.setInterval(function(){
         	window.requestAnimationFrame(this._tick.bind(this))
         }.bind(this)
