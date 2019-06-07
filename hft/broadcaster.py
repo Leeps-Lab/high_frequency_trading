@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 class  Broadcaster:
 
-    flush_interval = 0.5 #seconds
+    flush_interval = 0.25 #seconds
     queues = {}
     flush_history = {}
     unbatchable_message_types = ('system_event', 'role_confirm', 'speed_confirm')

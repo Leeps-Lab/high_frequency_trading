@@ -8,7 +8,8 @@ class MarketPriceCard extends PolymerElement {
   static get properties(){
   return {
     title: String,
-    price: {type: String, observer: '_priceChanged'},
+    price: {type: String, value:0 ,observer: '_priceChanged'},
+    animated: Boolean,
     price_trend: String,
     currency: String
     }
@@ -18,6 +19,7 @@ class MarketPriceCard extends PolymerElement {
     super();
     //Set currency within the markup where it is initialized
     this.currency = '$';
+    this.animated = false
   }
 
   _displayPrice(price) {
@@ -26,19 +28,21 @@ class MarketPriceCard extends PolymerElement {
   }
 
   _priceChanged(newValue, oldValue) {
-    let theCard = this.shadowRoot.querySelector('.cardPrice')
-    if (newValue == MIN_BID || newValue == MAX_ASK) { 
-      theCard.setAttribute("trend", "")
-      return
-    } 
-    let incomingPriceTrend = oldValue > newValue ? 'price-down' : oldValue === newValue ? 
-        '' : 'price-up';
-    if (this.price_trend === incomingPriceTrend) {
-      incomingPriceTrend = incomingPriceTrend + '-copy';
-    }
+    if (this.animated) {
+      let theCard = this.shadowRoot.querySelector('.cardPrice')
+      if (newValue == MIN_BID || newValue == MAX_ASK) { 
+        theCard.setAttribute("trend", "")
+        return
+      } 
+      let incomingPriceTrend = oldValue > newValue ? 'price-down' : oldValue === newValue ? 
+          '' : 'price-up';
+      if (this.price_trend === incomingPriceTrend) {
+        incomingPriceTrend = incomingPriceTrend + '-copy';
+      }
 
-    this.price_trend = incomingPriceTrend
-    theCard.setAttribute("trend", incomingPriceTrend)
+      this.price_trend = incomingPriceTrend
+      theCard.setAttribute("trend", incomingPriceTrend)
+    }
   }
 
   static get template() { 
@@ -48,11 +52,12 @@ class MarketPriceCard extends PolymerElement {
       :host{
         display: inline-block;
         font-family: monospace;
+        width:100px;
+        height:100%;
       }
 
       .fullCard {
-        height: 100%;
-        width: 100%;
+        text-align:center;
         background:var(--background-color-white);
         display: flex;
         flex-direction: column;
@@ -61,48 +66,44 @@ class MarketPriceCard extends PolymerElement {
         border-radius: 5px;
         box-shadow: 10 0px 0px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
       }
-
-      .cardTitle {
-        text-align: center;
-        margin: 10px;
-        font-weight: bold;
+      .cardContent{
+        width:100%;
+        height:100%;
       }
-
       .cardPrice {
         display: flex;
         flex-direction: row;
         justify-content: center;
         border-top: 1px solid #000;
+        font-size: 1.4em;
       }
 
       .title-text {
-        display: inline-block;
         text-align: center;
-        background-color: rgba(45, 45, 45, 0.1);
-        font-size: 15px;
+        font-size: 1.4em;
       }
 
       [trend=price-up]{
         animation-name: increase;
-        animation-duration: 1s;
+        animation-duration: 0.4s;
         animation-timing-function: ease-in-out;
       }
 
       [trend=price-up-copy]{
         animation-name: increase-more;
-        animation-duration: 1s;
+        animation-duration: 0.4s;
         animation-timing-function: ease-in-out;
       }
 
       [trend=price-down] {
         animation-name: decrease;
-        animation-duration: 1s;
+        animation-duration: 0.4s;
         animation-timing-function: ease-out;
       }
 
       [trend=price-down-copy] {
         animation-name: decrease-more;
-        animation-duration: 1s;
+        animation-duration: 0.4s;
         animation-timing-function: ease-out;
       }
 
@@ -146,12 +147,12 @@ class MarketPriceCard extends PolymerElement {
                 </span>
               </div>
               <div class="cardPrice">
-                <h1>
+                <p>
                   {{currency}}
-                </h1>
-                <h1 id="the-price">
+                </p>
+                <p id="the-price">
                   {{_displayPrice(price)}}
-                </h1>
+                </p>
               </div>
             </div>
         </div>    

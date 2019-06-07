@@ -1,11 +1,13 @@
 
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market-primitives/orderbook.js'
+import {scaler} from './util.js'
 
 import './examples/elo-state-selection.js'
 import './examples/elo-info-table.js'
 import './market-primitives/spread-graph.js'
 import './market-primitives/profit-graph.js'
+import './market-primitives/profit-graph-fixed.js'
 import './market-primitives/stepwise-calculator.js'
 import './market-primitives/ws.js'
 import './market-primitives/test-inputs.js'
@@ -19,9 +21,6 @@ class MarketSession extends PolymerElement {
         return html`
         <style>
             :host{
-                width:100vw;
-                height:100vh;
-
                 /* Custom Color Variables */
                 --my-bid-fill:#FAFF7F;
                 --my-offer-fill:#41EAD4;
@@ -40,6 +39,26 @@ class MarketSession extends PolymerElement {
 
                 --global-font:monospace;
             }
+            spread-graph{
+                width:100vw;
+                height:20vh;
+            }
+            profit-graph{
+                width:100vw;
+                height:45vh;
+            }
+            profit-graph-fixed{
+                width:100vw;
+                height:48vh;
+            }
+            elo-info-table{
+                height:35vh;
+                width:100vw;
+            }
+            elo-state-selection{
+                height:35vh;
+                width:100vw;
+            }
 
             .middle-section-container{
                 display: flex;
@@ -47,32 +66,9 @@ class MarketSession extends PolymerElement {
                 justify-content: flex-start;
                 align-items: center;
                 font-weight: bold;
-                height: 31vh;
-                width: 100vw; 
                 background: var(--background-color-blue) ;
                 border-top: 3px solid #ED6A5A;
                 border-bottom: 3px solid #ED6A5A;
-            }
-
-            info-table {
-                width: 60%;
-                height: 100%;
-            }
-
-            profit-graph {
-                width: 100%;
-                height: 270px;
-            }
-
-            state-selection {
-                width: 40%;
-                height: 100%;
-            }
-
-            spread-graph {
-                width: 100%;
-                height: 200px;
-                cursor:pointer;
             }
             .graph-disabled  {
                 cursor:not-allowed;
@@ -81,9 +77,6 @@ class MarketSession extends PolymerElement {
 
             // overlay styling and animation
             #overlay{
-                width:100%;
-                height:100%;
-                position:absolute;
                 background-color:grey;
                 opacity:0.3;
             }
@@ -111,6 +104,7 @@ class MarketSession extends PolymerElement {
                 run-forever={{subscribesSpeed}}
                 value={{speedCost}}
                 unit-size={{speedUnitCost}}
+                last-step={{previousSpeedCostStep}}
             ></stepwise-calculator>
             <test-inputs
                 is-running={{isSessionActive}}
@@ -126,12 +120,16 @@ class MarketSession extends PolymerElement {
                         best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
                     </elo-info-table>
                     <elo-state-selection role={{role}} buttons={{buttons}} slider-defaults={{sliderDefaults}}
-                        speed-on={{subscribesSpeed}}> 
+                        speed-on={{subscribesSpeed}} 
+                        manual-button-displayed={{manualButtonDisplayed}} 
+                        sv-slider-displayed={{svSliderDisplayed}}> 
                     </elo-state-selection>
                 </div>
+
                 <profit-graph
                     profit={{wealth}}
                     is-running={{isSessionActive}}
+                    x-range="{{sessionLengthMS}}"
                 ></profit-graph>
             </div>
     `;
@@ -141,7 +139,8 @@ class MarketSession extends PolymerElement {
         eventListeners: Object,
         eventHandlers: Object,
         sliderDefaults: Object,
-        buttons:Array,
+        manualButtonDisplayed:Boolean,
+        svSliderDisplayed:Boolean,
         eBestBid: Number,
         eBestOffer: Number,
         eSignedVolume:Number,
@@ -149,8 +148,7 @@ class MarketSession extends PolymerElement {
         playerId: Number,
         role: String,
         startRole: String,
-        referencePrice: {type: Number,
-            value: 0},
+        referencePrice: Number,
         signedVolume: {type: Number,
             value: 0},
         orderBook: Object,
@@ -164,20 +162,13 @@ class MarketSession extends PolymerElement {
         eBestOffer: Number,
         wealth: {
             type: Number,
-            computed: '_calculateWealth(cash, totalCost, referencePrice, inventory)'
+            computed: '_calculateWealth(cash, speedCost, referencePrice, inventory)'
         },
         inventory: {type: Number,
             value: 0},
-        cash: {
-            type: Number,
-            computed: '_calculateCash(totalCost)'
-        },
+        cash: Number,
         speedUnitCost: Number,
         speedCost: {type: Number, value: 0},
-        totalCost: {
-            type: Number, 
-            value: 0, 
-            computed: '_calculateCost(speedCost)'},
         subscribesSpeed: {
             type: Boolean, 
             value: false,
@@ -186,6 +177,14 @@ class MarketSession extends PolymerElement {
         isSessionActive:{
             type: Boolean,
             value: false,
+        },
+        sessionLengthMS:{
+            type: Number, // milliseconds
+            value: OTREE_CONSTANTS.sessionLength * 1e3,
+        },
+        scaleForDisplay:{
+            type: Boolean,
+            value: true
         },
         websocketUrl: {
             type: Object,
@@ -222,7 +221,11 @@ class MarketSession extends PolymerElement {
         // we need a proper way to scale initial values
         // maybe a constants component
         this.playerId = OTREE_CONSTANTS.playerId
-        this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001
+        this.manualButtonDisplayed = OTREE_CONSTANTS.manualButtonDisplayed
+        this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed
+        this.referencePrice = 0
+        this.cash = 0
+        this.wealth = 0
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.signedVolume = 0
@@ -230,8 +233,11 @@ class MarketSession extends PolymerElement {
 
     outboundMessage(event) {
         const messagePayload = event.detail
-        console.log(messagePayload);
+        // console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
+        if (this.scaleForDisplay) {
+            cleanMessage = scaler(cleanMessage, 1)
+        }     
         let wsMessage = new CustomEvent('ws-message', {bubbles: true, composed: true, 
             detail: messagePayload })
         this.$.websocket.dispatchEvent(wsMessage)
@@ -242,12 +248,15 @@ class MarketSession extends PolymerElement {
         // this api is to handle updates as single messages
         // it is also possible to batch these messages for performance
         // and take the exit below.
-        console.log(messagePayload)
+        // console.log(messagePayload)
         if (messagePayload.type == 'batch'){
             this._handleBatchMessage(messagePayload)
             return
         }
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
+        if (this.scaleForDisplay) {
+            cleanMessage = scaler(cleanMessage, 2)
+        }      
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
         for (let i = 0; i < handlers.length; i++) {
@@ -261,6 +270,9 @@ class MarketSession extends PolymerElement {
         let myState = {'cash': this.cash}
         for (let msg of message.batch) {
             let cleanMsg = this._msgSanitize(msg, 'inbound')
+            if (this.scaleForDisplay) {
+                cleanMsg = scaler(cleanMsg, 2)
+            }    
             switch (cleanMsg.type) {
                 case 'bbo':
                     marketState.bestBid = cleanMsg.best_bid
@@ -326,7 +338,7 @@ class MarketSession extends PolymerElement {
         let states = [myState, marketState]
         for (let newState of states) {
             for (let key in newState) {
-                console.log('updateing', key, 'with', newState[key])
+                // console.log('updateing', key, 'with', newState[key])
                 this[key] = newState[key]
             }
         }
@@ -456,13 +468,8 @@ class MarketSession extends PolymerElement {
         return Math.round(speedCost)
     }
 
-    _calculateCash (totalCost) {
-        return Math.round(this.cash - totalCost)
-    }
-
-    _calculateWealth(cash, totalCost, referencePrice, inventory) {
-        console.log('wealth', cash, totalCost, referencePrice, inventory)
-        const out = Math.round(cash - totalCost + referencePrice * inventory) 
+    _calculateWealth(cash, costStep, referencePrice, inventory) {
+        const out = Math.round(cash - costStep + referencePrice * inventory) 
         return out
     }
 

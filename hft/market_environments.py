@@ -16,7 +16,7 @@ elo = market_environment(
     },
     fields_to_scale={
         'initial_endowment': 10000,
-        'technology_unit_cost': 10000
+        'speed_unit_cost': 10000
     },
     model_configuration={  
         'subsession': {

@@ -15,6 +15,10 @@ where subjects participate in a market by interacting with the components on the
 This architecture is inteded for creating experimental environments to study algorithmic 
 and high-frequency trading.
 
+Demo
+================
+There is a simple demo available for the most recent implementation called 'Exogenous Limit Orders' environment, which can be accessed through `this link`_. To run a session in this environment, select one of the configurations presented on the landing page and follow the instructions. You will participate in a trading session, equipped with a tunable trading bot. 
+
 Setting Up
 =============
 
@@ -171,4 +175,5 @@ In production mode, you should run each of these as a 'service'. The method abov
 .. _Redis here: https://redis.io/download#installation
 .. _Postgres here: https://www.postgresql.org/download/
 .. _localhost: http://localhost:8000
+.. _this link: http://167.99.111.185:8000
 .. _vagrant based setup: https://github.com/Leeps-Lab/high_frequency_trading/blob/master/vagrant/README.md

@@ -1,6 +1,6 @@
 import {html, PolymerElement}  from '../node_modules/@polymer/polymer/polymer-element.js';
 
-class ProfitGraph extends PolymerElement {
+class ProfitGraphFixed extends PolymerElement {
 
     static get template() {
         return html`
@@ -21,7 +21,6 @@ class ProfitGraph extends PolymerElement {
                     font-weight: bold; 
                 }
             </style>
-            
             <svg id="svg"></svg>
         `;
     }
@@ -30,19 +29,19 @@ class ProfitGraph extends PolymerElement {
         return {
             profit: {
                 type: Number,
-                observer: '_addPayoff'
+                observer: '_addPayoff',
             },
             margin: {
                 type: Object,
-                value: {top: 10, left: 40, right: 40, bottom: 30},
+                value: {top: 40, left: 40, right: 40, bottom: 40},
             },
             xRange: {
                 type: Number,
-                value: 20000,
+                value: 150000,
             },
             xTimeOffset: {
                 type: Number,
-                value: 2000,
+                value: 0,
             },
             animationTime: {
                 type: Number,
@@ -87,11 +86,11 @@ class ProfitGraph extends PolymerElement {
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
         this.rightGroup = d3.select(this.$.svg)
             .append('g')
-            .attr('transform', 'translate(0,' + this.margin.top + ')');
+            .attr('transform', 'translate(' + (window.outerWidth - this.margin.right) + ',' + this.margin.top + ')');
         
         this.clipPath = this.mainGroup.append('clipPath')
             .attr('id', 'lines-clip')
-            .append('rect');
+          .append('rect');
         
         this.profitLines = this.mainGroup.append('g');
 
@@ -123,6 +122,7 @@ class ProfitGraph extends PolymerElement {
             .attr('class', 'profit-line');
 
         this.setSize(this.offsetWidth, this.offsetHeight);
+        console.log('profit graph range', this._defaultYRange)
     }
 
     setSize(width, height) {
@@ -137,7 +137,7 @@ class ProfitGraph extends PolymerElement {
             .attr('width', this.width)
             .attr('height', this.height);
         this.rightGroup
-            .attr('width', this.width)
+            .attr('width', (window.outerWidth - this.margin.right))
             .attr('height', this.height);
         
         this.clipPath
@@ -155,10 +155,7 @@ class ProfitGraph extends PolymerElement {
         this.yAxisRight.scale(this.yScale);
 
         this.domYAxisLeft.call(this.yAxisLeft);
-        
-        this.domYAxisRight
-            .attr('transform', 'translate(' + (this.width + this.margin.right) + ',' + this.margin.top + ')')
-            .call(this.yAxisRight);
+        this.domYAxisRight.call(this.yAxisRight);
     }
 
     _runningChanged(isRunning) {
@@ -174,12 +171,14 @@ class ProfitGraph extends PolymerElement {
         this.xAxis.scale(this.xScale);
         this.domXAxis.call(this.xAxis);
 
-        this._addPayoff(this.profit,this.profit); 
+        if (this.profit) {
+            this._addPayoff(this.profit);
+        }
         window.setInterval(function(){
         	window.requestAnimationFrame(this._tick.bind(this))
         }.bind(this)
         ,500)
-
+        
     }
 
     _tick() {
@@ -295,4 +294,4 @@ class ProfitGraph extends PolymerElement {
 
 }
 
-window.customElements.define('profit-graph', ProfitGraph);
+window.customElements.define('profit-graph-fixed', ProfitGraphFixed);

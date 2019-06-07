@@ -95,6 +95,8 @@ config_maps = {
         'k_reference_price': ('parameters', 'k-reference-price'),
         'k_signed_volume': ('parameters', 'k-signed-volume'),
         'tax_rate': ('parameters', 'tax-rate'),
+        'include_signed_volume_widgets': ('parameters', 'include-signed-volume-widgets'),
+        'include_manual_role': ('parameters', 'include-manual-role'),
         'speed_unit_cost': ('parameters', 'technology-unit-cost'),
         'initial_endowment': ('parameters', 'initial-endowment'),
         'session_duration': ('parameters', 'session-duration'),

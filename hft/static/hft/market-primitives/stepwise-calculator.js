@@ -12,9 +12,11 @@ class StepwiseCalculator extends PolymerElement {
           },
             unitSize: Number,
             lastCalcTime: Number,
+            lastStep: {type: Number, notify: true,
+              reflectToAttribute: true},
             sleepDuration: {
               type: Number,
-              value: 2000
+              value: 1000
             },
             runForever: {
               type: Boolean, 
@@ -37,7 +39,7 @@ class StepwiseCalculator extends PolymerElement {
               let step = (now - this.lastCalcTime) * this.unitSize
               this.lastCalcTime = now
               this.value += step
-              }}, 
+            }}, 
           this.sleepDuration)
         }
     }
