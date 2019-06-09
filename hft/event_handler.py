@@ -5,7 +5,8 @@ from otree.timeout.tasks import hft_background_task
 from random import shuffle
 from .trader import TraderFactory
 import logging
-from .output import serialize_in_memo_model, checkpoint, get_required_model_fields
+from .output import checkpoint, get_required_model_fields
+from hft.utility import serialize_in_memo_model
 from .market_environments import environments
 log = logging.getLogger(__name__)
 

@@ -30,18 +30,29 @@ MAX_ASK = 2147483647
 MIN_BID = 0
 
 
-# class dotdict(dict):
-#     """dot.notation access to dictionary attributes"""
-#     __getattr__ = dict.get
-#     __setattr__ = dict.__setitem__
-#     __delattr__ = dict.__delitem__
+def serialize_in_memo_model(in_memo_model, req_props, req_subprops: dict):
+    # assumes no clash in tuple elements and dict keys
+    result = {}
+    if req_props:
+        for prop_name in req_props: 
+            value = getattr(in_memo_model, prop_name)
+            if value is not None:
+                result[prop_name] = value
+    if req_subprops:
+        for prop_name, subprop_names in req_subprops.items():
+            attr = getattr(in_memo_model, prop_name)
+            if attr is not None:
+                for subprop_name in subprop_names:
+                    if isinstance(attr, dict):
+                        value = attr[subprop_name]
+                    elif hasattr(attr, subprop_name):
+                        value = getattr(attr, subprop_name)
+                        # maybe it is a dictionary
+                    else:
+                        raise AttributeError('%s has no %s:%s' % (attr, prop_name, subprop_name))
+                    result[subprop_name] = value
+    return result
 
-
-# def format_message(message_type, **kwargs):
-#     message = {'message_type': message_type, 'payload': {} }
-#     for k, v in kwargs.items():
-#         message['payload'][k] = v
-#     return message
 
 def process_configs(session_format, session_configs):
     clean_confs = type_check_configs(
