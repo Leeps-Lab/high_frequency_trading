@@ -13,7 +13,7 @@ class algorithmSlider extends PolymerElement {
                 width: 85%;
             }
             .header-container {
-                background-color: #FFFFF0;
+                background-color: var(--background-color-white);
                 margin: 5px;
                 border-radius: 5%;
                 border: 1px solid #000;
@@ -26,7 +26,7 @@ class algorithmSlider extends PolymerElement {
         <div class="header-container slider-header">
             [[sliderName]]: [[sliderValue]]
         </div>
-        <input type="range" class="slider-group" min='[[minValue]]'
+        <input style="background-color:{{color}};" type="range" class="slider-group" min='[[minValue]]'
             max='[[maxValue]]' value='{{sliderValue::mouseup}}'
             step='[[stepSize]]' disabled$=[[isDisabled]]>
         `;
@@ -38,6 +38,7 @@ class algorithmSlider extends PolymerElement {
             stepSize:Number,
             maxValue:Number,
             minValue:Number,
+            color:String,
             sliderValue:{
                 type: Number,
                 reflectToAttribute: true,

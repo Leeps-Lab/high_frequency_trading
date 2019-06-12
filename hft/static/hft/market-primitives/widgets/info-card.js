@@ -39,7 +39,7 @@ class InfoCard extends PolymerElement {
 
             .theCard {
               display: flex;
-              background: #FFFFF0;
+              background: var(--background-color-white);
               align-items: center;
             }
 

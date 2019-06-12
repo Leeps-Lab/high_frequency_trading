@@ -63,8 +63,6 @@ const ELO = {
                 volume_at_best_offer: parseInt
             },
             order_imbalance: {
-                //Remove this message?
-                // yeah, possibly in near future - ali
                 type: String,
                 market_id: parseInt,
                 value: parseFloat
@@ -140,11 +138,11 @@ const ELO = {
     },
     sliderProperties: {
         minValue: 0,
-        maxValue: 2,
+        maxValue: 1,
         stepSize: 0.1
     },
-    manualButtonDisplayed: true,
-    svSliderDisplayed: true,
+    // manualButtonDisplayed: false,
+    // svSliderDisplayed: false,
 }
 
 export {ELO}

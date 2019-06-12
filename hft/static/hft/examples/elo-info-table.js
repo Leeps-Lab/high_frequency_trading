@@ -1,5 +1,6 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
 import '../market-primitives/widgets/bounded-market-price-card.js'
+import {} from '../node_modules/@polymer/polymer/lib/elements/dom-if.js';
 import './elo-subject-wallet.js'
 
 class InfoTable extends PolymerElement {
@@ -12,7 +13,8 @@ class InfoTable extends PolymerElement {
         inventory: Number, 
         cash: Number,
         endowment: Number,
-        signedVolume: Number
+        signedVolume: Number,
+        svSliderDisplayed: Boolean
       }
     }
     constructor() {
@@ -37,8 +39,9 @@ class InfoTable extends PolymerElement {
         }
 
         .bid-ask-container {
-          margin:5px;
           display: flex;
+          width:50%;
+          height:100%;
           flex-direction: column;
           justify-content:center;
         }
@@ -79,9 +82,11 @@ class InfoTable extends PolymerElement {
               </div>
             </div>
             <div id="small-row">
+            <template is="dom-if" if="{{svSliderDisplayed}}">
               <elo-subject-wallet inventory={{inventory}} cash={{cash}}
                 endowment={{endowment}} signed-volume={{signedVolume}}> 
               </elo-subject-wallet>
+            </template>
             </div>
           </div>
         `;}

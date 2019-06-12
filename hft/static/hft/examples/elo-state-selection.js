@@ -34,7 +34,7 @@ class StateSelection extends PolymerElement {
             }
 
             .header-container {
-                background-color: #FFFFF0;
+                background-color: var(--background-color-white);
                 margin: 5px;
                 border-radius: 5%;
                 border: 1px solid #000;
@@ -94,20 +94,32 @@ class StateSelection extends PolymerElement {
                     <div class="header-container" style="height: 10%">
                         Sensitivity to:
                     </div>
-                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' min='[[sliderDefaults.minValue]]'
-                        slider-value='{{slider_a_x}}' slider-name="Inventory" step-size='[[sliderDefaults.stepSize]]'>
+
+                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' 
+                        min='[[sliderDefaults.minValue]]'
+                        color='var(--inv-color)'
+                        slider-value='{{slider_a_x}}' 
+                        slider-name="Inventory" 
+                        step-size='[[sliderDefaults.stepSize]]'>
                     </algorithm-slider>
 
                     <template is="dom-if" if="{{svSliderDisplayed}}">
                         <algorithm-slider max-value='[[sliderDefaults.maxValue]]' 
-                            min='[[sliderDefaults.minValue]]' slider-value='{{slider_a_y}}' 
-                            slider-name="Signed Volume" step-size='[[sliderDefaults.stepSize]]'
+                            min='[[sliderDefaults.minValue]]' 
+                            color='var(--sv-color)'
+                            slider-value='{{slider_a_y}}' 
+                            slider-name="Signed Volume" 
+                            step-size='[[sliderDefaults.stepSize]]'
                             is-disabled="true">
                         </algorithm-slider>
                     </template>
 
-                    <algorithm-slider max-value='1' min='0'
-                        slider-value='{{slider_a_z}}' slider-name="External Feed" step-size='0.2'>
+                    <algorithm-slider max-value='[[sliderDefaults.maxValue]]' 
+                        min='[[sliderDefaults.minValue]]'
+                        slider-value='{{slider_a_z}}' 
+                        slider-name="External Feed" 
+                        step-size='[[sliderDefaults.stepSize]]'
+                        color='var(--ef-color)'>
                     </algorithm-slider>     
                     
                 </div>

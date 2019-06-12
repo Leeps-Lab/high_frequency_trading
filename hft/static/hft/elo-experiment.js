@@ -23,6 +23,7 @@ class ELOExperiment extends PolymerElement {
           event-listeners=[[environment.eventListeners]]
           event-handlers=[[environment.eventHandlers]]
           slider-defaults=[[environment.sliderProperties]]
+          
         </elo-market-session>
         `;
       }

@@ -7,7 +7,7 @@ import './examples/elo-state-selection.js'
 import './examples/elo-info-table.js'
 import './market-primitives/spread-graph.js'
 import './market-primitives/profit-graph.js'
-import './market-primitives/profit-graph-fixed.js'
+import './market-primitives/attribute-graph.js'
 import './market-primitives/stepwise-calculator.js'
 import './market-primitives/ws.js'
 import './market-primitives/test-inputs.js'
@@ -37,6 +37,11 @@ class MarketSession extends PolymerElement {
                 --background-color-white:#FFFFF0;
                 --background-color-blue:#4F759B;
 
+                /*Background Color for sliders and on the attirbute graph*/
+                --inv-color:#7DB5EC;
+                --sv-color:#90ED7D;
+                --ef-color:#8980F5;
+
                 --global-font:monospace;
             }
             spread-graph{
@@ -45,7 +50,11 @@ class MarketSession extends PolymerElement {
             }
             profit-graph{
                 width:100vw;
-                height:45vh;
+                height:22vh;
+            }
+            attribute-graph{
+                width:100vw;
+                height:22vh;
             }
             profit-graph-fixed{
                 width:100vw;
@@ -67,8 +76,10 @@ class MarketSession extends PolymerElement {
                 align-items: center;
                 font-weight: bold;
                 background: var(--background-color-blue) ;
-                border-top: 3px solid #ED6A5A;
-                border-bottom: 3px solid #ED6A5A;
+                border-top: 3px solid black;
+                border-bottom: 3px solid black;
+                /*border-top: 3px solid #ED6A5A;
+                border-bottom: 3px solid #ED6A5A;*/
             }
             .graph-disabled  {
                 cursor:not-allowed;
@@ -117,7 +128,8 @@ class MarketSession extends PolymerElement {
                     <elo-info-table inventory={{inventory}}
                         cash={{cash}} signed-volume={{signedVolume}}
                         endowment={{wealth}} best-bid={{bestBid}}
-                        best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
+                        best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}
+                        sv-slider-displayed={{svSliderDisplayed}}>
                     </elo-info-table>
                     <elo-state-selection role={{role}} buttons={{buttons}} slider-defaults={{sliderDefaults}}
                         speed-on={{subscribesSpeed}} 
@@ -125,7 +137,14 @@ class MarketSession extends PolymerElement {
                         sv-slider-displayed={{svSliderDisplayed}}> 
                     </elo-state-selection>
                 </div>
-
+                <attribute-graph
+                    speed-on={{subscribesSpeed}}
+                    a_x={{sliderValues.a_x}}
+                    a_y={{sliderValues.a_y}}
+                    a_z={{sliderValues.a_z}}
+                    is-running={{isSessionActive}}
+                    x-range="{{sessionLengthMS}}"
+                ></attribute-graph>
                 <profit-graph
                     profit={{wealth}}
                     is-running={{isSessionActive}}
@@ -174,6 +193,10 @@ class MarketSession extends PolymerElement {
             value: false,
             reflectToAttribute: true
         },
+        sliderValues:{
+            type: Object,
+            value: {a_x: 0,a_y: 0, a_z:0}
+        },
         isSessionActive:{
             type: Boolean,
             value: false,
@@ -214,6 +237,7 @@ class MarketSession extends PolymerElement {
         this.role = 'out';
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
+        //this.sliderValues = {a_x: 0.2,a_y: 0.6,a_z:0.3}; THIS IS UPDATE THE ATTRIBUTE GRAPH CORRECTLY
     }
 
     ready(){
@@ -469,6 +493,7 @@ class MarketSession extends PolymerElement {
     }
 
     _calculateWealth(cash, costStep, referencePrice, inventory) {
+        // console.log(cash, costStep, referencePrice, inventory);
         const out = Math.round(cash - costStep + referencePrice * inventory) 
         return out
     }

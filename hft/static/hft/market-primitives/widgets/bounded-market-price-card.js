@@ -52,7 +52,7 @@ class MarketPriceCard extends PolymerElement {
       :host{
         display: inline-block;
         font-family: monospace;
-        width:100px;
+        width:100%;
         height:100%;
       }
 
@@ -75,12 +75,12 @@ class MarketPriceCard extends PolymerElement {
         flex-direction: row;
         justify-content: center;
         border-top: 1px solid #000;
-        font-size: 1.4em;
+        font-size: 1.6em;
       }
 
       .title-text {
         text-align: center;
-        font-size: 1.4em;
+        font-size: 1.6em;
       }
 
       [trend=price-up]{
