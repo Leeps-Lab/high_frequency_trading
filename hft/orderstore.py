@@ -17,7 +17,7 @@ class OrderStore:
     }
 
     def __init__(self, player_id: int, in_group_id=None, firm=None, default_shares=1,
-            ticker=b'AMAZGOOG', default_inventory=0):
+            ticker=b'AMAZGOOG', default_inventory=0, **kwargs):
         if in_group_id == firm == None:
             raise Exception('in_group_id and firm kwargs are both None')
         self.ticker = ticker

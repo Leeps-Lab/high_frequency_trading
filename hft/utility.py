@@ -152,7 +152,7 @@ def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
 elo_args_fields = (
     'subsession_id', 'market_id', 'id', 'id_in_group', 'default_role', 
     'exchange_host', 'exchange_port')
-elo_kwargs_fields = ('cash', )
+elo_kwargs_fields = ('cash', 'speed_unit_cost')
 def elo_otree_player_converter(otree_player):
     args = [getattr(otree_player, field) for field in elo_args_fields]
     kwargs = {field: getattr(otree_player, field) for field in elo_kwargs_fields}
