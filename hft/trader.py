@@ -137,10 +137,13 @@ class ELOTrader(BaseTrader):
             discount_rate=event.attachments['tax_rate'])
         self.cash += self.inventory.cash
         tax_paid = self.inventory.cost
+        if self.technology_subscription.is_active:
+            self.technology_subscription.deactivate()
         speed_cost = self.technology_subscription.invoice()
         self.cost += tax_paid + speed_cost
         self.tax_paid += tax_paid
         self.speed_cost += speed_cost
+        self.net_worth =  self.net_worth - self.cost
     
     def user_slider_change(self, event):
         msg = event.message

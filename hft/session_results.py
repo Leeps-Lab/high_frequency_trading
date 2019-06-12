@@ -27,8 +27,8 @@ class HFTPlayerSessionSummary(Model):
 def state_for_results_template(player):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
         market_id=player.market_id)
-    nets = {str(o.player_id): int(o.net_worth * 0.0001) for o in summary_objects}
-    taxes = {str(o.player_id): int(o.tax_paid * 0.0001) for o in summary_objects}
+    nets = {str(o.player_id): round(o.net_worth * 0.0001) for o in summary_objects}
+    taxes = {str(o.player_id): round(o.tax_paid * 0.0001) for o in summary_objects}
     names = {str(o.player_id): 'You' if o.player_id == player.id else 'Anonymous Trader' 
         for o in summary_objects}
     strategies = {str(o.player_id): {'automated': o.time_as_automated, 

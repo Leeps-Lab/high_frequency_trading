@@ -78,6 +78,7 @@ class ELOTraderState(TraderState):
         if new_state is True:
             trader.delay = short_delay
             trader.technology_subscription.activate()
+            log.debug('player %s subscribes to technology.' % trader.player_id)
         else:
             trader.delay = long_delay
             trader.technology_subscription.deactivate()

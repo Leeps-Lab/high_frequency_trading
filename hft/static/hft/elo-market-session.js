@@ -239,7 +239,7 @@ class MarketSession extends PolymerElement {
             cleanMessage = scaler(cleanMessage, 1)
         }     
         let wsMessage = new CustomEvent('ws-message', {bubbles: true, composed: true, 
-            detail: messagePayload })
+            detail: cleanMessage })
         this.$.websocket.dispatchEvent(wsMessage)
     }
     
@@ -463,13 +463,11 @@ class MarketSession extends PolymerElement {
     }
 
     _calculateCost(speedCost) {
-        // we should revisit this rounding issue
-        // in general we want to integers
-        return Math.round(speedCost)
+        return speedCost
     }
 
     _calculateWealth(cash, costStep, referencePrice, inventory) {
-        const out = Math.round(cash - costStep + referencePrice * inventory) 
+        const out = Math.round((cash - costStep + referencePrice * inventory) * 10) / 10
         return out
     }
 
