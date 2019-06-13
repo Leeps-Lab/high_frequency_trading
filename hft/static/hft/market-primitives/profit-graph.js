@@ -9,11 +9,11 @@ class ProfitGraph extends PolymerElement {
                     display: block;
                 }
                 :host #svg{
-                    background-color:#FFFFF0;
+                    background-color:var(--background-color-white);
                 }
                 .profit-line {
                     stroke: black;
-                    stroke-width: 2;
+                    stroke-width: 1;
                 }
                 g text{
                     font-family:monospace;
@@ -54,7 +54,7 @@ class ProfitGraph extends PolymerElement {
             },
             _defaultYRange: {
                 type: Array,
-                value: [-20, 20],
+                value: [-10, 10],
             },
             isRunning: {
                 type: Boolean,
@@ -155,7 +155,6 @@ class ProfitGraph extends PolymerElement {
         this.yAxisRight.scale(this.yScale);
 
         this.domYAxisLeft.call(this.yAxisLeft);
-        
         this.domYAxisRight
             .attr('transform', 'translate(' + (this.width + this.margin.right) + ',' + this.margin.top + ')')
             .call(this.yAxisRight);
@@ -198,6 +197,7 @@ class ProfitGraph extends PolymerElement {
     }
 
     _addPayoff(newProfit, oldProfit) {
+        
         if (!this.mainGroup || !this.startTime) {
             return;
         }
@@ -205,10 +205,16 @@ class ProfitGraph extends PolymerElement {
         const oldTime = this._lastPayoffChangeTime;
         this._lastPayoffChangeTime = performance.now();
         if (this._lastPayoffChangeTime) {
-            // this.push('_profitHistory', {payoff: oldProfit, time: oldTime, endTime: performance.now()});
-            this.push('_profitHistory', {payoff: oldProfit, time: oldTime});
-
+            this.push('_profitHistory', {payoff1: oldProfit, payoff2: oldProfit, time: oldTime});
+            this.push('_profitHistory', {payoff1: oldProfit, payoff2: newProfit, time: this._lastPayoffChangeTime});
         }
+        this.mainGroup.append('line')
+            .attr('clip-path', 'url(#lines-clip)')
+            .attr('class', 'profit-line profit-vert')
+            .attr('y1',this.yScale(oldProfit))
+            .attr('y2', this.yScale(newProfit))
+            .attr('x1', this.xScale(this._lastPayoffChangeTime))
+            .attr('x2', this.xScale(this._lastPayoffChangeTime));
 
         // update current profit line y value
         this.currentProfitLine
@@ -258,8 +264,8 @@ class ProfitGraph extends PolymerElement {
             .data(profitHistory)
           .transition()
             // .duration(this.animationTime)
-            .attr('y1', d => self.yScale(d.payoff))
-            .attr('y2', d => self.yScale(d.payoff));
+            .attr('y1', d => self.yScale(d.payoff1))
+            .attr('y2', d => self.yScale(d.payoff2));
 
         // transition current profit line to new y value
         this.currentProfitLine.transition()
@@ -278,6 +284,7 @@ class ProfitGraph extends PolymerElement {
 
         const lines = this.profitLines.selectAll('line')
             .data(profitHistory);
+        this.mainGroup.selectAll('.profit-vert').remove()
 
         lines.enter()
             .append('line')
@@ -285,8 +292,8 @@ class ProfitGraph extends PolymerElement {
             .attr('class', 'profit-line')
             .attr('x1', d =>  self.xScale(d.time))
             .attr('x2', (_, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
-            .attr('y1', d => self.yScale(d.payoff))
-            .attr('y2', d => self.yScale(d.payoff));
+            .attr('y1', d => self.yScale(d.payoff1))
+            .attr('y2', d => self.yScale(d.payoff2));
 
         lines
             .attr('x1', d =>  self.xScale(d.time))

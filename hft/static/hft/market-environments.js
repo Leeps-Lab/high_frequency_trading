@@ -63,8 +63,6 @@ const ELO = {
                 volume_at_best_offer: parseInt
             },
             order_imbalance: {
-                //Remove this message?
-                // yeah, possibly in near future - ali
                 type: String,
                 market_id: parseInt,
                 value: parseFloat
@@ -96,6 +94,14 @@ const ELO = {
                 type: String,
                 market_id: parseInt,
                 code: String
+            },
+            slider_confirm: {
+                type: String,
+                market_id: parseInt,
+                player_id: parseInt,
+                a_x: parseFloat,
+                a_y: parseFloat,
+                a_z: parseFloat
             }
         },
         outbound: {
@@ -136,15 +142,15 @@ const ELO = {
         elo_quote_cue: ['_handleTakerCue'],
         speed_confirm: ['_handleSpeedConfirm'],
         reference_price: ['_handleReferencePrice'],
-        external_feed: ['_handleExternalFeed']
+        slider_confirm: ['_handleSliderConfirm']
     },
     sliderProperties: {
         minValue: 0,
-        maxValue: 2,
+        maxValue: 1,
         stepSize: 0.1
     },
-    manualButtonDisplayed: true,
-    svSliderDisplayed: true,
+    // manualButtonDisplayed: false,
+    // svSliderDisplayed: false,
 }
 
 export {ELO}

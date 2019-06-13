@@ -8,10 +8,10 @@ class MarketPriceCard extends PolymerElement {
   static get properties(){
   return {
     title: String,
-    price: {type: String, value:0 ,observer: '_priceChanged'},
-    animated: Boolean,
-    price_trend: String,
-    currency: String
+    price: {type: String, value:0},
+    currency: String,
+    sideId: String,
+    animated: {type: String, reflectToAtrribute: true}
     }
   }
 
@@ -19,30 +19,18 @@ class MarketPriceCard extends PolymerElement {
     super();
     //Set currency within the markup where it is initialized
     this.currency = '$';
-    this.animated = false
+  }
+
+  animate() {
+    let priceHolder = this.shadowRoot.querySelector('.cardPrice')
+    this.animated = this.animated == 'animate_one' ? 'animate_two' : 'animate_one' 
+      // interestingly polymer data binding did not reflect to dom somehow
+      priceHolder.setAttribute("animate", this.animated)
   }
 
   _displayPrice(price) {
     let displayPrice = (price == MIN_BID || price == MAX_ASK) ? ' - ' : price
     return displayPrice
-  }
-
-  _priceChanged(newValue, oldValue) {
-    if (this.animated) {
-      let theCard = this.shadowRoot.querySelector('.cardPrice')
-      if (newValue == MIN_BID || newValue == MAX_ASK) { 
-        theCard.setAttribute("trend", "")
-        return
-      } 
-      let incomingPriceTrend = oldValue > newValue ? 'price-down' : oldValue === newValue ? 
-          '' : 'price-up';
-      if (this.price_trend === incomingPriceTrend) {
-        incomingPriceTrend = incomingPriceTrend + '-copy';
-      }
-
-      this.price_trend = incomingPriceTrend
-      theCard.setAttribute("trend", incomingPriceTrend)
-    }
   }
 
   static get template() { 
@@ -52,7 +40,7 @@ class MarketPriceCard extends PolymerElement {
       :host{
         display: inline-block;
         font-family: monospace;
-        width:100px;
+        width:100%;
         height:100%;
       }
 
@@ -75,68 +63,39 @@ class MarketPriceCard extends PolymerElement {
         flex-direction: row;
         justify-content: center;
         border-top: 1px solid #000;
-        font-size: 1.4em;
+        font-size: 1.6em;
       }
 
       .title-text {
         text-align: center;
-        font-size: 1.4em;
+        font-size: 1.6em;
       }
 
-      [trend=price-up]{
-        animation-name: increase;
-        animation-duration: 0.4s;
-        animation-timing-function: ease-in-out;
-      }
-
-      [trend=price-up-copy]{
-        animation-name: increase-more;
-        animation-duration: 0.4s;
-        animation-timing-function: ease-in-out;
-      }
-
-      [trend=price-down] {
-        animation-name: decrease;
-        animation-duration: 0.4s;
+      [animate=animate_one]{
+        animation-name: shine;
+        animation-duration: 0.2s;
         animation-timing-function: ease-out;
+
       }
 
-      [trend=price-down-copy] {
-        animation-name: decrease-more;
-        animation-duration: 0.4s;
+      [animate=animate_two]{
+        animation-name: shine-more;
+        animation-duration: 0.2s;
         animation-timing-function: ease-out;
+
       }
 
-      @keyframes increase{
+      @keyframes shine{
         100% {
-        background-color: rgba(0,255,0,0.4)
-        };
-        10% {
-        background-color: rgba(0,255,0,0.05)
+        background-color: rgba(255,215,10,0.4)
         };
       }
 
-      @keyframes increase-more{
+      @keyframes shine-more{
         100% {
-        background-color: rgba(0,254,0,0.4)
-        };
-        10% {
-        background-color: rgba(0,254,0,0.05)
+        background-color: rgba(255,210,10,0.4)
         };
       }
-      
-      @keyframes decrease{
-        100% {
-        background-color: rgba(255,0,0,0.4)
-        };
-      }
-
-      @keyframes decrease-more{
-        100% {
-        background-color: rgba(255,0,0,0.4)
-        };
-      }
-
       </style>
 
         <div class="fullCard">
@@ -146,7 +105,7 @@ class MarketPriceCard extends PolymerElement {
                   {{title}}
                 </span>
               </div>
-              <div class="cardPrice">
+              <div class="cardPrice" animate={{animated}}>
                 <p>
                   {{currency}}
                 </p>

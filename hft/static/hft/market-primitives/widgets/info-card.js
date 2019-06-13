@@ -39,7 +39,7 @@ class InfoCard extends PolymerElement {
 
             .theCard {
               display: flex;
-              background: #FFFFF0;
+              background: var(--background-color-white);
               align-items: center;
             }
 
@@ -67,14 +67,12 @@ class InfoCard extends PolymerElement {
                 animation-name: shine-more;
                 animation-duration: 0.15s;
                 animation-timing-function: ease-in-out;
-                animation-iteration-count: 3;
             }
     
             [shine-class=shine] {
                 animation-name: shine;
                 animation-duration: 0.15s;
                 animation-timing-function: ease-in-out;
-                animation-iteration-count: 3;
               }
     
               @keyframes shine{

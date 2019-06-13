@@ -41,7 +41,7 @@ class NiceCheckbox extends PolymerElement {
                 width: 26px;
                 left: 4px;
                 bottom: 4px;
-                background-color: #FFFFF0;
+                background-color: var(--background-color-white);
                 -webkit-transition: .4s;
                 transition: .4s;
               }

@@ -11,7 +11,8 @@ class  Broadcaster:
     flush_interval = 0.25 #seconds
     queues = {}
     flush_history = {}
-    unbatchable_message_types = ('system_event', 'role_confirm', 'speed_confirm')
+    unbatchable_message_types = ('system_event', 'role_confirm', 'speed_confirm',
+        'slider_confirm')
 
 
     def broadcast(self, message, batch=False):

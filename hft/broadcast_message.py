@@ -71,6 +71,10 @@ class SpeedConfirmBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'player_id', 'value')
     required_field_types = (int, int, bool)  
 
+class SliderConfirmBroadcastMessage(BroadcastWSMessage):
+    required_fields = ('market_id', 'player_id', 'a_x', 'a_y', 'a_z')
+    required_field_types = (int, int, float, float, float)  
+
 
 class ELOBroadcastMessageFactory(MessageFactory):
 
@@ -85,5 +89,6 @@ class ELOBroadcastMessageFactory(MessageFactory):
         'signed_volume': SignedVolumeBroadcastMessage,
         'external_feed': ExternalFeedBroadcastMessage,
         'reference_price': ReferencePriceBroadcastMessage,
-        'speed_confirm': SpeedConfirmBroadcastMessage
+        'speed_confirm': SpeedConfirmBroadcastMessage,
+        'slider_confirm': SliderConfirmBroadcastMessage
     }

@@ -149,7 +149,9 @@ class ELOTrader(BaseTrader):
         msg = event.message
         self.sliders = {
             'slider_a_x': msg.a_x, 'slider_a_y': msg.a_y,
-            'slider_a_z': event.message.a_z}       
+            'slider_a_z': event.message.a_z}
+        event.broadcast_msgs('slider_confirm', a_x=self.sliders['slider_a_x'],
+            a_y=self.sliders['slider_a_y'], a_z=self.sliders['slider_a_z'], model=self)       
 
     @property
     def best_bid_except_me(self):

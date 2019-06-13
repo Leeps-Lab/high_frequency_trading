@@ -24,7 +24,6 @@ const scaler = (message, direction) => {
                 }
                 if (direction == 1) {
                     scaled = parseInt(scaled * multipler)
-                    console.log('sacled', scaled)
                 } else if (direction == 2) {
                     scaled = parseInt(scaled / multipler)
                 } else {
@@ -36,7 +35,6 @@ const scaler = (message, direction) => {
                 continue
             }
             cleanMessage[key] = scaled
-            console.log('after sacle', cleanMessage)
         }
     }
     return cleanMessage
