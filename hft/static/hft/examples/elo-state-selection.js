@@ -1,5 +1,4 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
-import {} from '../node_modules/@polymer/polymer/lib/elements/dom-if.js';
 import '../market-primitives/widgets/player-role-button.js'
 import '../market-primitives/widgets/nice-checkbox.js'
 import '../market-primitives/widgets/algorithm-slider.js'

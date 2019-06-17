@@ -99,11 +99,11 @@ class InfoTable extends PolymerElement {
               </div>
             </div>
             <div id="small-row">
-            <template is="dom-if" if="{{svSliderDisplayed}}">
-              <elo-subject-wallet inventory={{inventory}} cash={{cash}}
-                endowment={{endowment}} signed-volume={{signedVolume}}> 
-              </elo-subject-wallet>
-            </template>
+
+            <elo-subject-wallet inventory={{inventory}} cash={{cash}}
+              endowment={{endowment}} signed-volume={{signedVolume}} sv-slider-displayed={{svSliderDisplayed}}> 
+            </elo-subject-wallet>
+
             </div>
           </div>
         `;}
