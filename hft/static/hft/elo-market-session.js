@@ -245,7 +245,8 @@ class MarketSession extends PolymerElement {
         // maybe a constants component
         this.playerId = OTREE_CONSTANTS.playerId
         this.manualButtonDisplayed = OTREE_CONSTANTS.manualButtonDisplayed
-        this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed
+        this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed;
+        console.log( OTREE_CONSTANTS.svSliderDisplayed)
         this.referencePrice = 0
         this.cash = 0
         this.wealth = 0

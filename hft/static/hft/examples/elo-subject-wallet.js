@@ -1,6 +1,6 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
 import '../market-primitives/widgets/info-card.js'
-
+import {} from '../node_modules/@polymer/polymer/lib/elements/dom-if.js';
 class WallletCard extends PolymerElement {
 
     static get properties(){
@@ -11,7 +11,8 @@ class WallletCard extends PolymerElement {
         inventory: Number,
         cash: Number,
         endowment: Number,
-        signedVolume: Number
+        signedVolume: Number,
+        svSliderDisplayed: Boolean,
       };
     }
   
@@ -53,8 +54,10 @@ class WallletCard extends PolymerElement {
             </info-card>
             <info-card class="theCard" title="Wealth" currency=$ value={{endowment}}>
             </info-card>
-            <info-card class="theCard" title="Signed Volume" currency="" value={{signedVolume}}>
-            </info-card>
+            <template is="dom-if" if="{{svSliderDisplayed}}">
+              <info-card class="theCard" title="Signed Volume" currency="" value={{signedVolume}}>
+              </info-card>
+            </template>
           </div>
         </div>
         `;
