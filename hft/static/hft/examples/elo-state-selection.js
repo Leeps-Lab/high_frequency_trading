@@ -97,7 +97,7 @@ class StateSelection extends PolymerElement {
                     <algorithm-slider max-value='[[sliderDefaults.maxValue]]' 
                         min='[[sliderDefaults.minValue]]'
                         color='var(--inv-color)'
-                        slider-value='{{slider_a_x}}' 
+                        slider-value='{{slider_a_y}}'
                         slider-name="Inventory" 
                         step-size='[[sliderDefaults.stepSize]]'>
                     </algorithm-slider>
@@ -106,7 +106,7 @@ class StateSelection extends PolymerElement {
                         <algorithm-slider max-value='[[sliderDefaults.maxValue]]' 
                             min='[[sliderDefaults.minValue]]' 
                             color='var(--sv-color)'
-                            slider-value='{{slider_a_y}}' 
+                            slider-value='{{slider_a_x}}'  
                             slider-name="Signed Volume" 
                             step-size='[[sliderDefaults.stepSize]]'
                             is-disabled="true">
