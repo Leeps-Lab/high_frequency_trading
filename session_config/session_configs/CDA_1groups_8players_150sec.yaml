@@ -23,7 +23,7 @@ parameters:
   default-role: 'out'
   include-manual-role: true
   include-signed-volume-widgets: true
-  initial-endowment: 2000
+  initial-endowment: 100
   session-duration: 60
   technology-unit-cost: 0.022  # $/s
   k-reference-price: 0.7

@@ -119,9 +119,13 @@ def disconnect(market_id, host, port):
         conn.transport.loseConnection()
         del exchanges[addr]
 
-def send_exchange(host, port, message, delay):
+def send_exchange(host, port, message, delay, subsession_id=None):
     addr = '{}:{}'.format(host, port)
     if addr not in exchanges:
         raise FileNotFoundError('connection at %s not found.', addr)
     conn = exchanges[addr].connection
-    conn.sendMessage(message, delay)
+    if subsession_id and subsession_id != conn.factory.subsession_id:
+        raise Exception('subsession id mismatch: conn: %s-message: %s' % (
+            conn.factory.subsession_id, subsession_id))
+    else:
+        conn.sendMessage(message, delay)

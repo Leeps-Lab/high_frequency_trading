@@ -39,9 +39,9 @@ class Dispatcher:
                 event, topic, cls.market_environment)
             event = handler.handle()
 
-        # log.debug(
-        #     '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
-        #      event=event))
+        log.debug(
+            '{event.reference_no}:{event.event_source}:{event.event_type}:{event.player_id}'.format(
+             event=event))
         #log.debug(event)
 
 
@@ -49,7 +49,7 @@ class Dispatcher:
             message = event.exchange_msgs.pop()
             send_exchange(
                 message.exchange_host, message.exchange_port, message.translate(), 
-                message.delay)
+                message.delay, subsession_id=message.subsession_id)
 
         while event.broadcast_msgs:
             message = event.broadcast_msgs.pop()

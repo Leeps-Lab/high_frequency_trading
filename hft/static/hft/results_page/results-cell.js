@@ -70,7 +70,7 @@ export class ResultsCell extends PolymerElement {
     let payoffData = [];
     payoffData.push(payoff);
 
-    const tax = this.tax;
+    const tax = payoff > 0 ? this.tax : - this.tax;
     let taxData = [];
     if (tax > 0) {
       taxData.push(tax);
@@ -130,7 +130,7 @@ export class ResultsCell extends PolymerElement {
     let chart2 = Highcharts.chart(this.$.container2, {
       chart: {
         type: 'column',
-        size: '100%'
+        size: '80%'
       },
       title: {
         text: 'Payoff'
@@ -140,8 +140,8 @@ export class ResultsCell extends PolymerElement {
         crosshair: true
       },
       yAxis: {
-        max: 2000,
-        min: 0,
+        max: 300,
+        min: -200,
         title: {
           text: ''
         }

@@ -11,7 +11,7 @@ from .market import MarketFactory
 from itertools import count
 import sys
 from django.core import serializers
-from .exogenous_event import get_exogenous_event_queryset
+from .exogenous_event import get_filecode_from_filename
 from .internal_event_message import MarketEndMessage
 
 
@@ -74,14 +74,14 @@ class TradeSession:
     def start_exogenous_events(self):
         if self.exogenous_events:
             for event_type, filename in self.exogenous_events.items():
-                url = utility.exogenous_event_endpoint.format(subsession_id=
-                    self.subsession_id)
-                exogenous_event_queryset = get_exogenous_event_queryset(event_type, 
-                    filename)
-                exogenous_event_json_formatted = serializers.serialize('json', 
-                    exogenous_event_queryset)
-                args = ['python', utility.exogenous_event_client, url, event_type, 
-                    exogenous_event_json_formatted]
+                ssid =  self.subsession_id
+                url = utility.exogenous_event_endpoint.format(subsession_id=ssid)
+                filecode = get_filecode_from_filename(event_type, filename)
+                # exogenous_event_json_formatted = serializers.serialize('json', 
+                #     exogenous_event_queryset)
+                args = ['python', utility.exogenous_event_client, url, ssid, 
+                    event_type, filecode]
+                  #  exogenous_event_json_formatted]
                 process = subprocess.Popen(args)
                 self.clients[event_type] = process
 
@@ -102,7 +102,7 @@ class ELOTradeSession(TradeSession):
             host, port = self.market_exchange_pairs[market_id]
             self.event.exchange_msgs(
                 'reset_exchange', exchange_host=host, exchange_port=port, 
-                delay=0, event_code='S', timestamp=0)
+                delay=0, event_code='S', timestamp=0, subsession_id=self.subsession_id)
         self.market_state[market_id] = True
         is_ready = (True if False not in self.market_state.values() else False)
         if is_ready and not self.is_trading:

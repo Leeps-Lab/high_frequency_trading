@@ -18,7 +18,7 @@ exogenous_events = {
 }  
 
 exogenous_event_endpoint = 'ws://127.0.0.1:8000/hft_exogenous_event/{subsession_id}'
-exogenous_event_client = 'hft/exogenous_event_emitter.py'
+exogenous_event_client = 'hft/exogenous_event_emitter/ws_client.py'
 
 available_exchange_ports = {
     'CDA': list(range(9010, 9000, -1)),
@@ -52,7 +52,6 @@ def serialize_in_memo_model(in_memo_model, req_props, req_subprops: dict):
                         raise AttributeError('%s has no %s:%s' % (attr, prop_name, subprop_name))
                     result[subprop_name] = value
     return result
-
 
 def process_configs(session_format, session_configs):
     clean_confs = type_check_configs(

@@ -16,7 +16,7 @@ from . import utility
 from .trader import TraderFactory
 from .trade_session import TradeSessionFactory
 from .market import MarketFactory
-from .cache import initialize_model_cache, set_market_id_map, get_market_id_map
+from .cache import initialize_model_cache, set_market_id_table, get_market_id_table
 from .exogenous_event import ExogenousEventModelFactory
 from . import market_environments
 from django.utils import timezone
@@ -80,7 +80,7 @@ class Subsession(BaseSubsession):
                     event_type_name, market)
                 if exogenous_event_manager_model:
                     initialize_model_cache(exogenous_event_manager_model)
-        set_market_id_map(trade_session.subsession_id, market_id_map)
+        set_market_id_table(trade_session.subsession_id, market_id_map)
         self.configure_for_trade_session(session_format)
         initialize_model_cache(trade_session)
         self.save()

@@ -1,5 +1,5 @@
 
-from .cache import get_market_id_map
+from .cache import get_market_id_table
 from .equations import price_grid
 
 class MessageSanitizer:
@@ -15,8 +15,13 @@ class ELOWSMessageSanitizer(MessageSanitizer):
     def sanitize(cls, message, **kwargs):
         clean_message = message
         if 'market_id_in_subsession' in clean_message:
-            mapping = get_market_id_map(kwargs['subsession_id'])
-            market_id = mapping[clean_message['market_id_in_subsession']]
+            market_id_in_subsession = clean_message['market_id_in_subsession']
+            market_id = market_id_in_subsession
+            if market_id_in_subsession is not 0:
+                id_table = get_market_id_table(kwargs['subsession_id'])
+                if not id_table:
+                    raise Exception('id to id in subsession table is none.')
+                market_id = id_table[market_id_in_subsession]
             clean_message['market_id'] = market_id
         if 'price' in clean_message:
             clean_message['price'] = price_grid(clean_message['price'])

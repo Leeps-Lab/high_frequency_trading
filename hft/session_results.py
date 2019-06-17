@@ -3,7 +3,7 @@
 # not abstracting for reuse
 from otree.api import models
 from otree.db.models import Model, ForeignKey
-from .cache import model_key_format_str_kw
+from .cache import get_cache_key
 from django.core.cache import cache
 from .output import TraderRecord
 import logging
@@ -40,7 +40,7 @@ def state_for_results_template(player):
         'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies}
 
 def elo_player_summary(player):
-    market = cache.get(model_key_format_str_kw.format(model_name='market',
+    market = cache.get(get_cache_key('from_kws', model_name='market',
         model_id=player.market_id, subsession_id=player.subsession_id))
     session_length = market.time_session_end - market.time_session_start
     average_sens = _get_average_sensitivies(player.subsession.id, player.market_id, player.id,

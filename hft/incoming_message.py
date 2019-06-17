@@ -2,7 +2,7 @@ from .translator import LeepsOuchTranslator
 from .equations import price_grid
 import json
 import logging
-from .cache import get_market_id_map
+from .cache import get_market_id_table
 from .message_sanitizer import (
     ELOWSMessageSanitizer, ELOOuchMessageSanitizer, ELOInternalEventMessageSanitizer)
 

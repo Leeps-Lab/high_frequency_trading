@@ -85,26 +85,30 @@ def handle_exogenous_event_file(filename, filelike, record_cls, record_type):
             headers, submitted_file=file_record)
         ex_order.save()
 
-
 def get_exogenous_event_queryset(event_type, filename):
-    try:
-        queryset_info = exogenous_event_queryset[event_type]
-    except KeyError:
-        raise Exception('{}:{} not found'.format(event_type, filename))
-    else:
-        event_file_model_cls = queryset_info['event_file_model']
-        event_model_cls = queryset_info['event_model']
-        event_file_model = event_file_model_cls.objects.get(upload_name=filename)
-        queryset = event_model_cls.objects.filter(submitted_file=event_file_model).order_by(
-                queryset_info['order_by'])
-        return queryset
+    queryset_info = get_exg_query_set_meta(event_type)
+    event_file_model_cls = queryset_info['event_file_model']
+    event_model_cls = queryset_info['event_model']
+    event_file_model = event_file_model_cls.objects.get(upload_name=filename)
+    queryset = event_model_cls.objects.filter(submitted_file=event_file_model).order_by(
+            queryset_info['order_by'])
+    return queryset
 
-exogenous_event_queryset = {
+exg_event_query_meta = {
     'investor_arrivals': {
         'event_model': ExogenousOrderRecord, 'event_file_model': ExogenousEventFile,
         'order_by': 'arrival_time'},
     'external_feed': {
         'event_model': ExternalFeedRecord, 'event_file_model': ExogenousEventFile,
-        'order_by': 'arrival_time'}
-}
+        'order_by': 'arrival_time'}}
+def get_exg_query_set_meta(event_type, source=exg_event_query_meta):
+    try:
+        return source[event_type]
+    except KeyError:
+        raise Exception('invalid event type %s' % event_type)
 
+def get_filecode_from_filename(event_type, filename):
+    m = get_exg_query_set_meta(event_type)
+    event_file_model_cls = m['event_file_model']
+    event_file_model = event_file_model_cls.objects.get(upload_name=filename)
+    return event_file_model.code

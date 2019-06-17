@@ -1,6 +1,4 @@
-from .outbound_message_primitives import (
-    OutboundExchangeMessage, BroadcastWSMessage, MessageFactory)
-
+from .outbound_message_primitives import (BroadcastWSMessage, MessageFactory)
 
 
 class BBOBroadcastMessage(BroadcastWSMessage):
