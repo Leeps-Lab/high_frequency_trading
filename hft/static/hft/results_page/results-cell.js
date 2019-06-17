@@ -140,7 +140,7 @@ export class ResultsCell extends PolymerElement {
         crosshair: true
       },
       yAxis: {
-        max: 300,
+        max: 200,
         min: -200,
         title: {
           text: ''
@@ -160,7 +160,7 @@ export class ResultsCell extends PolymerElement {
           dataLabels: {
             enabled: true
           },
-          showInLegend: false
+          showInLegend: true
         }
       },
       series: [{
