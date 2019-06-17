@@ -21,7 +21,9 @@ market:
 
 parameters:
   default-role: 'out'
-  initial-endowment: 2000
+  include-manual-role: true
+  include-signed-volume-widgets: false
+  initial-endowment: 100
   session-duration: 150
   technology-unit-cost: 0.022  # $/s
   k-reference-price: 0.7

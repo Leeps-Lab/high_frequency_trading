@@ -1,11 +1,13 @@
 
 import { PolymerElement, html } from './node_modules/@polymer/polymer/polymer-element.js';
 import {PlayersOrderBook} from './market-primitives/orderbook.js'
+import {scaler} from './util.js'
 
 import './examples/elo-state-selection.js'
 import './examples/elo-info-table.js'
 import './market-primitives/spread-graph.js'
 import './market-primitives/profit-graph.js'
+import './market-primitives/attribute-graph.js'
 import './market-primitives/stepwise-calculator.js'
 import './market-primitives/ws.js'
 import './market-primitives/test-inputs.js'
@@ -35,6 +37,11 @@ class MarketSession extends PolymerElement {
                 --background-color-white:#FFFFF0;
                 --background-color-blue:#4F759B;
 
+                /*Background Color for sliders and on the attirbute graph*/
+                --inv-color:#7DB5EC;
+                --sv-color:#90ED7D;
+                --ef-color:#8980F5;
+
                 --global-font:monospace;
             }
             spread-graph{
@@ -43,14 +50,22 @@ class MarketSession extends PolymerElement {
             }
             profit-graph{
                 width:100vw;
+                height:22vh;
+            }
+            attribute-graph{
+                width:100vw;
+                height:22vh;
+            }
+            profit-graph-fixed{
+                width:100vw;
                 height:48vh;
             }
             elo-info-table{
-                height:32vh;
+                height:35vh;
                 width:100vw;
             }
             elo-state-selection{
-                height:32vh;
+                height:35vh;
                 width:100vw;
             }
 
@@ -61,8 +76,10 @@ class MarketSession extends PolymerElement {
                 align-items: center;
                 font-weight: bold;
                 background: var(--background-color-blue) ;
-                border-top: 3px solid #ED6A5A;
-                border-bottom: 3px solid #ED6A5A;
+                border-top: 3px solid black;
+                border-bottom: 3px solid black;
+                /*border-top: 3px solid #ED6A5A;
+                border-bottom: 3px solid #ED6A5A;*/
             }
             .graph-disabled  {
                 cursor:not-allowed;
@@ -98,6 +115,7 @@ class MarketSession extends PolymerElement {
                 run-forever={{subscribesSpeed}}
                 value={{speedCost}}
                 unit-size={{speedUnitCost}}
+                last-step={{previousSpeedCostStep}}
             ></stepwise-calculator>
             <test-inputs
                 is-running={{isSessionActive}}
@@ -107,18 +125,30 @@ class MarketSession extends PolymerElement {
                 <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' bid-cue={{eBestBid}} offer-cue={{eBestOffer}} orders={{orderBook}} my-bid={{myBid}} 
                     my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
                 <div class="middle-section-container">       
-                    <elo-info-table inventory={{inventory}}
+                    <elo-info-table id="infotable" inventory={{inventory}}
                         cash={{cash}} signed-volume={{signedVolume}}
                         endowment={{wealth}} best-bid={{bestBid}}
-                        best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}> 
+                        best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}
+                        sv-slider-displayed={{svSliderDisplayed}}>
                     </elo-info-table>
                     <elo-state-selection role={{role}} buttons={{buttons}} slider-defaults={{sliderDefaults}}
-                        speed-on={{subscribesSpeed}}> 
+                        speed-on={{subscribesSpeed}} 
+                        manual-button-displayed={{manualButtonDisplayed}} 
+                        sv-slider-displayed={{svSliderDisplayed}}> 
                     </elo-state-selection>
                 </div>
+                <attribute-graph
+                    speed-on={{subscribesSpeed}}
+                    a_x={{sliderValues.a_x}}
+                    a_y={{sliderValues.a_y}}
+                    a_z={{sliderValues.a_z}}
+                    is-running={{isSessionActive}}
+                    x-range="{{sessionLengthMS}}"
+                ></attribute-graph>
                 <profit-graph
                     profit={{wealth}}
                     is-running={{isSessionActive}}
+                    x-range="{{sessionLengthMS}}"
                 ></profit-graph>
             </div>
     `;
@@ -128,7 +158,8 @@ class MarketSession extends PolymerElement {
         eventListeners: Object,
         eventHandlers: Object,
         sliderDefaults: Object,
-        buttons:Array,
+        manualButtonDisplayed:Boolean,
+        svSliderDisplayed:Boolean,
         eBestBid: Number,
         eBestOffer: Number,
         eSignedVolume:Number,
@@ -136,8 +167,7 @@ class MarketSession extends PolymerElement {
         playerId: Number,
         role: String,
         startRole: String,
-        referencePrice: {type: Number,
-            value: 0},
+        referencePrice: Number,
         signedVolume: {type: Number,
             value: 0},
         orderBook: Object,
@@ -151,28 +181,33 @@ class MarketSession extends PolymerElement {
         eBestOffer: Number,
         wealth: {
             type: Number,
-            computed: '_calculateWealth(cash, totalCost, referencePrice, inventory)'
+            computed: '_calculateWealth(cash, speedCost, referencePrice, inventory)'
         },
         inventory: {type: Number,
             value: 0},
-        cash: {
-            type: Number,
-            computed: '_calculateCash(totalCost)'
-        },
+        cash: Number,
         speedUnitCost: Number,
         speedCost: {type: Number, value: 0},
-        totalCost: {
-            type: Number, 
-            value: 0, 
-            computed: '_calculateCost(speedCost)'},
         subscribesSpeed: {
             type: Boolean, 
             value: false,
             reflectToAttribute: true
         },
+        sliderValues:{
+            type: Object,
+            value: {a_x: 0,a_y: 0, a_z:0}
+        },
         isSessionActive:{
             type: Boolean,
             value: false,
+        },
+        sessionLengthMS:{
+            type: Number, // milliseconds
+            value: OTREE_CONSTANTS.sessionLength * 1e3,
+        },
+        scaleForDisplay:{
+            type: Boolean,
+            value: true
         },
         websocketUrl: {
             type: Object,
@@ -209,7 +244,12 @@ class MarketSession extends PolymerElement {
         // we need a proper way to scale initial values
         // maybe a constants component
         this.playerId = OTREE_CONSTANTS.playerId
-        this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001
+        this.manualButtonDisplayed = OTREE_CONSTANTS.manualButtonDisplayed
+        this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed;
+        console.log( OTREE_CONSTANTS.svSliderDisplayed)
+        this.referencePrice = 0
+        this.cash = 0
+        this.wealth = 0
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.signedVolume = 0
@@ -219,8 +259,11 @@ class MarketSession extends PolymerElement {
         const messagePayload = event.detail
         // console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
+        if (this.scaleForDisplay) {
+            cleanMessage = scaler(cleanMessage, 1)
+        }     
         let wsMessage = new CustomEvent('ws-message', {bubbles: true, composed: true, 
-            detail: messagePayload })
+            detail: cleanMessage })
         this.$.websocket.dispatchEvent(wsMessage)
     }
     
@@ -235,6 +278,9 @@ class MarketSession extends PolymerElement {
             return
         }
         let cleanMessage = this._msgSanitize(messagePayload, 'inbound')
+        if (this.scaleForDisplay) {
+            cleanMessage = scaler(cleanMessage, 2)
+        }      
         const messageType = cleanMessage.type
         const handlers = this.eventHandlers[messageType]
         for (let i = 0; i < handlers.length; i++) {
@@ -246,8 +292,12 @@ class MarketSession extends PolymerElement {
     _handleBatchMessage(message) {
         let marketState = {}
         let myState = {'cash': this.cash}
+        let marketTransacted = {'bid': false, 'ask': false}
         for (let msg of message.batch) {
             let cleanMsg = this._msgSanitize(msg, 'inbound')
+            if (this.scaleForDisplay) {
+                cleanMsg = scaler(cleanMsg, 2)
+            }    
             switch (cleanMsg.type) {
                 case 'bbo':
                     marketState.bestBid = cleanMsg.best_bid
@@ -268,11 +318,13 @@ class MarketSession extends PolymerElement {
                 case 'confirmed':
                 case 'replaced':
                 case 'executed':
+                    let side = cleanMsg.buy_sell_indicator == 'B' ? 'bid' : 'ask'
+                    marketTransacted[side] = true
                 case 'canceled':
                     this.orderBook.recv(cleanMsg)
             }
             if (cleanMsg.player_id == this.playerId) {
-                if (cleanMsg.type == 'executed' || cleanMsg.type == 'cancel') {
+                if (cleanMsg.type == 'executed' || cleanMsg.type == 'canceled') {
                     switch (cleanMsg.buy_sell_indicator) {
                         case 'B':
                             myState.myBid = 0
@@ -310,14 +362,16 @@ class MarketSession extends PolymerElement {
                 }
             }
         }
-        let states = [myState, marketState]
+        let states = [marketState, myState]
+        this.setProperties
         for (let newState of states) {
-            for (let key in newState) {
-                // console.log('updateing', key, 'with', newState[key])
-                this[key] = newState[key]
-            }
+            // call this method so property updates are batched 
+            this.setProperties(newState)
         }
         this.notifyPath('orderBook._bidPriceSlots')
+        let event = new CustomEvent('transaction', {detail: marketTransacted,
+            bubbles: true, composed: true})
+        this.$.infotable.dispatchEvent(event)
     }
 
     _handleExternalFeed(message){
@@ -346,6 +400,9 @@ class MarketSession extends PolymerElement {
         this.cash += cashChange
         this.inventory = message.inventory
         }
+        let event = new CustomEvent('transaction', {detail: message,
+            bubbles: true, composed: true})
+        this.dispatchEvent(event)
     }
     
     _handleBestBidOfferUpdate(message) {
@@ -359,8 +416,18 @@ class MarketSession extends PolymerElement {
         if (message.player_id == this.playerId) {
             this.role = message.role_name
         }
-
     }
+
+    _handleSliderConfirm(message) {
+        if (message.player_id == this.playerId) {
+            let new_sliders = new Object()
+            new_sliders.a_x = message.a_x
+            new_sliders.a_y = message.a_y
+            new_sliders.a_z = message.a_z
+            this.sliderValues = new_sliders
+        }
+    }
+
     _handleSystemEvent(message) {
         if (message.code == 'S') {
             this.isSessionActive = true
@@ -438,18 +505,11 @@ class MarketSession extends PolymerElement {
     }
 
     _calculateCost(speedCost) {
-        // we should revisit this rounding issue
-        // in general we want to integers
-        return Math.round(speedCost)
+        return speedCost
     }
 
-    _calculateCash (totalCost) {
-        return Math.round(this.cash - totalCost)
-    }
-
-    _calculateWealth(cash, totalCost, referencePrice, inventory) {
-        // console.log('wealth', cash, totalCost, referencePrice, inventory)
-        const out = Math.round(cash - totalCost + referencePrice * inventory) 
+    _calculateWealth(cash, costStep, referencePrice, inventory) {
+        const out = Math.round((cash - costStep + referencePrice * inventory) * 10) / 10
         return out
     }
 

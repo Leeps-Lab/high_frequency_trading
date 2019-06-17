@@ -3,7 +3,7 @@
 # not abstracting for reuse
 from otree.api import models
 from otree.db.models import Model, ForeignKey
-from .cache import model_key_format_str_kw
+from .cache import get_cache_key
 from django.core.cache import cache
 from .output import TraderRecord
 import logging
@@ -27,8 +27,8 @@ class HFTPlayerSessionSummary(Model):
 def state_for_results_template(player):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
         market_id=player.market_id)
-    nets = {str(o.player_id): int(o.net_worth * 0.0001) for o in summary_objects}
-    taxes = {str(o.player_id): int(o.tax_paid * 0.0001) for o in summary_objects}
+    nets = {str(o.player_id): round(o.net_worth * 0.0001) for o in summary_objects}
+    taxes = {str(o.player_id): round(o.tax_paid * 0.0001) for o in summary_objects}
     names = {str(o.player_id): 'You' if o.player_id == player.id else 'Anonymous Trader' 
         for o in summary_objects}
     strategies = {str(o.player_id): {'automated': o.time_as_automated, 
@@ -40,7 +40,7 @@ def state_for_results_template(player):
         'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies}
 
 def elo_player_summary(player):
-    market = cache.get(model_key_format_str_kw.format(model_name='market',
+    market = cache.get(get_cache_key('from_kws', model_name='market',
         model_id=player.market_id, subsession_id=player.subsession_id))
     session_length = market.time_session_end - market.time_session_start
     average_sens = _get_average_sensitivies(player.subsession.id, player.market_id, player.id,

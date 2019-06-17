@@ -1,5 +1,6 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
-import '../market-primitives/widgets/bid-ask-spread.js'
+import '../market-primitives/widgets/bounded-market-price-card.js'
+import {} from '../node_modules/@polymer/polymer/lib/elements/dom-if.js';
 import './elo-subject-wallet.js'
 
 class InfoTable extends PolymerElement {
@@ -12,12 +13,30 @@ class InfoTable extends PolymerElement {
         inventory: Number, 
         cash: Number,
         endowment: Number,
-        signedVolume: Number
+        signedVolume: Number,
+        svSliderDisplayed: Boolean
       }
     }
     constructor() {
       super();
     }
+    
+    ready() {
+      super.ready();
+      this.addEventListener('transaction', this._handleExecution);
+     }
+
+     _handleExecution(event) {
+      if (event.detail.bid) {
+        let theCard = this.shadowRoot.getElementById('bid')
+        theCard.animate()
+      }
+      if (event.detail.ask) {
+        let theCard = this.shadowRoot.getElementById('ask')
+        theCard.animate()
+      }
+    }
+  
 
     static get template() { 
         return html`
@@ -26,55 +45,65 @@ class InfoTable extends PolymerElement {
         :host {
           display: inline-block;
           font-family: monospace;
+          height: 100%;
+          width: 100%;
         }
   
         .container {
           display: flex;
-          flex-direction: row;
-          justify-content: flex-start;
-          align-items: center;
-          height: 100%;
-          width: 100%;
-          background: #4F759B;
+          justify-content:space-evenly;
+          height:100%;
         }
 
-        .title {
-          display: inline-block;
-          width: 33%;
-          text-align: center;
-          background: #FFFFF0;
+        .bid-ask-container {
+          display: flex;
+          width:50%;
+          height:100%;
+          flex-direction: column;
+          justify-content:center;
         }
-  
-        .row {
-          display: inline-block;
-          margin: 5px;
-          width: 33%;
-          height: 100%;
+        #bbo{
+          display: flex;
+          flex-direction: row;
+          justify-content:center;
+        }
+        #mbbo{
+          display: flex;
+          flex-direction: row;
+          justify-content:center;
         }
 
         #small-row {
-          margin: 5px;
-          width: 34%;
+          width: 35%;
           height: 100%;
-          align-items: flex-start;
+          align-items: center;
         }
   
         </style>
           <div class="container">
-            <div class="row">
-              <bid-ask-spread title-left="Best Bid" title-right="Best Ask"
-                bid={{bestBid}} ask={{bestOffer}}>
-              </bid-ask-spread>
+            <div class="bid-ask-container">
+              <div id="bbo">
+                <bounded-market-price-card id="bid"  title="Best Bid" price={{bestBid}}
+                  animated> 
+                </bounded-market-price-card>
+                <bounded-market-price-card id="ask" title="Best Ask" price={{bestOffer}}
+                  animated> 
+                </bounded-market-price-card>
+              </div>
+              <div id="mbbo">
+                <bounded-market-price-card title="My Bid" price={{myBid}}> 
+                </bounded-market-price-card>
+                <br>
+                <bounded-market-price-card title="My Ask" price={{myOffer}}> 
+                </bounded-market-price-card>
+              </div>
             </div>
-            <div class="row">
-              <bid-ask-spread title-left="My Bid" title-right="My Ask"
-                bid={{myBid}} ask={{myOffer}}>
-              </bid-ask-spread>
-            </div>
-            <div id="small-row" class="row">
-              <elo-subject-wallet inventory={{inventory}} cash={{cash}}
-                endowment={{endowment}} signed-volume={{signedVolume}}> 
-              </elo-subject-wallet>
+            <div id="small-row">
+
+            <elo-subject-wallet inventory={{inventory}} cash={{cash}}
+              endowment={{endowment}} signed-volume={{signedVolume}} sv-slider-displayed={{svSliderDisplayed}}> 
+            </elo-subject-wallet>
+
             </div>
           </div>
         `;}

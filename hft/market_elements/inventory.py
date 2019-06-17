@@ -1,5 +1,6 @@
 from math import ceil
 
+
 class Inventory:
 
     default_ticker = 'LEEPZ'
@@ -37,7 +38,7 @@ class Inventory:
 
     def liquidify(self, liquidation_price, discount_rate=0):
         shares_value = ceil(liquidation_price * self.__units)
-        discounted_amount = ceil(discount_rate * shares_value)
+        discounted_amount = abs(ceil(discount_rate * shares_value))
         self.__cash += shares_value - discounted_amount
         self.__cost += discounted_amount
         self.__units -= self.__units

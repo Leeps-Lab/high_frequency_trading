@@ -16,7 +16,7 @@ class PlayerRoleButton extends PolymerElement {
                 font-family: monospace;
                 font-size: 16px;
                 background-color:#7F9AB5;
-                color:#FFFFF0;
+                color:var(--background-color-white);
                 text-align:center;
                 width:120px;
                 height:45px;

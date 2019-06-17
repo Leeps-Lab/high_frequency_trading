@@ -20,10 +20,10 @@ class ELOExperiment extends PolymerElement {
     static get template() {
       return html`
         <elo-market-session events=[[environment.events]] 
-          buttons=[[environment.buttons]]
           event-listeners=[[environment.eventListeners]]
           event-handlers=[[environment.eventHandlers]]
           slider-defaults=[[environment.sliderProperties]]
+          
         </elo-market-session>
         `;
       }

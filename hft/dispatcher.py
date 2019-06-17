@@ -49,7 +49,7 @@ class Dispatcher:
             message = event.exchange_msgs.pop()
             send_exchange(
                 message.exchange_host, message.exchange_port, message.translate(), 
-                message.delay)
+                message.delay, subsession_id=message.subsession_id)
 
         while event.broadcast_msgs:
             message = event.broadcast_msgs.pop()

@@ -1,11 +1,12 @@
 from .cache import (
-    model_key_format_str_kw, lock_key_format_str, get_trader_ids_by_market)
+    get_cache_key, lock_key_format_str, get_trader_ids_by_market, get_market_id_table)
 from django.core.cache import cache
 from otree.timeout.tasks import hft_background_task
 from random import shuffle
 from .trader import TraderFactory
 import logging
-from .output import serialize_in_memo_model, checkpoint, get_required_model_fields
+from .output import checkpoint, get_required_model_fields
+from hft.utility import serialize_in_memo_model
 from .market_environments import environments
 log = logging.getLogger(__name__)
 
@@ -18,26 +19,29 @@ class EventHandler(object):
     def __init__(self, event, market_environment):
         self.market_environment = market_environment
         self.model_id = getattr(event, self.model_id_field_name)
-        self.event = event
-        self.model_cache_key = model_key_format_str_kw.format(
-            model_id=self.model_id, model_name=self.model_name,
-            subsession_id=event.subsession_id)
-        self.cache_lock_key = lock_key_format_str.format(cache_key=self.model_cache_key)
+        self.event = event 
+    
+    def cache_lock_key(self):
+        return lock_key_format_str.format(cache_key=self.model_cache_key())
+    
+    def model_cache_key(self):
+        return get_cache_key('from_kws', model_id=self.model_id, 
+            model_name=self.model_name, subsession_id=self.event.subsession_id)
 
     def read_model(self, **kwargs):
-        model = cache.get(self.model_cache_key)
+        model = cache.get(self.model_cache_key())
         if model is None:
-            raise Exception('cache key: {self.model_cache_key} returned none,'
+            raise Exception('cache key: {model_cache_key} returned none,'
                       'event: {self.event}'.format(self=self))
         else:
             self.model = model
 
     def handle(self, **kwargs):
-        with cache.lock(self.cache_lock_key):
+        with cache.lock(self.cache_lock_key()):
             self.read_model(**kwargs)
             self.model.handle_event(self.event)
             self.post_handle()
-            cache.set(self.model_cache_key, self.model)
+            cache.set(self.model_cache_key(), self.model)
         return self.event
     
     def post_handle(self, **kwargs):
@@ -47,7 +51,6 @@ class EventHandler(object):
 class PostEventHandleCheckpointMixIn:
 
     def post_handle(self):
-
         event_type = str(self.event.event_type)
         session_format = self.market_environment
         model_name = self.model_name
@@ -77,6 +80,18 @@ class InvestorEventHandler(PostEventHandleCheckpointMixIn, EventHandler):
 
     model_id_field_name = 'market_id'
     model_name = 'inv'
+
+    def handle(self):
+        if int(self.event.market_id) is 0:
+            markets_in_subsession = get_market_id_table(self.event.subsession_id).values()
+            shuffle(markets_in_subsession)
+            for mid in markets_in_subsession:
+                self.event.market_id = mid
+                handler = InvestorEventHandler(self.event, self.market_environment)
+                handler.handle()
+        else:
+            super().handle()
+        return self.event
 
 
 SUBPROCESSES = {}
@@ -122,8 +137,8 @@ class MarketWideEventHandler:
         return self.event
 
 def is_investor(event):
-    return (hasattr(event.message, 'token_prefix') and event.message.token_prefix == 'inv') or (
-            event.message.type == 'investor_arrivals')
+    return (hasattr(event.message, 'firm') and event.message.firm == 'inve') or (
+        event.message.type == 'investor_arrivals')
 
 class EventHandlerFactory:
 

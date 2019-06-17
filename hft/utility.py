@@ -18,7 +18,7 @@ exogenous_events = {
 }  
 
 exogenous_event_endpoint = 'ws://127.0.0.1:8000/hft_exogenous_event/{subsession_id}'
-exogenous_event_client = 'hft/exogenous_event_emitter.py'
+exogenous_event_client = 'hft/exogenous_event_emitter/ws_client.py'
 
 available_exchange_ports = {
     'CDA': list(range(9010, 9000, -1)),
@@ -30,18 +30,28 @@ MAX_ASK = 2147483647
 MIN_BID = 0
 
 
-# class dotdict(dict):
-#     """dot.notation access to dictionary attributes"""
-#     __getattr__ = dict.get
-#     __setattr__ = dict.__setitem__
-#     __delattr__ = dict.__delitem__
-
-
-# def format_message(message_type, **kwargs):
-#     message = {'message_type': message_type, 'payload': {} }
-#     for k, v in kwargs.items():
-#         message['payload'][k] = v
-#     return message
+def serialize_in_memo_model(in_memo_model, req_props, req_subprops: dict):
+    # assumes no clash in tuple elements and dict keys
+    result = {}
+    if req_props:
+        for prop_name in req_props: 
+            value = getattr(in_memo_model, prop_name)
+            if value is not None:
+                result[prop_name] = value
+    if req_subprops:
+        for prop_name, subprop_names in req_subprops.items():
+            attr = getattr(in_memo_model, prop_name)
+            if attr is not None:
+                for subprop_name in subprop_names:
+                    if isinstance(attr, dict):
+                        value = attr[subprop_name]
+                    elif hasattr(attr, subprop_name):
+                        value = getattr(attr, subprop_name)
+                        # maybe it is a dictionary
+                    else:
+                        raise AttributeError('%s has no %s:%s' % (attr, prop_name, subprop_name))
+                    result[subprop_name] = value
+    return result
 
 def process_configs(session_format, session_configs):
     clean_confs = type_check_configs(
@@ -118,16 +128,6 @@ def nanoseconds_since_midnight(tz=DEFAULT_TIMEZONE):
     timestamp *= 10**3  # microseconds -> nanoseconds
     return timestamp
 
-scaled_fields = ('price', 'execution_price', 'old_price', 'reference_price', 'cash', 
-    'best_bid', 'best_offer', 'bid', 'offer', 'next_bid', 'next_offer', 'e_best_bid',
-    'e_best_offer')
-def elo_scaler(message:dict, direction='scale-down', fields_to_scale=scaled_fields):
-    multiplier = 10000 if direction == 'scale-up' else 0.0001
-    clean_message = dict(message)
-    for field in fields_to_scale:
-        if field in clean_message and clean_message[field] not in (MIN_BID, MAX_ASK):
-            clean_message[field] = int(int(clean_message[field]) * multiplier)
-    return clean_message
         
 def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
                          timeout=90, sleep_time=1):
@@ -151,7 +151,7 @@ def ensure_results_ready(subsession_id, market_id, record_cls, num_players,
 elo_args_fields = (
     'subsession_id', 'market_id', 'id', 'id_in_group', 'default_role', 
     'exchange_host', 'exchange_port')
-elo_kwargs_fields = ('cash', )
+elo_kwargs_fields = ('cash', 'speed_unit_cost')
 def elo_otree_player_converter(otree_player):
     args = [getattr(otree_player, field) for field in elo_args_fields]
     kwargs = {field: getattr(otree_player, field) for field in elo_kwargs_fields}

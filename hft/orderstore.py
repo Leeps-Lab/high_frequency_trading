@@ -1,11 +1,14 @@
 import logging
-from .utility import nanoseconds_since_midnight
+import time
 import itertools
 
 log = logging.getLogger(__name__)
 
+
 class OrderStore:
-    order_format = '<Order{{ {order_token}:@{price}:{status}:{time_in_force} }}>'
+    # single stock orderstore
+    # expects keys as in OUCH
+    token_format = '{self.firm}{buy_sell_indicator}{self.player_id:04d}{count:05d}'
     confirm_message_dispatch ={
         'enter': '_confirm_enter',
         'replaced': '_confirm_replace',
@@ -13,32 +16,39 @@ class OrderStore:
         'executed': '_confirm_execution'
     }
 
-    def __init__(self, player_id, in_group_id, token_prefix='SUB'):
+    def __init__(self, player_id: int, in_group_id=None, firm=None, default_shares=1,
+            ticker=b'AMAZGOOG', default_inventory=0, **kwargs):
+        if in_group_id == firm == None:
+            raise Exception('in_group_id and firm kwargs are both None')
+        self.ticker = ticker
+        self.order_counter = itertools.count(1,1)
         self.player_id = player_id
-        self.subject_code = chr(int(in_group_id) + 64)
-        self.counter = itertools.count(1,1)
+        self.default_shares = default_shares
+        self.firm = firm or chr(in_group_id + 64) * 4
         self._orders = {}
-        self.inventory = 0
+        self.inventory = default_inventory
         self.bid = None
         self.offer = None
-        self.token_prefix = token_prefix
 
     @property
     def orders(self):
         return self._orders
 
     def enter(self, **kwargs):
+        kwargs['created_at'] = time.time()
+        kwargs['status'] = b'pending'
+        kwargs['firm'] = self.firm
+        if 'shares' not in kwargs:
+            kwargs['shares'] = self.default_shares
+        kwargs['stock'] = self.ticker
         token = self.tokengen(**kwargs)
         kwargs['order_token'] = token 
-        kwargs['status'] = b'pending'
-        kwargs['created_at'] = nanoseconds_since_midnight()
         self._orders[token] = kwargs
         return kwargs
- 
+    
     def tokengen(self, **kwargs):
-        count = next(self.counter)
-        token = '{self.token_prefix}{self.subject_code}{buy_sell_indicator}{self.player_id:04d}{count:05d}'
-        return token.format(self=self, count=count, **kwargs)
+        count = next(self.order_counter)
+        return self.token_format.format(self=self, count=count, **kwargs)
 
     def __getitem__(self, token):
         order_info = self._orders.get(token)
@@ -47,15 +57,19 @@ class OrderStore:
     def __str__(self):
         active_orders = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
         pending_orders = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')
-        ioc = '\n\t\t\t'.join(str(v) for v in self._orders.values() if v['status'] == b'ioc')       
+        ioc = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'ioc')       
         out = """Player {self.player_id} Orders:
-                Active:{active_orders}
+                Active:
+{active_orders}
 
-                IOC: {ioc_orders}
+                IOC: 
+{ioc_orders}
 
-                Pending:{pending_orders}
-                
-            Spread: {self.bid} - {self.offer}
+                Pending:
+{pending_orders}          
+
+            
+Spread: {self.bid} - {self.offer}
      """.format(self=self, active_orders=active_orders, pending_orders=
             pending_orders, ioc_orders=ioc)
         return out
@@ -73,7 +87,7 @@ class OrderStore:
         try:
             order_info = self._orders[token]
         except KeyError:
-            log.exception('error register replace for token: %s, orderstore: %s' % (token, self))
+            log.error('error register replace for token: %s, orderstore: %s' % (token, self))
             raise
         existing_token = order_info.get('replacement_order_token')
         if existing_token is None:
@@ -93,10 +107,10 @@ class OrderStore:
             order_info = handler(**kwargs)
         except:
             log.exception("""
-            error during orderstore operation: "%s" 
+            error during orderstore confirm operation: "%s" 
             message: %s 
             orderstore: %s
-""" % (handler_name, str(kwargs), self))
+""" % (handler_name, kwargs, self))
             raise
         else:
             return order_info
@@ -110,9 +124,9 @@ class OrderStore:
         else:
             order_info['status'] = b'ioc'
         order_info['timestamp'] = kwargs['timestamp']
-        order_info['confirmed_at'] = nanoseconds_since_midnight()
-        order_info['travel_time'] = (order_info['confirmed_at'] - 
-            order_info['created_at']) * 0.000001
+        order_info['confirmed_at'] = time.time()
+        order_info['travel_time'] = round(order_info['confirmed_at'] - 
+            order_info['created_at'], 4)
         self._orders[token] = order_info
         price = order_info['price']
         direction = order_info['buy_sell_indicator']
@@ -150,8 +164,8 @@ class OrderStore:
         token = kwargs['order_token']
         order_info = self._orders.pop(token)
         direction = order_info['buy_sell_indicator']
-        inventory_change = 1 if direction == 'B' else -1
-        self.inventory += inventory_change
+        shares = kwargs['executed_shares']
+        self.inventory += shares if direction == 'B' else - shares
         price = order_info['price']
         self.update_spread(price, direction, clear=True)            
         return order_info

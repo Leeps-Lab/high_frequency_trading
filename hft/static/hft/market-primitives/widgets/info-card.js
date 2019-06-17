@@ -6,98 +6,93 @@ class InfoCard extends PolymerElement {
         return {
         title: String,
         value: {type: Number, observer: '_makeMeShine'},
+        animated: Boolean,
         currency: String,
         shineClass: String
-        };
+        }
     }
         
     constructor(){
-        //Can't this be intialized in markup where this is used?
-        //Are these needed? They are initialized in markup
         super();
         this.title = '#title';
         this.value = 0;
         this.currency = '#currency';
         this.shineClass = '';
         }  
-    
+
     _makeMeShine (newValue, oldValue) {
-        this.shine_class = this.shine_class == 'shine' ? 'shine-copy' : 'shine';
+        if (this.animated) {
+          let priceHolder = this.shadowRoot.querySelector('.price-holder')
+          this.shineClass = this.shineClass == 'shine' ? 'shine-copy' : 'shine'
+          // interestingly polymer data binding did not reflect to dom somehow
+          priceHolder.setAttribute("shine-class", this.shineClass)
+        }
     }
 
     static get template() {
         return html`
         <style>
             :host {
-            display: inline-block;
-            font-family: monospace;
+              font-family: monospace;
+              width:100%;
             }
 
             .theCard {
-            width: 100px;
-            height: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+              display: flex;
+              background: var(--background-color-white);
+              align-items: center;
             }
 
             .price-holder {
-            text-align: center;
-            background: #FFFFF0;
-            width: 100%;
-            border-radius: 5px;
-            animation-name: shine;
-            animation-duration: 1s;
-            animation-timing-function: linear;
+              text-align: right;
+              width: 100%;
+              height:30px;
             }
 
             .border {
-            border-style: solid;
-            border-width: 1px;
-            border-color: #black;
+              border-radius: 5px;
             }
 
             h4 {
-            display: inline-block;
-            text-align: center;
-            background: #FFFFF0;
-            width: 80%;
-            margin: 0px;
-            
-            }
-            h3 {
-            display: inline-block;
-            text-align: center;
+              display: inline-block;
+              margin: 2px 0px 0px 10px;
             }
 
-            [shineclass=shine-copy] {
+            h3 {
+              display: inline-block;
+              margin: 2px 10px 0px 2px;
+            }
+
+            [shine-class=shine-copy] {
                 animation-name: shine-more;
-                animation-duration: 0.6s;
-                animation-timing-function: ease-out;
+                animation-duration: 0.15s;
+                animation-timing-function: ease-in-out;
             }
     
-            [shineclass=shine] {
+            [shine-class=shine] {
                 animation-name: shine;
-                animation-duration: 0.7s;
-                animation-timing-function: ease-out;
+                animation-duration: 0.15s;
+                animation-timing-function: ease-in-out;
               }
     
               @keyframes shine{
                 100% {
-                  background-color: #ECE2D0;
-                };     
+                  background-color: #ED6A5A
+                  };    
               }
     
               @keyframes shine-more {
                 100% {
-                  background-color: #ECE2D0;
-                };
+                  background-color: #ED6A5A
+                  };
+                  10% {
+                  background-color: #ED6A5A
+                  };
               }
         </style>
-        <div class="theCard">
-            <h4> {{title}}</h4>
-            <div class="price-holder border" shineClass={{shineClass}}>
+        <div class="theCard border">
+            <h4> {{title}}: </h4>
+            <div class="price-holder border" shine-class={{shineClass}}>
             <h3 > {{currency}} {{value}}</h3>
             </div>
         </div>

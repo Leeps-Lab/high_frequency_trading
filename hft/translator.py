@@ -4,6 +4,7 @@ import datetime
 import pytz
 from random import randrange
 
+
 class Translator(object):
     defaults = {}
     message_type_map = {}
@@ -11,7 +12,10 @@ class Translator(object):
     @staticmethod
     def decode(msg):
         header = msg[:1]
-        message_spec = OuchServerMessages.lookup_by_header_bytes(header)
+        try:
+            message_spec = OuchServerMessages.lookup_by_header_bytes(header)
+        except KeyError:
+            message_spec = OuchClientMessages.lookup_by_header_bytes(header)
         payload_size = message_spec.payload_size
         payload_bytes = msg[1: 1 + payload_size]
         body = message_spec.from_bytes(payload_bytes, header=False)
@@ -40,18 +44,15 @@ class Translator(object):
 class LeepsOuchTranslator(Translator):
 
     defaults = {
-            'shares': 1,
-            'stock': b'AMAZGOOG',
-            'display': b'Y',
-            'capacity': b'P',
-            'iso': b'N',
-            'min_quantity': 0,
-            'cross_type': b'N',
-            'customer_type': b'R',
-            'intermarket_sweep_eligibility': b'N',
-            'firm': b'LEEPS',
-            'minimum_quantity': 1
-        }
+        'display': b'Y',
+        'capacity': b'P',
+        'iso': b'N',
+        'min_quantity': 0,
+        'cross_type': b'N',
+        'customer_type': b'R',
+        'intermarket_sweep_eligibility': b'N',
+        'minimum_quantity': 1
+    }
 
     message_type_map = {
         'enter': OuchClientMessages.EnterOrder,

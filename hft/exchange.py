@@ -15,6 +15,7 @@ class OUCH(Protocol):
         'U': 80,
         'A': 66,
         'Q': 41,
+        'O': 49
     }
 
     def __init__(self):
@@ -29,16 +30,16 @@ class OUCH(Protocol):
         try:
             bytes_needed = self.bytes_needed[header]
         except KeyError:
-             raise ValueError('unknown header %s.' % header)
-
+             log.exception('unknown header %s, ignoring..' % header)
+             return
         if len(data) >= bytes_needed:
             remainder = bytes_needed
             self.buffer.extend(data[:remainder])
             data = data[remainder:]
             try:
                 self.handle_incoming_data(header)
-            except Exception as e:
-                log.exception(e)
+            except Exception:
+                log.exception('error handling buffer: %s' % self.buffer)
             finally:
                 self.buffer.clear()
 
@@ -50,9 +51,9 @@ class OUCH(Protocol):
         try:
             self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
                 subsession_id=self.factory.subsession_id, market_id=market_id)
-        except Exception as e:
-            log.exception('error processing exchange message (market:%s), ignoring..: %s', 
-                market_id, e)
+        except Exception:
+            log.exception('error processing exchange message (market:%s), ignoring..', 
+                market_id)
 
     def sendMessage(self, msg, delay):
         if not isinstance(msg, bytes):
@@ -118,9 +119,13 @@ def disconnect(market_id, host, port):
         conn.transport.loseConnection()
         del exchanges[addr]
 
-def send_exchange(host, port, message, delay):
+def send_exchange(host, port, message, delay, subsession_id=None):
     addr = '{}:{}'.format(host, port)
     if addr not in exchanges:
         raise FileNotFoundError('connection at %s not found.', addr)
     conn = exchanges[addr].connection
-    conn.sendMessage(message, delay)
+    if subsession_id and subsession_id != conn.factory.subsession_id:
+        raise Exception('subsession id mismatch: conn: %s-message: %s' % (
+            conn.factory.subsession_id, subsession_id))
+    else:
+        conn.sendMessage(message, delay)
