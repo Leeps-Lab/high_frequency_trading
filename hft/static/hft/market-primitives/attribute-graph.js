@@ -16,11 +16,11 @@ class AttributeGraph extends PolymerElement {
                     stroke-width: 1;
                 }
                 .a_x-line {
-                    stroke: var(--inv-color);
+                    stroke: var(--sv-color);
                     stroke-width: 2;
                 }
                 .a_y-line {
-                    stroke:var(--sv-color);
+                    stroke:var(--inv-color);
                     stroke-width: 2;
                 }
                 .a_z-line {
@@ -203,13 +203,13 @@ class AttributeGraph extends PolymerElement {
             .attr("transform", "translate(0," + this.height + ")")
             .call(this.xAxis);
 
-        this.yScale.range([this.height, 0]);
+        this.yScale.range([this.height, 5]); // Line thinning if not added a margin
         this.yAxisLeft.scale(this.yScale);
         this.yAxisRight.scale(this.yScale);
 
         this.domYAxisLeft.call(this.yAxisLeft);
         this.domYAxisRight
-            .attr('transform', 'translate(' + (this.width + this.margin.right) + ',' + this.margin.top + ')')
+            .attr('transform', 'translate(' + (this.width + this.margin.right) + ',' + 0 + ')')
             .call(this.yAxisRight);
     }
 
@@ -312,10 +312,13 @@ class AttributeGraph extends PolymerElement {
             .attr('x2', this.xScale(this._lastInventoryChangeTime));
 
         // update current inventory line y value
+
         this.currentInventoryLine
             .attr('y1', this.yScale(newInventory))
             .attr('y2', this.yScale(newInventory))
             .attr('x1', this.xScale(this._lastInventoryChangeTime));
+        
+        
     }
 
     _addSignedVolume(newSV, oldSV) {
