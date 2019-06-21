@@ -50,11 +50,11 @@ class MarketSession extends PolymerElement {
             }
             profit-graph{
                 width:100vw;
-                height:22vh;
+                height:29vh;
             }
             attribute-graph{
                 width:100vw;
-                height:22vh;
+                height:15vh;
             }
             profit-graph-fixed{
                 width:100vw;
@@ -138,14 +138,17 @@ class MarketSession extends PolymerElement {
                     </elo-state-selection>
                 </div>
                 <attribute-graph
+                    title-name="Sensitivies"
                     speed-on={{subscribesSpeed}}
                     a_x={{sliderValues.a_x}}
                     a_y={{sliderValues.a_y}}
                     a_z={{sliderValues.a_z}}
+                    sv-slider-displayed={{svSliderDisplayed}}
                     is-running={{isSessionActive}}
                     x-range="{{sessionLengthMS}}"
                 ></attribute-graph>
                 <profit-graph
+                    title-name="Wealth"
                     profit={{wealth}}
                     is-running={{isSessionActive}}
                     x-range="{{sessionLengthMS}}"
