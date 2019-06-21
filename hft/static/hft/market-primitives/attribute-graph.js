@@ -11,9 +11,12 @@ class AttributeGraph extends PolymerElement {
                 :host #svg{
                     background-color:var(--background-color-white);
                 }
-                .speed-line {
-                    stroke: black;
-                    stroke-width: 1;
+                .title-text{
+                    font-family:var(--global-font);
+                    font-size:1.5em;
+                    fill:black;
+                    opacity:0.2;
+                    font-weight: bold; 
                 }
                 .a_x-line {
                     stroke: var(--sv-color);
@@ -47,13 +50,15 @@ class AttributeGraph extends PolymerElement {
                 type: Boolean,
                 observer: '_addSpeed'
             },
+            titleName:String,
+            svSliderDisplayed:Boolean,
             a_x: {
                 type: Number,
-                observer: '_addInventory'
+                observer: '_addSignedVolume'
             },
             a_y: {
                 type: Number,
-                observer: '_addSignedVolume'
+                observer: '_addInventory'
             },
             a_z: {
                 type: Number,
@@ -142,6 +147,8 @@ class AttributeGraph extends PolymerElement {
         this.signedVolumeLines = this.mainGroup.append('g');
         this.externalFeedLines = this.mainGroup.append('g');
         this.speedArea = this.mainGroup.append("g");
+        this.title = this.mainGroup.append("text")
+            .attr("class","title-text");
 
         this.xScale = d3.scaleTime()
             .domain([0, this.xRange]);
@@ -156,8 +163,10 @@ class AttributeGraph extends PolymerElement {
             .domain(this._defaultYRange);
         
         this.yAxisLeft = d3.axisLeft()
+            .ticks(3)
             .tickSize(0);
         this.yAxisRight = d3.axisRight()
+            .ticks(3)
             .tickSize(0);
 
         this.domYAxisRight = this.rightGroup.append("g")
@@ -167,10 +176,10 @@ class AttributeGraph extends PolymerElement {
         
         this.currentInventoryLine = this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
-            .attr('class', 'a_x-line');
+            .attr('class', 'a_y-line');
         this.currentSignedVolumeLine = this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
-            .attr('class', 'a_y-line');
+            .attr('class', 'a_x-line');
         this.currentExternalFeedLine = this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
             .attr('class', 'a_z-line');
@@ -203,6 +212,12 @@ class AttributeGraph extends PolymerElement {
             .attr("transform", "translate(0," + this.height + ")")
             .call(this.xAxis);
 
+        this.mainGroup.selectAll(".title-text")
+            .attr("x", (this.width / 2))             
+            .attr("y", (this.height / 2))
+            .attr("text-anchor", "middle")
+            .text(this.titleName);
+
         this.yScale.range([this.height, 5]); // Line thinning if not added a margin
         this.yAxisLeft.scale(this.yScale);
         this.yAxisRight.scale(this.yScale);
@@ -225,9 +240,10 @@ class AttributeGraph extends PolymerElement {
         this.xScale.domain([this.startTime, this.startTime + this.xRange]);
         this.xAxis.scale(this.xScale);
         this.domXAxis.call(this.xAxis);
-
-        this._addInventory(this.a_x,this.a_x); 
-        this._addSignedVolume(this.a_y,this.a_y); 
+        if(this.svSliderDisplayed){
+            this._addSignedVolume(this.a_x,this.a_x); 
+        }
+        this._addInventory(this.a_y,this.a_y);         
         this._addExternalFeed(this.a_z,this.a_z); 
 
         window.setInterval(function(){
@@ -246,7 +262,10 @@ class AttributeGraph extends PolymerElement {
             this._updateSpeedChangeArea();
             this._updateInventoryLine();
             this._updateExternalFeedLine();
-            this._updateSignedVolumeLine();
+            if(this.svSliderDisplayed){
+                this._updateSignedVolumeLine(); 
+            }
+            
             
         }
         if(this.speedOn){
@@ -254,11 +273,13 @@ class AttributeGraph extends PolymerElement {
             .attr('x', d =>  this.xScale(this._lastSpeedChangeTime))
             .attr('width', this.xScale(now) - this.xScale(this._lastSpeedChangeTime));
         }
+        if(this.svSliderDisplayed){
+            this.currentSignedVolumeLine
+                .attr('x1', this.xScale(this._lastSVChangeTime))
+                .attr('x2', this.xScale(now));
+        }
         this.currentInventoryLine
             .attr('x1', this.xScale(this._lastInventoryChangeTime))
-            .attr('x2', this.xScale(now));
-        this.currentSignedVolumeLine
-            .attr('x1', this.xScale(this._lastSVChangeTime))
             .attr('x2', this.xScale(now));
         this.currentExternalFeedLine
             .attr('x1', this.xScale(this._lastEFChangeTime))
@@ -305,19 +326,16 @@ class AttributeGraph extends PolymerElement {
        
         this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
-            .attr('class', 'a_x-line inv-vert')
+            .attr('class', 'a_y-line inv-vert')
             .attr('y1',this.yScale(oldInventory))
             .attr('y2', this.yScale(newInventory))
             .attr('x1', this.xScale(this._lastInventoryChangeTime))
             .attr('x2', this.xScale(this._lastInventoryChangeTime));
 
-        // update current inventory line y value
-
         this.currentInventoryLine
             .attr('y1', this.yScale(newInventory))
             .attr('y2', this.yScale(newInventory))
             .attr('x1', this.xScale(this._lastInventoryChangeTime));
-        
         
     }
 
@@ -335,7 +353,7 @@ class AttributeGraph extends PolymerElement {
 
         this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
-            .attr('class', 'a_y-line sv-vert')
+            .attr('class', 'a_x-line sv-vert')
             .attr('y1',this.yScale(oldSV))
             .attr('y2', this.yScale(newSV))
             .attr('x1', this.xScale(this._lastSVChangeTime))
@@ -412,7 +430,7 @@ class AttributeGraph extends PolymerElement {
         lines.enter()
             .append('line')
             .attr('clip-path', 'url(#lines-clip)')
-            .attr('class', 'a_x-line')
+            .attr('class', 'a_y-line')
             .attr('x1', d =>  self.xScale(d.time))
             .attr('x2', (_, i) => self.xScale(i == inventoryHistory.length-1 ? self._lastInventoryChangeTime : inventoryHistory[i+1].time))
             .attr('y1', d => self.yScale(d.value1))
@@ -437,7 +455,7 @@ class AttributeGraph extends PolymerElement {
         lines.enter()
             .append('line')
             .attr('clip-path', 'url(#lines-clip)')
-            .attr('class', 'a_y-line')
+            .attr('class', 'a_x-line')
             .attr('x1', d =>  self.xScale(d.time))
             .attr('x2', (_, i) => self.xScale(i == signedVolumeHistory.length-1 ? self._lastSVChangeTime : signedVolumeHistory[i+1].time))
             .attr('y1', d => self.yScale(d.value1))

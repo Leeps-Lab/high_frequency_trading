@@ -13,11 +13,22 @@ class ProfitGraph extends PolymerElement {
                 }
                 .profit-line {
                     stroke: black;
+                    stroke-width: 1.5;
+                }
+                .grid-lines{
+                    stroke: grey;
                     stroke-width: 1;
                 }
+                .title-text{
+                    font-family:var(--global-font);
+                    font-size:1.5em;
+                    fill:black;
+                    opacity:0.2;
+                    font-weight: bold; 
+                }
                 g text{
-                    font-family:monospace;
-                    font-size:10px;
+                    font-family:var(--global-font);
+                    font-size:1.2em;
                     font-weight: bold; 
                 }
             </style>
@@ -32,6 +43,7 @@ class ProfitGraph extends PolymerElement {
                 type: Number,
                 observer: '_addPayoff'
             },
+            titleName:String,
             margin: {
                 type: Object,
                 value: {top: 10, left: 40, right: 40, bottom: 30},
@@ -116,7 +128,9 @@ class ProfitGraph extends PolymerElement {
             .attr("class", "axis axis-y");
         this.domYAxisLeft = this.mainGroup.append("g")
             .attr("class", "axis axis-y");
-        
+
+        this.title = this.mainGroup.append("text")
+            .attr("class","title-text");
 
         this.currentProfitLine = this.mainGroup.append('line')
             .attr('clip-path', 'url(#lines-clip)')
@@ -150,6 +164,11 @@ class ProfitGraph extends PolymerElement {
             .attr("transform", "translate(0," + this.height + ")")
             .call(this.xAxis);
 
+        this.mainGroup.selectAll(".title-text")
+            .attr("x", (this.width / 2))             
+            .attr("y", (this.height / 2))
+            .attr("text-anchor", "middle")
+            .text(this.titleName);
         this.yScale.range([this.height, 0]);
         this.yAxisLeft.scale(this.yScale);
         this.yAxisRight.scale(this.yScale);
