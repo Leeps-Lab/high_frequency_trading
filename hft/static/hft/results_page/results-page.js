@@ -60,10 +60,10 @@ class ResultsPage extends PolymerElement {
     this.numPlayers = Object.keys(payoffs).length
     const strategies = this.strategies;
     const invs = this.invSensitivities;
-    const sigs = this.signedVolumes;
     const feeds = this.externalFeeds;
     const names = this.names;
     const taxes = this.taxes;
+    const speeds = this.speeds;
 
     // set number of rows equal to the closest perfect square
     const numRows = Math.round(Math.sqrt(this.numPlayers));
@@ -103,10 +103,10 @@ class ResultsPage extends PolymerElement {
 
       let myNet = payoffs[low];
       let myTax = taxes[low];
+      let mySpeed = speeds[low];
       let myName = names[low];
       let myStrategies = strategies[low];
       let myInv = invs[low];
-      let mySig = sigs[low];
       let myFeed = feeds[low];
 
       //let cell = document.createElement("td");
@@ -117,10 +117,10 @@ class ResultsPage extends PolymerElement {
       //console.log('mipayoff', myPayoff)
       child.net = myNet;
       child.tax = myTax;
+      child.speed = mySpeed;
       child.name = myName;
       child.strategies = myStrategies;
       child.invSensitivity = myInv;
-      child.signedVolume = mySig;
       child.externalFeed = myFeed;
       child.width = width;
       child.height = height;
@@ -158,38 +158,33 @@ class ResultsPage extends PolymerElement {
       numPlayers: {
         type: Number,
       },
-      /*
-      payoffs: {
-        type: Object,
-        //value: {player:30,foo:20,bar:90,the:40}
-      },*/
       nets: {
         type: Object,
-        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
+        //value: {player:-100,foo:20,bar:90,the:40}
       },
       taxes: {
         type: Object,
-        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
+        //value: {player:30,foo:20,bar:90,the:40}
+      },
+      speeds: {
+        type: Object,
+        //value: {player:30,foo:20,bar:90,the:40}
       },
       names: {
         type: Object,
-        //value: {player:"Player",foo:"Trader 1",bar:"Trader 2",the:"Trader 3",a:"a",b:"b",c:"c",d:"d"}
+        //value: {player:"Player",foo:"Trader 1",bar:"Trader 2",the:"Trader 3"}
       },
       strategies: {
         type: Object,
-        //value: {player:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},foo:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},bar:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},the:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},a:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},b:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},c:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},d:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}}
+        //value: {player:{player:30,foo:20,bar:90,the:40},foo:{player:30,foo:20,bar:90,the:40},bar:{player:30,foo:20,bar:90,the:40},the:{player:30,foo:20,bar:90,the:40}}
       },
       invSensitivities: {
         type: Object,
-        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
-      },
-      signedVolumes: {
-        type: Object,
-        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
+        //value: {player:30,foo:20,bar:90,the:40}
       },
       externalFeeds: {
         type: Object,
-        //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
+        //value: {player:30,foo:20,bar:90,the:40}
       }
     }
   }
