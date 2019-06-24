@@ -16,40 +16,40 @@ export class ResultsCell extends PolymerElement {
       .outer {
         display: flex;
         justify-content: space-around;
-        padding: 5px;
+        height: 100%;
       }
       .data {
-	display: inline-block;
+	      display: inline-block;
+      }
+      .data_box {
+        text-align: center;
+        margin: 3px;
+        border: 1px solid black;
+        padding: 4px
+      }
+      .wrapper {
+        text-align:center;
+        padding:3px;
+        position: relative;
       }
       h2 {
-	margin: 2%;
+	      margin: 2%;
       }
     </style>
 
-    <div style="text-align:center; padding:10px;" class="wrapper" id="parent">
+    <div class="wrapper" id="parent">
       <h2>[[ name ]]</h2>
-      <!--
-      <table style="display:inline-block; text-align:center;">
-        <tr>
-          <td style="display:inline-block;">
-            <div id="container" class="container"></div>
-          </td>
-          <td style="display:inline-block; margin=10px;">
-            <div id="container2" class="container"></div>
-          </td>
-
-        </tr>
-      </table> -->
       <div class="outer">
-        <div id="container" class="container"></div>
+        <div>
+          <div id="container" class="container"></div>
+          <div class="data_box">
+            <span>Average Sensitivities</span>
+            <hr style="width: 60%">
+            <span class="data"><strong>Inventory:</strong> [[ invSensitivity ]]</span>
+            <span class="data"><strong>External Feed:</strong> [[ externalFeed ]]</span>
+          </div>
+        </div>
         <div id="container2" class="container"></div>
-      </div>
-      <div style="display:inline-block; text-align:center;">
-        <span>Average Sensitivity of Algorithms</span>
-        <hr style="width: 60%">
-        <span class="data"><strong>Inventory:</strong> [[ invSensitivity ]]</span>
-        <span class="data"><strong>Signed Volume:</strong> [[ signedVolume ]]</span>
-        <span class="data"><strong>External Feed:</strong> [[ externalFeed ]]</span>
       </div>
     </div>
     `;
@@ -70,22 +70,26 @@ export class ResultsCell extends PolymerElement {
     let payoffData = [];
     payoffData.push(payoff);
 
-    const tax = payoff > 0 ? this.tax : - this.tax;
+    const tax = this.tax;
     let taxData = [];
-    if (tax > 0) {
-      taxData.push(tax);
-    }
+    taxData.push(tax);
+
+    const speed = this.speed;
+    let speedData = []
+    speedData.push(speed);
 
     //let lowVal = Math.min(this.width, this.height);
     //let width = lowVal;
     //let height = lowVal;
     let width = this.width;
     let height = this.height;
+    let height2;
     const parentStyle = "text-align:center; line-height:10px; width:" + width + "px; height:" + height + "px";
     width = width/2.5;
     height = height/1.4;
+    height2 = this.height/1.1;
     let containerStyle = "width:" + width + "px; height:" + height + "px";
-    let container2Style = "width:" + width + "px; height:" + height + "px";
+    let container2Style = "width:" + width + "px; height:" + height2 + "px";
     this.$.parent.setAttribute("style", parentStyle);
     this.$.container.setAttribute("style", containerStyle);
     this.$.container2.setAttribute("style", container2Style);
@@ -130,7 +134,7 @@ export class ResultsCell extends PolymerElement {
     let chart2 = Highcharts.chart(this.$.container2, {
       chart: {
         type: 'column',
-        size: '80%'
+        size: '100%'
       },
       title: {
         text: 'Payoff'
@@ -141,7 +145,7 @@ export class ResultsCell extends PolymerElement {
       },
       yAxis: {
         max: 200,
-        min: -200,
+        min: -100,
         title: {
           text: ''
         }
@@ -167,14 +171,21 @@ export class ResultsCell extends PolymerElement {
         name: "Net Payoff",
         data: payoffData,
         showInLegend: true,
-        index: 1
+        index: 2
       },
       {
         name: "Tax",
         data: taxData,
         showInLegend: true,
-        index: 0,
+        index: 1,
         color: '#FF0000'
+      },
+      {
+        name: "Speed",
+        data: speedData,
+        showInLegend: true,
+        index: 0,
+        color: '#FFA500'
       }
       ]
     });
@@ -196,6 +207,9 @@ export class ResultsCell extends PolymerElement {
       tax: {
         type: Number,
       },
+      speed: {
+        type: Number,
+      },
       name: {
         type: String,
         //value: "Sample Name"
@@ -203,10 +217,6 @@ export class ResultsCell extends PolymerElement {
       invSensitivity: {
         type: Number,
         //value: 5.1
-      },
-      signedVolume: {
-        type: Number,
-        //value: 3.7
       },
       externalFeed: {
         type: Number,
