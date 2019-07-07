@@ -7,8 +7,8 @@ class BBOBroadcastMessage(BroadcastWSMessage):
 
     required_fields = (
         'market_id', 'best_bid', 'best_offer', 'volume_at_best_bid', 
-        'volume_at_best_offer')
-    required_field_types = (int, int, int, int, int)
+        'volume_at_best_offer', 'next_bid', 'next_offer')
+    required_field_types = (int, int, int, int, int, int, int)
 
 
 class OrderConfirmedBroadcastMessage(BroadcastWSMessage):
