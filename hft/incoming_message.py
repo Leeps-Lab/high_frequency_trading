@@ -5,6 +5,7 @@ import logging
 from .cache import get_market_id_map
 from .message_sanitizer import (
     ELOWSMessageSanitizer, ELOOuchMessageSanitizer, ELOInternalEventMessageSanitizer)
+from high_frequency_trading.exchange_server.OuchServer.ouch_messages import OuchServerMessages
 
 log = logging.getLogger(__name__)
 
@@ -42,11 +43,8 @@ class IncomingMessage:
     def data(self, message):
         incoming_message = message
         if not isinstance(message, dict):
-            try:
-                incoming_message = self.translate(message)
-            except AttributeError:
-                raise Exception('translator class must be set for protocol'
-                                'messages')
+            incoming_message = self.translate(message,
+                    message_cls=self.kwargs.get('message_cls'))
         if self.sanitizer_cls is not None:
             incoming_message = self.sanitizer_cls.sanitize(
                 incoming_message, **self.kwargs)
@@ -75,7 +73,7 @@ class IncomingMessage:
         content = ':'.join('{}:{}'.format(k, v) for k, v in self.data.items())
         return class_name + content
 
-    def translate(self, message):
+    def translate(self, message, **kwargs):
         return message
 
 
@@ -88,8 +86,9 @@ class IncomingWSMessage(IncomingMessage):
 
 class IncomingOuchMessage(IncomingMessage):
 
-    def translate(self, message):
-        translated_message = LeepsOuchTranslator.decode(message)
+    def translate(self, message, message_cls=None):
+        translated_message = LeepsOuchTranslator.decode(message, message_cls=
+            message_cls if message_cls is not None else OuchServerMessages)
         return translated_message
 
 

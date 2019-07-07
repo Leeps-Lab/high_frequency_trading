@@ -4,6 +4,7 @@ from twisted.internet.protocol import Protocol, ClientFactory
 from twisted.internet import reactor
 from collections import deque
 from .decorators import timer
+from high_frequency_trading.exchange_server.OuchServer import ouch_messages
 
 log = logging.getLogger(__name__)
 
@@ -18,13 +19,15 @@ class OUCH(Protocol):
         'O': 49
     }
 
+    message_cls = ouch_messages.OuchServerMessages
+    
     def __init__(self):
         super()
         self.buffer = deque()
 
     def connectionMade(self):
         log.debug('connection made.')
-    
+
     def dataReceived(self, data):
         header = chr(data[0])
         try:
@@ -38,8 +41,8 @@ class OUCH(Protocol):
             data = data[remainder:]
             try:
                 self.handle_incoming_data(header)
-            except Exception:
-                log.exception('error handling buffer: %s' % self.buffer)
+            except Exception as e:
+                log.exception(e)
             finally:
                 self.buffer.clear()
 
