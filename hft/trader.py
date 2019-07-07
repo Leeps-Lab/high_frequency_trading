@@ -43,6 +43,8 @@ class BaseTrader(object):
         self.exchange_port = exchange_port
         self.orderstore = self.orderstore_cls(player_id, in_group_id=id_in_market, 
             **kwargs)
+        self.account_id = kwargs.get('firm')
+        self.tag = self.account_id or self.player_id
         self.inventory = Inventory()
         self.trader_role = TraderStateFactory.get_trader_state(default_role)
         self.market_facts = {k: None for k in self.tracked_market_facts}
@@ -70,6 +72,8 @@ class BaseTrader(object):
                 raise ValueError('%s is required to open session.' % field)
             else:    
                 self.market_facts[field] = value
+        log.info('trader %s: open session with market view: %s' % (self.tag,
+                self.tracked_market_facts))
     
     def close_session(self, event):
         pass
@@ -86,8 +90,8 @@ class BaseTrader(object):
         new_state = event.message.state
         trader_state = self.trader_state_factory.get_trader_state(new_state)
         self.trader_role = trader_state
-        event.broadcast_msgs(
-            'role_confirm', role_name=new_state, model=self)
+        log.info('trader %s: change trader role: %s' % (self.tag, trader_state))
+        event.broadcast_msgs('role_confirm', role_name=new_state, model=self)
 
     @property
     def delay(self):
@@ -133,14 +137,18 @@ class ELOTrader(BaseTrader):
 
     def close_session(self, event):
         self.inventory.liquidify(
-            event.attachments['reference_price'], 
-            discount_rate=event.attachments['tax_rate'])
+            self.market_facts['reference_price'], 
+            discount_rate=self.market_facts['tax_rate'])
         self.cash += self.inventory.cash
         tax_paid = self.inventory.cost
-        speed_cost = self.technology_subscription.invoice()
-        self.cost += tax_paid + speed_cost
         self.tax_paid += tax_paid
+        speed_cost = self.technology_subscription.invoice()
         self.speed_cost += speed_cost
+        self.cost += tax_paid + speed_cost
+        self.net_worth -= self.cost
+        log.info('trader {self.tag}: closing session: net worth: {self.net_worth}, \
+            cost: {self.cost}, speed cost: {self.speed_cost}, tax: {self.tax_paid}'.format(
+                self=self))
     
     def user_slider_change(self, event):
         msg = event.message

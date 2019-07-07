@@ -28,6 +28,8 @@ class TraderState(object):
     def handle_event(self, trader, event):
         event_type = event.event_type
         if event_type in self.event_dispatch:
+            log.info('trader %s: handle %s event: %s' % (trader.tag, 
+                event.event_type, event.message))
             handler_name = self.event_dispatch[event_type]
             handler = getattr(self, handler_name)
             handler(trader, event)
@@ -42,8 +44,10 @@ class TraderState(object):
                 event.exchange_msgs('cancel', model=trader, **order)
                 if order['buy_sell_indicator'] == 'B':
                     trader.staged_bid = None
+                    log.info('trader %s: staged bid set none.' % trader.tag)
                 elif order['buy_sell_indicator'] == 'S':
-                    trader.staged_offer = None   
+                    trader.staged_offer = None
+                    log.info('trader %s: staged offer set none.' % trader.tag)
 
 MIN_BID = 0
 MAX_ASK = 2147483647
@@ -65,8 +69,12 @@ class ELOTraderState(TraderState):
     def state_change(self, trader, event):
         self.speed_technology_change(trader, event, value=False)
         self.cancel_all_orders(trader, event)
-        trader.disable_bid = False
-        trader.disable_offer = False        
+        if trader.disable_bid:
+            trader.disable_bid = False
+            log.info('trader %s: bids enabled.' % trader.tag)
+        if trader.disable_offer:
+            trader.disable_offer = False        
+            log.info('trader %s: offers enabled.' % trader.tag)
 
     def speed_technology_change(self, trader, event, short_delay=short_delay, 
                                 long_delay=long_delay, **kwargs):
@@ -158,15 +166,20 @@ class ELOAutomatedTraderState(ELOTraderState):
     def state_change(self, trader, event):
         super().state_change(trader, event)
         if trader.market_facts['best_bid'] > MIN_BID:
+            log.info('trader %s: market valid, enter buy..' % trader.tag)
             self.enter_order(trader, event, 'B')
         if trader.market_facts['best_offer'] < MAX_ASK:
+            log.info('trader %s: market valid, enter offer..' % trader.tag)
             self.enter_order(trader, event, 'S')
     
     def enter_order(self, trader, event, buy_sell_indicator, price=None,
             price_producer=latent_bid_and_offer, time_in_force=99999):
-        if price is None: # then produce a price         
+        log.info('trader %s: enter order: %s' % (trader.tag, buy_sell_indicator))   
+        if price is None: # then produce a price    
             mf = trader.market_facts
             if not market_is_valid(trader.market_facts):
+                log.info('trader %s:  enter order cancelled, market is invalid: %s' % (
+                    trader.tag, trader.market_facts))     
                 return
             trader.implied_bid, trader.implied_offer = price_producer(
                 trader.best_bid_except_me,
@@ -180,6 +193,9 @@ class ELOAutomatedTraderState(ELOTraderState):
                 a_y=trader.sliders['slider_a_y'],
                 a_z=trader.sliders['slider_a_z']
                 )
+            log.info('trader %s: calculate price, set implied bid: %s, \
+                        implied offer: %s' % ( trader.tag, trader.implied_bid, 
+                            trader.implied_offer))   
             price = (trader.implied_bid if buy_sell_indicator == 'B' 
                                         else trader.implied_offer)      
         order_info = trader.orderstore.enter(
@@ -187,42 +203,48 @@ class ELOAutomatedTraderState(ELOTraderState):
             time_in_force=time_in_force)
         if buy_sell_indicator == 'B':
             trader.staged_bid = price
+            log.info('trader %s: set staged bid: %s' % (trader.tag, price))     
         elif buy_sell_indicator == 'S':
-            trader.staged_offer = price       
+            trader.staged_offer = price    
+            log.info('trader %s: set staged offer: %s' % (trader.tag, price))    
         event.exchange_msgs('enter', model=trader, **order_info)
                        
     def bbo_change(self, trader, event):
         super().bbo_change(trader, event)
-        trader.disable_bid = False
-        trader.disable_offer = False
+        if trader.disable_bid:
+            trader.disable_bid = False
+            log.info('trader %s: bids enabled.' % trader.tag)
+        if trader.disable_offer:
+            trader.disable_offer = False        
+            log.info('trader %s: offers enabled.' % trader.tag)
         self.recalculate_market_position(trader, event)
     
     def external_feed_change(self, trader, event):
         super().external_feed_change(trader, event)
         self.recalculate_market_position(trader, event)
     
-    # def signed_volume_change(self, trader, event):
-    #     super().signed_volume_change(trader, event)
-    #     self.recalculate_market_position(trader, event)
-    
     def user_slider_change(self, trader, event):
         self.recalculate_market_position(trader, event)
 
     def validate_market_position(self, trader):
         bid, offer = None, None
+        log.info('trader %s: validating implied market position.' % trader.tag)
         if (trader.best_bid_except_me > MIN_BID) and (
             trader.implied_bid != trader.staged_bid):
             bid = trader.implied_bid
+            log.info('trader %s: implied bid valid.' % trader.tag)
         if (trader.best_offer_except_me < MAX_ASK) and (
             trader.implied_offer != trader.staged_offer):
             offer = trader.implied_offer
+            log.info('trader %s: implied offer valid.' % trader.tag)
         return bid, offer
     
     def recalculate_market_position(self, trader, event, 
                                price_producer=latent_bid_and_offer):
+        log.info('trader %s: recalculating market position...' % trader.tag)
         mf = trader.market_facts
         if not market_is_valid(trader.market_facts):
-            log.debug('market not valid: ' % trader.market_facts)
+            log.info('market not valid: %s' % trader.market_facts)
             return
         trader.implied_bid, trader.implied_offer = price_producer(
                 trader.best_bid_except_me,
@@ -235,6 +257,8 @@ class ELOAutomatedTraderState(ELOTraderState):
                 a_x=trader.sliders['slider_a_x'],
                 a_y=trader.sliders['slider_a_y'],
                 a_z=trader.sliders['slider_a_z'])
+        log.info('trader %s: calculate price, implied bid: %s, implied offer: %s' % ( 
+                    trader.tag, trader.implied_bid, trader.implied_offer))   
         bid, offer = self.validate_market_position(trader)
         start_from = 'B'
         if bid and offer:
@@ -260,12 +284,10 @@ class ELOAutomatedTraderState(ELOTraderState):
     def adjust_market_position(self, trader, event, target_bid=None, target_offer=None, 
             start_from='B'):
         sells = []
+        log.info('trader %s: adjust market position, suggested bid: %s, \
+                suggested offer: %s' % (trader.tag, target_bid, target_offer))   
         if target_offer is not None and trader.disable_offer is False:
             current_sell_orders = trader.orderstore.all_orders('S')
-            if len(current_sell_orders) > 1:
-                log.warning(
-                    'multiple sell orders in market: %s:%s' % (
-                        trader.orderstore, current_sell_orders))
             if current_sell_orders:
                 for order in current_sell_orders:
                     if (target_offer != order['price'] and 
@@ -274,16 +296,14 @@ class ELOAutomatedTraderState(ELOTraderState):
                             order['order_token'], target_offer)
                         sells.append(order_info)
                 trader.staged_offer = target_offer
+                log.info('trader %s: adjust by replace, set staged offer: %s' % (
+                            trader.tag, target_offer)) 
             else:
                 self.enter_order(trader, event, 'S', price=target_offer)
 
         buys = []
         if target_bid is not None and trader.disable_bid is False:
             current_buy_orders = trader.orderstore.all_orders('B')
-            if len(current_buy_orders) > 1:
-                log.warning(
-                    'multiple buy orders in market: %s:%s' % (
-                        trader.orderstore, current_buy_orders))
             if current_buy_orders:
                 for order in current_buy_orders:
                     if (target_bid != order['price'] and 
@@ -292,6 +312,8 @@ class ELOAutomatedTraderState(ELOTraderState):
                             order['order_token'], target_bid)
                         buys.append(order_info)
                 trader.staged_bid = target_bid
+                log.info('trader %s: adjust by replace, set staged bid: %s' % (
+                    trader.tag, target_bid)) 
             else:
                 self.enter_order(trader, event, 'B', price=target_bid)
 
@@ -308,10 +330,14 @@ class ELOAutomatedTraderState(ELOTraderState):
         price = order_info['price']          
         buy_sell_indicator = order_info['buy_sell_indicator']
 
-        if  buy_sell_indicator == 'B' and trader.staged_bid == price:
+        if  buy_sell_indicator == 'B':
             trader.staged_bid = None      
-        if  buy_sell_indicator == 'S' and trader.staged_offer == price:
+            log.info('trader %s: set staged bid to none from: %s ' % (
+                    trader.tag, price)) 
+        if  buy_sell_indicator == 'S':
             trader.staged_offer = None
+            log.info('trader %s: set staged offer to none from: %s ' % (
+                    trader.tag, price)) 
 
         # given conditions below
         # bbo is stale
