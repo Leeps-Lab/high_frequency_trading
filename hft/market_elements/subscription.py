@@ -2,6 +2,9 @@ from .market_fact import FactTimer
 from itertools import count
 from math import ceil
 import time
+import logging
+
+log = logging.getLogger(__name__)
 
 class Subscription:
 
@@ -29,7 +32,7 @@ class Subscription:
         if self.__active is not True:
             self.__active = True
         else:
-            raise Exception('already active %s' % self)
+            log.warning('already active %s' % self)
 
     def deactivate(self):
         self.timer.step()
