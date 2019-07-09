@@ -136,7 +136,7 @@ Spread: {self.bid} - {self.offer}
         price = order_info['price']
         direction = order_info['buy_sell_indicator']
         log.debug('trader %s: confirm enter: token %s.' % (self.player_id, token))
-        log.info('order %s travel time %s' % (travel_time, token))
+        log.info('order %s travel time %s' % (token, travel_time))
         self.update_spread(price, direction)
         return order_info    
 
