@@ -137,6 +137,15 @@ class ELOTrader(BaseTrader):
         self.tax_paid = 0
         self.speed_cost = 0
 
+    def open_session(self, *args, **kwargs):
+        super().open_session(*args, **kwargs)
+        log.info(
+# ok, this is quite ugly.. but useful..
+'trader %s: parameters: a_x: %s, a_x multiplier: %s, a_y: %s, a_y multiplier: %s, \
+w: %s, speed unit cost: %s' % (
+    self.tag, self.sliders['slider_a_x'], self.slider_multipliers['a_x'],
+    self.sliders['slider_a_y'], self.slider_multipliers['a_y'],
+    self.sliders['slider_a_z'], self.technology_subscription.unit_cost))
 
     def close_session(self, event):
         self.inventory.liquidify(
