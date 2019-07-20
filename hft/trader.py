@@ -131,6 +131,9 @@ class ELOTrader(BaseTrader):
         self.technology_subscription = Subscription(
             'speed_tech', self.player_id, kwargs.get('speed_unit_cost', 0))
         self.sliders = {'slider_a_x': 0, 'slider_a_y': 0, 'slider_a_z': 0}
+        self.slider_multipliers = {
+            'a_x': kwargs.get('a_x_multiplier', 1), 
+            'a_y': kwargs.get('a_y_multiplier', 1)}
         self.tax_paid = 0
         self.speed_cost = 0
 
@@ -152,9 +155,11 @@ class ELOTrader(BaseTrader):
     
     def user_slider_change(self, event):
         msg = event.message
+        # a_z <-> w is always btw 0 - 1
+        k_a_x, k_a_y = self.slider_multipliers['a_x'], self.slider_multipliers['a_y']
         self.sliders = {
-            'slider_a_x': msg.a_x, 'slider_a_y': msg.a_y,
-            'slider_a_z': event.message.a_z}       
+            'slider_a_x': msg.a_x * k_a_x , 'slider_a_y': msg.a_y * k_a_y,
+            'slider_a_z': msg.a_z}       
 
     @property
     def best_bid_except_me(self):
