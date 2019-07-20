@@ -73,7 +73,7 @@ class BaseTrader(object):
             else:    
                 self.market_facts[field] = value
         log.info('trader %s: open session with market view: %s' % (self.tag,
-                self.tracked_market_facts))
+                self.market_facts))
     
     def close_session(self, event):
         pass
