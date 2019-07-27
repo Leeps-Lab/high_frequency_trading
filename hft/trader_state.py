@@ -357,4 +357,4 @@ class ELOInvestorState(TraderState):
 
     def enter_order(self, trader, event):
         order_info = trader.orderstore.enter(**event.to_kwargs())
-        event.exchange_msgs('enter', delay=0.01, model=trader, **order_info)
+        event.exchange_msgs('enter', model=trader, **order_info)

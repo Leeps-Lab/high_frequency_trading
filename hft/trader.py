@@ -8,6 +8,7 @@ from .equations import latent_bid_and_offer
 from .market_elements.subscription import Subscription
 from .orderstore import OrderStore
 from .trader_state import TraderStateFactory
+import time
 
 log = logging.getLogger(__name__)
 
@@ -30,10 +31,9 @@ class BaseTrader(object):
     otree_player_converter = elo_otree_player_converter
     orderstore_cls = OrderStore
     event_dispatch = {}
-    default_delay = 0
 
     def __init__(self, subsession_id, market_id, player_id, id_in_market,
-            default_role, exchange_host, exchange_port, cash=0, delayed=False, 
+            default_role, exchange_host, exchange_port, cash=0, 
             **kwargs):
         self.subsession_id = subsession_id
         self.market_id = market_id
@@ -48,7 +48,7 @@ class BaseTrader(object):
         self.inventory = Inventory()
         self.trader_role = TraderStateFactory.get_trader_state(default_role)
         self.market_facts = {k: None for k in self.tracked_market_facts}
-        self.delayed = delayed
+        self.delayed = False
         self.staged_bid = None
         self.staged_offer = None
         self.implied_bid = None
@@ -58,6 +58,14 @@ class BaseTrader(object):
         self.cash = cash
         self.cost = 0
         self.net_worth = cash
+        # an estimate of time of arrival for 
+        # the most recent outbound message
+        # I need this since delays can change arbitrarily
+        # in a way that a later message can arrive
+        # at the exchange earlier 
+        # than a previous one
+        self.default_delay = 0.5
+        self.message_arrival_estimate = None 
     
     @classmethod
     def from_otree_player(cls, otree_player):
@@ -95,11 +103,30 @@ class BaseTrader(object):
 
     @property
     def delay(self):
+        """
+        reads will trigger an update in message arrival estimate
+        so that the next delay returned is after the previous one
+        """
+        # well, so this is really bad practice
+        # but since the nature of this app 
+        # I have to make assumptions around time..
         is_delayed_trader = self.delayed
+        now = time.time()
         if is_delayed_trader is False:
-            return self.default_delay
+            self.message_arrival_estimate = now + self.default_delay
+            delay = self.default_delay
         elif is_delayed_trader is True:
-            return self.__delay
+            current_arrival_estimate = now + self.__delay
+            if self.message_arrival_estimate > current_arrival_estimate:
+                diff = self.message_arrival_estimate - current_arrival_estimate
+                delay = diff + self.__delay
+                self.message_arrival_estimate = now + delay 
+            else:   
+                self.message_arrival_estimate = current_arrival_estimate
+                delay = self.__delay
+        delay = round(delay, 4)
+        log.debug('trader %s: message delay %s.' % (self.tag, delay))
+        return delay
 
     @delay.setter    
     def delay(self, order_delay_time):
@@ -159,7 +186,7 @@ w: %s, speed unit cost: %s' % (
         self.cost += tax_paid + speed_cost
         self.net_worth -= self.cost
         log.info('trader {self.tag}: closing session: net worth: {self.net_worth}, \
-            cost: {self.cost}, speed cost: {self.speed_cost}, tax: {self.tax_paid}'.format(
+    cost: {self.cost}, speed cost: {self.speed_cost}, tax: {self.tax_paid}'.format(
                 self=self))
     
     def user_slider_change(self, event):
@@ -256,6 +283,7 @@ class ELOInvestor(ELOTrader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.default_delay = 0.01
         self.market_facts = {k: 0 for k in self.tracked_market_facts}
 
     @classmethod
