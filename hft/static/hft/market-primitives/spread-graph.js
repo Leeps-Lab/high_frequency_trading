@@ -61,6 +61,15 @@ class SpreadGraph extends PolymerElement {
                     fill:var(--offer-cue-fill);
                     border:none;
                 }
+                .clearing-price-circle{
+                    stroke:green;
+                    fill:none;
+                    stroke-width:5px;
+                }
+                .mid-peg-line{
+                    stroke:black;
+                    stroke-width:5px;
+                }
             </style>
             <svg id="svg"></svg>
         `;
@@ -74,6 +83,16 @@ class SpreadGraph extends PolymerElement {
             },
             orders: {
                 type: Object,
+            },
+            clearingPrice:{
+                type: Object,
+                value: {price:0, volume:0},
+                observer: 'drawClearingPrice',
+            },
+            midPeg: {
+                type: Number,
+                value: 0,
+                observer: 'drawMidPeg',
             },
             myBid: {
                 type: Number,
@@ -157,6 +176,8 @@ class SpreadGraph extends PolymerElement {
             }
             this.drawMyBid(this.myBid, this.myBid);
             this.drawMyOffer(this.myOffer, this.myOffer);
+            this.drawClearingPrice(this.clearingPrice, this.clearingPrice);
+            this.drawMidPeg(this.midPeg, this.midPeg)
         });
 
         this.init();
@@ -183,24 +204,31 @@ class SpreadGraph extends PolymerElement {
         this.volumeCircles = this.mainGroup.append('g');
         this.orderEnteredLines = this.mainGroup.append('g');
 
-        const mboAndCueGroup = this.mainGroup.append('g');
-        this.myBidCircle = mboAndCueGroup.append('circle')
+        const mainObjectGroup = this.mainGroup.append('g');
+        this.myBidCircle = mainObjectGroup.append('circle')
             .attr('class', 'my-bid')
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
-        this.myOfferCircle = mboAndCueGroup.append('circle')
+        this.myOfferCircle = mainObjectGroup.append('circle')
             .attr('class', 'my-offer')
             .attr('r', this.minVolumeRadius)
             .style('opacity', 0);
-        this.bidCueCircle = mboAndCueGroup.append('circle')
+        this.bidCueCircle = mainObjectGroup.append('circle')
             .attr('class', 'bid-cue')
             .attr('r', 0.75 * this.minVolumeRadius)
             .style('opacity', 0);
-        this.offerCueCircle = mboAndCueGroup.append('circle')
+        this.offerCueCircle = mainObjectGroup.append('circle')
             .attr('class', 'offer-cue')
             .attr('r', 0.75 * this.minVolumeRadius)
             .style('opacity', 0);
+
+        this.clearingPriceCircle = mainObjectGroup.append('circle')
+            .attr('class', 'clearing-price-circle')
+            .style('opacity', 0);
         
+        this.midPointpeg = mainObjectGroup.append('line')
+            .attr('class', 'mid-peg-line');
+
         this.scale = d3.scaleLinear()
             .domain(this._domain);
         
@@ -227,6 +255,7 @@ class SpreadGraph extends PolymerElement {
         this.bidCueCircle.attr('cy', this.height/50);
         this.offerCueCircle.attr('cy', this.height/50);
 
+        this.clearingPriceCircle.attr('cy', this.height/2)
         this.scale.range([0, this.width]);
 
         this.xAxis
@@ -330,6 +359,69 @@ class SpreadGraph extends PolymerElement {
             .attr('class', getClass)
             .style('fill', d => self._volumeFillGradient(d.bidProportion))
             .style('stroke', 'black');
+    }
+
+    drawClearingPrice(newCPObj, oldCPObj){
+        if (!this.mainGroup) {
+            return;
+        }
+        if (newCPObj["price"] === 0) {
+            this.clearingPriceCircle.transition()
+                .duration(this.animationTime)
+                .style('opacity', 0);
+        }
+        else {
+            if (oldCPObj['price'] === 0) {
+                this.clearingPriceCircle
+                    .attr('r', newCPObj["volume"] * this.minVolumeRadius)
+                    .attr('cx', this.scale(newCPObj["price"]))
+                    .attr('cy', this.height/2)
+                    .transition()
+                    .duration(this.animationTime)
+                    .style('opacity', 1);
+            }
+            else {
+                this.clearingPriceCircle.transition()
+                    .duration(this.animationTime)
+                    .attr('cx', this.scale(newCPObj["price"]))
+                    .attr('cy', this.height/2)
+                    .attr('r', newCPObj["volume"] * this.minVolumeRadius)
+                    .style('opacity', 1);
+            }
+        }
+    }
+
+    drawMidPeg(newMP, oldMP){
+        if (!this.mainGroup) {
+            return;
+        }
+        if (newMP === 0) {
+            this.midPointpeg.transition()
+                .duration(this.animationTime)
+                .style('opacity', 0);
+        }
+        else {
+            if (oldMP === 0) {
+                this.midPointpeg
+                    .attr('x1', this.scale(newMP))
+                    .attr('x2', this.scale(newMP))
+                    .attr('y1', 0)
+                    .attr('y2', this.height)
+                    .transition()
+                    .duration(this.animationTime)
+                    .style('opacity', 1);
+            }
+            else {
+                this.midPointpeg
+                    .transition()
+                    .duration(this.animationTime)
+                    .attr('x1', this.scale(newMP))
+                    .attr('x2', this.scale(newMP))
+                    .attr('y1', 0)
+                    .attr('y2', this.height)
+                    .style('opacity', 1);
+            }
+        }
     }
 
     drawMyBid(newBid, oldBid) {

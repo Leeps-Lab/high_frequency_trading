@@ -122,8 +122,13 @@ class MarketSession extends PolymerElement {
             ></test-inputs>
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
-                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' bid-cue={{eBestBid}} offer-cue={{eBestOffer}} orders={{orderBook}} my-bid={{myBid}} 
-                    my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
+                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' 
+                    bid-cue={{eBestBid}} offer-cue={{eBestOffer}} 
+                    orders={{orderBook}} my-bid={{myBid}} 
+                    my-offer={{myOffer}} 
+                    best-bid={{bestBid}} best-offer={{bestOffer}}
+                    clearing-price={{clearingPrice}}
+                    mid-peg={{midPeg}}> </spread-graph>
                 <div class="middle-section-container">       
                     <elo-info-table id="infotable" inventory={{inventory}}
                         cash={{cash}} signed-volume={{signedVolume}}
@@ -182,6 +187,8 @@ class MarketSession extends PolymerElement {
         myOffer: Number,
         eBestBid: Number,
         eBestOffer: Number,
+        clearingPrice:Object,
+        midPeg:Number,
         wealth: {
             type: Number,
             computed: '_calculateWealth(cash, speedCost, referencePrice, inventory)'
@@ -249,18 +256,31 @@ class MarketSession extends PolymerElement {
         this.playerId = OTREE_CONSTANTS.playerId
         this.manualButtonDisplayed = OTREE_CONSTANTS.manualButtonDisplayed
         this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed;
-        console.log( OTREE_CONSTANTS.svSliderDisplayed)
         this.referencePrice = 0
         this.cash = 0
         this.wealth = 0
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.signedVolume = 0
+        var self = this;
+        setTimeout(function(){
+            self.midPeg = 94.5;
+            self.clearingPrice = {price:95,volume:1};
+        }, 3000);
+
+        setTimeout(function(){
+            self.midPeg = 95.5;
+            self.clearingPrice = {price:96,volume:2};
+        }, 4500);
+
+        setTimeout(function(){
+            self.midPeg = 97.5;
+            self.clearingPrice = {price:97,volume:4};
+        }, 7000);
     }
 
     outboundMessage(event) {
         const messagePayload = event.detail
-        // console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
         if (this.scaleForDisplay) {
             cleanMessage = scaler(cleanMessage, 1)
