@@ -257,8 +257,8 @@ class MarketSession extends PolymerElement {
         this.manualButtonDisplayed = OTREE_CONSTANTS.manualButtonDisplayed
         this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed;
         this.referencePrice = 0
-        this.cash = 0
-        this.wealth = 0
+        this.cash = 100
+        this.wealth = 100
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.signedVolume = 0
