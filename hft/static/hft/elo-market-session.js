@@ -128,7 +128,7 @@ class MarketSession extends PolymerElement {
                     my-offer={{myOffer}} 
                     best-bid={{bestBid}} best-offer={{bestOffer}}
                     clearing-price={{clearingPrice}}
-                    mid-peg={{midPeg}}> </spread-graph>
+                    mid-peg={{middlePeg}}> </spread-graph>
                 <div class="middle-section-container">       
                     <elo-info-table id="infotable" inventory={{inventory}}
                         cash={{cash}} signed-volume={{signedVolume}}
@@ -188,7 +188,7 @@ class MarketSession extends PolymerElement {
         eBestBid: Number,
         eBestOffer: Number,
         clearingPrice:Object,
-        midPeg:Number,
+        middlePeg:Number,
         wealth: {
             type: Number,
             computed: '_calculateWealth(cash, speedCost, referencePrice, inventory)'
@@ -263,20 +263,6 @@ class MarketSession extends PolymerElement {
         this.inventory = 0
         this.signedVolume = 0
         var self = this;
-        setTimeout(function(){
-            self.midPeg = 94.5;
-            self.clearingPrice = {price:95,volume:1};
-        }, 3000);
-
-        setTimeout(function(){
-            self.midPeg = 95.5;
-            self.clearingPrice = {price:96,volume:2};
-        }, 4500);
-
-        setTimeout(function(){
-            self.midPeg = 97.5;
-            self.clearingPrice = {price:97,volume:4};
-        }, 7000);
     }
 
     outboundMessage(event) {
@@ -401,6 +387,13 @@ class MarketSession extends PolymerElement {
         this.eBestBid = message.e_best_bid
         this.eBestOffer = message.e_best_offer
         this.eSignedVolume = message.e_signed_volume;
+    }
+
+    _handleClearingPrice(message){
+        this.clearingPrice = {price: message.price, volume: message.volume};
+    }
+    _handleMiddlePeg(message){
+        this.middlePeg = message.price;
     }
     
     _handleExchangeMessage(message) {

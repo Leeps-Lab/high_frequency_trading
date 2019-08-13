@@ -1,6 +1,4 @@
 const ELO = {
-    // Added new messages signed_volume and external_feed
-    // Possible removing order_imbalence 
     events: {
         inbound:{
             confirmed: {
@@ -13,13 +11,11 @@ const ELO = {
                 time_in_force: parseInt
             },
             signed_volume: {
-                //New Message
                 type: String,
                 market_id: parseInt,
                 signed_volume: parseFloat
             },
             external_feed: {
-                //New Message
                 type: String,
                 market_id: parseInt,
                 e_best_bid: parseInt,
@@ -102,6 +98,15 @@ const ELO = {
                 a_x: parseFloat,
                 a_y: parseFloat,
                 a_z: parseFloat
+            },
+            clearing_price:{
+                type:String,
+                price: parseInt,
+                volume: parseInt,
+            },
+            middle_peg:{
+                type:String,
+                price: parseFloat,
             }
         },
         outbound: {
@@ -142,15 +147,15 @@ const ELO = {
         elo_quote_cue: ['_handleTakerCue'],
         speed_confirm: ['_handleSpeedConfirm'],
         reference_price: ['_handleReferencePrice'],
-        slider_confirm: ['_handleSliderConfirm']
+        slider_confirm: ['_handleSliderConfirm'],
+        clearing_price: ['_handleClearingPrice'],
+        mid_peg: ['_handleMiddlePeg'],
     },
     sliderProperties: {
         minValue: 0,
         maxValue: 1,
         stepSize: 0.1
     },
-    // manualButtonDisplayed: false,
-    // svSliderDisplayed: false,
 }
 
 export {ELO}
