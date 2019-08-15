@@ -107,6 +107,9 @@ const ELO = {
             middle_peg:{
                 type:String,
                 price: parseFloat,
+            },
+            post_batch: {
+                type: String,
             }
         },
         outbound: {

@@ -15,7 +15,8 @@ class OUCH(Protocol):
         'U': 80,
         'A': 66,
         'Q': 41,
-        'O': 49
+        'O': 49,
+        'Z': 49,
     }
 
     def __init__(self):

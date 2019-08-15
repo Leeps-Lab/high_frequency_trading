@@ -73,6 +73,10 @@ class SliderConfirmBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'player_id', 'a_x', 'a_y', 'a_z')
     required_field_types = (int, int, float, float, float)  
 
+class PostBatchBroadcastMessage(BroadcastWSMessage):
+    required_fields = ('market_id',)
+    required_field_types = (int,)
+
 
 class ELOBroadcastMessageFactory(MessageFactory):
 
@@ -88,5 +92,6 @@ class ELOBroadcastMessageFactory(MessageFactory):
         'external_feed': ExternalFeedBroadcastMessage,
         'reference_price': ReferencePriceBroadcastMessage,
         'speed_confirm': SpeedConfirmBroadcastMessage,
-        'slider_confirm': SliderConfirmBroadcastMessage
+        'slider_confirm': SliderConfirmBroadcastMessage,
+        'post_batch': PostBatchBroadcastMessage,
     }

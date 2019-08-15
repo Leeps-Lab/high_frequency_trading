@@ -307,20 +307,51 @@ class SpreadGraph extends PolymerElement {
 
         volume field is the total volume of orders at that price
         bidProportion field is the proportion of volume taken up by bid orders. 1 is all bids, 0 is all offers
-        */       
-        const prices = d3.set();
-        d3.keys(orders._bidPriceSlots).forEach(e => prices.add(e));
-        d3.keys(orders._offerPriceSlots).forEach(e => prices.add(e));
+        */
+        const prices = {};
+        function getDefaultPriceEntry() {
+            return {
+                bidVolume: 0,
+                askVolume: 0,
+            };
+        }
+        d3.values(this.orders._buyOrders)
+          .filter(e => e.visible)
+          .forEach(e => {
+            prices[e.price] = prices[e.price] || getDefaultPriceEntry();
+            prices[e.price].bidVolume++;
+          });
+        d3.values(this.orders._sellOrders)
+          .filter(e => e.visible)
+          .forEach(e => {
+            prices[e.price] = prices[e.price] || getDefaultPriceEntry();
+            prices[e.price].askVolume++;
+          });
+
         const volumes = [];
-        prices.each(price => {
-            const bidVolume = d3.values(orders._bidPriceSlots[price]).reduce((a, b) => a + b, 0);
-            const offerVolume = d3.values(orders._offerPriceSlots[price]).reduce((a, b) => a + b, 0);
+        d3.keys(prices).forEach(price => {
+            const bidVolume = prices[price].bidVolume;
+            const askVolume = prices[price].askVolume;
             volumes.push({
-                price: price,
-                volume: bidVolume + offerVolume,
-                bidProportion: bidVolume / (bidVolume + offerVolume)
-            });
+                price: price, 
+                volume: bidVolume + askVolume,
+                bidProportion: bidVolume / (bidVolume + askVolume),
+            })
         });
+
+        // const prices = d3.set();
+        // d3.keys(orders._bidPriceSlots).forEach(e => prices.add(e));
+        // d3.keys(orders._offerPriceSlots).forEach(e => prices.add(e));
+        // const volumes = [];
+        // prices.each(price => {
+        //     const bidVolume = d3.values(orders._bidPriceSlots[price]).reduce((a, b) => a + b, 0);
+        //     const offerVolume = d3.values(orders._offerPriceSlots[price]).reduce((a, b) => a + b, 0);
+        //     volumes.push({
+        //         price: price,
+        //         volume: bidVolume + offerVolume,
+        //         bidProportion: bidVolume / (bidVolume + offerVolume)
+        //     });
+        // });
 
         // function to assign classes to volume circles
         function getClass(d) {

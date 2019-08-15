@@ -70,6 +70,7 @@ class ELODispatcher(Dispatcher):
         'C': ['trader'],
         'E': ['trader', 'market'],
         'Q': ['market'],
+        'Z': ['trade_session'],
         'player_ready': ['market'],
         'advance_me': ['market'],
         'role_change': ['market', 'trader'],

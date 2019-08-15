@@ -28,7 +28,8 @@
         idInGroup: "{{player.id_in_group}}",
         manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
         svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-        sessionLength: "{{subsession.session_duration}}"
+        sessionLength: "{{subsession.session_duration}}",
+        auctionFormat: "{{subsession.auction_format}}",
    };
 
    let TEST_INPUTS_ADDRESS =  "";

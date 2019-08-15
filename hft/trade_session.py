@@ -30,7 +30,8 @@ class TradeSession:
 
     events_dispatch = {
         'market_ready_to_start': 'start_trade_session',
-        'market_ready_to_end': 'stop_trade_session'
+        'market_ready_to_end': 'stop_trade_session',
+        'Z': 'post_batch',
     }
 
     def __init__(self, subsession, session_format, event_dispatcher_cls):
@@ -136,3 +137,7 @@ class ELOTradeSession(TradeSession):
         except Exception:
             log.exception('session end procedure failed')
         
+    def post_batch(self, market_id):
+        self.event.broadcast_msgs('post_batch',
+            market_id=market_id
+        )
