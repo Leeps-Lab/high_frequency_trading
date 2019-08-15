@@ -242,7 +242,6 @@ class MarketSession extends PolymerElement {
 
     constructor() {
         super();
-        this.orderBook = new PlayersOrderBook(this.playerId, this, 'orderBook');
         //Starting Role
         this.role = 'out';
         this.addEventListener('user-input', this.outboundMessage.bind(this))
@@ -262,6 +261,7 @@ class MarketSession extends PolymerElement {
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.signedVolume = 0
+        this.orderBook = new PlayersOrderBook(this.playerId);
         var self = this;
     }
 
@@ -281,7 +281,6 @@ class MarketSession extends PolymerElement {
         // this api is to handle updates as single messages
         // it is also possible to batch these messages for performance
         // and take the exit below.
-        // console.log(messagePayload)
         if (messagePayload.type == 'batch'){
             this._handleBatchMessage(messagePayload)
             return
@@ -304,6 +303,9 @@ class MarketSession extends PolymerElement {
         let marketTransacted = {'bid': false, 'ask': false}
         for (let msg of message.batch) {
             let cleanMsg = this._msgSanitize(msg, 'inbound')
+            if (!cleanMsg) {
+                continue;
+            }
             if (this.scaleForDisplay) {
                 cleanMsg = scaler(cleanMsg, 2)
             }    
@@ -377,7 +379,7 @@ class MarketSession extends PolymerElement {
             // call this method so property updates are batched 
             this.setProperties(newState)
         }
-        this.notifyPath('orderBook._bidPriceSlots')
+        this.notifyPath('orderBook._buyOrders')
         let event = new CustomEvent('transaction', {detail: marketTransacted,
             bubbles: true, composed: true})
         this.$.infotable.dispatchEvent(event)
@@ -406,7 +408,7 @@ class MarketSession extends PolymerElement {
 
         // notify a subproperty 
         // so observer on property is called
-        this.notifyPath('orderBook._bidPriceSlots')
+        this.notifyPath('orderBook._buyOrders')
     }
     
     _handleExecuted(message) {
@@ -490,7 +492,6 @@ class MarketSession extends PolymerElement {
 
     _msgSanitize (messagePayload, direction) {
         if (this.events[direction].hasOwnProperty(messagePayload.type)) {
-
             let cleanMessage = {}
             let fieldsTypes = this.events[direction][messagePayload.type]
             for (let key in fieldsTypes) {
@@ -513,10 +514,11 @@ class MarketSession extends PolymerElement {
 
                 cleanMessage[key] = cleanValue
             }
+
             return cleanMessage;
         }
         else {
-            console.error(`invalid message type: ${messagePayload.type} in `, messagePayload);
+            console.error(`invalid message type: ${messagePayload.type} in`, messagePayload);
         }
     }
 
