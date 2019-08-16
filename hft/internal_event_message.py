@@ -38,6 +38,12 @@ class BBOChangeMessage(InternalEventMessage):
         'best_bid', 'best_offer', 'volume_at_best_bid', 'volume_at_best_offer',
         'next_offer', 'next_bid', 'market_id', 'subsession_id')
 
+class PostBatchMessage(InternalEventMessage):
+
+    required_fields = (
+        'best_bid', 'best_offer', 'volume_at_best_bid', 'volume_at_best_offer',
+        'next_offer', 'next_bid', 'market_id', 'subsession_id')
+
 class ExternalFeedChangeMessage(InternalEventMessage):
 
     required_fields = (
@@ -53,6 +59,7 @@ class ELOInternalEventMessageFactory(MessageFactory):
         'signed_volume_change': SignedVolumeChangeMessage,
         'external_feed_change': ExternalFeedChangeMessage,
         'bbo_change': BBOChangeMessage,
+        'post_batch': PostBatchMessage,
         'market_start': MarketStartMessage,
         'market_end': MarketEndMessage
     }

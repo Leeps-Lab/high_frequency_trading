@@ -50,7 +50,7 @@ class ELOOuchMessageSanitizer(MessageSanitizer):
                 token = clean_message.get('replacement_order_token')
             event_type = message['type']
             player_id = None
-            if event_type not in ('S', 'Q'):      
+            if event_type not in ('S', 'Q', 'Z'):
                 player_id = int(token[5:9])
                 clean_message['firm'] = token[0:4].lower()
             clean_message['player_id'] = player_id

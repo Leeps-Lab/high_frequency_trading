@@ -122,8 +122,13 @@ class MarketSession extends PolymerElement {
             ></test-inputs>
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
-                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' bid-cue={{eBestBid}} offer-cue={{eBestOffer}} orders={{orderBook}} my-bid={{myBid}} 
-                    my-offer={{myOffer}} best-bid={{bestBid}} best-offer={{bestOffer}}> </spread-graph>
+                <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' 
+                    bid-cue={{eBestBid}} offer-cue={{eBestOffer}} 
+                    orders={{orderBook}} my-bid={{myBid}} 
+                    my-offer={{myOffer}} 
+                    best-bid={{bestBid}} best-offer={{bestOffer}}
+                    clearing-price={{clearingPrice}}
+                    mid-peg={{middlePeg}}> </spread-graph>
                 <div class="middle-section-container">       
                     <elo-info-table id="infotable" inventory={{inventory}}
                         cash={{cash}} signed-volume={{signedVolume}}
@@ -182,6 +187,8 @@ class MarketSession extends PolymerElement {
         myOffer: Number,
         eBestBid: Number,
         eBestOffer: Number,
+        clearingPrice:Object,
+        middlePeg:Number,
         wealth: {
             type: Number,
             computed: '_calculateWealth(cash, speedCost, referencePrice, inventory)'
@@ -235,7 +242,6 @@ class MarketSession extends PolymerElement {
 
     constructor() {
         super();
-        this.orderBook = new PlayersOrderBook(this.playerId, this, 'orderBook');
         //Starting Role
         this.role = 'out';
         this.addEventListener('user-input', this.outboundMessage.bind(this))
@@ -249,18 +255,18 @@ class MarketSession extends PolymerElement {
         this.playerId = OTREE_CONSTANTS.playerId
         this.manualButtonDisplayed = OTREE_CONSTANTS.manualButtonDisplayed
         this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed;
-        console.log( OTREE_CONSTANTS.svSliderDisplayed)
         this.referencePrice = 0
         this.cash = 100
         this.wealth = 100
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         this.inventory = 0
         this.signedVolume = 0
+        this.orderBook = new PlayersOrderBook(this.playerId);
+        var self = this;
     }
 
     outboundMessage(event) {
         const messagePayload = event.detail
-        // console.log(messagePayload);
         let cleanMessage = this._msgSanitize(messagePayload, 'outbound')
         if (this.scaleForDisplay) {
             cleanMessage = scaler(cleanMessage, 1)
@@ -275,7 +281,6 @@ class MarketSession extends PolymerElement {
         // this api is to handle updates as single messages
         // it is also possible to batch these messages for performance
         // and take the exit below.
-        // console.log(messagePayload)
         if (messagePayload.type == 'batch'){
             this._handleBatchMessage(messagePayload)
             return
@@ -298,6 +303,9 @@ class MarketSession extends PolymerElement {
         let marketTransacted = {'bid': false, 'ask': false}
         for (let msg of message.batch) {
             let cleanMsg = this._msgSanitize(msg, 'inbound')
+            if (!cleanMsg) {
+                continue;
+            }
             if (this.scaleForDisplay) {
                 cleanMsg = scaler(cleanMsg, 2)
             }    
@@ -378,7 +386,7 @@ class MarketSession extends PolymerElement {
             // call this method so property updates are batched 
             this.setProperties(newState)
         }
-        this.notifyPath('orderBook._bidPriceSlots')
+        this.notifyPath('orderBook._buyOrders')
         let event = new CustomEvent('transaction', {detail: marketTransacted,
             bubbles: true, composed: true})
         this.$.infotable.dispatchEvent(event)
@@ -388,6 +396,13 @@ class MarketSession extends PolymerElement {
         this.eBestBid = message.e_best_bid
         this.eBestOffer = message.e_best_offer
         this.eSignedVolume = message.e_signed_volume;
+    }
+
+    _handleClearingPrice(message){
+        this.clearingPrice = {price: message.price, volume: message.volume};
+    }
+    _handleMiddlePeg(message){
+        this.middlePeg = message.price;
     }
     
     _handleExchangeMessage(message) {
@@ -400,7 +415,7 @@ class MarketSession extends PolymerElement {
 
         // notify a subproperty 
         // so observer on property is called
-        this.notifyPath('orderBook._bidPriceSlots')
+        this.notifyPath('orderBook._buyOrders')
     }
     
     _handleExecuted(message) {
@@ -484,7 +499,6 @@ class MarketSession extends PolymerElement {
 
     _msgSanitize (messagePayload, direction) {
         if (this.events[direction].hasOwnProperty(messagePayload.type)) {
-
             let cleanMessage = {}
             let fieldsTypes = this.events[direction][messagePayload.type]
             for (let key in fieldsTypes) {
@@ -507,10 +521,11 @@ class MarketSession extends PolymerElement {
 
                 cleanMessage[key] = cleanValue
             }
+
             return cleanMessage;
         }
         else {
-            console.error(`invalid message type: ${messagePayload.type} in `, messagePayload);
+            console.error(`invalid message type: ${messagePayload.type} in`, messagePayload);
         }
     }
 

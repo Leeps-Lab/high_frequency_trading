@@ -7,7 +7,10 @@ class WSConnection extends PolymerElement {
     static get properties() {
       return {
         socket: Object,
-        pending: Array,
+        pending: {
+            type: Object,
+            value: () => [],
+        },
         urlToConnect: String
       }
     }
@@ -35,10 +38,10 @@ class WSConnection extends PolymerElement {
     _onOpen() {
         console.log('connected to ', this.urlToConnect)
         this.socket = socket
-        if (this.pendingMessages.length) {
-            this.pendingMessages.forEach( (message) => {
+        if (this.pending.length) {
+            this.pending.forEach( (message) => {
                 this.send(message)
-                });
+            });
         }
 
         let playerReadyMessage = {

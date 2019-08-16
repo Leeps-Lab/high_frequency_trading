@@ -59,13 +59,13 @@ class Subsession(BaseSubsession):
         session_configs = self.session.config
         session_format = session_configs['environment']
         trade_session = create_trade_session(session_format)
-        exchange_format = session_configs['auction_format']
+        self.auction_format = session_configs['auction_format']
         exchange_host = session_configs['matching_engine_host']
         all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         market_id_map = {}
         for group in self.get_groups():
             group_id = group.id
-            exchange_port = all_exchange_ports[exchange_format].pop()
+            exchange_port = all_exchange_ports[self.auction_format].pop()
             market = trade_session.create_market(
                 group_id, exchange_host, exchange_port, **session_configs)                                 
             for player in group.get_players():

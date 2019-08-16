@@ -58,6 +58,7 @@ class ELOTraderState(TraderState):
         'role_change': 'state_change', 
         'slider': 'user_slider_change', 
         'bbo_change': 'bbo_change', 
+        'post_batch': 'post_batch', 
         'reference_price_change': 'reference_price_update',
         'signed_volume_change': 'signed_volume_change', 
         'external_feed_change': 'external_feed_change'}
@@ -87,6 +88,11 @@ class ELOTraderState(TraderState):
         event.broadcast_msgs('speed_confirm', value=new_state, model=trader)
     
     def bbo_change(self, trader, event):
+        for field in ('best_bid', 'volume_at_best_bid', 'next_bid', 'best_offer',
+            'volume_at_best_offer', 'next_offer'):
+                trader.market_facts[field] = getattr(event.message, field)
+
+    def post_batch(self, trader, event):
         for field in ('best_bid', 'volume_at_best_bid', 'next_bid', 'best_offer',
             'volume_at_best_offer', 'next_offer'):
                 trader.market_facts[field] = getattr(event.message, field)

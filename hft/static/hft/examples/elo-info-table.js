@@ -23,7 +23,8 @@ class InfoTable extends PolymerElement {
     
     ready() {
       super.ready();
-      this.addEventListener('transaction', this._handleExecution);
+      // commented to disable flashing animation
+      // this.addEventListener('transaction', this._handleExecution);
      }
 
      _handleExecution(event) {
@@ -35,7 +36,7 @@ class InfoTable extends PolymerElement {
         let theCard = this.shadowRoot.getElementById('ask')
         theCard.animate()
       }
-    }
+     }
   
 
     static get template() { 
@@ -83,11 +84,9 @@ class InfoTable extends PolymerElement {
           <div class="container">
             <div class="bid-ask-container">
               <div id="bbo">
-                <bounded-market-price-card id="bid"  title="Best Bid" price={{bestBid}}
-                  animated> 
+                <bounded-market-price-card id="bid"  title="Best Bid" price={{bestBid}}> 
                 </bounded-market-price-card>
-                <bounded-market-price-card id="ask" title="Best Ask" price={{bestOffer}}
-                  animated> 
+                <bounded-market-price-card id="ask" title="Best Ask" price={{bestOffer}}>
                 </bounded-market-price-card>
               </div>
               <div id="mbbo">

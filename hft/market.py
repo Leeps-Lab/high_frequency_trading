@@ -105,6 +105,7 @@ class ELOMarket(BaseMarket):
         'market_start': 'start_trade',
         'market_end': 'end_trade',
         'Q': 'bbo_change',
+        'Z': 'post_batch',
         'external_feed': 'external_feed_change'} 
     mark_events_with_props = (
         'tax_rate', 'time_session_start', 'time_session_end')
@@ -166,6 +167,13 @@ class ELOMarket(BaseMarket):
             self.event.internal_event_msgs(
                 'bbo_change', model=self, **self.bbo.to_kwargs())
             self.event.broadcast_msgs('bbo', model=self, **self.bbo.to_kwargs())
+
+    def post_batch(self, **kwargs):
+        self.bbo.update(**kwargs)
+        if self.bbo.has_changed:
+            self.event.internal_event_msgs(
+                'post_batch', model=self, **self.bbo.to_kwargs())
+            self.event.broadcast_msgs('post_batch', model=self, **self.bbo.to_kwargs())
     
     def external_feed_change(self, **kwargs):
         self.external_feed.update(**kwargs)

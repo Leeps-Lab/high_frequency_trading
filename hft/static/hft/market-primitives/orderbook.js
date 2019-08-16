@@ -6,16 +6,17 @@ class PlayersOrderBook {
         // this.polymerPropertyName = polymerPropertyName;
 
         this.playerId = playerId
-        this._bidPriceSlots = {};
-        this._offerPriceSlots = {};
+        this.auctionFormat = OTREE_CONSTANTS.auctionFormat
+        this._buyOrders = {}
+        this._sellOrders = {}
         /*
-        priceSlots = {
-            `price`: {
-                `order_id`: `volume`,
-                ...
-            },
-            ...
-        }
+            _orders = {
+                `orderToken`: {
+                    price: ...,
+                    playerId: ...,
+                    active: ...,
+                }
+            }
         */
     }
 
@@ -38,53 +39,76 @@ class PlayersOrderBook {
         }
     }
 
-    getOrders(buySellIndicator) {
-        if (buySellIndicator === 'B') {
-            return this._bidPriceSlots;
-        } else if (buySellIndicator === 'S') {
-            return this._offerPriceSlots;
-        } else {console.error(`invalid buy sell indicator: ${buySellIndicator}`)}
+    // handle a post-batch message arriving
+    // this is only ever called for FBA auction format
+    handlePostBatch() {
+        // mark all orders as active
+        // and delete orders which have been marked as removed
+        for (let order in this._buyOrders) {
+            if (this._buyOrders[order].removed) {
+                delete this._buyOrders[order];
+            }
+            else {
+                this._buyOrders[order].visible = true;
+            }
+        }
+        for (let order in this._sellOrders) {
+            if (this._sellOrders[order].removed) {
+                delete this._sellOrders[order];
+            }
+            else {
+                this._sellOrders[order].visible = true;
+            }
+        }
     }
 
-    setOrders(orders, buySellIndicator) {
-        if (buySellIndicator === 'B') {
-            this._bidPriceSlots = orders;
-        } else if (buySellIndicator === 'S') {
-            this._offerPriceSlots = orders;
-        } else {console.error(`invalid buy sell indicator: ${buySellIndicator}`)}
+    getOrders(buySellIndicator) {
+        if (buySellIndicator == 'B') {
+            return this._buyOrders;
+        }
+        else {
+            return this._sellOrders;
+        }
+    }
+
+    // returns true if a new order from player with id `playerId` should be immediately shown
+    _newOrderActive(playerId) {
+        return this.auctionFormat == 'CDA' || playerId == this.playerId;
     }
 
     _addOrder(price, buySellIndicator, orderToken, playerId, timeInForce=9999) {
-        if (timeInForce == 0) {return ;}
-        else {
-        let priceSlots = this.getOrders(buySellIndicator)
-
-        if (!priceSlots.hasOwnProperty(price)) {
-            priceSlots[price] = {};
-           // console.log('added price: ', price, 'orders: ', priceSlots)
+        if (timeInForce == 0) {
+            return
         }
-        priceSlots[price][orderToken] = 1;
-        // console.log('added token: ', orderToken, 'orders: ', priceSlots)
+
+        const visible = this._newOrderActive(playerId);
+        const order = {
+            price: price,
+            playerId: playerId,
+            visible: visible,
+            removed: false,
+        }
+
+        if (buySellIndicator == 'B') {
+            this._buyOrders[orderToken] = order;
+        }
+        else {
+            this._sellOrders[orderToken] = order;
         }
     }
 
     _removeOrder(price, buySellIndicator, orderToken, playerId) {
-        let priceSlots = this.getOrders(buySellIndicator);
-        if (!priceSlots.hasOwnProperty(price)) {
-            console.warn(`price ${price} is not in : `, priceSlots)
-        } else {
-            if (!priceSlots[price].hasOwnProperty(orderToken)) {
-                console.warn(`order token ${orderToken} is not in: `, priceSlots)    
-            } else {
-                delete priceSlots[price][orderToken]
-//                console.log('delete token: ', orderToken, 'orders: ', priceSlots)
-                if (Object.keys(priceSlots[price]).length == 0) {
-                    delete priceSlots[price];
-//                    console.log('delete price: ', price, 'orders: ', priceSlots)
-                }
-            }
+        let orders = this.getOrders(buySellIndicator);
+        if (!orders.hasOwnProperty(orderToken)) {
+            console.warn(`remove failed: order token ${orderToken} not found`);
+            return;
         }
-
+        if (this.auctionFormat == 'CDA') {
+            delete orders[orderToken]
+        }
+        else {
+            orders[orderToken].removed = true;
+        }
     }
 
     _replaceOrder(price, buySellIndicator, orderToken, playerId, oldPrice, oldToken) {
