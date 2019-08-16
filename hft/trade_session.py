@@ -31,7 +31,6 @@ class TradeSession:
     events_dispatch = {
         'market_ready_to_start': 'start_trade_session',
         'market_ready_to_end': 'stop_trade_session',
-        'Z': 'post_batch',
     }
 
     def __init__(self, subsession, session_format, event_dispatcher_cls):
