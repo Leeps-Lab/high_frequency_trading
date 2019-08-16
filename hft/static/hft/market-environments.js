@@ -102,6 +102,22 @@ const ELO = {
                 a_x: parseFloat,
                 a_y: parseFloat,
                 a_z: parseFloat
+            },
+            clearing_price:{
+                type:String,
+                price: parseInt,
+                volume: parseInt,
+            },
+            middle_peg:{
+                type:String,
+                price: parseFloat,
+            },
+            post_batch: {
+                type: String,
+                best_bid: parseInt,
+                best_offer: parseInt,
+                volume_at_best_bid: parseInt,
+                volume_at_best_offer: parseInt
             }
         },
         outbound: {

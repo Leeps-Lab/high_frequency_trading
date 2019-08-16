@@ -325,6 +325,13 @@ class MarketSession extends PolymerElement {
                     marketTransacted[side] = true
                 case 'canceled':
                     this.orderBook.recv(cleanMsg)
+                    break;
+                case 'post_batch':
+                    marketState.bestBid = cleanMsg.best_bid;
+                    marketState.bestOffer = cleanMsg.best_offer;
+                    marketState.volumeBestBid = cleanMsg.volume_at_best_bid
+                    marketState.volumeBestOffer = cleanMsg.volume_at_best_offer
+                    this.orderBook.handlePostBatch();
             }
             if (cleanMsg.player_id == this.playerId) {
                 if (cleanMsg.type == 'executed' || cleanMsg.type == 'canceled') {
