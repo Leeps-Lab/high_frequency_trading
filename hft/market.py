@@ -173,7 +173,12 @@ class ELOMarket(BaseMarket):
         if self.bbo.has_changed:
             self.event.internal_event_msgs(
                 'post_batch', model=self, **self.bbo.to_kwargs())
-            self.event.broadcast_msgs('post_batch', model=self, **self.bbo.to_kwargs())
+            # manually add clearing price and transacted volume to broadcast message
+            broadcast_fields = self.bbo.to_kwargs()
+            broadcast_fields['clearing_price'] = kwargs.get('clearing_price', None)
+            broadcast_fields['transacted_volume'] = kwargs.get('transacted_volume', None)
+            print(broadcast_fields)
+            self.event.broadcast_msgs('post_batch', model=self, **broadcast_fields)
     
     def external_feed_change(self, **kwargs):
         self.external_feed.update(**kwargs)

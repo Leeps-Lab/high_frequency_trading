@@ -8,7 +8,7 @@ const scaleMultiplierValue = {'price': nasdaqMultiplier, 'execution_price': nasd
     'cash': nasdaqMultiplier, 'best_bid': nasdaqMultiplier, 
     'best_offer': nasdaqMultiplier, 'bid': nasdaqMultiplier, 'offer': nasdaqMultiplier, 
     'next_bid': nasdaqMultiplier, 'next_offer': nasdaqMultiplier, 'e_best_bid': nasdaqMultiplier,
-    'e_best_offer': nasdaqMultiplier}
+    'e_best_offer': nasdaqMultiplier, 'clearing_price': nasdaqMultiplier}
 
 // functions to transform field values 
 // in incoming messages

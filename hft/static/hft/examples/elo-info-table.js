@@ -14,7 +14,14 @@ class InfoTable extends PolymerElement {
         cash: Number,
         endowment: Number,
         signedVolume: Number,
-        svSliderDisplayed: Boolean
+        svSliderDisplayed: Boolean,
+        clearingPrice: {
+          type: Object,
+          value: {
+            price: '-',
+            volume: '-',
+          }
+        },
       }
     }
     constructor() {
@@ -58,7 +65,7 @@ class InfoTable extends PolymerElement {
 
         .bid-ask-container {
           display: flex;
-          width:50%;
+          width:55%;
           height:100%;
           flex-direction: column;
           justify-content:center;
@@ -79,7 +86,18 @@ class InfoTable extends PolymerElement {
           height: 100%;
           align-items: center;
         }
-  
+
+        .clearing-info {
+          text-align: center;
+        }
+
+        .clearing-info span {
+          font-size: 1.4em;
+          margin: 0.5em;
+          display: block;
+          background: var(--background-color-white);
+        }
+
         </style>
           <div class="container">
             <div class="bid-ask-container">
@@ -96,6 +114,9 @@ class InfoTable extends PolymerElement {
                 <bounded-market-price-card title="My Ask" price={{myOffer}}> 
                 </bounded-market-price-card>
               </div>
+              <div class="clearing-info" style$="{{_showClearingPrice()}}">
+                <span>Clearing price: $\{{clearingPrice.price}} volume: {{clearingPrice.volume}}</span>
+              </div>
             </div>
             <div id="small-row">
 
@@ -106,6 +127,10 @@ class InfoTable extends PolymerElement {
             </div>
           </div>
         `;}
+
+        _showClearingPrice() {
+          return OTREE_CONSTANTS.auctionFormat == 'FBA' ? '' : 'display: none;'
+        }
   
   }
   customElements.define('elo-info-table', InfoTable)

@@ -99,11 +99,6 @@ const ELO = {
                 a_y: parseFloat,
                 a_z: parseFloat
             },
-            clearing_price:{
-                type:String,
-                price: parseInt,
-                volume: parseInt,
-            },
             middle_peg:{
                 type:String,
                 price: parseFloat,
@@ -113,7 +108,9 @@ const ELO = {
                 best_bid: parseInt,
                 best_offer: parseInt,
                 volume_at_best_bid: parseInt,
-                volume_at_best_offer: parseInt
+                volume_at_best_offer: parseInt,
+                clearing_price: parseInt,
+                transacted_volume: parseInt,
             }
         },
         outbound: {
@@ -155,7 +152,6 @@ const ELO = {
         speed_confirm: ['_handleSpeedConfirm'],
         reference_price: ['_handleReferencePrice'],
         slider_confirm: ['_handleSliderConfirm'],
-        clearing_price: ['_handleClearingPrice'],
         mid_peg: ['_handleMiddlePeg'],
     },
     sliderProperties: {

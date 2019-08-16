@@ -18,9 +18,6 @@ class algorithmSlider extends PolymerElement {
                 border-radius: 5%;
                 border: 1px solid #000;
             }
-            .slider-header {
-                font-size: 12px
-            }
         </style>
 
         <div class="header-container slider-header">

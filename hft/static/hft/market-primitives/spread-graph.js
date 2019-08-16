@@ -404,7 +404,7 @@ class SpreadGraph extends PolymerElement {
         else {
             if (oldCPObj['price'] === 0) {
                 this.clearingPriceCircle
-                    .attr('r', newCPObj["volume"] * this.minVolumeRadius)
+                    .attr('r', Math.sqrt(newCPObj["volume"]) * this.minVolumeRadius)
                     .attr('cx', this.scale(newCPObj["price"]))
                     .attr('cy', this.height/2)
                     .transition()
@@ -416,7 +416,7 @@ class SpreadGraph extends PolymerElement {
                     .duration(this.animationTime)
                     .attr('cx', this.scale(newCPObj["price"]))
                     .attr('cy', this.height/2)
-                    .attr('r', newCPObj["volume"] * this.minVolumeRadius)
+                    .attr('r', Math.sqrt(newCPObj["volume"]) * this.minVolumeRadius)
                     .style('opacity', 1);
             }
         }

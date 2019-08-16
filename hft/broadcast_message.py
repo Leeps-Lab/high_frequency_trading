@@ -76,8 +76,8 @@ class SliderConfirmBroadcastMessage(BroadcastWSMessage):
 class PostBatchBroadcastMessage(BroadcastWSMessage):
     required_fields = (
         'market_id', 'best_bid', 'best_offer', 'volume_at_best_bid', 
-        'volume_at_best_offer')
-    required_field_types = (int,)
+        'volume_at_best_offer', 'clearing_price', 'transacted_volume')
+    required_field_types = (int, int, int, int, int, int, int)
 
 
 class ELOBroadcastMessageFactory(MessageFactory):

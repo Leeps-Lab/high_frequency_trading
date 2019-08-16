@@ -14,7 +14,7 @@ class StateSelection extends PolymerElement {
                 display: inline-block;
                 font-family: monospace;
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 1.4em;
             }
     
             .column-container{
@@ -34,6 +34,7 @@ class StateSelection extends PolymerElement {
 
             .header-container {
                 background-color: var(--background-color-white);
+                padding: 3px;
                 margin: 5px;
                 border-radius: 5%;
                 border: 1px solid #000;
@@ -90,7 +91,7 @@ class StateSelection extends PolymerElement {
                 </div>
                 
                 <div class = 'column-container evenly-spaced-column'>
-                    <div class="header-container" style="height: 10%">
+                    <div class="header-container">
                         Sensitivity to:
                     </div>
 

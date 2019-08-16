@@ -134,7 +134,7 @@ class MarketSession extends PolymerElement {
                         cash={{cash}} signed-volume={{signedVolume}}
                         endowment={{wealth}} best-bid={{bestBid}}
                         best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}
-                        sv-slider-displayed={{svSliderDisplayed}}>
+                        sv-slider-displayed={{svSliderDisplayed}} clearing-price={{clearingPrice}}>
                     </elo-info-table>
                     <elo-state-selection role={{role}} buttons={{buttons}} slider-defaults={{sliderDefaults}}
                         speed-on={{subscribesSpeed}} 
@@ -339,6 +339,10 @@ class MarketSession extends PolymerElement {
                     marketState.bestOffer = cleanMsg.best_offer;
                     marketState.volumeBestBid = cleanMsg.volume_at_best_bid
                     marketState.volumeBestOffer = cleanMsg.volume_at_best_offer
+                    marketState.clearingPrice = {
+                        price: cleanMsg.clearing_price,
+                        volume: cleanMsg.transacted_volume,
+                    }
                     this.orderBook.handlePostBatch();
             }
             if (cleanMsg.player_id == this.playerId) {
@@ -398,9 +402,6 @@ class MarketSession extends PolymerElement {
         this.eSignedVolume = message.e_signed_volume;
     }
 
-    _handleClearingPrice(message){
-        this.clearingPrice = {price: message.price, volume: message.volume};
-    }
     _handleMiddlePeg(message){
         this.middlePeg = message.price;
     }

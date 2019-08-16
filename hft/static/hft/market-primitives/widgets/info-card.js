@@ -53,12 +53,7 @@ class InfoCard extends PolymerElement {
               border-radius: 5px;
             }
 
-            h4 {
-              display: inline-block;
-              margin: 2px 0px 0px 10px;
-            }
-
-            h3 {
+            h2 {
               display: inline-block;
               margin: 2px 10px 0px 2px;
             }
@@ -91,9 +86,9 @@ class InfoCard extends PolymerElement {
               }
         </style>
         <div class="theCard border">
-            <h4> {{title}}: </h4>
+            <h2>{{title}}: </h2>
             <div class="price-holder border" shine-class={{shineClass}}>
-            <h3 > {{currency}} {{value}}</h3>
+            <h2>{{currency}}{{value}}</h2>
             </div>
         </div>
         `
