@@ -2,6 +2,9 @@ from .market_fact import FactTimer
 from itertools import count
 from math import ceil
 import time
+import logging
+
+log = logging.getLogger(__name__)
 
 class Subscription:
 
@@ -26,18 +29,28 @@ class Subscription:
 
     def activate(self):
         self.timer.step()
-        if self.__active is not True:
+        if self.__active is False:
             self.__active = True
+            log.debug('subscription activated, subscriber %s, unit cost: %s.' % (
+                self.subscriber_id, self.unit_cost))
         else:
-            raise Exception('already active %s' % self)
+            log.warning('already active %s' % self)
 
     def deactivate(self):
         self.timer.step()
         self.__active = False
-        self.__uninvoiced_time += ceil(self.timer.time_since_previous_step)
+        self.__uninvoiced_time += round(self.timer.time_since_previous_step, 3)
+        log.debug('subscriber %s: uninvoiced subscription time: %s sec.' % (
+                   self.subscriber_id, self.__uninvoiced_time))
 
     def invoice(self):
-        amount = self.__uninvoiced_time * self.unit_cost # so minimum increment is a second
+        if self.is_active:
+            self.deactivate()
+        amount = round(self.__uninvoiced_time * self.unit_cost, 2) 
+        # so minimum increment is a second
+        log.debug('subscriber %s: uninvoiced time %s --> \
+invoiced amount %s, unit cost: %s.' % (self.subscriber_id, self.__uninvoiced_time,
+            amount, self.unit_cost))
         self.__uninvoiced_time = 0
         return amount
 

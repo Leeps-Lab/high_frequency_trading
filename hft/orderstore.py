@@ -44,6 +44,8 @@ class OrderStore:
         token = self.tokengen(**kwargs)
         kwargs['order_token'] = token 
         self._orders[token] = kwargs
+        log.debug('trader %s: register enter: token: %s, price: %s.' % (
+            self.player_id, token, kwargs['price']))
         return kwargs
     
     def tokengen(self, **kwargs):
@@ -98,6 +100,8 @@ Spread: {self.bid} - {self.offer}
         order_info['replacement_order_token'] = replacement_token
         order_info['replace_price'] = new_price
         self._orders[token] = order_info
+        log.debug('trader %s: register replace for token %s with %s at price %s.' % (
+            self.player_id, existing_token, replacement_token, new_price))
         return order_info
     
     def confirm(self, event_type, **kwargs):
@@ -125,11 +129,14 @@ Spread: {self.bid} - {self.offer}
             order_info['status'] = b'ioc'
         order_info['timestamp'] = kwargs['timestamp']
         order_info['confirmed_at'] = time.time()
-        order_info['travel_time'] = round(order_info['confirmed_at'] - 
+        travel_time =  round(order_info['confirmed_at'] - 
             order_info['created_at'], 4)
+        order_info['travel_time'] = travel_time
         self._orders[token] = order_info
         price = order_info['price']
         direction = order_info['buy_sell_indicator']
+        log.debug('trader %s: confirm enter: token %s.' % (self.player_id, token))
+        log.debug('order %s travel time %s' % (token, travel_time))
         self.update_spread(price, direction)
         return order_info    
 
@@ -150,6 +157,8 @@ Spread: {self.bid} - {self.offer}
         order_info['price'] = new_price
         self._orders[replacement_token] = order_info
         order_info['old_price'] = old_price
+        log.debug('trader %s: confirm replace: token %s --> %s.' % (self.player_id, 
+            existing_token, replacement_token))
         return order_info   
 
     def _confirm_cancel(self, **kwargs):
@@ -158,6 +167,7 @@ Spread: {self.bid} - {self.offer}
         direction = order_info['buy_sell_indicator']
         price = order_info['price']
         self.update_spread(price, direction, clear=True)   
+        log.debug('trader %s: confirm cancel: token %s.' % (self.player_id, token))
         return order_info
     
     def _confirm_execution(self, **kwargs):
@@ -167,6 +177,7 @@ Spread: {self.bid} - {self.offer}
         shares = kwargs['executed_shares']
         self.inventory += shares if direction == 'B' else - shares
         price = order_info['price']
+        log.debug('trader %s: confirm execution: token %s.' % (self.player_id, token))
         self.update_spread(price, direction, clear=True)            
         return order_info
 

@@ -1,28 +1,28 @@
-from exchange_server.OuchServer.ouch_messages import OuchClientMessages, OuchServerMessages
+from high_frequency_trading.exchange_server.OuchServer.ouch_messages import (
+    OuchClientMessages, OuchServerMessages)
 import time
 import datetime
 import pytz
 from random import randrange
+import struct
+import logging
 
+log = logging.getLogger(__name__)
 
 class Translator(object):
     defaults = {}
     message_type_map = {}
 
     @staticmethod
-    def decode(msg):
-        header = msg[:1]
-        try:
-            message_spec = OuchServerMessages.lookup_by_header_bytes(header)
-        except KeyError:
-            message_spec = OuchClientMessages.lookup_by_header_bytes(header)
+    def decode(raw_message, message_cls):
+        header = raw_message[:1]
+        message_spec = message_cls.lookup_by_header_bytes(header)
         payload_size = message_spec.payload_size
-        payload_bytes = msg[1: 1 + payload_size]
+        payload_bytes = raw_message[1: 1 + payload_size]
         body = message_spec.from_bytes(payload_bytes, header=False)
         message_dict = {k: v.decode('utf-8') if isinstance(v, bytes) else v for
                                                     k, v in body.iteritems()}
-        msg_type = header.decode('utf-8')
-        message_dict['type'] = msg_type
+        message_dict['type'] = header.decode('utf-8')
         return message_dict
 
     @classmethod

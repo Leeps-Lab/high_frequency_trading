@@ -8,6 +8,7 @@ from .equations import latent_bid_and_offer
 from .market_elements.subscription import Subscription
 from .orderstore import OrderStore
 from .trader_state import TraderStateFactory
+import time
 
 log = logging.getLogger(__name__)
 
@@ -30,10 +31,9 @@ class BaseTrader(object):
     otree_player_converter = elo_otree_player_converter
     orderstore_cls = OrderStore
     event_dispatch = {}
-    default_delay = 0
 
     def __init__(self, subsession_id, market_id, player_id, id_in_market,
-            default_role, exchange_host, exchange_port, cash=0, delayed=False, 
+            default_role, exchange_host, exchange_port, cash=0, 
             **kwargs):
         self.subsession_id = subsession_id
         self.market_id = market_id
@@ -43,10 +43,12 @@ class BaseTrader(object):
         self.exchange_port = exchange_port
         self.orderstore = self.orderstore_cls(player_id, in_group_id=id_in_market, 
             **kwargs)
+        self.account_id = kwargs.get('firm')
+        self.tag = self.account_id or self.player_id
         self.inventory = Inventory()
         self.trader_role = TraderStateFactory.get_trader_state(default_role)
         self.market_facts = {k: None for k in self.tracked_market_facts}
-        self.delayed = delayed
+        self.delayed = False
         self.staged_bid = None
         self.staged_offer = None
         self.implied_bid = None
@@ -56,6 +58,14 @@ class BaseTrader(object):
         self.cash = cash
         self.cost = 0
         self.net_worth = cash
+        # an estimate of time of arrival for 
+        # the most recent outbound message
+        # I need this since delays can change arbitrarily
+        # in a way that a later message can arrive
+        # at the exchange earlier 
+        # than a previous one
+        self.default_delay = 0.5
+        self.message_arrival_estimate = None 
     
     @classmethod
     def from_otree_player(cls, otree_player):
@@ -70,6 +80,8 @@ class BaseTrader(object):
                 raise ValueError('%s is required to open session.' % field)
             else:    
                 self.market_facts[field] = value
+        log.info('trader %s: open session with market view: %s' % (self.tag,
+                self.market_facts))
     
     def close_session(self, event):
         pass
@@ -86,16 +98,35 @@ class BaseTrader(object):
         new_state = event.message.state
         trader_state = self.trader_state_factory.get_trader_state(new_state)
         self.trader_role = trader_state
-        event.broadcast_msgs(
-            'role_confirm', role_name=new_state, model=self)
+        log.debug('trader %s: change trader role: %s' % (self.tag, trader_state))
+        event.broadcast_msgs('role_confirm', role_name=new_state, model=self)
 
     @property
     def delay(self):
+        """
+        reads will trigger an update in message arrival estimate
+        so that the next delay returned is after the previous one
+        """
+        # well, so this is really bad practice
+        # but since the nature of this app 
+        # I have to make assumptions around time..
         is_delayed_trader = self.delayed
+        now = time.time()
         if is_delayed_trader is False:
-            return self.default_delay
+            self.message_arrival_estimate = now + self.default_delay
+            delay = self.default_delay
         elif is_delayed_trader is True:
-            return self.__delay
+            current_arrival_estimate = now + self.__delay
+            if self.message_arrival_estimate > current_arrival_estimate:
+                diff = self.message_arrival_estimate - current_arrival_estimate
+                delay = diff + self.__delay
+                self.message_arrival_estimate = now + delay 
+            else:   
+                self.message_arrival_estimate = current_arrival_estimate
+                delay = self.__delay
+        delay = round(delay, 4)
+        log.debug('trader %s: message delay %s.' % (self.tag, delay))
+        return delay
 
     @delay.setter    
     def delay(self, order_delay_time):
@@ -127,14 +158,26 @@ class ELOTrader(BaseTrader):
         self.technology_subscription = Subscription(
             'speed_tech', self.player_id, kwargs.get('speed_unit_cost', 0))
         self.sliders = {'slider_a_x': 0, 'slider_a_y': 0, 'slider_a_z': 0}
+        self.slider_multipliers = {
+            'a_x': kwargs.get('a_x_multiplier', 1), 
+            'a_y': kwargs.get('a_y_multiplier', 1)}
         self.tax_paid = 0
         self.speed_cost = 0
 
+    def open_session(self, *args, **kwargs):
+        super().open_session(*args, **kwargs)
+        log.info(
+# ok, this is quite ugly.. but useful..
+'trader %s: parameters: a_x: %s, a_x multiplier: %s, a_y: %s, a_y multiplier: %s, \
+w: %s, speed unit cost: %s' % (
+    self.tag, self.sliders['slider_a_x'], self.slider_multipliers['a_x'],
+    self.sliders['slider_a_y'], self.slider_multipliers['a_y'],
+    self.sliders['slider_a_z'], self.technology_subscription.unit_cost))
 
     def close_session(self, event):
         self.inventory.liquidify(
-            event.attachments['reference_price'], 
-            discount_rate=event.attachments['tax_rate'])
+            self.market_facts['reference_price'], 
+            discount_rate=self.market_facts['tax_rate'])
         self.cash += self.inventory.cash
         tax_paid = self.inventory.cost
         if self.technology_subscription.is_active:
@@ -142,14 +185,17 @@ class ELOTrader(BaseTrader):
         speed_cost = self.technology_subscription.invoice()
         self.cost += tax_paid + speed_cost
         self.tax_paid += tax_paid
+        speed_cost = self.technology_subscription.invoice()
         self.speed_cost += speed_cost
         self.net_worth =  self.net_worth - self.cost
     
     def user_slider_change(self, event):
         msg = event.message
+        # a_z <-> w is always btw 0 - 1
+        k_a_x, k_a_y = self.slider_multipliers['a_x'], self.slider_multipliers['a_y']
         self.sliders = {
-            'slider_a_x': msg.a_x, 'slider_a_y': msg.a_y,
-            'slider_a_z': event.message.a_z}
+            'slider_a_x': msg.a_x * k_a_x , 'slider_a_y': msg.a_y * k_a_y,
+            'slider_a_z': msg.a_z}       
         event.broadcast_msgs('slider_confirm', a_x=self.sliders['slider_a_x'],
             a_y=self.sliders['slider_a_y'], a_z=self.sliders['slider_a_z'], model=self)       
 
@@ -239,6 +285,7 @@ class ELOInvestor(ELOTrader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.default_delay = 0.01
         self.market_facts = {k: 0 for k in self.tracked_market_facts}
 
     @classmethod
