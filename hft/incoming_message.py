@@ -5,7 +5,7 @@ import logging
 from .cache import get_market_id_table
 from .message_sanitizer import (
     ELOWSMessageSanitizer, ELOOuchMessageSanitizer, ELOInternalEventMessageSanitizer)
-from high_frequency_trading.exchange_server.OuchServer.ouch_messages import OuchServerMessages
+from exchange_server.OuchServer.ouch_messages import OuchServerMessages
 
 log = logging.getLogger(__name__)
 
@@ -79,7 +79,7 @@ class IncomingMessage:
 
 class IncomingWSMessage(IncomingMessage):
 
-    def translate(self, message):
+    def translate(self, message, **kwargs):
         translated_message = json.loads(message.content['text'])
         return translated_message
 
@@ -94,7 +94,7 @@ class IncomingOuchMessage(IncomingMessage):
 
 class InternalEventMessage(IncomingMessage):
     
-    def translate(self, message):
+    def translate(self, message, **kwargs):
         kwargs = {}
         for field in message.required_fields:
             kwargs[field] = getattr(message, field)

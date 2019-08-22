@@ -4,7 +4,7 @@ from twisted.internet.protocol import Protocol, ClientFactory
 from twisted.internet import reactor
 from collections import deque
 from .decorators import timer
-from high_frequency_trading.exchange_server.OuchServer import ouch_messages
+from exchange_server.OuchServer import ouch_messages
 
 log = logging.getLogger(__name__)
 

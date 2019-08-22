@@ -1,4 +1,4 @@
-from high_frequency_trading.exchange_server.OuchServer.ouch_messages import (
+from exchange_server.OuchServer.ouch_messages import (
     OuchClientMessages, OuchServerMessages)
 import time
 import datetime
