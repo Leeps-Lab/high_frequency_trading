@@ -177,7 +177,6 @@ class ELOMarket(BaseMarket):
             broadcast_fields = self.bbo.to_kwargs()
             broadcast_fields['clearing_price'] = kwargs.get('clearing_price', None)
             broadcast_fields['transacted_volume'] = kwargs.get('transacted_volume', None)
-            print(broadcast_fields)
             self.event.broadcast_msgs('post_batch', model=self, **broadcast_fields)
     
     def external_feed_change(self, **kwargs):

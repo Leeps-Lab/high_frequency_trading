@@ -2,11 +2,17 @@ from .outbound_message_primitives import (BroadcastWSMessage, MessageFactory)
 
 
 class BBOBroadcastMessage(BroadcastWSMessage):
-
     required_fields = (
         'market_id', 'best_bid', 'best_offer', 'volume_at_best_bid', 
         'volume_at_best_offer', 'next_bid', 'next_offer')
     required_field_types = (int, int, int, int, int, int, int)
+
+
+class PostBatchBroadcastMessage(BroadcastWSMessage):
+    required_fields = (
+        'market_id', 'best_bid', 'best_offer', 'volume_at_best_bid', 
+        'volume_at_best_offer', 'clearing_price', 'transacted_volume', 'next_bid', 'next_offer')
+    required_field_types = (int, int, int, int, int, int, int, int, int)
 
 
 class OrderConfirmedBroadcastMessage(BroadcastWSMessage):
@@ -69,15 +75,10 @@ class SpeedConfirmBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'player_id', 'value')
     required_field_types = (int, int, bool)  
 
+
 class SliderConfirmBroadcastMessage(BroadcastWSMessage):
     required_fields = ('market_id', 'player_id', 'a_x', 'a_y', 'a_z')
     required_field_types = (int, int, float, float, float)  
-
-class PostBatchBroadcastMessage(BroadcastWSMessage):
-    required_fields = (
-        'market_id', 'best_bid', 'best_offer', 'volume_at_best_bid', 
-        'volume_at_best_offer', 'clearing_price', 'transacted_volume')
-    required_field_types = (int, int, int, int, int, int, int)
 
 
 class ELOBroadcastMessageFactory(MessageFactory):
