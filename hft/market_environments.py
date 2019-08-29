@@ -51,9 +51,9 @@ elo = market_environment(
             }
         },
         'market': {
-            'events_to_capture': ('Q', 'E', 'market_start', 'market_end',
+            'events_to_capture': ('Q', 'E', 'Z', 'market_start', 'market_end',
                 'external_feed'), 
-            'properties_to_serialize': ('subsession_id', 'market_id'),
+            'properties_to_serialize': ('subsession_id', 'market_id', 'clearing_price', 'transacted_volume'),
             'subproperties_to_serialize': {
                 'bbo': ('best_bid', 'best_offer', 'next_bid', 'next_offer', 
                         'volume_at_best_bid', 'volume_at_best_offer'),

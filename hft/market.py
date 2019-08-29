@@ -119,6 +119,8 @@ class ELOMarket(BaseMarket):
         self.reference_price = ReferencePrice(**kwargs)
         self.role_group = MarketRoleGroup('manual', 'automated', 'out')
         self.tax_rate = kwargs.get('tax_rate', 0)
+        self.clearing_price = None
+        self.transacted_volume = None
     
     def start_trade(self, *args, **kwargs): 
         super().start_trade(*args, **kwargs)
@@ -175,8 +177,10 @@ class ELOMarket(BaseMarket):
                 'post_batch', model=self, **self.bbo.to_kwargs())
             # manually add clearing price and transacted volume to broadcast message
             broadcast_fields = self.bbo.to_kwargs()
-            broadcast_fields['clearing_price'] = kwargs.get('clearing_price', None)
-            broadcast_fields['transacted_volume'] = kwargs.get('transacted_volume', None)
+            self.clearing_price = kwargs.get('clearing_price', None)
+            broadcast_fields['clearing_price'] = self.clearing_price
+            self.transacted_volume = kwargs.get('transacted_volume', None)
+            broadcast_fields['transacted_volume'] = self.transacted_volume
             self.event.broadcast_msgs('post_batch', model=self, **broadcast_fields)
     
     def external_feed_change(self, **kwargs):

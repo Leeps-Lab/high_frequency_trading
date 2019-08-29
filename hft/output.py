@@ -70,7 +70,7 @@ class MarketRecord(TimeAwareInSessionRecord):
     'timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
     'event_no',  'reference_price', 'best_bid', 'best_offer', 
     'next_bid', 'next_offer', 'volume_at_best_bid', 'volume_at_best_offer', 
-    'e_best_bid', 'e_best_offer', 'signed_volume', 'e_signed_volume')
+    'e_best_bid', 'e_best_offer', 'signed_volume', 'e_signed_volume', 'clearing_price', 'transacted_volume')
 
     reference_price = models.IntegerField()
     best_bid = models.IntegerField()
@@ -83,13 +83,14 @@ class MarketRecord(TimeAwareInSessionRecord):
     e_best_offer = models.IntegerField()
     signed_volume = models.FloatField()
     e_signed_volume = models.FloatField()
+    clearing_price = models.IntegerField()
+    transacted_volume = models.IntegerField()
 
 def get_required_model_fields(session_format, model_name):
     market_env = market_environments.environments[session_format].checkpoint[model_name]
     req_props = market_env['properties_to_serialize']
     req_subprops = market_env['subproperties_to_serialize']
     return req_props, req_subprops
-
 
 IN_SESSION_RECORD_CLASSES={'trader': TraderRecord, 'market': MarketRecord,
                 'inv': TraderRecord}
@@ -104,6 +105,10 @@ def checkpoint(serialized_model: dict, session_format, model_name,
         return kwas
     record_class = IN_SESSION_RECORD_CLASSES[model_name]
     kws = ensure_valid_kws(record_class, serialized_model)
+    # hack: only show clearing price and volume on a batch message
+    if 'clearing_price' in kws and event_type != 'Z':
+        del kws['clearing_price']
+        del kws['transacted_volume']
     record = record_class.objects.create(trigger_event_type=event_type,
         event_no=event_no, **kws)
     return record
