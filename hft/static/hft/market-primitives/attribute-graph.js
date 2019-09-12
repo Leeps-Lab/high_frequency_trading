@@ -64,6 +64,10 @@ class AttributeGraph extends PolymerElement {
                 type: Number,
                 observer: '_addExternalFeed'
             },
+            role: {
+                type: String,
+                observer: '_roleChanged',
+            },
             margin: {
                 type: Object,
                 value: {top: 10, left: 40, right: 40, bottom: 30},
@@ -234,6 +238,22 @@ class AttributeGraph extends PolymerElement {
         }
     }
 
+    _roleChanged(newRole, oldRole) {
+        if (newRole == 'automated') {
+            const now = performance.now();
+            this._lastSVChangeTime = now;
+            this._lastInventoryChangeTime = now;
+            this._lastEFChangeTime = now;
+        }
+        else if (newRole != 'automated' && oldRole == 'automated') {
+            if(this.svSliderDisplayed){
+                this._addSignedVolume(this.a_x,this.a_x); 
+            }
+            this._addInventory(this.a_y,this.a_y);         
+            this._addExternalFeed(this.a_z,this.a_z); 
+        }
+    }
+
     start() {
         this.startTime = performance.now();
 
@@ -273,18 +293,19 @@ class AttributeGraph extends PolymerElement {
             .attr('x', d =>  this.xScale(this._lastSpeedChangeTime))
             .attr('width', this.xScale(now) - this.xScale(this._lastSpeedChangeTime));
         }
-        if(this.svSliderDisplayed){
-            this.currentSignedVolumeLine
-                .attr('x1', this.xScale(this._lastSVChangeTime))
+        if(this.role == 'automated') {
+            if(this.svSliderDisplayed){
+                this.currentSignedVolumeLine
+                    .attr('x1', this.xScale(this._lastSVChangeTime))
+                    .attr('x2', this.xScale(now));
+            }
+            this.currentInventoryLine
+                .attr('x1', this.xScale(this._lastInventoryChangeTime))
+                .attr('x2', this.xScale(now));
+            this.currentExternalFeedLine
+                .attr('x1', this.xScale(this._lastEFChangeTime))
                 .attr('x2', this.xScale(now));
         }
-        this.currentInventoryLine
-            .attr('x1', this.xScale(this._lastInventoryChangeTime))
-            .attr('x2', this.xScale(now));
-        this.currentExternalFeedLine
-            .attr('x1', this.xScale(this._lastEFChangeTime))
-            .attr('x2', this.xScale(now));
-         
     }
 
     _addSpeed(newValue, oldValue){
@@ -320,8 +341,18 @@ class AttributeGraph extends PolymerElement {
         const oldInventoryTime = this._lastInventoryChangeTime;
         this._lastInventoryChangeTime = performance.now();
         if (this._lastInventoryChangeTime) {
-            this.push('_inventoryHistory', {value1: oldInventory, value2:oldInventory, time: oldInventoryTime});
-            this.push('_inventoryHistory', {value1: oldInventory, value2:newInventory, time: this._lastInventoryChangeTime}); // Vertical Lines
+            this.push('_inventoryHistory', {
+                value1: oldInventory,
+                value2:oldInventory,
+                time1: oldInventoryTime,
+                time2: this._lastInventoryChangeTime,
+            });
+            this.push('_inventoryHistory', {
+                value1: oldInventory,
+                value2:newInventory,
+                time1: this._lastInventoryChangeTime,
+                time2: this._lastInventoryChangeTime,
+            }); // Vertical Lines
         }
        
         this.mainGroup.append('line')
@@ -347,8 +378,18 @@ class AttributeGraph extends PolymerElement {
         const oldSVTime = this._lastSVChangeTime;
         this._lastSVChangeTime = performance.now();
         if (this._lastSVChangeTime) {
-            this.push('_signedVolumeHistory', {value1: oldSV,value2: oldSV, time: oldSVTime});
-            this.push('_signedVolumeHistory', {value1: oldSV,value2: newSV, time: this._lastSVChangeTime});
+            this.push('_signedVolumeHistory', {
+                value1: oldSV,
+                value2: oldSV,
+                time1: oldSVTime,
+                time2: this._lastSVChangeTime,
+            });
+            this.push('_signedVolumeHistory', {
+                value1: oldSV,
+                value2: newSV,
+                time1: this._lastSVChangeTime,
+                time2: this._lastSVChangeTime,
+            });
         }
 
         this.mainGroup.append('line')
@@ -374,8 +415,18 @@ class AttributeGraph extends PolymerElement {
         const oldEFTime = this._lastEFChangeTime;
         this._lastEFChangeTime = performance.now();
         if (this._lastEFChangeTime) {
-            this.push('_externalFeedHistory', {value1: oldEF, value2:oldEF, time: oldEFTime});
-            this.push('_externalFeedHistory', {value1: oldEF, value2: newEF, time: this._lastEFChangeTime});
+            this.push('_externalFeedHistory', {
+                value1: oldEF,
+                value2:oldEF,
+                time1: oldEFTime,
+                time2: this._lastEFChangeTime,
+            });
+            this.push('_externalFeedHistory', {
+                value1: oldEF,
+                value2: newEF,
+                time1: this._lastEFChangeTime,
+                time2: this._lastEFChangeTime,
+            });
         }
 
         this.mainGroup.append('line')
@@ -431,14 +482,14 @@ class AttributeGraph extends PolymerElement {
             .append('line')
             .attr('clip-path', 'url(#lines-clip)')
             .attr('class', 'a_y-line')
-            .attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (_, i) => self.xScale(i == inventoryHistory.length-1 ? self._lastInventoryChangeTime : inventoryHistory[i+1].time))
+            .attr('x1', d => self.xScale(d.time1))
+            .attr('x2', d => self.xScale(d.time2))
             .attr('y1', d => self.yScale(d.value1))
             .attr('y2', d => self.yScale(d.value2));
 
         lines
-            .attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (_, i) => self.xScale(i == inventoryHistory.length-1 ? self._lastInventoryChangeTime : inventoryHistory[i+1].time))
+            .attr('x1', d =>  self.xScale(d.time1))
+            .attr('x2', d => self.xScale(d.time2))
     }
 
     _updateSignedVolumeLine() {
@@ -456,14 +507,14 @@ class AttributeGraph extends PolymerElement {
             .append('line')
             .attr('clip-path', 'url(#lines-clip)')
             .attr('class', 'a_x-line')
-            .attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (_, i) => self.xScale(i == signedVolumeHistory.length-1 ? self._lastSVChangeTime : signedVolumeHistory[i+1].time))
+            .attr('x1', d => self.xScale(d.time1))
+            .attr('x2', d => self.xScale(d.time2))
             .attr('y1', d => self.yScale(d.value1))
             .attr('y2', d => self.yScale(d.value2));
 
         lines
-            .attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (_, i) => self.xScale(i == signedVolumeHistory.length-1 ? self._lastSVChangeTime : signedVolumeHistory[i+1].time))
+            .attr('x1', d => self.xScale(d.time1))
+            .attr('x2', d => self.xScale(d.time2))
     }
 
     _updateExternalFeedLine() {
@@ -480,14 +531,14 @@ class AttributeGraph extends PolymerElement {
             .append('line')
             .attr('clip-path', 'url(#lines-clip)')
             .attr('class', 'a_z-line')
-            .attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (_, i) => self.xScale(i == externalFeedHistory.length-1 ? self._lastEFChangeTime : externalFeedHistory[i+1].time))
+            .attr('x1', d => self.xScale(d.time1))
+            .attr('x2', d => self.xScale(d.time2))
             .attr('y1', d => self.yScale(d.value1))
             .attr('y2', d => self.yScale(d.value2));
 
         lines
-            .attr('x1', d =>  self.xScale(d.time))
-            .attr('x2', (_, i) => self.xScale(i == externalFeedHistory.length-1 ? self._lastEFChangeTime : externalFeedHistory[i+1].time))
+            .attr('x1', d => self.xScale(d.time1))
+            .attr('x2', d => self.xScale(d.time2))
     }
 
 }

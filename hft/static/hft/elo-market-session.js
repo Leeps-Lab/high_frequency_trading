@@ -148,6 +148,7 @@ class MarketSession extends PolymerElement {
                     a_x={{sliderValues.a_x}}
                     a_y={{sliderValues.a_y}}
                     a_z={{sliderValues.a_z}}
+                    role={{role}}
                     sv-slider-displayed={{svSliderDisplayed}}
                     is-running={{isSessionActive}}
                     x-range="{{sessionLengthMS}}"
