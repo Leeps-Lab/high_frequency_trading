@@ -31,6 +31,11 @@ class ProfitGraph extends PolymerElement {
                     font-size:1.2em;
                     font-weight: bold; 
                 }
+
+                .batch-marker {
+                    stroke: rgba(3, 166, 47, 0.8);
+                    stroke-width: 1;
+                }
             </style>
             
             <svg id="svg"></svg>
@@ -106,6 +111,7 @@ class ProfitGraph extends PolymerElement {
             .append('rect');
         
         this.profitLines = this.mainGroup.append('g');
+        this.batchMarkers = this.mainGroup.append('g')
 
         this.xScale = d3.scaleTime()
             .domain([0, this.xRange]);
@@ -310,6 +316,16 @@ class ProfitGraph extends PolymerElement {
         lines
             .attr('x1', d =>  self.xScale(d.time))
             .attr('x2', (_, i) => self.xScale(i == profitHistory.length-1 ? self._lastPayoffChangeTime : profitHistory[i+1].time))
+    }
+
+    addBatchMarker() {
+        const now = performance.now();
+        this.batchMarkers.append('line')
+            .attr('class', 'batch-marker')
+            .attr('x1', this.xScale(now))
+            .attr('x2', this.xScale(now))
+            .attr('y1', 0)
+            .attr('y2', this.height);
     }
 
 }

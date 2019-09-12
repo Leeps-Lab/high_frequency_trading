@@ -263,7 +263,7 @@ class MarketSession extends PolymerElement {
         this.inventory = 0
         this.signedVolume = 0
         this.orderBook = new PlayersOrderBook(this.playerId);
-        var self = this;
+        this.profitGraph = this.shadowRoot.querySelector('profit-graph')
     }
 
     outboundMessage(event) {
@@ -345,6 +345,8 @@ class MarketSession extends PolymerElement {
                         volume: cleanMsg.transacted_volume,
                     }
                     this.orderBook.handlePostBatch();
+                    this.profitGraph.addBatchMarker();
+                    break;
             }
             if (cleanMsg.player_id == this.playerId) {
                 if (cleanMsg.type == 'executed' || cleanMsg.type == 'canceled') {
