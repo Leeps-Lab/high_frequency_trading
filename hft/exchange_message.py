@@ -25,10 +25,17 @@ class ResetMessage(OutboundExchangeMessage):
         'exchange_port', 'delay')
 
 
+class ExternalFeedChangeMessage(OutboundExchangeMessage):
+    required_fields = (
+        'subsession_id', 'e_best_bid', 'e_best_offer', 
+        'e_signed_volume', 'exchange_host', 'exchange_port', 'delay')
+
+
 class OutboundExchangeMessageFactory(MessageFactory):
     message_types = {
         'enter': EnterOrderMessage,
         'replace': ReplaceOrderMessage,
         'cancel': CancelOrderMessage,
-        'reset_exchange': ResetMessage
+        'reset_exchange': ResetMessage,
+        'external_feed': ExternalFeedChangeMessage,
     }

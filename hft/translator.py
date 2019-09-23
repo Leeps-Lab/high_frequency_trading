@@ -58,7 +58,8 @@ class LeepsOuchTranslator(Translator):
         'enter': OuchClientMessages.EnterOrder,
         'replace': OuchClientMessages.ReplaceOrder,
         'cancel': OuchClientMessages.CancelOrder,
-        'reset_exchange': OuchClientMessages.SystemStart
+        'reset_exchange': OuchClientMessages.SystemStart,
+        'external_feed': OuchClientMessages.ExternalFeedChange,
     }
 
 if __name__ == '__main__':

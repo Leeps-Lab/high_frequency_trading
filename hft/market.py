@@ -190,15 +190,10 @@ class ELOMarket(BaseMarket):
             self.event.internal_event_msgs(
                 'external_feed_change', model=self, trader_ids=hft_traders, **self.external_feed.to_kwargs())
             self.event.broadcast_msgs('external_feed', model=self, **self.external_feed.to_kwargs())
-
-        
-
-
-
-
-
-
-
-
-
-
+            self.event.exchange_msgs('external_feed',
+                model=self,
+                exchange_host=self.exchange_host,
+                exchange_port=self.exchange_port,
+                delay=0,
+                **self.external_feed.to_kwargs()
+            )
