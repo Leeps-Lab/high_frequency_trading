@@ -48,7 +48,7 @@ export class ResultsCell extends PolymerElement {
         <span>Average Sensitivity of Algorithms</span>
         <hr style="width: 60%">
         <span class="data"><strong>Inventory:</strong> [[ invSensitivity ]]</span>
-        <span class="data"><strong>Signed Volume:</strong> [[ signedVolume ]]</span>
+        <span style$="display: [[_signedVolumeDisplay()]];" class="data"><strong>Signed Volume:</strong> [[ signedVolume ]]</span>
         <span class="data"><strong>External Feed:</strong> [[ externalFeed ]]</span>
       </div>
     </div>
@@ -219,8 +219,12 @@ export class ResultsCell extends PolymerElement {
       height: {
         type: Number,
         //value: 300
-      }
+      },
     }
+  }
+
+  _signedVolumeDisplay() {
+    return OTREE_CONSTANTS.svSliderDisplayed ? 'default' : 'none';
   }
 
 }

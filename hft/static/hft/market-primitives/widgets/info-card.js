@@ -88,7 +88,7 @@ class InfoCard extends PolymerElement {
         <div class="theCard border">
             <h2>{{title}}: </h2>
             <div class="price-holder border" shine-class={{shineClass}}>
-            <h2>{{currency}}{{value}}</h2>
+            <h2>{{value}} {{currency}}</h2>
             </div>
         </div>
         `
