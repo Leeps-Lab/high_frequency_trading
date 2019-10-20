@@ -55,8 +55,8 @@ MAX_ASK = 2147483647
 
 class ELOTraderState(TraderState):
 
-    short_delay = 0.1
-    long_delay = 0.5
+    short_delay = 0.01
+    long_delay = 0.05
     event_dispatch = { 
         'speed_change': 'speed_technology_change',
         'role_change': 'state_change', 

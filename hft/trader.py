@@ -64,7 +64,7 @@ class BaseTrader(object):
         # in a way that a later message can arrive
         # at the exchange earlier 
         # than a previous one
-        self.default_delay = 0.5
+        self.default_delay = 0.05
         self.message_arrival_estimate = None 
     
     @classmethod
@@ -135,9 +135,9 @@ class BaseTrader(object):
 
 class ELOTrader(BaseTrader):
 
-    default_delay = 0.5
-    short_delay = 0.1
-    long_delay = 0.5
+    default_delay = 0.05
+    short_delay = 0.01
+    long_delay = 0.05
     tracked_market_facts = ('best_bid', 'volume_at_best_bid', 'next_bid', 'best_offer',
         'volume_at_best_offer', 'next_offer', 'signed_volume', 'e_best_bid',
         'e_best_offer', 'e_signed_volume', 'tax_rate', 'reference_price')
