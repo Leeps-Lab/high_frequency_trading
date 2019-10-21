@@ -192,9 +192,10 @@ w: %s, speed unit cost: %s' % (
     def user_slider_change(self, event):
         msg = event.message
         # a_z <-> w is always btw 0 - 1
-        k_a_x, k_a_y = self.slider_multipliers['a_x'], self.slider_multipliers['a_y']
+        k_a_x = self.slider_multipliers['a_x']
+        k_a_y = self.slider_multipliers['a_y']
         self.sliders = {
-            'slider_a_x': msg.a_x * k_a_x , 'slider_a_y': msg.a_y * k_a_y,
+            'slider_a_x': msg.a_x * k_a_x , 'slider_a_y': msg.a_y,# * k_a_y, NOTE: multiplier is incorporated in agent_supervisor
             'slider_a_z': msg.a_z}       
         event.broadcast_msgs('slider_confirm', a_x=self.sliders['slider_a_x'],
             a_y=self.sliders['slider_a_y'], a_z=self.sliders['slider_a_z'], model=self)       
