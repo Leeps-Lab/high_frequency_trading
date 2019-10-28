@@ -54,6 +54,14 @@ invoiced amount %s, unit cost: %s.' % (self.subscriber_id, self.__uninvoiced_tim
         self.__uninvoiced_time = 0
         return amount
 
+    def invoice_without_deactivating(self):
+        self.timer.step()
+        if self.__active:
+            self.__uninvoiced_time += round(self.timer.time_since_previous_step, 3)
+        amount = round(self.__uninvoiced_time * self.unit_cost, 2)
+        self.__uninvoiced_time = 0
+        return amount 
+
     def __str__(self):
         return '<{self.name} Subscription {self.id}: Subscriber id: {self.subscriber_id} \
 Active: {self.is_active} Uninvoiced Time: {self.uninvoiced_time}>'.format(self=self)
