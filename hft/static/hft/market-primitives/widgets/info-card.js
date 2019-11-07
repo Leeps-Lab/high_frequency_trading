@@ -5,7 +5,7 @@ class InfoCard extends PolymerElement {
     static get properties(){
         return {
         title: String,
-        value: {type: Number, observer: '_makeMeShine'},
+        value: Number,
         animated: Boolean,
         currency: String,
         shineClass: String
@@ -18,15 +18,20 @@ class InfoCard extends PolymerElement {
         this.value = 0;
         this.currency = '#currency';
         this.shineClass = '';
-        }  
+    }  
 
-    _makeMeShine (newValue, oldValue) {
-        if (this.animated) {
-          let priceHolder = this.shadowRoot.querySelector('.price-holder')
-          this.shineClass = this.shineClass == 'shine' ? 'shine-copy' : 'shine'
-          // interestingly polymer data binding did not reflect to dom somehow
-          priceHolder.setAttribute("shine-class", this.shineClass)
-        }
+    connectedCallback() {
+      super.connectedCallback();
+      if (this.animated) {
+        this._createPropertyObserver('value', 'flash', false);
+      }
+    }
+
+    flash() {
+        let priceHolder = this.shadowRoot.querySelector('.price-holder')
+        this.shineClass = this.shineClass == 'shine' ? 'shine-copy' : 'shine'
+        // interestingly polymer data binding did not reflect to dom somehow
+        priceHolder.setAttribute("shine-class", this.shineClass)
     }
 
     static get template() {

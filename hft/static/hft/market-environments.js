@@ -118,6 +118,7 @@ const ELO = {
                 type: String,
                 price: parseInt,
                 buy_sell_indicator: String,
+                midpoint_peg: Boolean,
             },
             role_change: { 
                 type: String,

@@ -8,7 +8,10 @@ class MarketPriceCard extends PolymerElement {
   static get properties(){
   return {
     title: String,
-    price: {type: String, value:0},
+    price: {
+      type: String,
+      value:0,
+    },
     currency: String,
     sideId: String,
     animated: {type: String, reflectToAtrribute: true}

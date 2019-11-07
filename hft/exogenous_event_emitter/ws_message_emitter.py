@@ -1,5 +1,6 @@
 import json
 import time
+import random
 from collections import abc
 from twisted.python import log
 from twisted.internet import reactor
@@ -13,9 +14,11 @@ except ImportError:
 class WSMessageEmitter:
 
     def __init__(self, session_id, type_code, raw_data=None, columns=None, 
-            table_name=None, filter_on=None, filter_value=None):
+            table_name=None, filter_on=None, filter_value=None, peg_proportion=None):
         self.session_id = session_id
         self.type_code = type_code
+        # peg proportion is a number from 0 to 1 indicating the probability that an investor order will be pegged
+        self.peg_proportion = peg_proportion
         self.ws_conn = None
         if raw_data:
             if not isinstance(raw_data, abc.Iterable):
@@ -70,15 +73,10 @@ class WSMessageEmitter:
                     arrival_time = next_row[0]
                     dict_msg = {c: next_row[ix] for ix, c in enumerate(self.columns)}
                     dict_msg['type'] = self.type_code
+                    if self.peg_proportion is not None:
+                        dict_msg['midpoint_peg'] = True if random.random() < self.peg_proportion else False
+                    else:
+                        dict_msg['midpoint_peg'] = False
                     payload = json.dumps(dict_msg, ensure_ascii=False).encode('utf8')
                     reactor.callLater(arrival_time, self.ws_conn.sendMessage, 
                         payload, False)
-
-
-                
-                
-
-
-
-
-

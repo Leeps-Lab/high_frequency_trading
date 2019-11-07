@@ -1,12 +1,12 @@
 import os
 from urllib.parse import urlparse
 
-ws_client_confs = {   
+ws_client_confs = {
     'investor_arrivals': {
         'columns': ['arrival_time', 'market_id_in_subsession', 'price', 'time_in_force',
             'buy_sell_indicator'],
         'table_name': 'hft_exogenousorderrecord',
-        'filter_on': 'submitted_file_id'
+        'filter_on': 'submitted_file_id',
     },
     'external_feed': {
         'columns': ['arrival_time', 'market_id_in_subsession', 'e_best_bid', 

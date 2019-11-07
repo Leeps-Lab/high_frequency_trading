@@ -104,7 +104,8 @@ config_maps = {
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'external_feed': ('exogenous-events', 'external-feed'),
         'default_role': ('parameters', 'default-role'),
-        'test_input_file': ('tests', 'test_input_file')
+        'test_input_file': ('tests', 'test_input_file'),
+        'peg_proportion': ('parameters', 'peg-proportion'),
     }
 }
 

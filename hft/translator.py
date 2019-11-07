@@ -51,7 +51,8 @@ class LeepsOuchTranslator(Translator):
         'cross_type': b'N',
         'customer_type': b'R',
         'intermarket_sweep_eligibility': b'N',
-        'minimum_quantity': 1
+        'minimum_quantity': 1,
+        'midpoint_peg': False,
     }
 
     message_type_map = {

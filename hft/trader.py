@@ -55,6 +55,7 @@ class BaseTrader(object):
         self.implied_offer = None
         self.disable_bid = False
         self.disable_offer = False
+        self.midpoint_peg = False
         self.cash = cash
         self.cost = 0
         self.net_worth = cash

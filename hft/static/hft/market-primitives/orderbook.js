@@ -73,7 +73,7 @@ class PlayersOrderBook {
 
     // returns true if a new order from player with id `playerId` should be immediately shown
     _newOrderActive(playerId) {
-        return this.auctionFormat == 'CDA' || playerId == this.playerId;
+        return this.auctionFormat != 'FBA' || playerId == this.playerId;
     }
 
     _addOrder(price, buySellIndicator, orderToken, playerId, timeInForce=9999) {
@@ -103,7 +103,7 @@ class PlayersOrderBook {
             console.warn(`remove failed: order token ${orderToken} not found`);
             return;
         }
-        if (this.auctionFormat == 'CDA') {
+        if (this.auctionFormat != 'FBA') {
             delete orders[orderToken]
         }
         else {

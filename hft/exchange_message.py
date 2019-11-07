@@ -5,7 +5,7 @@ class EnterOrderMessage(OutboundExchangeMessage):
     required_fields = (
         'subsession_id',
         'order_token', 'buy_sell_indicator', 'price', 'time_in_force', 'firm',
-        'shares', 'stock', 'exchange_host', 'exchange_port', 'delay')
+        'shares', 'stock', 'exchange_host', 'exchange_port', 'delay', 'midpoint_peg')
 
 
 class ReplaceOrderMessage(OutboundExchangeMessage):

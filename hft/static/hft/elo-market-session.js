@@ -189,7 +189,10 @@ class MarketSession extends PolymerElement {
         eBestBid: Number,
         eBestOffer: Number,
         clearingPrice:Object,
-        middlePeg:Number,
+        middlePeg: {
+            type: Number,
+            computed: '_computeMiddlePeg(eBestBid, eBestOffer)',
+        },
         wealth: {
             type: Number,
             computed: '_calculateWealth(cash, speedCost, referencePrice, inventory)'
@@ -327,11 +330,13 @@ class MarketSession extends PolymerElement {
                     marketState.eBestBid = cleanMsg.e_best_bid
                     marketState.eBestOffer = cleanMsg.e_best_offer
                     marketState.eSignedVolume = cleanMsg.e_signed_volume
+                case 'executed':
+                    if (cleanMsg.player_id == this.playerId) {
+                        const side = cleanMsg.buy_sell_indicator == 'B' ? 'bid' : 'ask'
+                        marketTransacted[side] = true
+                    }
                 case 'confirmed':
                 case 'replaced':
-                case 'executed':
-                    let side = cleanMsg.buy_sell_indicator == 'B' ? 'bid' : 'ask'
-                    marketTransacted[side] = true
                 case 'canceled':
                     this.orderBook.recv(cleanMsg)
                     break;
@@ -540,6 +545,17 @@ class MarketSession extends PolymerElement {
     _calculateWealth(cash, costStep, referencePrice, inventory) {
         const out = Math.round((cash - costStep + referencePrice * inventory) * 10) / 10
         return out
+    }
+
+    _computeMiddlePeg(eBestBid, eBestOffer) {
+        if (OTREE_CONSTANTS.auctionFormat != 'IEX'
+            || !eBestBid
+            || !eBestOffer
+            || eBestBid == MIN_BID
+            || eBestOffer >= MAX_ASK) {
+            return null;
+        }
+        return (eBestBid + eBestOffer) / 2;
     }
 
 }

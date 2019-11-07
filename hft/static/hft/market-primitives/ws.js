@@ -38,11 +38,9 @@ class WSConnection extends PolymerElement {
     _onOpen() {
         console.log('connected to ', this.urlToConnect)
         this.socket = socket
-        if (this.pending.length) {
-            this.pending.forEach( (message) => {
-                this.send(message)
-            });
-        }
+        this.pending.forEach( (message) => {
+            this.send(message)
+        });
 
         let playerReadyMessage = {
             type: 'player_ready',
@@ -82,11 +80,11 @@ class WSConnection extends PolymerElement {
     send(event) {
         this.socket = socket
         let message = event.detail
-        const jsonMessage = JSON.stringify(message);
         if (this.socket.readyState != 1) {
-            this.pending.push(jsonMessage);
+            this.pending.push(event);
             return;
         }
+        const jsonMessage = JSON.stringify(message);
         this.socket.send(jsonMessage);
     }
 
