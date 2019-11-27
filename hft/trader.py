@@ -67,6 +67,8 @@ class BaseTrader(object):
         # than a previous one
         self.default_delay = 0.5
         self.message_arrival_estimate = None 
+        self.peg_price = None
+        self.peg_state = None
     
     @classmethod
     def from_otree_player(cls, otree_player):
@@ -149,6 +151,7 @@ class ELOTrader(BaseTrader):
         'U': 'order_replaced', 
         'C': 'order_canceled', 
         'E': 'order_executed', 
+        'L': 'peg_state_change',
         'role_change': 'state_change', 
         'slider': 'user_slider_change'}
     otree_player_converter = elo_otree_player_converter
@@ -217,9 +220,10 @@ w: %s, speed unit cost: %s' % (
             return self.market_facts['best_offer']
 
     def order_accepted(self, event):
-        event_as_kws = event.to_kwargs()
-        self.orderstore.confirm('enter', **event_as_kws)
-        event.broadcast_msgs('confirmed', model=self, **event_as_kws)
+        if not event.message.midpoint_peg:
+            event_as_kws = event.to_kwargs()
+            self.orderstore.confirm('enter', **event_as_kws)
+            event.broadcast_msgs('confirmed', model=self, **event_as_kws)
     
     def order_replaced(self, event):
         event_as_kws = event.to_kwargs()
@@ -275,6 +279,13 @@ w: %s, speed unit cost: %s' % (
         adjust_cash_position(execution_price, buy_sell_indicator)
         adjust_net_worth()
 
+    def peg_state_change(self, event):
+        self.peg_price = event.message.peg_price
+        # HACK: see exchange_server.exchange.iex_exchange.py:225
+        if self.peg_price == -9999:
+            self.peg_price = None
+        self.peg_state = event.message.peg_state
+
 
 class InvestorFactory:
     @staticmethod
@@ -295,4 +306,20 @@ class ELOInvestor(ELOTrader):
             'investor', market.exchange_host, market.exchange_port)  # one investor per market
         kwargs = {'firm': 'INVE'}
         return cls(*args, **kwargs)
+
+    def order_accepted(self, event):
+        super().order_accepted(event)
+        self.midpoint_peg = event.message.midpoint_peg
+
+    def order_replaced(self, event):
+        super().order_replaced(event)
+        self.midpoint_peg = event.message.midpoint_peg
         
+    def order_canceled(self, event):
+        super().order_canceled(event)
+        self.midpoint_peg = event.message.midpoint_peg
+
+    def order_executed(self, event):
+        super().order_executed(event)
+        self.midpoint_peg = event.message.midpoint_peg
+    

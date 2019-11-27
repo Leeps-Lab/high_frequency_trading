@@ -50,9 +50,14 @@ class ELOOuchMessageSanitizer(MessageSanitizer):
                 token = clean_message.get('replacement_order_token')
             event_type = message['type']
             player_id = None
-            if event_type not in ('S', 'Q', 'Z'):
+            if event_type not in ('S', 'Q', 'Z', 'L'):
                 player_id = int(token[5:9])
                 clean_message['firm'] = token[0:4].lower()
+            # hack: need to set player id for peg state messages so they can be added to trader id
+            # just use investor id and firm
+            if event_type == 'L':
+                player_id = 1
+                clean_message['firm'] = 'inve'
             clean_message['player_id'] = player_id
         return clean_message
 
