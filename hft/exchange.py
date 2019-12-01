@@ -11,13 +11,14 @@ log = logging.getLogger(__name__)
 class OUCH(Protocol):
     bytes_needed = {
         'S': 10,
-        'E': 40,
-        'C': 28,
-        'U': 80,
-        'A': 66,
+        'E': 41,
+        'C': 29,
+        'U': 81,
+        'A': 67,
         'Q': 41,
         'O': 49,
         'Z': 49,
+        'L': 17,
     }
 
     message_cls = ouch_messages.OuchServerMessages

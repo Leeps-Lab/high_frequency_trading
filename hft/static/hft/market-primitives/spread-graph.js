@@ -663,7 +663,8 @@ class SpreadGraph extends PolymerElement {
             bubbles: true, composed: true, detail: {
                 type: 'order_entered',
                 price: price,
-                buy_sell_indicator: order_type
+                buy_sell_indicator: order_type,
+                midpoint_peg: false,
             }
         })
         this.dispatchEvent(orderEnteredEvent)

@@ -8,7 +8,10 @@ class MarketPriceCard extends PolymerElement {
   static get properties(){
   return {
     title: String,
-    price: {type: String, value:0},
+    price: {
+      type: String,
+      value:0,
+    },
     currency: String,
     sideId: String,
     animated: {type: String, reflectToAtrribute: true}
@@ -18,7 +21,7 @@ class MarketPriceCard extends PolymerElement {
   constructor(){
     super();
     //Set currency within the markup where it is initialized
-    this.currency = '$';
+    this.currency = 'ECU';
   }
 
   animate() {
@@ -29,8 +32,12 @@ class MarketPriceCard extends PolymerElement {
   }
 
   _displayPrice(price) {
-    let displayPrice = (price == MIN_BID || price == MAX_ASK) ? ' - ' : price
-    return displayPrice
+    if (price == MIN_BID || price == MAX_ASK) {
+      return ' - '
+    }
+    else {
+      return price + ' ' + this.currency;
+    }
   }
 
   static get template() { 
@@ -106,9 +113,6 @@ class MarketPriceCard extends PolymerElement {
                 </span>
               </div>
               <div class="cardPrice" animate={{animated}}>
-                <p>
-                  {{currency}}
-                </p>
                 <p id="the-price">
                   {{_displayPrice(price)}}
                 </p>

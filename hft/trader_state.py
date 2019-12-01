@@ -60,7 +60,6 @@ class ELOTraderState(TraderState):
     event_dispatch = { 
         'speed_change': 'speed_technology_change',
         'role_change': 'state_change', 
-        'slider': 'user_slider_change', 
         'bbo_change': 'bbo_change', 
         'post_batch': 'post_batch', 
         'reference_price_change': 'reference_price_update',
@@ -168,7 +167,10 @@ class ELOManualTrader(ELOTraderState):
 class ELOAutomatedTraderState(ELOTraderState):
     trader_model_name = 'automated'
     event_dispatch = dict(**ELOTraderState.event_dispatch)
-    event_dispatch.update({'E': 'order_executed'})
+    event_dispatch.update({
+            'E': 'order_executed',
+            'slider': 'user_slider_change', 
+        })
 
     def state_change(self, trader, event):
         super().state_change(trader, event)

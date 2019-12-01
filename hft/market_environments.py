@@ -63,10 +63,10 @@ elo = market_environment(
             }
         },
         'inv': {
-            'events_to_capture': ('A', 'E'),
+            'events_to_capture': ('A', 'E', 'L'),
             'properties_to_serialize': (
                 'subsession_id', 'market_id', 'id_in_market', 'player_id', 'delay', 
-                'staged_bid', 'staged_offer', 'net_worth', 'cash'),
+                'staged_bid', 'staged_offer', 'net_worth', 'cash', 'midpoint_peg', 'peg_price', 'peg_state'),
             'subproperties_to_serialize': {
                 'orderstore': ('inventory', 'bid', 'offer'),
                 'trader_role': ('trader_model_name', ),

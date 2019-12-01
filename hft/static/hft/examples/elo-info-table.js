@@ -24,23 +24,19 @@ class InfoTable extends PolymerElement {
         },
       }
     }
-    constructor() {
-      super();
-    }
     
     ready() {
       super.ready();
-      // commented to disable flashing animation
-      // this.addEventListener('transaction', this._handleExecution);
+      this.addEventListener('transaction', this._handleExecution);
      }
 
      _handleExecution(event) {
       if (event.detail.bid) {
-        let theCard = this.shadowRoot.getElementById('bid')
+        let theCard = this.$.my_bid
         theCard.animate()
       }
       if (event.detail.ask) {
-        let theCard = this.shadowRoot.getElementById('ask')
+        let theCard = this.$.my_ask
         theCard.animate()
       }
      }
@@ -108,10 +104,10 @@ class InfoTable extends PolymerElement {
                 </bounded-market-price-card>
               </div>
               <div id="mbbo">
-                <bounded-market-price-card title="My Bid" price={{myBid}}> 
+                <bounded-market-price-card id="my_bid" title="My Bid" price={{myBid}}> 
                 </bounded-market-price-card>
                 <br>
-                <bounded-market-price-card title="My Ask" price={{myOffer}}> 
+                <bounded-market-price-card id="my_ask" title="My Ask" price={{myOffer}}> 
                 </bounded-market-price-card>
               </div>
               <div class="clearing-info" style$="{{_showClearingPrice()}}">

@@ -5,7 +5,7 @@ class EnterOrderMessage(OutboundExchangeMessage):
     required_fields = (
         'subsession_id',
         'order_token', 'buy_sell_indicator', 'price', 'time_in_force', 'firm',
-        'shares', 'stock', 'exchange_host', 'exchange_port', 'delay')
+        'shares', 'stock', 'exchange_host', 'exchange_port', 'delay', 'midpoint_peg')
 
 
 class ReplaceOrderMessage(OutboundExchangeMessage):
@@ -25,10 +25,17 @@ class ResetMessage(OutboundExchangeMessage):
         'exchange_port', 'delay')
 
 
+class ExternalFeedChangeMessage(OutboundExchangeMessage):
+    required_fields = (
+        'subsession_id', 'e_best_bid', 'e_best_offer', 
+        'e_signed_volume', 'exchange_host', 'exchange_port', 'delay')
+
+
 class OutboundExchangeMessageFactory(MessageFactory):
     message_types = {
         'enter': EnterOrderMessage,
         'replace': ReplaceOrderMessage,
         'cancel': CancelOrderMessage,
-        'reset_exchange': ResetMessage
+        'reset_exchange': ResetMessage,
+        'external_feed': ExternalFeedChangeMessage,
     }

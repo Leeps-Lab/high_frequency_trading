@@ -38,8 +38,12 @@ if __name__ == '__main__':
     ws_url = sys.argv[1]
     session_id, type_code = sys.argv[2:4]
     record_code = sys.argv[4]
+    try:
+        peg_proportion = float(sys.argv[5])
+    except ValueError:
+        peg_proportion = None
     emitter = WSMessageEmitter(session_id, type_code, filter_value=record_code,
-        **get_ws_confs(type_code))
+        **get_ws_confs(type_code), peg_proportion=peg_proportion)
     emitter.read_from_db(**db_creds)
     factory = ExogenousEventClientFactory(emitter, ws_url)
     url_parsed = parse_url(ws_url)

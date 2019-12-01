@@ -89,7 +89,9 @@ class Results(Page):
 page_sequence = [
     PreWaitPage,
     EloExperiment,
-    PostSession,
+    # comment this to remove post-session 30 second wait
+    # if data isn't ready in time w/ larger sessions, this may need to be uncommented
+    # PostSession,
     ResultsWaitPage,
     Results,
 ]

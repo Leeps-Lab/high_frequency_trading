@@ -77,10 +77,12 @@ class TradeSession:
                 ssid =  self.subsession_id
                 url = utility.exogenous_event_endpoint.format(subsession_id=ssid)
                 filecode = get_filecode_from_filename(event_type, filename)
+                peg_proportion = str(self.subsession.session.config['peg_proportion'])
+                print('CONFIG:', self.subsession.session.config)
                 # exogenous_event_json_formatted = serializers.serialize('json', 
                 #     exogenous_event_queryset)
                 args = ['python', utility.exogenous_event_client, url, ssid, 
-                    event_type, filecode]
+                    event_type, filecode, peg_proportion]
                   #  exogenous_event_json_formatted]
                 process = subprocess.Popen(args)
                 self.clients[event_type] = process
