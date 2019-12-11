@@ -16,7 +16,7 @@ class OUCH(Protocol):
         'U': 81,
         'A': 67,
         'Q': 41,
-        'O': 49,
+        'O': 50,
         'Z': 49,
         'L': 17,
     }
@@ -35,8 +35,9 @@ class OUCH(Protocol):
         try:
             bytes_needed = self.bytes_needed[header]
         except KeyError:
-             log.exception('unknown header %s, ignoring..' % header)
-             return
+            log.exception('unknown header %s, ignoring..' % header)
+            return
+        print(header, len(data), bytes_needed)
         if len(data) >= bytes_needed:
             remainder = bytes_needed
             self.buffer.extend(data[:remainder])
@@ -66,6 +67,7 @@ class OUCH(Protocol):
         # can receive a message back (accepted),
         # can receive 2 messages (accepted, executed),
         # can receive 0 message (replace dying silently).
+        print('msg to send:', chr(msg[0]))
         reactor.callLater(delay, self.transport.write, msg)
 
 
@@ -134,3 +136,4 @@ def send_exchange(host, port, message, delay, subsession_id=None):
             conn.factory.subsession_id, subsession_id))
     else:
         conn.sendMessage(message, delay)
+
