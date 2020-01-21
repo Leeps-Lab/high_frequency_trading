@@ -59,6 +59,10 @@ class NiceCheckbox extends PolymerElement {
                 -ms-transform: translateX(26px);
                 transform: translateX(26px);
               }
+
+              #nicecheckbox[disabled] + .slider {
+                cursor: not-allowed;
+              }
               
               /* Rounded sliders */
               .slider.round {
@@ -76,7 +80,7 @@ class NiceCheckbox extends PolymerElement {
 
         </style>
         <label class="switch">
-            <input id="nicecheckbox" checked$=[[isActive]] type="checkbox" on-click="checkboxClicked">
+            <input id="nicecheckbox" checked$=[[isActive]] type="checkbox" on-click="checkboxClicked" disabled$=[[disabled]]>
             <span class="slider round"></span>
         </label>
         `
@@ -91,6 +95,7 @@ class NiceCheckbox extends PolymerElement {
               observer: '_trigDisableTimer'
             },
             clickable: Boolean,
+            disabled: Boolean,
             websocketMessage: Object,
             eventDispatch: String,
             expiryDuration: Number //ms

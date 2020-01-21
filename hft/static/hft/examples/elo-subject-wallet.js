@@ -47,12 +47,12 @@ class WallletCard extends PolymerElement {
 
         <div class="container"> 
           <div class='column'>
-            <info-card class="theCard" title="Cash" currency="ECU" value={{cash}}>
+            <info-card class="theCard" title="Wealth" currency="ECU" value={{endowment}}>
             </info-card>
             <info-card class="theCard" title="Inventory" currency="" value={{inventory}}
               animated>
             </info-card>
-            <info-card class="theCard" title="Wealth" currency="ECU" value={{endowment}}>
+            <info-card class="theCard" title="Cash" currency="ECU" value={{cash}}>
             </info-card>
             <template is="dom-if" if="{{svSliderDisplayed}}">
               <info-card class="theCard" title="Signed Volume" currency="" value={{signedVolume}}>
