@@ -642,7 +642,7 @@ class SpreadGraph extends PolymerElement {
         const price = Math.round(this.scale.invert(clickX));
         // prevent entering an order that self-crosses
         if ( (this.myBid && order_type == 'S' && price <= this.myBid) ||
-             (this.myAsk && order_type == 'B' && price >= this.myAsk) ) {
+             (this.myOffer && order_type == 'B' && price >= this.myOffer) ) {
                  return;
         }
 
