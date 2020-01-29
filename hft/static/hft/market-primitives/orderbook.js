@@ -71,8 +71,8 @@ class PlayersOrderBook {
         }
     }
 
-    // returns true if a new order from player with id `playerId` should be immediately shown
-    _newOrderActive(playerId) {
+    // returns true if a change in an order from player with id `playerId` should be immediately shown
+    _orderIsVisible(playerId) {
         return this.auctionFormat != 'FBA' || playerId == this.playerId;
     }
 
@@ -81,7 +81,7 @@ class PlayersOrderBook {
             return
         }
 
-        const visible = this._newOrderActive(playerId);
+        const visible = this._orderIsVisible(playerId);
         const order = {
             price: price,
             playerId: playerId,
@@ -103,7 +103,7 @@ class PlayersOrderBook {
             console.warn(`remove failed: order token ${orderToken} not found`);
             return;
         }
-        if (this.auctionFormat != 'FBA') {
+        if (this._orderIsVisible(playerId)) {
             delete orders[orderToken]
         }
         else {
