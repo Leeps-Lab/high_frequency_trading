@@ -198,12 +198,12 @@ class ProfitGraph extends PolymerElement {
         this.xAxis.scale(this.xScale);
         this.domXAxis.call(this.xAxis);
 
-        this._addPayoff(this.profit,this.profit); 
-        window.setInterval(function(){
-        	window.requestAnimationFrame(this._tick.bind(this))
-        }.bind(this)
-        ,500)
-
+        const intervalId = window.setInterval(this._tick.bind(this), 500);
+        // stop graph when session is done
+        // xrange is set to the session duration in ms. this is a hack but whatever
+        window.setTimeout(function() {
+            window.clearInterval(intervalId);
+        }, this.xRange);
     }
 
     _tick() {
