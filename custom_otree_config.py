@@ -106,7 +106,8 @@ config_maps = {
         'default_role': ('parameters', 'default-role'),
         'test_input_file': ('tests', 'test_input_file'),
         'peg_proportion': ('parameters', 'peg-proportion'),
-        'post_session_delay': ('session', 'post-session-delay')
+        'post_session_delay': ('session', 'post-session-delay'),
+        'pre_session_delay': ('session', 'pre-session-delay'),
     }
 }
 
