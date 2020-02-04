@@ -465,6 +465,10 @@ class MarketSession extends PolymerElement {
     _handleSystemEvent(message) {
         if (message.code == 'S') {
             this.isSessionActive = true
+            // another bad hack. disables the ui when the session is over
+            window.setTimeout(function() {
+                this.isSessionActive = false;
+            }.bind(this), this.sessionLengthMS);
         }
     }
 

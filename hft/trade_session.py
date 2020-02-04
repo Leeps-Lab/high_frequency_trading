@@ -78,7 +78,6 @@ class TradeSession:
                 url = utility.exogenous_event_endpoint.format(subsession_id=ssid)
                 filecode = get_filecode_from_filename(event_type, filename)
                 peg_proportion = str(self.subsession.session.config['peg_proportion'])
-                print('CONFIG:', self.subsession.session.config)
                 # exogenous_event_json_formatted = serializers.serialize('json', 
                 #     exogenous_event_queryset)
                 args = ['python', utility.exogenous_event_client, url, ssid, 
@@ -115,9 +114,12 @@ class ELOTradeSession(TradeSession):
                     'market_start', market_id=market_id, model=self, 
                     session_duration=self.subsession.session_duration)
                 self.trading_markets.append(market_id)
-            self.start_exogenous_events()
+            pre_session_delay = self.subsession.session.config['pre_session_delay']
+            if pre_session_delay is None:
+                pre_session_delay = 0
+            task.deferLater(reactor, pre_session_delay, self.start_exogenous_events)
             self.is_trading = True
-            deferred = task.deferLater(reactor, self.subsession.session_duration, 
+            task.deferLater(reactor, self.subsession.session_duration, 
                 partial(self.stop_trade_session, clients=dict(self.clients)))
             
     def stop_trade_session(self, *args, clients=None):
@@ -133,8 +135,12 @@ class ELOTradeSession(TradeSession):
                         'market_end', market_id=market_id, model=self)
                     self.event_dispatcher_cls.dispatch('internal_event', ex_event_msg)
                 self.stop_exogenous_events(clients=clients)
-                self.subsession.session.advance_last_place_participants()
                 self.is_trading = False
+
+                post_session_delay = self.subsession.session.config['post_session_delay']
+                if post_session_delay is None:
+                    post_session_delay = 0
+                task.deferLater(reactor, post_session_delay, self.subsession.session.advance_last_place_participants)
         except Exception:
             log.exception('session end procedure failed')
         

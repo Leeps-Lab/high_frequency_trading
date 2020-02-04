@@ -5,11 +5,12 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 import datetime
 import csv
+import settings
 from .forms import ExogenousEventForm, CustomConfigForm
 from settings import (
     custom_configs_directory, exogenous_event_configs_directory, SESSION_CONFIGS)
 from custom_otree_config import CustomOtreeConfig
-from otree.session import SESSION_CONFIGS_DICT
+from otree.session import SESSION_CONFIGS_DICT, SessionConfig
 from django.utils import timezone
 from django.views.generic.list import ListView
 from .exogenous_event import (
@@ -125,8 +126,11 @@ class CustomConfigUploadView(vanilla.View, UploadView):
 
     def handle_file(self, path):
         new_conf = CustomOtreeConfig.from_yaml(path).get_otree_config()
-        filename = new_conf['name']
-        SESSION_CONFIGS_DICT[filename] = new_conf
+
+        config_obj = SessionConfig(settings.SESSION_CONFIG_DEFAULTS)
+        config_obj.update(new_conf)
+        config_obj.clean()
+        SESSION_CONFIGS_DICT[new_conf['name']] = config_obj
 
 
 class HFTExternalFeedFilesListView(vanilla.ListView):

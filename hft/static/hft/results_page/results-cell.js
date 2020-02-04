@@ -66,16 +66,6 @@ export class ResultsCell extends PolymerElement {
       })
     }
 
-    const payoff = this.net;
-    let payoffData = [];
-    payoffData.push(payoff);
-
-    const tax = payoff > 0 ? this.tax : - this.tax;
-    let taxData = [];
-    if (tax > 0) {
-      taxData.push(tax);
-    }
-
     //let lowVal = Math.min(this.width, this.height);
     //let width = lowVal;
     //let height = lowVal;
@@ -129,8 +119,7 @@ export class ResultsCell extends PolymerElement {
 
     let chart2 = Highcharts.chart(this.$.container2, {
       chart: {
-        type: 'column',
-        size: '80%'
+        type: 'columnrange',
       },
       title: {
         text: 'Payoff'
@@ -140,8 +129,6 @@ export class ResultsCell extends PolymerElement {
         crosshair: true
       },
       yAxis: {
-        max: 200,
-        min: -200,
         title: {
           text: ''
         }
@@ -149,29 +136,22 @@ export class ResultsCell extends PolymerElement {
       credits: {
         enabled: false
       },
-      plotOptions: {
-        column: {
-          stacking: 'normal',
-          pointPadding: 0,
-          groupPadding: 0,
-          borderWidth: 0,
-          allowPointSelect: true,
-          cursor: 'pointer',
-          dataLabels: {
-            enabled: true
-          },
-          showInLegend: true
-        }
+      tooltip: {
+        enabled: false,
       },
       series: [{
         name: "Net Payoff",
-        data: payoffData,
+        data: [
+          [0, 0, this.net]
+        ],
         showInLegend: true,
         index: 1
       },
       {
         name: "Tax",
-        data: taxData,
+        data: [
+          [1, this.net-this.tax, this.net]
+        ],
         showInLegend: true,
         index: 0,
         color: '#FF0000'

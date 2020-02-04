@@ -266,11 +266,12 @@ class AttributeGraph extends PolymerElement {
         this._addInventory(this.a_y,this.a_y);         
         this._addExternalFeed(this.a_z,this.a_z); 
 
-        window.setInterval(function(){
-        	window.requestAnimationFrame(this._tick.bind(this))
-        }.bind(this)
-        ,500)
-
+        const intervalId = window.setInterval(this._tick.bind(this), 500);
+        // stop graph when session is done
+        // xrange is set to the session duration in ms. this is a hack but whatever
+        window.setTimeout(function() {
+            window.clearInterval(intervalId);
+        }, this.xRange);
     }
 
     _tick() {

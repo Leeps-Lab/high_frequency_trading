@@ -71,7 +71,7 @@ class StateSelection extends PolymerElement {
                         Speed
                     </div>
                     <nice-checkbox websocket-message='{"type": "speed_change"}' 
-                        event-dispatch="user-input" is-active={{speedOn}}> </nice-checkbox>
+                        event-dispatch="user-input" is-active={{speedOn}} disabled="[[_speedSwitchDisabled(role)]]"> </nice-checkbox>
                 </div>
                 
                 <div id="second-column" class="column-container">
@@ -190,6 +190,10 @@ class StateSelection extends PolymerElement {
             newVal != 'automated' ? element.isDisabled = true :
             element.isDisabled = false }
         )     
+    }
+
+    _speedSwitchDisabled(role) {
+        return role != 'automated';
     }
   }
   customElements.define('elo-state-selection', StateSelection)

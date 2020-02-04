@@ -62,33 +62,21 @@ def elo_player_summary(player):
 
 def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
     session_end, default=0):
-    session_duration = session_end - session_start
-    session_duration = session_duration.seconds
+    session_duration = (session_end - session_start).total_seconds()
     player_state_records = TraderRecord.objects.filter(subsession_id=subsession_id,
-        market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('-timestamp')
-    slider_durations = {}
-    for slider_name in ('slider_a_x', 'slider_a_y', 'slider_a_z'):
-        previous_slider_change_at = session_start
-        current_slider_value = default 
-        slider_values = {current_slider_value: 0}
-        for each in player_state_records:
-            new_slider_value = getattr(each, slider_name)
-            if new_slider_value != current_slider_value:
-                slider_values[new_slider_value] = 0
-                duration = each.timestamp - previous_slider_change_at
-                duration = duration.seconds
-                slider_values[current_slider_value] += duration
-                current_slider_value = new_slider_value
-                previous_slider_change_at = each.timestamp
-        closing_timedelta = session_end - previous_slider_change_at
-        slider_values[current_slider_value] += closing_timedelta.seconds
-        slider_durations[slider_name] = slider_values  
+        market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('timestamp')
     slider_averages = {}
     for slider_name in ('slider_a_x', 'slider_a_y', 'slider_a_z'):
-        slider_values = slider_durations[slider_name]
-        denum = sum(k for k in slider_values.values())
-        num = sum(k * v for k, v in slider_values.items())
-        slider_averages[slider_name] = round(num / denum, 1)
+        slider_averages[slider_name] = 0
+        current_slider_value = default 
+        prev_change_time = session_start
+        for record in player_state_records:
+            slider_averages[slider_name] += current_slider_value * (record.timestamp - prev_change_time).total_seconds()
+            current_slider_value = getattr(record, slider_name)
+            prev_change_time = record.timestamp
+        slider_averages[slider_name] += current_slider_value * (session_end - prev_change_time).total_seconds()
+        slider_averages[slider_name] /= session_duration
+        slider_averages[slider_name] = round(slider_averages[slider_name], 2)
     return slider_averages 
 
 def _calculate_role_time_percentage(market_role_group, player_id, session_length):
