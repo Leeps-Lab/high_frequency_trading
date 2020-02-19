@@ -64,6 +64,7 @@ class ResultsPage extends PolymerElement {
     const feeds = this.externalFeeds;
     const names = this.names;
     const taxes = this.taxes;
+    const speedCosts = this.speedCosts
 
     // set number of rows equal to the closest perfect square
     const numRows = Math.round(Math.sqrt(this.numPlayers));
@@ -103,6 +104,7 @@ class ResultsPage extends PolymerElement {
 
       let myNet = payoffs[low];
       let myTax = taxes[low];
+      let mySpeedCost = speedCosts[low];
       let myName = names[low];
       let myStrategies = strategies[low];
       let myInv = invs[low];
@@ -117,6 +119,7 @@ class ResultsPage extends PolymerElement {
       //console.log('mipayoff', myPayoff)
       child.net = myNet;
       child.tax = myTax;
+      child.speedCost = mySpeedCost;
       child.name = myName;
       child.strategies = myStrategies;
       child.invSensitivity = myInv;
@@ -170,6 +173,9 @@ class ResultsPage extends PolymerElement {
       taxes: {
         type: Object,
         //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
+      },
+      speedCosts: {
+        type: Object,
       },
       names: {
         type: Object,

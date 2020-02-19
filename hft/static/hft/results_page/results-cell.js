@@ -80,6 +80,8 @@ export class ResultsCell extends PolymerElement {
     this.$.container.setAttribute("style", containerStyle);
     this.$.container2.setAttribute("style", container2Style);
 
+    const gross = this.net + this.tax + this.speedCost;
+
     let chart1 = Highcharts.chart(this.$.container, {
       chart: {
         plotBackgroundColor: null,
@@ -126,12 +128,22 @@ export class ResultsCell extends PolymerElement {
       },
       xAxis: {
         categories: [" "],
-        crosshair: true
+        labels: {
+          enabled: false,
+        },
       },
       yAxis: {
         title: {
           text: ''
         }
+      },
+      plotOptions: {
+        columnrange: {
+          pointPadding: 0,
+          groupPadding: 0,
+          borderWidth: 0,
+          shadow: false
+        },
       },
       credits: {
         enabled: false
@@ -139,23 +151,37 @@ export class ResultsCell extends PolymerElement {
       tooltip: {
         enabled: false,
       },
-      series: [{
-        name: "Net Payoff",
+      series: [
+      {
+        name: "Gross Payoff",
         data: [
-          [0, 0, this.net]
+          [0, gross]
         ],
         showInLegend: true,
-        index: 1
       },
       {
         name: "Tax",
         data: [
-          [1, this.net-this.tax, this.net]
+          [gross-this.tax, gross]
         ],
         showInLegend: true,
-        index: 0,
-        color: '#FF0000'
-      }
+        color: '#DD0000'
+      },
+      {
+        name: "Speed Cost",
+        data: [
+          [gross-this.tax-this.speedCost, gross-this.tax]
+        ],
+        showInLegend: true,
+        color: '#ffbd24'
+      },
+      {
+        name: "Net Payoff",
+        data: [
+          [0, this.net]
+        ],
+        showInLegend: true,
+      },
       ]
     });
 
@@ -174,6 +200,9 @@ export class ResultsCell extends PolymerElement {
         type: Number,
       },
       tax: {
+        type: Number,
+      },
+      speedCost: {
         type: Number,
       },
       name: {

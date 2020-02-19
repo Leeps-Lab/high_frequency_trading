@@ -189,7 +189,6 @@ w: %s, speed unit cost: %s' % (
         speed_cost = self.technology_subscription.invoice()
         self.cost += tax_paid + speed_cost
         self.tax_paid += tax_paid
-        speed_cost = self.technology_subscription.invoice()
         self.speed_cost += speed_cost
         self.net_worth =  self.net_worth - self.cost
     

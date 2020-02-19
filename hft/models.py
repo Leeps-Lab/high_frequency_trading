@@ -170,3 +170,4 @@ class Player(BasePlayer):
                 attr = getattr(self, field.name)
                 if attr is None:
                     setattr(self, field.name, getattr(state_record, field.name))
+        self.save()

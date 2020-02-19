@@ -23,12 +23,15 @@ class HFTPlayerSessionSummary(Model):
     time_as_manual = models.FloatField(initial=0.0)
     net_worth = models.IntegerField(initial=0)
     tax_paid = models.IntegerField(initial=0)
+    speed_cost = models.IntegerField(initial=0)
 
 def state_for_results_template(player):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
         market_id=player.market_id)
-    nets = {str(o.player_id): round(o.net_worth * 0.0001) for o in summary_objects}
-    taxes = {str(o.player_id): round(o.tax_paid * 0.0001) for o in summary_objects}
+    nets = {str(o.player_id): o.net_worth * 0.0001 for o in summary_objects}
+    taxes = {str(o.player_id): o.tax_paid * 0.0001 for o in summary_objects}
+    print([o.speed_cost for o in summary_objects])
+    speed_costs = {str(o.player_id): o.speed_cost * 0.0001 for o in summary_objects}
     names = {str(o.player_id): 'You' if o.player_id == player.id else 'Anonymous Trader' 
         for o in summary_objects}
     strategies = {str(o.player_id): {'automated': o.time_as_automated, 
@@ -36,7 +39,7 @@ def state_for_results_template(player):
     inv_sens = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
     signed_vol_sens = {str(o.player_id): o.signed_vol_sensitivity for o in summary_objects}
     ext_sensitivies = {str(o.player_id): o.external_feed_sensitivity for o in summary_objects}
-    return {'nets': nets, 'taxes': taxes, 'names': names, 'strategies': strategies, 
+    return {'nets': nets, 'taxes': taxes, 'speed_costs': speed_costs, 'names': names, 'strategies': strategies, 
         'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies}
 
 def elo_player_summary(player):
@@ -58,7 +61,8 @@ def elo_player_summary(player):
         time_as_out=percent_per_role['out'],
         time_as_manual=percent_per_role['manual'], 
         net_worth=player.net_worth,
-        tax_paid=player.tax_paid)
+        tax_paid=player.tax_paid,
+        speed_cost=player.speed_cost)
 
 def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
     session_end, default=0):
