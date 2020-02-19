@@ -114,10 +114,7 @@ class ELOTradeSession(TradeSession):
                     'market_start', market_id=market_id, model=self, 
                     session_duration=self.subsession.session_duration)
                 self.trading_markets.append(market_id)
-            pre_session_delay = self.subsession.session.config['pre_session_delay']
-            if pre_session_delay is None:
-                pre_session_delay = 0
-            task.deferLater(reactor, pre_session_delay, self.start_exogenous_events)
+            self.start_exogenous_events()
             self.is_trading = True
             task.deferLater(reactor, self.subsession.session_duration, 
                 partial(self.stop_trade_session, clients=dict(self.clients)))
