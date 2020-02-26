@@ -115,10 +115,10 @@ class BaseTrader(object):
         # I have to make assumptions around time..
         is_delayed_trader = self.delayed
         now = time.time()
-        if is_delayed_trader is False:
+        if not is_delayed_trader or self.message_arrival_estimate is None:
             self.message_arrival_estimate = now + self.default_delay
             delay = self.default_delay
-        elif is_delayed_trader is True:
+        else:
             current_arrival_estimate = now + self.__delay
             if self.message_arrival_estimate > current_arrival_estimate:
                 diff = self.message_arrival_estimate - current_arrival_estimate
@@ -167,6 +167,22 @@ class ELOTrader(BaseTrader):
             'a_y': kwargs.get('a_y_multiplier', 1)}
         self.tax_paid = 0
         self.speed_cost = 0
+    
+    def set_initial_strategy(self, slider_a_x, slider_a_y, slider_a_z, role, speed_on):
+        k_a_x, k_a_y = self.slider_multipliers['a_x'], self.slider_multipliers['a_y']
+        self.sliders = {
+            'slider_a_x': slider_a_x * k_a_x , 'slider_a_y': slider_a_y * k_a_y,
+            'slider_a_z': slider_a_z}
+        self.trader_role = self.trader_state_factory.get_trader_state(role)
+        self.delayed = speed_on
+        if speed_on:
+            self.delay = self.trader_role.short_delay
+            self.technology_subscription.activate()
+        else:
+            self.delay = self.trader_role.long_delay
+            self.technology_subscription.deactivate()
+            speed_cost = self.technology_subscription.invoice()
+            self.speed_cost += speed_cost
 
     def open_session(self, *args, **kwargs):
         super().open_session(*args, **kwargs)

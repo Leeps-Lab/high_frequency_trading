@@ -204,7 +204,6 @@ class MarketSession extends PolymerElement {
         speedCost: {type: Number, value: 0},
         subscribesSpeed: {
             type: Boolean, 
-            value: false,
             reflectToAttribute: true
         },
         sliderValues:{
@@ -246,8 +245,9 @@ class MarketSession extends PolymerElement {
 
     constructor() {
         super();
-        //Starting Role
-        this.role = 'out';
+        const initialStrategy = OTREE_CONSTANTS.initialStrategy;
+        this.role = initialStrategy.role;
+        this.subscribesSpeed = initialStrategy.speed_on;
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
     }

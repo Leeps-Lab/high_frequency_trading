@@ -266,6 +266,10 @@ class AttributeGraph extends PolymerElement {
         this._addInventory(this.a_y,this.a_y);         
         this._addExternalFeed(this.a_z,this.a_z); 
 
+        if (this.speedOn) {
+            this._addSpeed(true, false);
+        }
+
         const intervalId = window.setInterval(this._tick.bind(this), 500);
         // stop graph when session is done
         // xrange is set to the session duration in ms. this is a hack but whatever

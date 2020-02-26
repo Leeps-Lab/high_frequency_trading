@@ -46,8 +46,13 @@ def elo_player_summary(player):
     market = cache.get(get_cache_key('from_kws', model_name='market',
         model_id=player.market_id, subsession_id=player.subsession_id))
     session_length = market.time_session_end - market.time_session_start
+    initial_sliders = {
+        'slider_a_x': player.initial_slider_a_x,
+        'slider_a_y': player.initial_slider_a_y,
+        'slider_a_z': player.initial_slider_a_z,
+    }
     average_sens = _get_average_sensitivies(player.subsession.id, player.market_id, player.id,
-        market.time_session_start, market.time_session_end)
+        market.time_session_start, market.time_session_end, initial_sliders)
     session_length_seconds = session_length.seconds
     percent_per_role = _calculate_role_time_percentage(market.role_group, player.id,
         session_length_seconds)
@@ -65,14 +70,14 @@ def elo_player_summary(player):
         speed_cost=player.speed_cost)
 
 def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
-    session_end, default=0):
+    session_end, initial_sliders):
     session_duration = (session_end - session_start).total_seconds()
     player_state_records = TraderRecord.objects.filter(subsession_id=subsession_id,
         market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('timestamp')
     slider_averages = {}
     for slider_name in ('slider_a_x', 'slider_a_y', 'slider_a_z'):
         slider_averages[slider_name] = 0
-        current_slider_value = default 
+        current_slider_value = initial_sliders[slider_name]
         prev_change_time = session_start
         for record in player_state_records:
             slider_averages[slider_name] += current_slider_value * (record.timestamp - prev_change_time).total_seconds()

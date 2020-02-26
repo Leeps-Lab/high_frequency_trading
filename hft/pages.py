@@ -1,6 +1,7 @@
 from ._builtin import Page, WaitPage
 import logging
 from django.core.cache import cache
+from .cache import get_cache_key
 from django.conf import settings
 import json
 import time
@@ -16,9 +17,34 @@ log = logging.getLogger(__name__)
 # building the new environment components
  
 
+class InitialDecisionSelection(Page):
+    form_model = 'player'
+    form_fields = [
+        'initial_slider_a_x',
+        'initial_slider_a_y',
+        'initial_slider_a_z',
+        'initial_role',
+        'initial_speed_on',
+    ]
+
 class PreWaitPage(WaitPage):
+
     def after_all_players_arrive(self):
-        pass
+        for player in self.group.get_players():
+            cache_key = get_cache_key('from_kws',
+                model_id=player.id,
+                model_name='trader',
+                subsession_id=self.subsession.id
+            )
+            trader = cache.get(cache_key)
+            trader.set_initial_strategy(
+                player.initial_slider_a_x,
+                player.initial_slider_a_y,
+                player.initial_slider_a_z,
+                player.initial_role,
+                player.initial_speed_on
+            )
+            cache.set(cache_key, trader)
 
 class EloExperiment(Page):
 
@@ -28,8 +54,17 @@ class EloExperiment(Page):
         else:
             inputs_addr = test_inputs_dir.format(
                 self.session.config['test_input_file'])
+        initial_strategy = {
+            'slider_a_x': self.player.initial_slider_a_x,
+            'slider_a_y': self.player.initial_slider_a_y,
+            'slider_a_z': self.player.initial_slider_a_z,
+            'role': self.player.initial_role,
+            'speed_on': self.player.initial_speed_on,
+        }
         return {
-            'inputs_addr': inputs_addr}
+            'inputs_addr': inputs_addr,
+            'initial_strategy': initial_strategy,
+        }
 
 # class PostSessionWaitPage(WaitPage):
 #     # I need an extra wait page
@@ -87,6 +122,7 @@ class Results(Page):
         return out
 
 page_sequence = [
+    InitialDecisionSelection,
     PreWaitPage,
     EloExperiment,
     # comment this to remove post-session 30 second wait

@@ -69,7 +69,7 @@ class Subsession(BaseSubsession):
             market = trade_session.create_market(
                 group_id, exchange_host, exchange_port, **session_configs)                                 
             for player in group.get_players():
-                market.register_player(group_id, player.id)
+                market.register_player(player)
                 player.configure_for_trade_session(market, session_format)
                 trader = TraderFactory.get_trader(session_format, player)
                 initialize_model_cache(trader)
@@ -156,6 +156,13 @@ class Player(BasePlayer):
     signed_volume = models.FloatField()
     e_signed_volume = models.FloatField()
 
+    # fields for this player's initial strategy decisions
+    # these are set from the InitialDecisionSelection form
+    initial_slider_a_x = models.FloatField()
+    initial_slider_a_y = models.FloatField()
+    initial_slider_a_z = models.FloatField()
+    initial_role = models.CharField()
+    initial_speed_on = models.BooleanField()
 
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):

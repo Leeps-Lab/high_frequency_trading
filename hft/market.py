@@ -35,14 +35,16 @@ class BaseMarket:
         self.is_trading = False
         self.ready_to_trade = False
         self.players_in_market = {}
+        self.players_ready = {}
         self.time_session_start = None
         self.time_session_end = None
         for k, v in kwargs.items():
             if hasattr(self, k):
                 setattr(self, k, v)
 
-    def register_player(self, group_id, player_id):
-        self.players_in_market[player_id] = False
+    def register_player(self, player):
+        self.players_in_market[player.id] = player
+        self.players_ready[player.id] = False
     
     def handle_event(self, event, *args, **kwargs):
         if event.event_type not in self.market_events_dispatch:
@@ -84,9 +86,8 @@ class BaseMarket:
 
     def player_ready(self, **kwargs):
         player_id = int(kwargs['player_id'])
-        self.players_in_market[player_id] = True
-        market_ready_condition = (
-            True if False not in self.players_in_market.values() else False)
+        self.players_ready[player_id] = True
+        market_ready_condition = all(self.players_ready.values())
         if market_ready_condition is True:
             self.ready_to_trade = True
             self.event.internal_event_msgs('market_ready_to_start', model=self)
@@ -127,10 +128,9 @@ class ELOMarket(BaseMarket):
         for time_aware_stat in ('signed_volume', 'reference_price'):
             attr = getattr(self, time_aware_stat)
             attr.reset_timer()
-        # next is not really ok. 
-        # will change later.
-        for pid in self.players_in_market.keys():
-            self.role_group.update(nanoseconds_since_midnight(), pid, 'out')
+        for pid, player in self.players_in_market.items():
+            player.refresh_from_db()
+            self.role_group.update(nanoseconds_since_midnight(), pid, player.initial_role)
 
     def end_trade(self, *args, **kwargs):
         super().end_trade(*args, **kwargs)

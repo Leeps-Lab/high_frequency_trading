@@ -1,4 +1,5 @@
 import { PolymerElement, html } from '../node_modules/@polymer/polymer/polymer-element.js';
+import '../node_modules/@polymer/polymer/lib/elements/dom-if.js';
 import '../market-primitives/widgets/player-role-button.js'
 import '../market-primitives/widgets/nice-checkbox.js'
 import '../market-primitives/widgets/algorithm-slider.js'
@@ -147,17 +148,17 @@ class StateSelection extends PolymerElement {
           slider_a_x: {
             type: Number,
             observer: '_sliderValueChange',
-            value: 0
+            value: OTREE_CONSTANTS.initialStrategy.slider_a_x,
           },
           slider_a_y: {
             type: Number,
             observer: '_sliderValueChange',
-            value: 0
+            value: OTREE_CONSTANTS.initialStrategy.slider_a_y,
           },
           slider_a_z: {
             type: Number,
             observer: '_sliderValueChange',
-            value: 0
+            value: OTREE_CONSTANTS.initialStrategy.slider_a_z,
           },
           speedOn: {
             type: Boolean, 
@@ -165,10 +166,6 @@ class StateSelection extends PolymerElement {
             reflectToAttribute: true
             }
         }
-    }
-
-    constructor() {
-        super();
     }
 
     _sliderValueChange(newVal,oldVal){

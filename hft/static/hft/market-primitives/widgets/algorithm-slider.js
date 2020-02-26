@@ -25,7 +25,7 @@ class algorithmSlider extends PolymerElement {
         </div>
         <input style="background-color:{{color}};" type="range" class="slider-group" min='[[minValue]]'
             max='[[maxValue]]' value='{{sliderValue::mouseup}}'
-            step='[[stepSize]]' disabled$=[[isDisabled]]>
+            step='[[stepSize]]' disabled$=[[isDisabled]] id="slider">
         `;
     }
 
@@ -47,8 +47,10 @@ class algorithmSlider extends PolymerElement {
             },
         }
     }
-    constructor(){
-        super();    
+
+    ready() {
+        super.ready();
+        this.$.slider.value=this.sliderValue; 
     }
 
     _resetVal(newVal, oldVal){

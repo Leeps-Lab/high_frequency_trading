@@ -19,7 +19,7 @@
     <script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
     <script type="module" src="{% static 'hft/elo-experiment.js' %}"></script>
 <script>
-   let OTREE_CONSTANTS = {
+   const OTREE_CONSTANTS = {
         playerId: "{{player.id}}",
         subsessionId: "{{player.subsession.id}}",
         marketId: "{{player.market_id}}",
@@ -30,6 +30,7 @@
         svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
         sessionLength: "{{subsession.session_duration}}",
         auctionFormat: "{{subsession.auction_format}}",
+        initialStrategy: JSON.parse('{{initial_strategy | json}}'),
    };
 
    let TEST_INPUTS_ADDRESS =  "";
