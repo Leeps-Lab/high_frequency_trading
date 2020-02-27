@@ -25,15 +25,15 @@ class StepwiseCalculator extends PolymerElement {
             }
         };
     }
-        
-    constructor(){
-        super();
-    }  
+
+    stop() {
+      clearInterval(this.intervalId);
+    }
     
     _run (newValue, oldValue) {     
       if (newValue) {
         this.lastCalcTime = Date.now()
-        setInterval(() => {
+        this.intervalId = setInterval(() => {
             if (this.runForever) {
               let now = Date.now() 
               let step = (now - this.lastCalcTime) * this.unitSize
@@ -43,9 +43,7 @@ class StepwiseCalculator extends PolymerElement {
           this.sleepDuration)
         }
     }
-
-    static get template() {return html``}
-    }
+}
 
 
 customElements.define('stepwise-calculator', StepwiseCalculator);

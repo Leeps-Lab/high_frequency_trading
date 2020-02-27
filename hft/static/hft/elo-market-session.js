@@ -106,12 +106,24 @@ class MarketSession extends PolymerElement {
                     opacity:1;
                 }
             }
+
+            #session_complete_indicator {
+                display: none;
+                position: fixed;
+                right: 20px;
+                top: 20px;
+                border: 1px solid black;
+                background-color: white;
+                color: red;
+                padding: 5px;
+            }
         </style>
             <ws-connection
                 id="websocket"
                 url-to-connect={{websocketUrl}}
             ></ws-connection>
             <stepwise-calculator
+                id="stepwise_calculator"
                 run-forever={{subscribesSpeed}}
                 value={{speedCost}}
                 unit-size={{speedUnitCost}}
@@ -120,6 +132,10 @@ class MarketSession extends PolymerElement {
             <test-inputs
                 is-running={{isSessionActive}}
             ></test-inputs>
+
+            <div id="session_complete_indicator">
+                Session complete. The page will be advanced shortly.
+            </div>
            
             <div id='overlay' class$='[[_activeSession(isSessionActive)]]'>
                 <spread-graph class$='[[_isSpreadGraphDisabled(role)]]' 
@@ -245,9 +261,6 @@ class MarketSession extends PolymerElement {
 
     constructor() {
         super();
-        const initialStrategy = OTREE_CONSTANTS.initialStrategy;
-        this.role = initialStrategy.role;
-        this.subscribesSpeed = initialStrategy.speed_on;
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
     }
@@ -259,6 +272,9 @@ class MarketSession extends PolymerElement {
         this.playerId = OTREE_CONSTANTS.playerId
         this.manualButtonDisplayed = OTREE_CONSTANTS.manualButtonDisplayed
         this.svSliderDisplayed = OTREE_CONSTANTS.svSliderDisplayed;
+        const initialStrategy = OTREE_CONSTANTS.initialStrategy;
+        this.role = initialStrategy.role;
+        this.subscribesSpeed = initialStrategy.speed_on;
         this.referencePrice = 0
         this.cash = 100
         this.wealth = 100
@@ -466,8 +482,11 @@ class MarketSession extends PolymerElement {
         if (message.code == 'S') {
             this.isSessionActive = true
             // another bad hack. disables the ui when the session is over
+            // and stops speed calculation and shows the session complete box
             window.setTimeout(function() {
                 this.isSessionActive = false;
+                this.$.session_complete_indicator.style.display = 'initial';
+                this.$.stepwise_calculator.stop();
             }.bind(this), this.sessionLengthMS);
         }
     }
