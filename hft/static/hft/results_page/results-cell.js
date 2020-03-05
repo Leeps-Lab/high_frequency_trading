@@ -19,7 +19,8 @@ export class ResultsCell extends PolymerElement {
         padding: 5px;
       }
       .data {
-	display: inline-block;
+        display: inline-block;
+        margin: 4px;
       }
       h2 {
 	margin: 2%;
@@ -44,12 +45,18 @@ export class ResultsCell extends PolymerElement {
         <div id="container" class="container"></div>
         <div id="container2" class="container"></div>
       </div>
-      <div style="display:inline-block; text-align:center;">
-        <span>Average Sensitivity of Algorithms</span>
-        <hr style="width: 60%">
-        <span class="data"><strong>Inventory:</strong> [[ invSensitivity ]]</span>
-        <span style$="display: [[_signedVolumeDisplay()]];" class="data"><strong>Signed Volume:</strong> [[ signedVolume ]]</span>
-        <span class="data"><strong>External Feed:</strong> [[ externalFeed ]]</span>
+      <div style="display:flex;">
+        <div style="flex:1; text-align:center;">
+          <strong>Net Payoff:</strong>
+          <span>[[toFixed(net)]]</span>
+        </div>
+        <div style="flex:1; text-align:center;">
+          <span>Average Sensitivity of Algorithms</span>
+          <hr style="width: 60%">
+          <span class="data"><strong>Inventory:</strong> [[ invSensitivity ]]</span>
+          <span style$="display: [[_signedVolumeDisplay()]];" class="data"><strong>Signed Volume:</strong> [[ signedVolume ]]</span>
+          <span class="data"><strong>External Feed:</strong> [[ externalFeed ]]</span>
+        </div>
       </div>
     </div>
     `;
@@ -234,6 +241,10 @@ export class ResultsCell extends PolymerElement {
 
   _signedVolumeDisplay() {
     return OTREE_CONSTANTS.svSliderDisplayed ? 'default' : 'none';
+  }
+
+  toFixed(num) {
+    return num.toFixed(2);
   }
 
 }
