@@ -71,6 +71,11 @@ class InitialDecisionSelection extends PolymerElement {
 
                 --global-font:monospace;
             }
+
+            elo-state-selection{
+                height:35vh;
+                width:50vw;
+            }
         </style>
         <elo-state-selection
           manual-button-displayed="[[manualButtonDisplayed]]"
