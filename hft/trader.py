@@ -69,6 +69,9 @@ class BaseTrader(object):
         self.message_arrival_estimate = None 
         self.peg_price = None
         self.peg_state = None
+
+        # eli
+        self.orders_executed = 0
     
     @classmethod
     def from_otree_player(cls, otree_player):
@@ -246,6 +249,7 @@ w: %s, speed unit cost: %s' % (
             model=self)
 
     def order_executed(self, event):
+        self.orders_executed += 1
         def adjust_inventory(buy_sell_indicator):
             if buy_sell_indicator == 'B':
                 self.inventory.add()
