@@ -37,6 +37,15 @@ class OUCH(Protocol):
         except KeyError:
             log.exception('unknown header %s, ignoring..' % header)
             return
+        if len(data) < bytes_needed:
+            self.buffer.extend(data[:])
+            data = []
+            try:
+                self.handle_incoming_data(header)
+            except Exception as e:
+                log.exception(e)
+            finally:
+                self.buffer.clear()
         if len(data) >= bytes_needed:
             remainder = bytes_needed
             self.buffer.extend(data[:remainder])
@@ -47,7 +56,6 @@ class OUCH(Protocol):
                 log.exception(e)
             finally:
                 self.buffer.clear()
-
         if len(data):
             self.dataReceived(data)
 
