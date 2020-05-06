@@ -9,7 +9,7 @@ from exchange_server.OuchServer import ouch_messages
 log = logging.getLogger(__name__)
 
 class OUCH(Protocol):
-    bytes_needed = {
+    message_sizes = {
         'S': 10,
         'E': 41,
         'C': 29,
@@ -26,30 +26,23 @@ class OUCH(Protocol):
     def __init__(self):
         super()
         self.buffer = deque()
+        self.byes_needed = None
 
     def connectionMade(self):
         log.debug('connection made.')
 
     def dataReceived(self, data):
-        header = chr(data[0])
-        try:
-            bytes_needed = self.bytes_needed[header]
-        except KeyError:
-            log.exception('unknown header %s, ignoring..' % header)
-            return
-        if len(data) < bytes_needed:
-            self.buffer.extend(data[:])
-            data = []
+        if len(self.buffer) == 0:
+            header = chr(data[0])
             try:
-                self.handle_incoming_data(header)
-            except Exception as e:
-                log.exception(e)
-            finally:
-                self.buffer.clear()
-        if len(data) >= bytes_needed:
-            remainder = bytes_needed
-            self.buffer.extend(data[:remainder])
-            data = data[remainder:]
+                self.bytes_needed = self.message_sizes[header]
+            except KeyError:
+                log.exception('unknown header %s, ignoring..' % header)
+                return
+        remainder = self.bytes_needed - len(self.buffer)
+        self.buffer.extend(data[:remainder])
+        data = data[remainder:]
+        if len(self.buffer) == self.bytes_needed:
             try:
                 self.handle_incoming_data(header)
             except Exception as e:
