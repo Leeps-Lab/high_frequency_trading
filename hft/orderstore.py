@@ -50,6 +50,9 @@ class OrderStore:
     
     def tokengen(self, **kwargs):
         count = next(self.order_counter)
+        if count >= 99999:
+            self.order_counter = itertools.count(1,1)
+            count = next(self.order_counter)
         return self.token_format.format(self=self, count=count, **kwargs)
 
     def __getitem__(self, token):
@@ -191,4 +194,5 @@ Spread: {self.bid} - {self.offer}
             if clear is True and price == self.offer:
                 self.offer = None
             elif price is not None and (self.offer is None or price < self.offer):
-                self.offer = price   
+                self.offer = price
+
