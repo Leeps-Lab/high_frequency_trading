@@ -39,6 +39,9 @@ class Event:
 
     def __init__(self, event_source, message, **kwargs):
         self.reference_no = next(self.event_id)
+        if self.reference_no >= 99999:
+            self.event_id = count(1,1)
+            self.reference_no = next(self.event_id)
         self.subsession_id = message.subsession_id
         self.market_id = message.market_id
         self.player_id = message.player_id
