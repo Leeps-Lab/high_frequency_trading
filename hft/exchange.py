@@ -9,7 +9,7 @@ from exchange_server.OuchServer import ouch_messages
 log = logging.getLogger(__name__)
 
 class OUCH(Protocol):
-    message_sizes = {
+    bytes_needed = {
         'S': 10,
         'E': 41,
         'C': 29,
@@ -19,6 +19,7 @@ class OUCH(Protocol):
         'O': 49,
         'Z': 49,
         'L': 17,
+        'X': 20
     }
 
     message_cls = ouch_messages.OuchServerMessages
@@ -32,7 +33,6 @@ class OUCH(Protocol):
         log.debug('connection made.')
 
     def dataReceived(self, data):
-<<<<<<< HEAD
         header = chr(data[0])
         try:
             bytes_needed = self.bytes_needed[header]

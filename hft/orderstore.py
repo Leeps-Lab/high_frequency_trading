@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 class OrderStore:
     # single stock orderstore
     # expects keys as in OUCH
-    token_format = '{self.firm}{buy_sell_indicator}{self.player_id:04d}{count:05d}'
+    token_format = '{self.firm}{buy_sell_indicator}{self.player_id:01d}{count:08d}'
     confirm_message_dispatch ={
         'enter': '_confirm_enter',
         'replaced': '_confirm_replace',
@@ -50,9 +50,6 @@ class OrderStore:
     
     def tokengen(self, **kwargs):
         count = next(self.order_counter)
-        if count >= 99999:
-            self.order_counter = itertools.count(1,1)
-            count = next(self.order_counter)
         return self.token_format.format(self=self, count=count, **kwargs)
 
     def __getitem__(self, token):
