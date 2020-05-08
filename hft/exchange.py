@@ -27,7 +27,6 @@ class OUCH(Protocol):
     def __init__(self):
         super()
         self.buffer = deque()
-        self.byes_needed = None
 
     def connectionMade(self):
         log.debug('connection made.')
