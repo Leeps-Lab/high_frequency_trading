@@ -19,7 +19,8 @@ class OUCH(Protocol):
         'O': 49,
         'Z': 49,
         'L': 17,
-        'X': 20
+        'X': 20, # eli; dynamic agents cancel their orders
+        'H': 10, # eli; pacemaker agents reset the exchange every tick
     }
 
     message_cls = ouch_messages.OuchServerMessages
