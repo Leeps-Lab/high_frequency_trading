@@ -73,6 +73,12 @@ class BaseTrader(object):
         # eli
         self.orders_executed = 0
     
+    def reset_orderstore(self):
+        self.orderstore = self.orderstore_cls(self.player_id,
+            firm=self.account_id)
+        self.staged_bid = None
+        self.staged_offer = None
+    
     @classmethod
     def from_otree_player(cls, otree_player):
         args, kwargs = cls.otree_player_converter(otree_player)
@@ -183,7 +189,6 @@ w: %s, speed unit cost: %s' % (
 
     def close_session(self, event):
         self.inventory.liquidify(
-            self.market_facts['reference_price'], 
             discount_rate=self.market_facts['tax_rate'])
         self.cash += self.inventory.cash
         tax_paid = self.inventory.cost
