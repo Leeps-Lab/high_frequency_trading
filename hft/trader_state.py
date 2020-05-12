@@ -335,6 +335,8 @@ class ELOAutomatedTraderState(ELOTraderState):
                 event.exchange_msgs('replace', model=trader, **order)
 
     def order_executed(self, trader, event):
+        if int(event.message.order_token[-8:]) >= next(trader.orderstore.order_counter) - 1:
+            return
         order_info = event.attachments['order_info']
         price = order_info['price']          
         buy_sell_indicator = order_info['buy_sell_indicator']

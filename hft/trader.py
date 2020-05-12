@@ -229,13 +229,24 @@ w: %s, speed unit cost: %s' % (
         else:
             return self.market_facts['best_offer']
 
+    # when we reset the exchange every tick, you can end up with a message
+    # sent before the exchange resets, that arrives after the agent
+    # has reset its orderstore. This order gets ignored (since the trader
+    # no longer has any info about it). We check this by checking
+    # if the order token of the executed order is higher than the current
+    # order token counter.
+
     def order_accepted(self, event):
+        if int(event.message.order_token[-8:]) >= next(self.orderstore.order_counter):
+            return
         if not event.message.midpoint_peg:
             event_as_kws = event.to_kwargs()
             self.orderstore.confirm('enter', **event_as_kws)
             event.broadcast_msgs('confirmed', model=self, **event_as_kws)
     
     def order_replaced(self, event):
+        if int(event.message.replacement_order_token[-8:]) >= next(self.orderstore.order_counter):
+            return
         event_as_kws = event.to_kwargs()
         order_info = self.orderstore.confirm('replaced', **event_as_kws)  
         order_token = event.message.replacement_order_token
@@ -245,6 +256,8 @@ w: %s, speed unit cost: %s' % (
             old_token=old_token, old_price=old_price, model=self, **event_as_kws)       
 
     def order_canceled(self, event):
+        if int(event.message.order_token[-8:]) >= next(self.orderstore.order_counter):
+            return
         event_as_kws = event.to_kwargs()
         order_info = self.orderstore.confirm('canceled', **event_as_kws)
         order_token = event.message.order_token
@@ -255,6 +268,8 @@ w: %s, speed unit cost: %s' % (
             model=self)
 
     def order_executed(self, event):
+        if int(event.message.order_token[-8:]) >= next(self.orderstore.order_counter):
+            return
         self.orders_executed += 1
         def adjust_inventory(buy_sell_indicator):
             if buy_sell_indicator == 'B':
