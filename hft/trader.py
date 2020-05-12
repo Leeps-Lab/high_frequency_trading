@@ -189,6 +189,7 @@ w: %s, speed unit cost: %s' % (
 
     def close_session(self, event):
         self.inventory.liquidify(
+            self.market_facts['reference_price'],
             discount_rate=self.market_facts['tax_rate'])
         self.cash += self.inventory.cash
         tax_paid = self.inventory.cost
