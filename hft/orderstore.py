@@ -121,6 +121,8 @@ Spread: {self.bid} - {self.offer}
 
     def _confirm_enter(self, **kwargs):
         token = kwargs['order_token']
+        if int(token[-8:]) >= next(self.order_counter) - 1:
+            return
         order_info = self._orders[token]
         time_in_force = kwargs['time_in_force']
         if time_in_force != 0:
@@ -142,6 +144,8 @@ Spread: {self.bid} - {self.offer}
 
     def _confirm_replace(self, **kwargs):
         existing_token = kwargs['previous_order_token']
+        if int(existing_token[-8:]) >= next(self.order_counter) - 1:
+            return
         replacement_token = kwargs['replacement_order_token']
         order_info = self._orders.pop(existing_token)
         order_info['order_token'] = replacement_token
@@ -163,6 +167,8 @@ Spread: {self.bid} - {self.offer}
 
     def _confirm_cancel(self, **kwargs):
         token = kwargs['order_token']
+        if int(token[-8:]) >= next(self.order_counter) - 1:
+            return
         order_info = self._orders.pop(token)
         direction = order_info['buy_sell_indicator']
         price = order_info['price']
@@ -172,6 +178,8 @@ Spread: {self.bid} - {self.offer}
     
     def _confirm_execution(self, **kwargs):
         token = kwargs['order_token']
+        if int(token[-8:]) >= next(self.order_counter) - 1:
+            return
         order_info = self._orders.pop(token)
         direction = order_info['buy_sell_indicator']
         shares = kwargs['executed_shares']
