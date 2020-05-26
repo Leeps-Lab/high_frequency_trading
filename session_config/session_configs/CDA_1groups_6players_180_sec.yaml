@@ -25,7 +25,7 @@ parameters:
   include-signed-volume-widgets: false
   initial-endowment: 100
   session-duration: 180
-  technology-unit-cost: 0.025  # $/s
+  technology-unit-cost: 0.01  # $/s
   k-reference-price: 0.2
   k-signed-volume: 0.5
   tax-rate: 0.1
