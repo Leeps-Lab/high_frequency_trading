@@ -1,0 +1,41 @@
+demo:
+  number-of-participants: 6
+
+group:
+  number-of-groups: 1
+  players-per-group: 6
+
+exogenous-events:
+  investor-arrivals:
+    - investor_arrivals_focal.csv
+    - investor_arrivals_focal.csv
+    - investor_arrivals_focal.csv
+  external-feed:
+    - external_feed_changes.csv
+    - external_feed_changes.csv
+    - external_feed_changes.csv
+        
+market:
+  auction-format: 'FBA'
+  matching-engine-host: '127.0.0.1'
+
+parameters:
+  default-role: 'out'
+  include-manual-role: true
+  include-signed-volume-widgets: false
+  initial-endowment: 100
+  session-duration: 180
+  technology-unit-cost: 0.01  # $/s
+  k-reference-price: 0.2
+  k-signed-volume: 0.5
+  tax-rate: 0.1
+  batch-length: 0.5  
+
+session:
+  session-name: FBA_ELO_Session_3_rounds_1_180_sec
+  display-name: HFT - ELO - FBA - 3 Trade Sessions of 180 seconds - 6 traders - Frequent Order Flow
+  environment: elo
+  num-rounds: 3
+  currency: EUR
+  exchange-rate: 1.5
+  participation-fee: 5
