@@ -107,6 +107,8 @@ config_maps = {
         'test_input_file': ('tests', 'test_input_file'),
         'peg_proportion': ('parameters', 'peg-proportion'),
         'post_session_delay': ('session', 'post-session-delay'),
+        'short_delay': ('parameters', 'short-delay'),
+        'long_delay': ('parameters', 'long-delay')
     }
 }
 

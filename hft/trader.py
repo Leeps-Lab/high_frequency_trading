@@ -138,9 +138,6 @@ class BaseTrader(object):
 
 class ELOTrader(BaseTrader):
 
-    default_delay = 0.5
-    short_delay = 0.1
-    long_delay = 0.5
     tracked_market_facts = ('best_bid', 'volume_at_best_bid', 'next_bid', 'best_offer',
         'volume_at_best_offer', 'next_offer', 'signed_volume', 'e_best_bid',
         'e_best_offer', 'e_signed_volume', 'tax_rate', 'reference_price')
@@ -159,6 +156,8 @@ class ELOTrader(BaseTrader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.short_delay = kwargs.get('short_delay', self.default_delay)
+        self.long_delay = kwargs.get('long_delay', self.default_delay)
         self.technology_subscription = Subscription(
             'speed_tech', self.player_id, kwargs.get('speed_unit_cost', 0))
         self.sliders = {'slider_a_x': 0, 'slider_a_y': 0, 'slider_a_z': 0}
@@ -176,10 +175,10 @@ class ELOTrader(BaseTrader):
         self.trader_role = self.trader_state_factory.get_trader_state(role)
         self.delayed = speed_on
         if speed_on:
-            self.delay = self.trader_role.short_delay
+            self.delay = self.short_delay
             self.technology_subscription.activate()
         else:
-            self.delay = self.trader_role.long_delay
+            self.delay = self.long_delay
             self.technology_subscription.deactivate()
             speed_cost = self.technology_subscription.invoice()
             self.speed_cost += speed_cost

@@ -30,7 +30,8 @@ parameters:
   k-signed-volume: 0.5
   tax-rate: 0.1
   peg-proportion: 0.5
-
+  short-delay: 0.05
+  long-delay: 0.25
 
 session:
   session-name: IEX_ELO_Session_3_rounds_1_180_sec
