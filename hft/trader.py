@@ -10,6 +10,8 @@ from .orderstore import OrderStore
 from .trader_state import TraderStateFactory
 import time
 
+import logging
+
 log = logging.getLogger(__name__)
 
 import time

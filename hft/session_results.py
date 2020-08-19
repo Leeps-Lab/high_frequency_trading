@@ -25,6 +25,11 @@ class HFTPlayerSessionSummary(Model):
     tax_paid = models.IntegerField(initial=0)
     speed_cost = models.IntegerField(initial=0)
 
+    totalBids = models.IntegerField(initial=0)
+    totalAsks = models.IntegerField(initial=0)
+    avgBidPrice = models.IntegerField(initial=0)
+    avgAskPrice = models.IntegerField(initial=0)
+
 def state_for_results_template(player):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
         market_id=player.market_id)
@@ -39,8 +44,16 @@ def state_for_results_template(player):
     inv_sens = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
     signed_vol_sens = {str(o.player_id): o.signed_vol_sensitivity for o in summary_objects}
     ext_sensitivies = {str(o.player_id): o.external_feed_sensitivity for o in summary_objects}
+
+    mySummary = summary_objects.get(player_id=player.id)
+
+    totalBids = mySummary.totalBids
+    totalAsks = mySummary.totalAsks
+    avgBidPrice = mySummary.avgBidPrice
+    avgAskPrice = mySummary.avgAskPrice
+
     return {'nets': nets, 'taxes': taxes, 'speed_costs': speed_costs, 'names': names, 'strategies': strategies, 
-        'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies}
+        'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies, 'totalBids': totalBids, 'totalAsks': totalAsks, 'avgBidPrice': avgBidPrice, 'avgAskPrice':avgAskPrice}
 
 def elo_player_summary(player):
     market = cache.get(get_cache_key('from_kws', model_name='market',
@@ -56,6 +69,16 @@ def elo_player_summary(player):
     session_length_seconds = session_length.seconds
     percent_per_role = _calculate_role_time_percentage(market.role_group, player.id,
         session_length_seconds)
+
+    cache_key = get_cache_key('from_kws',
+                model_id=player.id,
+                model_name='trader',
+                subsession_id=player.subsession.id
+            )
+    trader = cache.get(cache_key)
+    avgBidPrice = trader.orderstore.sumBidPrice / trader.orderstore.totalBids
+    avgAskPrice = trader.orderstore.sumAskPrice / trader.orderstore.totalAsks
+    
     summary_object = HFTPlayerSessionSummary.objects.create(subsession_id=player.subsession.id, 
         market_id=player.market_id,
         player_id=player.id, 
@@ -67,7 +90,13 @@ def elo_player_summary(player):
         time_as_manual=percent_per_role['manual'], 
         net_worth=player.net_worth,
         tax_paid=player.tax_paid,
-        speed_cost=player.speed_cost)
+        speed_cost=player.speed_cost,
+        avgBidPrice=avgBidPrice,
+        avgAskPrice=avgAskPrice,
+        totalBids=trader.orderstore.totalBids,
+        totalAsks=trader.orderstore.totalAsks)
+
+
 
 def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
     session_end, initial_sliders):

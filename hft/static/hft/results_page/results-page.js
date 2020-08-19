@@ -1,4 +1,5 @@
 import {html,PolymerElement} from '../node_modules/@polymer/polymer/polymer-element.js';
+
 import "./results-cell.js";
 
 /*
@@ -25,6 +26,12 @@ class ResultsPage extends PolymerElement {
         height: 0px;
       }
 
+      .outer {
+        display: flex;
+        justify-content: space-around;
+        padding: 5px;
+      }
+
       .child {
         display: flex;
         flex: 1;
@@ -36,6 +43,9 @@ class ResultsPage extends PolymerElement {
       }
 
     </style> -->
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <style>
       .child {
@@ -46,6 +56,45 @@ class ResultsPage extends PolymerElement {
     </style>
 
     <div style="text-align:center"><h1>Trade Session Results</h1></div>
+
+    <div class="container-fluid" style="text-align:center; margin:20px; padding:10px; border:1px solid #000000;" class="wrapper" id="parent">     
+      <h2>Your Payoff Calculations</h2>
+      <div style="flex:1; text-align:center;">
+      <div class="row">
+        <div class="col">
+
+          <p>Final Cash = Initial Cash + [#unitsSold x avgSalesPrice] - [#unitsPurchased x avgPurchasePrice]</p>
+          <p>Final Cash = [[ initialEndowment ]] +  [[ totalAsks ]] x [[ avgAskPrice ]]  -  [[ totalBids ]] x [[ avgBidPrice ]] </p>
+          
+          <hr style="width: 60%">
+
+          <p>Inventory = Initial Units - #unitsSold + #unitsPurchased</p>
+          <p>Inventory = Initial Units - [[ totalAsks ]] + [[ totalBids ]]</p>
+          
+          <hr style="width: 60%">
+
+          <p>Inventory Value = Inventory x Reference Price</p>
+
+          <p>Inventory Value = [[ inventory ]] x [[ referencePrice ]]</p>
+        </div>
+      
+        <div class="col">
+            <p>Tax = | Inventory Value | x taxRate</p>
+            <p>Tax = | {{ _inventoryVal() }} | x [[ taxRate ]]</p>
+            
+            <hr style="width: 60%">
+
+            <p>Final Wealth = Final Cash + Inventory Value</p>
+            <p>Final Wealth = Final Cash + {{ _inventoryVal() }}</p>
+
+            <hr style="width: 60%">
+
+            <p>Payoff = Final Wealth - Tax</p>
+            <p>Payoff = Final Wealth - Tax</p> 
+        </div>
+      </div>
+    </div>
+  </div>
     <div id="outer" class="parent" style="text-align:center;">
     </div>
     `;
@@ -57,14 +106,14 @@ class ResultsPage extends PolymerElement {
 
     // initialize arrays for Polymer arguments
     let payoffs = this.nets;
-    this.numPlayers = Object.keys(payoffs).length
+    this.numPlayers = Object.keys(payoffs).length;
     const strategies = this.strategies;
     const invs = this.invSensitivities;
     const sigs = this.signedVolumes;
     const feeds = this.externalFeeds;
     const names = this.names;
     const taxes = this.taxes;
-    const speedCosts = this.speedCosts
+    const speedCosts = this.speedCosts;
 
     // set number of rows equal to the closest perfect square
     const numRows = Math.round(Math.sqrt(this.numPlayers));
@@ -196,8 +245,36 @@ class ResultsPage extends PolymerElement {
       externalFeeds: {
         type: Object,
         //value: {player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}
-      }
+      },
+      inventory: {
+        type: Number,
+      },
+      referencePrice: {
+        type: Number,
+      },
+      initialEndowment: {
+        type: Number,
+      },
+      totalBids: {
+        type: Number,
+      },
+      totalAsks: {
+        type: Number,
+      },
+      avgBidPrice: {
+        type: Number,
+      },
+      avgAskPrice: {
+        type: Number,
+      },
+      taxRate: {
+        type: Number,
+      },
     }
+  }
+
+  _inventoryVal() {
+    return this.inventory * this.referencePrice;
   }
 
 }

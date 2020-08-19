@@ -22,7 +22,22 @@
     inv-sensitivities="{{inv_sens}}"
     signed-volumes="{{sig_sens}}"
     external-feeds="{{ext_sens}}"
-    style = "width:100%; "> </results-page>
+    reference-price="{{player.reference_price}}"
+    inventory="{{player.inventory}}"
+    initial-endowment= "{{player.cash}}"
+    total-bids= "{{ totalBids }}"
+    total-asks= "{{ totalAsks }}"
+    avg-bid-price= "{{ avgBidPrice }}"
+    avg-ask-price= "{{ avgAskPrice }}"
+    style = "width:100%;"
+    tax-rate="{{ session.config.tax_rate }}"
+    > 
+    
+</results-page>
+
+
+{{orderstore}}
+
 {% endblock %}
 
 {% block scripts %}
@@ -31,7 +46,6 @@
                 playerId: "{{player.id}}",
                 subsessionId: "{{player.subsession.id}}",
                 marketId: "{{player.market_id}}",
-                initialEndowment: "{{player.cash}}",
                 speedCost: "{{player.speed_unit_cost}}",
                 idInGroup: "{{player.id_in_group}}",
                 manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno

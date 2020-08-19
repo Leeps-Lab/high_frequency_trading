@@ -23,6 +23,7 @@ from django.utils import timezone
 
 from .dispatcher import DispatcherFactory
 
+
 log = logging.getLogger(__name__)
 
 class Constants(BaseConstants):
@@ -178,3 +179,4 @@ class Player(BasePlayer):
                 if attr is None:
                     setattr(self, field.name, getattr(state_record, field.name))
         self.save()
+
