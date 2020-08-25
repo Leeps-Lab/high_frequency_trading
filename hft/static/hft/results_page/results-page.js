@@ -57,44 +57,41 @@ class ResultsPage extends PolymerElement {
 
     <div style="text-align:center"><h1>Trade Session Results</h1></div>
 
-    <div class="container-fluid" style="text-align:center; margin:20px; padding:10px; border:1px solid #000000;" class="wrapper" id="parent">     
+    <div style="width:100%; text-align:center; margin:20px; padding:10px; border:1px solid #000000;">     
       <h2>Your Payoff Calculations</h2>
-      <div style="flex:1; text-align:center;">
       <div class="row">
         <div class="col">
 
           <p>Final Cash = Initial Cash + [#unitsSold x avgSalesPrice] - [#unitsPurchased x avgPurchasePrice]</p>
-          <p>Final Cash = [[ initialEndowment ]] +  [[ totalAsks ]] x [[ avgAskPrice ]]  -  [[ totalBids ]] x [[ avgBidPrice ]] </p>
+          <p>Final Cash = [[ _digitCorrector(initialEndowment) ]] +  [[[ totalAsks ]] x [[ _digitCorrector(avgAskPrice) ]]]  -  [[[ totalBids ]] x [[ _digitCorrector(avgBidPrice) ]]] = {{ _finalCash() }}</p>
           
           <hr style="width: 60%">
 
-          <p>Inventory = Initial Units - #unitsSold + #unitsPurchased</p>
-          <p>Inventory = Initial Units - [[ totalAsks ]] + [[ totalBids ]]</p>
+          <p>Inventory Size = #unitsPurchased - #unitsSold</p>
+          <p>Inventory Size = [[ totalBids ]] - [[ totalAsks ]] = [[ inventory ]]</p>
           
           <hr style="width: 60%">
 
           <p>Inventory Value = Inventory x Reference Price</p>
-
-          <p>Inventory Value = [[ inventory ]] x [[ referencePrice ]]</p>
+          <p>Inventory Value = [[ inventory ]] x [[ _digitCorrector(referencePrice) ]] = {{ _inventoryVal() }}</p>
         </div>
       
         <div class="col">
-            <p>Tax = | Inventory Value | x taxRate</p>
-            <p>Tax = | {{ _inventoryVal() }} | x [[ taxRate ]]</p>
+            <p>Tax Payment = | Inventory Value | x taxRate</p>
+            <p>Tax Payment = | {{ _inventoryVal() }} | x [[ taxRate ]] = {{ _taxPayment() }}</p>
             
             <hr style="width: 60%">
 
             <p>Final Wealth = Final Cash + Inventory Value</p>
-            <p>Final Wealth = Final Cash + {{ _inventoryVal() }}</p>
+            <p>Final Wealth = {{ _finalCash() }} + {{ _inventoryVal() }} = {{ _finalWealth() }}</p>
 
             <hr style="width: 60%">
 
-            <p>Payoff = Final Wealth - Tax</p>
-            <p>Payoff = Final Wealth - Tax</p> 
+            <p>Payoff = Final Wealth - Tax Payment - Speed Cost</p>
+            <p>Payoff = {{ _finalWealth() }} - {{ _taxPayment() }} - {{ _speedCost() }} = {{ _payoff() }}</p> 
         </div>
       </div>
     </div>
-  </div>
     <div id="outer" class="parent" style="text-align:center;">
     </div>
     `;
@@ -132,7 +129,8 @@ class ResultsPage extends PolymerElement {
     const height = (window.innerHeight * 0.85)/numRows;
 
     let charts = document.createElement("table");
-    charts.setAttribute("style", "width:100%;");
+
+    charts.setAttribute("style", "width:100%; border-collapse:separate; border-spacing: 0 50px; ");
     let rows = []
     for(let i = 0; i < numRows; i++) {
       let row = document.createElement("div");
@@ -143,8 +141,11 @@ class ResultsPage extends PolymerElement {
     let currCell = 0;
     let cellCount = 0;
 
+    //Loops through each player's results and creates its own individual results-cell 
     for(let i = 0; i < this.numPlayers; i++) {
       let low = Object.keys(payoffs)[0];
+
+      //Find lowest payoff
       for(let key in payoffs) {
         if(payoffs[key] > payoffs[low]) {
           low = key;
@@ -273,10 +274,50 @@ class ResultsPage extends PolymerElement {
     }
   }
 
-  _inventoryVal() {
-    return this.inventory * this.referencePrice;
+
+  //Adjust number to the correct value by multiplying by .0001 and rounding
+  _digitCorrector(value) {
+    return value * .0001;
   }
 
+  _inventoryVal() {
+    return this.inventory * this.referencePrice * .0001;
+  }
+
+  _finalCash() {
+    return this._digitCorrector(this.initialEndowment) + (this.totalAsks * this._digitCorrector(this.avgAskPrice)) - (this.totalBids * this._digitCorrector(this.avgBidPrice));
+  }
+
+  _finalWealth() {
+    return this._finalCash() + this._inventoryVal();
+  }
+
+  _taxPayment() {
+    return Math.abs(this._inventoryVal()) * this.taxRate;
+  }
+
+  _payoff() {
+    return (this._finalWealth() - this._taxPayment() - this._speedCost()).toFixed(2); 
+  }
+
+  _speedCost() {
+    // initialize arrays for Polymer arguments
+    let payoffs = this.nets;
+    this.numPlayers = Object.keys(payoffs).length;
+    const speedCosts = this.speedCosts;
+
+    let low = 0;
+
+    for(let i = 0; i < this.numPlayers; i++) {
+      low = Object.keys(payoffs)[0];
+      for(let key in payoffs) {
+        if(payoffs[key] > payoffs[low]) {
+          low = key;
+        }
+      }
+    }
+    return speedCosts[low];
+  }
 }
 
 window.customElements.define('results-page', ResultsPage);

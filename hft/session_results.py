@@ -76,8 +76,16 @@ def elo_player_summary(player):
                 subsession_id=player.subsession.id
             )
     trader = cache.get(cache_key)
-    avgBidPrice = trader.orderstore.sumBidPrice / trader.orderstore.totalBids
-    avgAskPrice = trader.orderstore.sumAskPrice / trader.orderstore.totalAsks
+
+    if(trader.orderstore.totalBids != 0):
+        avgBidPrice = trader.orderstore.sumBidPrice / trader.orderstore.totalBids
+    else:
+        avgBidPrice = 0
+    
+    if(trader.orderstore.totalAsks != 0):
+        avgAskPrice = trader.orderstore.sumAskPrice / trader.orderstore.totalAsks
+    else:
+        avgAskPrice = 0
     
     summary_object = HFTPlayerSessionSummary.objects.create(subsession_id=player.subsession.id, 
         market_id=player.market_id,
