@@ -53,45 +53,101 @@ class ResultsPage extends PolymerElement {
         text-align: center;
       }
 
+      #myPayoffs, th, td {
+        border: 1px solid black;
+      }
+
     </style>
 
-    <div style="text-align:center"><h1>Trade Session Results</h1></div>
+    <h1 style="text-align:center; margin-bottom: 30px;">Trade Session Results</h1>
+    <hr style="width: 60%">
 
-    <div style="width:100%; text-align:center; margin:20px; padding:10px; border:1px solid #000000;">     
-      <h2>Your Payoff Calculations</h2>
-      <div class="row">
-        <div class="col">
+    <h3 style="text-align:center; margin-bottom: 20px;">Your Payoff Calculations</h3>
 
-          <p>Final Cash = Initial Cash + [#unitsSold x avgSalesPrice] - [#unitsPurchased x avgPurchasePrice]</p>
+    <table id="myPayoffs" style="width:55%; text-align: center; margin-left: auto; margin-right: auto;"> 
+      <tr>
+        <th> Variables </th>
+        <th> Equations </th>
+        <th> Results </th>
+      </tr>
+
+      <tr>
+        <td>Final Cash </td>
+        <td>Initial Cash + [#unitsSold x avgSalesPrice] - [#unitsPurchased x avgPurchasePrice]</td>
+        <td>[[ _digitCorrector(initialEndowment) ]] +  [[[ totalAsks ]] x [[ _digitCorrector(avgAskPrice) ]]]  -  [[[ totalBids ]] x [[ _digitCorrector(avgBidPrice) ]]] = {{ _finalCash() }}</td>
+      </tr>
+
+      <tr>
+        <td>Inventory Size</td>
+        <td>#unitsPurchased - #unitsSold</td>
+        <td>[[ totalBids ]] - [[ totalAsks ]] = [[ inventory ]]</td>
+      </tr>
+
+      <tr>
+        <td>Inventory Value</td>
+        <td>Inventory Size x Reference Price</td>
+        <td>[[ inventory ]] x [[ _digitCorrector(referencePrice) ]] = {{ _inventoryVal() }}</td>
+      </tr>
+
+      <tr>
+        <td>Tax Payment</td>
+        <td>| Inventory Value | x taxRate</td>
+        <td>| {{ _inventoryVal() }} | x [[ taxRate ]] = {{ _taxPayment() }}</td>
+      </tr>
+
+      <tr>
+        <td>Final Wealth</td>
+        <td>Final Cash + Inventory Value</td>
+        <td>{{ _finalCash() }} + {{ _inventoryVal() }} = {{ _finalWealth() }}</td>
+      </tr>
+
+      <tr>
+        <td>Payoff</td>
+        <td>Final Wealth - Tax Payment - Speed Cost</td>
+        <td>{{ _finalWealth() }} - {{ _taxPayment() }} - {{ _speedCost() }} = {{ _payoff() }}</td>
+      </tr>
+
+    
+    <!--
+      <tr style="border: 1px solid black;">
+        <td style="border: 1px solid black;">
+          <b>Final Cash = Initial Cash + [#unitsSold x avgSalesPrice] - [#unitsPurchased x avgPurchasePrice]</b>
           <p>Final Cash = [[ _digitCorrector(initialEndowment) ]] +  [[[ totalAsks ]] x [[ _digitCorrector(avgAskPrice) ]]]  -  [[[ totalBids ]] x [[ _digitCorrector(avgBidPrice) ]]] = {{ _finalCash() }}</p>
-          
-          <hr style="width: 60%">
+        </td>
 
-          <p>Inventory Size = #unitsPurchased - #unitsSold</p>
+        <td style="border: 1px solid black;">
+          <b>Tax Payment = | Inventory Value | x taxRate</b>
+          <p>Tax Payment = | {{ _inventoryVal() }} | x [[ taxRate ]] = {{ _taxPayment() }}</p>
+        </td>
+      </tr>
+
+      <tr style="border: 1px solid black;">
+        <td style="border: 1px solid black;">
+          <b>Inventory Size = #unitsPurchased - #unitsSold</b>
           <p>Inventory Size = [[ totalBids ]] - [[ totalAsks ]] = [[ inventory ]]</p>
-          
-          <hr style="width: 60%">
+        </td>
 
-          <p>Inventory Value = Inventory x Reference Price</p>
+        <td style="border: 1px solid black;">
+          <b>Final Wealth = Final Cash + Inventory Value</b>
+          <p>Final Wealth = {{ _finalCash() }} + {{ _inventoryVal() }} = {{ _finalWealth() }}</p>
+        </td>
+      </tr>
+
+      <tr style="border: 1px solid black;">
+        <td style="border: 1px solid black;">  
+          <b>Inventory Value = Inventory Size x Reference Price</b>
           <p>Inventory Value = [[ inventory ]] x [[ _digitCorrector(referencePrice) ]] = {{ _inventoryVal() }}</p>
-        </div>
-      
-        <div class="col">
-            <p>Tax Payment = | Inventory Value | x taxRate</p>
-            <p>Tax Payment = | {{ _inventoryVal() }} | x [[ taxRate ]] = {{ _taxPayment() }}</p>
-            
-            <hr style="width: 60%">
+        </td>
 
-            <p>Final Wealth = Final Cash + Inventory Value</p>
-            <p>Final Wealth = {{ _finalCash() }} + {{ _inventoryVal() }} = {{ _finalWealth() }}</p>
-
-            <hr style="width: 60%">
-
-            <p>Payoff = Final Wealth - Tax Payment - Speed Cost</p>
+        <td style="border: 1px solid black;">
+            <b>Payoff = Final Wealth - Tax Payment - Speed Cost</b>
             <p>Payoff = {{ _finalWealth() }} - {{ _taxPayment() }} - {{ _speedCost() }} = {{ _payoff() }}</p> 
-        </div>
-      </div>
-    </div>
+        </td>
+      </tr>
+    -->
+
+    </table>
+
     <div id="outer" class="parent" style="text-align:center;">
     </div>
     `;
