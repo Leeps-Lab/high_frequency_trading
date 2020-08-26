@@ -2,6 +2,7 @@ import {html,PolymerElement} from '../node_modules/@polymer/polymer/polymer-elem
 
 import "./results-cell.js";
 
+
 /*
  * This will hopefully be the component used for the results page at some point.
  *
@@ -36,7 +37,7 @@ class ResultsPage extends PolymerElement {
         display: flex;
         flex: 1;
         flex-basis: 50%;
-        overflow: hidden;
+        overfhigh: hidden;
         border: 1px solid black;
         width: 100px;
         height: 500px;
@@ -53,9 +54,12 @@ class ResultsPage extends PolymerElement {
         text-align: center;
       }
 
+
       #myPayoffs, th, td {
         border: 1px solid black;
+        
       }
+
 
     </style>
 
@@ -90,15 +94,15 @@ class ResultsPage extends PolymerElement {
       </tr>
 
       <tr>
-        <td>Tax Payment</td>
-        <td>| Inventory Value | x taxRate</td>
-        <td>| {{ _inventoryVal() }} | x [[ taxRate ]] = {{ _taxPayment() }}</td>
-      </tr>
-
-      <tr>
         <td>Final Wealth</td>
         <td>Final Cash + Inventory Value</td>
         <td>{{ _finalCash() }} + {{ _inventoryVal() }} = {{ _finalWealth() }}</td>
+      </tr>
+
+      <tr>
+        <td>Tax Payment</td>
+        <td>| Inventory Value | x taxRate</td>
+        <td>| {{ _inventoryVal() }} | x [[ taxRate ]] = {{ _taxPayment() }}</td>
       </tr>
 
       <tr>
@@ -170,7 +174,7 @@ class ResultsPage extends PolymerElement {
 
     // set number of rows equal to the closest perfect square
     const numRows = Math.round(Math.sqrt(this.numPlayers));
-    const cellsPerRow = Math.round(this.numPlayers/numRows);
+    const cellsPerRow = Math.round((this.numPlayers)/numRows);
 
     // set dimensions for cells
     let widthScale = cellsPerRow;
@@ -194,28 +198,43 @@ class ResultsPage extends PolymerElement {
       rows.push(row);
     }
 
+    //Find my player ID
+    let player = 0;
+    for(let i = 0; i < this.numPlayers; i++) {
+      player = Object.keys(payoffs)[i];
+      if(names[player] == 'You') {
+        break;
+      }
+    }
+
     let currCell = 0;
     let cellCount = 0;
 
     //Loops through each player's results and creates its own individual results-cell 
     for(let i = 0; i < this.numPlayers; i++) {
-      let low = Object.keys(payoffs)[0];
+      let high = Object.keys(payoffs)[0];
 
-      //Find lowest payoff
-      for(let key in payoffs) {
-        if(payoffs[key] > payoffs[low]) {
-          low = key;
+      //Put your payoff cell at the front
+      if(i == 0) {
+        high = player;
+      }
+      else {
+        //Find player with highest payoff that's left in the payoffs list
+        for(let key in payoffs) {
+          if(payoffs[key] > payoffs[high]) {
+            high = key;
+          }
         }
       }
 
-      let myNet = payoffs[low];
-      let myTax = taxes[low];
-      let mySpeedCost = speedCosts[low];
-      let myName = names[low];
-      let myStrategies = strategies[low];
-      let myInv = invs[low];
-      let mySig = sigs[low];
-      let myFeed = feeds[low];
+      let myNet = payoffs[high];
+      let myTax = taxes[high];
+      let mySpeedCost = speedCosts[high];
+      let myName = names[high];
+      let myStrategies = strategies[high];
+      let myInv = invs[high];
+      let mySig = sigs[high];
+      let myFeed = feeds[high];
 
       //let cell = document.createElement("td");
       //cell.setAttribute("style", "display:inline-block");
@@ -249,7 +268,7 @@ class ResultsPage extends PolymerElement {
       }
       //this.$.outer.appendChild(node);
 
-      delete payoffs[low];
+      delete payoffs[high];
     }
 
     for(let i = 0; i < rows.length; i++) {
@@ -330,10 +349,13 @@ class ResultsPage extends PolymerElement {
     }
   }
 
+  _round2Decimal(value) {
+    return parseFloat((value).toFixed(2));
+  }
 
-  //Adjust number to the correct value by multiplying by .0001 and rounding
+  //Adjust number to the correct value by multiplying by .0001 
   _digitCorrector(value) {
-    return value * .0001;
+    return this._round2Decimal(value * .0001);
   }
 
   _inventoryVal() {
@@ -341,38 +363,37 @@ class ResultsPage extends PolymerElement {
   }
 
   _finalCash() {
-    return this._digitCorrector(this.initialEndowment) + (this.totalAsks * this._digitCorrector(this.avgAskPrice)) - (this.totalBids * this._digitCorrector(this.avgBidPrice));
+    return this._round2Decimal(this._digitCorrector(this.initialEndowment) + (this.totalAsks * this._digitCorrector(this.avgAskPrice)) - (this.totalBids * this._digitCorrector(this.avgBidPrice)));
   }
 
   _finalWealth() {
-    return this._finalCash() + this._inventoryVal();
+    return this._round2Decimal(this._finalCash() + this._inventoryVal());
   }
 
   _taxPayment() {
-    return Math.abs(this._inventoryVal()) * this.taxRate;
+    return this._round2Decimal(Math.abs(this._inventoryVal()) * this.taxRate);
   }
 
   _payoff() {
-    return (this._finalWealth() - this._taxPayment() - this._speedCost()).toFixed(2); 
+    return this._round2Decimal(this._finalWealth() - this._taxPayment() - this._speedCost()); 
   }
 
   _speedCost() {
+    
     // initialize arrays for Polymer arguments
     let payoffs = this.nets;
     this.numPlayers = Object.keys(payoffs).length;
     const speedCosts = this.speedCosts;
-
-    let low = 0;
+    const names = this.names;
+    let player = 0;
 
     for(let i = 0; i < this.numPlayers; i++) {
-      low = Object.keys(payoffs)[0];
-      for(let key in payoffs) {
-        if(payoffs[key] > payoffs[low]) {
-          low = key;
-        }
+      player = Object.keys(payoffs)[i];
+      
+      if(names[player] == 'You') {
+        return this._round2Decimal(speedCosts[player]);
       }
-    }
-    return speedCosts[low];
+    } 
   }
 }
 
