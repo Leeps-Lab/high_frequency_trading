@@ -110,13 +110,13 @@ def elo_player_summary(player):
         avgBidPrice=avgBidPrice,
         avgAskPrice=avgAskPrice,
         totalBids=trader.orderstore.totalBids,
-        totalAsks=trader.orderstore.totalAsks,
-        #subscriptionTime=technology_subscription.subscriptionTimeTotal())
+        totalAsks=trader.orderstore.totalAsks
+        #subscriptionTime=technology_subscription.subscriptionTimeTotal()
+        )
 
 
 
-def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
-    session_end, initial_sliders):
+def _get_average_sensitivies(subsession_id, market_id, player_id, session_start, session_end, initial_sliders):
     session_duration = (session_end - session_start).total_seconds()
     player_state_records = TraderRecord.objects.filter(subsession_id=subsession_id,
         market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('timestamp')
