@@ -1,6 +1,7 @@
 import {html,PolymerElement} from '../node_modules/@polymer/polymer/polymer-element.js';
 
 import "./results-cell.js";
+import "./equations-table.js";
 
 
 /*
@@ -15,38 +16,6 @@ class ResultsPage extends PolymerElement {
 
   static get template() {
     return html `
-    <!--
-    <style>
-
-      .parent {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: flex-start;
-        align-content: space-around;
-        height: 0px;
-      }
-
-      .outer {
-        display: flex;
-        justify-content: space-around;
-        padding: 5px;
-      }
-
-      .child {
-        display: flex;
-        flex: 1;
-        flex-basis: 50%;
-        overfhigh: hidden;
-        border: 1px solid black;
-        width: 100px;
-        height: 500px;
-      }
-
-    </style> -->
-    
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <style>
       .child {
@@ -60,7 +29,6 @@ class ResultsPage extends PolymerElement {
         
       }
 
-
     </style>
 
     <h1 style="text-align:center; margin-bottom: 30px;">Trade Session Results</h1>
@@ -68,7 +36,20 @@ class ResultsPage extends PolymerElement {
 
     <h3 style="text-align:center; margin-bottom: 20px;">Your Payoff Calculations</h3>
 
-    <table id="myPayoffs" style="width:55%; text-align: center; margin-left: auto; margin-right: auto;"> 
+    <equations-table
+      inventory="[[inventory]]"
+      reference-price="[[referencePrice]]"
+      initial-endowment="[[initialEndowment]]"
+      total-bids="[[totalBids]]"
+      total-asks="[[totalAsks]]"
+      avg-bid-price="[[avgBidPrice]]"
+      avg-ask-price="[[avgAskPrice]]"
+      tax-rate="[[taxRate]]"
+      subscription-time="[[subscriptionTime]]"
+      speed-price="[[speedPrice]]"
+    ></equations-table>
+
+    <!-- <table id="myPayoffs" style="width:55%; text-align: center; margin-left: auto; margin-right: auto;"> 
       <tr>
         <th> Variables </th>
         <th> Equations </th>
@@ -120,7 +101,7 @@ class ResultsPage extends PolymerElement {
     
     
 
-    </table>
+    </table> -->
 
     <div id="outer" class="parent" style="text-align:center;">
     </div>
@@ -328,61 +309,6 @@ class ResultsPage extends PolymerElement {
     }
   }
 
-  _round2Decimal(value) {
-    return parseFloat((value).toFixed(2));
-  }
-
-  //Adjust number to the correct value by multiplying by .0001 
-  _digitCorrector(value) {
-    return this._round2Decimal(value * .0001);
-  }
-
-  _inventoryVal() {
-    return this.inventory * this.referencePrice * .0001;
-  }
-
-  _finalCash() {
-    return this._round2Decimal(this._digitCorrector(this.initialEndowment) + (this.totalAsks * this._digitCorrector(this.avgAskPrice)) - (this.totalBids * this._digitCorrector(this.avgBidPrice)));
-  }
-
-  _finalWealth() {
-    return this._round2Decimal(this._finalCash() + this._inventoryVal());
-  }
-
-  _taxPayment() {
-    return this._round2Decimal(Math.abs(this._inventoryVal()) * this.taxRate);
-  }
-
-  _payoff() {
-    return this._round2Decimal(this._finalWealth() - this._taxPayment() - this._speedCost()); 
-  }
-
-  _speedCost() {
-    
-    // initialize arrays for Polymer arguments
-    let payoffs = this.nets;
-    this.numPlayers = Object.keys(payoffs).length;
-    const speedCosts = this.speedCosts;
-    const names = this.names;
-    let player = 0;
-
-    for(let i = 0; i < this.numPlayers; i++) {
-      player = Object.keys(payoffs)[i];
-      
-      if(names[player] == 'You') {
-        return this._round2Decimal(speedCosts[player]);
-      }
-    } 
-  }
-
-  _secondsSpeedUsed() {
-    return Math.round(this._speedCost() / this.speedPrice);
-  }
-
-  _speedCostCalculation() {
-    //return this.speedPrice * this.subscriptionTime;
-    return this._round2Decimal(this.speedPrice * this._secondsSpeedUsed());
-  }
 }
 
 window.customElements.define('results-page', ResultsPage);
