@@ -6,6 +6,7 @@ from otree.db.models import Model, ForeignKey
 from .cache import get_cache_key
 from django.core.cache import cache
 from .output import TraderRecord
+from .market_elements.subscription import Subscription
 import logging
 
 log = logging.getLogger(__name__)
@@ -30,6 +31,8 @@ class HFTPlayerSessionSummary(Model):
     avgBidPrice = models.IntegerField(initial=0)
     avgAskPrice = models.IntegerField(initial=0)
 
+    #subscriptionTime = models.IntegerField(initial=0)
+
 def state_for_results_template(player):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
         market_id=player.market_id)
@@ -51,9 +54,11 @@ def state_for_results_template(player):
     totalAsks = mySummary.totalAsks
     avgBidPrice = mySummary.avgBidPrice
     avgAskPrice = mySummary.avgAskPrice
+    #subscriptionTime = mySummary.subscriptionTime
 
     return {'nets': nets, 'taxes': taxes, 'speed_costs': speed_costs, 'names': names, 'strategies': strategies, 
-        'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies, 'totalBids': totalBids, 'totalAsks': totalAsks, 'avgBidPrice': avgBidPrice, 'avgAskPrice':avgAskPrice}
+        'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies, 'totalBids': totalBids, 
+        'totalAsks': totalAsks, 'avgBidPrice': avgBidPrice, 'avgAskPrice':avgAskPrice}
 
 def elo_player_summary(player):
     market = cache.get(get_cache_key('from_kws', model_name='market',
@@ -76,6 +81,9 @@ def elo_player_summary(player):
                 subsession_id=player.subsession.id
             )
     trader = cache.get(cache_key)
+
+    technology_subscription = Subscription(
+            'speed_tech', player.id, .022)
 
     if(trader.orderstore.totalBids != 0):
         avgBidPrice = trader.orderstore.sumBidPrice / trader.orderstore.totalBids
@@ -102,7 +110,8 @@ def elo_player_summary(player):
         avgBidPrice=avgBidPrice,
         avgAskPrice=avgAskPrice,
         totalBids=trader.orderstore.totalBids,
-        totalAsks=trader.orderstore.totalAsks)
+        totalAsks=trader.orderstore.totalAsks,
+        #subscriptionTime=technology_subscription.subscriptionTimeTotal())
 
 
 

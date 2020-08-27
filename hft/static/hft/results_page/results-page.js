@@ -106,49 +106,19 @@ class ResultsPage extends PolymerElement {
       </tr>
 
       <tr>
-        <td>Payoff</td>
+        <td>Speed Cost</td>
+        <td>Speed Price x Seconds Used</td>
+        <td>{{ speedPrice }} x {{ _secondsSpeedUsed() }} = {{ _speedCostCalculation() }}</td>
+      </tr>
+
+      <tr>
+        <td>Net Payoff</td>
         <td>Final Wealth - Tax Payment - Speed Cost</td>
         <td>{{ _finalWealth() }} - {{ _taxPayment() }} - {{ _speedCost() }} = {{ _payoff() }}</td>
       </tr>
 
     
-    <!--
-      <tr style="border: 1px solid black;">
-        <td style="border: 1px solid black;">
-          <b>Final Cash = Initial Cash + [#unitsSold x avgSalesPrice] - [#unitsPurchased x avgPurchasePrice]</b>
-          <p>Final Cash = [[ _digitCorrector(initialEndowment) ]] +  [[[ totalAsks ]] x [[ _digitCorrector(avgAskPrice) ]]]  -  [[[ totalBids ]] x [[ _digitCorrector(avgBidPrice) ]]] = {{ _finalCash() }}</p>
-        </td>
-
-        <td style="border: 1px solid black;">
-          <b>Tax Payment = | Inventory Value | x taxRate</b>
-          <p>Tax Payment = | {{ _inventoryVal() }} | x [[ taxRate ]] = {{ _taxPayment() }}</p>
-        </td>
-      </tr>
-
-      <tr style="border: 1px solid black;">
-        <td style="border: 1px solid black;">
-          <b>Inventory Size = #unitsPurchased - #unitsSold</b>
-          <p>Inventory Size = [[ totalBids ]] - [[ totalAsks ]] = [[ inventory ]]</p>
-        </td>
-
-        <td style="border: 1px solid black;">
-          <b>Final Wealth = Final Cash + Inventory Value</b>
-          <p>Final Wealth = {{ _finalCash() }} + {{ _inventoryVal() }} = {{ _finalWealth() }}</p>
-        </td>
-      </tr>
-
-      <tr style="border: 1px solid black;">
-        <td style="border: 1px solid black;">  
-          <b>Inventory Value = Inventory Size x Reference Price</b>
-          <p>Inventory Value = [[ inventory ]] x [[ _digitCorrector(referencePrice) ]] = {{ _inventoryVal() }}</p>
-        </td>
-
-        <td style="border: 1px solid black;">
-            <b>Payoff = Final Wealth - Tax Payment - Speed Cost</b>
-            <p>Payoff = {{ _finalWealth() }} - {{ _taxPayment() }} - {{ _speedCost() }} = {{ _payoff() }}</p> 
-        </td>
-      </tr>
-    -->
+    
 
     </table>
 
@@ -346,6 +316,15 @@ class ResultsPage extends PolymerElement {
       taxRate: {
         type: Number,
       },
+      subscriptionTime: {
+        type: Number,
+      },
+      speedPrice: {
+        type: Number,
+        value: () => {
+          return parseFloat((OTREE_CONSTANTS.speedCost * .0001).toFixed(3));
+        }
+      }
     }
   }
 
@@ -394,6 +373,15 @@ class ResultsPage extends PolymerElement {
         return this._round2Decimal(speedCosts[player]);
       }
     } 
+  }
+
+  _secondsSpeedUsed() {
+    return Math.round(this._speedCost() / this.speedPrice);
+  }
+
+  _speedCostCalculation() {
+    //return this.speedPrice * this.subscriptionTime;
+    return this._round2Decimal(this.speedPrice * this._secondsSpeedUsed());
   }
 }
 

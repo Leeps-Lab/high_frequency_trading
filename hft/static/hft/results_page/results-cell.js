@@ -160,7 +160,7 @@ export class ResultsCell extends PolymerElement {
       },
       series: [
       {
-        name: "Gross Payoff",
+        name: "Final Wealth",
         data: [
           [0, gross]
         ],
