@@ -47,6 +47,9 @@ class ResultsPage extends PolymerElement {
       tax-rate="[[taxRate]]"
       subscription-time="[[subscriptionTime]]"
       speed-price="[[speedPrice]]"
+      speed-costs="{{speedCosts}}"
+      names="{{names}}"
+      nets="{{nets}}"
     ></equations-table>
 
     <!-- <table id="myPayoffs" style="width:55%; text-align: center; margin-left: auto; margin-right: auto;"> 

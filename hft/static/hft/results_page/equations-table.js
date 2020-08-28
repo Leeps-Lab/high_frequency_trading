@@ -4,6 +4,7 @@ class EquationsTable extends PolymerElement {
 
     static get properties() {
         return {
+            numPlayers: Number,
             inventory: Number,
             referencePrice: Number,
             initialEndowment: Number,
@@ -14,6 +15,9 @@ class EquationsTable extends PolymerElement {
             taxRate: Number,
             subscriptionTime: Number,
             speedPrice: Number,
+            speedCosts: Object,
+            names: Object,
+            nets: Object,
         };
     }
 
@@ -100,6 +104,7 @@ class EquationsTable extends PolymerElement {
                     <div>]</div>
                 </div>
             </div>
+
             <div class="row">
                 <div class="col">
                     <div>Inventory Value</div>
@@ -128,6 +133,106 @@ class EquationsTable extends PolymerElement {
                 <div class="col">
                     <div>Reference Price</div>
                     <div>[[ _digitCorrector(referencePrice) ]]</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div>Final Wealth</div>
+                    <div>{{ _finalWealth() }}</div>
+                </div>
+                <div class="col operator">
+                    <div>= </div>
+                    <div>= </div>
+                </div>
+                <div class="col">
+                    <div>Final Cash</div>
+                    <div>{{ _finalCash() }}</div>
+                </div>
+                <div class="col operator">
+                    <div> + </div>
+                    <div> + </div>
+                </div>
+                <div class="col">
+                    <div>Inventory Value</div>
+                    <div>{{ _inventoryVal() }}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div>Tax Payment</div>
+                    <div>{{ _taxPayment() }}</div>
+                </div>
+                <div class="col operator">
+                    <div>= </div>
+                    <div>= </div>
+                </div>
+                <div class="col">
+                    <div>| Inventory Value |</div>
+                    <div>| {{ _inventoryVal() }} |</div>
+                </div>
+                <div class="col operator">
+                    <div> &times; </div>
+                    <div> &times; </div>
+                </div>
+                <div class="col">
+                    <div>taxRate</div>
+                    <div>[[ taxRate ]]</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div>Speed Cost</div>
+                    <div>{{ _speedCostCalculation() }}</div>
+                </div>
+                <div class="col operator">
+                    <div>= </div>
+                    <div>= </div>
+                </div>
+                <div class="col">
+                    <div>Speed Price</div>
+                    <div>{{ speedPrice }}</div>
+                </div>
+                <div class="col operator">
+                    <div> &times; </div>
+                    <div> &times; </div>
+                </div>
+                <div class="col">
+                    <div>Seconds Used</div>
+                    <div>{{ _secondsSpeedUsed() }}</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div>Net Payoff</div>
+                    <div>{{ _payoff() }}</div>
+                </div>
+                <div class="col operator">
+                    <div>= </div>
+                    <div>= </div>
+                </div>
+                <div class="col">
+                    <div>Final Wealth</div>
+                    <div>{{ _finalWealth() }}</div>
+                </div>
+                <div class="col operator">
+                    <div> - </div>
+                    <div> - </div>
+                </div>
+                <div class="col">
+                    <div>Tax Payment</div>
+                    <div>{{ _taxPayment() }}</div>
+                </div>
+                <div class="col operator">
+                    <div> - </div>
+                    <div> - </div>
+                </div>
+                <div class="col">
+                    <div>Speed Cost</div>
+                    <div>{{ _speedCost() }}</div>
                 </div>
             </div>
         </div>
@@ -173,11 +278,11 @@ class EquationsTable extends PolymerElement {
         let player = 0;
 
         for(let i = 0; i < this.numPlayers; i++) {
-        player = Object.keys(payoffs)[i];
-        
-        if(names[player] == 'You') {
-            return this._round2Decimal(speedCosts[player]);
-        }
+            player = Object.keys(payoffs)[i];
+            
+            if(names[player] == 'You') {
+                return this._round2Decimal(speedCosts[player]);
+            }
         } 
     }
 
