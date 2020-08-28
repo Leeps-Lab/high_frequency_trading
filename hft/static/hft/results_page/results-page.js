@@ -29,6 +29,11 @@ class ResultsPage extends PolymerElement {
         
       }
 
+      equations-table {
+        width: 50%;
+        margin: auto;
+      }
+
     </style>
 
     <h1 style="text-align:center; margin-bottom: 30px;">Trade Session Results</h1>

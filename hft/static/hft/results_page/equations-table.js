@@ -24,17 +24,20 @@ class EquationsTable extends PolymerElement {
     static get template() {
         return html`
         <style>
+            :host {
+                display: block;
+            }
             .table {
                 display: flex;
-                flex-direction: column;
-                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
             }
             .row {
                 display: flex;
                 min-width: 0;
                 padding: 3px;
                 border: 1px solid black;
-                margin-bottom: 3px;
+                margin: 3px;
             }
             .col {
                 display: flex;
