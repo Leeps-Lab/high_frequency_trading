@@ -283,6 +283,9 @@ class MarketSession extends PolymerElement {
         this.signedVolume = 0
         this.orderBook = new PlayersOrderBook(this.playerId);
         this.profitGraph = this.shadowRoot.querySelector('profit-graph')
+
+        this.potentiallyAggressiveOrders = new Set()
+
     }
 
     outboundMessage(event) {
@@ -320,7 +323,7 @@ class MarketSession extends PolymerElement {
     _handleBatchMessage(message) {
         let marketState = {}
         let myState = {'cash': this.cash}
-        let marketTransacted = {'bid': false, 'ask': false}
+        const transactions = []
         for (let msg of message.batch) {
             let cleanMsg = this._msgSanitize(msg, 'inbound')
             if (!cleanMsg) {
@@ -347,15 +350,32 @@ class MarketSession extends PolymerElement {
                     marketState.eBestOffer = cleanMsg.e_best_offer
                     marketState.eSignedVolume = cleanMsg.e_signed_volume
                 case 'executed':
-                    if (cleanMsg.player_id == this.playerId) {
+                    if (cleanMsg.player_id == this.playerId) {  
+                        const aggressive = this.potentiallyAggressiveOrders.delete(cleanMsg.order_token)
                         const side = cleanMsg.buy_sell_indicator == 'B' ? 'bid' : 'ask'
-                        marketTransacted[side] = true
+                        transactions.push({
+                            side: side,
+                            aggressive: aggressive
+                        })
                     }
-                case 'confirmed':
                 case 'replaced':
                 case 'canceled':
                     this.orderBook.recv(cleanMsg)
                     break;
+                case 'confirmed':  
+ 
+                    if(cleanMsg.player_id == this.playerId) {
+                        if((cleanMsg.buy_sell_indicator == 'B' && cleanMsg.price >= this.bestOffer) || (cleanMsg.buy_sell_indicator == 'S' && cleanMsg.price <= this.bestBid)) {
+                            this.potentiallyAggressiveOrders.add(cleanMsg.order_token)
+                            setTimeout(()=> {
+                                this.potentiallyAggressiveOrders.delete(cleanMsg.order_token)
+                            },
+                            500)
+                        }
+                    }
+                    this.orderBook.recv(cleanMsg)
+                    break;
+
                 case 'post_batch':
                     marketState.bestBid = cleanMsg.best_bid;
                     marketState.bestOffer = cleanMsg.best_offer;
@@ -415,7 +435,7 @@ class MarketSession extends PolymerElement {
             this.setProperties(newState)
         }
         this.notifyPath('orderBook._buyOrders')
-        let event = new CustomEvent('transaction', {detail: marketTransacted,
+        let event = new CustomEvent('transaction', {detail: transactions,
             bubbles: true, composed: true})
         this.$.infotable.dispatchEvent(event)
     }

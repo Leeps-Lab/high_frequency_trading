@@ -18,6 +18,9 @@ class ResultsPage extends PolymerElement {
     return html `
 
     <style>
+      * {
+        box-sizing: border-box;
+      }
       .child {
         border: 1px solid black;
         text-align: center;
@@ -30,8 +33,8 @@ class ResultsPage extends PolymerElement {
       }
 
       equations-table {
-        width: 50%;
-        margin: auto;
+        height: 100%;
+        width: 100%;
       }
 
     </style>
@@ -41,21 +44,32 @@ class ResultsPage extends PolymerElement {
 
     <h3 style="text-align:center; margin-bottom: 20px;">Your Payoff Calculations</h3>
 
-    <equations-table
-      inventory="[[inventory]]"
-      reference-price="[[referencePrice]]"
-      initial-endowment="[[initialEndowment]]"
-      total-bids="[[totalBids]]"
-      total-asks="[[totalAsks]]"
-      avg-bid-price="[[avgBidPrice]]"
-      avg-ask-price="[[avgAskPrice]]"
-      tax-rate="[[taxRate]]"
-      subscription-time="[[subscriptionTime]]"
-      speed-price="[[speedPrice]]"
-      speed-costs="{{speedCosts}}"
-      names="{{names}}"
-      nets="{{nets}}"
-    ></equations-table>
+    <table id = "myPayoff" style="width:100%; border-collapse:separate; border-spacing: 0 50px;">
+
+      <div style="display:flex; justify-content:space-around;">
+        <div id = "myResultsCell">
+        </div>
+
+      
+        <div id="equationsTable" class="child">
+          <equations-table
+            inventory="[[inventory]]"
+            reference-price="[[referencePrice]]"
+            initial-endowment="[[initialEndowment]]"
+            total-bids="[[totalBids]]"
+            total-asks="[[totalAsks]]"
+            avg-bid-price="[[avgBidPrice]]"
+            avg-ask-price="[[avgAskPrice]]"
+            tax-rate="[[taxRate]]"
+            subscription-time="[[subscriptionTime]]"
+            speed-price="[[speedPrice]]"
+            speed-costs="{{speedCosts}}"
+            names="{{names}}"
+            nets="{{nets}}"
+          ></equations-table>
+        </div>
+      </div>
+    </table>
 
     <!-- <table id="myPayoffs" style="width:55%; text-align: center; margin-left: auto; margin-right: auto;"> 
       <tr>
@@ -133,7 +147,8 @@ class ResultsPage extends PolymerElement {
 
     // set number of rows equal to the closest perfect square
     const numRows = Math.round(Math.sqrt(this.numPlayers));
-    const cellsPerRow = Math.round((this.numPlayers)/numRows);
+    //const cellsPerRow = Math.round((this.numPlayers)/numRows);
+    const cellsPerRow = 2;
 
     // set dimensions for cells
     let widthScale = cellsPerRow;
@@ -146,6 +161,11 @@ class ResultsPage extends PolymerElement {
     } */
     const width = (window.innerWidth * 0.85)/widthScale;
     const height = (window.innerHeight * 0.85)/numRows;
+
+    //Set width and height of equations table
+    var equationsTable = this.shadowRoot.getElementById("equationsTable");
+    equationsTable.style.width = width + "px";
+    equationsTable.style.height = (height + 17.5) + "px";
 
     let charts = document.createElement("table");
 
@@ -166,40 +186,63 @@ class ResultsPage extends PolymerElement {
       }
     }
 
+    //Grab my payoff cell
+    let myNet = payoffs[player];
+    let myTax = taxes[player];
+    let mySpeedCost = speedCosts[player];
+    let myName = names[player];
+    let myStrategies = strategies[player];
+    let myInv = invs[player];
+    let mySig = sigs[player];
+    let myFeed = feeds[player];
+
+    let node = document.createElement("div");
+    node.setAttribute("class", "child");
+    let child = document.createElement("results-cell");
+    child.net = myNet;
+    child.tax = myTax;
+    child.speedCost = mySpeedCost;
+    child.name = myName;
+    child.strategies = myStrategies;
+    child.invSensitivity = myInv;
+    child.signedVolume = mySig;
+    child.externalFeed = myFeed;
+    child.width = width;
+    child.height = height;
+    node.width = width;
+    node.height = height;
+    node.appendChild(child);
+    this.$.myResultsCell.appendChild(node); 
+    delete payoffs[player];
+    
     let currCell = 0;
     let cellCount = 0;
 
     //Loops through each player's results and creates its own individual results-cell 
-    for(let i = 0; i < this.numPlayers; i++) {
+    for(let i = 0; i < this.numPlayers - 1; i++) {
       let high = Object.keys(payoffs)[0];
 
-      //Put your payoff cell at the front
-      if(i == 0) {
-        high = player;
-      }
-      else {
-        //Find player with highest payoff that's left in the payoffs list
-        for(let key in payoffs) {
-          if(payoffs[key] > payoffs[high]) {
-            high = key;
-          }
+      //Find player with highest payoff that's left in the payoffs list
+      for(let key in payoffs) {
+        if(payoffs[key] > payoffs[high]) {
+          high = key;
         }
       }
 
-      let myNet = payoffs[high];
-      let myTax = taxes[high];
-      let mySpeedCost = speedCosts[high];
-      let myName = names[high];
-      let myStrategies = strategies[high];
-      let myInv = invs[high];
-      let mySig = sigs[high];
-      let myFeed = feeds[high];
+      myNet = payoffs[high];
+      myTax = taxes[high];
+      mySpeedCost = speedCosts[high];
+      myName = names[high];
+      myStrategies = strategies[high];
+      myInv = invs[high];
+      mySig = sigs[high];
+      myFeed = feeds[high];
 
       //let cell = document.createElement("td");
       //cell.setAttribute("style", "display:inline-block");
-      let node = document.createElement("div");
+      node = document.createElement("div");
       node.setAttribute("class", "child");
-      let child = document.createElement("results-cell");
+      child = document.createElement("results-cell");
       //console.log('mipayoff', myPayoff)
       child.net = myNet;
       child.tax = myTax;
@@ -313,9 +356,16 @@ class ResultsPage extends PolymerElement {
         value: () => {
           return parseFloat((OTREE_CONSTANTS.speedCost * .0001).toFixed(3));
         }
+      },
+      width: {
+        type: Number
+      },
+      height: {
+        type: Number
       }
     }
   }
+
 
 }
 

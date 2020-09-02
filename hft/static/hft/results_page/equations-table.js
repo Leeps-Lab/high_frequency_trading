@@ -23,6 +23,7 @@ class EquationsTable extends PolymerElement {
 
     static get template() {
         return html`
+        
         <style>
             :host {
                 display: block;
@@ -30,13 +31,14 @@ class EquationsTable extends PolymerElement {
             .table {
                 display: flex;
                 justify-content: center;
+                align-items: center;
                 flex-wrap: wrap;
+                height: 100%;
             }
             .row {
                 display: flex;
                 min-width: 0;
                 padding: 3px;
-                border: 1px solid black;
                 margin: 3px;
             }
             .col {
@@ -54,12 +56,18 @@ class EquationsTable extends PolymerElement {
             .operator > div:last-child {
                 font-weight: initial;
             }
+
+            .red {
+                color: red;
+                font-weight: bold;
+
+            }
         </style>
 
         <div class="table">
             <div class="row">
                 <div class="col">
-                    <div>Final Cash</div>
+                    <div class="red">Final Cash</div>
                     <div>{{ _finalCash() }}</div>
                 </div>
                 <div class="col operator">
@@ -110,8 +118,8 @@ class EquationsTable extends PolymerElement {
 
             <div class="row">
                 <div class="col">
-                    <div>Inventory Value</div>
-                    <div>[[ inventory ]]</div>
+                    <div class="red">Inventory Value</div>
+                    <div>[[ _inventoryVal() ]]</div>
                 </div>
                 <div class="col operator">
                     <div>= [</div>
@@ -134,15 +142,15 @@ class EquationsTable extends PolymerElement {
                     <div>] &times;</div>
                 </div>
                 <div class="col">
-                    <div>Reference Price</div>
+                    <div>Ref. Price</div>
                     <div>[[ _digitCorrector(referencePrice) ]]</div>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col">
-                    <div>Final Wealth</div>
-                    <div>{{ _finalWealth() }}</div>
+                    <div class="red">Gross Payoff</div>
+                    <div>{{ _grossPayoff() }}</div>
                 </div>
                 <div class="col operator">
                     <div>= </div>
@@ -164,7 +172,7 @@ class EquationsTable extends PolymerElement {
 
             <div class="row">
                 <div class="col">
-                    <div>Tax Payment</div>
+                    <div class="red">Tax Payment</div>
                     <div>{{ _taxPayment() }}</div>
                 </div>
                 <div class="col operator">
@@ -180,14 +188,14 @@ class EquationsTable extends PolymerElement {
                     <div> &times; </div>
                 </div>
                 <div class="col">
-                    <div>taxRate</div>
+                    <div>Tax Rate</div>
                     <div>[[ taxRate ]]</div>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col">
-                    <div>Speed Cost</div>
+                    <div class="red">Speed Cost</div>
                     <div>{{ _speedCostCalculation() }}</div>
                 </div>
                 <div class="col operator">
@@ -210,7 +218,7 @@ class EquationsTable extends PolymerElement {
 
             <div class="row">
                 <div class="col">
-                    <div>Net Payoff</div>
+                    <div class="red">Payoff</div>
                     <div>{{ _payoff() }}</div>
                 </div>
                 <div class="col operator">
@@ -218,8 +226,8 @@ class EquationsTable extends PolymerElement {
                     <div>= </div>
                 </div>
                 <div class="col">
-                    <div>Final Wealth</div>
-                    <div>{{ _finalWealth() }}</div>
+                    <div>Gross Payoff </div>
+                    <div>{{ _grossPayoff() }}</div>
                 </div>
                 <div class="col operator">
                     <div> - </div>
@@ -259,7 +267,7 @@ class EquationsTable extends PolymerElement {
         return this._round2Decimal(this._digitCorrector(this.initialEndowment) + (this.totalAsks * this._digitCorrector(this.avgAskPrice)) - (this.totalBids * this._digitCorrector(this.avgBidPrice)));
     }
 
-    _finalWealth() {
+    _grossPayoff() {
         return this._round2Decimal(this._finalCash() + this._inventoryVal());
     }
 
@@ -268,7 +276,7 @@ class EquationsTable extends PolymerElement {
     }
 
     _payoff() {
-        return this._round2Decimal(this._finalWealth() - this._taxPayment() - this._speedCost()); 
+        return this._round2Decimal(this._grossPayoff() - this._taxPayment() - this._speedCost()); 
     }
 
     _speedCost() {

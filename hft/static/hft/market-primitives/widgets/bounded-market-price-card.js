@@ -23,7 +23,7 @@ class MarketPriceCard extends PolymerElement {
     this.currency = 'ECU';
   }
 
-  animate() {
+  animate(aggressive = false) {
     const flashTime = 500;
     d3.select(this.$.cardPrice)
       .transition()
@@ -36,6 +36,7 @@ class MarketPriceCard extends PolymerElement {
         .style('background-color', 'var(--background-color-white)');
 
     d3.select(this.$.triangle)
+      .style('color', aggressive ? 'red' : 'black')
       .transition()
         .duration(flashTime/2)
         .ease(d3.easeLinear)
@@ -86,6 +87,7 @@ class MarketPriceCard extends PolymerElement {
         justify-content: center;
         border-top: 1px solid #000;
         font-size: 1.6em;
+        position: relative;
       }
 
       .title-text {
@@ -94,6 +96,10 @@ class MarketPriceCard extends PolymerElement {
       }
       #triangle {
         opacity: 0;
+        position: absolute;
+        right: 10%;
+        top : 50%;
+        transform: translate(0, -50%);
       }
       </style>
 
@@ -104,14 +110,13 @@ class MarketPriceCard extends PolymerElement {
                   {{title}}
                 </span>
               </div>
-              <div id="cardPrice" animate={{animated}}>
+              <div id="cardPrice">
                 <p id="the-price">
                   {{_displayPrice(price)}}
                 </p>
-              </div>
-              <div>
                 <span id="triangle">&#9650;</span>
               </div>
+              
             </div>
         </div>    
         `;
