@@ -36,7 +36,7 @@ class MarketPriceCard extends PolymerElement {
         .style('background-color', 'var(--background-color-white)');
 
     d3.select(this.$.triangle)
-      .style('color', aggressive ? 'red' : 'black')
+      .style('color', aggressive ? 'red' : 'gray')
       .transition()
         .duration(flashTime/2)
         .ease(d3.easeLinear)
@@ -95,6 +95,7 @@ class MarketPriceCard extends PolymerElement {
         font-size: 1.6em;
       }
       #triangle {
+        font-size: 40px;
         opacity: 0;
         position: absolute;
         right: 10%;
@@ -114,7 +115,7 @@ class MarketPriceCard extends PolymerElement {
                 <p id="the-price">
                   {{_displayPrice(price)}}
                 </p>
-                <span id="triangle">&#9650;</span>
+                <span id="triangle">&#9679;</span>
               </div>
               
             </div>

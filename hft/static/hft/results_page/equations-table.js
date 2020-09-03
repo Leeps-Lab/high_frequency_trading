@@ -34,6 +34,7 @@ class EquationsTable extends PolymerElement {
                 align-items: center;
                 flex-wrap: wrap;
                 height: 100%;
+                
             }
             .row {
                 display: flex;
@@ -62,6 +63,11 @@ class EquationsTable extends PolymerElement {
                 font-weight: bold;
 
             }
+
+            .vl {
+                border-left: 1px solid #D3D3D3;
+                height: 10%;
+              }
         </style>
 
         <div class="table">
@@ -147,6 +153,9 @@ class EquationsTable extends PolymerElement {
                 </div>
             </div>
 
+            <div class="vl"></div>
+
+
             <div class="row">
                 <div class="col">
                     <div class="red">Gross Payoff</div>
@@ -170,6 +179,7 @@ class EquationsTable extends PolymerElement {
                 </div>
             </div>
 
+
             <div class="row">
                 <div class="col">
                     <div class="red">Tax Payment</div>
@@ -192,6 +202,8 @@ class EquationsTable extends PolymerElement {
                     <div>[[ taxRate ]]</div>
                 </div>
             </div>
+
+            <div class="vl"></div>
 
             <div class="row">
                 <div class="col">

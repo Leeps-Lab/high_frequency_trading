@@ -147,8 +147,8 @@ class ResultsPage extends PolymerElement {
 
     // set number of rows equal to the closest perfect square
     const numRows = Math.round(Math.sqrt(this.numPlayers));
-    //const cellsPerRow = Math.round((this.numPlayers)/numRows);
-    const cellsPerRow = 2;
+    const cellsPerRow = Math.round((this.numPlayers)/numRows);
+    //const cellsPerRow = 2;
 
     // set dimensions for cells
     let widthScale = cellsPerRow;
@@ -170,7 +170,7 @@ class ResultsPage extends PolymerElement {
     let charts = document.createElement("table");
 
     charts.setAttribute("style", "width:100%; border-collapse:separate; border-spacing: 0 50px; ");
-    let rows = []
+    let rows = [];
     for(let i = 0; i < numRows; i++) {
       let row = document.createElement("div");
       row.setAttribute("style", "display:flex; justify-content:space-around;");
