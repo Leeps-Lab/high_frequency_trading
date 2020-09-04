@@ -158,9 +158,11 @@ class ResultsPage extends PolymerElement {
     //Set width and height of equations table
     var equationsTable = this.shadowRoot.getElementById("equationsTable");
     equationsTable.style.width = width + "px";
-    //Ensures equation table's width doesn't adjust when the window is resized
-    equationsTable.style.minWidth = width + "px";
     equationsTable.style.height = (height + 17.5) + "px";
+
+    //Ensures equation table's width and  height doesn't adjust when the window is resized
+    equationsTable.style.minWidth = width + "px";
+    equationsTable.style.minHeight = (height + 17.5) + "px";
 
     let charts = document.createElement("table");
 
