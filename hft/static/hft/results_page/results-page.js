@@ -33,16 +33,13 @@ class ResultsPage extends PolymerElement {
       }
 
       equations-table {
-        height: 100%;
+        height: 90%;
         width: 100%;
       }
 
     </style>
 
     <h1 style="text-align:center; margin-bottom: 30px;">Trade Session Results</h1>
-    <hr style="width: 60%">
-
-    <h3 style="text-align:center; margin-bottom: 20px;">Your Payoff Calculations</h3>
 
     <table id = "myPayoff" style="width:100%; border-collapse:separate; border-spacing: 0 50px;">
 
@@ -50,8 +47,8 @@ class ResultsPage extends PolymerElement {
         <div id = "myResultsCell">
         </div>
 
-      
         <div id="equationsTable" class="child">
+          <h3 style="text-align:center; margin-top:10px; margin-bottom: 0px;">Your Payoff Calculations</h3>
           <equations-table
             inventory="[[inventory]]"
             reference-price="[[referencePrice]]"
@@ -119,10 +116,6 @@ class ResultsPage extends PolymerElement {
         <td>Final Wealth - Tax Payment - Speed Cost</td>
         <td>{{ _finalWealth() }} - {{ _taxPayment() }} - {{ _speedCost() }} = {{ _payoff() }}</td>
       </tr>
-
-    
-    
-
     </table> -->
 
     <div id="outer" class="parent" style="text-align:center;">
@@ -146,9 +139,9 @@ class ResultsPage extends PolymerElement {
     const speedCosts = this.speedCosts;
 
     // set number of rows equal to the closest perfect square
-    const numRows = Math.round(Math.sqrt(this.numPlayers));
-    const cellsPerRow = Math.round((this.numPlayers)/numRows);
-    //const cellsPerRow = 2;
+    const numRows = Math.round(Math.sqrt(this.numPlayers)) + 1;
+    //const cellsPerRow = Math.round((this.numPlayers)/numRows);
+    const cellsPerRow = 2;
 
     // set dimensions for cells
     let widthScale = cellsPerRow;
@@ -160,11 +153,13 @@ class ResultsPage extends PolymerElement {
       widthScale = cellsPerRow + this.numPlayers % numRows;
     } */
     const width = (window.innerWidth * 0.85)/widthScale;
-    const height = (window.innerHeight * 0.85)/numRows;
+    const height = (window.innerHeight * 0.85)/Math.round(Math.sqrt(this.numPlayers));
 
     //Set width and height of equations table
     var equationsTable = this.shadowRoot.getElementById("equationsTable");
     equationsTable.style.width = width + "px";
+    //Ensures equation table's width doesn't adjust when the window is resized
+    equationsTable.style.minWidth = width + "px";
     equationsTable.style.height = (height + 17.5) + "px";
 
     let charts = document.createElement("table");

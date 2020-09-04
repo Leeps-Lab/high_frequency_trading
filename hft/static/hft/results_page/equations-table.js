@@ -25,6 +25,7 @@ class EquationsTable extends PolymerElement {
         return html`
         
         <style>
+
             :host {
                 display: block;
             }
@@ -68,6 +69,7 @@ class EquationsTable extends PolymerElement {
                 border-left: 1px solid #D3D3D3;
                 height: 10%;
               }
+
         </style>
 
         <div class="table">
