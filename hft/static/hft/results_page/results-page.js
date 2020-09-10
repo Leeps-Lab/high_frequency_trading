@@ -29,7 +29,6 @@ class ResultsPage extends PolymerElement {
 
       #myPayoffs, th, td {
         border: 1px solid black;
-        
       }
 
       equations-table {
@@ -68,58 +67,7 @@ class ResultsPage extends PolymerElement {
       </div>
     </table>
 
-    <!-- <table id="myPayoffs" style="width:55%; text-align: center; margin-left: auto; margin-right: auto;"> 
-      <tr>
-        <th> Variables </th>
-        <th> Equations </th>
-        <th> Results </th>
-      </tr>
-
-      <tr>
-        <td>Final Cash </td>
-        <td>Initial Cash + [#unitsSold x avgSalesPrice] - [#unitsPurchased x avgPurchasePrice]</td>
-        <td>[[ _digitCorrector(initialEndowment) ]] +  [[[ totalAsks ]] x [[ _digitCorrector(avgAskPrice) ]]]  -  [[[ totalBids ]] x [[ _digitCorrector(avgBidPrice) ]]] = {{ _finalCash() }}</td>
-      </tr>
-
-      <tr>
-        <td>Inventory Size</td>
-        <td>#unitsPurchased - #unitsSold</td>
-        <td>[[ totalBids ]] - [[ totalAsks ]] = [[ inventory ]]</td>
-      </tr>
-
-      <tr>
-        <td>Inventory Value</td>
-        <td>Inventory Size x Reference Price</td>
-        <td>[[ inventory ]] x [[ _digitCorrector(referencePrice) ]] = {{ _inventoryVal() }}</td>
-      </tr>
-
-      <tr>
-        <td>Final Wealth</td>
-        <td>Final Cash + Inventory Value</td>
-        <td>{{ _finalCash() }} + {{ _inventoryVal() }} = {{ _finalWealth() }}</td>
-      </tr>
-
-      <tr>
-        <td>Tax Payment</td>
-        <td>| Inventory Value | x taxRate</td>
-        <td>| {{ _inventoryVal() }} | x [[ taxRate ]] = {{ _taxPayment() }}</td>
-      </tr>
-
-      <tr>
-        <td>Speed Cost</td>
-        <td>Speed Price x Seconds Used</td>
-        <td>{{ speedPrice }} x {{ _secondsSpeedUsed() }} = {{ _speedCostCalculation() }}</td>
-      </tr>
-
-      <tr>
-        <td>Net Payoff</td>
-        <td>Final Wealth - Tax Payment - Speed Cost</td>
-        <td>{{ _finalWealth() }} - {{ _taxPayment() }} - {{ _speedCost() }} = {{ _payoff() }}</td>
-      </tr>
-    </table> -->
-
-    <div id="outer" class="parent" style="text-align:center;">
-    </div>
+    <div id="outer" class="parent" style="text-align:center;"></div>
     `;
   }
 

@@ -47,7 +47,7 @@ export class ResultsCell extends PolymerElement {
       </div>
       <div style="display:flex;">
         <div style="flex:1; text-align:center;">
-          <strong>Net Payoff:</strong>
+          <strong>Payoff:</strong>
           <span>[[toFixed(net)]]</span>
         </div>
         <div style="flex:1; text-align:center;">

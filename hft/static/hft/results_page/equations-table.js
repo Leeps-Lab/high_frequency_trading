@@ -29,32 +29,28 @@ class EquationsTable extends PolymerElement {
             :host {
                 display: block;
             }
-            .table {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-wrap: wrap;
-                height: 100%;
-                
-            }
+
             .row {
                 display: flex;
                 min-width: 0;
-                padding: 3px;
-                margin: 3px;
+                padding: 3px;    
             }
+
             .col {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
             }
+
             .col > div {
-                margin: 2px;
+                margin: 1px;
                 text-align: center;
             }
+
             .col > div:last-child {
                 font-weight: bold;
             }
+
             .operator > div:last-child {
                 font-weight: initial;
             }
@@ -62,174 +58,16 @@ class EquationsTable extends PolymerElement {
             .red {
                 color: red;
                 font-weight: bold;
-
             }
 
-            .vl {
-                border-left: 1px solid #D3D3D3;
-                height: 10%;
-              }
-
+            ul { 
+                list-style: none; 
+            }
+           
         </style>
 
-        <div class="table">
-            <div class="row">
-                <div class="col">
-                    <div class="red">Final Cash</div>
-                    <div>{{ _finalCash() }}</div>
-                </div>
-                <div class="col operator">
-                    <div>=</div>
-                    <div>=</div>
-                </div>
-                <div class="col">
-                    <div>Initial Cash</div>
-                    <div>[[ _digitCorrector(initialEndowment) ]]</div>
-                </div>
-                <div class="col operator">
-                    <div>+ [</div>
-                    <div>+ [</div>
-                </div>
-                <div class="col">
-                    <div>Units Sold</div>
-                    <div>[[ totalAsks ]]</div>
-                </div>
-                <div class="col operator">
-                    <div>&times;</div>
-                    <div>&times;</div>
-                </div>
-                <div class="col">
-                    <div>Avg. Sale Price</div>
-                    <div>[[ _digitCorrector(avgAskPrice) ]]</div>
-                </div>
-                <div class="col operator">
-                    <div>] - [</div>
-                    <div>] - [</div>
-                </div>
-                <div class="col">
-                    <div>Units Purchased</div>
-                    <div>[[ totalBids ]]</div>
-                </div>
-                <div class="col operator">
-                    <div>&times;</div>
-                    <div>&times;</div>
-                </div>
-                <div class="col">
-                    <div>Avg. Purchase Price</div>
-                    <div>[[ _digitCorrector(avgBidPrice) ]]</div>
-                </div>
-                <div class="col operator">
-                    <div>]</div>
-                    <div>]</div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col">
-                    <div class="red">Inventory Value</div>
-                    <div>[[ _inventoryVal() ]]</div>
-                </div>
-                <div class="col operator">
-                    <div>= [</div>
-                    <div>= [</div>
-                </div>
-                <div class="col">
-                    <div>Units Purchased</div>
-                    <div>[[ totalBids ]]</div>
-                </div>
-                <div class="col operator">
-                    <div>-</div>
-                    <div>-</div>
-                </div>
-                <div class="col">
-                    <div>Units Sold</div>
-                    <div>[[ totalAsks ]]</div>
-                </div>
-                <div class="col operator">
-                    <div>] &times;</div>
-                    <div>] &times;</div>
-                </div>
-                <div class="col">
-                    <div>Ref. Price</div>
-                    <div>[[ _digitCorrector(referencePrice) ]]</div>
-                </div>
-            </div>
-
-            <div class="vl"></div>
-
-
-            <div class="row">
-                <div class="col">
-                    <div class="red">Gross Payoff</div>
-                    <div>{{ _grossPayoff() }}</div>
-                </div>
-                <div class="col operator">
-                    <div>= </div>
-                    <div>= </div>
-                </div>
-                <div class="col">
-                    <div>Final Cash</div>
-                    <div>{{ _finalCash() }}</div>
-                </div>
-                <div class="col operator">
-                    <div> + </div>
-                    <div> + </div>
-                </div>
-                <div class="col">
-                    <div>Inventory Value</div>
-                    <div>{{ _inventoryVal() }}</div>
-                </div>
-            </div>
-
-
-            <div class="row">
-                <div class="col">
-                    <div class="red">Tax Payment</div>
-                    <div>{{ _taxPayment() }}</div>
-                </div>
-                <div class="col operator">
-                    <div>= </div>
-                    <div>= </div>
-                </div>
-                <div class="col">
-                    <div>| Inventory Value |</div>
-                    <div>| {{ _inventoryVal() }} |</div>
-                </div>
-                <div class="col operator">
-                    <div> &times; </div>
-                    <div> &times; </div>
-                </div>
-                <div class="col">
-                    <div>Tax Rate</div>
-                    <div>[[ taxRate ]]</div>
-                </div>
-            </div>
-
-            <div class="vl"></div>
-
-            <div class="row">
-                <div class="col">
-                    <div class="red">Speed Cost</div>
-                    <div>{{ _speedCostCalculation() }}</div>
-                </div>
-                <div class="col operator">
-                    <div>= </div>
-                    <div>= </div>
-                </div>
-                <div class="col">
-                    <div>Speed Price</div>
-                    <div>{{ speedPrice }}</div>
-                </div>
-                <div class="col operator">
-                    <div> &times; </div>
-                    <div> &times; </div>
-                </div>
-                <div class="col">
-                    <div>Seconds Used</div>
-                    <div>{{ _secondsSpeedUsed() }}</div>
-                </div>
-            </div>
-
+        <ul >
+            <li>
             <div class="row">
                 <div class="col">
                     <div class="red">Payoff</div>
@@ -260,7 +98,170 @@ class EquationsTable extends PolymerElement {
                     <div>{{ _speedCost() }}</div>
                 </div>
             </div>
-        </div>
+            <ul>
+                <li>
+                <div class="row">
+                    <div class="col">
+                        <div class="red">Gross Payoff</div>
+                        <div>{{ _grossPayoff() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div>= </div>
+                        <div>= </div>
+                    </div>
+                    <div class="col">
+                        <div>Final Cash</div>
+                        <div>{{ _finalCash() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div> + </div>
+                        <div> + </div>
+                    </div>
+                    <div class="col">
+                        <div>Inventory Value</div>
+                        <div>{{ _inventoryVal() }}</div>
+                    </div>
+                </div>
+                <ul>
+                    <li>
+                    <div class="row">
+                        <div class="col">
+                            <div class="red">Final Cash</div>
+                            <div>{{ _finalCash() }}</div>
+                        </div>
+                        <div class="col operator">
+                            <div>=</div>
+                            <div>=</div>
+                        </div>
+                        <div class="col">
+                            <div>Init. Cash</div>
+                            <div>[[ _digitCorrector(initialEndowment) ]]</div>
+                        </div>
+                        <div class="col operator">
+                            <div>+ [</div>
+                            <div>+ [</div>
+                        </div>
+                        <div class="col">
+                            <div>Sold Units</div>
+                            <div>[[ totalAsks ]]</div>
+                        </div>
+                        <div class="col operator">
+                            <div>&times;</div>
+                            <div>&times;</div>
+                        </div>
+                        <div class="col">
+                            <div>Avg. Sale Price</div>
+                            <div>[[ _digitCorrector(avgAskPrice) ]]</div>
+                        </div>
+                        <div class="col operator">
+                            <div>] - [</div>
+                            <div>] - [</div>
+                        </div>
+                        <div class="col">
+                            <div>Bought Units</div>
+                            <div>[[ totalBids ]]</div>
+                        </div>
+                        <div class="col operator">
+                            <div>&times;</div>
+                            <div>&times;</div>
+                        </div>
+                        <div class="col">
+                            <div>Avg. Buy Price</div>
+                            <div>[[ _digitCorrector(avgBidPrice) ]]</div>
+                        </div>
+                        <div class="col operator">
+                            <div>]</div>
+                            <div>]</div>
+                        </div>
+                    </div></li>
+
+                    <li>
+                    <div class="row">
+                        <div class="col">
+                            <div class="red">Inventory Value</div>
+                            <div>[[ _inventoryVal() ]]</div>
+                        </div>
+                        <div class="col operator">
+                            <div>= [</div>
+                            <div>= [</div>
+                        </div>
+                        <div class="col">
+                            <div>Units Purchased</div>
+                            <div>[[ totalBids ]]</div>
+                        </div>
+                        <div class="col operator">
+                            <div>-</div>
+                            <div>-</div>
+                        </div>
+                        <div class="col">
+                            <div>Units Sold</div>
+                            <div>[[ totalAsks ]]</div>
+                        </div>
+                        <div class="col operator">
+                            <div>] &times;</div>
+                            <div>] &times;</div>
+                        </div>
+                        <div class="col">
+                            <div>Ref. Price</div>
+                            <div>[[ _digitCorrector(referencePrice) ]]</div>
+                        </div>
+                    </div>
+                    </li>
+                </ul>
+                </li>
+                
+                <li>
+                <div class="row">
+                    <div class="col">
+                        <div class="red">Tax Payment</div>
+                        <div>{{ _taxPayment() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div>= </div>
+                        <div>= </div>
+                    </div>
+                    <div class="col">
+                        <div>| Inventory Value |</div>
+                        <div>| {{ _inventoryVal() }} |</div>
+                    </div>
+                    <div class="col operator">
+                        <div> &times; </div>
+                        <div> &times; </div>
+                    </div>
+                    <div class="col">
+                        <div>Tax Rate</div>
+                        <div>[[ taxRate ]]</div>
+                    </div>
+                </div>
+                </li>
+
+                <li> 
+                <div class="row">
+                    <div class="col">
+                        <div class="red">Speed Cost</div>
+                        <div>{{ _speedCostCalculation() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div>= </div>
+                        <div>= </div>
+                    </div>
+                    <div class="col">
+                        <div>Speed Price</div>
+                        <div>{{ speedPrice }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div> &times; </div>
+                        <div> &times; </div>
+                    </div>
+                    <div class="col">
+                        <div>Seconds Used</div>
+                        <div>{{ _secondsSpeedUsed() }}</div>
+                    </div>
+                </div>
+                </li>
+            </ul>
+            </li>
+        </ul>
         `;
     }
 
@@ -294,7 +295,6 @@ class EquationsTable extends PolymerElement {
     }
 
     _speedCost() {
-        
         // initialize arrays for Polymer arguments
         let payoffs = this.nets;
         this.numPlayers = Object.keys(payoffs).length;
