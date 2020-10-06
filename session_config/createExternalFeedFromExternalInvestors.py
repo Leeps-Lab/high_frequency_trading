@@ -76,13 +76,17 @@ def write_bbos(fname, bbos):
     header = ','.join(header)
     bbos = [','.join(map(str, line)) for line in bbos]
     bbos = [header, *bbos]
+    
     with open(fname, 'w') as f:
         for order in bbos:
             f.write(order + '\n')
 
-def main():
+def main(investor_arrivals_file_name, external_feed_file_name):
     # read investor file from command line arg
-    investor_arrivals_file = argv[1]
+    #investor_arrivals_file = argv[1]
+
+    # read investor file from parameters
+    investor_arrivals_file = investor_arrivals_file_name
 
     # read investor files into list
     with open(investor_arrivals_file, 'r') as f:
@@ -125,8 +129,10 @@ def main():
             prev_bb = bb
             prev_bo = bo
     
-    write_bbos(argv[2], bbos)
+    #write_bbos(argv[2], bbos)
+    write_bbos(external_feed_file_name, bbos)
 
+'''
 if __name__ == '__main__':
     main()
-
+'''
