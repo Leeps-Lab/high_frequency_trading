@@ -1,132 +1,95 @@
-from sys import argv
+import sys
+import csv
+from collections import namedtuple
 
-"""
-This script generates an external feed csv config file for otree experiments
-To use it, first use draw.py in the simulator to generate
-an external investor arrival file. Use that as input to this file.
-
-This script essentially runs an external market simulation.
-
-We iterate over the session duration at the millisecond level.
-At each millisecond, we:
-- remove any order which time in force has expired
-- add any order that just arrived
-- compute the BBO
-- check if the BBO crosses
-    - delete the crossing orders
-    - compute the new BBO
-- check of the BBO differs from the previous BBO
-    - add it to the list of exogenous events
-
-"""
-MAX_ASK = 2**31 - 1
-MIN_BID = 0
-
-
-# remove all orders whose time in force + arrive time is less than current time
-def remove_expired_orders(orders, i):
-    def cond(order, i):
-        return i < float(order[0]) * 1000 + float(order[4]) * 1000
-    return [order for order in orders if cond(order, i)]
-
-# move new arrivals from arrivals to orders if the arrival happens this ms
-def add_new_arrivals(orders, arrivals, i):
-    for order in arrivals:
-        if float(order[0]) * 1000 == i:
-            orders.append(order)
-    arrivals = [o for o in arrivals if o not in orders]
-    return orders, arrivals
-
-# compute and return highest bid
-def new_bb(orders):
-    buys = [o for o in orders if o[3] == 'B']
-    if len(buys) == 0:
-        return MIN_BID, None
-    buys = sorted(buys, reverse=True, key=lambda o: int(o[2]))
-    bb_order = buys[0]
-    bb = int(bb_order[2])
-    return bb, bb_order
-
-# compute and return lowest ask
-def new_bo(orders):
-    sells = [o for o in orders if o[3] == 'S']
-    if len(sells) == 0:
-        return MAX_ASK, None
-    sells = sorted(sells, key=lambda o: int(o[2]))
-    bo_order = sells[0]
-    bo = int(bo_order[2])
-    return bo, bo_order
-
-def remove_bb_bo(orders, bb_order, bo_order):
-    orders.remove(bb_order)
-    orders.remove(bo_order)
-    return orders
-
-def add_bbo(bbos, bb, bo, i):
-    i = str(round(i / 1000, 3))
-    bb = str(bb)
-    bo = str(bo)
-    new_bbo = [i, 1, bb, bo, 'N/A']
-    bbos.append(new_bbo)
-    return bbos
-
-def write_bbos(fname, bbos):
-    header = ['arrival_time','market_id_in_subsession',
-        'e_best_bid','e_best_offer','e_signed_volume']
-    header = ','.join(header)
-    bbos = [','.join(map(str, line)) for line in bbos]
-    bbos = [header, *bbos]
-    with open(fname, 'w') as f:
-        for order in bbos:
-            f.write(order + '\n')
-
+# input csv header
+# arrival_time,market_id_in_subsession,price,buy_sell_indicator,time_in_force
+# output csv header
+# arrival_time,market_id_in_subsession,e_best_bid,e_best_offer,e_signed_volume
+    
 def main():
-    # read investor file from command line arg
-    investor_arrivals_file = argv[1]
+    if len(sys.argv) < 3:
+        print('error: must specify input and output filenames')
+        return
 
-    # read investor files into list
-    with open(investor_arrivals_file, 'r') as f:
-        arrivals = f.readlines()
+    Order = namedtuple('Order', ['arrival_time', 'market_id_in_subsession', 'price', 'buy_sell_indicator', 'time_in_force'])
 
-    # split each order into a list and get rid of header
-    # 0: arrival time
-    # 1: market id in subsession
-    # 2: price
-    # 3: buy/sell indicator {'B','S'}
-    # 4: time in force
-    arrivals = [order.split(',') for order in arrivals][1:]
+    with open(sys.argv[1], 'r') as f:
+        arrivals = [
+            Order(
+                float(o['arrival_time']),
+                int(o['market_id_in_subsession']),
+                int(o['price']),
+                o['buy_sell_indicator'],
+                float(o['time_in_force']),
+            )
+            for o in csv.DictReader(f)
+        ]
 
-    # get duration in seconds
-    duration = arrivals[-1][0]
-    #convert duration to milliseconds
-    duration_ms = int(float(duration) * 1000)
+    bids = set()
+    asks = set()
 
-    # define variables
-    bb = MIN_BID
-    bb_order = None
-    bo = MAX_ASK
-    bo_order = None
-    prev_bb = MIN_BID
-    prev_bo = MAX_ASK
-    orders = []
+    cur_best_bid = None
+    cur_best_ask = None
+
     bbos = []
 
-    for i in range(duration_ms):
-        orders = remove_expired_orders(orders, i)
-        orders, arrivals = add_new_arrivals(orders, arrivals, i)
-        bb, bb_order = new_bb(orders)
-        bo, bo_order = new_bo(orders)
-        while bb_order is not None and bo_order is not None and bb >= bo:
-            orders = remove_bb_bo(orders, bb_order, bo_order)
-            bb, bb_order = new_bb(orders)
-            bo, bo_order = new_bo(orders)
-        if bb != prev_bb or bo != prev_bo:
-            bbos = add_bbo(bbos, bb, bo, i)
-            prev_bb = bb
-            prev_bo = bo
+    i = 0
+    while i < len(arrivals):
+        cur_time = arrivals[i].arrival_time
+
+        # batch arrivals that occur in the same second
+        cur_arrivals = []
+        while i < len(arrivals) and arrivals[i].arrival_time == cur_time:
+            cur_arrivals.append(arrivals[i])
+            i += 1
+
+        # clear expired orders
+        bids = set(filter(lambda order: order.arrival_time + order.time_in_force > cur_time, bids))
+        asks = set(filter(lambda order: order.arrival_time + order.time_in_force > cur_time, asks))
+            
+        # process new order arrivals
+        for order in cur_arrivals:
+            if order.buy_sell_indicator == 'B':
+                # calc best ask and check whether new order crosses
+                best_ask = min(asks, key=lambda order: order.price) if asks else None
+                if best_ask is not None and order.price > best_ask.price:
+                    asks.remove(best_ask)
+                else:
+                    bids.add(order)
+            
+            else:
+                best_bid = max(bids, key=lambda order: order.price) if bids else None
+                if best_bid is not None and order.price < best_bid.price:
+                    bids.remove(best_bid)
+                else:
+                    asks.add(order)
+
+        best_bid = max(bids, key=lambda order: order.price) if bids else None
+        best_ask = min(asks, key=lambda order: order.price) if asks else None
+        if best_bid != cur_best_bid or best_ask != cur_best_ask:
+            cur_best_bid = best_bid
+            cur_best_ask = best_ask
+
+            bbos.append({
+                'arrival_time': cur_time,
+                'market_id_in_subsession': 1,
+                'e_best_bid': best_bid.price if best_bid else 0,
+                'e_best_ask': best_ask.price if best_ask else 0x7FFFFFFF,
+                'e_signed_volume': 0,
+            })
     
-    write_bbos(argv[2], bbos)
+    with open(sys.argv[2], 'w') as f:
+        fieldnames = [
+            'arrival_time',
+            'market_id_in_subsession',
+            'e_best_bid',
+            'e_best_ask',
+            'e_signed_volume',
+        ]
+        writer = csv.DictWriter(f, fieldnames)
+        writer.writeheader()
+        writer.writerows(bbos)
 
 if __name__ == '__main__':
     main()
-
