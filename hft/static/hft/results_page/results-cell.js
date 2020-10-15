@@ -47,7 +47,7 @@ export class ResultsCell extends PolymerElement {
       </div>
       <div style="display:flex;">
         <div style="flex:1; text-align:center;">
-          <strong>Net Payoff:</strong>
+          <strong>Payoff:</strong>
           <span>[[toFixed(net)]]</span>
         </div>
         <div style="flex:1; text-align:center;">
@@ -160,7 +160,7 @@ export class ResultsCell extends PolymerElement {
       },
       series: [
       {
-        name: "Final Wealth",
+        name: "Gross Payoff",
         data: [
           [0, gross]
         ],
@@ -183,7 +183,7 @@ export class ResultsCell extends PolymerElement {
         color: '#ffbd24'
       },
       {
-        name: "Net Payoff",
+        name: "Payoff",
         data: [
           [0, this.net]
         ],

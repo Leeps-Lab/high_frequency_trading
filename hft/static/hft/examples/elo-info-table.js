@@ -31,13 +31,15 @@ class InfoTable extends PolymerElement {
      }
 
      _handleExecution(event) {
-      if (event.detail.bid) {
-        let theCard = this.$.my_bid
-        theCard.animate()
-      }
-      if (event.detail.ask) {
-        let theCard = this.$.my_ask
-        theCard.animate()
+      for(let transaction of event.detail) {
+        let theCard;
+        if(transaction.side == 'bid') {
+          theCard = this.$.my_bid
+        }
+        else {
+          theCard = this.$.my_ask
+        }
+        theCard.animate(transaction.aggressive)
       }
      }
   
