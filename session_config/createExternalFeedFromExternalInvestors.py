@@ -27,7 +27,7 @@ At each millisecond, we:
 # arrival_time,market_id_in_subsession,e_best_bid,e_best_offer,e_signed_volume
 
 
-def main(investor_arrivals_file_name, external_feed_file_name):
+def main(investor_arrivals_file_name, external_feed_file_name, trade_file_name):
 
     Order = namedtuple('Order', ['arrival_time', 'market_id_in_subsession', 'price', 'buy_sell_indicator', 'time_in_force'])
 
@@ -50,6 +50,7 @@ def main(investor_arrivals_file_name, external_feed_file_name):
     cur_best_ask = None
 
     bbos = []
+    trades = []
 
     i = 0
     while i < len(arrivals):
@@ -72,6 +73,10 @@ def main(investor_arrivals_file_name, external_feed_file_name):
                 best_ask = min(asks, key=lambda order: order.price) if asks else None
                 if best_ask is not None and order.price > best_ask.price:
                     asks.remove(best_ask)
+                    trades.append({
+                        'arrival_time': cur_time,
+                        'price': best_ask.price,
+                    })
                 else:
                     bids.add(order)
             
@@ -79,6 +84,10 @@ def main(investor_arrivals_file_name, external_feed_file_name):
                 best_bid = max(bids, key=lambda order: order.price) if bids else None
                 if best_bid is not None and order.price < best_bid.price:
                     bids.remove(best_bid)
+                    trades.append({
+                        'arrival_time': cur_time,
+                        'price': best_bid.price,
+                    })
                 else:
                     asks.add(order)
 
@@ -107,6 +116,15 @@ def main(investor_arrivals_file_name, external_feed_file_name):
         writer = csv.DictWriter(f, fieldnames)
         writer.writeheader()
         writer.writerows(bbos)
+
+    with open(trade_file_name, 'w') as f:
+        fieldnames = [
+            'timestamp',
+            'price',
+        ]
+        writer = csv.DictWriter(f, fieldnames)
+        writer.writeheader()
+        writer.writerows(trades)
 
 '''
 if __name__ == '__main__':
