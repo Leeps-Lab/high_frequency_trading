@@ -29,7 +29,7 @@ At each millisecond, we:
 
 def main(investor_arrivals_file_name, external_feed_file_name, trade_file_name):
 
-    Order = namedtuple('Order', ['arrival_time', 'market_id_in_subsession', 'price', 'buy_sell_indicator', 'time_in_force'])
+    Order = namedtuple('Order', ['arrival_time', 'market_id_in_subsession', 'price', 'buy_sell_indicator', 'time_in_force', 'fundamental_value'])
 
     with open(investor_arrivals_file_name, 'r') as f:
         arrivals = [
@@ -39,6 +39,7 @@ def main(investor_arrivals_file_name, external_feed_file_name, trade_file_name):
                 int(o['price']),
                 o['buy_sell_indicator'],
                 float(o['time_in_force']),
+                float(o['fundamental_value']),
             )
             for o in csv.DictReader(f)
         ]
@@ -71,7 +72,7 @@ def main(investor_arrivals_file_name, external_feed_file_name, trade_file_name):
             if order.buy_sell_indicator == 'B':
                 # calc best ask and check whether new order crosses
                 best_ask = min(asks, key=lambda order: order.price) if asks else None
-                if best_ask is not None and order.price > best_ask.price:
+                if best_ask is not None and order.price >= best_ask.price:
                     asks.remove(best_ask)
                     trades.append({
                         'arrival_time': cur_time,
@@ -82,7 +83,7 @@ def main(investor_arrivals_file_name, external_feed_file_name, trade_file_name):
             
             else:
                 best_bid = max(bids, key=lambda order: order.price) if bids else None
-                if best_bid is not None and order.price < best_bid.price:
+                if best_bid is not None and order.price <= best_bid.price:
                     bids.remove(best_bid)
                     trades.append({
                         'arrival_time': cur_time,
@@ -101,7 +102,7 @@ def main(investor_arrivals_file_name, external_feed_file_name, trade_file_name):
                 'arrival_time': cur_time,
                 'market_id_in_subsession': 1,
                 'e_best_bid': best_bid.price if best_bid else 0,
-                'e_best_ask': best_ask.price if best_ask else 0x7FFFFFFF,
+                'e_best_offer': best_ask.price if best_ask else 0x7FFFFFFF,
                 'e_signed_volume': 0,
             })
     
@@ -110,7 +111,7 @@ def main(investor_arrivals_file_name, external_feed_file_name, trade_file_name):
             'arrival_time',
             'market_id_in_subsession',
             'e_best_bid',
-            'e_best_ask',
+            'e_best_offer',
             'e_signed_volume',
         ]
         writer = csv.DictWriter(f, fieldnames)
@@ -119,7 +120,7 @@ def main(investor_arrivals_file_name, external_feed_file_name, trade_file_name):
 
     with open(trade_file_name, 'w') as f:
         fieldnames = [
-            'timestamp',
+            'arrival_time',
             'price',
         ]
         writer = csv.DictWriter(f, fieldnames)
