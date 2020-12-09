@@ -10,7 +10,31 @@ exogenous-events:
     - thick_investors.csv
     - thick_investors.csv
     - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
   external-feed:
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
     - external_feed_trial.csv
     - external_feed_trial.csv
     - external_feed_trial.csv
@@ -24,8 +48,8 @@ parameters:
   include-manual-role: true
   include-signed-volume-widgets: true
   initial-endowment: 100
-  session-duration: 150
-  technology-unit-cost: 0.022  # $/s
+  session-duration: 10
+  technology-unit-cost: 0.01  # $/s
   k-reference-price: 0.7
   k-signed-volume: 0.5
   tax-rate: 0.1
@@ -34,7 +58,7 @@ session:
   session-name: ELO_Development_Session_3_rounds_3_150_sec_sv_on
   display-name: HFT - ELO - CDA - 3 Trade Sessions of 150 seconds - 3 traders - Frequent Order Flow - Signed Volume
   environment: elo
-  num-rounds: 3
+  num-rounds: 15
   currency: EUR
   exchange-rate: 1.5
   participation-fee: 4
