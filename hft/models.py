@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 class Constants(BaseConstants):
     name_in_url = 'hft'
     players_per_group = None
-    num_rounds = 15
+    num_rounds = 1
 
 
 class Subsession(BaseSubsession):

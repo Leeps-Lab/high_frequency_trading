@@ -24,8 +24,10 @@ class ResultsPage extends PolymerElement {
       .child {
         border: 1px solid black;
         text-align: center;
+        display: inline-block;
+        overflow: auto;
+        white-space: nowrap;
       }
-
 
       #myPayoffs, th, td {
         border: 1px solid black;
