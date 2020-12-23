@@ -53,8 +53,10 @@ class ExportHFTCSV(vanilla.View):
                     record_type,
                     datetime.date.today().isoformat()))
             fieldnames = record_class.csv_meta
-            writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
+            newField = {'timestamp': 'timestamp', 'subsession_id': 'subsession_id',	'market_id': 'market_id', 'player_id': 'player_id',	'trigger_event_type': 'trigger_event_type',	'event_no': 'event_no',	'trader_model_name': 'trader_model_name', 'inventory': 'inventory', 'bid offer': 'bid offer', 'best_bid_except_me': 'best_bid_except_me', 'best_offer_except_me': 'best_offer_except_me', 'delay': 'delay', 'staged_bid': 'staged_bid', 'staged_offer': 'staged_offer',	'implied_bid': 'implied_bid', 'implied_offer': 'implied_offer', 'slider_a_x': 'slider_a_x',	'slider_a_y': 'slider_a_y',	'slider_a_z': 'slider_a_z',	'net_worth': 'payoff', 'cash': 'cash', 'tax_paid': 'tax_paid', 'speed_cost': 'speed_cost', 'midpoint_peg': 'midpoint_peg', 'peg_price': 'peg_price', 'peg_state': 'peg_state'}
+            writer = csv.DictWriter(response, fieldnames=newField, extrasaction='ignore')
+            writer.writerow(newField)
+            #writer.writeheader()
             for row in subsession_events:
                 writer.writerow(row.__dict__)
         return response

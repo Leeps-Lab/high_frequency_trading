@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 class Constants(BaseConstants):
     name_in_url = 'hft'
     players_per_group = None
-    num_rounds = 1
+    num_rounds = 100
 
 
 class Subsession(BaseSubsession):
@@ -40,6 +40,8 @@ class Subsession(BaseSubsession):
     code = models.CharField(default=random_chars_8)
 
     def creating_session(self):
+        if (self.round_number > self.session.config['num_rounds']):
+            return
         def create_trade_session(session_format):
             trade_session_cls = TradeSessionFactory.get_session(session_format)
             dispatcher = DispatcherFactory.get_dispatcher(session_format)

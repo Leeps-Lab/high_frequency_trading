@@ -18,6 +18,9 @@ log = logging.getLogger(__name__)
  
 
 class InitialDecisionSelection(Page):
+    def is_displayed(self):
+        return self.round_number <= self.session.config['num_rounds']
+
     form_model = 'player'
     form_fields = [
         'initial_slider_a_x',
@@ -28,6 +31,8 @@ class InitialDecisionSelection(Page):
     ]
 
 class PreWaitPage(WaitPage):
+    def is_displayed(self):
+        return self.round_number <= self.session.config['num_rounds']
 
     def after_all_players_arrive(self):
         for player in self.group.get_players():
@@ -47,6 +52,8 @@ class PreWaitPage(WaitPage):
             cache.set(cache_key, trader)
 
 class EloExperiment(Page):
+    def is_displayed(self):
+        return self.round_number <= self.session.config['num_rounds']
 
     def vars_for_template(self):
         if not self.session.config['test_input_file']:
@@ -83,10 +90,15 @@ class EloExperiment(Page):
 #         print('arrived')
 
 class PostSession(Page):
+    def is_displayed(self):
+        return self.round_number <= self.session.config['num_rounds']
+
     timeout_seconds = 25
     timer_text = 'Processing results..'
 
 class ResultsWaitPage(WaitPage):
+    def is_displayed(self):
+        return self.round_number <= self.session.config['num_rounds']
 
     def after_all_players_arrive(self):
         # at some point we should add a
@@ -115,6 +127,9 @@ class ResultsWaitPage(WaitPage):
             log.error('timeout transform results group {}'.format(market_id))
 
 class Results(Page):
+    def is_displayed(self):
+        return self.round_number <= self.session.config['num_rounds']
+    #timeout_seconds = 25
     def vars_for_template(self):
         page_state = state_for_results_template(self.player)
         # send as json so polymer likes it
