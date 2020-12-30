@@ -54,7 +54,7 @@ class ExportHFTCSV(vanilla.View):
                     datetime.date.today().isoformat()))
             fieldnames = record_class.csv_meta
             if 'net_worth' in fieldnames:
-                fieldnames = {'timestamp': 'timestamp', 'subsession_id': 'subsession_id',	'market_id': 'market_id', 'player_id': 'player_id',	'trigger_event_type': 'trigger_event_type',	'event_no': 'event_no',	'trader_model_name': 'trader_model_name', 'inventory': 'inventory', 'bid offer': 'bid offer', 'best_bid_except_me': 'best_bid_except_me', 'best_offer_except_me': 'best_offer_except_me', 'delay': 'delay', 'staged_bid': 'staged_bid', 'staged_offer': 'staged_offer',	'implied_bid': 'implied_bid', 'implied_offer': 'implied_offer', 'slider_a_x': 'slider_a_x',	'slider_a_y': 'slider_a_y',	'slider_a_z': 'slider_a_z',	'net_worth': 'payoff', 'cash': 'cash', 'tax_paid': 'tax_paid', 'speed_cost': 'speed_cost', 'midpoint_peg': 'midpoint_peg', 'peg_price': 'peg_price', 'peg_state': 'peg_state'}
+                fieldnames = {'timestamp': 'timestamp', 'subsession_id': 'subsession_id', 'market_id': 'market_id', 'player_id': 'player_id', 'trigger_event_type': 'trigger_event_type', 'event_no': 'event_no', 'trader_model_name': 'trader_model_name', 'inventory': 'inventory', 'bid offer': 'bid offer', 'best_bid_except_me': 'best_bid_except_me', 'best_offer_except_me': 'best_offer_except_me', 'delay': 'delay', 'staged_bid': 'staged_bid', 'staged_offer': 'staged_offer',	'implied_bid': 'implied_bid', 'implied_offer': 'implied_offer', 'slider_a_x': 'slider_a_x',	'slider_a_y': 'slider_a_y',	'slider_a_z': 'slider_a_z',	'net_worth': 'payoff', 'cash': 'cash', 'tax_paid': 'tax_paid', 'speed_cost': 'speed_cost', 'midpoint_peg': 'midpoint_peg', 'peg_price': 'peg_price', 'peg_state': 'peg_state'}
             writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction='ignore')
             if 'net_worth' in fieldnames:
                 writer.writerow(fieldnames)
@@ -73,12 +73,17 @@ class UploadView:
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
-        the_file = request.FILES['files']
-        if form.is_valid():
-            self.base_handle_file(the_file)           
-            return HttpResponseRedirect('/success/')
-        else:
-            return HttpResponseRedirect('/failed/')
+        for the_file in request.FILES.getlist('files'):
+            #print(i)
+        #print(request.FILES.getlist('files'))
+        #the_file = request.FILES['files']
+            print(the_file)
+            if form.is_valid():
+                self.base_handle_file(the_file)           
+                #return HttpResponseRedirect('/success/')
+            else:
+                return HttpResponseRedirect('/failed/')
+        return HttpResponseRedirect('/success/')
 
     def base_handle_file(self, file, *args, **kwargs):
         path = '{}/{}'.format(self.save_directory, file)
