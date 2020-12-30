@@ -74,9 +74,7 @@ class UploadView:
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
         for the_file in request.FILES.getlist('files'):
-            #print(i)
-        #print(request.FILES.getlist('files'))
-        #the_file = request.FILES['files']
+            #the_file = request.FILES['files']
             print(the_file)
             if form.is_valid():
                 self.base_handle_file(the_file)           
