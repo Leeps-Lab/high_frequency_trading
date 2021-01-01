@@ -54,10 +54,10 @@ class ResultsPage extends PolymerElement {
             inventory="[[inventory]]"
             reference-price="[[referencePrice]]"
             initial-endowment="[[initialEndowment]]"
-            total-bids="[[totalBids]]"
-            total-asks="[[totalAsks]]"
-            avg-bid-price="[[avgBidPrice]]"
-            avg-ask-price="[[avgAskPrice]]"
+            total-bids="{{totalBids}}"
+            total-asks="{{totalAsks}}"
+            sum-bid-price="{{sumBidPrice}}"
+            sum-ask-price="{{sumAskPrice}}"
             tax-rate="[[taxRate]]"
             subscription-time="[[subscriptionTime]]"
             speed-price="[[speedPrice]]"
@@ -142,6 +142,7 @@ class ResultsPage extends PolymerElement {
     let myInv = invs[player];
     let mySig = sigs[player];
     let myFeed = feeds[player];
+    console.log(myNet)
 
     let node = document.createElement("div");
     node.setAttribute("class", "child");
@@ -281,16 +282,16 @@ class ResultsPage extends PolymerElement {
         type: Number,
       },
       totalBids: {
-        type: Number,
+        type: Object,
       },
       totalAsks: {
-        type: Number,
+        type: Object,
       },
-      avgBidPrice: {
-        type: Number,
+      sumBidPrice: {
+        type: Object,
       },
-      avgAskPrice: {
-        type: Number,
+      sumAskPrice: {
+        type: Object,
       },
       taxRate: {
         type: Number,

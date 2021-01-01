@@ -159,6 +159,11 @@ class Player(BasePlayer):
     signed_volume = models.FloatField()
     e_signed_volume = models.FloatField()
 
+    total_bids = models.IntegerField()
+    total_asks = models.IntegerField()
+    sum_bid_price = models.IntegerField()
+    sum_ask_price = models.IntegerField()
+
     # fields for this player's initial strategy decisions
     # these are set from the InitialDecisionSelection form
     initial_slider_a_x = models.FloatField()

@@ -54,13 +54,23 @@ class ExportHFTCSV(vanilla.View):
                     datetime.date.today().isoformat()))
             fieldnames = record_class.csv_meta
             if 'net_worth' in fieldnames:
-                fieldnames = {'timestamp': 'timestamp', 'subsession_id': 'subsession_id', 'market_id': 'market_id', 'player_id': 'player_id', 'trigger_event_type': 'trigger_event_type', 'event_no': 'event_no', 'trader_model_name': 'trader_model_name', 'inventory': 'inventory', 'bid offer': 'bid offer', 'best_bid_except_me': 'best_bid_except_me', 'best_offer_except_me': 'best_offer_except_me', 'delay': 'delay', 'staged_bid': 'staged_bid', 'staged_offer': 'staged_offer',	'implied_bid': 'implied_bid', 'implied_offer': 'implied_offer', 'slider_a_x': 'slider_a_x',	'slider_a_y': 'slider_a_y',	'slider_a_z': 'slider_a_z',	'net_worth': 'payoff', 'cash': 'cash', 'tax_paid': 'tax_paid', 'speed_cost': 'speed_cost', 'midpoint_peg': 'midpoint_peg', 'peg_price': 'peg_price', 'peg_state': 'peg_state'}
+                fieldnames = {'timestamp': 'timestamp', 'subsession_id': 'subsession_id', 'market_id': 'market_id', 'player_id': 'player_id', 'trigger_event_type': 'trigger_event_type', 'event_no': 'event_no', 'trader_model_name': 'trader_model_name', 'inventory': 'inventory', 'bid offer': 'bid offer', 'best_bid_except_me': 'best_bid_except_me', 'best_offer_except_me': 'best_offer_except_me', 'delay': 'delay', 'staged_bid': 'staged_bid', 'staged_offer': 'staged_offer',	'implied_bid': 'implied_bid', 'implied_offer': 'implied_offer', 'slider_a_x': 'slider_a_x',	'slider_a_y': 'slider_a_y',	'slider_a_z': 'slider_a_z',	'net_worth': 'payoff', 'cash': 'cash', 'tax_paid': 'tax_paid', 'speed_cost': 'speed_cost', 'midpoint_peg': 'midpoint_peg', 'peg_price': 'peg_price', 'peg_state': 'peg_state', 'speed': 'speed', 'reference_price': 'reference_price'}
+            
             writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction='ignore')
+            
             if 'net_worth' in fieldnames:
                 writer.writerow(fieldnames)
             else:
                 writer.writeheader()
+
             for row in subsession_events:
+                if 'net_worth' in fieldnames:
+                    if row.__dict__['delay'] == 0.1:
+                        row.__dict__['speed'] = 'ON'
+                    elif row.__dict__['delay'] == 0.5:
+                        row.__dict__['speed'] = 'OFF'
+                    else:
+                        row.__dict__['speed'] = 'N/A'
                 writer.writerow(row.__dict__)
         return response
 

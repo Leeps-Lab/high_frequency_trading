@@ -26,10 +26,10 @@ class HFTPlayerSessionSummary(Model):
     tax_paid = models.IntegerField(initial=0)
     speed_cost = models.IntegerField(initial=0)
 
-    totalBids = models.IntegerField(initial=0)
-    totalAsks = models.IntegerField(initial=0)
-    avgBidPrice = models.IntegerField(initial=0)
-    avgAskPrice = models.IntegerField(initial=0)
+    total_bids = models.IntegerField(initial=0)
+    total_asks = models.IntegerField(initial=0)
+    sum_bid_price = models.IntegerField(initial=0)
+    sum_ask_price = models.IntegerField(initial=0)
 
     #subscriptionTime = models.IntegerField(initial=0)
 
@@ -48,17 +48,24 @@ def state_for_results_template(player):
     signed_vol_sens = {str(o.player_id): o.signed_vol_sensitivity for o in summary_objects}
     ext_sensitivies = {str(o.player_id): o.external_feed_sensitivity for o in summary_objects}
 
+    totalBids = {str(o.player_id): o.total_bids for o in summary_objects}
+    totalAsks = {str(o.player_id): o.total_asks for o in summary_objects}
+    sumBidPrice = {str(o.player_id): o.sum_bid_price for o in summary_objects}
+    sumAskPrice = {str(o.player_id): o.sum_ask_price for o in summary_objects}
+
+    '''
     mySummary = summary_objects.get(player_id=player.id)
 
     totalBids = mySummary.totalBids
     totalAsks = mySummary.totalAsks
     avgBidPrice = mySummary.avgBidPrice
     avgAskPrice = mySummary.avgAskPrice
+    '''
     #subscriptionTime = mySummary.subscriptionTime
 
     return {'nets': nets, 'taxes': taxes, 'speed_costs': speed_costs, 'names': names, 'strategies': strategies, 
         'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies, 'totalBids': totalBids, 
-        'totalAsks': totalAsks, 'avgBidPrice': avgBidPrice, 'avgAskPrice':avgAskPrice}
+        'totalAsks': totalAsks, 'sumBidPrice': sumBidPrice, 'sumAskPrice':sumAskPrice}
 
 def elo_player_summary(player):
     market = cache.get(get_cache_key('from_kws', model_name='market',
@@ -85,13 +92,18 @@ def elo_player_summary(player):
     technology_subscription = Subscription(
             'speed_tech', player.id, .022)
 
-    if(trader.orderstore.totalBids != 0):
-        avgBidPrice = trader.orderstore.sumBidPrice / trader.orderstore.totalBids
+    print('trader1')
+    print(trader.sum_bid_price, trader.total_bids)
+    print(trader.sum_ask_price, trader.total_asks)
+
+
+    if(trader.total_bids != 0):
+        avgBidPrice = trader.sum_bid_price / trader.total_bids
     else:
         avgBidPrice = 0
     
-    if(trader.orderstore.totalAsks != 0):
-        avgAskPrice = trader.orderstore.sumAskPrice / trader.orderstore.totalAsks
+    if(trader.total_asks != 0):
+        avgAskPrice = trader.sum_ask_price / trader.total_asks
     else:
         avgAskPrice = 0
     
@@ -107,10 +119,10 @@ def elo_player_summary(player):
         net_worth=player.net_worth,
         tax_paid=player.tax_paid,
         speed_cost=player.speed_cost,
-        avgBidPrice=avgBidPrice,
-        avgAskPrice=avgAskPrice,
-        totalBids=trader.orderstore.totalBids,
-        totalAsks=trader.orderstore.totalAsks
+        sum_bid_price=trader.sum_bid_price,
+        sum_ask_price=trader.sum_ask_price,
+        total_bids=trader.total_bids,
+        total_asks=trader.total_asks
         #subscriptionTime=technology_subscription.subscriptionTimeTotal()
         )
 

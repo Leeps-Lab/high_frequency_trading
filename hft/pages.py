@@ -129,7 +129,7 @@ class ResultsWaitPage(WaitPage):
 class Results(Page):
     def is_displayed(self):
         return self.round_number <= self.session.config['num_rounds']
-    timeout_seconds = 25
+    timeout_seconds = 20
     def vars_for_template(self):
         page_state = state_for_results_template(self.player)
         # send as json so polymer likes it

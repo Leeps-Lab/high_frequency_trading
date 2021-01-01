@@ -18,7 +18,7 @@ parameters:
   initial-endowment: 100
   k-reference-price: 0.7
   k-signed-volume: 0.5
-  session-duration: 20
+  session-duration: 240
   tax-rate: 0.1
   technology-unit-cost: 0.01
 session:

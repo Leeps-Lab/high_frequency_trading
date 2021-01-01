@@ -8,10 +8,10 @@ class EquationsTable extends PolymerElement {
             inventory: Number,
             referencePrice: Number,
             initialEndowment: Number,
-            totalBids: Number,
-            totalAsks: Number,
-            avgBidPrice: Number,
-            avgAskPrice: Number,
+            totalBids: Object,
+            totalAsks: Object,
+            sumBidPrice: Object,
+            sumAskPrice: Object,
             taxRate: Number,
             subscriptionTime: Number,
             speedPrice: Number,
@@ -143,7 +143,7 @@ class EquationsTable extends PolymerElement {
                         </div>
                         <div class="col">
                             <div>Sold Units</div>
-                            <div>[[ totalAsks ]]</div>
+                            <div>[[ getTotalAsks() ]]</div>
                         </div>
                         <div class="col operator">
                             <div>&times;</div>
@@ -151,7 +151,7 @@ class EquationsTable extends PolymerElement {
                         </div>
                         <div class="col">
                             <div>Avg. Sale Price</div>
-                            <div>[[ _digitCorrector(avgAskPrice) ]]</div>
+                            <div>[[ getAvgAskPrice() ]]</div>
                         </div>
                         <div class="col operator">
                             <div>] - [</div>
@@ -159,7 +159,7 @@ class EquationsTable extends PolymerElement {
                         </div>
                         <div class="col">
                             <div>Bought Units</div>
-                            <div>[[ totalBids ]]</div>
+                            <div>[[ getTotalBids() ]]</div>
                         </div>
                         <div class="col operator">
                             <div>&times;</div>
@@ -167,7 +167,7 @@ class EquationsTable extends PolymerElement {
                         </div>
                         <div class="col">
                             <div>Avg. Buy Price</div>
-                            <div>[[ _digitCorrector(avgBidPrice) ]]</div>
+                            <div>[[ getAvgBidPrice() ]]</div>
                         </div>
                         <div class="col operator">
                             <div>]</div>
@@ -187,7 +187,7 @@ class EquationsTable extends PolymerElement {
                         </div>
                         <div class="col">
                             <div>Units Purchased</div>
-                            <div>[[ totalBids ]]</div>
+                            <div>[[ getTotalBids() ]]</div>
                         </div>
                         <div class="col operator">
                             <div>-</div>
@@ -195,7 +195,7 @@ class EquationsTable extends PolymerElement {
                         </div>
                         <div class="col">
                             <div>Units Sold</div>
-                            <div>[[ totalAsks ]]</div>
+                            <div>[[ getTotalAsks() ]]</div>
                         </div>
                         <div class="col operator">
                             <div>] &times;</div>
@@ -266,7 +266,7 @@ class EquationsTable extends PolymerElement {
     }
 
     _round2Decimal(value) {
-        return parseFloat((value).toFixed(2));
+        return parseFloat((value).toFixed(5));
     }
 
     //Adjust number to the correct value by multiplying by .0001 
@@ -279,7 +279,7 @@ class EquationsTable extends PolymerElement {
     }
 
     _finalCash() {
-        return this._round2Decimal(this._digitCorrector(this.initialEndowment) + (this.totalAsks * this._digitCorrector(this.avgAskPrice)) - (this.totalBids * this._digitCorrector(this.avgBidPrice)));
+        return this._round2Decimal(this._digitCorrector(this.initialEndowment) + (this.getTotalAsks() * this.getAvgAskPrice()) - (this.getTotalBids() * this.getAvgBidPrice()));
     }
 
     _grossPayoff() {
@@ -291,7 +291,7 @@ class EquationsTable extends PolymerElement {
     }
 
     _payoff() {
-        return this._round2Decimal(this._grossPayoff() - this._taxPayment() - this._speedCost()); 
+        return parseFloat((this._grossPayoff() - this._taxPayment() - this._speedCost()).toFixed(2)); 
     }
 
     _speedCost() {
@@ -306,7 +306,7 @@ class EquationsTable extends PolymerElement {
             player = Object.keys(payoffs)[i];
             
             if(names[player] == 'You') {
-                return this._round2Decimal(speedCosts[player]);
+                return parseFloat((speedCosts[player]).toFixed(2));
             }
         } 
     }
@@ -318,6 +318,78 @@ class EquationsTable extends PolymerElement {
     _speedCostCalculation() {
         //return this.speedPrice * this.subscriptionTime;
         return this._round2Decimal(this.speedPrice * this._secondsSpeedUsed());
+    }
+
+    getTotalBids() {
+        let payoffs = this.nets;
+        this.numPlayers = Object.keys(payoffs).length;
+        const totalBids = this.totalBids;
+        const names = this.names;
+        let player = 0;
+
+        for(let i = 0; i < this.numPlayers; i++) {
+            player = Object.keys(payoffs)[i];
+            
+            if(names[player] == 'You') {
+                return totalBids[player];
+            }
+        } 
+    }
+
+    getTotalAsks() {
+        let payoffs = this.nets;
+        this.numPlayers = Object.keys(payoffs).length;
+        const totalAsks = this.totalAsks;
+        const names = this.names;
+        let player = 0;
+
+        for(let i = 0; i < this.numPlayers; i++) {
+            player = Object.keys(payoffs)[i];
+            
+            if(names[player] == 'You') {
+                return totalAsks[player];
+            }
+        } 
+    }
+
+    getAvgBidPrice() {
+        let payoffs = this.nets;
+        this.numPlayers = Object.keys(payoffs).length;
+        const sumBidPrice = this.sumBidPrice;
+        const names = this.names;
+        let player = 0;
+
+        for(let i = 0; i < this.numPlayers; i++) {
+            player = Object.keys(payoffs)[i];
+            
+            if(names[player] == 'You') {
+                if (this.getTotalBids() == 0) {
+                    return 0;
+                } else {
+                    return this._digitCorrector(sumBidPrice[player] / this.getTotalBids());
+                }   
+            }
+        } 
+    }
+
+    getAvgAskPrice() {
+        let payoffs = this.nets;
+        this.numPlayers = Object.keys(payoffs).length;
+        const sumAskPrice = this.sumAskPrice;
+        const names = this.names;
+        let player = 0;
+
+        for(let i = 0; i < this.numPlayers; i++) {
+            player = Object.keys(payoffs)[i];
+            
+            if(names[player] == 'You') {
+                if (this.getTotalAsks() == 0) {
+                    return 0;
+                } else {
+                    return this._digitCorrector(sumAskPrice[player] / this.getTotalAsks());
+                }
+            }
+        } 
     }
 }
 

@@ -65,7 +65,11 @@ class TraderRecord(TimeAwareInSessionRecord):
     midpoint_peg = models.BooleanField()
     peg_price = models.IntegerField()
     peg_state = models.IntegerField()
- 
+    
+    total_bids = models.IntegerField()
+    total_asks = models.IntegerField()
+    sum_bid_price = models.IntegerField()
+    sum_ask_price = models.IntegerField()
 
 class MarketRecord(TimeAwareInSessionRecord):
 

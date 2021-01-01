@@ -71,6 +71,12 @@ class BaseTrader(object):
         self.message_arrival_estimate = None 
         self.peg_price = None
         self.peg_state = None
+
+        self.total_bids = 0
+        self.total_asks = 0
+        self.sum_bid_price = 0
+        self.sum_ask_price = 0
+        
     
     @classmethod
     def from_otree_player(cls, otree_player):
@@ -264,8 +270,10 @@ w: %s, speed unit cost: %s' % (
     def order_executed(self, event):
         def adjust_inventory(buy_sell_indicator):
             if buy_sell_indicator == 'B':
+                self.total_bids += 1
                 self.inventory.add()
             elif buy_sell_indicator == 'S':
+                self.total_asks += 1
                 self.inventory.remove()
         def adjust_net_worth():
             reference_price = self.market_facts['reference_price']
@@ -273,8 +281,10 @@ w: %s, speed unit cost: %s' % (
             self.net_worth = self.cash + cash_value_of_stock
         def adjust_cash_position(execution_price, buy_sell_indicator):
             if buy_sell_indicator == 'B':
+                self.sum_bid_price += execution_price
                 self.cash -= execution_price
             elif buy_sell_indicator == 'S':
+                self.sum_ask_price += execution_price
                 self.cash += execution_price
         event_as_kws = event.to_kwargs()
         execution_price = event.message.execution_price
