@@ -40,6 +40,7 @@ class Subsession(BaseSubsession):
     code = models.CharField(default=random_chars_8)
 
     def creating_session(self):
+        #cache.clear()
         if (self.round_number > self.session.config['num_rounds']):
             return
         def create_trade_session(session_format):
