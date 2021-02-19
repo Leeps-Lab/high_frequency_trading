@@ -65,7 +65,7 @@ def state_for_results_template(player):
 
     return {'nets': nets, 'taxes': taxes, 'speed_costs': speed_costs, 'names': names, 'strategies': strategies, 
         'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies, 'totalBids': totalBids, 
-        'totalAsks': totalAsks, 'sumBidPrice': sumBidPrice, 'sumAskPrice':sumAskPrice}
+        'totalAsks': totalAsks, 'sumBidPrice': sumBidPrice, 'sumAskPrice': sumAskPrice}
 
 def elo_player_summary(player):
     market = cache.get(get_cache_key('from_kws', model_name='market',
@@ -91,11 +91,6 @@ def elo_player_summary(player):
 
     technology_subscription = Subscription(
             'speed_tech', player.id, .022)
-
-    print('trader1')
-    print(trader.sum_bid_price, trader.total_bids)
-    print(trader.sum_ask_price, trader.total_asks)
-
 
     if(trader.total_bids != 0):
         avgBidPrice = trader.sum_bid_price / trader.total_bids

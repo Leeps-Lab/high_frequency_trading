@@ -79,6 +79,8 @@ config_maps = {
         'exogenous_event_directory': ('session', 'exogenous-event-directory'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'fundamental_value_jumps': ('exogenous-events', 'fundamental-value-jumps'),
+        'auto_advance': ('session', 'auto-advance'),
+        'next_button_timeout': ('session', 'next-button-timeout'),
         },
     'elo': { 
         'name': ('session', 'session-name'),
@@ -107,6 +109,8 @@ config_maps = {
         'test_input_file': ('tests', 'test_input_file'),
         'peg_proportion': ('parameters', 'peg-proportion'),
         'post_session_delay': ('session', 'post-session-delay'),
+        'auto_advance': ('session', 'auto-advance'),
+        'next_button_timeout': ('session', 'next-button-timeout'),
     }
 }
 

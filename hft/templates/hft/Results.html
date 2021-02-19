@@ -26,11 +26,20 @@
         margin-right: 30px;
     }
 </style>
+
 <form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
-    <div class="centering">
+    <div class="centering" id="next" style="display:none;">
         {% next_button %}
     </div>
 </form>
+
+<script>
+    const myForm = document.getElementById('next');
+    setTimeout(() => {
+    myForm.style.display = 'block';
+    }, "{{next_button_timeout}}" * 1000);
+</script>
+
 <results-page
     nets="{{nets}}"
     taxes="{{taxes}}"

@@ -129,11 +129,22 @@ class ResultsWaitPage(WaitPage):
 class Results(Page):
     def is_displayed(self):
         return self.round_number <= self.session.config['num_rounds']
-    timeout_seconds = 20
+
+    # Auto advance results page
+    def get_timeout_seconds(self):
+        timeout = self.session.config['auto_advance']
+        if timeout > 0:
+            return timeout
+
     def vars_for_template(self):
         page_state = state_for_results_template(self.player)
         # send as json so polymer likes it
         out = {k: json.dumps(v) for k, v in page_state.items()}
+        print(type(out))
+        print(self.session.config)
+
+        out['next_button_timeout'] = self.session.config['next_button_timeout']
+        #print(out)
         return out
 
 page_sequence = [
