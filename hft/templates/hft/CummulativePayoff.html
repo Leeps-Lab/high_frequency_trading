@@ -1,0 +1,107 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% block content %}
+<style>
+    h1 {
+        text-align: center;
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    #container {
+        flex-grow: 1;
+    }
+
+    #image {
+        text-align: center;
+    }
+
+    .row {
+        align-items: center ;
+    }
+
+    .centering {
+        text-align: right;
+
+    }
+
+    .table {
+        display: none;
+    }
+
+    .red {
+        color: red;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    tr {
+        font-size: larger;
+    }
+    
+    .card {
+        display: none;
+    }
+
+    table {
+        margin-top: 20px;
+    }
+</style>
+
+<div id="container">    
+    <div>
+        <div>
+            <h1 class = "header">
+                Payoffs
+            </h1>
+        </div>
+        
+        <table>
+            {% if random_payoff %}
+                <tr>
+                    <td> 
+                        <div class="red"> Round {{ random_round_num }}: </div>
+                    </td>
+                    <td> 
+                        {{ random_round_payoff }}
+                    </td>
+                </tr>
+            {% else %}
+                {% for payoff in all_payoffs %}
+                    <tr>
+                        <td> 
+                            <div class="red"> Round {{ forloop.counter }}: </div>
+                        </td>
+                        <td> 
+                            <div> {{ payoff }} </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts%}
+    <script>
+        let OTREE_CONSTANTS = {
+                playerId: "{{player.id}}",
+                subsessionId: "{{player.subsession.id}}",
+                marketId: "{{player.market_id}}",
+                speedCost: "{{player.speed_unit_cost}}",
+                idInGroup: "{{player.id_in_group}}",
+                manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+                svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+                sessionLength: "{{subsession.session_duration}}",
+                auctionFormat: "{{subsession.auction_format}}",
+        };
+    </script>
+    <link rel="manifest" href="{% static 'hft/manifest.json' %}">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+    <script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
+    <script type="module" src="{% static 'hft/results_page/results-page.js' %}"></script>
+{% endblock %}

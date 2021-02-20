@@ -2,7 +2,7 @@ import os
 import logging
 import sys
 import yaml
-
+import random
 
 class CustomOtreeConfig:
     otree_default_required = {'app_sequence': ['hft']}
@@ -27,12 +27,20 @@ class CustomOtreeConfig:
         for otree_config_key, yaml_key in yaml_to_otree_map.items():
             parent_key, child_key = yaml_key
             try:
-                otree_configs[otree_config_key] = self.base_configs[parent_key][child_key]
+                value = self.base_configs[parent_key][child_key]
+                otree_configs[otree_config_key] = value
+                
+                # Generate random round number
+                if otree_config_key == 'random_payoff' and value == True:
+                    num_rounds = self.base_configs['session']['num-rounds']
+                    otree_configs['random_round_num'] = random.randint(1, num_rounds)
+
             except KeyError:
                 otree_configs[otree_config_key] = None
                 sys.stdout.write('%s:%s is missing in %s, set to none.\n' % (
                     parent_key, child_key, self.filename))
         otree_configs.update(self.otree_default_required)
+        
         return otree_configs
 
     @classmethod
@@ -81,7 +89,8 @@ config_maps = {
         'fundamental_value_jumps': ('exogenous-events', 'fundamental-value-jumps'),
         'auto_advance': ('session', 'auto-advance'),
         'next_button_timeout': ('session', 'next-button-timeout'),
-        },
+        'random_payoff': ('session', 'random-payoff'),
+    },
     'elo': { 
         'name': ('session', 'session-name'),
         'display_name': ('session', 'display-name'),
@@ -111,6 +120,7 @@ config_maps = {
         'post_session_delay': ('session', 'post-session-delay'),
         'auto_advance': ('session', 'auto-advance'),
         'next_button_timeout': ('session', 'next-button-timeout'),
+        'random_payoff': ('session', 'random-payoff'),
     }
 }
 

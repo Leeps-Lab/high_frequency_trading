@@ -9,6 +9,7 @@ from .output import TraderRecord
 from .session_results import elo_player_summary, state_for_results_template
 from .utility import ensure_results_ready
 from settings import test_inputs_dir
+import random
 
 log = logging.getLogger(__name__)
 
@@ -140,13 +141,29 @@ class Results(Page):
         page_state = state_for_results_template(self.player)
         # send as json so polymer likes it
         out = {k: json.dumps(v) for k, v in page_state.items()}
-        print(type(out))
-        print(self.session.config)
 
         out['next_button_timeout'] = self.session.config['next_button_timeout']
-        #print(out)
         return out
 
+# Last page in experiment to display all payoffs
+class CummulativePayoff(Page):
+    def is_displayed(self):
+        return self.round_number == self.session.config['num_rounds'] + 1
+    
+    def vars_for_template(self):
+        out = {'all_payoffs': []}
+        num_rounds = self.session.config['num_rounds']
+        out['num_rounds'] = num_rounds
+        out['random_payoff'] = self.session.config['random_payoff']
+        out['random_round_num'] = self.session.config['random_round_num']
+
+        for i in range(num_rounds):
+            out['all_payoffs'].append(round(self.player.in_round(i+1).net_worth * .0001, 2))
+        
+        out['random_round_payoff'] = out['all_payoffs'][out['random_round_num'] - 1]
+
+        return out
+    
 page_sequence = [
     InitialDecisionSelection,
     PreWaitPage,
@@ -156,4 +173,5 @@ page_sequence = [
     # PostSession,
     ResultsWaitPage,
     Results,
+    CummulativePayoff,
 ]
