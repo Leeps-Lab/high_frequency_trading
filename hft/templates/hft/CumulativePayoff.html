@@ -60,6 +60,7 @@
         
         <table>
             {% if random_payoff %}
+            <table>
                 <tr>
                     <td> 
                         <div class="red"> Round {{ random_round_num }}: </div>
@@ -80,6 +81,38 @@
                     </tr>
                 {% endfor %}
             {% endif %}
+                <tr>
+                    <td> 
+                        <div class="red"> Cumulative Payoff: </div>
+                    </td>
+                    <td> 
+                        <div> {{ sum_payoffs }} </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td> 
+                        <div class="red"> Total Cash Payment: </div>
+                    </td>
+                    <td> 
+                        <div> Participation Fee + max(0, Cummulative Payoff * Exchange Rate) </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td> 
+                        <div class="red"> Total Cash Payment: </div>
+                    </td>
+                    <td> 
+                        <div> {{ participation_fee }} + max(0, {{ sum_payoffs }} * {{ exchange_rate }}) </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td> 
+                        <div class="red"> Total Cash Payment: </div>
+                    </td>
+                    <td> 
+                        <div> {{ total_cash_payment }} </div>
+                    </td>
+                </tr>
         </table>
     </div>
 </div>

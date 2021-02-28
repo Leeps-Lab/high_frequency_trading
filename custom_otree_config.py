@@ -31,7 +31,7 @@ class CustomOtreeConfig:
                 otree_configs[otree_config_key] = value
                 
                 # Generate random round number
-                if otree_config_key == 'random_payoff' and value == True:
+                if otree_config_key == 'random_payoff':
                     num_rounds = self.base_configs['session']['num-rounds']
                     otree_configs['random_round_num'] = random.randint(1, num_rounds)
 

@@ -146,7 +146,7 @@ class Results(Page):
         return out
 
 # Last page in experiment to display all payoffs
-class CummulativePayoff(Page):
+class CumulativePayoff(Page):
     def is_displayed(self):
         return self.round_number == self.session.config['num_rounds'] + 1
     
@@ -162,6 +162,21 @@ class CummulativePayoff(Page):
         
         out['random_round_payoff'] = out['all_payoffs'][out['random_round_num'] - 1]
 
+        if out['random_payoff'] == False:
+            out['sum_payoffs'] = sum(out['all_payoffs'])
+        else:
+            out['sum_payoffs'] = out['random_round_payoff']
+        
+
+        participation_fee = self.session.config['participation_fee']
+        out['participation_fee'] = participation_fee
+        
+        exchange_rate = self.session.config['real_world_currency_per_point']
+        print(participation_fee)
+        out['exchange_rate'] = exchange_rate
+        out['max_payoff'] = max(0, out['sum_payoffs'] * exchange_rate)
+        out['total_cash_payment'] = participation_fee + out['max_payoff']
+
         return out
     
 page_sequence = [
@@ -173,5 +188,5 @@ page_sequence = [
     # PostSession,
     ResultsWaitPage,
     Results,
-    CummulativePayoff,
+    CumulativePayoff,
 ]
