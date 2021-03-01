@@ -16,6 +16,7 @@ from django.views.generic.list import ListView
 from .exogenous_event import (
     handle_exogenous_event_file, ExogenousEventFile, ExogenousOrderRecord, ExternalFeedRecord)
 from .output import IN_SESSION_RECORD_CLASSES
+from multiprocessing import Process
 
 class HFTOutputView(vanilla.TemplateView):
 	
@@ -84,14 +85,14 @@ class UploadView:
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
         for the_file in request.FILES.getlist('files'):
-            #the_file = request.FILES['files']
             print(the_file)
+            
             if form.is_valid():
-                self.base_handle_file(the_file)           
-                #return HttpResponseRedirect('/success/')
+                process = Process(target = self.base_handle_file, args = (the_file, ))
+                process.start()
             else:
                 return HttpResponseRedirect('/failed/')
-        return HttpResponseRedirect('/success/')
+        return HttpResponseRedirect('/success/')   
 
     def base_handle_file(self, file, *args, **kwargs):
         path = '{}/{}'.format(self.save_directory, file)
@@ -148,6 +149,7 @@ class CustomConfigUploadView(vanilla.View, UploadView):
         config_obj = SessionConfig(settings.SESSION_CONFIG_DEFAULTS)
         config_obj.update(new_conf)
         config_obj.clean()
+
         SESSION_CONFIGS_DICT[new_conf['name']] = config_obj
 
 
