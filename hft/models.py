@@ -126,7 +126,6 @@ class Subsession(BaseSubsession):
 class Group(BaseGroup):
     pass
 
-
 class Player(BasePlayer):
 
     channel = models.CharField(max_length=255)
@@ -188,3 +187,5 @@ class Player(BasePlayer):
                     setattr(self, field.name, getattr(state_record, field.name))
         self.save()
 
+class Ping(models.Model):
+    response = models.CharField()

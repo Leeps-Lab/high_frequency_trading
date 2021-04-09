@@ -204,7 +204,7 @@ class MarketSession extends PolymerElement {
         myOffer: Number,
         eBestBid: Number,
         eBestOffer: Number,
-        clearingPrice:Object,
+        clearingPrice: Object,
         middlePeg: {
             type: Number,
             computed: '_computeMiddlePeg(eBestBid, eBestOffer)',
@@ -213,8 +213,10 @@ class MarketSession extends PolymerElement {
             type: Number,
             computed: '_calculateWealth(cash, speedCost, referencePrice, inventory)'
         },
-        inventory: {type: Number,
-            value: 0},
+        inventory: {
+            type: Number,
+            value: 0
+        },
         cash: Number,
         speedUnitCost: Number,
         speedCost: {type: Number, value: 0},
@@ -286,6 +288,22 @@ class MarketSession extends PolymerElement {
 
         this.potentiallyAggressiveOrders = new Set()
 
+        // Used to test for ping
+        var port = "";
+        if (window.location.port.length > 0) {
+            port = ':' + window.location.port;
+        }
+        var url = 'http://' + window.location.hostname + port + '/ping/';
+        setInterval(function(){
+            var t0 = performance.now();
+            fetch(url).then(function() {
+                var t1 = performance.now();
+                var ping = 'Latency: ' + (t1-t0).toFixed(2) + 'ms';
+                console.log(ping);
+            }).catch(function() {
+                console.log("Error");
+            });
+        }, 1000);
     }
 
     outboundMessage(event) {
@@ -298,7 +316,7 @@ class MarketSession extends PolymerElement {
             detail: cleanMessage })
         this.$.websocket.dispatchEvent(wsMessage)
     }
-    
+
     inboundMessage(event) {
         const messagePayload = event.detail
         // this api is to handle updates as single messages

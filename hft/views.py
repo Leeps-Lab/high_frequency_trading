@@ -17,6 +17,7 @@ from .exogenous_event import (
     handle_exogenous_event_file, ExogenousEventFile, ExogenousOrderRecord, ExternalFeedRecord)
 from .output import IN_SESSION_RECORD_CLASSES
 from multiprocessing import Process
+import json
 
 class HFTOutputView(vanilla.TemplateView):
 	
@@ -199,9 +200,14 @@ class HFTExternalFeedListView(vanilla.ListView):
         file_record = ExogenousEventFile.objects.get(
             code=self.kwargs['file_code'], record_type='external_feed')
         return self.model.objects.filter(submitted_file=file_record).order_by('arrival_time')
-
 def success_view(request):
     return render(request, 'hft_extensions/Success.html')
 
 def failed_view(request):
     return render(request, 'hft_extensions/Failed.html')
+
+# Endpoint to ping server for latency testing
+def ping(request):
+    if request.method == 'GET':
+        response = json.dumps(['Pong'])
+    return HttpResponse(response, content_type='text/json')
