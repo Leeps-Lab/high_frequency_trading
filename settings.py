@@ -100,7 +100,7 @@ LANGUAGE_CODE = 'en'
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
 INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
-EXTENSION_APPS = ['hft']
+EXTENSION_APPS = ['hft', 'AnonPay']
 
 # SENTRY_DSN = ''
 
@@ -205,7 +205,7 @@ SESSION_CONFIG_DEFAULTS = {
     'real_world_currency_per_point': 1,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
-    'app_sequence': ['hft'],
+    'app_sequence': ['hft', 'AnonPay'],
     'session_length': 240, 
     'doc': ''
 }

@@ -172,13 +172,24 @@ class CumulativePayoff(Page):
         out['participation_fee'] = participation_fee
         
         exchange_rate = self.session.config['real_world_currency_per_point']
-        print(participation_fee)
         out['exchange_rate'] = exchange_rate
         out['max_payoff'] = max(0, out['sum_payoffs'] * exchange_rate)
         out['total_cash_payment'] = participation_fee + out['max_payoff']
 
+        # To send to AnonPay
+        self.player.cummulative_payoff = out['total_cash_payment']
+        print('TEST')
+        self.participant.vars['payment'] = out['total_cash_payment']
+        print(self.participant.vars['payment'])
+
         return out
-    
+
+class FinalResultsWaitPage(WaitPage):
+    def is_displayed(self):
+        return self.round_number == self.session.config['num_rounds'] + 1
+    after_all_players_arrive = 'set_and_adjust_payments'
+
+
 page_sequence = [
     InitialDecisionSelection,
     PreWaitPage,
@@ -189,4 +200,5 @@ page_sequence = [
     ResultsWaitPage,
     Results,
     CumulativePayoff,
+    #  FinalResultsWaitPage,
 ]

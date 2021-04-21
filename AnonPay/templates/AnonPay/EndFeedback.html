@@ -1,0 +1,37 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Thank you
+{% endblock %}
+
+{% block content %}
+
+    <p>The following data has been saved:</p>
+    
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tr>
+                <th>Payment details</th><td>{{ emailEntered }}</td>
+            </tr>
+            <tr>
+                <th>Payment amount</th><td>{{ nicePayment }} €</td>
+            </tr>
+        </table>
+    </div>
+    
+    <p><i>If you spot an error in these data, you must <b>now</b> contact the lab using the code <tt>{{ player.emergency_code }}</tt>: <a href="mailto:lab@example.com">lab@example.com</a>.</i></p>
+    
+    <p>If you have no further instructions, the experiment is now completed. You can now close the browser.</p>
+
+    <p>Payment will be made within three working days. Please do not contact the laboratory until this deadline has passed. Quote the code <tt>{{ player.emergency_code }}</tt> in all queries. Without this code it is not possible to determine your payment amount.</p>
+
+    <p>Using this payment form ensures that your behavioral data cannot be linked to your payment data. Thank you for your understanding.</p>
+    
+    <p><b>If you like, you can give us feedback on today's experiment.</b> Please make sure not to enter any personal data in this field.</p>
+    
+    {% formfield player.feedback label="" %}
+    
+    {% next_button %}
+    
+{% endblock %}
