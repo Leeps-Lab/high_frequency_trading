@@ -123,18 +123,7 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
-    def set_and_adjust_payments(self):
-        # This runs exactly once: When all players have arrived at the WaitPage.
-        # See pages.py, line 149.
-
-        paym = [float(p.cummulative_payoff) for p in self.get_players()] # must be float
-
-        # After the algorithms, the adjusted payments are written back:
-        for (p, pi_tilde) in zip(self.get_players(), paym):
-            p.participant.vars['payment'] = pi_tilde
-            # Note how oTree's own payoff variable is not used.
-            # You may use it, but it is ignored by the AnonPay app.
-            # Only participant.vars['payment'] matters to AnonPay.
+    pass
 
 class Player(BasePlayer):
 
