@@ -46,7 +46,7 @@ class Details(PageWithAmount):
                 
                 lines = fp.read().splitlines()
                 
-                lines.append(f'"{self.player.email}";"{self.participant.vars["payment"]}"')
+                lines.append(f'"{self.player.email}";"{self.participant.vars["payment"]}";"{"Consented" if self.participant.vars["consent"] else "Did not consent"}"')
                 
                 random.shuffle(lines)
                 

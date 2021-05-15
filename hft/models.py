@@ -42,6 +42,15 @@ class Subsession(BaseSubsession):
         #cache.clear()
         if (self.round_number > self.session.config['num_rounds']):
             return
+        session_format = self.session.config['environment']    
+        if self.round_number == 1:
+            self.session.config = utility.process_configs(
+                session_format, self.session.config)
+            self.do_groups()
+        else:
+            self.group_like_round(1)
+    def register(self):
+
         def create_trade_session(session_format):
             trade_session_cls = TradeSessionFactory.get_session(session_format)
             dispatcher = DispatcherFactory.get_dispatcher(session_format)
@@ -52,13 +61,6 @@ class Subsession(BaseSubsession):
                 trade_session.register_exogenous_event(
                     event_type, event_filename)
             return trade_session
-        session_format = self.session.config['environment']    
-        if self.round_number == 1:
-            self.session.config = utility.process_configs(
-                session_format, self.session.config)
-            self.do_groups()
-        else:
-            self.group_like_round(1)
         session_configs = self.session.config
         session_format = session_configs['environment']
         trade_session = create_trade_session(session_format)
@@ -72,10 +74,11 @@ class Subsession(BaseSubsession):
             market = trade_session.create_market(
                 group_id, exchange_host, exchange_port, **session_configs)                                 
             for player in group.get_players():
-                market.register_player(player)
-                player.configure_for_trade_session(market, session_format)
-                trader = TraderFactory.get_trader(session_format, player)
-                initialize_model_cache(trader)
+                if player.participant.vars['consent'] == True:
+                    market.register_player(player)
+                    player.configure_for_trade_session(market, session_format)
+                    trader = TraderFactory.get_trader(session_format, player)
+                    initialize_model_cache(trader)
             initialize_model_cache(market)
             market_id_map[market.id_in_subsession] = market.market_id
             for event_type_name in trade_session.exogenous_events.keys():

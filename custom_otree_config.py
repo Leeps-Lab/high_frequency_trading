@@ -5,7 +5,7 @@ import yaml
 import random
 
 class CustomOtreeConfig:
-    otree_default_required = {'app_sequence': ['hft', 'AnonPay']}
+    otree_default_required = {'app_sequence': ['Consent', 'hft', 'AnonPay']}
 
     def __init__(self, configs:dict, filename:str):
         self.base_configs = configs

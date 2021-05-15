@@ -2,23 +2,23 @@
 {% load otree static %}
 
 {% block title %}
-    Payment form
+    Auszahlungsformular
 {% endblock %}
 
 {% block content %}
-    <p>Welcome to the payment form of the Example Lab.</p>
+    <p>Willkommen beim Auszahlungsformular des Kölner Laboratoriums für Wirtschaftsforschung.</p>
     
-    <p>Using this payment form ensures that your behavioral data cannot be linked to your payment data.</p>
+    <p>Die Verwendung dieses Formulars stellt sicher, dass Ihre Verhaltensdaten nicht mit Ihren Auszahlungsdaten verknüpft werden können.</p>
     
-    <p>Your payment is <b>${{ nicePayment }}</b>. To perform the payment, please enter your payment details.</p>
+    <p>Ihr Auszahlungsbetrag beträgt <b>{{ nicePayment }} €</b>. Damit wir die Auszahlung vornehmen können, geben Sie bitte hier Ihre Auszahlungsdaten ein.</p>
 
-    {% formfield player.email label="Your payment details" %}
+    {% formfield player.email label="Ihre E-Mail-Adresse auf PayPal" %}
 
     <script type="text/javascript">
 	    document.getElementsByName("email")[0].value = "";
     </script>
     
-    <p>By submitting this form, you agree to the <a href="https://example.com" target="_new">privacy policy of the Example Lab</a>. In addition, you agree that your payment data may be processed for the purposes of the payment. Your behavioral data will not be linked to your payment data.</p>
+    <p>Mit dem Absenden dieses Formulars stimmen Sie den <a href="https://www.lab.uni-koeln.de/public/privacy.php" target="_new">Datenschutzbestimmungen des Kölner Laboratoriums für Wirtschaftsforschung</a> zu. Darüber hinaus erklären Sie sich damit einverstanden, dass Ihre Zahlungsdaten für die Zwecke der Zahlung verarbeitet werden dürfen. In diesem Rahmen übermitteln wir an PayPal Ihren Auszahlungsbetrag und Ihre E-Mail-Adresse. Die Datenschutzbestimmungen von PayPal finden Sie <a href="https://www.paypal.com/webapps/mpp/ua/privacy-full" target="_new">hier</a>. Ihre Verhaltensdaten werden nicht mit Ihren Auszahlungsdaten verknüpft.</p>
 
     {% next_button %}
 
