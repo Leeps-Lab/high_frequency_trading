@@ -90,6 +90,7 @@ config_maps = {
         'auto_advance': ('session', 'auto-advance'),
         'next_button_timeout': ('session', 'next-button-timeout'),
         'random_payoff': ('session', 'random-payoff'),
+        'max_payment': ('session', 'max-payment'),
     },
     'elo': { 
         'name': ('session', 'session-name'),
@@ -121,6 +122,7 @@ config_maps = {
         'auto_advance': ('session', 'auto-advance'),
         'next_button_timeout': ('session', 'next-button-timeout'),
         'random_payoff': ('session', 'random-payoff'),
+        'max_payment': ('session', 'max-payment'),
     }
 }
 

@@ -17,7 +17,32 @@ def formatNicely(amount):
 
 class PageWithAmount(Page):
     def vars_for_template(self):
-        vft = {'nicePayment': formatNicely(self.participant.vars['payment']), 'emailEntered': self.player.email}
+        try:
+            vft = {'nicePayment': formatNicely(self.participant.vars['payment']),
+                    'emailEntered': self.player.email,
+                    'random_payoff': self.participant.vars['random_payoff'],
+                    'random_round_num': self.participant.vars['random_round_num'],
+                    'earned_more_than_max': self.participant.vars['earned_more_than_max'],
+                    'participation_fee': self.participant.vars['participation_fee'],
+                    'exchange_rate': self.participant.vars['exchange_rate'],
+                    'total_cash_payment': self.participant.vars['total_cash_payment'],
+                    'total_cash_payment_before_exchange_rate': self.participant.vars['total_cash_payment'] / self.participant.vars['exchange_rate'],
+                    'total_cash_payment_plus_showup_fee': self.participant.vars['total_cash_payment'] + self.participant.vars['participation_fee'],
+                    'negative_payoff': self.participant.vars['negative_payoff'],
+                    'consent': self.player.participant.vars['consent'],
+                    }
+        except:
+            vft = {'nicePayment': formatNicely(self.participant.vars['payment']),
+                    'emailEntered': self.player.email,
+                    'random_payoff': False,
+                    'random_round_num': 0,
+                    'earned_more_than_max': False,
+                    'participation_fee': self.participant.vars['payment'],
+                    'exchange_rate': 0,
+                    'total_cash_payment': 0,
+                    'negative_payoff': False,
+                    'consent': self.player.participant.vars['consent'],
+                    }
         
         self.player.email = '[REDACTED]'
         

@@ -10,7 +10,26 @@
     
     <p>Die Verwendung dieses Formulars stellt sicher, dass Ihre Verhaltensdaten nicht mit Ihren Auszahlungsdaten verknüpft werden können.</p>
     
-    <p>Ihr Auszahlungsbetrag beträgt <b>{{ nicePayment }} €</b>. Damit wir die Auszahlung vornehmen können, geben Sie bitte hier Ihre Auszahlungsdaten ein.</p>
+    
+
+    {% if negative_payoff %}
+        <p>Unfortunately, your total profit ended up being negative, so your payment will be equal to the show-up fee of <b>{{ participation_fee }}</b>.</p>
+    {% elif consent %}
+        {% if random_payoff %}
+            <p>Round {{ random_round_num }} was randomly selected. In this round, you made a profit of <b>{{ total_cash_payment_before_exchange_rate }} ECU</b>. Together with the Show-Up Fee this sums up to: {{ total_cash_payment_plus_showup_fee }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate}} (Exchange Rate) + {{ participation_fee }} (Participation Fee).</p>
+        {% else %}
+            <p>In total, you made a profit of <b>{{ total_cash_payment_before_exchange_rate }} ECU</b>. Together with the Show-Up Fee this sums up to: {{ total_cash_payment_plus_showup_fee }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate}} (Exchange Rate) + {{ participation_fee }} (Participation Fee).</p>
+        {% endif %}
+
+        {% if earned_more_than_max %}
+            <p>Since your total payment exceeded our max payment, you will be paid <b>€{{ nicePayment }}</b>.</p>
+        {% endif %}
+    {% else %}
+        <p>Since you denied consent, you will be paid the show-up fee of <b>€{{ nicePayment }}</b>.</p>
+
+    {% endif %}
+
+    <p>Ihr Auszahlungsbetrag beträgt <b>€{{ nicePayment }}</b>. Damit wir die Auszahlung vornehmen können, geben Sie bitte hier Ihre Auszahlungsdaten ein.</p>
 
     {% formfield player.email label="Ihre E-Mail-Adresse auf PayPal" %}
 
