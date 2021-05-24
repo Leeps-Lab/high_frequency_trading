@@ -91,6 +91,7 @@ config_maps = {
         'next_button_timeout': ('session', 'next-button-timeout'),
         'random_payoff': ('session', 'random-payoff'),
         'max_payment': ('session', 'max-payment'),
+        'instructions_next_button_timeout': ('session', 'instructions-next-button-timeout'),
     },
     'elo': { 
         'name': ('session', 'session-name'),
@@ -123,6 +124,7 @@ config_maps = {
         'next_button_timeout': ('session', 'next-button-timeout'),
         'random_payoff': ('session', 'random-payoff'),
         'max_payment': ('session', 'max-payment'),
+        'instructions_next_button_timeout': ('session', 'instructions-next-button-timeout'),
     }
 }
 

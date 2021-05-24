@@ -24,7 +24,15 @@ class RegisterPlayers(WaitPage):
     def after_all_players_arrive(self):
         self.subsession.register()
     
- 
+class Instructions(Page):
+    def is_displayed(self):
+        return self.round_number == 1 and self.player.participant.vars['consent'] == True
+    
+    def vars_for_template(self):
+        out = {}
+
+        out['next_button_timeout'] = self.session.config['instructions_next_button_timeout']
+        return out
 
 class InitialDecisionSelection(Page):
     def is_displayed(self):
@@ -219,6 +227,7 @@ class CumulativePayoff(Page):
 
 page_sequence = [
     RegisterPlayers,
+    Instructions,
     InitialDecisionSelection,
     PreWaitPage,
     EloExperiment,
