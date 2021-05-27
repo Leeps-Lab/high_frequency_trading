@@ -98,12 +98,10 @@ export class ResultsCell extends PolymerElement {
     width = width/2.5;
     height = height/1.4;
     let containerStyle = "width:" + width + "px; height:" + height + "px";
-    let container2Style = "width:" + width + "px; height:" + height + "px";
-    let container3Style = "width:" + width + "px; height:" + height + "px";
     this.$.parent.setAttribute("style", parentStyle);
     this.$.container.setAttribute("style", containerStyle);
-    this.$.container2.setAttribute("style", container2Style);
-    this.$.container3.setAttribute("style", container3Style);
+    this.$.container2.setAttribute("style", containerStyle);
+    this.$.container3.setAttribute("style", containerStyle);
 
     const gross = this.net + this.tax + this.speedCost;
 
