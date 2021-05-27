@@ -185,7 +185,7 @@ export class ResultsCell extends PolymerElement {
         showInLegend: true,
       },
       {
-        name: "Tax",
+        name: "Deduction",
         data: [
           [gross-this.tax, gross]
         ],

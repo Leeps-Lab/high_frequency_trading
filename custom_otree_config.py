@@ -108,7 +108,7 @@ config_maps = {
         'players_per_group': ('group', 'players-per-group'),
         'k_reference_price': ('parameters', 'k-reference-price'),
         'k_signed_volume': ('parameters', 'k-signed-volume'),
-        'tax_rate': ('parameters', 'tax-rate'),
+        'tax_rate': ('parameters', 'deduction-rate'),
         'include_signed_volume_widgets': ('parameters', 'include-signed-volume-widgets'),
         'include_manual_role': ('parameters', 'include-manual-role'),
         'speed_unit_cost': ('parameters', 'technology-unit-cost'),
