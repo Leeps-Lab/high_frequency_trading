@@ -10,8 +10,6 @@
     
     <p>Die Verwendung dieses Formulars stellt sicher, dass Ihre Verhaltensdaten nicht mit Ihren Auszahlungsdaten verknüpft werden können.</p>
     
-    
-
     {% if negative_payoff %}
         <p>Leider ist die Summe ihrer Gewinne aller Handelsperioden negativ, so dass ihre Auszahlung der Show-Up Fee von <b>{{ participation_fee }}<b> entspricht.</p>
     {% elif consent %}
@@ -40,5 +38,12 @@
     <p>Mit dem Absenden dieses Formulars stimmen Sie den <a href="https://www.lab.uni-koeln.de/public/privacy.php" target="_new">Datenschutzbestimmungen des Kölner Laboratoriums für Wirtschaftsforschung</a> zu. Darüber hinaus erklären Sie sich damit einverstanden, dass Ihre Zahlungsdaten für die Zwecke der Zahlung verarbeitet werden dürfen. In diesem Rahmen übermitteln wir an PayPal Ihren Auszahlungsbetrag und Ihre E-Mail-Adresse. Die Datenschutzbestimmungen von PayPal finden Sie <a href="https://www.paypal.com/webapps/mpp/ua/privacy-full" target="_new">hier</a>. Ihre Verhaltensdaten werden nicht mit Ihren Auszahlungsdaten verknüpft.</p>
 
     {% next_button %}
+
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
 
 {% endblock %}

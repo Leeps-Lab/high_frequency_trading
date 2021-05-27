@@ -1,47 +1,55 @@
 {% extends "global/Page.html" %}
 {% load staticfiles otree_tags %}
+
 {% block content %}
-<style>
-    h1{
-        text-align:center;
-    }
-    h2{
-        text-align:center;
-    }
-    #container{
-        margin-left:30px;
-        margin-right:30px;
-        margin-top:40px;
-    }
-    #image{
-        text-align: center;
-    }
-    .row{
-        align-items:center ;
-    }
-</style>
-<div id="container">
-<h1>
-    Instructions
-</h1>
+    <style>
+        h1{
+            text-align:center;
+        }
+        h2{
+            text-align:center;
+        }
+        #container{
+            margin-left:30px;
+            margin-right:30px;
+            margin-top:40px;
+        }
+        #image{
+            text-align: center;
+        }
+        .row{
+            align-items:center ;
+        }
+    </style>
+    <div id="container">
+    <h1>
+        Instructions
+    </h1>
 
-<form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
-    <div class="centering" id="next" style="display:none;">
-        {% next_button %}
+    <form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
+        <div class="centering" id="next" style="display:none;">
+            {% next_button %}
+        </div>
+    </form>
+
+    <script>
+        const myForm = document.getElementById('next');
+        setTimeout(() => {
+        myForm.style.display = 'block';
+        }, "{{next_button_timeout}}" * 1000);
+    </script>
+
+    <p>Willkommen und vielen Dank für Ihre Teilnahme an diesem Experiment. Der folgende Link führt Sie zu den Instruktionen.</p>
+    <a href="https://experiment.lab.uni-koeln.de/files/hftp1_Z4yG.pdf">https://experiment.lab.uni-koeln.de/files/hftp1_Z4yG.pdf</a>
+    <p>Bitte lesen Sie die Instruktionen sorgfältig, denn es geht darum, wie Sie in diesem Experiment echtes Geld verdienen können.</p>
     </div>
-</form>
 
-<script>
-    const myForm = document.getElementById('next');
-    setTimeout(() => {
-    myForm.style.display = 'block';
-    }, "{{next_button_timeout}}" * 1000);
-</script>
-
-<p>Willkommen und vielen Dank für Ihre Teilnahme an diesem Experiment. Der folgende Link führt Sie zu den Instruktionen.</p>
-<a href="https://experiment.lab.uni-koeln.de/files/hftp1_Z4yG.pdf">https://experiment.lab.uni-koeln.de/files/hftp1_Z4yG.pdf</a>
-<p>Bitte lesen Sie die Instruktionen sorgfältig, denn es geht darum, wie Sie in diesem Experiment echtes Geld verdienen können.</p>
-</div>
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
 {% endblock %}
 
 {% block scripts%}

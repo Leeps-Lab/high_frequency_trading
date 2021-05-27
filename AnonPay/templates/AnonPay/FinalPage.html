@@ -1,18 +1,17 @@
 {% extends "global/Page.html" %}
 {% load otree static %}
-{% load staticfiles %}
 
 {% block title %}
     Vielen Dank
 {% endblock %}
 
 {% block content %}
-<style>
-    .qrCode {
-        margin-top: 30px;
-        margin-bottom: 30px;
-    }
-</style>
+    <style>
+        .qrCode {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+    </style>
 
     <p>Die folgenden Daten wurden übernommen:</p>
     
@@ -36,5 +35,12 @@
     <p>Die Verwendung dieses Auszahlungsformular stellt sicher, dass Ihre Verhaltensdaten nicht mit Ihren Auszahlungsdaten verknüpft werden können. Wir danken Ihnen für Ihr Verständnis. <a href="https://gitlab.com/cler1/AnonPay" target="_new">Erfahren Sie mehr über dieses Auszahlungsformular.</a></p>
     
     {% next_button %}
+
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
     
 {% endblock %}

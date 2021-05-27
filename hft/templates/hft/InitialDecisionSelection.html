@@ -2,69 +2,74 @@
 {% load staticfiles otree %}
 
 {% block body_main %}
-<style>
-    .centering {
-        text-align: center;
-        margin: 10px;
-    }
-</style>
-<div class="centering">
-    <h3>Choose an Initial Strategy</h3>
-    <initial-decision-selection id='initial_decision_component'></initial-decision-selection>
-</div>
-{% if form.errors %}
-            <div class="otree-form-errors alert alert-danger">
-                Please fix the errors in the form.
-                {{ form.non_field_errors }}
-            </div>
-{% endif %}
-<script>var js_vars = {{ js_vars|json }};</script>
-<form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
-    <input type="hidden" value="{{ request.path }}" name="origin_url"/>
-    <input type="hidden" id="slider_a_x" name="initial_slider_a_x"/>
-    <input type="hidden" id="slider_a_y" name="initial_slider_a_y"/>
-    <input type="hidden" id="slider_a_z" name="initial_slider_a_z"/>
-    <input type="hidden" id="role" name="initial_role"/>
-    <input type="hidden" id="speed_on" name="initial_speed_on"/>
+    <style>
+        .centering {
+            text-align: center;
+            margin: 10px;
+        }
+    </style>
     <div class="centering">
-        {% next_button %}
+        <h3>Choose an Initial Strategy</h3>
+        <initial-decision-selection id='initial_decision_component'></initial-decision-selection>
     </div>
-</form>
+    {% if form.errors %}
+                <div class="otree-form-errors alert alert-danger">
+                    Please fix the errors in the form.
+                    {{ form.non_field_errors }}
+                </div>
+    {% endif %}
+    <script>var js_vars = {{ js_vars|json }};</script>
+    <form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
+        <input type="hidden" value="{{ request.path }}" name="origin_url"/>
+        <input type="hidden" id="slider_a_x" name="initial_slider_a_x"/>
+        <input type="hidden" id="slider_a_y" name="initial_slider_a_y"/>
+        <input type="hidden" id="slider_a_z" name="initial_slider_a_z"/>
+        <input type="hidden" id="role" name="initial_role"/>
+        <input type="hidden" id="speed_on" name="initial_speed_on"/>
+        <div class="centering">
+            {% next_button %}
+        </div>
+    </form>
+
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
 {% endblock %}
 
 {% block scripts %}
-<script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
-<script type="module" src="{% static 'hft/initial-decision-selection.js' %}"></script>
-<script>
-   let OTREE_CONSTANTS = {
-        playerId: "{{player.id}}",
-        subsessionId: "{{player.subsession.id}}",
-        marketId: "{{player.market_id}}",
-        initialEndowment: "{{player.cash}}",
-        speedCost: "{{player.speed_unit_cost}}",
-        idInGroup: "{{player.id_in_group}}",
-        manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-        svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-        sessionLength: "{{subsession.session_duration}}",
-        auctionFormat: "{{subsession.auction_format}}",
-        initialStrategy: {
-            slider_a_x: 0,
-            slider_a_y: 0,
-            slider_a_z: 0,
-            role: 'out',
-            speed_on: false,
-        }
-   };
+    <script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
+    <script type="module" src="{% static 'hft/initial-decision-selection.js' %}"></script>
+    <script>
+    let OTREE_CONSTANTS = {
+            playerId: "{{player.id}}",
+            subsessionId: "{{player.subsession.id}}",
+            marketId: "{{player.market_id}}",
+            initialEndowment: "{{player.cash}}",
+            speedCost: "{{player.speed_unit_cost}}",
+            idInGroup: "{{player.id_in_group}}",
+            manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+            svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+            sessionLength: "{{subsession.session_duration}}",
+            auctionFormat: "{{subsession.auction_format}}",
+            initialStrategy: {
+                slider_a_x: 0,
+                slider_a_y: 0,
+                slider_a_z: 0,
+                role: 'out',
+                speed_on: false,
+            }
+    };
 
-   document.getElementById('form').addEventListener('submit', () => {
-    const component = document.getElementById('initial_decision_component');
-    document.getElementById('slider_a_x').value = component.getAttribute('slider-a-x');
-    document.getElementById('slider_a_y').value = component.getAttribute('slider-a-y');
-    document.getElementById('slider_a_z').value = component.getAttribute('slider-a-z');
-    document.getElementById('role').value       = component.getAttribute('role');
-    document.getElementById('speed_on').value   = component.hasAttribute('speed-on') ? 'True' : 'False';
-   });
-</script>
-
-
+    document.getElementById('form').addEventListener('submit', () => {
+        const component = document.getElementById('initial_decision_component');
+        document.getElementById('slider_a_x').value = component.getAttribute('slider-a-x');
+        document.getElementById('slider_a_y').value = component.getAttribute('slider-a-y');
+        document.getElementById('slider_a_z').value = component.getAttribute('slider-a-z');
+        document.getElementById('role').value       = component.getAttribute('role');
+        document.getElementById('speed_on').value   = component.hasAttribute('speed-on') ? 'True' : 'False';
+    });
+    </script>
 {% endblock %}
