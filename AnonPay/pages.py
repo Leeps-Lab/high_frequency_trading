@@ -19,8 +19,7 @@ class PageWithAmount(Page):
     timeout_seconds = 5*60
     def vars_for_template(self):
         try:
-            vft = {'nicePayment': formatNicely(self.participant.vars['payment']),
-                    'emailEntered': self.player.email,
+            vft = {
                     'random_payoff': self.participant.vars['random_payoff'],
                     'random_round_num': self.participant.vars['random_round_num'],
                     'earned_more_than_max': self.participant.vars['earned_more_than_max'],
@@ -30,13 +29,10 @@ class PageWithAmount(Page):
                     'total_cash_payment_before_exchange_rate': self.participant.vars['total_cash_payment'] / self.participant.vars['exchange_rate'],
                     'total_cash_payment_plus_showup_fee': self.participant.vars['total_cash_payment'] + self.participant.vars['participation_fee'],
                     'negative_payoff': self.participant.vars['negative_payoff'],
-                    'consent': self.player.participant.vars['consent'],
                     'max_payment': self.player.participant.vars['max_payment'],
-                    'feedback_next_button_timeout': self.session.config['feedback_next_button_timeout'],
                     }
         except:
-            vft = {'nicePayment': formatNicely(self.participant.vars['payment']),
-                    'emailEntered': self.player.email,
+            vft = {
                     'random_payoff': False,
                     'random_round_num': 0,
                     'earned_more_than_max': False,
@@ -44,10 +40,14 @@ class PageWithAmount(Page):
                     'exchange_rate': 0,
                     'total_cash_payment': 0,
                     'negative_payoff': False,
-                    'consent': self.player.participant.vars['consent'],
-                    'feedback_next_button_timeout': self.session.config['feedback_next_button_timeout'],
                     }
         
+        vft['emailEntered'] = self.player.email
+        vft['feedback_next_button_timeout'] = self.session.config['feedback_next_button_timeout']
+        vft['consent'] = self.player.participant.vars['consent']
+        vft['nicePayment'] = formatNicely(self.participant.vars['payment'])
+
+
         self.player.email = '[REDACTED]'
         
         return vft
