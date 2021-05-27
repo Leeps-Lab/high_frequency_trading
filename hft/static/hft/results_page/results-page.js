@@ -59,7 +59,6 @@ class ResultsPage extends PolymerElement {
             sum-bid-price="{{sumBidPrice}}"
             sum-ask-price="{{sumAskPrice}}"
             tax-rate="[[taxRate]]"
-            subscription-time="[[subscriptionTime]]"
             speed-price="[[speedPrice]]"
             speed-costs="{{speedCosts}}"
             names="{{names}}"
@@ -81,6 +80,7 @@ class ResultsPage extends PolymerElement {
     let payoffs = this.nets;
     this.numPlayers = Object.keys(payoffs).length;
     const strategies = this.strategies;
+    const speedUsage = this.speedUsage;
     const invs = this.invSensitivities;
     const sigs = this.signedVolumes;
     const feeds = this.externalFeeds;
@@ -139,6 +139,12 @@ class ResultsPage extends PolymerElement {
     let mySpeedCost = speedCosts[player];
     let myName = names[player];
     let myStrategies = strategies[player];
+    console.log(strategies)
+    let mySpeedUsage = speedUsage[player];
+    console.log(speedUsage)
+    console.log(mySpeedUsage)
+    console.log(player)
+    
     let myInv = invs[player];
     let mySig = sigs[player];
     let myFeed = feeds[player];
@@ -149,9 +155,11 @@ class ResultsPage extends PolymerElement {
     let child = document.createElement("results-cell");
     child.net = myNet;
     child.tax = myTax;
+    child.subscriptionTime = this.subscriptionTime
     child.speedCost = mySpeedCost;
     child.name = myName;
     child.strategies = myStrategies;
+    child.speedUsage = mySpeedUsage;
     child.invSensitivity = myInv;
     child.signedVolume = mySig;
     child.externalFeed = myFeed;
@@ -182,6 +190,7 @@ class ResultsPage extends PolymerElement {
       mySpeedCost = speedCosts[high];
       myName = names[high];
       myStrategies = strategies[high];
+      mySpeedUsage = speedUsage[high];
       myInv = invs[high];
       mySig = sigs[high];
       myFeed = feeds[high];
@@ -197,6 +206,7 @@ class ResultsPage extends PolymerElement {
       child.speedCost = mySpeedCost;
       child.name = myName;
       child.strategies = myStrategies;
+      child.speedUsage = mySpeedUsage;
       child.invSensitivity = myInv;
       child.signedVolume = mySig;
       child.externalFeed = myFeed;
@@ -257,6 +267,10 @@ class ResultsPage extends PolymerElement {
         //value: {player:"Player",foo:"Trader 1",bar:"Trader 2",the:"Trader 3",a:"a",b:"b",c:"c",d:"d"}
       },
       strategies: {
+        type: Object,
+        //value: {player:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},foo:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},bar:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},the:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},a:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},b:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},c:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},d:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}}
+      },
+      speedUsage: {
         type: Object,
         //value: {player:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},foo:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},bar:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},the:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},a:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},b:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},c:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40},d:{player:30,foo:20,bar:90,the:40,a:30,b:20,c:90,d:40}}
       },

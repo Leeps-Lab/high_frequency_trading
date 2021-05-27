@@ -78,7 +78,7 @@ class EquationsTable extends PolymerElement {
                     <div>= </div>
                 </div>
                 <div class="col">
-                    <div>Gross Payoff </div>
+                    <div>Payment Before Deduction</div>
                     <div>{{ _grossPayoff() }}</div>
                 </div>
                 <div class="col operator">
@@ -86,23 +86,15 @@ class EquationsTable extends PolymerElement {
                     <div> - </div>
                 </div>
                 <div class="col">
-                    <div>Tax Payment</div>
+                    <div>Deduction</div>
                     <div>{{ _taxPayment() }}</div>
-                </div>
-                <div class="col operator">
-                    <div> - </div>
-                    <div> - </div>
-                </div>
-                <div class="col">
-                    <div>Speed Cost</div>
-                    <div>{{ _speedCost() }}</div>
                 </div>
             </div>
             <ul>
                 <li>
                 <div class="row">
                     <div class="col">
-                        <div class="red">Gross Payoff</div>
+                        <div class="red">Payment Before Deduction</div>
                         <div>{{ _grossPayoff() }}</div>
                     </div>
                     <div class="col operator">
@@ -120,6 +112,14 @@ class EquationsTable extends PolymerElement {
                     <div class="col">
                         <div>Inventory Value</div>
                         <div>{{ _inventoryVal() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div> - </div>
+                        <div> - </div>
+                    </div>
+                    <div class="col">
+                        <div>Speed Cost</div>
+                        <div>{{ _speedCostCalculation() }}</div>
                     </div>
                 </div>
                 <ul>
@@ -207,13 +207,38 @@ class EquationsTable extends PolymerElement {
                         </div>
                     </div>
                     </li>
+
+                    <li> 
+                    <div class="row">
+                        <div class="col">
+                            <div class="red">Speed Cost</div>
+                            <div>{{ _speedCostCalculation() }}</div>
+                        </div>
+                        <div class="col operator">
+                            <div>= </div>
+                            <div>= </div>
+                        </div>
+                        <div class="col">
+                            <div>Speed Price</div>
+                            <div>{{ speedPrice }}</div>
+                        </div>
+                        <div class="col operator">
+                            <div> &times; </div>
+                            <div> &times; </div>
+                        </div>
+                        <div class="col">
+                            <div>Seconds Used</div>
+                            <div>{{ _secondsSpeedUsed() }}</div>
+                        </div>
+                    </div>
+                    </li>
                 </ul>
                 </li>
                 
                 <li>
                 <div class="row">
                     <div class="col">
-                        <div class="red">Tax Payment</div>
+                        <div class="red">Deduction</div>
                         <div>{{ _taxPayment() }}</div>
                     </div>
                     <div class="col operator">
@@ -229,36 +254,13 @@ class EquationsTable extends PolymerElement {
                         <div> &times; </div>
                     </div>
                     <div class="col">
-                        <div>Tax Rate</div>
-                        <div>[[ taxRate ]]</div>
+                        <div>Deduction Rate</div>
+                        <div>{{ _toPercentage(taxRate) }} %</div>
                     </div>
                 </div>
                 </li>
 
-                <li> 
-                <div class="row">
-                    <div class="col">
-                        <div class="red">Speed Cost</div>
-                        <div>{{ _speedCostCalculation() }}</div>
-                    </div>
-                    <div class="col operator">
-                        <div>= </div>
-                        <div>= </div>
-                    </div>
-                    <div class="col">
-                        <div>Speed Price</div>
-                        <div>{{ speedPrice }}</div>
-                    </div>
-                    <div class="col operator">
-                        <div> &times; </div>
-                        <div> &times; </div>
-                    </div>
-                    <div class="col">
-                        <div>Seconds Used</div>
-                        <div>{{ _secondsSpeedUsed() }}</div>
-                    </div>
-                </div>
-                </li>
+                
             </ul>
             </li>
         </ul>
@@ -283,15 +285,19 @@ class EquationsTable extends PolymerElement {
     }
 
     _grossPayoff() {
-        return this._round2Decimal(this._finalCash() + this._inventoryVal());
+        return this._round2Decimal(this._finalCash() + this._inventoryVal() - this._speedCost());
     }
 
     _taxPayment() {
         return this._round2Decimal(Math.abs(this._inventoryVal()) * this.taxRate);
     }
 
+    _toPercentage(value) {
+        return value * 100
+    }
+
     _payoff() {
-        return parseFloat((this._grossPayoff() - this._taxPayment() - this._speedCost()).toFixed(2)); 
+        return parseFloat((this._grossPayoff() - this._taxPayment()).toFixed(2)); 
     }
 
     _speedCost() {

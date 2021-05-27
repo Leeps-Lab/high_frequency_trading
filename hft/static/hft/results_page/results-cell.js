@@ -35,6 +35,9 @@ export class ResultsCell extends PolymerElement {
           <td style="display:inline-block;">
             <div id="container" class="container"></div>
           </td>
+          <td style="display:inline-block;">
+            <div id="container3" class="container3"></div>
+          </td>
           <td style="display:inline-block; margin=10px;">
             <div id="container2" class="container"></div>
           </td>
@@ -43,6 +46,7 @@ export class ResultsCell extends PolymerElement {
       </table> -->
       <div class="outer">
         <div id="container" class="container"></div>
+        <div id="container3" class="container3"></div>
         <div id="container2" class="container"></div>
       </div>
       <div style="display:flex;">
@@ -72,6 +76,18 @@ export class ResultsCell extends PolymerElement {
         y: strategies[key]
       })
     }
+    console.log(strategiesData)
+
+    const speedUsage = this.speedUsage;
+    console.log(speedUsage)
+    let speedData = [];
+    for(let key in speedUsage) {
+      speedData.push({
+        name: key,
+        y: speedUsage[key]
+      })
+    }
+    console.log(speedData)
 
     //let lowVal = Math.min(this.width, this.height);
     //let width = lowVal;
@@ -83,9 +99,11 @@ export class ResultsCell extends PolymerElement {
     height = height/1.4;
     let containerStyle = "width:" + width + "px; height:" + height + "px";
     let container2Style = "width:" + width + "px; height:" + height + "px";
+    let container3Style = "width:" + width + "px; height:" + height + "px";
     this.$.parent.setAttribute("style", parentStyle);
     this.$.container.setAttribute("style", containerStyle);
     this.$.container2.setAttribute("style", container2Style);
+    this.$.container3.setAttribute("style", container3Style);
 
     const gross = this.net + this.tax + this.speedCost;
 
@@ -160,7 +178,7 @@ export class ResultsCell extends PolymerElement {
       },
       series: [
       {
-        name: "Gross Payoff",
+        name: "Payment Before Deduction",
         data: [
           [0, gross]
         ],
@@ -175,14 +193,6 @@ export class ResultsCell extends PolymerElement {
         color: '#DD0000'
       },
       {
-        name: "Speed Cost",
-        data: [
-          [gross-this.tax-this.speedCost, gross-this.tax]
-        ],
-        showInLegend: true,
-        color: '#ffbd24'
-      },
-      {
         name: "Payoff",
         data: [
           [0, this.net]
@@ -191,15 +201,61 @@ export class ResultsCell extends PolymerElement {
       },
       ]
     });
+    
+    let chart3 = Highcharts.chart(this.$.container3, {
+      chart: {
+        plotBackgroundColor: null,
+        plotBorderWidth: null,
+        plotShadow: false,
+        type: 'pie',
+        size: '100%',
+        spacingLeft: 0,
+        spacingRight: 0
+      },
+      title: {
+        text: 'Speed Usage'
+      },
+      tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+      },
+      credits: {
+        enabled: false
+      },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: true,
+            padding: 0
+          },
+          showInLegend: false
+        }
+      },
+      series: [{
+        name: 'Speed Usage',
+        colorByPoint: true,
+        data: speedData
+      }]
+    });
+    
+    
 
     chart1.setSize();
     chart2.setSize();
+    chart3.setSize();
+    chart1.reflow();
     chart2.reflow();
+    chart3.reflow();
   }
 
   static get properties() {
     return {
       strategies: {
+        type: Object,
+        //value: {the:10, value:20}
+      },
+      speedUsage: {
         type: Object,
         //value: {the:10, value:20}
       },
@@ -235,6 +291,9 @@ export class ResultsCell extends PolymerElement {
       height: {
         type: Number,
         //value: 300
+      },
+      subscriptionTime: {
+        type: Number,
       },
     }
   }

@@ -35,9 +35,6 @@ class Instructions(Page):
         return out
 
 class InitialDecisionSelection(Page):
-    def is_displayed(self):
-        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True
-
     form_model = 'player'
     form_fields = [
         'initial_slider_a_x',
@@ -46,6 +43,25 @@ class InitialDecisionSelection(Page):
         'initial_role',
         'initial_speed_on',
     ]
+
+    def is_displayed(self):
+        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True
+    
+    timeout_submission = {'initial_slider_a_x': 0,
+        'initial_slider_a_y': 0,
+        'initial_slider_a_z': 0,
+        'initial_role': 'out',
+        'initial_speed_on': False
+    }
+    
+    # Auto advance page
+    def get_timeout_seconds(self):
+        timeout = self.session.config['auto_advance']
+        print("TEST")
+        print(timeout)
+        print("TEST")
+        if timeout > 0:
+            return timeout
 
 class PreWaitPage(WaitPage):
     def is_displayed(self):
@@ -164,11 +180,12 @@ class Results(Page):
             return timeout
 
     def vars_for_template(self):
-        page_state = state_for_results_template(self.player)
+        page_state = state_for_results_template(self.player, self.session.config['session_duration'], self.session.config['speed_unit_cost'] * .0001)
         # send as json so polymer likes it
         out = {k: json.dumps(v) for k, v in page_state.items()}
-
         out['next_button_timeout'] = self.session.config['next_button_timeout']
+        print(out)
+
         return out
 
 # Last page in experiment to display all payoffs
@@ -209,7 +226,7 @@ class CumulativePayoff(Page):
         # Cap payment to max_payment
         if out['total_cash_payment'] > self.session.config['max_payment']:
             self.participant.vars['total_cash_payment'] = out['total_cash_payment'] - participation_fee
-            self.participant.vars['payment'] = self.session.config['max_payment']
+            self.participant.vars['payment'] = self.session.config['max_payment'] + participation_fee
             self.participant.vars['earned_more_than_max'] = True
             self.participant.vars['negative_payoff'] = False
         elif out['max_payoff'] == 0:
@@ -222,6 +239,7 @@ class CumulativePayoff(Page):
         self.participant.vars['random_round_num'] = out['random_round_num']
         self.participant.vars['participation_fee'] = out['participation_fee']
         self.participant.vars['exchange_rate'] = out['exchange_rate']
+        self.participant.vars['max_payment'] = self.session.config['max_payment']
 
         return out
 

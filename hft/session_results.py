@@ -33,7 +33,7 @@ class HFTPlayerSessionSummary(Model):
 
     #subscriptionTime = models.IntegerField(initial=0)
 
-def state_for_results_template(player):
+def state_for_results_template(player, session_duration, speed_unit_cost):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
         market_id=player.market_id)
     nets = {str(o.player_id): o.net_worth * 0.0001 for o in summary_objects}
@@ -44,6 +44,10 @@ def state_for_results_template(player):
         for o in summary_objects}
     strategies = {str(o.player_id): {'automated': o.time_as_automated, 
         'manual': o.time_as_manual, 'out': o.time_as_out} for o in summary_objects}
+    
+    print(speed_unit_cost, session_duration)
+    speedUsage = {str(o.player_id): {'Speed On': (o.speed_cost * 0.0001 / speed_unit_cost)  / session_duration, 
+        'Speed Off': (session_duration - (o.speed_cost * 0.0001 / speed_unit_cost))  / session_duration} for o in summary_objects}
     inv_sens = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
     signed_vol_sens = {str(o.player_id): o.signed_vol_sensitivity for o in summary_objects}
     ext_sensitivies = {str(o.player_id): o.external_feed_sensitivity for o in summary_objects}
@@ -61,11 +65,10 @@ def state_for_results_template(player):
     avgBidPrice = mySummary.avgBidPrice
     avgAskPrice = mySummary.avgAskPrice
     '''
-    #subscriptionTime = mySummary.subscriptionTime
 
     return {'nets': nets, 'taxes': taxes, 'speed_costs': speed_costs, 'names': names, 'strategies': strategies, 
         'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies, 'totalBids': totalBids, 
-        'totalAsks': totalAsks, 'sumBidPrice': sumBidPrice, 'sumAskPrice': sumAskPrice}
+        'totalAsks': totalAsks, 'sumBidPrice': sumBidPrice, 'sumAskPrice': sumAskPrice, 'speedUsage': speedUsage}
 
 def elo_player_summary(player):
     market = cache.get(get_cache_key('from_kws', model_name='market',
@@ -118,7 +121,6 @@ def elo_player_summary(player):
         sum_ask_price=trader.sum_ask_price,
         total_bids=trader.total_bids,
         total_asks=trader.total_asks
-        #subscriptionTime=technology_subscription.subscriptionTimeTotal()
         )
 
 

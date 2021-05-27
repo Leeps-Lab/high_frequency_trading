@@ -13,7 +13,7 @@
     
 
     {% if negative_payoff %}
-        <p>Unfortunately, your total profit ended up being negative, so your payment will be equal to the show-up fee of <b>{{ participation_fee }}</b>.</p>
+        <p>Leider ist die Summe ihrer Gewinne aller Handelsperioden negativ, so dass ihre Auszahlung der Show-Up Fee von <b>{{ participation_fee }}<b> entspricht.</p>
     {% elif consent %}
         {% if random_payoff %}
             <p>Round {{ random_round_num }} was randomly selected. In this round, you made a profit of <b>{{ total_cash_payment_before_exchange_rate }} ECU</b>. Together with the Show-Up Fee this sums up to: {{ total_cash_payment_plus_showup_fee }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate}} (Exchange Rate) + {{ participation_fee }} (Participation Fee).</p>
@@ -22,10 +22,10 @@
         {% endif %}
 
         {% if earned_more_than_max %}
-            <p>Since your total payment exceeded our max payment, you will be paid <b>€{{ nicePayment }}</b>.</p>
+            <p>Die Summe ihrer Gewinne aller Handelsperioden ist außerordentlich hoch, so dass ihre Auszahlung dem maximalen Wert von {{max_payment}} zuzüglich Show-Up Fee von {{ participation_fee }} entspricht.</p>
         {% endif %}
     {% else %}
-        <p>Since you denied consent, you will be paid the show-up fee of <b>€{{ nicePayment }}</b>.</p>
+        <p>Da Sie mit den Bedingungen des Experiments nicht einverstanden sind, endet das Experiment für Sie an dieser Stelle mit einer Auszahlung in Höhe der Show-Up Fee.</p>
 
     {% endif %}
 

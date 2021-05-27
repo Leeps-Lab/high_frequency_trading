@@ -20,8 +20,7 @@
 {% endif %}
 <script>var js_vars = {{ js_vars|json }};</script>
 <form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
-    <input type="hidden" value="{{ request.path }}"
-                       name="origin_url"/>
+    <input type="hidden" value="{{ request.path }}" name="origin_url"/>
     <input type="hidden" id="slider_a_x" name="initial_slider_a_x"/>
     <input type="hidden" id="slider_a_y" name="initial_slider_a_y"/>
     <input type="hidden" id="slider_a_z" name="initial_slider_a_z"/>

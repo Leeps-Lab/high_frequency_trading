@@ -10,10 +10,12 @@ class Consent(Page):
     form_model = 'player'
     form_fields = ['consent']
     timeout_submission = {'consent': False}
-    timeout_seconds = 60
 
-    def vars_for_template(self):
-        return {'consent_timeout_min': math.ceil(self.timeout_seconds / 60)}
+    # Auto advance page
+    def get_timeout_seconds(self):
+        timeout = self.session.config['auto_advance']
+        if timeout > 0:
+            return timeout
     
     def is_displayed(self):
         return self.round_number == 1

@@ -16,6 +16,7 @@ def formatNicely(amount):
 
 
 class PageWithAmount(Page):
+    timeout_seconds = 5*60
     def vars_for_template(self):
         try:
             vft = {'nicePayment': formatNicely(self.participant.vars['payment']),
@@ -30,6 +31,8 @@ class PageWithAmount(Page):
                     'total_cash_payment_plus_showup_fee': self.participant.vars['total_cash_payment'] + self.participant.vars['participation_fee'],
                     'negative_payoff': self.participant.vars['negative_payoff'],
                     'consent': self.player.participant.vars['consent'],
+                    'max_payment': self.player.participant.vars['max_payment'],
+                    'feedback_next_button_timeout': self.session.config['feedback_next_button_timeout'],
                     }
         except:
             vft = {'nicePayment': formatNicely(self.participant.vars['payment']),
@@ -42,11 +45,15 @@ class PageWithAmount(Page):
                     'total_cash_payment': 0,
                     'negative_payoff': False,
                     'consent': self.player.participant.vars['consent'],
+                    'feedback_next_button_timeout': self.session.config['feedback_next_button_timeout'],
                     }
         
         self.player.email = '[REDACTED]'
         
         return vft
+
+class Feedback(PageWithAmount):
+    timeout_seconds = 5*60
 
 
 class Details(PageWithAmount):
@@ -91,9 +98,10 @@ class Details(PageWithAmount):
             self.group.get_players()[0].error = self.group.get_players()[0].error + "email: " + self.player.email + ", payment: " + str(self.participant.vars["payment"]) + " | "
 
 
-class EndFeedback(PageWithAmount):
+class FinalPage(PageWithAmount):
+    timeout_seconds = 5*60
     form_model = 'player'
     form_fields = ['feedback']
 
 
-page_sequence = [Details, EndFeedback]
+page_sequence = [Feedback, Details, FinalPage]
