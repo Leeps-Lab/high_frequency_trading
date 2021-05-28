@@ -16,7 +16,7 @@ def formatNicely(amount):
 
 
 class PageWithAmount(Page):
-    timeout_seconds = 5*60
+    #timeout_seconds = 5*60
     def vars_for_template(self):
         try:
             vft = {
@@ -26,7 +26,7 @@ class PageWithAmount(Page):
                     'participation_fee': self.participant.vars['participation_fee'],
                     'exchange_rate': self.participant.vars['exchange_rate'],
                     'total_cash_payment': self.participant.vars['total_cash_payment'],
-                    'total_cash_payment_before_exchange_rate': self.participant.vars['total_cash_payment'] / self.participant.vars['exchange_rate'],
+                    'total_cash_payment_before_exchange_rate': int(self.participant.vars['total_cash_payment'] / self.participant.vars['exchange_rate']),
                     'total_cash_payment_plus_showup_fee': self.participant.vars['total_cash_payment'] + self.participant.vars['participation_fee'],
                     'negative_payoff': self.participant.vars['negative_payoff'],
                     'max_payment': self.player.participant.vars['max_payment'],
@@ -53,14 +53,15 @@ class PageWithAmount(Page):
         return vft
 
 class Feedback(PageWithAmount):
-    timeout_seconds = 5*60
+    pass
+    #timeout_seconds = 5*60
 
 
 class Details(PageWithAmount):
     form_fields = ['email']
     form_model = 'player'
     
-    timeout_seconds = 5*60
+    #timeout_seconds = 5*60
     
     def before_next_page(self):
         self.player.emergency_code = ''.join(random.choices(list('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), k = 8))
@@ -99,7 +100,7 @@ class Details(PageWithAmount):
 
 
 class FinalPage(PageWithAmount):
-    timeout_seconds = 5*60
+    #timeout_seconds = 5*60
     form_model = 'player'
     form_fields = ['feedback']
 

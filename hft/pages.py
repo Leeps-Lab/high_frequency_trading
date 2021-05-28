@@ -57,9 +57,7 @@ class InitialDecisionSelection(Page):
     # Auto advance page
     def get_timeout_seconds(self):
         timeout = self.session.config['auto_advance']
-        print("TEST")
         print(timeout)
-        print("TEST")
         if timeout > 0:
             return timeout
 
