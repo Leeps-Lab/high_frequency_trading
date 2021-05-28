@@ -38,14 +38,12 @@ def state_for_results_template(player, session_duration, speed_unit_cost):
         market_id=player.market_id)
     nets = {str(o.player_id): o.net_worth * 0.0001 for o in summary_objects}
     taxes = {str(o.player_id): o.tax_paid * 0.0001 for o in summary_objects}
-    print([o.speed_cost for o in summary_objects])
     speed_costs = {str(o.player_id): o.speed_cost * 0.0001 for o in summary_objects}
     names = {str(o.player_id): 'You' if o.player_id == player.id else 'Anonymous Trader' 
         for o in summary_objects}
     strategies = {str(o.player_id): {'automated': o.time_as_automated, 
         'manual': o.time_as_manual, 'out': o.time_as_out} for o in summary_objects}
     
-    print(speed_unit_cost, session_duration)
     speedUsage = {str(o.player_id): {'Speed On': (o.speed_cost * 0.0001 / speed_unit_cost)  / session_duration, 
         'Speed Off': (session_duration - (o.speed_cost * 0.0001 / speed_unit_cost))  / session_duration} for o in summary_objects}
     inv_sens = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}

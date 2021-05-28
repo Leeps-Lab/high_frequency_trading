@@ -30,14 +30,19 @@
         }
     </style>
     <div id="container">
+        <h1>
+            Instructions
+        </h1>
+
+        <p>Willkommen und vielen Dank für Ihre Teilnahme an diesem Experiment. Der folgende Link führt Sie zu den Instruktionen.</p>
+        <a href="https://experiment.lab.uni-koeln.de/files/hftp1_Z4yG.pdf" class="link" target="_blank">https://experiment.lab.uni-koeln.de/files/hftp1_Z4yG.pdf</a>
+        <p>Bitte lesen Sie die Instruktionen sorgfältig, denn es geht darum, wie Sie in diesem Experiment echtes Geld verdienen können.</p>
+
         <form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
             <div class="centering" id="next" style="display:none;">
                 {% next_button %}
             </div>
         </form>
-        <h1>
-            Instructions
-        </h1>
 
         <script>
             const myForm = document.getElementById('next');
@@ -45,10 +50,6 @@
             myForm.style.display = 'block';
             }, "{{next_button_timeout}}" * 1000);
         </script>
-
-        <p>Willkommen und vielen Dank für Ihre Teilnahme an diesem Experiment. Der folgende Link führt Sie zu den Instruktionen.</p>
-        <a href="https://experiment.lab.uni-koeln.de/files/hftp1_Z4yG.pdf" class="link" target="_blank">https://experiment.lab.uni-koeln.de/files/hftp1_Z4yG.pdf</a>
-        <p>Bitte lesen Sie die Instruktionen sorgfältig, denn es geht darum, wie Sie in diesem Experiment echtes Geld verdienen können.</p>
     </div>
     
     <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>

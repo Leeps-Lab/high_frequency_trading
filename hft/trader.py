@@ -58,6 +58,7 @@ class BaseTrader(object):
         self.disable_bid = False
         self.disable_offer = False
         self.midpoint_peg = False
+        self.initial_endowment = cash
         self.cash = cash
         self.cost = 0
         self.net_worth = cash
@@ -203,6 +204,7 @@ w: %s, speed unit cost: %s' % (
     self.sliders['slider_a_z'], self.technology_subscription.unit_cost))
 
     def close_session(self, event):
+        inventory_value = self.inventory.valuate(self.market_facts['reference_price'])
         self.inventory.liquidify(
             self.market_facts['reference_price'], 
             discount_rate=self.market_facts['tax_rate'])
@@ -214,7 +216,9 @@ w: %s, speed unit cost: %s' % (
         self.cost += tax_paid + speed_cost
         self.tax_paid += tax_paid
         self.speed_cost += speed_cost
-        self.net_worth =  self.net_worth - self.cost
+        final_cash = self.initial_endowment + inventory_value + + self.sum_ask_price - self.sum_bid_price
+        #self.net_worth =  self.net_worth - self.cost
+        self.net_worth =  final_cash - self.cost
     
     def user_slider_change(self, event):
         msg = event.message

@@ -129,7 +129,7 @@ export class ResultsCell extends PolymerElement {
           allowPointSelect: true,
           cursor: 'pointer',
           dataLabels: {
-            enabled: true,
+            enabled: false,
             padding: 0
           },
           showInLegend: false
@@ -193,7 +193,7 @@ export class ResultsCell extends PolymerElement {
       {
         name: "Payoff",
         data: [
-          [0, this.net]
+          [0, this.net - this.speedCost]
         ],
         showInLegend: true,
       },
@@ -224,7 +224,7 @@ export class ResultsCell extends PolymerElement {
           allowPointSelect: true,
           cursor: 'pointer',
           dataLabels: {
-            enabled: true,
+            enabled: false,
             padding: 0
           },
           showInLegend: false
