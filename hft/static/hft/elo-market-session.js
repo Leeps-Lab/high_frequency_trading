@@ -170,7 +170,7 @@ class MarketSession extends PolymerElement {
                     x-range="{{sessionLengthMS}}"
                 ></attribute-graph>
                 <profit-graph
-                    title-name="Payment Before Deduction"
+                    title-name="PBD"
                     profit={{wealth}}
                     is-running={{isSessionActive}}
                     x-range="{{sessionLengthMS}}"

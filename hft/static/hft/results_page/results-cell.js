@@ -138,7 +138,8 @@ export class ResultsCell extends PolymerElement {
       series: [{
         name: 'Strategies',
         colorByPoint: true,
-        data: strategiesData
+        data: strategiesData,
+        showInLegend: true,
       }]
     });
 
@@ -176,7 +177,7 @@ export class ResultsCell extends PolymerElement {
       },
       series: [
       {
-        name: "Payment Before Deduction",
+        name: "PBD",
         data: [
           [0, gross]
         ],
@@ -233,7 +234,8 @@ export class ResultsCell extends PolymerElement {
       series: [{
         name: 'Speed Usage',
         colorByPoint: true,
-        data: speedData
+        data: speedData,
+        showInLegend: true,
       }]
     });
     

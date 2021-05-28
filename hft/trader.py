@@ -216,7 +216,7 @@ w: %s, speed unit cost: %s' % (
         self.cost += tax_paid + speed_cost
         self.tax_paid += tax_paid
         self.speed_cost += speed_cost
-        final_cash = self.initial_endowment + inventory_value + + self.sum_ask_price - self.sum_bid_price
+        final_cash = self.initial_endowment + inventory_value + self.sum_ask_price - self.sum_bid_price
         #self.net_worth =  self.net_worth - self.cost
         self.net_worth =  final_cash - self.cost
     

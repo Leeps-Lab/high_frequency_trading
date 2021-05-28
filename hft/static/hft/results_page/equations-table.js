@@ -78,7 +78,7 @@ class EquationsTable extends PolymerElement {
                     <div>= </div>
                 </div>
                 <div class="col">
-                    <div>Payment Before Deduction</div>
+                    <div>PBD</div>
                     <div>{{ _grossPayoff() }}</div>
                 </div>
                 <div class="col operator">
@@ -94,7 +94,7 @@ class EquationsTable extends PolymerElement {
                 <li>
                 <div class="row">
                     <div class="col">
-                        <div class="red">Payment Before Deduction</div>
+                        <div class="red">PBD</div>
                         <div>{{ _grossPayoff() }}</div>
                     </div>
                     <div class="col operator">
@@ -102,7 +102,7 @@ class EquationsTable extends PolymerElement {
                         <div>= </div>
                     </div>
                     <div class="col">
-                        <div>Final Cash</div>
+                        <div>Cash</div>
                         <div>{{ _finalCash() }}</div>
                     </div>
                     <div class="col operator">
@@ -126,7 +126,7 @@ class EquationsTable extends PolymerElement {
                     <li>
                     <div class="row">
                         <div class="col">
-                            <div class="red">Final Cash</div>
+                            <div class="red">Cash</div>
                             <div>{{ _finalCash() }}</div>
                         </div>
                         <div class="col operator">
