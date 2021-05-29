@@ -49,7 +49,7 @@ class PageWithAmount(Page):
 
 
         self.player.email = '[REDACTED]'
-        
+        print(vft)
         return vft
 
 class Feedback(PageWithAmount):

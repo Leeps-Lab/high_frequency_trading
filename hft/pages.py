@@ -221,21 +221,24 @@ class CumulativePayoff(Page):
         self.player.cummulative_payoff = out['total_cash_payment']
         self.participant.vars['payment'] = out['total_cash_payment']
 
-        # Cap payment to max_payment
-        if out['total_cash_payment'] > self.session.config['max_payment']:
-            self.participant.vars['total_cash_payment'] = out['total_cash_payment'] - participation_fee
-            self.participant.vars['payment'] = self.session.config['max_payment'] + participation_fee
-            self.participant.vars['earned_more_than_max'] = True
-            self.participant.vars['negative_payoff'] = False
-        elif out['max_payoff'] == 0:
+        if int(out['sum_payoffs']) < 0:
+            self.participant.vars['total_cash_payment'] = 0
+            self.participant.vars['payment'] = participation_fee
+            self.participant.vars['earned_more_than_max'] = False
             self.participant.vars['negative_payoff'] = True
         else:
-            self.participant.vars['earned_more_than_max'] = False
             self.participant.vars['negative_payoff'] = False
+            self.participant.vars['total_cash_payment'] = out['total_cash_payment'] - participation_fee
+            self.participant.vars['payment'] = self.session.config['max_payment'] + participation_fee
+
+            if int(out['total_cash_payment']) > int(self.session.config['max_payment']):
+                self.participant.vars['earned_more_than_max'] = True
+            else:
+                self.participant.vars['earned_more_than_max'] = False
 
         self.participant.vars['random_payoff'] = out['random_payoff']
         self.participant.vars['random_round_num'] = out['random_round_num']
-        self.participant.vars['participation_fee'] = out['participation_fee']
+        self.participant.vars['participation_fee'] = participation_fee
         self.participant.vars['exchange_rate'] = out['exchange_rate']
         self.participant.vars['max_payment'] = self.session.config['max_payment']
 

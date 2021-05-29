@@ -55,6 +55,21 @@ class EquationsTable extends PolymerElement {
                 font-weight: initial;
             }
 
+            .first-col {
+                display: flex;
+                flex-direction: column;
+                justify-content: left;
+            }
+
+            .first-col > div {
+                margin: 1px;
+                text-align: left;
+            }
+
+            .first-col > div:last-child {
+                font-weight: bold;
+            }
+
             .red {
                 color: red;
                 font-weight: bold;
@@ -65,8 +80,8 @@ class EquationsTable extends PolymerElement {
             }
            
         </style>
-
-        <ul >
+        <!--
+        <ul>
             <li>
             <div class="row">
                 <div class="col">
@@ -173,7 +188,8 @@ class EquationsTable extends PolymerElement {
                             <div>]</div>
                             <div>]</div>
                         </div>
-                    </div></li>
+                    </div>
+                    </li>
 
                     <li>
                     <div class="row">
@@ -262,6 +278,203 @@ class EquationsTable extends PolymerElement {
 
                 
             </ul>
+            </li>
+        </ul>
+        -->
+
+        <ul>
+            <li>
+                <div class="row">
+                    <div class="first-col">
+                        <div class="red">Cash</div>
+                        <div>{{ _finalCash() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div>=</div>
+                        <div>=</div>
+                    </div>
+                    <div class="col">
+                        <div>Init. Cash</div>
+                        <div>[[ _digitCorrector(initialEndowment) ]]</div>
+                    </div>
+                    <div class="col operator">
+                        <div>+ [</div>
+                        <div>+ [</div>
+                    </div>
+                    <div class="col">
+                        <div>Sold Units</div>
+                        <div>[[ getTotalAsks() ]]</div>
+                    </div>
+                    <div class="col operator">
+                        <div>&times;</div>
+                        <div>&times;</div>
+                    </div>
+                    <div class="col">
+                        <div>Avg. Sale Price</div>
+                        <div>[[ getAvgAskPrice() ]]</div>
+                    </div>
+                    <div class="col operator">
+                        <div>] - [</div>
+                        <div>] - [</div>
+                    </div>
+                    <div class="col">
+                        <div>Bought Units</div>
+                        <div>[[ getTotalBids() ]]</div>
+                    </div>
+                    <div class="col operator">
+                        <div>&times;</div>
+                        <div>&times;</div>
+                    </div>
+                    <div class="col">
+                        <div>Avg. Buy Price</div>
+                        <div>[[ getAvgBidPrice() ]]</div>
+                    </div>
+                    <div class="col operator">
+                        <div>]</div>
+                        <div>]</div>
+                    </div>
+                </div>
+            </li>
+
+            <li>
+                <div class="row">
+                    <div class="first-col">
+                        <div class="red">Inventory Value</div>
+                        <div>[[ _inventoryVal() ]]</div>
+                    </div>
+                    <div class="col operator">
+                        <div>= [</div>
+                        <div>= [</div>
+                    </div>
+                    <div class="col">
+                        <div>Units Purchased</div>
+                        <div>[[ getTotalBids() ]]</div>
+                    </div>
+                    <div class="col operator">
+                        <div>-</div>
+                        <div>-</div>
+                    </div>
+                    <div class="col">
+                        <div>Units Sold</div>
+                        <div>[[ getTotalAsks() ]]</div>
+                    </div>
+                    <div class="col operator">
+                        <div>] &times;</div>
+                        <div>] &times;</div>
+                    </div>
+                    <div class="col">
+                        <div>Ref. Price</div>
+                        <div>[[ _digitCorrector(referencePrice) ]]</div>
+                    </div>
+                </div>
+            </li>
+
+            <li> 
+                <div class="row">
+                    <div class="first-col">
+                        <div class="red">Speed Cost</div>
+                        <div>{{ _speedCostCalculation() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div>= </div>
+                        <div>= </div>
+                    </div>
+                    <div class="col">
+                        <div>Speed Price</div>
+                        <div>{{ speedPrice }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div> &times; </div>
+                        <div> &times; </div>
+                    </div>
+                    <div class="col">
+                        <div>Seconds Used</div>
+                        <div>{{ _secondsSpeedUsed() }}</div>
+                    </div>
+                </div>
+            </li>
+
+            <li>
+                <div class="row">
+                    <div class="first-col">
+                        <div class="red">PBD</div>
+                        <div>{{ _grossPayoff() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div>= </div>
+                        <div>= </div>
+                    </div>
+                    <div class="col">
+                        <div>Cash</div>
+                        <div>{{ _finalCash() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div> + </div>
+                        <div> + </div>
+                    </div>
+                    <div class="col">
+                        <div>Inventory Value</div>
+                        <div>{{ _inventoryVal() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div> - </div>
+                        <div> - </div>
+                    </div>
+                    <div class="col">
+                        <div>Speed Cost</div>
+                        <div>{{ _speedCostCalculation() }}</div>
+                    </div>
+                </div>
+            </li>              
+            
+            <li>
+                <div class="row">
+                    <div class="first-col">
+                        <div class="red">Deduction</div>
+                        <div>{{ _taxPayment() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div>= </div>
+                        <div>= </div>
+                    </div>
+                    <div class="col">
+                        <div>| Inventory Value |</div>
+                        <div>| {{ _inventoryVal() }} |</div>
+                    </div>
+                    <div class="col operator">
+                        <div> &times; </div>
+                        <div> &times; </div>
+                    </div>
+                    <div class="col">
+                        <div>Deduction Rate</div>
+                        <div>{{ _toPercentage(taxRate) }} %</div>
+                    </div>
+                </div>
+            </li>
+
+            <li>
+                <div class="row">
+                    <div class="first-col">
+                        <div class="red">Payoff</div>
+                        <div>{{ _payoff() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div>= </div>
+                        <div>= </div>
+                    </div>
+                    <div class="col">
+                        <div>PBD</div>
+                        <div>{{ _grossPayoff() }}</div>
+                    </div>
+                    <div class="col operator">
+                        <div> - </div>
+                        <div> - </div>
+                    </div>
+                    <div class="col">
+                        <div>Deduction</div>
+                        <div>{{ _taxPayment() }}</div>
+                    </div>
+                </div>
             </li>
         </ul>
         `;
