@@ -182,9 +182,62 @@ class Results(Page):
         # send as json so polymer likes it
         out = {k: json.dumps(v) for k, v in page_state.items()}
         out['next_button_timeout'] = self.session.config['next_button_timeout']
-        print(out)
+        self.send_payment_info_to_anonpay()
 
         return out
+    
+    def send_payment_info_to_anonpay(self):
+        out = {'all_payoffs': []}
+        num_rounds = self.session.config['num_rounds']
+        out['num_rounds'] = num_rounds
+        out['random_payoff'] = self.session.config['random_payoff']
+        out['random_round_num'] = self.session.config['random_round_num']
+
+        for i in range(num_rounds):
+            out['all_payoffs'].append(round(self.player.in_round(i+1).net_worth * .0001, 2))
+        
+        out['random_round_payoff'] = out['all_payoffs'][out['random_round_num'] - 1]
+
+        if out['random_payoff'] == False:
+            out['sum_payoffs'] = sum(out['all_payoffs'])
+        else:
+            out['sum_payoffs'] = out['random_round_payoff']
+        
+
+        participation_fee = self.session.config['participation_fee']
+        out['participation_fee'] = participation_fee
+        
+        exchange_rate = self.session.config['real_world_currency_per_point']
+        out['exchange_rate'] = exchange_rate
+        out['max_payoff'] = max(0, out['sum_payoffs'] * exchange_rate)
+        out['total_cash_payment'] = participation_fee + out['max_payoff']
+
+        # To send to AnonPay
+        self.player.cummulative_payoff = out['total_cash_payment']
+
+        if float(out['sum_payoffs']) < 0:
+            # Negative payoff
+            self.participant.vars['negative_payoff'] = True
+            self.participant.vars['payment_before_participation_fee'] = 0
+            self.participant.vars['payment'] = participation_fee
+            self.participant.vars['earned_more_than_max'] = False
+        else:
+            # Positive payoff
+            self.participant.vars['negative_payoff'] = False
+            self.participant.vars['payment_before_participation_fee'] = out['total_cash_payment'] - participation_fee
+            self.participant.vars['payment'] = out['total_cash_payment']
+
+            if float(out['total_cash_payment']) > float(self.session.config['max_payment']):
+                self.participant.vars['earned_more_than_max'] = True
+                self.participant.vars['payment'] = float(self.session.config['max_payment']) + participation_fee
+            else:
+                self.participant.vars['earned_more_than_max'] = False
+
+        self.participant.vars['random_payoff'] = out['random_payoff']
+        self.participant.vars['random_round_num'] = out['random_round_num']
+        self.participant.vars['participation_fee'] = participation_fee
+        self.participant.vars['exchange_rate'] = out['exchange_rate']
+        self.participant.vars['max_payment'] = self.session.config['max_payment']
 
 # Last page in experiment to display all payoffs
 class CumulativePayoff(Page):
@@ -255,5 +308,5 @@ page_sequence = [
     # PostSession,
     ResultsWaitPage,
     Results,
-    CumulativePayoff,
+    #CumulativePayoff,
 ]

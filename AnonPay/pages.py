@@ -25,9 +25,7 @@ class PageWithAmount(Page):
                     'earned_more_than_max': self.participant.vars['earned_more_than_max'],
                     'participation_fee': self.participant.vars['participation_fee'],
                     'exchange_rate': self.participant.vars['exchange_rate'],
-                    'total_cash_payment': self.participant.vars['total_cash_payment'],
-                    'total_cash_payment_before_exchange_rate': int(self.participant.vars['total_cash_payment'] / self.participant.vars['exchange_rate']),
-                    'total_cash_payment_plus_showup_fee': self.participant.vars['total_cash_payment'] + self.participant.vars['participation_fee'],
+                    'total_cash_payment_before_exchange_rate': float(self.participant.vars['payment_before_participation_fee'] / self.participant.vars['exchange_rate']),
                     'negative_payoff': self.participant.vars['negative_payoff'],
                     'max_payment': self.player.participant.vars['max_payment'],
                     }
@@ -38,7 +36,6 @@ class PageWithAmount(Page):
                     'earned_more_than_max': False,
                     'participation_fee': self.participant.vars['payment'],
                     'exchange_rate': 0,
-                    'total_cash_payment': 0,
                     'negative_payoff': False,
                     }
         

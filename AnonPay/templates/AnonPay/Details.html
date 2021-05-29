@@ -17,9 +17,9 @@
             <p>Die Summe ihrer Gewinne aller Handelsperioden ist außerordentlich hoch, so dass ihre Auszahlung dem maximalen Wert von {{max_payment}} zuzüglich Show-Up Fee von {{ participation_fee }} entspricht.</p>
         {% else %}
             {% if random_payoff %}
-                <p>Runde {{ random_round_num }} wurde zufällig ausgewählt. In dieser Runde haben Sie einen Gewinn von <b>{{ total_cash_payment_before_exchange_rate }} ECU</b> erzielt. Zusammen mit der Show-Up Fee ergibt dies einen Auszahlungsbetrag in der Höhe von: {{ total_cash_payment_plus_showup_fee }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate}} (Wechselkurs) + {{ participation_fee }} (Show-Up Fee).</p>
+                <p>Runde {{ random_round_num }} wurde zufällig ausgewählt. In dieser Runde haben Sie einen Gewinn von <b>{{ total_cash_payment_before_exchange_rate }} ECU</b> erzielt. Zusammen mit der Show-Up Fee ergibt dies einen Auszahlungsbetrag in der Höhe von: {{ nicePayment }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate}} (Wechselkurs) + {{ participation_fee }} (Show-Up Fee).</p>
             {% else %}
-                <p>Sie haben insgesamt einen Gewinn von <b>{{ total_cash_payment_before_exchange_rate }} ECU</b> erzielt. Zusammen mit der Show-Up Fee summiert sich dies auf: {{ total_cash_payment_plus_showup_fee }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate }} (Wechselkurs) + {{ participation_fee }} (Show-Up Fee).</p>
+                <p>Sie haben insgesamt einen Gewinn von <b>{{ total_cash_payment_before_exchange_rate }} ECU</b> erzielt. Zusammen mit der Show-Up Fee summiert sich dies auf: {{ nicePayment }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate }} (Wechselkurs) + {{ participation_fee }} (Show-Up Fee).</p>
             {% endif %}
         {% endif %}
     {% else %}
