@@ -272,20 +272,22 @@ class CumulativePayoff(Page):
 
         # To send to AnonPay
         self.player.cummulative_payoff = out['total_cash_payment']
-        self.participant.vars['payment'] = out['total_cash_payment']
 
-        if int(out['sum_payoffs']) < 0:
-            self.participant.vars['total_cash_payment'] = 0
+        if float(out['sum_payoffs']) < 0:
+            # Negative payoff
+            self.participant.vars['negative_payoff'] = True
+            self.participant.vars['payment_before_participation_fee'] = 0
             self.participant.vars['payment'] = participation_fee
             self.participant.vars['earned_more_than_max'] = False
-            self.participant.vars['negative_payoff'] = True
         else:
+            # Positive payoff
             self.participant.vars['negative_payoff'] = False
-            self.participant.vars['total_cash_payment'] = out['total_cash_payment'] - participation_fee
-            self.participant.vars['payment'] = self.session.config['max_payment'] + participation_fee
+            self.participant.vars['payment_before_participation_fee'] = out['total_cash_payment'] - participation_fee
+            self.participant.vars['payment'] = out['total_cash_payment']
 
-            if int(out['total_cash_payment']) > int(self.session.config['max_payment']):
+            if float(out['total_cash_payment']) > float(self.session.config['max_payment']):
                 self.participant.vars['earned_more_than_max'] = True
+                self.participant.vars['payment'] = float(self.session.config['max_payment']) + participation_fee
             else:
                 self.participant.vars['earned_more_than_max'] = False
 
