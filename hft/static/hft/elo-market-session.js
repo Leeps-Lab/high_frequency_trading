@@ -293,7 +293,8 @@ class MarketSession extends PolymerElement {
         if (window.location.port.length > 0) {
             port = ':' + window.location.port;
         }
-        var url = window.location.hostname + port + '/ping/';
+        var url = location.protocol + '//' + window.location.hostname + port + '/ping/';
+        console.log(location.protocol)
         setInterval(function(){
             var t0 = performance.now();
             fetch(url).then(function() {

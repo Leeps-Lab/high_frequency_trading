@@ -110,5 +110,6 @@ def get_exg_query_set_meta(event_type, source=exg_event_query_meta):
 def get_filecode_from_filename(event_type, filename):
     m = get_exg_query_set_meta(event_type)
     event_file_model_cls = m['event_file_model']
+    print(filename)
     event_file_model = event_file_model_cls.objects.get(upload_name=filename)
     return event_file_model.code
