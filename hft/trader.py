@@ -251,7 +251,10 @@ w: %s, speed unit cost: %s' % (
         order_info = self.orderstore.confirm('replaced', **event_as_kws)  
         order_token = event.message.replacement_order_token
         old_token = event.message.previous_order_token
-        old_price = order_info['old_price']
+        try:
+            old_price = order_info['old_price']
+        except:
+            return
         event.broadcast_msgs('replaced', order_token=order_token, 
             old_token=old_token, old_price=old_price, model=self, **event_as_kws)       
 
@@ -261,8 +264,11 @@ w: %s, speed unit cost: %s' % (
         event_as_kws = event.to_kwargs()
         order_info = self.orderstore.confirm('canceled', **event_as_kws)
         order_token = event.message.order_token
-        price = order_info['price']
-        buy_sell_indicator = order_info['buy_sell_indicator']
+        try:
+            price = order_info['price']
+            buy_sell_indicator = order_info['buy_sell_indicator']
+        except:
+            return
         event.broadcast_msgs('canceled', order_token=order_token,
             price=price, buy_sell_indicator=buy_sell_indicator, 
             model=self)
@@ -288,8 +294,11 @@ w: %s, speed unit cost: %s' % (
         event_as_kws = event.to_kwargs()
         execution_price = event.message.execution_price
         order_info =  self.orderstore.confirm('executed', **event_as_kws)
-        buy_sell_indicator = order_info['buy_sell_indicator']
-        price = order_info['price']
+        try:
+            buy_sell_indicator = order_info['buy_sell_indicator']
+            price = order_info['price']
+        except:
+            return
         order_token = event.message.order_token
         adjust_inventory(buy_sell_indicator)
         event.broadcast_msgs(

@@ -123,7 +123,10 @@ Spread: {self.bid} - {self.offer}
         token = kwargs['order_token']
         if int(token[-8:]) >= next(self.order_counter) - 1:
             return
-        order_info = self._orders[token]
+        try:
+            order_info = self._orders[token]
+        except:
+            return
         time_in_force = kwargs['time_in_force']
         if time_in_force != 0:
             order_info['status'] = b'active'
@@ -144,10 +147,16 @@ Spread: {self.bid} - {self.offer}
 
     def _confirm_replace(self, **kwargs):
         existing_token = kwargs['previous_order_token']
-        if int(existing_token[-8:]) >= next(self.order_counter) - 1:
+        if int(existing_token[-8:]) >= next(self.order_counter) - 1 :
             return
+
         replacement_token = kwargs['replacement_order_token']
-        order_info = self._orders.pop(existing_token)
+
+        try:
+            order_info = self._orders.pop(existing_token)
+        except:
+            return
+
         order_info['order_token'] = replacement_token
         new_price = kwargs['price']
         old_price = int(order_info['price'])
@@ -169,7 +178,12 @@ Spread: {self.bid} - {self.offer}
         token = kwargs['order_token']
         if int(token[-8:]) >= next(self.order_counter) - 1:
             return
-        order_info = self._orders.pop(token)
+        
+        try:
+            order_info = self._orders.pop(token)
+        except:
+            return
+
         direction = order_info['buy_sell_indicator']
         price = order_info['price']
         self.update_spread(price, direction, clear=True)   
@@ -180,7 +194,12 @@ Spread: {self.bid} - {self.offer}
         token = kwargs['order_token']
         if int(token[-8:]) >= next(self.order_counter) - 1:
             return
-        order_info = self._orders.pop(token)
+
+        try:
+            order_info = self._orders.pop(token)
+        except:
+            return
+            
         direction = order_info['buy_sell_indicator']
         shares = kwargs['executed_shares']
         self.inventory += shares if direction == 'B' else - shares

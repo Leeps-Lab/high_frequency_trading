@@ -337,9 +337,12 @@ class ELOAutomatedTraderState(ELOTraderState):
     def order_executed(self, trader, event):
         if int(event.message.order_token[-8:]) >= next(trader.orderstore.order_counter) - 1:
             return
-        order_info = event.attachments['order_info']
-        price = order_info['price']          
-        buy_sell_indicator = order_info['buy_sell_indicator']
+        try:
+            order_info = event.attachments['order_info']
+            price = order_info['price']          
+            buy_sell_indicator = order_info['buy_sell_indicator']
+        except:
+            return
 
         if  buy_sell_indicator == 'B':
             trader.staged_bid = None      
