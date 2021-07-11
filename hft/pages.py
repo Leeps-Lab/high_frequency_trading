@@ -182,7 +182,9 @@ class Results(Page):
         # send as json so polymer likes it
         out = {k: json.dumps(v) for k, v in page_state.items()}
         out['next_button_timeout'] = self.session.config['next_button_timeout']
-        self.send_payment_info_to_anonpay()
+        
+        if self.round_number == self.session.config['num_rounds']:
+            self.send_payment_info_to_anonpay()
 
         return out
     
