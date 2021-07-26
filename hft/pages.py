@@ -68,8 +68,8 @@ class PreWaitPage(WaitPage):
     def after_all_players_arrive(self):
         if self.round_number > 1:
             self.subsession.register()
+            
         for player in self.group.get_players():
-            print(player.id_in_group)
             if player.participant.vars['consent'] == True:
                 cache_key = get_cache_key('from_kws',
                     model_id=player.id,
@@ -96,6 +96,7 @@ class EloExperiment(Page):
         else:
             inputs_addr = test_inputs_dir.format(
                 self.session.config['test_input_file'])
+
         initial_strategy = {
             'slider_a_x': self.player.initial_slider_a_x,
             'slider_a_y': self.player.initial_slider_a_y,
@@ -103,6 +104,7 @@ class EloExperiment(Page):
             'role': self.player.initial_role,
             'speed_on': self.player.initial_speed_on,
         }
+
         return {
             'inputs_addr': inputs_addr,
             'initial_strategy': initial_strategy,

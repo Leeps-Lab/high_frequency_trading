@@ -76,10 +76,9 @@ export class ResultsCell extends PolymerElement {
         y: strategies[key]
       })
     }
-    console.log(strategiesData)
 
     const speedUsage = this.speedUsage;
-    console.log(speedUsage)
+    
     let speedData = [];
     for(let key in speedUsage) {
       speedData.push({
@@ -87,7 +86,6 @@ export class ResultsCell extends PolymerElement {
         y: speedUsage[key]
       })
     }
-    console.log(speedData)
 
     //let lowVal = Math.min(this.width, this.height);
     //let width = lowVal;

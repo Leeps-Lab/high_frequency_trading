@@ -15,6 +15,10 @@ import './market-primitives/test-inputs.js'
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
 
+let avgLatency = 0;
+let sumLatency = 0;
+let numPings = 0;
+
 class MarketSession extends PolymerElement {
 
     static get template() {
@@ -246,7 +250,7 @@ class MarketSession extends PolymerElement {
                 let protocol = 'ws://';
                 if (window.location.protocol === 'https:') {
                     protocol = 'wss://';
-                    }
+                }
                 const url = (
                     protocol +
                     window.location.host +
@@ -294,17 +298,23 @@ class MarketSession extends PolymerElement {
             port = ':' + window.location.port;
         }
         var url = location.protocol + '//' + window.location.hostname + port + '/ping/';
-        console.log(location.protocol)
+        
         setInterval(function(){
             var t0 = performance.now();
             fetch(url).then(function() {
                 var t1 = performance.now();
                 var ping = 'Latency: ' + (t1-t0).toFixed(2) + 'ms';
+                numPings += 1;
+                sumLatency += (t1-t0);
+                avgLatency = (sumLatency / numPings);
                 console.log(ping);
             }).catch(function() {
                 console.log("Error");
             });
         }, 1000);
+        window.addEventListener('unload', () => {console.log(avgLatency);
+            this.$.websocket.socket.send(JSON.stringify({type: 'ping', avgLatency: avgLatency}));});
+        
     }
 
     outboundMessage(event) {

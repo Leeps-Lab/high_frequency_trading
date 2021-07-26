@@ -42,13 +42,16 @@ class Subsession(BaseSubsession):
         #cache.clear()
         if (self.round_number > self.session.config['num_rounds']):
             return
-        session_format = self.session.config['environment']    
+
+        session_format = self.session.config['environment']  
+
         if self.round_number == 1:
             self.session.config = utility.process_configs(
                 session_format, self.session.config)
             self.do_groups()
         else:
             self.group_like_round(1)
+
     def register(self):
 
         def create_trade_session(session_format):
@@ -61,6 +64,7 @@ class Subsession(BaseSubsession):
                 trade_session.register_exogenous_event(
                     event_type, event_filename)
             return trade_session
+
         session_configs = self.session.config
         session_format = session_configs['environment']
         trade_session = create_trade_session(session_format)
@@ -68,24 +72,30 @@ class Subsession(BaseSubsession):
         exchange_host = session_configs['matching_engine_host']
         all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         market_id_map = {}
+
         for group in self.get_groups():
             group_id = group.id
             exchange_port = all_exchange_ports[self.auction_format].pop()
             market = trade_session.create_market(
-                group_id, exchange_host, exchange_port, **session_configs)                                 
+                group_id, exchange_host, exchange_port, **session_configs)     
+
             for player in group.get_players():
+                # If player consented, register them as a trader
                 if player.participant.vars['consent'] == True:
                     market.register_player(player)
                     player.configure_for_trade_session(market, session_format)
                     trader = TraderFactory.get_trader(session_format, player)
                     initialize_model_cache(trader)
+
             initialize_model_cache(market)
             market_id_map[market.id_in_subsession] = market.market_id
+
             for event_type_name in trade_session.exogenous_events.keys():
                 exogenous_event_manager_model = ExogenousEventModelFactory.get_model(
                     event_type_name, market)
                 if exogenous_event_manager_model:
                     initialize_model_cache(exogenous_event_manager_model)
+
         set_market_id_table(trade_session.subsession_id, market_id_map)
         self.configure_for_trade_session(session_format)
         initialize_model_cache(trade_session)
@@ -175,6 +185,9 @@ class Player(BasePlayer):
     initial_speed_on = models.BooleanField()
 
     cummulative_payoff = models.FloatField()
+
+    # Used to measure latency
+    avgLatency = models.FloatField()
 
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):

@@ -139,16 +139,11 @@ class ResultsPage extends PolymerElement {
     let mySpeedCost = speedCosts[player];
     let myName = names[player];
     let myStrategies = strategies[player];
-    console.log(strategies)
     let mySpeedUsage = speedUsage[player];
-    console.log(speedUsage)
-    console.log(mySpeedUsage)
-    console.log(player)
     
     let myInv = invs[player];
     let mySig = sigs[player];
     let myFeed = feeds[player];
-    console.log(myNet)
 
     let node = document.createElement("div");
     node.setAttribute("class", "child");
