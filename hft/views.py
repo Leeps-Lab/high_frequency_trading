@@ -55,8 +55,16 @@ class ExportHFTCSV(vanilla.View):
                     record_type,
                     datetime.date.today().isoformat()))
             fieldnames = record_class.csv_meta
+
             if 'net_worth' in fieldnames:
-                fieldnames = {'timestamp': 'timestamp', 'subsession_id': 'subsession_id', 'market_id': 'market_id', 'player_id': 'player_id', 'trigger_event_type': 'trigger_event_type', 'event_no': 'event_no', 'trader_model_name': 'trader_model_name', 'inventory': 'inventory', 'bid offer': 'bid offer', 'best_bid_except_me': 'best_bid_except_me', 'best_offer_except_me': 'best_offer_except_me', 'delay': 'delay', 'staged_bid': 'staged_bid', 'staged_offer': 'staged_offer',	'implied_bid': 'implied_bid', 'implied_offer': 'implied_offer', 'slider_a_x': 'slider_a_x',	'slider_a_y': 'slider_a_y',	'slider_a_z': 'slider_a_z',	'net_worth': 'payoff', 'cash': 'cash', 'tax_paid': 'deduction_paid', 'speed_cost': 'speed_cost', 'midpoint_peg': 'midpoint_peg', 'peg_price': 'peg_price', 'peg_state': 'peg_state', 'speed': 'speed', 'reference_price': 'reference_price' , 'avgLatency': 'avgLatency'}
+                new_fieldnames = dict()
+                for i in fieldnames:
+                    print(i)
+                    if i == 'net_worth':
+                        new_fieldnames[i] = 'payoff'
+                    else:
+                        new_fieldnames[i] = str(i)
+                fieldnames = new_fieldnames
             
             writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction='ignore')
             
