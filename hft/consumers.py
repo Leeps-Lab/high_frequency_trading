@@ -31,9 +31,7 @@ class SubjectConsumer(JsonWebsocketConsumer):
                 player = Player.objects.get(id=player_id)
                 player.avgLatency = content['avgLatency']
                 player.save()
-                print('------------------------')
-                print(player.avgLatency)
-                print('--------------------------')
+       
                 TraderRecord.objects.filter(subsession_id=subsession_id,
                     market_id=group_id, player_id=player_id).update(avgLatency = player.avgLatency)
             else:

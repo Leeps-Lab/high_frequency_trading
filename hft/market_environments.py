@@ -38,7 +38,7 @@ elo = market_environment(
                 'subsession_id', 'market_id', 'id_in_market', 'player_id', 'delay', 
                 'staged_bid', 'staged_offer', 'net_worth', 'cash', 'cost', 'tax_paid',
                 'speed_cost', 'implied_bid', 'implied_offer', 'best_bid_except_me',
-                'best_offer_except_me'),
+                'best_offer_except_me', 'executed_price', 'buy_sell_indicator'),
             'subproperties_to_serialize': {
                 'trader_role': ('trader_model_name', ),
                 'sliders': ('slider_a_x', 'slider_a_y', 'slider_a_z'),

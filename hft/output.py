@@ -25,7 +25,7 @@ class TraderRecord(TimeAwareInSessionRecord):
     'delay', 'staged_bid', 'staged_offer', 'implied_bid', 
     'implied_offer', 'slider_a_x','slider_a_y', 'slider_a_z',
     'net_worth', 'cash', 'tax_paid', 'speed_cost', 'midpoint_peg', 'peg_price', 'peg_state',
-    'avgLatency')
+    'avgLatency', 'executed_price', 'buy_sell_indicator')
 
     # timestamp = models.DateTimeField(default=timezone.now)
     # trigger_event_type = models.CharField()
@@ -71,6 +71,9 @@ class TraderRecord(TimeAwareInSessionRecord):
     total_asks = models.IntegerField()
     sum_bid_price = models.IntegerField()
     sum_ask_price = models.IntegerField()
+
+    executed_price = models.IntegerField()
+    buy_sell_indicator = models.CharField()
 
     # Used to measure latency
     avgLatency = models.FloatField()

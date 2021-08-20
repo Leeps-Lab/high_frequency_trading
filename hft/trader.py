@@ -77,8 +77,10 @@ class BaseTrader(object):
         self.total_asks = 0
         self.sum_bid_price = 0
         self.sum_ask_price = 0
+
+        self.executed_price = None
+        self.buy_sell_indicator = None
         
-    
     @classmethod
     def from_otree_player(cls, otree_player):
         args, kwargs = cls.otree_player_converter(otree_player)
@@ -192,6 +194,9 @@ class ELOTrader(BaseTrader):
             self.technology_subscription.deactivate()
             speed_cost = self.technology_subscription.invoice()
             self.speed_cost += speed_cost
+        
+        self.executed_price = None
+        self.buy_sell_indicator = None  
 
     def open_session(self, *args, **kwargs):
         super().open_session(*args, **kwargs)
@@ -219,6 +224,9 @@ w: %s, speed unit cost: %s' % (
         final_cash = self.initial_endowment + inventory_value + self.sum_ask_price - self.sum_bid_price
         #self.net_worth =  self.net_worth - self.cost
         self.net_worth =  final_cash - self.cost
+
+        self.executed_price = None
+        self.buy_sell_indicator = None  
     
     def user_slider_change(self, event):
         msg = event.message
@@ -229,6 +237,9 @@ w: %s, speed unit cost: %s' % (
             'slider_a_z': msg.a_z}       
         event.broadcast_msgs('slider_confirm', a_x=self.sliders['slider_a_x'],
             a_y=self.sliders['slider_a_y'], a_z=self.sliders['slider_a_z'], model=self)       
+
+        self.executed_price = None
+        self.buy_sell_indicator = None  
 
     @property
     def best_bid_except_me(self):
@@ -251,6 +262,9 @@ w: %s, speed unit cost: %s' % (
             event_as_kws = event.to_kwargs()
             self.orderstore.confirm('enter', **event_as_kws)
             event.broadcast_msgs('confirmed', model=self, **event_as_kws)
+        
+        self.executed_price = None
+        self.buy_sell_indicator = None
     
     def order_replaced(self, event):
         event_as_kws = event.to_kwargs()
@@ -259,7 +273,10 @@ w: %s, speed unit cost: %s' % (
         old_token = event.message.previous_order_token
         old_price = order_info['old_price']
         event.broadcast_msgs('replaced', order_token=order_token, 
-            old_token=old_token, old_price=old_price, model=self, **event_as_kws)       
+            old_token=old_token, old_price=old_price, model=self, **event_as_kws)   
+
+        self.executed_price = None
+        self.buy_sell_indicator = None  
 
     def order_canceled(self, event):
         event_as_kws = event.to_kwargs()
@@ -270,6 +287,9 @@ w: %s, speed unit cost: %s' % (
         event.broadcast_msgs('canceled', order_token=order_token,
             price=price, buy_sell_indicator=buy_sell_indicator, 
             model=self)
+
+        self.executed_price = price
+        self.buy_sell_indicator = buy_sell_indicator
 
     def order_executed(self, event):
         def adjust_inventory(buy_sell_indicator):
@@ -295,6 +315,10 @@ w: %s, speed unit cost: %s' % (
         order_info =  self.orderstore.confirm('executed', **event_as_kws)
         buy_sell_indicator = order_info['buy_sell_indicator']
         price = order_info['price']
+
+        self.executed_price = price
+        self.buy_sell_indicator = buy_sell_indicator
+
         order_token = event.message.order_token
         adjust_inventory(buy_sell_indicator)
         event.broadcast_msgs(
@@ -316,6 +340,9 @@ w: %s, speed unit cost: %s' % (
         if self.peg_price == -9999:
             self.peg_price = None
         self.peg_state = event.message.peg_state
+
+        self.executed_price = None
+        self.buy_sell_indicator = None  
 
 
 class InvestorFactory:

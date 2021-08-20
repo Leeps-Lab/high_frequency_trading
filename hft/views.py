@@ -59,9 +59,10 @@ class ExportHFTCSV(vanilla.View):
             if 'net_worth' in fieldnames:
                 new_fieldnames = dict()
                 for i in fieldnames:
-                    print(i)
                     if i == 'net_worth':
                         new_fieldnames[i] = 'payoff'
+                    elif i == 'tax_paid':
+                        new_fieldnames[i] = 'deduction_paid'
                     else:
                         new_fieldnames[i] = str(i)
                 fieldnames = new_fieldnames

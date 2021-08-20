@@ -56,6 +56,7 @@ def state_for_results_template(player, session_duration, speed_unit_cost):
     sumBidPrice = {str(o.player_id): o.sum_bid_price for o in summary_objects}
     sumAskPrice = {str(o.player_id): o.sum_ask_price for o in summary_objects}
     avgLatency = {str(o.player_id): o.avgLatency for o in summary_objects}
+
     '''
     mySummary = summary_objects.get(player_id=player.id)
 
