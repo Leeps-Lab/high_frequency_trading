@@ -325,6 +325,7 @@ w: %s, speed unit cost: %s' % (
             'executed', order_token=order_token, price=price, 
             inventory=self.inventory.position, execution_price=execution_price,
             buy_sell_indicator=buy_sell_indicator, model=self)
+            
         # orderstore delete order 
         # data after execution, hence
         # event carries order_info around
