@@ -21,11 +21,6 @@ class CustomOtreeConfig:
                 raise e
         return cls(configs, path_to_file)
 
-    def my_custom_random(exclude, num_rounds):
-        randInt = random.randint(1, num_rounds)
-        return my_custom_random() if randInt in exclude else randInt 
-
-
     def get_otree_config(self) -> dict:
         otree_configs = {}
         yaml_to_otree_map = config_maps[self.environment]
