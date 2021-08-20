@@ -8,7 +8,11 @@
             margin: 10px;
         }
     </style>
+
     <div class="centering">
+        {% if trial_round %}
+            <h2 style="color: red;">This is a practice round that doesn't impact your payoff.</h2>
+        {% endif %}
         <h3>Choose an Initial Strategy</h3>
         <initial-decision-selection id='initial_decision_component'></initial-decision-selection>
     </div>

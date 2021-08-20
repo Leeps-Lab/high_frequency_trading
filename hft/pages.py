@@ -20,8 +20,21 @@ log = logging.getLogger(__name__)
 class RegisterPlayers(WaitPage):
     def is_displayed(self):
         return self.round_number == 1
-    
+
     def after_all_players_arrive(self):
+        def my_custom_random(exclude, num_rounds):
+            randInt = random.randint(1, num_rounds)
+            return my_custom_random(exclude, num_rounds) if randInt in exclude else randInt 
+        # Generate random round number
+        num_rounds = self.session.config['num_rounds']
+        exclude = self.session.config['trial_rounds']
+
+        # Failsafe
+        if num_rounds == len(exclude):
+            self.session.config['random_round_num'] = random.randint(1, num_rounds)
+        else:
+            self.session.config['random_round_num'] = my_custom_random(exclude, num_rounds)
+        print(self.session.config['random_round_num'])
         self.subsession.register()
     
 class Instructions(Page):
@@ -60,6 +73,12 @@ class InitialDecisionSelection(Page):
         print(timeout)
         if timeout > 0:
             return timeout
+    
+    def vars_for_template(self):
+        is_trial_round = self.round_number in self.session.config['trial_rounds']
+        return {
+            'trial_round': is_trial_round
+        }
 
 class PreWaitPage(WaitPage):
     def is_displayed(self):
@@ -198,7 +217,11 @@ class Results(Page):
         out['random_round_num'] = self.session.config['random_round_num']
 
         for i in range(num_rounds):
-            out['all_payoffs'].append(round(self.player.in_round(i+1).net_worth * .0001, 2))
+            if i in self.session.config['trial_rounds']:
+                # Trial round isn't included in payoff
+                out['all_payoffs'].append(0)
+            else:
+                out['all_payoffs'].append(round(self.player.in_round(i+1).net_worth * .0001, 2))
         
         out['random_round_payoff'] = out['all_payoffs'][out['random_round_num'] - 1]
 
@@ -256,7 +279,11 @@ class CumulativePayoff(Page):
         out['random_round_num'] = self.session.config['random_round_num']
 
         for i in range(num_rounds):
-            out['all_payoffs'].append(round(self.player.in_round(i+1).net_worth * .0001, 2))
+            if i in self.session.config['trial_rounds']:
+                # Trial round isn't included in payoff
+                out['all_payoffs'].append(0)
+            else:
+                out['all_payoffs'].append(round(self.player.in_round(i+1).net_worth * .0001, 2))
         
         out['random_round_payoff'] = out['all_payoffs'][out['random_round_num'] - 1]
 

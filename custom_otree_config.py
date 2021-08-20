@@ -21,6 +21,11 @@ class CustomOtreeConfig:
                 raise e
         return cls(configs, path_to_file)
 
+    def my_custom_random(exclude, num_rounds):
+        randInt = random.randint(1, num_rounds)
+        return my_custom_random() if randInt in exclude else randInt 
+
+
     def get_otree_config(self) -> dict:
         otree_configs = {}
         yaml_to_otree_map = config_maps[self.environment]
@@ -29,11 +34,6 @@ class CustomOtreeConfig:
             try:
                 value = self.base_configs[parent_key][child_key]
                 otree_configs[otree_config_key] = value
-                
-                # Generate random round number
-                if otree_config_key == 'random_payoff':
-                    num_rounds = self.base_configs['session']['num-rounds']
-                    otree_configs['random_round_num'] = random.randint(1, num_rounds)
 
             except KeyError:
                 otree_configs[otree_config_key] = None
@@ -93,6 +93,7 @@ config_maps = {
         'max_payment': ('session', 'max-payment'),
         'instructions_next_button_timeout': ('session', 'instructions-next-button-timeout'),
         'feedback_next_button_timeout': ('session', 'feedback-next-button-timeout'),
+        'trial_rounds': ('session', 'trial-rounds'),
     },
     'elo': { 
         'name': ('session', 'session-name'),
@@ -127,6 +128,7 @@ config_maps = {
         'max_payment': ('session', 'max-payment'),
         'instructions_next_button_timeout': ('session', 'instructions-next-button-timeout'),
         'feedback_next_button_timeout': ('session', 'feedback-next-button-timeout'),
+        'trial_rounds': ('session', 'trial-rounds'),
     }
 }
 
