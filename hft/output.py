@@ -22,10 +22,10 @@ class TraderRecord(TimeAwareInSessionRecord):
     'timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
     'event_no',  'trader_model_name', 'inventory', 'bid', 'offer', 
     'best_bid_except_me', 'best_offer_except_me',
-    'delay', 'staged_bid', 'staged_offer', 'implied_bid', 
+    'delay', 'speed', 'staged_bid', 'staged_offer', 'implied_bid', 
     'implied_offer', 'slider_a_x','slider_a_y', 'slider_a_z',
     'net_worth', 'cash', 'tax_paid', 'speed_cost', 'midpoint_peg', 'peg_price', 'peg_state',
-    'avgLatency', 'reference_price', 'speed', 'executed_price', 'buy_sell_indicator')
+    'avgLatency', 'reference_price', 'executed_price', 'buy_sell_indicator')
 
     # timestamp = models.DateTimeField(default=timezone.now)
     # trigger_event_type = models.CharField()
