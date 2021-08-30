@@ -294,7 +294,7 @@ class MarketSession extends PolymerElement {
         this.potentiallyAggressiveOrders = new Set()
 
         // Testing for ping
-        setInterval(this.calcPing.bind(this), 1000);
+        setInterval(this.calcPing.bind(this), 10000);
     }
 
     calcPing(event) {
@@ -420,7 +420,12 @@ class MarketSession extends PolymerElement {
                         volume: cleanMsg.transacted_volume,
                     }
                     this.orderBook.handlePostBatch();
-                    this.profitGraph.addBatchMarker();
+                    //this.profitGraph.addBatchMarker();
+
+                    // Event to trigger clearing info box to animate
+                    let event = new CustomEvent('post_batch', {})
+                    this.$.infotable.dispatchEvent(event)
+
                     break;
             }
             if (cleanMsg.player_id == this.playerId) {
