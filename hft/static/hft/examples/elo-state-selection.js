@@ -76,6 +76,10 @@ class StateSelection extends PolymerElement {
                 </div>
                 
                 <div id="second-column" class="column-container">
+                    <div class="header-container">
+                       Round {{roundNumber}}
+                    </div>
+
                     <player-role-button websocket-message='{"type": "role_change", "state": "out"}' 
                             event-dispatch="user-input"  role-name="out" player-role=[[role]]>
                     </player-role-button>
@@ -91,7 +95,7 @@ class StateSelection extends PolymerElement {
                     </player-role-button>
                 </div>
                 
-                <div class = 'column-container evenly-spaced-column'>
+                <div class ='column-container evenly-spaced-column'>
                     <div class="header-container">
                         Sensitivity to:
                     </div>
@@ -164,7 +168,11 @@ class StateSelection extends PolymerElement {
             type: Boolean, 
             value: false,
             reflectToAttribute: true
-            }
+          },
+          roundNumber: {
+            type: Number,
+            value: OTREE_CONSTANTS.roundNumber
+          }
         }
     }
 

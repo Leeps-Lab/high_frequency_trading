@@ -30,7 +30,6 @@ class HFTPlayerSessionSummary(Model):
     total_asks = models.IntegerField(initial=0)
     sum_bid_price = models.IntegerField(initial=0)
     sum_ask_price = models.IntegerField(initial=0)
-    avgLatency = models.FloatField(initial=0.0)
 
     #subscriptionTime = models.IntegerField(initial=0)
 
@@ -55,7 +54,6 @@ def state_for_results_template(player, session_duration, speed_unit_cost):
     totalAsks = {str(o.player_id): o.total_asks for o in summary_objects}
     sumBidPrice = {str(o.player_id): o.sum_bid_price for o in summary_objects}
     sumAskPrice = {str(o.player_id): o.sum_ask_price for o in summary_objects}
-    avgLatency = {str(o.player_id): o.avgLatency for o in summary_objects}
 
     '''
     mySummary = summary_objects.get(player_id=player.id)
@@ -68,7 +66,7 @@ def state_for_results_template(player, session_duration, speed_unit_cost):
 
     return {'nets': nets, 'taxes': taxes, 'speed_costs': speed_costs, 'names': names, 'strategies': strategies, 
         'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies, 'totalBids': totalBids, 
-        'totalAsks': totalAsks, 'sumBidPrice': sumBidPrice, 'sumAskPrice': sumAskPrice, 'speedUsage': speedUsage, 'avgLatency': avgLatency}
+        'totalAsks': totalAsks, 'sumBidPrice': sumBidPrice, 'sumAskPrice': sumAskPrice, 'speedUsage': speedUsage}
 
 def elo_player_summary(player):
     market = cache.get(get_cache_key('from_kws', model_name='market',
@@ -120,7 +118,6 @@ def elo_player_summary(player):
         sum_ask_price=trader.sum_ask_price,
         total_bids=trader.total_bids,
         total_asks=trader.total_asks,
-        avgLatency=player.avgLatency
     )
 
 

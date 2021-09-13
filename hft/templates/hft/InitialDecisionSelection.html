@@ -7,12 +7,23 @@
             text-align: center;
             margin: 10px;
         }
+
+        .round_number {
+            right: 20px;
+            top: 20px;
+            border: 1px solid black;
+            background-color: white;
+            color: red;
+            padding: 5px;
+        }
     </style>
 
     <div class="centering">
+        
         {% if trial_round %}
             <h2 style="color: red;">Dies ist eine Übungsrunde - Ihr Ergebnis dieser Runde ist nicht für Ihre Auszahlung relevant.</h2>
         {% endif %}
+
         <h3>Choose an Initial Strategy</h3>
         <initial-decision-selection id='initial_decision_component'></initial-decision-selection>
     </div>
@@ -48,23 +59,24 @@
     <script type="module" src="{% static 'hft/initial-decision-selection.js' %}"></script>
     <script>
     let OTREE_CONSTANTS = {
-            playerId: "{{player.id}}",
-            subsessionId: "{{player.subsession.id}}",
-            marketId: "{{player.market_id}}",
-            initialEndowment: "{{player.cash}}",
-            speedCost: "{{player.speed_unit_cost}}",
-            idInGroup: "{{player.id_in_group}}",
-            manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-            svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-            sessionLength: "{{subsession.session_duration}}",
-            auctionFormat: "{{subsession.auction_format}}",
-            initialStrategy: {
-                slider_a_x: 0,
-                slider_a_y: 0,
-                slider_a_z: 0,
-                role: 'out',
-                speed_on: false,
-            }
+        playerId: "{{player.id}}",
+        subsessionId: "{{player.subsession.id}}",
+        marketId: "{{player.market_id}}",
+        initialEndowment: "{{player.cash}}",
+        speedCost: "{{player.speed_unit_cost}}",
+        idInGroup: "{{player.id_in_group}}",
+        manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+        svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+        sessionLength: "{{subsession.session_duration}}",
+        auctionFormat: "{{subsession.auction_format}}",
+        initialStrategy: {
+            slider_a_x: 0,
+            slider_a_y: 0,
+            slider_a_z: 0,
+            role: 'out',
+            speed_on: false,
+        },
+        roundNumber: "{{player.round_number}}"
     };
 
     document.getElementById('form').addEventListener('submit', () => {

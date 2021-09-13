@@ -40,7 +40,7 @@ class ResultsPage extends PolymerElement {
 
     </style>
 
-    <h1 style="text-align:center; margin-bottom: 30px;">Trade Session Results</h1>
+    <h1 style="text-align:center; margin-bottom: 30px;">Trade Session Results For Round {{roundNumber}}</h1>
 
     <table id = "myPayoff" style="width:100%; border-collapse:separate; border-spacing: 0 50px;">
 
@@ -319,6 +319,10 @@ class ResultsPage extends PolymerElement {
       },
       height: {
         type: Number
+      },
+      roundNumber: {
+        type: Number,
+        value: OTREE_CONSTANTS.roundNumber
       }
     }
   }

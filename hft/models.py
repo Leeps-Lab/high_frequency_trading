@@ -187,7 +187,8 @@ class Player(BasePlayer):
     cummulative_payoff = models.FloatField()
 
     # Used to measure latency
-    avgLatency = models.FloatField()
+    # avgLatency = models.FloatField()
+    # maxLatency = models.FloatField()
 
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):

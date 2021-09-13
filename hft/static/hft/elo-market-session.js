@@ -18,6 +18,7 @@ const MAX_ASK = 2147483647;
 let avgLatency = 0;
 let sumLatency = 0;
 let numPings = 0;
+let latencyList = [];
 
 class MarketSession extends PolymerElement {
 
@@ -156,10 +157,15 @@ class MarketSession extends PolymerElement {
                         best-offer={{bestOffer}} my-bid={{myBid}} my-offer={{myOffer}}
                         sv-slider-displayed={{svSliderDisplayed}} clearing-price={{clearingPrice}}>
                     </elo-info-table>
-                    <elo-state-selection role={{role}} buttons={{buttons}} slider-defaults={{sliderDefaults}}
+                    <elo-state-selection
+                        role={{role}}
+                        buttons={{buttons}}
+                        slider-defaults={{sliderDefaults}}
                         speed-on={{subscribesSpeed}} 
                         manual-button-displayed={{manualButtonDisplayed}} 
-                        sv-slider-displayed={{svSliderDisplayed}}> 
+                        sv-slider-displayed={{svSliderDisplayed}}
+                        round-number="{{roundNumber}}"
+                    >
                     </elo-state-selection>
                 </div>
                 <attribute-graph
@@ -262,6 +268,10 @@ class MarketSession extends PolymerElement {
                 return url
             },
         },
+        roundNumber: {
+            type: Number,
+            value: OTREE_CONSTANTS.roundNumber
+        }
       }
     }
 
@@ -269,7 +279,7 @@ class MarketSession extends PolymerElement {
         super();
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
-        this.addEventListener('inbound-ws-message', this.pingMessage.bind(this))
+        //this.addEventListener('inbound-ws-message', this.pingMessage.bind(this))
     }
 
     ready(){
@@ -305,13 +315,23 @@ class MarketSession extends PolymerElement {
         var url = location.protocol + '//' + window.location.hostname + port + '/ping/';
         
         var t0 = performance.now();
-        fetch(url).then(function() {
+        fetch(url).then(() => {
             var t1 = performance.now();
             var ping = 'Latency: ' + (t1-t0).toFixed(2) + 'ms';
-            
+            var latency = t1-t0;
+
             numPings += 1;
-            sumLatency += (t1-t0);
+            sumLatency += latency;
             avgLatency = (sumLatency / numPings);
+            
+            // Calculate 90th percentile of latencies then take the max
+            latencyList.push(latency);
+            latencyList.sort()
+            var percentileIndex = Math.floor((latencyList.length * .9))
+            var maxLatency = latencyList[percentileIndex]
+
+            this.$.websocket.socket.send(JSON.stringify({type: 'ping', avgLatency: avgLatency, maxLatency: maxLatency}));
+
             console.log(ping);
         }).catch((error) => {
             console.error(error);
@@ -320,6 +340,7 @@ class MarketSession extends PolymerElement {
 
     pingMessage(event) {
         this.$.websocket.socket.send(JSON.stringify({type: 'ping', avgLatency: avgLatency}));
+        console.log('test')
     }
 
     outboundMessage(event) {

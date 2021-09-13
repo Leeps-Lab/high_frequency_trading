@@ -198,6 +198,7 @@ class Results(Page):
         if timeout > 0:
             return timeout
 
+
     def vars_for_template(self):
         page_state = state_for_results_template(self.player, self.session.config['session_duration'], self.session.config['speed_unit_cost'] * .0001)
         # send as json so polymer likes it
