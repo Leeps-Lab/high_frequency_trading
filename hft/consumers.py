@@ -29,14 +29,10 @@ class SubjectConsumer(JsonWebsocketConsumer):
             content = json.loads(message.content['text'])
             if 'avgLatency' in content:
                 player = Player.objects.get(id=player_id)
-                # player.avgLatency = content['avgLatency']
-                # player.maxLatency = content['maxLatency']
-                # player.save()
        
                 TraderRecord.objects.filter(subsession_id=subsession_id,
                     market_id=group_id, player_id=player_id).update(avgLatency = content['avgLatency'], maxLatency = content['maxLatency'])
-                #TraderRecord.objects.filter(subsession_id=subsession_id,
-                #    market_id=group_id, player_id=player_id).update(maxLatency = content['maxLatency'])
+
             else:
                 ELODispatcher.dispatch('websocket', message, subsession_id=subsession_id,
                     market_id=group_id, player_id=player_id)
