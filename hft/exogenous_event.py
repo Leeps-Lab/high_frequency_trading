@@ -85,6 +85,7 @@ def handle_exogenous_event_file(filename, filelike, record_cls, record_type):
     file_record = ExogenousEventFile.objects.create(
         upload_name=filename, record_type=record_type)
     for row in rows[1:]:
+        # Edge case to handle if csv reader is trying to read an empty row
         if len(row) > 0:
             ex_order = record_cls.from_csv_row(row, 
                 headers, submitted_file=file_record)
