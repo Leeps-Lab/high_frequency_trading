@@ -81,7 +81,7 @@ class Subsession(BaseSubsession):
 
             for player in group.get_players():
                 # If player consented, register them as a trader
-                if player.participant.vars['consent'] == True:
+                if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False:
                     market.register_player(player)
                     player.configure_for_trade_session(market, session_format)
                     trader = TraderFactory.get_trader(session_format, player)
@@ -111,7 +111,9 @@ class Subsession(BaseSubsession):
         # set groups as suggested in oTree docs.
         group_matrix = []
         players = self.get_players()
-        ppg = self.session.config['players_per_group']
+        
+        #ppg = self.session.config['players_per_group']
+        ppg = self.session.config['num_demo_participants']
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)

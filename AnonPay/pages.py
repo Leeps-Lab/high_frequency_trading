@@ -42,11 +42,11 @@ class PageWithAmount(Page):
         vft['emailEntered'] = self.player.email
         vft['feedback_next_button_timeout'] = self.session.config['feedback_next_button_timeout']
         vft['consent'] = self.player.participant.vars['consent']
+        vft['overbooked'] = self.player.participant.vars['overbooked']
         vft['nicePayment'] = formatNicely(self.participant.vars['payment'])
 
 
         self.player.email = '[REDACTED]'
-        print(vft)
         return vft
 
 class Feedback(PageWithAmount):
@@ -75,8 +75,18 @@ class Details(PageWithAmount):
                 fp.seek(0)
                 
                 lines = fp.read().splitlines()
+
+                player_status = ''
+
+                if self.participant.vars["consent"]:
+                    if self.participant.vars["overbooked"]:
+                        player_status = 'Overbooked'
+                    else:
+                        player_status = 'Consented'
+                else:
+                    player_status = 'Did not consent'
                 
-                lines.append(f'"{self.player.email}";"{self.participant.vars["payment"]}";"{"Consented" if self.participant.vars["consent"] else "Did not consent"}"')
+                lines.append(f'"{self.player.email}";"{self.participant.vars["payment"]}";"{player_status}"')
                 
                 random.shuffle(lines)
                 
