@@ -1,9 +1,9 @@
 demo:
   number-of-participants: 3
 
-group:
-  number-of-groups: 1
-  players-per-group: 3
+traders:
+  number-of-traders: 3 # Number of participants that will play the experiment
+  allow-underbooking: false # Continue/cancel experiment if the number of people who consented is less than the number above
 
 exogenous-events:
   investor-arrivals:

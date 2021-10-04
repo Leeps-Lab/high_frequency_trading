@@ -36,25 +36,32 @@ class ConsentWaitPage(WaitPage):
         return self.round_number == 1
     
     def after_all_players_arrive(self):
-        num_traders_allowed = self.session.config['players_per_group']
-        num_consented = 0
+        num_traders_allowed = self.session.config['number_of_traders']
+        consented_players = []
 
         for player in self.group.get_players():
-            # Preset overbooked variable
+            # Preset booked variable
             player.participant.vars['overbooked'] = False
+            player.participant.vars['underbooked'] = False
+
             if player.participant.vars['consent'] == True:
-                num_consented += 1
+                consented_players.append(player)
+        
+        num_consented = len(consented_players)
         
         # If more people consented to play then allowed then randomly select participants
         if (num_consented > num_traders_allowed):
-            shuffled_players = self.group.get_players()
-            random.shuffle(shuffled_players)
+            random.shuffle(consented_players)
 
-            for player in shuffled_players[num_traders_allowed:]:
+            # Set players that were overbooked
+            for player in consented_players[num_traders_allowed:]:
                 player.participant.vars['overbooked'] = True
+        
+        # If less people consented then the number defined, cancel experiment
+        if (num_consented < num_traders_allowed and self.session.config['allow_underbooking'] == False):
+            for player in consented_players:
+                player.participant.vars['underbooked'] = True
 
-
-    
 class BlockDropouts(Page):
     def is_displayed(self):
         return self.round_number == 1 and self.player.consent == False

@@ -14,6 +14,8 @@
         <p>Leider ist die Summe ihrer Gewinne aller Handelsperioden negativ, so dass ihre Auszahlung der Show-Up Fee von <b>{{ participation_fee }}</b> entspricht.</p>
     {% elif overbooked %}
         <p>Thank you for your interest and consent. However, you have not been selected to participate in today's session. We book more people than necessary in case some do not show up or do not consent. If more people show up and provide consent, we select the participating players at random. Since you arrived in this session on time, you will receive your participation payment. Thank you for understanding.</p>
+    {% elif underbooked %}
+        <p>Thank you for your interest and consent. Unfortunately, not enough people consented to play the experiment. Since you arrived in this session on time, you will receive your participation payment. Thank you for understanding.</p>
     {% elif consent %}
         {% if earned_more_than_max %}
             <p>Die Summe ihrer Gewinne aller Handelsperioden ist außerordentlich hoch, so dass ihre Auszahlung dem maximalen Wert von {{max_payment}} zuzüglich Show-Up Fee von {{ participation_fee }} entspricht.</p>

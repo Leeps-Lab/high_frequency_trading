@@ -38,7 +38,7 @@ class RegisterPlayers(WaitPage):
     
 class Instructions(Page):
     def is_displayed(self):
-        return self.round_number == 1 and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False
+        return self.round_number == 1 and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
     
     def vars_for_template(self):
         out = {}
@@ -57,7 +57,7 @@ class InitialDecisionSelection(Page):
     ]
 
     def is_displayed(self):
-        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False
+        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
     
     timeout_submission = {'initial_slider_a_x': 0,
         'initial_slider_a_y': 0,
@@ -81,14 +81,14 @@ class InitialDecisionSelection(Page):
 
 class PreWaitPage(WaitPage):
     def is_displayed(self):
-        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False
+        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
 
     def after_all_players_arrive(self):
         if self.round_number > 1:
             self.subsession.register()
             
         for player in self.group.get_players():
-            if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False:
+            if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False and player.participant.vars['underbooked'] == False:
                 cache_key = get_cache_key('from_kws',
                     model_id=player.id,
                     model_name='trader',
@@ -106,7 +106,7 @@ class PreWaitPage(WaitPage):
 
 class EloExperiment(Page):
     def is_displayed(self):
-        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False
+        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
 
     def vars_for_template(self):
         if not self.session.config['test_input_file']:
@@ -146,14 +146,14 @@ class EloExperiment(Page):
 
 class PostSession(Page):
     def is_displayed(self):
-        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False
+        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
 
     timeout_seconds = 25
     timer_text = 'Processing results..'
 
 class ResultsWaitPage(WaitPage):
     def is_displayed(self):
-        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False
+        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
 
     def after_all_players_arrive(self):
         # at some point we should add a
@@ -166,12 +166,12 @@ class ResultsWaitPage(WaitPage):
         market_id = self.group.id
         num_players = 0
         for player in players_query:
-            if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False:
+            if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False and player.participant.vars['underbooked'] == False:
                 num_players += 1
         if ensure_results_ready(
             subsession_id, market_id, TraderRecord, num_players):
             for p in players_query:
-                if p.participant.vars['consent'] == True and p.participant.vars['overbooked'] == False:
+                if p.participant.vars['consent'] == True and p.participant.vars['overbooked'] == False and p.participant.vars['underbooked'] == False:
                     most_recent_state_record = TraderRecord.objects.get(
                         subsession_id=subsession_id, 
                         market_id=market_id, 
@@ -180,7 +180,7 @@ class ResultsWaitPage(WaitPage):
                     p.update_from_state_record(most_recent_state_record)
             try:
                 for p in players_query:
-                    if p.participant.vars['consent'] == True:
+                    if p.participant.vars['consent'] == True and p.participant.vars['overbooked'] == False and p.participant.vars['underbooked'] == False:
                         elo_player_summary(p)
             except Exception:
                 log.exception('error transform results group {}'.format(market_id))
@@ -189,7 +189,7 @@ class ResultsWaitPage(WaitPage):
 
 class Results(Page):
     def is_displayed(self):
-        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False
+        return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
 
     # Auto advance results page
     def get_timeout_seconds(self):
@@ -269,7 +269,7 @@ class Results(Page):
 # Last page in experiment to display all payoffs
 class CumulativePayoff(Page):
     def is_displayed(self):
-        return self.round_number == self.session.config['num_rounds'] + 1 and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False
+        return self.round_number == self.session.config['num_rounds'] + 1 and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
     
     def vars_for_template(self):
         out = {'all_payoffs': []}

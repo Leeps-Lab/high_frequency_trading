@@ -81,7 +81,7 @@ class Subsession(BaseSubsession):
 
             for player in group.get_players():
                 # If player consented, register them as a trader
-                if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False:
+                if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False and player.participant.vars['underbooked'] == False:
                     market.register_player(player)
                     player.configure_for_trade_session(market, session_format)
                     trader = TraderFactory.get_trader(session_format, player)
