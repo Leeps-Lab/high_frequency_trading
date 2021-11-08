@@ -293,9 +293,14 @@ class MarketSession extends PolymerElement {
         this.role = initialStrategy.role;
         this.subscribesSpeed = initialStrategy.speed_on;
         this.referencePrice = 0
-        this.cash = 100
-        this.wealth = 100
-        this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
+        // this.cash = 100
+        // this.wealth = 100
+        // Make sure starting values are coming from backend
+        this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001;
+        this.wealth = OTREE_CONSTANTS.initialEndowment * 0.0001;
+        // this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
+        // Converts speed cost per milliseconds
+        this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.0000001
         this.inventory = 0
         this.signedVolume = 0
         this.orderBook = new PlayersOrderBook(this.playerId);
