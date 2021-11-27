@@ -651,7 +651,9 @@ class MarketSession extends PolymerElement {
     }
 
     _calculateWealth(cash, costStep, referencePrice, inventory) {
-        const out = Math.round((cash - costStep + referencePrice * inventory) * 10) / 10
+        //const out = Math.round((cash - costStep + referencePrice * inventory) * 10) / 10
+        // Round to 2 decimals instead
+        const out = (cash - costStep + referencePrice * inventory).toFixed(2)
         return out
     }
 
