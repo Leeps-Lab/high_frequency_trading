@@ -25,7 +25,8 @@ class TraderRecord(TimeAwareInSessionRecord):
     'delay', 'speed', 'staged_bid', 'staged_offer', 'implied_bid', 
     'implied_offer', 'slider_a_x','slider_a_y', 'slider_a_z',
     'net_worth', 'cash', 'tax_paid', 'speed_cost', 'midpoint_peg', 'peg_price', 'peg_state',
-    'avgLatency', 'maxLatency', 'reference_price', 'executed_price', 'buy_sell_indicator')
+    'avgLatency', 'maxLatency', 'reference_price', 'executed_price', 'buy_sell_indicator',
+    'percentTraderActive')
 
     # timestamp = models.DateTimeField(default=timezone.now)
     # trigger_event_type = models.CharField()
@@ -78,6 +79,10 @@ class TraderRecord(TimeAwareInSessionRecord):
     # Used to measure latency
     avgLatency = models.FloatField()
     maxLatency = models.FloatField()
+
+    # Used to store how long a trader spent actively looking at the screen
+    percentTraderActive = models.FloatField()
+
 
 class MarketRecord(TimeAwareInSessionRecord):
 

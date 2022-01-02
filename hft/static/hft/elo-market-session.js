@@ -15,10 +15,17 @@ import './market-primitives/test-inputs.js'
 const MIN_BID = 0;
 const MAX_ASK = 2147483647;
 
+// Used for calculating avg and max latency
 let avgLatency = 0;
 let sumLatency = 0;
 let numPings = 0;
 let latencyList = [];
+
+// Used for calculating the percentage of time user spent activately looking at the page
+const originalStartDate = new Date();
+let startDate = new Date();
+let loadedIntoPageWithoutViewing = false;
+let timeSpentActive = 0;
 
 class MarketSession extends PolymerElement {
 
@@ -279,7 +286,16 @@ class MarketSession extends PolymerElement {
         super();
         this.addEventListener('user-input', this.outboundMessage.bind(this))
         this.addEventListener('inbound-ws-message', this.inboundMessage.bind(this))
-        //this.addEventListener('inbound-ws-message', this.pingMessage.bind(this))
+
+        // Used for detecting how much time user spent looking at screen
+        window.addEventListener('focus', this.focus.bind(this))
+        window.addEventListener('blur', this.calculateTimeSpentActive.bind(this))
+        window.addEventListener('beforeunload', this.calculateTimeSpentActive.bind(this));
+
+        // If player starts page but isn't visible
+        if (document.hidden) {
+            loadedIntoPageWithoutViewing = true;
+        }
     }
 
     ready(){
@@ -293,12 +309,10 @@ class MarketSession extends PolymerElement {
         this.role = initialStrategy.role;
         this.subscribesSpeed = initialStrategy.speed_on;
         this.referencePrice = 0
-        // this.cash = 100
-        // this.wealth = 100
+
         // Make sure starting values are coming from backend
         this.cash = OTREE_CONSTANTS.initialEndowment * 0.0001;
         this.wealth = OTREE_CONSTANTS.initialEndowment * 0.0001;
-        // this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.000001
         // Converts speed cost per milliseconds
         this.speedUnitCost = OTREE_CONSTANTS.speedCost * 0.0000001
         this.inventory = 0
@@ -312,7 +326,31 @@ class MarketSession extends PolymerElement {
         setInterval(this.calcPing.bind(this), 10000);
     }
 
-    calcPing(event) {
+    focus() {
+        // User refocused on page, get new start date
+        startDate = new Date();
+    }
+
+    calculateTimeSpentActive() {
+        // User looked away from page, recalculate percent time active on page
+        const endDate = new Date();
+        const timeElapsed = endDate.getTime()- startDate.getTime();
+        const entireTimeElapsed = endDate.getTime()- originalStartDate.getTime();
+        timeSpentActive += timeElapsed;
+
+        // User loaded into page, but never actually looked at it
+        if (loadedIntoPageWithoutViewing && originalStartDate.getTime() == startDate.getTime()) {
+            timeSpentActive = 0
+        }
+
+        // Make sure percentage doesn't go above 100
+        const percentTraderActive = Math.min((timeSpentActive/entireTimeElapsed) * 100, 100);
+        this.$.websocket.socket.send(JSON.stringify({type: 'traderActivity', percentTraderActive: percentTraderActive}));
+
+        console.log(percentTraderActive + '%');
+    }
+
+    calcPing() {
         var port = "";
         if (window.location.port.length > 0) {
             port = ':' + window.location.port;
@@ -341,11 +379,6 @@ class MarketSession extends PolymerElement {
         }).catch((error) => {
             console.error(error);
         });
-    }
-
-    pingMessage(event) {
-        this.$.websocket.socket.send(JSON.stringify({type: 'ping', avgLatency: avgLatency}));
-        console.log('test')
     }
 
     outboundMessage(event) {
@@ -653,7 +686,7 @@ class MarketSession extends PolymerElement {
     _calculateWealth(cash, costStep, referencePrice, inventory) {
         //const out = Math.round((cash - costStep + referencePrice * inventory) * 10) / 10
         // Round to 2 decimals instead
-        const out = (cash - costStep + referencePrice * inventory).toFixed(2)
+        const out = parseFloat((cash - costStep + referencePrice * inventory).toFixed(2))
         return out
     }
 
