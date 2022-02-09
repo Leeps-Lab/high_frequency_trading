@@ -37,6 +37,8 @@ class Subscription:
             log.warning('already active %s' % self)
 
     def deactivate(self):
+        if not self.is_active:
+            return
         self.timer.step()
         self.__active = False
         self.__uninvoiced_time += round(self.timer.time_since_previous_step, 3)
