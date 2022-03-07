@@ -26,7 +26,6 @@ export class ResultsCell extends PolymerElement {
 	margin: 2%;
       }
     </style>
-
     <div style="text-align:center; padding:10px;" class="wrapper" id="parent">
       <h2>[[ name ]]</h2>
       <!--
@@ -41,7 +40,6 @@ export class ResultsCell extends PolymerElement {
           <td style="display:inline-block; margin=10px;">
             <div id="container2" class="container"></div>
           </td>
-
         </tr>
       </table> -->
       <div class="outer">
@@ -101,11 +99,7 @@ export class ResultsCell extends PolymerElement {
     this.$.container2.setAttribute("style", containerStyle);
     this.$.container3.setAttribute("style", containerStyle);
 
-    const gross = this.net + this.tax;
-    //const gross = this.net;
-
-    console.log("net", this.net)
-    console.log("speed", this.speedCost)
+    const gross = this.net + this.tax + this.speedCost;
 
     let chart1 = Highcharts.chart(this.$.container, {
       chart: {
@@ -196,7 +190,7 @@ export class ResultsCell extends PolymerElement {
       {
         name: "Payoff",
         data: [
-          [0, this.net]
+          [0, this.net - this.speedCost]
         ],
         showInLegend: true,
       },

@@ -77,8 +77,9 @@ def elo_player_summary(player):
         'slider_a_y': player.initial_slider_a_y,
         'slider_a_z': player.initial_slider_a_z,
     }
+    initial_role = player.initial_role
     average_sens = _get_average_sensitivies(player.subsession.id, player.market_id, player.id,
-        market.time_session_start, market.time_session_end, initial_sliders)
+        market.time_session_start, market.time_session_end, initial_sliders, initial_role)
     session_length_seconds = session_length.seconds
     percent_per_role = _calculate_role_time_percentage(market.role_group, player.id,
         session_length_seconds)
@@ -122,7 +123,7 @@ def elo_player_summary(player):
 
 
 
-def _get_average_sensitivies(subsession_id, market_id, player_id, session_start, session_end, initial_sliders):
+def _get_average_sensitivies(subsession_id, market_id, player_id, session_start, session_end, initial_sliders, initial_role):
     session_duration = (session_end - session_start).total_seconds()
     player_state_records = TraderRecord.objects.filter(subsession_id=subsession_id,
         market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('timestamp')
@@ -131,12 +132,25 @@ def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
         slider_averages[slider_name] = 0
         current_slider_value = initial_sliders[slider_name]
         prev_change_time = session_start
+
+        total_time_automated = 0
+
+        prev_role = initial_role
+
         for record in player_state_records:
-            slider_averages[slider_name] += current_slider_value * (record.timestamp - prev_change_time).total_seconds()
-            current_slider_value = getattr(record, slider_name)
-            prev_change_time = record.timestamp
-        slider_averages[slider_name] += current_slider_value * (session_end - prev_change_time).total_seconds()
-        slider_averages[slider_name] /= session_duration
+            if prev_role == 'automated':
+                time_automated = (record.timestamp - prev_change_time).total_seconds()
+                total_time_automated += time_automated
+                slider_averages[slider_name] += current_slider_value * time_automated
+                current_slider_value = getattr(record, slider_name)
+                prev_change_time = record.timestamp
+            prev_role = record.trader_model_name
+        if prev_role == 'automated':
+            time_automated = (session_end - prev_change_time).total_seconds()
+            total_time_automated += time_automated
+            slider_averages[slider_name] += current_slider_value * time_automated
+        
+        slider_averages[slider_name] /= total_time_automated
         slider_averages[slider_name] = round(slider_averages[slider_name], 2)
     return slider_averages 
 
