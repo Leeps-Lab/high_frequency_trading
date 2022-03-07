@@ -82,6 +82,13 @@ class ExportHFTCSV(vanilla.View):
                         row.__dict__['speed'] = 'OFF'
                     else:
                         row.__dict__['speed'] = 'N/A'
+                
+                # If event isn't automated, make sensitivites empty
+                if row.__dict__['trader_model_name'] != 'automated':
+                    row.__dict__['slider_a_x'] = None
+                    row.__dict__['slider_a_y'] = None
+                    row.__dict__['slider_a_z'] = None
+
                 writer.writerow(row.__dict__)
         return response
 
