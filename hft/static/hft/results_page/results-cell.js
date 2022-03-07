@@ -101,7 +101,11 @@ export class ResultsCell extends PolymerElement {
     this.$.container2.setAttribute("style", containerStyle);
     this.$.container3.setAttribute("style", containerStyle);
 
-    const gross = this.net + this.tax - this.speedCost;
+    const gross = this.net + this.tax;
+    //const gross = this.net;
+
+    console.log("net", this.net)
+    console.log("speed", this.speedCost)
 
     let chart1 = Highcharts.chart(this.$.container, {
       chart: {
@@ -192,7 +196,7 @@ export class ResultsCell extends PolymerElement {
       {
         name: "Payoff",
         data: [
-          [0, this.net - this.speedCost]
+          [0, this.net]
         ],
         showInLegend: true,
       },
