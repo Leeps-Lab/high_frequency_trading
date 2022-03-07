@@ -101,7 +101,7 @@ export class ResultsCell extends PolymerElement {
     this.$.container2.setAttribute("style", containerStyle);
     this.$.container3.setAttribute("style", containerStyle);
 
-    const gross = this.net + this.tax + this.speedCost;
+    const gross = this.net + this.tax - this.speedCost;
 
     let chart1 = Highcharts.chart(this.$.container, {
       chart: {
