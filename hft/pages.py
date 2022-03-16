@@ -43,6 +43,7 @@ class Instructions(Page):
     def vars_for_template(self):
         out = {}
 
+        out['auction_format'] = self.session.config['auction_format']
         out['next_button_timeout'] = self.session.config['instructions_next_button_timeout']
         return out
 
