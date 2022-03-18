@@ -150,7 +150,10 @@ def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
             total_time_automated += time_automated
             slider_averages[slider_name] += current_slider_value * time_automated
         
-        slider_averages[slider_name] /= total_time_automated
+        if total_time_automated == 0:
+            slider_averages[slider_name] = 0
+        else:
+            slider_averages[slider_name] /= total_time_automated
         slider_averages[slider_name] = round(slider_averages[slider_name], 2)
     return slider_averages 
 
