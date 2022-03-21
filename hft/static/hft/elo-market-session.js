@@ -436,6 +436,7 @@ class MarketSession extends PolymerElement {
                     marketState.signedVolume = cleanMsg.signed_volume
                     break
                 case 'reference_price':
+                    console.log('reference price changed: ', cleanMsg.reference_price);
                     marketState.referencePrice = cleanMsg.reference_price
                     break
                 case 'external_feed':
@@ -687,6 +688,11 @@ class MarketSession extends PolymerElement {
         //const out = Math.round((cash - costStep + referencePrice * inventory) * 10) / 10
         // Round to 2 decimals instead
         const out = parseFloat((cash - costStep + referencePrice * inventory).toFixed(2))
+        // console.log('cash', cash)
+        // console.log('speedcost', costStep)
+        // console.log('inventory', inventory)
+        // console.log('reference price: ', referencePrice);
+        // console.log('pbd: ', out);
         return out
     }
 

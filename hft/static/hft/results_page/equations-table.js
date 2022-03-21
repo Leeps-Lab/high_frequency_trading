@@ -494,7 +494,23 @@ class EquationsTable extends PolymerElement {
     }
 
     _finalCash() {
-        return this._round2Decimal(this._digitCorrector(this.initialEndowment) + (this.getTotalAsks() * this.getAvgAskPrice()) - (this.getTotalBids() * this.getAvgBidPrice()));
+        //return this._round2Decimal(this._digitCorrector(this.initialEndowment) + (this.getTotalAsks() * this.getAvgAskPrice()) - (this.getTotalBids() * this.getAvgBidPrice()));
+        let payoffs = this.nets;
+        this.numPlayers = Object.keys(payoffs).length;
+        const names = this.names;
+        let player = 0;
+
+        for(let i = 0; i < this.numPlayers; i++) {
+            player = Object.keys(payoffs)[i];
+            
+            if(names[player] == 'You') {
+                let payoff = payoffs[player];
+                let pbd = payoff + this._taxPayment();
+                let cash = pbd - this._inventoryVal() + this._speedCost();
+
+                return parseFloat((cash).toFixed(2));
+            }
+        } 
     }
 
     _grossPayoff() {

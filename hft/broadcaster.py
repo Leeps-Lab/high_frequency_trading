@@ -3,17 +3,19 @@ from collections import deque
 import json
 import time
 import logging
+from twisted.internet.task import LoopingCall
 
 log = logging.getLogger(__name__)
 
 class  Broadcaster:
 
     flush_interval = 0.25 #seconds
-    queues = {}
-    flush_history = {}
     unbatchable_message_types = ('system_event', 'role_confirm', 'speed_confirm',
         'slider_confirm')
 
+    def __init__(self):
+        self.queues = {}
+        LoopingCall(self.flush).start(self.flush_interval)
 
     def broadcast(self, message, batch=False):
         if batch and message.type not in self.unbatchable_message_types:
@@ -35,20 +37,18 @@ class  Broadcaster:
         market_id = message.market_id
         if market_id not in self.queues:
             self.queues[market_id] = deque()
-            self.flush_history[market_id] = time.time()
         # len(), append, pop are thread safe
         mq = self.queues[market_id]
         mq.append(message)
-        now = time.time()
-        time_since_flush =  now - self.flush_history[market_id]
-        if  time_since_flush > self.flush_interval:
+
+    def flush(self):
+        for market_id, mq in self.queues.items():
             num_msg_to_batch = len(mq)
+            if num_msg_to_batch == 0:
+                continue
             batched_messages = [mq.popleft().data for i in range(num_msg_to_batch)]
             json_msg = json.dumps({'type': 'batch', 'batch': batched_messages})
             self.broadcast_to_market(json_msg, market_id=market_id)
-            self.flush_history[market_id] = now
-            log.info('flushed broadcast queue %s messages', num_msg_to_batch)
 
+        #self.queues = {}
 
-
-        
