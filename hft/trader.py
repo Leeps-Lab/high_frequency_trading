@@ -213,7 +213,7 @@ w: %s, speed unit cost: %s' % (
         self.inventory.liquidify(
             self.market_facts['reference_price'], 
             discount_rate=self.market_facts['tax_rate'])
-        self.cash += self.inventory.cash
+        #self.cash += self.inventory.cash
         tax_paid = self.inventory.cost
         if self.technology_subscription.is_active:
             self.technology_subscription.deactivate()
@@ -221,7 +221,9 @@ w: %s, speed unit cost: %s' % (
         self.cost += tax_paid + speed_cost
         self.tax_paid += tax_paid
         self.speed_cost += speed_cost
-        self.net_worth =  self.net_worth - self.cost
+        manual_net_worth =  self.initial_endowment + inventory_value + self.sum_ask_price - self.sum_bid_price  - self.cost
+        #self.net_worth =  self.net_worth - self.cost + self.inventory.cash
+        self.net_worth = manual_net_worth
         log.info('trader %s: speed_cost %s, tax_paid %s, net_worth %s' % (self.tag, speed_cost, tax_paid, self.net_worth))
         self.executed_price = None
         self.buy_sell_indicator = None  
