@@ -1,0 +1,45 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Final Results
+{% endblock %}
+
+{% block content %}
+<style>
+        .otree-timer {
+            display: none;
+        }
+</style>
+<font size='3'>
+    
+    <p>The conversion from points to USD is 10 points = $1.00</p>
+
+    <p>Your payment is composed of:</p> 
+
+    <ul> 
+        <li>Reading Instructions: + {{instruction}}. </li>
+        <li>Taking the Quiz: + {{quiz}} with {{questions}} questions correct.</li>
+        <li>Completing the Task: + {{game}} ({{player.game_earnings}} points). </li>
+        <li>Answering the Survey: + {{survey}}.</li>
+    </ul>
+
+    <p>Your final payment is {{player.total_earnings_dollar}}.</p>
+
+    <br>
+    
+    <p>If you have questions about your payment, your confirmation code is: <strong>{{participant.code}}</strong></p>
+
+    <br>
+
+    <h4>THANKS FOR PARTICIPATING</h4>
+    
+    <br>
+
+</font>
+
+{% next_button %}
+
+{% endblock %}
+
+
