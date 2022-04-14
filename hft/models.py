@@ -49,6 +49,11 @@ class Subsession(BaseSubsession):
             self.session.config = utility.process_configs(
                 session_format, self.session.config)
             self.do_groups()
+
+            # storing participant id as player field
+            for p in self.get_players():
+                p.participant_id_in_session = str(p.participant.id_in_session)
+
         else:
             self.group_like_round(1)
 
@@ -187,6 +192,9 @@ class Player(BasePlayer):
     initial_speed_on = models.BooleanField()
 
     cummulative_payoff = models.FloatField()
+
+    # field for storing participant id
+    participant_id_in_session = models.StringField()
 
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):
