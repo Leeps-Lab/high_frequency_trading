@@ -77,3 +77,21 @@ class Player(BasePlayer):
         
     del subject
     del q_and_a_subject
+
+
+def get_correct_answers(q_and_a_dict, section_name):
+    """
+    Obtains the right answer for the questions of a specific
+    section from the survey
+
+    Input: dict with questions and answers, section name (str)
+    Output: dict with question and right answer pairs
+    """
+
+    question_fields = q_and_a_dict[section_name].keys() # getting question field names
+    output = {}
+
+    for question in question_fields:
+        output[question] = q_and_a_dict[section_name][question]["correct_answ"]
+
+    return output
