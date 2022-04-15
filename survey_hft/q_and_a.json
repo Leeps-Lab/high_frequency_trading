@@ -29,7 +29,7 @@
                     "question": "How would you grade the clarity of the video instructions?",
                     "answers": 
                     [
-                        "range(1,6)"
+                        "command: range(1,6)"
                     ],
                     "correct_answ": "None"
                 },
@@ -47,7 +47,7 @@
                     "question": "How would you grade the clarity of the user interface?",
                     "answers": 
                     [
-                        "range(1,6)"
+                        "command: range(1,6)"
                     ],
                     "correct_answ": "None"
                 },

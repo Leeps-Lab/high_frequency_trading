@@ -3,11 +3,13 @@ from otree.api import (
     Currency as c, currency_range
 )
 
+import json
+
 
 author = 'Marco Gutierrez'
 
 doc = """
-General Final Quiz - MTurk
+General Understanding Quiz
 """
 
 
@@ -16,40 +18,11 @@ class Constants(BaseConstants):
     players_per_group = None
     num_rounds = 1
 
-    english_labels = dict(age='What is your age?', gender='What is your gender?',
-                          strategy='Please describe the strategy that you used in making your decisions:',
-                          problems='Did you encounter any problems while completing the task?',
-                          problems_text='If so, please describe the problems you encountered:',
-                          satisfaction_with_strat='You were satisfied with your strategy:',
-                          understanding='You understood the whole study:',
-                          understanding_text='If not, please explain:',
-                          )
-    spanish_labels = dict(age='¿Cuál es tu edad?', gender='¿Cuál es tu género?',
-                          strategy='Por favor, describa la estrategia que usaste para tomar decisiones:',
-                          problems='¿Encontraste algún problema cuando completaste la tarea?',
-                          problems_text='De ser así, por favor describe los problemas encontrados:',
-                          satisfaction_with_strat='¿Estuviste satisfecho con tu estrategia?',
-                          understanding='¿Entendiste el estudio?',
-                          understanding_text='Si no, describa por qué:',
-                          )
-    english_answers = dict(gender=[['Male', 'Male'], ['Female', 'Female']],
-                           problems=[['Yes', 'Yes'], ['No', 'No']],
-                           satisfaction_with_strat=[['Strongly Agree', 'Strongly Agree'], ['Agree', 'Agree'],
-                                                    ['Neutral', 'Neutral'], ['Disagree', 'Disagree'],
-                                                    ['Strongly Disagree', 'Strongly Disagree']],
-                           understanding=[['Strongly Agree', 'Strongly Agree'], ['Agree', 'Agree'],
-                                          ['Neutral', 'Neutral'], ['Disagree', 'Disagree'],
-                                          ['Strongly Disagree', 'Strongly Disagree']],
-                           )
-    spanish_answers = dict(gender=[['Hombre', 'Hombre'], ['Mujer', 'Mujer'], ['Otro', 'Otro']],
-                           problems=[['Sí', 'Sí'],['No', 'No']],
-                           satisfaction_with_strat=[['Muy de Acuerdo', 'Muy de Acuerdo'], ['De Acuerdo', 'De Acuerdo'],
-                                                    ['Neutral', 'Neutral'], ['En Desacuerdo', 'En Desacuerdo'],
-                                                    ['Muy en Desacuerdo', 'Muy en Desacuerdo']],
-                           understanding=[['Muy de Acuerdo', 'Muy de Acuerdo'], ['De Acuerdo', 'De Acuerdo'],
-                                                    ['Neutral', 'Neutral'], ['En Desacuerdo', 'En Desacuerdo'],
-                                                    ['Muy en Desacuerdo', 'Muy en Desacuerdo']],
-                           )
+    # reading questions and answers
+    q_and_a_path = "survey_hft/q_and_a.json"
+    with open(q_and_a_path) as json_file:
+        q_and_a = json.load(json_file)
+        q_and_a_sections = q_and_a["sections"]
 
 
 class Subsession(BaseSubsession):
@@ -70,18 +43,37 @@ class Player(BasePlayer):
         widget=widgets.RadioSelect,
     )
 
-    survey_timeout = models.IntegerField(initial=0)
+    # general questions
+    for subject, q_and_a_subject in Constants.q_and_a_sections["general"].items():
+        # creating field question
+        if "command" not in q_and_a_subject["answers"][0]: # if choices are not created by command
+            locals()[subject] = models.StringField( # generating field from dict
+                label = q_and_a_subject["question"],
+                choices = q_and_a_subject["answers"]
+            )
+        else:
+            command = q_and_a_subject["answers"][0].replace("command: ", "")
+            
+            locals()[subject] = models.StringField( # generating field from dict
+                label = q_and_a_subject["question"],
+                choices = q_and_a_subject["answers"]
+            )
 
-    total_earnings_dollar = models.CharField()
-    
-    strategy = models.LongStringField(label=Constants.spanish_labels['strategy'])
+        locals()[subject + "_right_first"] = models.BooleanField() # creating "player chose right answer from the beginning" field
 
-    problems = models.CharField(label=Constants.spanish_labels['problems']
-    ,choices=Constants.spanish_answers['problems'], widget=widgets.RadioSelect)
+    del subject
+    del q_and_a_subject
 
-    problems_text = models.LongStringField(label=Constants.spanish_labels['problems_text'],
-    blank=True)
+    # rest of sections
+    remaining_sections = list(Constants.q_and_a_sections.keys()).remove("general")
+    for section in remaining_sections:
+        for subject, q_and_a_subject in Constants.q_and_a_sections[f"{section}"].items():        
+            locals()[subject] = models.StringField( # generating field from dict
+                label = q_and_a_subject["question"],
+                choices = q_and_a_subject["answers"]
+            )
 
-    satisfaction_with_strat = models.CharField(label=Constants.spanish_labels['satisfaction_with_strat']
-                                               ,choices=Constants.spanish_answers['satisfaction_with_strat']
-                                               ,widget=widgets.RadioSelect)
+            locals()[subject + "_right_first"] = models.BooleanField() # creating "player chose right answer from the beginning" field
+        
+    del subject
+    del q_and_a_subject
