@@ -1,0 +1,39 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+{% if language == 0 %}
+    Survey
+{% else %}
+    Encuesta
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if language == 0 %}
+     You have now completed the task.<br><br>
+
+     Please complete the following survey regarding your
+     experience in this session. Answering these questions is required for final
+     payment and you will receive S/ 1.00 for providing answers to the questions
+     below. <br><br>
+     
+     Your feedback is appreciated and will only be used to improve this 
+     study in the future.<br><br>
+
+     Thank you for your participation.<br><br>
+{% else %}
+     Has completado la tarea.<br><br>
+
+     Por favor, completar la siguiente encuesta relacionada a tu experiencia en la sesión.
+     Responderla es requerido para el pago final<br><br>
+
+     Tu feedback será apreciado y se usará para mejorar este estudio en el futuro.<br><br>
+
+     Gracias por tu participación.<br><br>
+{% endif %}
+
+    {% next_button %}
+
+{% endblock %}

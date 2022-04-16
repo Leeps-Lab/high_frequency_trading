@@ -1,0 +1,77 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+{% block content %}
+    <style>
+        h1{
+            text-align:center;
+        }
+        h2{
+            text-align:center;
+        }
+        #container{
+            margin-left:30px;
+            margin-right:30px;
+            margin-top:40px;
+        }
+        #image{
+            text-align: center;
+        }
+        .row{
+            align-items:center ;
+        }
+        .centering {
+            text-align: right;
+            margin-top: 30px;
+            margin-right: 30px;
+        }
+        .link {
+            margin-right: 30px;
+        }
+
+        p {
+            margin-bottom: 0;
+        }
+    </style>
+    <div id="container">
+        <h1>
+            Instructions {{auction_format}}
+        </h1>
+
+        <p>Willkommen und vielen Dank für Ihre Teilnahme an diesem Experiment. Der folgende Link führt Sie zu den Instruktionen.</p>
+
+        <!-- Show different instruction per market format -->
+        {% if auction_format == 'CDA' %}
+            <a href="https://youtu.be/XUwCzVJcy6I" class="link" target="_blank">https://youtu.be/XUwCzVJcy6I</a>
+        {% elif auction_format == 'FBA' %}
+            <a href="https://youtu.be/SCmrVwU2ygY" class="link" target="_blank">https://youtu.be/SCmrVwU2ygY</a>
+        {% elif auction_format == 'IEX' %}
+            <a href="https://youtu.be/T8-PzR2I3BU" class="link" target="_blank">https://youtu.be/T8-PzR2I3BU</a>
+        {% endif %}
+
+        <p>Bitte lesen Sie die Instruktionen sorgfältig, denn es geht darum, wie Sie in diesem Experiment echtes Geld verdienen können.</p>
+
+        <form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
+            <div class="centering" id="next" style="display:none;">
+                {% next_button %}
+            </div>
+        </form>
+
+        <script>
+            const myForm = document.getElementById('next');
+            setTimeout(() => {
+            myForm.style.display = 'block';
+            }, "{{next_button_timeout}}" * 1000);
+        </script>
+    </div>
+    
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
+{% endblock %}
+
+{% block scripts%}
+{% endblock %}

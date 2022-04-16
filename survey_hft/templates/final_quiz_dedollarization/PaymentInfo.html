@@ -1,0 +1,23 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+{% if language == 0 %}
+    Payment Information
+{% else %}
+    Información para pagos
+{% endif %}
+{% endblock %}
+
+{% block content %}
+    El objetivo de esta página es que registres la información sobre el medio de pago que prefieres.
+    Los datos a incluir <strong>no afectarán</strong> de ninguna manera el valor de las ganancias que
+    obtuviste durante el experimento<br><br>
+
+    {% formfields %}<br>
+
+
+    {% next_button %}
+
+{% endblock %}
+

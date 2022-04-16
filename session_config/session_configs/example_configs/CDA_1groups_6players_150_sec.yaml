@@ -1,0 +1,49 @@
+demo:
+  number-of-participants: 6
+
+traders:
+  number-of-traders: 6 # Number of participants that will play the experiment
+  allow-underbooking: false # Continue/cancel experiment if the number of people who consented is less than the number above
+
+
+exogenous-events:
+  investor-arrivals:
+    - thick_investors.csv
+    - thick_investors.csv
+    - thick_investors.csv
+  external-feed:
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+    - external_feed_trial.csv
+        
+market:
+  auction-format: 'CDA'
+  matching-engine-host: '127.0.0.1'
+
+parameters:
+  default-role: 'out'
+  include-manual-role: true
+  include-signed-volume-widgets: false
+  initial-endowment: 100
+  session-duration: 150
+  technology-unit-cost: 0.022  # $/s
+  k-reference-price: 0.7
+  k-signed-volume: 0.5
+  deduction-rate: 0.1
+
+session:
+  session-name: ELO_Development_Session_3_rounds_1_150_sec
+  display-name: HFT - ELO - CDA - 3 Trade Sessions of 150 seconds - 6 traders - Frequent Order Flow
+  environment: elo
+  num-rounds: 3
+  currency: EUR
+  exchange-rate: 1.5
+  participation-fee: 4
+  post-session-delay: 10
+  auto-advance: 60 # (In how many seconds do you want to auto-advance results and consent page) Set to 0 if you don't want it to advance
+  next-button-timeout: 0 # Set it to 0 if you want the next button on the results page to show immediately
+  instructions-next-button-timeout: 30 # In seconds
+  feedback-next-button-timeout: 30 # In seconds
+  random-payoff: false # This will pick a random payoff to display at the end of the experiment
+  max-payment: 50 
+  trial-rounds: [1] # Rounds used for practicing that aren't used for payoff calculation

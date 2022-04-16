@@ -34,11 +34,11 @@ class Inventory:
         self.__units += -1
 
     def valuate(self, reference_price):
-        return ceil(reference_price * self.__units)
+        return (reference_price * self.__units)
 
     def liquidify(self, liquidation_price, discount_rate=0):
-        shares_value = ceil(liquidation_price * self.__units)
-        discounted_amount = abs(ceil(discount_rate * shares_value))
+        shares_value = (liquidation_price * self.__units)
+        discounted_amount = abs((discount_rate * shares_value))
         self.__cash += shares_value - discounted_amount
         self.__cost += discounted_amount
         self.__units -= self.__units

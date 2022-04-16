@@ -10,6 +10,8 @@ from .orderstore import OrderStore
 from .trader_state import TraderStateFactory
 import time
 
+import logging
+
 log = logging.getLogger(__name__)
 
 import time
@@ -56,6 +58,7 @@ class BaseTrader(object):
         self.disable_bid = False
         self.disable_offer = False
         self.midpoint_peg = False
+        self.initial_endowment = cash
         self.cash = cash
         self.cost = 0
         self.net_worth = cash
@@ -69,7 +72,15 @@ class BaseTrader(object):
         self.message_arrival_estimate = None 
         self.peg_price = None
         self.peg_state = None
-    
+
+        self.total_bids = 0
+        self.total_asks = 0
+        self.sum_bid_price = 0
+        self.sum_ask_price = 0
+
+        self.executed_price = None
+        self.buy_sell_indicator = None
+        
     @classmethod
     def from_otree_player(cls, otree_player):
         args, kwargs = cls.otree_player_converter(otree_player)
@@ -183,6 +194,9 @@ class ELOTrader(BaseTrader):
             self.technology_subscription.deactivate()
             speed_cost = self.technology_subscription.invoice()
             self.speed_cost += speed_cost
+        
+        self.executed_price = None
+        self.buy_sell_indicator = None  
 
     def open_session(self, *args, **kwargs):
         super().open_session(*args, **kwargs)
@@ -195,10 +209,11 @@ w: %s, speed unit cost: %s' % (
     self.sliders['slider_a_z'], self.technology_subscription.unit_cost))
 
     def close_session(self, event):
+        inventory_value = self.inventory.valuate(self.market_facts['reference_price'])
         self.inventory.liquidify(
             self.market_facts['reference_price'], 
             discount_rate=self.market_facts['tax_rate'])
-        self.cash += self.inventory.cash
+        #self.cash += self.inventory.cash
         tax_paid = self.inventory.cost
         if self.technology_subscription.is_active:
             self.technology_subscription.deactivate()
@@ -206,7 +221,12 @@ w: %s, speed unit cost: %s' % (
         self.cost += tax_paid + speed_cost
         self.tax_paid += tax_paid
         self.speed_cost += speed_cost
-        self.net_worth =  self.net_worth - self.cost
+        manual_net_worth =  self.initial_endowment + inventory_value + self.sum_ask_price - self.sum_bid_price  - self.cost
+        #self.net_worth =  self.net_worth - self.cost + self.inventory.cash
+        self.net_worth = manual_net_worth
+        log.info('trader %s: speed_cost %s, tax_paid %s, net_worth %s' % (self.tag, speed_cost, tax_paid, self.net_worth))
+        self.executed_price = None
+        self.buy_sell_indicator = None  
     
     def user_slider_change(self, event):
         msg = event.message
@@ -217,6 +237,9 @@ w: %s, speed unit cost: %s' % (
             'slider_a_z': msg.a_z}       
         event.broadcast_msgs('slider_confirm', a_x=self.sliders['slider_a_x'],
             a_y=self.sliders['slider_a_y'], a_z=self.sliders['slider_a_z'], model=self)       
+
+        self.executed_price = None
+        self.buy_sell_indicator = None  
 
     @property
     def best_bid_except_me(self):
@@ -239,6 +262,9 @@ w: %s, speed unit cost: %s' % (
             event_as_kws = event.to_kwargs()
             self.orderstore.confirm('enter', **event_as_kws)
             event.broadcast_msgs('confirmed', model=self, **event_as_kws)
+        
+        self.executed_price = None
+        self.buy_sell_indicator = None
     
     def order_replaced(self, event):
         event_as_kws = event.to_kwargs()
@@ -247,7 +273,10 @@ w: %s, speed unit cost: %s' % (
         old_token = event.message.previous_order_token
         old_price = order_info['old_price']
         event.broadcast_msgs('replaced', order_token=order_token, 
-            old_token=old_token, old_price=old_price, model=self, **event_as_kws)       
+            old_token=old_token, old_price=old_price, model=self, **event_as_kws)   
+
+        self.executed_price = None
+        self.buy_sell_indicator = None  
 
     def order_canceled(self, event):
         event_as_kws = event.to_kwargs()
@@ -259,11 +288,16 @@ w: %s, speed unit cost: %s' % (
             price=price, buy_sell_indicator=buy_sell_indicator, 
             model=self)
 
+        self.executed_price = price
+        self.buy_sell_indicator = buy_sell_indicator
+
     def order_executed(self, event):
         def adjust_inventory(buy_sell_indicator):
             if buy_sell_indicator == 'B':
+                self.total_bids += 1
                 self.inventory.add()
             elif buy_sell_indicator == 'S':
+                self.total_asks += 1
                 self.inventory.remove()
         def adjust_net_worth():
             reference_price = self.market_facts['reference_price']
@@ -271,20 +305,27 @@ w: %s, speed unit cost: %s' % (
             self.net_worth = self.cash + cash_value_of_stock
         def adjust_cash_position(execution_price, buy_sell_indicator):
             if buy_sell_indicator == 'B':
+                self.sum_bid_price += execution_price
                 self.cash -= execution_price
             elif buy_sell_indicator == 'S':
+                self.sum_ask_price += execution_price
                 self.cash += execution_price
         event_as_kws = event.to_kwargs()
         execution_price = event.message.execution_price
         order_info =  self.orderstore.confirm('executed', **event_as_kws)
         buy_sell_indicator = order_info['buy_sell_indicator']
         price = order_info['price']
+
+        self.executed_price = price
+        self.buy_sell_indicator = buy_sell_indicator
+
         order_token = event.message.order_token
         adjust_inventory(buy_sell_indicator)
         event.broadcast_msgs(
             'executed', order_token=order_token, price=price, 
             inventory=self.inventory.position, execution_price=execution_price,
             buy_sell_indicator=buy_sell_indicator, model=self)
+            
         # orderstore delete order 
         # data after execution, hence
         # event carries order_info around
@@ -300,6 +341,9 @@ w: %s, speed unit cost: %s' % (
         if self.peg_price == -9999:
             self.peg_price = None
         self.peg_state = event.message.peg_state
+
+        self.executed_price = None
+        self.buy_sell_indicator = None  
 
 
 class InvestorFactory:

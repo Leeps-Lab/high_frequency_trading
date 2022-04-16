@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 class Constants(BaseConstants):
     name_in_url = 'hft'
     players_per_group = None
-    num_rounds = 3
+    num_rounds = 30
 
 
 class Subsession(BaseSubsession):
@@ -39,6 +39,26 @@ class Subsession(BaseSubsession):
     code = models.CharField(default=random_chars_8)
 
     def creating_session(self):
+        #cache.clear()
+        if (self.round_number > self.session.config['num_rounds']):
+            return
+
+        session_format = self.session.config['environment']  
+
+        if self.round_number == 1:
+            self.session.config = utility.process_configs(
+                session_format, self.session.config)
+            self.do_groups()
+
+            # storing participant id as player field
+            for p in self.get_players():
+                p.participant_id_in_session = str(p.participant.id_in_session)
+
+        else:
+            self.group_like_round(1)
+
+    def register(self):
+
         def create_trade_session(session_format):
             trade_session_cls = TradeSessionFactory.get_session(session_format)
             dispatcher = DispatcherFactory.get_dispatcher(session_format)
@@ -49,13 +69,7 @@ class Subsession(BaseSubsession):
                 trade_session.register_exogenous_event(
                     event_type, event_filename)
             return trade_session
-        session_format = self.session.config['environment']    
-        if self.round_number == 1:
-            self.session.config = utility.process_configs(
-                session_format, self.session.config)
-            self.do_groups()
-        else:
-            self.group_like_round(1)
+
         session_configs = self.session.config
         session_format = session_configs['environment']
         trade_session = create_trade_session(session_format)
@@ -63,23 +77,30 @@ class Subsession(BaseSubsession):
         exchange_host = session_configs['matching_engine_host']
         all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         market_id_map = {}
+
         for group in self.get_groups():
             group_id = group.id
             exchange_port = all_exchange_ports[self.auction_format].pop()
             market = trade_session.create_market(
-                group_id, exchange_host, exchange_port, **session_configs)                                 
+                group_id, exchange_host, exchange_port, **session_configs)     
+
             for player in group.get_players():
-                market.register_player(player)
-                player.configure_for_trade_session(market, session_format)
-                trader = TraderFactory.get_trader(session_format, player)
-                initialize_model_cache(trader)
+                # If player consented, register them as a trader
+                if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False and player.participant.vars['underbooked'] == False:
+                    market.register_player(player)
+                    player.configure_for_trade_session(market, session_format)
+                    trader = TraderFactory.get_trader(session_format, player)
+                    initialize_model_cache(trader)
+
             initialize_model_cache(market)
             market_id_map[market.id_in_subsession] = market.market_id
+
             for event_type_name in trade_session.exogenous_events.keys():
                 exogenous_event_manager_model = ExogenousEventModelFactory.get_model(
                     event_type_name, market)
                 if exogenous_event_manager_model:
                     initialize_model_cache(exogenous_event_manager_model)
+
         set_market_id_table(trade_session.subsession_id, market_id_map)
         self.configure_for_trade_session(session_format)
         initialize_model_cache(trade_session)
@@ -95,7 +116,9 @@ class Subsession(BaseSubsession):
         # set groups as suggested in oTree docs.
         group_matrix = []
         players = self.get_players()
-        ppg = self.session.config['players_per_group']
+        
+        #ppg = self.session.config['players_per_group']
+        ppg = self.session.config['num_demo_participants']
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
@@ -121,7 +144,6 @@ class Subsession(BaseSubsession):
 
 class Group(BaseGroup):
     pass
-
 
 class Player(BasePlayer):
 
@@ -156,6 +178,11 @@ class Player(BasePlayer):
     signed_volume = models.FloatField()
     e_signed_volume = models.FloatField()
 
+    total_bids = models.IntegerField()
+    total_asks = models.IntegerField()
+    sum_bid_price = models.IntegerField()
+    sum_ask_price = models.IntegerField()
+
     # fields for this player's initial strategy decisions
     # these are set from the InitialDecisionSelection form
     initial_slider_a_x = models.FloatField()
@@ -163,6 +190,11 @@ class Player(BasePlayer):
     initial_slider_a_z = models.FloatField()
     initial_role = models.CharField()
     initial_speed_on = models.BooleanField()
+
+    cummulative_payoff = models.FloatField()
+
+    # field for storing participant id
+    participant_id_in_session = models.StringField()
 
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):
@@ -178,3 +210,6 @@ class Player(BasePlayer):
                 if attr is None:
                     setattr(self, field.name, getattr(state_record, field.name))
         self.save()
+
+class Ping(models.Model):
+    response = models.CharField()

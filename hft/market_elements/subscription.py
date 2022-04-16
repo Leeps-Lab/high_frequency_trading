@@ -18,6 +18,7 @@ class Subscription:
         self.__uninvoiced_time = 0
         self.subscriber_id = subscriber_id
         self.name = subscription_name
+        self.subscriptionTime = 0
     
     @property
     def is_active(self):
@@ -26,6 +27,10 @@ class Subscription:
     @property
     def uninvoiced_time(self):
         return self.__uninvoiced_time
+
+    
+    def subscriptionTimeTotal(self):
+        return self.subscriptionTime
 
     def activate(self):
         self.timer.step()
@@ -53,6 +58,11 @@ class Subscription:
         log.debug('subscriber %s: uninvoiced time %s --> \
 invoiced amount %s, unit cost: %s.' % (self.subscriber_id, self.__uninvoiced_time,
             amount, self.unit_cost))
+
+            
+        self.subscriptionTime += self.__uninvoiced_time
+
+
         self.__uninvoiced_time = 0
         return amount
 

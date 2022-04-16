@@ -46,7 +46,9 @@ class  Broadcaster:
             num_msg_to_batch = len(mq)
             if num_msg_to_batch == 0:
                 continue
-            print('flushing queue for market ', market_id)
             batched_messages = [mq.popleft().data for i in range(num_msg_to_batch)]
             json_msg = json.dumps({'type': 'batch', 'batch': batched_messages})
             self.broadcast_to_market(json_msg, market_id=market_id)
+
+        #self.queues = {}
+

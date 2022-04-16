@@ -1,0 +1,53 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+{% if language == 0 %}
+    Survey
+{% else %}
+    Preguntas finales
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<font color="burlywood"><h4 align="right">Tu etiqueta: {{ participant_id }}</h4></font>
+<br>
+<p>
+¡Gracias por tu participación! Has completado la tarea. <br>
+Por favor, completarla estas preguntas.
+</p>
+
+    {% formfield player.satisfaction_with_strat %} <br>
+
+    {% formfield player.strategy %}<br>
+
+    {% formfield player.understanding %} <br>
+
+{% if language == 0 %}
+    {% formfield player.understanding_text label='Explain your answer here'%}<br> <!--enter your reason here as label-->
+{% else %}
+    {% formfield player.understanding_text label='Explica tu respuesta aquí'%}<br> <!--enter your reason here as label-->
+{% endif %}
+
+    {% formfield player.problems %}<br>
+
+    {% formfield player.problems_text %}<br>
+
+    {% formfield player.age %}<br>
+
+    {% formfield player.gender %}<br>
+
+    {% formfield player.suggestions %}<br>
+
+    {% formfield player.ubicacion %}<br>
+
+    <input type="hidden" name="eval_underst"/>
+    {{ form.eval_underst.errors }}
+
+
+    {% next_button %}
+
+<br><br>
+{% include Constants.contact_template %}
+{% endblock %}
+

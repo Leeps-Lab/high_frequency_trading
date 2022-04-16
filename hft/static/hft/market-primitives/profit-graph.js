@@ -229,6 +229,7 @@ class ProfitGraph extends PolymerElement {
 
         const oldTime = this._lastPayoffChangeTime;
         this._lastPayoffChangeTime = performance.now();
+
         if (this._lastPayoffChangeTime) {
             this.push('_profitHistory', {payoff1: oldProfit, payoff2: oldProfit, time: oldTime}); // new profit
             this.push('_profitHistory', {payoff1: oldProfit, payoff2: newProfit, time: this._lastPayoffChangeTime}); // vertical line
