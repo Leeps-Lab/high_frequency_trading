@@ -1,3 +1,6 @@
+{% extends "global/Base.html" %}
+{% load otree %}
+
 {% block title %}
     Speed
 {% endblock %}
@@ -7,7 +10,7 @@
 <body>
 
 <p>
-    {{ formfield two_players.label }}
+    {{ form.two_players.label }}
 </p>
 
 <div class = "first_form">
@@ -23,7 +26,7 @@
 <p></p>
 
 <p>
-    {{ formfield three_min.label }} 
+    {{ form.three_min.label }} 
 </p>
 
 <div class = "first_form">
@@ -81,14 +84,14 @@
                             $(verifiers[j]).css("color","green");
                             $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field
-                            $(booleans[j]).val(1) // asignando si la respuesta fue correcta o no
+                            $(booleans[j]).val('1') // asignando si la respuesta fue correcta o no
 
                         }else{
 
                             $(verifiers[j]).css("color","red");
                             $(verifiers[j]).html(right_answers[j]) //mostrar la respuesta en html
                             $(fields[j]).val(right_answers[j])
-                            $(booleans[j]).val(0)
+                            $(booleans[j]).val('0')
 
                         }
                     }

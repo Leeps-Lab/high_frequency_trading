@@ -1,9 +1,12 @@
+{% extends "global/Base.html" %}
+{% load otree %}
+
+
 {% block title %}
     General
 {% endblock %}
 
 {% block content %}
-
     {% formfield 'degree' %}
     {% formfield 'degree_backg' %}
     {% formfield 'video_clarity' %}
@@ -11,6 +14,7 @@
     {% formfield 'interface_clarity' %}
     {% formfield 'interface_confusing' %}
     {% formfield 'suggestions' %}
+
 
     <input class = "boolean" id = "degree_right_first" name = "degree_right_first" value = "1" hidden>
     <input class = "boolean" id = "degree_backg_right_first" name = "degree_backg_right_first" value = "1" hidden>
@@ -20,5 +24,6 @@
     <input class = "boolean" id = "interface_confusing_right_first" name = "interface_confusing_right_first" value = "1" hidden>
     <input class = "boolean" id = "suggestions_right_first" name = "suggestions_right_first" value = "1" hidden>
 
+    {% next_button %}
 
 {% endblock %}

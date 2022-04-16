@@ -1,15 +1,17 @@
 from otree.api import Currency as c, currency_range
 from ._builtin import Page, WaitPage
 from .models import Constants, get_correct_answers
-from . import utility
+
 
 
 class General(Page):
     form_model = 'player'
     # question fields and whether the participant chose the right answer at first
-    form_fields = list(Constants.q_and_a_sections["general"].keys()) + [question
+    lista=list(Constants.q_and_a_sections["general"].keys()) + [question
                   + "_right_first" for question in 
                   Constants.q_and_a_sections["general"].keys()]
+    form_fields = lista
+
 
     def vars_for_template(self):
         return get_correct_answers(Constants.q_and_a_sections, "general")
@@ -60,8 +62,11 @@ class MarketSpecific(Page):
         correct_answers = {} # placeholder for storing correct answers
         for question in correct_answers_dicts.keys():
             # setting correct answer per question
-            auction_format = self.session.config['auction_format'].lower()
-            correct_answers[question] = correct_answers_dicts[auction_format]
+            if question == 'one_ask':
+                auction_format = self.session.config['auction_format'].lower()
+                correct_answers[question] = correct_answers_dicts[question][auction_format]
+            else:
+                correct_answers[question] = correct_answers_dicts[question]
         
         return correct_answers
 

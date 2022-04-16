@@ -23,7 +23,7 @@ class Constants(BaseConstants):
     with open(q_and_a_path) as json_file:
         q_and_a = json.load(json_file)
         q_and_a_sections = q_and_a["sections"]
-
+    
 
 class Subsession(BaseSubsession):
     pass
@@ -34,14 +34,14 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
+    #Constants.spanish_label no esta en esta app, asi que lo dejamos en comentario.
+    #age = models.IntegerField(label=Constants.spanish_labels['age'], min=18, max=125)
 
-    age = models.IntegerField(label=Constants.spanish_labels['age'], min=18, max=125)
-
-    gender = models.StringField(
-        choices= Constants.spanish_answers['gender'],
-        label= Constants.spanish_labels['gender'],
-        widget=widgets.RadioSelect,
-    )
+    #gender = models.StringField(
+    #    choices= Constants.spanish_answers['gender'],
+    #    label= Constants.spanish_labels['gender'],
+    #    widget=widgets.RadioSelect,
+    #)
 
     # general questions
     for subject, q_and_a_subject in Constants.q_and_a_sections["general"].items():
@@ -59,13 +59,19 @@ class Player(BasePlayer):
                 choices = q_and_a_subject["answers"]
             )
 
-        locals()[subject + "_right_first"] = models.BooleanField() # creating "player chose right answer from the beginning" field
+        locals()[subject + "_right_first"] = models.StringField() # creating "player chose right answer from the beginning" field
 
     del subject
     del q_and_a_subject
+    del command
+    
 
     # rest of sections
-    remaining_sections = list(Constants.q_and_a_sections.keys()).remove("general")
+
+    lista=list(Constants.q_and_a_sections.keys())
+    lista.remove("general")
+    remaining_sections = lista
+    
     for section in remaining_sections:
         for subject, q_and_a_subject in Constants.q_and_a_sections[f"{section}"].items():        
             locals()[subject] = models.StringField( # generating field from dict
@@ -73,11 +79,13 @@ class Player(BasePlayer):
                 choices = q_and_a_subject["answers"]
             )
 
-            locals()[subject + "_right_first"] = models.BooleanField() # creating "player chose right answer from the beginning" field
+            locals()[subject + "_right_first"] = models.StringField() # creating "player chose right answer from the beginning" field
         
     del subject
     del q_and_a_subject
-
+    del remaining_sections
+    del section
+    del lista
 
 def get_correct_answers(q_and_a_dict, section_name):
     """

@@ -1,3 +1,6 @@
+{% extends "global/Base.html" %}
+{% load otree %}
+
 {% block title %}
     Inventory
 {% endblock %}
@@ -7,7 +10,7 @@
 <body>
 
 <p>
-    {{ formfield trader_inv.label }}
+    {{ form.trader_inv.label }}
 </p>
 
 <div class = "first_form">
@@ -23,7 +26,7 @@
 <p></p>
 
 <p>
-    {{ formfield implicit_cost.label }} 
+    {{ form.implicit_cost.label }} 
 </p>
 
 <div class = "first_form">
@@ -37,7 +40,7 @@
 </div>
 
 <p>
-    {{ formfield end_trading_pos.label }} 
+    {{ form.end_trading_pos.label }} 
 </p>
 
 <div class = "first_form">
@@ -50,7 +53,7 @@
 </div>
 
 <p>
-    {{ formfield end_trading_neg.label }} 
+    {{ form.end_trading_neg.label }} 
 </p>
 
 <div class = "first_form">
@@ -74,6 +77,7 @@
 <input class = "boolean" id = "implicit_cost_right_first" name = "implicit_cost_right_first" hidden>
 <input class = "boolean" id = "end_trading_pos_right_first" name = "end_trading_pos_right_first" hidden>
 <input class = "boolean" id = "end_trading_neg_right_first" name = "end_trading_neg_right_first" hidden>
+
 
     <script>
 
@@ -112,14 +116,14 @@
                             $(verifiers[j]).css("color","green");
                             $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field
-                            $(booleans[j]).val(1) // asignando si la respuesta fue correcta o no
+                            $(booleans[j]).val('1') // asignando si la respuesta fue correcta o no
 
                         }else{
 
                             $(verifiers[j]).css("color","red");
                             $(verifiers[j]).html(right_answers[j]) //mostrar la respuesta en html
                             $(fields[j]).val(right_answers[j])
-                            $(booleans[j]).val(0)
+                            $(booleans[j]).val('0')
 
                         }
                     }

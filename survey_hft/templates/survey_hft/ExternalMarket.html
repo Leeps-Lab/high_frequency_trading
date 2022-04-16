@@ -1,3 +1,6 @@
+{% extends "global/Base.html" %}
+{% load otree %}
+
 {% block title %}
     External Market
 {% endblock %}
@@ -7,7 +10,7 @@
 <body>
 
 <p>
-    {{ formfield increase_text.label }}
+    {{ form.increase_ext.label }}
 </p>
 
 <div class = "first_form">
@@ -23,7 +26,7 @@
 <p></p>
 
 <p>
-    {{ formfield implicit_cost_1.label }} 
+    {{ form.implicit_cost_1.label }} 
 </p>
 
 <div class = "first_form">
@@ -37,7 +40,7 @@
 </div>
 
 <p>
-    {{ formfield implicit_cost_0.label }} 
+    {{ form.implicit_cost_0.label }} 
 </p>
 
 <div class = "first_form">
@@ -53,11 +56,11 @@
 <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 
-<input class = "fields" id = "increase_text" name = "increase_text" hidden>
+<input class = "fields" id = "increase_ext" name = "increase_ext" hidden>
 <input class = "fields" id = "implicit_cost_1" name = "implicit_cost_1" hidden>
 <input class = "fields" id = "implicit_cost_0" name = "implicit_cost_0" hidden>
 
-<input class = "boolean" id = "increase_text_right_first" name = "increase_text_right_first" hidden>
+<input class = "boolean" id = "increase_ext_right_first" name = "increase_ext_right_first" hidden>
 <input class = "boolean" id = "implicit_cost_1_right_first" name = "implicit_cost_1_right_first" hidden>
 <input class = "boolean" id = "implicit_cost_0_right_first" name = "implicit_cost_0_right_first" hidden>
 
@@ -97,14 +100,14 @@
                             $(verifiers[j]).css("color","green");
                             $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field
-                            $(booleans[j]).val(1) // asignando si la respuesta fue correcta o no
+                            $(booleans[j]).val('1') // asignando si la respuesta fue correcta o no
 
                         }else{
 
                             $(verifiers[j]).css("color","red");
                             $(verifiers[j]).html(right_answers[j]) //mostrar la respuesta en html
                             $(fields[j]).val(right_answers[j])
-                            $(booleans[j]).val(0)
+                            $(booleans[j]).val('0')
 
                         }
                     }

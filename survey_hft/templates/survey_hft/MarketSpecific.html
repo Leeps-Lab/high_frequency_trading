@@ -1,3 +1,6 @@
+{% extends "global/Base.html" %}
+{% load otree %}
+
 {% block title %}
     Market Specific
 {% endblock %}
@@ -7,7 +10,7 @@
 <body>
 
 <p>
-    {{ formfield one_ask.label }}
+    {{ form.one_ask.label }}
 </p>
 
 <div class = "first_form">
@@ -23,7 +26,7 @@
 <p></p>
 
 <p>
-    {{ formfield hidden_order.label }} 
+    {{ form.hidden_order.label }} 
 </p>
 
 <div class = "first_form">
@@ -47,7 +50,7 @@
 <input class = "boolean" id = "one_ask_right_first" name = "one_ask_right_first" hidden>
 <input class = "boolean" id = "hidden_order_right_first" name = "hidden_order_right_first" hidden>
 
-<script>
+    <script>
 
         // para interactuar con HTML desde JS se está usando Jquery que ya viene incorporado en Otree
 
@@ -58,14 +61,15 @@
 
         var booleans = $(".boolean"); 
 
-        var one_ask = {{ one_ask }};
-        var hidden_order= {{ hidden_order }}
-
+        var one_ask = {{ one_ask| json }}
+        var hidden_order = {{ hidden_order| json }}
+    
         // respuestas correctas
         var right_answers = [
         one_ask,
         hidden_order,
         ]
+        
 
         $("#enviar").click(function(){
 
@@ -87,14 +91,14 @@
                             $(verifiers[j]).css("color","green");
                             $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field
-                            $(booleans[j]).val(1) // asignando si la respuesta fue correcta o no
+                            $(booleans[j]).val('1') // asignando si la respuesta fue correcta o no
 
                         }else{
 
                             $(verifiers[j]).css("color","red");
                             $(verifiers[j]).html(right_answers[j]) //mostrar la respuesta en html
                             $(fields[j]).val(right_answers[j])
-                            $(booleans[j]).val(0)
+                            $(booleans[j]).val('0')
 
                         }
                     }
