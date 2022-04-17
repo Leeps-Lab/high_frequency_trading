@@ -29,7 +29,7 @@
                     "question": "How would you grade the clarity of the video instructions?",
                     "answers": 
                     [
-                        "command: range(1,6)"
+                        "1","2","3","4","5","6"
                     ],
                     "correct_answ": "None"
                 },
@@ -47,7 +47,7 @@
                     "question": "How would you grade the clarity of the user interface?",
                     "answers": 
                     [
-                        "command: range(1,6)"
+                        "1","2","3","4","5","6"
                     ],
                     "correct_answ": "None"
                 },
@@ -209,8 +209,8 @@
                     ],
                     "correct_answ": 
                     {
-                        "cda": "The bids are processed serially, which means Annas bid will be executed against the ask, while Tims bid enters the orderbook.",
-                        "iex": "The bids are processed serially, which means Annas bid will be executed against the ask, while Tims bid enters the orderbook.",
+                        "cda": "The bids are processed serially, which means Anna’s bid will be executed against the ask, while Tim’s bid enters the orderbook.",
+                        "iex": "The bids are processed serially, which means Anna’s bid will be executed against the ask, while Tim’s bid enters the orderbook.",
                         "fba": "Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook."
                     }
                 },

@@ -46,24 +46,31 @@ class Player(BasePlayer):
     # general questions
     for subject, q_and_a_subject in Constants.q_and_a_sections["general"].items():
         # creating field question
-        if "command" not in q_and_a_subject["answers"][0]: # if choices are not created by command
+        #if "command" not in q_and_a_subject["answers"][0]: # if choices are not created by command
+        #    locals()[subject] = models.StringField( # generating field from dict
+        #        label = q_and_a_subject["question"],
+        #        choices = q_and_a_subject["answers"]
+        #    )
+
+
+        #else:
+        #    command = q_and_a_subject["answers"][0].replace("command: ", "")
+        if q_and_a_subject["answers"][0] == "None":
+            locals()[subject] = models.StringField( # generating field from dict
+                label = q_and_a_subject["question"],
+            )  
+        else: 
             locals()[subject] = models.StringField( # generating field from dict
                 label = q_and_a_subject["question"],
                 choices = q_and_a_subject["answers"]
             )
-        else:
-            command = q_and_a_subject["answers"][0].replace("command: ", "")
-            
-            locals()[subject] = models.StringField( # generating field from dict
-                label = q_and_a_subject["question"],
-                choices = q_and_a_subject["answers"]
-            )
+
 
         locals()[subject + "_right_first"] = models.StringField() # creating "player chose right answer from the beginning" field
 
     del subject
     del q_and_a_subject
-    del command
+
     
 
     # rest of sections
