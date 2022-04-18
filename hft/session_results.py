@@ -126,11 +126,12 @@ def elo_player_summary(player):
 def _get_average_sensitivies(subsession_id, market_id, player_id, session_start, session_end, initial_sliders, initial_role):
     session_duration = (session_end - session_start).total_seconds()
     player_state_records = TraderRecord.objects.filter(subsession_id=subsession_id,
-        market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('timestamp')
+        market_id=market_id, player_id=player_id).order_by('timestamp')
     slider_averages = {}
     for slider_name in ('slider_a_x', 'slider_a_y', 'slider_a_z'):
         slider_averages[slider_name] = 0
         current_slider_value = initial_sliders[slider_name]
+
         prev_change_time = session_start
 
         total_time_automated = 0
@@ -149,7 +150,7 @@ def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
             time_automated = (session_end - prev_change_time).total_seconds()
             total_time_automated += time_automated
             slider_averages[slider_name] += current_slider_value * time_automated
-        
+                
         if total_time_automated == 0:
             slider_averages[slider_name] = 0
         else:
