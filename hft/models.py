@@ -272,7 +272,7 @@ def get_correct_answers(q_and_a_dict, section_name):
 
     return output
 
-def practice_round(round_number, excluded_rounds):
+def survey_round(round_number, excluded_rounds):
     """
     Determines whether the current round is a practice round
 
@@ -280,7 +280,8 @@ def practice_round(round_number, excluded_rounds):
     Output: current round is practice round (boolean)
     """
     # TODO: ask Mark/Kristian how we should exclude rounds (length of excluded or max)
-    if round_number <= len(excluded_rounds):
+    first_real_round = len(excluded_rounds) + 1 #
+    if round_number == first_real_round:
         return True
     else:
         return False

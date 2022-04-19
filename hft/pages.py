@@ -9,7 +9,7 @@ from .output import TraderRecord
 from .session_results import elo_player_summary, state_for_results_template
 from .utility import ensure_results_ready
 from settings import test_inputs_dir
-from .models import Constants, get_correct_answers, practice_round
+from .models import Constants, get_correct_answers, survey_round
 import random
 
 log = logging.getLogger(__name__)
@@ -64,7 +64,7 @@ class General(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return not practice_round(self.round_number, practice_rounds)
+        return survey_round(self.round_number, practice_rounds)
 
 
 class Inventory(Page):
@@ -79,7 +79,7 @@ class Inventory(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return not practice_round(self.round_number, practice_rounds)
+        return survey_round(self.round_number, practice_rounds)
 
 
 class ExternalMarket(Page):
@@ -94,7 +94,7 @@ class ExternalMarket(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return not practice_round(self.round_number, practice_rounds)
+        return survey_round(self.round_number, practice_rounds)
 
 
 class Speed(Page):
@@ -109,7 +109,7 @@ class Speed(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return not practice_round(self.round_number, practice_rounds)
+        return survey_round(self.round_number, practice_rounds)
 
 
 # final survey hft page class
@@ -136,8 +136,8 @@ class MarketSpecific(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return not practice_round(self.round_number, practice_rounds)
-        
+        return survey_round(self.round_number, practice_rounds)
+
 
 class InitialDecisionSelection(Page):
     form_model = 'player'
