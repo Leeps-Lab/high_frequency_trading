@@ -35,6 +35,12 @@ class BaseTrader(object):
     def __init__(self, subsession_id, market_id, player_id, id_in_market,
             default_role, exchange_host, exchange_port, cash=0, 
             **kwargs):
+        from .models import Player
+        try:
+            player = Player.objects.get(id=player_id)
+            self.participant_code = player.participant.code
+        except Player.DoesNotExist:
+            self.participant_code = None
         self.subsession_id = subsession_id
         self.market_id = market_id
         self.id_in_market = id_in_market
