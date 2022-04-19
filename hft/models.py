@@ -271,3 +271,16 @@ def get_correct_answers(q_and_a_dict, section_name):
         output[question] = q_and_a_dict[section_name][question]["correct_answ"]
 
     return output
+
+def practice_round(round_number, excluded_rounds):
+    """
+    Determines whether the current round is a practice round
+
+    Input: current round (int), rounds considered for practice (list)
+    Output: current round is practice round (boolean)
+    """
+    # TODO: ask Mark/Kristian how we should exclude rounds (length of excluded or max)
+    if round_number <= len(excluded_rounds):
+        return True
+    else:
+        return False
