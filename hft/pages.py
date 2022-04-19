@@ -35,7 +35,8 @@ class RegisterPlayers(WaitPage):
         else:
             self.session.config['random_round_num'] = my_custom_random(exclude, num_rounds)
         self.subsession.register()
-    
+
+
 class Instructions(Page):
     def is_displayed(self):
         return self.round_number == 1 and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
@@ -46,6 +47,10 @@ class Instructions(Page):
         out['auction_format'] = self.session.config['auction_format']
         out['next_button_timeout'] = self.session.config['instructions_next_button_timeout']
         return out
+
+
+# TODO: add here survey page classes
+
 
 class InitialDecisionSelection(Page):
     form_model = 'player'
@@ -80,6 +85,7 @@ class InitialDecisionSelection(Page):
             'trial_round': is_trial_round
         }
 
+
 class PreWaitPage(WaitPage):
     def is_displayed(self):
         return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
@@ -104,6 +110,7 @@ class PreWaitPage(WaitPage):
                     player.initial_speed_on
                 )
                 cache.set(cache_key, trader)
+
 
 class EloExperiment(Page):
     def is_displayed(self):
@@ -188,6 +195,7 @@ class ResultsWaitPage(WaitPage):
         else:
             log.error('timeout transform results group {}'.format(market_id))
 
+
 class Results(Page):
     def is_displayed(self):
         return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
@@ -266,6 +274,7 @@ class Results(Page):
         self.participant.vars['participation_fee'] = participation_fee
         self.participant.vars['exchange_rate'] = out['exchange_rate']
         self.participant.vars['max_payment'] = self.session.config['max_payment']
+
 
 # Last page in experiment to display all payoffs
 class CumulativePayoff(Page):
