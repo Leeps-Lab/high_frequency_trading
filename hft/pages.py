@@ -430,6 +430,11 @@ class CumulativePayoff(Page):
 page_sequence = [
     RegisterPlayers,
     Instructions,
+    General,
+    Inventory,
+    ExternalMarket,
+    Speed,
+    MarketSpecific,
     InitialDecisionSelection,
     PreWaitPage,
     EloExperiment,
