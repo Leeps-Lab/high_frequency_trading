@@ -19,7 +19,7 @@ class TimeAwareInSessionRecord(Model):
 class TraderRecord(TimeAwareInSessionRecord):
     
     csv_meta = (
-    'timestamp', 'subsession_id', 'market_id', 'player_id', 'trigger_event_type',
+    'timestamp', 'subsession_id', 'market_id', 'player_id', 'participant_code', 'trigger_event_type',
     'event_no',  'trader_model_name', 'inventory', 'bid', 'offer', 
     'best_bid_except_me', 'best_offer_except_me',
     'delay', 'staged_bid', 'staged_offer', 'implied_bid', 
@@ -31,6 +31,7 @@ class TraderRecord(TimeAwareInSessionRecord):
     # event_no = models.IntegerField()
     # subsession_id = models.IntegerField()
     # market_id = models.IntegerField()
+    participant_code = models.CharField()
     player_id = models.IntegerField()
     trader_model_name =  models.CharField()
     delay = models.FloatField()

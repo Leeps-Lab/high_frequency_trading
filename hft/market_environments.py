@@ -35,7 +35,7 @@ elo = market_environment(
             'events_to_capture': ('speed_change', 'role_change', 'slider', 
                 'market_start', 'market_end', 'A', 'U', 'C', 'E'),
             'properties_to_serialize': (
-                'subsession_id', 'market_id', 'id_in_market', 'player_id', 'delay', 
+                'participant_code', 'subsession_id', 'market_id', 'id_in_market', 'player_id', 'delay',
                 'staged_bid', 'staged_offer', 'net_worth', 'cash', 'cost', 'tax_paid',
                 'speed_cost', 'implied_bid', 'implied_offer', 'best_bid_except_me',
                 'best_offer_except_me'),
