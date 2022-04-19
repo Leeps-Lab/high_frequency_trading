@@ -9,7 +9,7 @@ from .output import TraderRecord
 from .session_results import elo_player_summary, state_for_results_template
 from .utility import ensure_results_ready
 from settings import test_inputs_dir
-from .models import Constants, get_correct_answers
+from .models import Constants, get_correct_answers, practice_round
 import random
 
 log = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class Instructions(Page):
         return out
 
 
-# TODO: add here survey page classes
+# beginning of survey page classes
 class General(Page):
     form_model = 'player'
     # question fields and whether the participant chose the right answer at first
@@ -61,6 +61,10 @@ class General(Page):
 
     def vars_for_template(self):
         return get_correct_answers(Constants.q_and_a_sections, "general")
+
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return not practice_round(self.round_number, practice_rounds)
 
 
 class Inventory(Page):
@@ -73,6 +77,10 @@ class Inventory(Page):
     def vars_for_template(self):
         return get_correct_answers(Constants.q_and_a_sections, "inventory")
 
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return not practice_round(self.round_number, practice_rounds)
+
 
 class ExternalMarket(Page):
     form_model = 'player'
@@ -83,6 +91,10 @@ class ExternalMarket(Page):
 
     def vars_for_template(self):
         return get_correct_answers(Constants.q_and_a_sections, "external_market")
+
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return not practice_round(self.round_number, practice_rounds)
 
 
 class Speed(Page):
@@ -95,7 +107,12 @@ class Speed(Page):
     def vars_for_template(self):
         return get_correct_answers(Constants.q_and_a_sections, "speed")
 
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return not practice_round(self.round_number, practice_rounds)
 
+
+# final survey hft page class
 class MarketSpecific(Page):
     form_model = 'player'
     # question fields and whether the participant chose the right answer at first
@@ -117,8 +134,10 @@ class MarketSpecific(Page):
         
         return correct_answers
 
-###########################
-
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return not practice_round(self.round_number, practice_rounds)
+        
 
 class InitialDecisionSelection(Page):
     form_model = 'player'
