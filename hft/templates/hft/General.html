@@ -25,6 +25,9 @@
         <br>
     </div>
 
+    {{ form.degree.errors }}
+
+
     <p>
         {{ form.degree_backg.label }}
     </p>
@@ -34,6 +37,9 @@
         <label><input name = "degree_backg" type = "radio" value = "No"> No</label>
         <br>
     </div>
+
+    {{ form.degree_backg.errors }}
+
 
     <p>
         {{ form.video_clarity.label }}
@@ -48,6 +54,9 @@
         <br>
     </div>
 
+    {{ form.video_clarity.errors }}
+
+
     <p>
         {{ form.video_confusing.label }}
     </p>
@@ -57,6 +66,9 @@
         </textarea>
         <br>
     </div>
+
+    {{ form.video_confusing.errors }}
+
 
     <p>
         {{ form.interface_clarity.label }}
@@ -71,6 +83,9 @@
         <br>
     </div>
 
+    {{ form.interface_clarity.errors }}
+
+
     <p>
         {{ form.interface_confusing.label }}
     </p>
@@ -80,6 +95,9 @@
         </textarea>
         <br>
     </div>
+
+    {{ form.interface_confusing.errors }}
+
 
     <p>
         {{ form.suggestions.label }}
@@ -91,6 +109,9 @@
         <br>
     </div>
 
+    {{ form.suggestions.errors }}
+
+    
     {% next_button %}
 
 {% endblock %}
