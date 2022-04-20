@@ -1,0 +1,36 @@
+{% extends "global/Base.html" %}
+{% load otree %}
+
+
+{% block title %}
+    General
+{% endblock %}
+
+{% block content %}
+
+    <p>
+        Before continuing with the session, you are going to 
+        participate in a brief survey of 5 blocks regarding the 
+        current experiment.
+    </p>
+
+    {% formfield 'degree' %}
+    {% formfield 'degree_backg' %}
+    {% formfield 'video_clarity' %}
+    {% formfield 'video_confusing' %}
+    {% formfield 'interface_clarity' %}
+    {% formfield 'interface_confusing' %}
+    {% formfield 'suggestions' %}
+
+
+    <input class = "boolean" id = "degree_right_first" name = "degree_right_first" value = "1" hidden>
+    <input class = "boolean" id = "degree_backg_right_first" name = "degree_backg_right_first" value = "1" hidden>
+    <input class = "boolean" id = "video_clarity_right_first" name = "video_clarity_right_first" value = "1" hidden>
+    <input class = "boolean" id = "video_confusing_right_first" name = "video_confusing_right_first" value = "1" hidden>
+    <input class = "boolean" id = "interface_clarity_right_first" name = "interface_clarity_right_first" value = "1" hidden>
+    <input class = "boolean" id = "interface_confusing_right_first" name = "interface_confusing_right_first" value = "1" hidden>
+    <input class = "boolean" id = "suggestions_right_first" name = "suggestions_right_first" value = "1" hidden>
+
+    {% next_button %}
+
+{% endblock %}

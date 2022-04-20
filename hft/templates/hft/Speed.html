@@ -1,0 +1,108 @@
+{% extends "global/Base.html" %}
+{% load otree %}
+
+{% block title %}
+    Speed
+{% endblock %}
+
+{% block content %}
+
+<body>
+
+<p>
+    {{ form.two_players.label }}
+</p>
+
+<div class = "first_form">
+    <label><input name = "form1" type = "radio" value = "1"> Anna's bid and ask will change faster in response to price movements on either market.</label><br>
+    <label><input name = "form1" type = "radio" value = "0"> im's bid and ask will change faster in response to price movements on either market.</label><br>    
+    <label><input name = "form1" type = "radio" value = "0"> Anna’s bid and ask will change faster if the prices on the external market move, while Tim's bid and ask will change faster if the prices on their own market move.</label><br>
+    <label><input name = "form1" type = "radio" value = "0"> Tim’s bid and ask will change faster if the prices on the external market move, while Anna's bid and ask will change faster if the prices on their own market move.</label><br>
+    <label><input name = "form1" type = "radio" value = "0"> Anna and Tim's bid and ask will change equally fast in response to price movements.</label>
+    <br>
+    <label class = "verifiers"></label>
+</div>
+
+<p></p>
+
+<p>
+    {{ form.three_min.label }} 
+</p>
+
+<div class = "first_form">
+    <label><input name = "form2" type = "radio" value = "1"> 180 * 0.01 = 1.8 ECU</label><br>
+    <label><input name = "form2" type = "radio" value = "0"> 180 * 0.1 = 18 ECU</label><br>    
+    <label><input name = "form2" type = "radio" value = "0"> 180 * 1 = 180 ECU</label><br>
+    <label><input name = "form2" type = "radio" value = "0"> 180 * 10 = 1800 ECU</label><br>
+    <label><input name = "form2" type = "radio" value = "0"> The speed option does not create costs.</label>
+    <br>
+    <label class = "verifiers"></label>
+</div>
+
+<button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
+<button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
+
+<input class = "fields" id = "two_players" name = "two_players" hidden>
+<input class = "fields" id = "three_min" name = "three_min" hidden>
+
+<input class = "boolean" id = "two_players_right_first" name = "two_players_right_first" hidden>
+<input class = "boolean" id = "three_min_right_first" name = "three_min_right_first" hidden>
+
+<script>
+    // para interactuar con HTML desde JS se está usando Jquery que ya viene incorporado en Otree
+
+        var verifiers = $(".verifiers");
+        var questions = $(".first_form");
+        
+        var fields = $(".fields");
+
+        var booleans = $(".boolean"); 
+
+        // respuestas correctas
+        var right_answers = [
+        "Anna's bid and ask will change faster in response to price movements on either market.",
+        "180 * 0.01 = 1.8 ECU",
+        ]
+
+        $("#enviar").click(function(){
+
+            // para cada pregunta
+            
+            for (j = 0; j < questions.length ; j++)
+            {
+                var inputs = $(`input[name=form${j+1}]`)
+
+                // para cada choice
+                for (i = 0; i < inputs.length ; i++)
+                {
+                    // si seleccionó cierta choice entonces ....
+                    if ($(inputs[i]).prop("checked")) 
+                    {
+                        // si el valor de ese input es 1 eso quiere decir que es la respuesta correcta
+                        if ($(inputs[i]).val() == "1") {
+
+                            $(verifiers[j]).css("color","green");
+                            $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
+                            $(fields[j]).val(right_answers[j]) //asignando respuesta al field
+                            $(booleans[j]).val('1') // asignando si la respuesta fue correcta o no
+
+                        }else{
+
+                            $(verifiers[j]).css("color","red");
+                            $(verifiers[j]).html(right_answers[j]) //mostrar la respuesta en html
+                            $(fields[j]).val(right_answers[j])
+                            $(booleans[j]).val('0')
+
+                        }
+                    }
+                }
+            }
+
+            $("#enviar").prop("hidden",true) //boton enviar (no de submit) desaparece
+            $("#submit").prop("hidden",false) // boton de submit aparece
+                      
+        })
+
+    </script>
+</body>
+{% endblock %}
