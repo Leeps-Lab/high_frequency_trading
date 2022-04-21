@@ -7,23 +7,110 @@
 {% endblock %}
 
 {% block content %}
-    {% formfield 'degree' %}
-    {% formfield 'degree_backg' %}
-    {% formfield 'video_clarity' %}
-    {% formfield 'video_confusing' %}
-    {% formfield 'interface_clarity' %}
-    {% formfield 'interface_confusing' %}
-    {% formfield 'suggestions' %}
+
+    <p>
+        Before continuing with the session, you are going to 
+        participate in a brief survey of 5 blocks regarding the 
+        current experiment.
+    </p>
+   
+    <p>
+        {{ form.degree.label }}
+    </p>
+
+    <div class = "first_form">
+        <label><input name = "degree" type = "radio" value = "B.Sc."> B.Sc.</label><br>
+        <label><input name = "degree" type = "radio" value = "M.Sc."> M.Sc.</label><br>    
+        <label><input name = "degree" type = "radio" value = "Ph.D."> Ph.D.</label>
+        <br>
+    </div>
+
+    {{ form.degree.errors }}
 
 
-    <input class = "boolean" id = "degree_right_first" name = "degree_right_first" value = "1" hidden>
-    <input class = "boolean" id = "degree_backg_right_first" name = "degree_backg_right_first" value = "1" hidden>
-    <input class = "boolean" id = "video_clarity_right_first" name = "video_clarity_right_first" value = "1" hidden>
-    <input class = "boolean" id = "video_confusing_right_first" name = "video_confusing_right_first" value = "1" hidden>
-    <input class = "boolean" id = "interface_clarity_right_first" name = "interface_clarity_right_first" value = "1" hidden>
-    <input class = "boolean" id = "interface_confusing_right_first" name = "interface_confusing_right_first" value = "1" hidden>
-    <input class = "boolean" id = "suggestions_right_first" name = "suggestions_right_first" value = "1" hidden>
+    <p>
+        {{ form.degree_backg.label }}
+    </p>
 
+    <div class = "first_form">
+        <label><input name = "degree_backg" type = "radio" value = "Yes"> Yes</label><br>
+        <label><input name = "degree_backg" type = "radio" value = "No"> No</label>
+        <br>
+    </div>
+
+    {{ form.degree_backg.errors }}
+
+
+    <p>
+        {{ form.video_clarity.label }}
+    </p>
+
+    <div class = "first_form">
+        <label><input name = "video_clarity" type = "radio" value = "1"> 1</label><br>
+        <label><input name = "video_clarity" type = "radio" value = "2"> 2</label><br>
+        <label><input name = "video_clarity" type = "radio" value = "3"> 3</label><br>
+        <label><input name = "video_clarity" type = "radio" value = "4"> 4</label><br>
+        <label><input name = "video_clarity" type = "radio" value = "5"> 5</label>
+        <br>
+    </div>
+
+    {{ form.video_clarity.errors }}
+
+
+    <p>
+        {{ form.video_confusing.label }}
+    </p>
+
+    <div class = "first_form">
+        <textarea rows="5" cols="50" name = "video_confusing" type = "text">
+        </textarea>
+        <br>
+    </div>
+
+    {{ form.video_confusing.errors }}
+
+
+    <p>
+        {{ form.interface_clarity.label }}
+    </p>
+
+    <div class = "first_form">
+        <label><input name = "interface_clarity" type = "radio" value = "1"> 1</label><br>
+        <label><input name = "interface_clarity" type = "radio" value = "2"> 2</label><br>
+        <label><input name = "interface_clarity" type = "radio" value = "3"> 3</label><br>
+        <label><input name = "interface_clarity" type = "radio" value = "4"> 4</label><br>
+        <label><input name = "interface_clarity" type = "radio" value = "5"> 5</label>
+        <br>
+    </div>
+
+    {{ form.interface_clarity.errors }}
+
+
+    <p>
+        {{ form.interface_confusing.label }}
+    </p>
+
+    <div class = "first_form">
+        <textarea rows="5" cols="50" name = "interface_confusing" type = "text">
+        </textarea>
+        <br>
+    </div>
+
+    {{ form.interface_confusing.errors }}
+
+
+    <p>
+        {{ form.suggestions.label }}
+    </p>
+
+    <div class = "first_form">
+        <textarea rows="5" cols="50" name = "suggestions" type = "text">
+        </textarea>
+        <br>
+    </div>
+
+    {{ form.suggestions.errors }}
+    
     {% next_button %}
 
 {% endblock %}

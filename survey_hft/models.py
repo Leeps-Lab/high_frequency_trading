@@ -65,9 +65,6 @@ class Player(BasePlayer):
                 choices = q_and_a_subject["answers"]
             )
 
-
-        locals()[subject + "_right_first"] = models.StringField() # creating "player chose right answer from the beginning" field
-
     del subject
     del q_and_a_subject
 
