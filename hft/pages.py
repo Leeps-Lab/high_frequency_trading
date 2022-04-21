@@ -54,9 +54,7 @@ class Instructions(Page):
 class General(Page):
     form_model = 'player'
     # question fields and whether the participant chose the right answer at first
-    lista=list(Constants.q_and_a_sections["general"].keys()) + [question
-                  + "_right_first" for question in 
-                  Constants.q_and_a_sections["general"].keys()]
+    lista=list(Constants.q_and_a_sections["general"].keys())
     form_fields = lista
 
     def vars_for_template(self):
