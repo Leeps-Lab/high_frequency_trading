@@ -8,9 +8,9 @@
 {% block content %}
 
 <body>
-
+<br>
 <p>
-    {{ form.trader_inv.label }}
+    <b>1. {{ form.trader_inv.label }}</b>
 </p>
 
 <div class = "first_form">
@@ -22,11 +22,10 @@
     <br>
     <label class = "verifiers"></label>
 </div>
-
-<p></p>
+<br>
 
 <p>
-    {{ form.implicit_cost.label }} 
+    <b>2. {{ form.implicit_cost.label }} </b>
 </p>
 
 <div class = "first_form">
@@ -38,9 +37,9 @@
     <br>
     <label class = "verifiers"></label>
 </div>
-
+<br>
 <p>
-    {{ form.end_trading_pos.label }} 
+    <b>3. {{ form.end_trading_pos.label }} </b>
 </p>
 
 <div class = "first_form">
@@ -51,9 +50,9 @@
     <br>
     <label class = "verifiers"></label>
 </div>
-
+<br>
 <p>
-    {{ form.end_trading_neg.label }} 
+    <b>4. {{ form.end_trading_neg.label }} </b>
 </p>
 
 <div class = "first_form">
@@ -65,6 +64,7 @@
     <label class = "verifiers"></label>
 </div>
 
+<br>
 <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 

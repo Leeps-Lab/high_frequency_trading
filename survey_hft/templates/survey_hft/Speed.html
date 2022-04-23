@@ -8,9 +8,9 @@
 {% block content %}
 
 <body>
-
+<br>
 <p>
-    {{ form.two_players.label }}
+    <b>1. {{ form.two_players.label }}</b>
 </p>
 
 <div class = "first_form">
@@ -23,10 +23,10 @@
     <label class = "verifiers"></label>
 </div>
 
-<p></p>
+<br>
 
 <p>
-    {{ form.three_min.label }} 
+    <b>2. {{ form.three_min.label }} </b>
 </p>
 
 <div class = "first_form">
@@ -38,7 +38,7 @@
     <br>
     <label class = "verifiers"></label>
 </div>
-
+<br>
 <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 

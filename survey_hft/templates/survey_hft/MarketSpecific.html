@@ -8,9 +8,9 @@
 {% block content %}
 <!-- Los inputs que toman el valor de 1 es porque son la respuesta correcta -->
 <body>
-
+<br>
 <p>
-    {{ form.one_ask.label }}
+    <b>1. {{ form.one_ask.label }}</b>
 </p>
 
 <div class = "first_form">
@@ -23,10 +23,10 @@
     <label class = "verifiers"></label>
 </div>
 
-<p></p>
+<br>
 
 <p>
-    {{ form.hidden_order.label }} 
+    <b>2. {{ form.hidden_order.label }} </b>
 </p>
 
 <div class = "first_form">
@@ -38,7 +38,7 @@
     <br>
     <label class = "verifiers"></label>
 </div>
-
+<br>
 <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 

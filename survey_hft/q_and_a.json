@@ -153,7 +153,7 @@
                 },
                 "implicit_cost_0":
                 {
-                    "question": "",
+                    "question": "What is an implicit cost of setting the external sensitivity slider to 0?",
                     "answers": 
                     [
                         "Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.",
