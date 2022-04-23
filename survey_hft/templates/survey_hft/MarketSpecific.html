@@ -14,30 +14,25 @@
 </p>
 
 <div class = "first_form">
-    <label><input name = "form1" type = "radio" value = "1"> The bids are processed serially, which means Anna’s bid will be executed against the ask, while Tim’s bid enters the orderbook.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook.</label><br>    
-    <label><input name = "form1" type = "radio" value = "0"> Both bids enter the orderbook at 100 ECU.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> Anna’s bid will be executed against the ask at the end of the trading period.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> Tim’s bid will be executed against the ask at the end of the trading period.</label>
-    <br>
-    <label class = "verifiers"></label>
+    <div><label><input name = "form1" type = "radio" value = "1"> The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim's bid enters the orderbook.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook.</label><br></div>    
+    <div><label><input name = "form1" type = "radio" value = "0"> Both bids enter the orderbook at 100 ECU.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Anna's bid will be executed against the ask at the end of the trading period.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid will be executed against the ask at the end of the trading period.</label></div>
 </div>
-
+<label class = "verifiers"></label>
 <br>
-
 <p>
     <b>2. {{ form.hidden_order.label }} </b>
 </p>
-
 <div class = "first_form">
-    <label><input name = "form2" type = "radio" value = "1"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and the market participants cannot observe whether there exist hidden orders at  the black bar or not.</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and all market participants can observe whether hidden orders exist at the black bar or not.</label><br>    
-    <label><input name = "form2" type = "radio" value = "0"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and these orders can be placed only by you and the other human market participants.</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> The automated investors adjust the price of these orders according to your behavior and the behavior of the other human market participants, none of the market participants can observe whether there exist hidden orders at the black bar or not.</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> Hidden orders cannot be distinguished from ordinary limit or market orders.</label>
-    <br>
-    <label class = "verifiers"></label>
+    <div><label><input name = "form2" type = "radio" value = "1"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and the market participants cannot observe whether there exist hidden orders at  the black bar or not.</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and all market participants can observe whether hidden orders exist at the black bar or not.</label><br></div>    
+    <div><label><input name = "form2" type = "radio" value = "0"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and these orders can be placed only by you and the other human market participants.</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> The automated investors adjust the price of these orders according to your behavior and the behavior of the other human market participants, none of the market participants can observe whether there exist hidden orders at the black bar or not.</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> Hidden orders cannot be distinguished from ordinary limit or market orders.</label></div>
 </div>
+<label class = "verifiers"></label>
 <br>
 <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
@@ -47,8 +42,10 @@
 <input class = "fields" id = "hidden_order" name = "hidden_order" hidden>
 
 <!-- aca estan los fields booleanos que se llenan en js-->
-<input class = "boolean" id = "one_ask_right_first" name = "one_ask_right_first" hidden>
-<input class = "boolean" id = "hidden_order_right_first" name = "hidden_order_right_first" hidden>
+<input class = "boolean" id = "one_ask_right_first" name = "one_ask_right_count" hidden>
+<input class = "boolean" id = "hidden_order_right_first" name = "hidden_order_right_count" hidden>
+
+
     <script>
 
         // para interactuar con HTML desde JS se está usando Jquery que ya viene incorporado en Otree
@@ -62,13 +59,23 @@
 
         var one_ask = {{ one_ask| json }}
         var hidden_order = {{ hidden_order| json }}
+
+        var intentos = 0
     
         // respuestas correctas
         var right_answers = [
         one_ask,
         hidden_order,
         ]
-        
+
+        for (j = 0; j < questions.length ; j++)
+        {
+            var parent = $(questions[j]);
+                var divs = parent.children();
+                while (divs.length) {
+                    parent.append(divs.splice(Math.floor(Math.random() * divs.length), 1)[0]);
+                }
+            }
 
         $("#enviar").click(function(){
 
@@ -89,26 +96,34 @@
 
                             $(verifiers[j]).css("color","green");
                             $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
-                            $(fields[j]).val(right_answers[j]) //asignando respuesta al field
-                            $(booleans[j]).val('1') // asignando si la respuesta fue correcta o no
+                            $(fields[j]).val(right_answers[j]) //asignando respuesta al field 
+                            if (intentos == 0){
+                                $(booleans[j]).val('1')
+                            }else if (intentos == 1 && $(booleans[j]).val() == '0' ){
+                                $(booleans[j]).val('2')
+                            }
 
                         }else{
 
                             $(verifiers[j]).css("color","red");
-                            $(verifiers[j]).html(right_answers[j]) //mostrar la respuesta en html
+                            $(verifiers[j]).html("<b>Respuesta Incorrecta </b>") //mostrar la respuesta en html
                             $(fields[j]).val(right_answers[j])
                             $(booleans[j]).val('0')
 
                         }
                     }
                 }
+
             }
+            ++intentos
 
-            $("#enviar").prop("hidden",true) //boton enviar (no de submit) desaparece
-            $("#submit").prop("hidden",false) // boton de submit aparece
-                      
+            if (intentos == 2 ){
+                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
+                $('#enviar').removeAttr("type").attr("type", "submit");
+                }        
+                   
         })
-
+            
     </script>
 </body>
 {% endblock %}

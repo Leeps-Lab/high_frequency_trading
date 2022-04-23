@@ -12,46 +12,38 @@
 <p>
     <b>1. {{ form.increase_ext.label }}</b>
 </p>
-
 <div class = "first_form">
-    <label><input name = "form1" type = "radio" value = "1"> Both, your bid and ask increase following the external market.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> Both, your bid and ask decrease opposing the external market.</label><br>    
-    <label><input name = "form1" type = "radio" value = "0"> It is likely that neither your bid nor ask will change.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> It is likely that your bid increases, while your ask decreases.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> It is likely that your bid decreases, while your ask increases.</label>
-    <br>
-    <label class = "verifiers"></label>
+    <div><label><input name = "form1" type = "radio" value = "1"> Both, your bid and ask increase following the external market.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Both, your bid and ask decrease opposing the external market.</label><br></div>    
+    <div><label><input name = "form1" type = "radio" value = "0"> It is likely that neither your bid nor ask will change.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> It is likely that your bid increases, while your ask decreases.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> It is likely that your bid decreases, while your ask increases.</label></div>
 </div>
-
+<label class = "verifiers"></label>
 <br>
-
 <p>
     <b>2. {{ form.implicit_cost_1.label }} </b>
 </p>
-
 <div class = "first_form">
-    <label><input name = "form2" type = "radio" value = "1"> Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> Your bot focuses exclusively on the prices on your own market, which might cause you to miss the moments when the external market reacts faster.</label><br>    
-    <label><input name = "form2" type = "radio" value = "0"> Your bot will focus less on profitable trading and more on balancing the inventory, which will most likely result in you receiving poorer prices.</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> Your bot will focus solely on profitable trading, which will most likely result in high positive or negative inventories and thus higher deduction payment.</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> There are no implicit costs associated with increasing the external sensitivity slider up to 1.</label>
-    <br>
-    <label class = "verifiers"></label>
+    <div><label><input name = "form2" type = "radio" value = "1"> Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> Your bot focuses exclusively on the prices on your own market, which might cause you to miss the moments when the external market reacts faster.</label><br></div>    
+    <div><label><input name = "form2" type = "radio" value = "0"> Your bot will focus less on profitable trading and more on balancing the inventory, which will most likely result in you receiving poorer prices.</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> Your bot will focus solely on profitable trading, which will most likely result in high positive or negative inventories and thus higher deduction payment.</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> There are no implicit costs associated with increasing the external sensitivity slider up to 1.</label></div>
 </div>
+<label class = "verifiers"></label>
 <br>
 <p>
     <b>3. {{ form.implicit_cost_0.label }} </b>
 </p>
-
 <div class = "first_form">
-    <label><input name = "form3" type = "radio" value = "0"> Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.</label><br>
-    <label><input name = "form3" type = "radio" value = "1"> Your bot focuses exclusively on the prices on your own market, which might cause you to miss the moments when the external market reacts faster.</label><br>    
-    <label><input name = "form3" type = "radio" value = "0"> Your bot will focus less on profitable trading and more on balancing the inventory, which will most likely result in you receiving poorer prices.</label><br>
-    <label><input name = "form3" type = "radio" value = "0"> Your bot will focus solely on profitable trading, which will most likely result in high positive or negative inventories and thus higher deduction payment.</label>
-    <label><input name = "form3" type = "radio" value = "0"> There are no implicit costs associated with increasing the external sensitivity slider.</label>
-    <br>
-    <label class = "verifiers"></label>
+    <div><label><input name = "form3" type = "radio" value = "0"> Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.</label><br></div>
+    <div><label><input name = "form3" type = "radio" value = "1"> Your bot focuses exclusively on the prices on your own market, which might cause you to miss the moments when the external market reacts faster.</label><br></div>    
+    <div><label><input name = "form3" type = "radio" value = "0"> Your bot will focus less on profitable trading and more on balancing the inventory, which will most likely result in you receiving poorer prices.</label><br></div>
+    <div><label><input name = "form3" type = "radio" value = "0"> Your bot will focus solely on profitable trading, which will most likely result in high positive or negative inventories and thus higher deduction payment.</label></div>
+    <div><label><input name = "form3" type = "radio" value = "0"> There are no implicit costs associated with increasing the external sensitivity slider.</label></div>
 </div>
+<label class = "verifiers"></label>
 <br>
 <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
@@ -60,9 +52,10 @@
 <input class = "fields" id = "implicit_cost_1" name = "implicit_cost_1" hidden>
 <input class = "fields" id = "implicit_cost_0" name = "implicit_cost_0" hidden>
 
-<input class = "boolean" id = "increase_ext_right_first" name = "increase_ext_right_first" hidden>
-<input class = "boolean" id = "implicit_cost_1_right_first" name = "implicit_cost_1_right_first" hidden>
-<input class = "boolean" id = "implicit_cost_0_right_first" name = "implicit_cost_0_right_first" hidden>
+<input class = "boolean" id = "increase_ext_right_count" name = "increase_ext_right_count" hidden>
+<input class = "boolean" id = "implicit_cost_1_right_count" name = "implicit_cost_1_right_count" hidden>
+<input class = "boolean" id = "implicit_cost_0_right_count" name = "implicit_cost_0_right_count" hidden>
+
 
     <script>
 
@@ -73,12 +66,23 @@
 
         var booleans = $(".boolean"); 
 
+        var intentos = 0
+
         // respuestas correctas
         var right_answers = [
         "Both, your bid and ask increase following the external market.",
         "Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.",
         "Your bot focuses exclusively on the prices on your own market, which might cause you to miss the moments when the external market reacts faster.",
         ]
+
+        for (j = 0; j < questions.length ; j++)
+        {
+            var parent = $(questions[j]);
+                var divs = parent.children();
+                while (divs.length) {
+                    parent.append(divs.splice(Math.floor(Math.random() * divs.length), 1)[0]);
+                }
+        }
 
         $("#enviar").click(function(){
 
@@ -99,25 +103,32 @@
 
                             $(verifiers[j]).css("color","green");
                             $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
-                            $(fields[j]).val(right_answers[j]) //asignando respuesta al field
-                            $(booleans[j]).val('1') // asignando si la respuesta fue correcta o no
+                            $(fields[j]).val(right_answers[j]) //asignando respuesta al field 
+                            if (intentos == 0){
+                                $(booleans[j]).val('1')
+                            }else if (intentos == 1 && $(booleans[j]).val() == '0' ){
+                                $(booleans[j]).val('2')
+                            }
 
                         }else{
 
                             $(verifiers[j]).css("color","red");
-                            $(verifiers[j]).html(right_answers[j]) //mostrar la respuesta en html
+                            $(verifiers[j]).html("<b>Respuesta Incorrecta </b>") //mostrar la respuesta en html
                             $(fields[j]).val(right_answers[j])
                             $(booleans[j]).val('0')
 
                         }
                     }
                 }
-            }
 
-            $("#enviar").prop("hidden",true) //boton enviar (no de submit) desaparece
-            $("#submit").prop("hidden",false) // boton de submit aparece
-                      
-        })
+            }
+            ++intentos
+
+            if (intentos == 2 ){
+                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
+                $('#enviar').removeAttr("type").attr("type", "submit");
+                }        
+            })
 
     </script>
 </body>
