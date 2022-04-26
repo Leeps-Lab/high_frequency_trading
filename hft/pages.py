@@ -69,7 +69,7 @@ class Inventory(Page):
     form_model = 'player'
     # question fields and whether the participant chose the right answer at first
     form_fields = list(Constants.q_and_a_sections["inventory"].keys()) + [question
-                  + "_right_first" for question in 
+                  + "_right_count" for question in 
                   Constants.q_and_a_sections["inventory"].keys()]
 
     def vars_for_template(self):
@@ -84,7 +84,7 @@ class ExternalMarket(Page):
     form_model = 'player'
     # question fields and whether the participant chose the right answer at first
     form_fields = list(Constants.q_and_a_sections["external_market"].keys()) + [question
-                  + "_right_first" for question in 
+                  + "_right_count" for question in 
                   Constants.q_and_a_sections["external_market"].keys()]
 
     def vars_for_template(self):
@@ -99,7 +99,7 @@ class Speed(Page):
     form_model = 'player'
     # question fields and whether the participant chose the right answer at first
     form_fields = list(Constants.q_and_a_sections["speed"].keys()) + [question
-                  + "_right_first" for question in 
+                  + "_right_count" for question in 
                   Constants.q_and_a_sections["speed"].keys()]
 
     def vars_for_template(self):
@@ -114,23 +114,29 @@ class Speed(Page):
 class MarketSpecific(Page):
     form_model = 'player'
     # question fields and whether the participant chose the right answer at first
-    form_fields = list(Constants.q_and_a_sections["market_specific_design"].keys()) + [question
-                  + "_right_first" for question in 
-                  Constants.q_and_a_sections["market_specific_design"].keys()]
+    def get_form_fields(self):
+        auction_format = self.session.config['auction_format'].lower()
+
+        if auction_format == "iex":
+            return ["one_ask", "hidden_order", "one_ask_right_count", "hidden_order_right_count"]
+        else:
+            return ["one_ask", "one_ask_right_count"]
 
     def vars_for_template(self):
         correct_answers_dicts = get_correct_answers(Constants.q_and_a_sections, "market_specific_design")
+        auction_format = self.session.config['auction_format'].lower()
         correct_answers = {} # placeholder for storing correct answers
+
         for question in correct_answers_dicts.keys():
             # setting correct answer per question
             if question == 'one_ask':
-                # TODO: validate correct execution of auction_format snippet
                 auction_format = self.session.config['auction_format'].lower()
                 correct_answers[question] = correct_answers_dicts[question][auction_format]
             else:
                 correct_answers[question] = correct_answers_dicts[question]
         
-        return correct_answers
+        output = {**correct_answers, **{"auction": auction_format}} # adding auction format to output
+        return output
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']

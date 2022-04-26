@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-
+<br>
     <p>
         Before continuing with the session, you are going to 
         participate in a brief survey of 5 blocks regarding the 
@@ -15,7 +15,7 @@
     </p>
    
     <p>
-        {{ form.degree.label }}
+        <b> 1. {{ form.degree.label }} </b>
     </p>
 
     <div class = "first_form">
@@ -27,9 +27,9 @@
 
     {{ form.degree.errors }}
 
-
+    <br>
     <p>
-        {{ form.degree_backg.label }}
+        <b>2. {{ form.degree_backg.label }}</b>
     </p>
 
     <div class = "first_form">
@@ -40,9 +40,9 @@
 
     {{ form.degree_backg.errors }}
 
-
+    <br>
     <p>
-        {{ form.video_clarity.label }}
+        <b>3. {{ form.video_clarity.label }}</b>
     </p>
 
     <div class = "first_form">
@@ -56,9 +56,9 @@
 
     {{ form.video_clarity.errors }}
 
-
+    <br>
     <p>
-        {{ form.video_confusing.label }}
+        <b>4. {{ form.video_confusing.label }}</b>
     </p>
 
     <div class = "first_form">
@@ -69,9 +69,9 @@
 
     {{ form.video_confusing.errors }}
 
-
+    <br>
     <p>
-        {{ form.interface_clarity.label }}
+        <b>5. {{ form.interface_clarity.label }}</b>
     </p>
 
     <div class = "first_form">
@@ -85,9 +85,9 @@
 
     {{ form.interface_clarity.errors }}
 
-
+    <br>
     <p>
-        {{ form.interface_confusing.label }}
+        <b>6. {{ form.interface_confusing.label }}</b>
     </p>
 
     <div class = "first_form">
@@ -98,9 +98,9 @@
 
     {{ form.interface_confusing.errors }}
 
-
+    <br>
     <p>
-        {{ form.suggestions.label }}
+        <b>7. {{ form.suggestions.label }}</b>
     </p>
 
     <div class = "first_form">
@@ -110,8 +110,8 @@
     </div>
 
     {{ form.suggestions.errors }}
-
     
+    <br>
     {% next_button %}
 
 {% endblock %}

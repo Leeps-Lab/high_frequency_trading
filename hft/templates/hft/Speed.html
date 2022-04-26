@@ -8,45 +8,41 @@
 {% block content %}
 
 <body>
-
+<br>
 <p>
-    {{ form.two_players.label }}
+    <b>1. {{ form.two_players.label }}</b>
 </p>
 
 <div class = "first_form">
-    <label><input name = "form1" type = "radio" value = "1"> Anna's bid and ask will change faster in response to price movements on either market.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> Tim's bid and ask will change faster in response to price movements on either market.</label><br>    
-    <label><input name = "form1" type = "radio" value = "0"> Anna’s bid and ask will change faster if the prices on the external market move, while Tim's bid and ask will change faster if the prices on their own market move.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> Tim’s bid and ask will change faster if the prices on the external market move, while Anna's bid and ask will change faster if the prices on their own market move.</label><br>
-    <label><input name = "form1" type = "radio" value = "0"> Anna and Tim's bid and ask will change equally fast in response to price movements.</label>
-    <br>
-    <label class = "verifiers"></label>
+    <div><label><input name = "form1" type = "radio" value = "1"> Anna's bid and ask will change faster in response to price movements on either market.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid and ask will change faster in response to price movements on either market.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Anna's bid and ask will change faster if the prices on the external market move, while Tim's bid and ask will change faster if the prices on their own market move.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid and ask will change faster if the prices on the external market move, while Anna's bid and ask will change faster if the prices on their own market move.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Anna and Tim's bid and ask will change equally fast in response to price movements.</label></div>
 </div>
-
-<p></p>
-
+<label class = "verifiers"></label>
+<br>
 <p>
-    {{ form.three_min.label }} 
+    <b>2. {{ form.three_min.label }} </b>
 </p>
-
 <div class = "first_form">
-    <label><input name = "form2" type = "radio" value = "1"> 180 * 0.01 = 1.8 ECU</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> 180 * 0.1 = 18 ECU</label><br>    
-    <label><input name = "form2" type = "radio" value = "0"> 180 * 1 = 180 ECU</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> 180 * 10 = 1800 ECU</label><br>
-    <label><input name = "form2" type = "radio" value = "0"> The speed option does not create costs.</label>
-    <br>
-    <label class = "verifiers"></label>
+    <div><label><input name = "form2" type = "radio" value = "1"> 180 * 0.01 = 1.8 ECU</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> 180 * 0.1 = 18 ECU</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> 180 * 1 = 180 ECU</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> 180 * 10 = 1800 ECU</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> The speed option does not create costs.</label></div>
 </div>
-
+<label class = "verifiers"></label>
+<br>
 <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 
 <input class = "fields" id = "two_players" name = "two_players" hidden>
 <input class = "fields" id = "three_min" name = "three_min" hidden>
 
-<input class = "boolean" id = "two_players_right_first" name = "two_players_right_first" hidden>
-<input class = "boolean" id = "three_min_right_first" name = "three_min_right_first" hidden>
+<input class = "boolean" id = "two_players_right_first" name = "two_players_right_count" hidden>
+<input class = "boolean" id = "three_min_right_first" name = "three_min_right_count" hidden>
+
 
 <script>
     // para interactuar con HTML desde JS se está usando Jquery que ya viene incorporado en Otree
@@ -58,11 +54,22 @@
 
         var booleans = $(".boolean"); 
 
+        var intentos = 0
+
         // respuestas correctas
         var right_answers = [
         "Anna's bid and ask will change faster in response to price movements on either market.",
         "180 * 0.01 = 1.8 ECU",
         ]
+
+        for (j = 0; j < questions.length ; j++)
+        {
+            var parent = $(questions[j]);
+                var divs = parent.children();
+                while (divs.length) {
+                    parent.append(divs.splice(Math.floor(Math.random() * divs.length), 1)[0]);
+                }
+            }
 
         $("#enviar").click(function(){
 
@@ -80,27 +87,35 @@
                     {
                         // si el valor de ese input es 1 eso quiere decir que es la respuesta correcta
                         if ($(inputs[i]).val() == "1") {
-
+                            
                             $(verifiers[j]).css("color","green");
-                            $(verifiers[j]).html("<b></b>")
-                            $(fields[j]).val(right_answers[j]) //asignando respuesta al field
-                            $(booleans[j]).val('1') // asignando si la respuesta fue correcta o no
+                            $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
+                            $(fields[j]).val(right_answers[j]) //asignando respuesta al field 
+                            if (intentos == 0){
+                                $(booleans[j]).val('1')
+                            }else if (intentos == 1 && $(booleans[j]).val() == '0' ){
+                                $(booleans[j]).val('2')
+                            }
 
                         }else{
 
                             $(verifiers[j]).css("color","red");
-                            $(verifiers[j]).html(right_answers[j]) //mostrar la respuesta en html
+                            $(verifiers[j]).html("<b>Respuesta Incorrecta </b>") //mostrar la respuesta en html
                             $(fields[j]).val(right_answers[j])
                             $(booleans[j]).val('0')
 
                         }
                     }
                 }
-            }
 
-            $("#enviar").prop("hidden",true) //boton enviar (no de submit) desaparece
-            $("#submit").prop("hidden",false) // boton de submit aparece
-                      
+            }
+            ++intentos
+
+                if (intentos == 2 ){
+                    $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
+                    $('#enviar').removeAttr("type").attr("type", "submit");
+                    }  
+                    
         })
 
     </script>
