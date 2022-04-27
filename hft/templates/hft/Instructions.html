@@ -30,7 +30,8 @@
         }
 
         p {
-            margin-bottom: 0;
+            margin-bottom: 30px;
+	    margin-top: 30px;
         }
     </style>
     <div id="container">
@@ -38,18 +39,30 @@
             Instructions {{auction_format}}
         </h1>
 
-        <p>Willkommen und vielen Dank für Ihre Teilnahme an diesem Experiment. Der folgende Link führt Sie zu den Instruktionen.</p>
+        <p>Willkommen und vielen Dank für Ihre Teilnahme an diesem Experiment. <b>Bitte schauen Sie sich zunächst das folgende Anleitungsvideo aufmerksam an.</b></p>
 
         <!-- Show different instruction per market format -->
         {% if auction_format == 'CDA' %}
-            <a href="https://youtu.be/XUwCzVJcy6I" class="link" target="_blank">https://youtu.be/XUwCzVJcy6I</a>
+                <center>
+         	   <video controls width="100%">
+        	        <source src="https://experiment.lab.uni-koeln.de/files/CDA_Video_Instructions_14.mp4" type="video/mp4">
+                   </video>
+        	</center>
         {% elif auction_format == 'FBA' %}
-            <a href="https://youtu.be/SCmrVwU2ygY" class="link" target="_blank">https://youtu.be/SCmrVwU2ygY</a>
+            <center>
+         	   <video controls width="100%">
+        	        <source src="https://experiment.lab.uni-koeln.de/files/FBA_Video_Instructions_08.mp4" type="video/mp4">
+                   </video>
+        	</center>
         {% elif auction_format == 'IEX' %}
-            <a href="https://youtu.be/T8-PzR2I3BU" class="link" target="_blank">https://youtu.be/T8-PzR2I3BU</a>
+            <center>
+         	   <video controls width="100%">
+        	        <source src="https://experiment.lab.uni-koeln.de/files/IEX_Video_Instructions_10.mp4" type="video/mp4">
+                   </video>
+        	</center>
         {% endif %}
 
-        <p>Bitte lesen Sie die Instruktionen sorgfältig, denn es geht darum, wie Sie in diesem Experiment echtes Geld verdienen können.</p>
+        <p> Sie erhalten auch eine schriftliche Version der Instruktionen, falls Sie Abschnitte während des Experiments nachlesen möchten. </p>
 
         <form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
             <div class="centering" id="next" style="display:none;">
