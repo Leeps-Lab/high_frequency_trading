@@ -9,10 +9,24 @@
 <!-- Los inputs que toman el valor de 1 es porque son la respuesta correcta -->
 <body>
 <br>
+
+{% if auction == "iex" %}
 <p>
     <b>1. {{ form.one_ask.label }}</b>
 </p>
-
+<div class = "first_form">
+    <div><label><input name = "form1" type = "radio" value = "0"> The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim's bid enters the orderbook.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "1"> Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook.</label><br></div>    
+    <div><label><input name = "form1" type = "radio" value = "0"> Both bids enter the orderbook at 100 ECU.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Anna's bid will be executed against the ask at the end of the trading period.</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid will be executed against the ask at the end of the trading period.</label></div>
+</div>
+<label class = "verifiers"></label>
+<br>
+{% else %}
+<p>
+    <b>1. {{ form.one_ask.label }}</b>
+</p>
 <div class = "first_form">
     <div><label><input name = "form1" type = "radio" value = "1"> The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim's bid enters the orderbook.</label><br></div>
     <div><label><input name = "form1" type = "radio" value = "0"> Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook.</label><br></div>    
@@ -22,6 +36,9 @@
 </div>
 <label class = "verifiers"></label>
 <br>
+{% endif %}
+
+{% if auction  == "iex" %}
 <p>
     <b>2. {{ form.hidden_order.label }} </b>
 </p>
@@ -34,6 +51,7 @@
 </div>
 <label class = "verifiers"></label>
 <br>
+{% endif %}
 <p><b>If you have any questions, please raise your hand and an experimenter will reach out to you and answer your questions.</b></p>
 <br>
 <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
@@ -44,8 +62,8 @@
 <input class = "fields" id = "hidden_order" name = "hidden_order" hidden>
 
 <!-- aca estan los fields booleanos que se llenan en js-->
-<input class = "boolean" id = "one_ask_right_first" name = "one_ask_right_count" hidden>
-<input class = "boolean" id = "hidden_order_right_first" name = "hidden_order_right_count" hidden>
+<input class = "boolean" id = "one_ask_right_count" name = "one_ask_right_count" hidden>
+<input class = "boolean" id = "hidden_order_right_count" name = "hidden_order_right_count" hidden>
 
 
     <script>
@@ -63,13 +81,14 @@
         var hidden_order = {{ hidden_order| json }}
 
         var intentos = 1
-    
+        
         // respuestas correctas
         var right_answers = [
         one_ask,
         hidden_order,
         ]
-
+        console.log(one_ask)
+        console.log(questions)
         for (j = 0; j < questions.length ; j++)
         {
             var parent = $(questions[j]);
