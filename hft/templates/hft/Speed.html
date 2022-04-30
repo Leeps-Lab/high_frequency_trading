@@ -54,7 +54,7 @@
 
         var booleans = $(".boolean"); 
 
-        var intentos = 0
+        var intentos = 1
 
         // respuestas correctas
         var right_answers = [
@@ -72,7 +72,7 @@
             }
 
         $("#enviar").click(function(){
-
+            var score = 0
             // para cada pregunta
             
             for (j = 0; j < questions.length ; j++)
@@ -87,20 +87,25 @@
                     {
                         // si el valor de ese input es 1 eso quiere decir que es la respuesta correcta
                         if ($(inputs[i]).val() == "1") {
+                            ++score
                             
                             $(verifiers[j]).css("color","green");
-                            $(verifiers[j]).html("<b>Respuesta Correcta!</b>")
+                            $(verifiers[j]).html("<b>Right Answer</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field 
-                            if (intentos == 0){
+                            if (intentos == 1){
                                 $(booleans[j]).val('1')
-                            }else if (intentos == 1 && $(booleans[j]).val() == '0' ){
+                            }else if (intentos == 2 && $(booleans[j]).val() == '0' ){
                                 $(booleans[j]).val('2')
                             }
 
                         }else{
 
                             $(verifiers[j]).css("color","red");
-                            $(verifiers[j]).html("<b>Respuesta Incorrecta </b>") //mostrar la respuesta en html
+                            if (intentos >= 2){
+                                $(verifiers[j]).html(right_answers[j])
+                            }else{
+                                $(verifiers[j]).html("<b>Wrong Answer</b>") //mostrar la respuesta en html
+                            }
                             $(fields[j]).val(right_answers[j])
                             $(booleans[j]).val('0')
 
@@ -111,10 +116,21 @@
             }
             ++intentos
 
-                if (intentos == 2 ){
-                    $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
-                    $('#enviar').removeAttr("type").attr("type", "submit");
-                    }  
+            if (intentos == 3 ){
+                var inputs = $(`input[type=radio]`)
+                inputs.each(function( index ) {
+                $( this ).prop( "disabled", true );
+                }); 
+                }        
+
+            if (intentos == 2 && score == questions.length ){
+                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
+                $('#enviar').removeAttr("type").attr("type", "submit");   
+            }
+
+            if (intentos == 4){
+                $('#enviar').removeAttr("type").attr("type", "submit")
+            }
                     
         })
 

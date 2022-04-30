@@ -201,7 +201,7 @@
                     "question": "Suppose there exists exactly one ask in the market at 99 ECU and that Anna places a bid at 100 ECU right at the beginning of the trading period. One second later, Tim also places a bid at 100 ECU. What would happen?",
                     "answers": 
                     [
-                        "The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim’s bid enters the orderbook.",
+                        "The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim's bid enters the orderbook.",
                         "Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook.",
                         "Both bids enter the orderbook at 100 ECU.",
                         "Anna's bid will be executed against the ask at the end of the trading period.",
@@ -209,8 +209,8 @@
                     ],
                     "correct_answ": 
                     {
-                        "cda": "The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim’s bid enters the orderbook.",
-                        "iex": "The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim’s bid enters the orderbook.",
+                        "cda": "The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim's bid enters the orderbook.",
+                        "iex": "The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim's bid enters the orderbook.",
                         "fba": "Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook."
                     }
                 },
