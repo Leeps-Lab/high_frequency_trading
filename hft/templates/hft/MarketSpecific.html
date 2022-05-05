@@ -129,9 +129,9 @@
 
                             $(verifiers[j]).css("color","red");
                             if (intentos >= 2){
-                                $(verifiers[j]).html(right_answers[j])
+                                $(verifiers[j]).html("Correct answer: " + right_answers[j])
                             }else{
-                                $(verifiers[j]).html("<b>Wrong answer. Please, try again.</b>") //mostrar la respuesta en html
+                                $(verifiers[j]).html("<b>Wrong Answer</b>") //mostrar la respuesta en html
                             }
                             $(fields[j]).val(right_answers[j])
                             $(booleans[j]).val('0')
