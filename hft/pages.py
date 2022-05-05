@@ -61,8 +61,7 @@ class General(Page):
         return get_correct_answers(Constants.q_and_a_sections, "general")
 
     def is_displayed(self):
-        practice_rounds = self.session.config['trial_rounds']
-        return survey_round(self.round_number, practice_rounds)
+        return self.round_number == Constants.num_rounds
 
 
 class Inventory(Page):
@@ -434,7 +433,6 @@ class CumulativePayoff(Page):
 page_sequence = [
     RegisterPlayers,
     Instructions,
-    General,
     Inventory,
     ExternalMarket,
     Speed,
@@ -447,5 +445,6 @@ page_sequence = [
     # PostSession,
     ResultsWaitPage,
     Results,
+    General,
     #CumulativePayoff,
 ]
