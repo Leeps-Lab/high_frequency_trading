@@ -1,0 +1,68 @@
+demo:
+  number-of-participants: 8
+
+
+traders:
+  number-of-traders: 6 # Number of participants that will play the experiment
+  allow-underbooking: false # Continue/cancel experiment if the number of people who consented is less than the number above
+
+
+exogenous-events:
+  investor-arrivals:
+    - investor_focal_T1_Aug2021_Trial.csv
+    - investor_focal_T2_Aug2021_Trial.csv
+    - investor_focal_T1_May2021.csv
+    - investor_focal_T2_May2021.csv
+    - investor_focal_T3_May2021.csv
+    - investor_focal_T4_May2021.csv
+    - investor_focal_T5_May2021.csv
+    - investor_focal_T6_May2021_stress3.csv
+    - investor_focal_T7_May2021_stress4.csv
+    - investor_focal_T8_May2021.csv
+    - investor_focal_T9_May2021.csv
+    - investor_focal_T10_May2021.csv
+  external-feed:
+    - external_feed_T1_Aug2021_Trial.csv
+    - external_feed_T2_Aug2021_Trial.csv
+    - external_feed_T1_May2021.csv
+    - external_feed_T2_May2021.csv
+    - external_feed_T3_May2021.csv
+    - external_feed_T4_May2021.csv
+    - external_feed_T5_May2021.csv
+    - external_feed_T6_May2021_stress3.csv
+    - external_feed_T7_May2021_stress4.csv
+    - external_feed_T8_May2021.csv
+    - external_feed_T9_May2021.csv
+    - external_feed_T10_May2021.csv
+        
+market:
+  auction-format: 'FBA'
+  matching-engine-host: '127.0.0.1'
+
+parameters:
+  default-role: 'out'
+  include-manual-role: true
+  include-signed-volume-widgets: false
+  initial-endowment: 100
+  session-duration: 180
+  technology-unit-cost: 0.01  # $/s
+  k-reference-price: 0.2
+  k-signed-volume: 0.5
+  deduction-rate: 0.1
+
+session:
+  session-name: FBA_Pilot4_2022
+  display-name: FBA - Pilot4 - 2022
+  environment: elo
+  num-rounds: 12
+  currency: EUR
+  exchange-rate: 0.02
+  participation-fee: 2.5
+  post-session-delay: 5
+  auto-advance: 60 # (In how many seconds do you want to auto-advance results and consent page) Set to 0 if you don't want it to advance
+  next-button-timeout: 0 # Set it to 0 if you want the next button on the results page to show immediately
+  instructions-next-button-timeout: 60 # In seconds
+  feedback-next-button-timeout: 60 # In seconds
+  random-payoff: false # This will pick a random payoff to display at the end of the experiment
+  max-payment: 50 
+  trial-rounds: [1, 2] # Rounds used for practicing that aren't used for payoff calculation

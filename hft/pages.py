@@ -9,6 +9,7 @@ from .output import TraderRecord
 from .session_results import elo_player_summary, state_for_results_template
 from .utility import ensure_results_ready
 from settings import test_inputs_dir
+from .models import Constants, get_correct_answers, survey_round
 import random
 
 log = logging.getLogger(__name__)
@@ -35,7 +36,8 @@ class RegisterPlayers(WaitPage):
         else:
             self.session.config['random_round_num'] = my_custom_random(exclude, num_rounds)
         self.subsession.register()
-    
+
+
 class Instructions(Page):
     def is_displayed(self):
         return self.round_number == 1 and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
@@ -46,6 +48,99 @@ class Instructions(Page):
         out['auction_format'] = self.session.config['auction_format']
         out['next_button_timeout'] = self.session.config['instructions_next_button_timeout']
         return out
+
+
+# beginning of survey page classes
+class General(Page):
+    form_model = 'player'
+    # question fields and whether the participant chose the right answer at first
+    lista=list(Constants.q_and_a_sections["general"].keys())
+    form_fields = lista
+
+    def vars_for_template(self):
+        return get_correct_answers(Constants.q_and_a_sections, "general")
+
+    def is_displayed(self):
+        return self.round_number == Constants.num_rounds
+
+
+class Inventory(Page):
+    form_model = 'player'
+    # question fields and whether the participant chose the right answer at first
+    form_fields = list(Constants.q_and_a_sections["inventory"].keys()) + [question
+                  + "_right_count" for question in 
+                  Constants.q_and_a_sections["inventory"].keys()]
+
+    def vars_for_template(self):
+        return get_correct_answers(Constants.q_and_a_sections, "inventory")
+
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return survey_round(self.round_number, practice_rounds)
+
+
+class ExternalMarket(Page):
+    form_model = 'player'
+    # question fields and whether the participant chose the right answer at first
+    form_fields = list(Constants.q_and_a_sections["external_market"].keys()) + [question
+                  + "_right_count" for question in 
+                  Constants.q_and_a_sections["external_market"].keys()]
+
+    def vars_for_template(self):
+        return get_correct_answers(Constants.q_and_a_sections, "external_market")
+
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return survey_round(self.round_number, practice_rounds)
+
+
+class Speed(Page):
+    form_model = 'player'
+    # question fields and whether the participant chose the right answer at first
+    form_fields = list(Constants.q_and_a_sections["speed"].keys()) + [question
+                  + "_right_count" for question in 
+                  Constants.q_and_a_sections["speed"].keys()]
+
+    def vars_for_template(self):
+        return get_correct_answers(Constants.q_and_a_sections, "speed")
+
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return survey_round(self.round_number, practice_rounds)
+
+
+# final survey hft page class
+class MarketSpecific(Page):
+    form_model = 'player'
+    # question fields and whether the participant chose the right answer at first
+    def get_form_fields(self):
+        auction_format = self.session.config['auction_format'].lower()
+
+        if auction_format == "iex":
+            return ["one_ask", "hidden_order", "one_ask_right_count", "hidden_order_right_count"]
+        else:
+            return ["one_ask", "one_ask_right_count"]
+
+    def vars_for_template(self):
+        correct_answers_dicts = get_correct_answers(Constants.q_and_a_sections, "market_specific_design")
+        auction_format = self.session.config['auction_format'].lower()
+        correct_answers = {} # placeholder for storing correct answers
+
+        for question in correct_answers_dicts.keys():
+            # setting correct answer per question
+            if question == 'one_ask':
+                auction_format = self.session.config['auction_format'].lower()
+                correct_answers[question] = correct_answers_dicts[question][auction_format]
+            else:
+                correct_answers[question] = correct_answers_dicts[question]
+        
+        output = {**correct_answers, **{"auction": auction_format}} # adding auction format to output
+        return output
+
+    def is_displayed(self):
+        practice_rounds = self.session.config['trial_rounds']
+        return survey_round(self.round_number, practice_rounds)
+
 
 class InitialDecisionSelection(Page):
     form_model = 'player'
@@ -80,6 +175,7 @@ class InitialDecisionSelection(Page):
             'trial_round': is_trial_round
         }
 
+
 class PreWaitPage(WaitPage):
     def is_displayed(self):
         return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
@@ -104,6 +200,7 @@ class PreWaitPage(WaitPage):
                     player.initial_speed_on
                 )
                 cache.set(cache_key, trader)
+
 
 class EloExperiment(Page):
     def is_displayed(self):
@@ -188,6 +285,7 @@ class ResultsWaitPage(WaitPage):
         else:
             log.error('timeout transform results group {}'.format(market_id))
 
+
 class Results(Page):
     def is_displayed(self):
         return self.round_number <= self.session.config['num_rounds'] and self.player.participant.vars['consent'] == True and self.player.participant.vars['overbooked'] == False and self.player.participant.vars['underbooked'] == False
@@ -267,6 +365,7 @@ class Results(Page):
         self.participant.vars['exchange_rate'] = out['exchange_rate']
         self.participant.vars['max_payment'] = self.session.config['max_payment']
 
+
 # Last page in experiment to display all payoffs
 class CumulativePayoff(Page):
     def is_displayed(self):
@@ -334,6 +433,10 @@ class CumulativePayoff(Page):
 page_sequence = [
     RegisterPlayers,
     Instructions,
+    Inventory,
+    ExternalMarket,
+    Speed,
+    MarketSpecific,
     InitialDecisionSelection,
     PreWaitPage,
     EloExperiment,
@@ -342,5 +445,6 @@ page_sequence = [
     # PostSession,
     ResultsWaitPage,
     Results,
+    General,
     #CumulativePayoff,
 ]
