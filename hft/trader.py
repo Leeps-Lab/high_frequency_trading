@@ -294,8 +294,8 @@ w: %s, speed unit cost: %s' % (
             price=price, buy_sell_indicator=buy_sell_indicator, 
             model=self)
 
-        self.executed_price = price
-        self.buy_sell_indicator = buy_sell_indicator
+        self.executed_price = None
+        self.buy_sell_indicator = None
 
     def order_executed(self, event):
         def adjust_inventory(buy_sell_indicator):
@@ -322,7 +322,7 @@ w: %s, speed unit cost: %s' % (
         buy_sell_indicator = order_info['buy_sell_indicator']
         price = order_info['price']
 
-        self.executed_price = price
+        self.executed_price = execution_price
         self.buy_sell_indicator = buy_sell_indicator
 
         order_token = event.message.order_token
