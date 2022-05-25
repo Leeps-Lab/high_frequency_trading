@@ -58,6 +58,7 @@ class Player(BasePlayer):
         if q_and_a_subject["answers"][0] == "None":
             locals()[subject] = models.StringField( # generating field from dict
                 label = q_and_a_subject["question"],
+                blank=True
             )  
         else: 
             locals()[subject] = models.StringField( # generating field from dict
@@ -80,10 +81,11 @@ class Player(BasePlayer):
         for subject, q_and_a_subject in Constants.q_and_a_sections[f"{section}"].items():        
             locals()[subject] = models.StringField( # generating field from dict
                 label = q_and_a_subject["question"],
-                choices = q_and_a_subject["answers"]
+                choices = q_and_a_subject["answers"],
+                default=''
             )
 
-            locals()[subject + "_right_count"] = models.StringField() 
+            locals()[subject + "_right_count"] = models.StringField(default='') 
 
     del subject
     del q_and_a_subject

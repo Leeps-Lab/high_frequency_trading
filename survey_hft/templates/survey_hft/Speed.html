@@ -6,7 +6,22 @@
 {% endblock %}
 
 {% block content %}
-
+<style>
+    .row{
+    text-align: left;
+    width: 100%;
+    display: block;
+    }
+    .half-row{
+    display: inline-block;
+    width: 50%;
+    padding: 1%;
+    float: left;
+    }
+    .clear{
+    clear: both;
+    }
+</style>
 <body>
 <br>
 <p>
@@ -21,6 +36,7 @@
     <div><label><input name = "form1" type = "radio" value = "0"> Anna and Tim's bid and ask will change equally fast in response to price movements.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.two_players_right_count.errors }}
 <br>
 <p>
     <b>2. {{ form.three_min.label }} </b>
@@ -33,9 +49,25 @@
     <div><label><input name = "form2" type = "radio" value = "0"> The speed option does not create costs.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.three_min_right_count.errors }}
 <br>
-<button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
-<button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
+<div class="row">
+    <div class="half-row">
+    <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
+    <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Next</button>
+    </div>
+    <div class ="half-row">
+
+                <ul class="pagination">
+                    <li class="page-item disabled" ><a class="page-link">1</a></li>
+                    <li class="page-item disabled" ><a class="page-link" >2</a></li>
+                    <li class="page-item active" aria-current="page"><a class="page-link" >3</a></li>
+                    <li class="page-item disabled"><a class="page-link" >4</a></li>
+
+                  </ul>
+    </div>
+    
+</div>
 
 <input class = "fields" id = "two_players" name = "two_players" hidden>
 <input class = "fields" id = "three_min" name = "three_min" hidden>
@@ -73,6 +105,7 @@
 
         $("#enviar").click(function(){
             var score = 0
+            var pass = 0
             // para cada pregunta
             
             for (j = 0; j < questions.length ; j++)
@@ -99,10 +132,11 @@
                             }
 
                         }else{
+                            ++pass
 
                             $(verifiers[j]).css("color","red");
                             if (intentos >= 2){
-                                $(verifiers[j]).html("Correct answer: " + right_answers[j])
+                                $(verifiers[j]).html("<b>Wrong</b>. The correct answer is: " + right_answers[j])
                             }else{
                                 $(verifiers[j]).html("<b>Wrong Answer</b>") //mostrar la respuesta en html
                             }
@@ -121,17 +155,21 @@
                 inputs.each(function( index ) {
                 $( this ).prop( "disabled", true );
                 }); 
-                }        
-
+                }    
+            
             if (intentos == 2 && score == questions.length ){
-                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
-                $('#enviar').removeAttr("type").attr("type", "submit");   
+                var inputs = $(`input[type=radio]`)
+                inputs.each(function( index ) {
+                $( this ).prop( "disabled", true );
+                });
+            }
+            if (intentos == 3 && pass == 0 ){
+                $('#enviar').removeAttr("type").attr("type", "submit")
             }
 
             if (intentos == 4){
                 $('#enviar').removeAttr("type").attr("type", "submit")
             }
-                    
         })
 
     </script>

@@ -6,6 +6,22 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    .row{
+    text-align: left;
+    width: 100%;
+    display: block;
+    }
+    .half-row{
+    display: inline-block;
+    width: 50%;
+    padding: 1%;
+    float: left;
+    }
+    .clear{
+    clear: both;
+    }
+</style>
 <!-- Los inputs que toman el valor de 1 es porque son la respuesta correcta -->
 <body>
 <br>
@@ -22,6 +38,7 @@
     <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid will be executed against the ask at the end of the trading period.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.one_ask_right_count.errors }}
 <br>
 {% else %}
 <p>
@@ -35,6 +52,7 @@
     <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid will be executed against the ask at the end of the trading period.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.one_ask_right_count.errors }}
 <br>
 {% endif %}
 
@@ -50,13 +68,28 @@
     <div><label><input name = "form2" type = "radio" value = "0"> Hidden orders cannot be distinguished from ordinary limit or market orders.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.hidden_order_right_count.errors }}
 <br>
 {% endif %}
 <p><b>If you have any questions, please raise your hand and an experimenter will reach out to you and answer your questions.</b></p>
 <br>
-<button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
-<button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
+<div class="row">
+    <div class="half-row">
+    <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
+    <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Next</button>
+    </div>
+    <div class ="half-row">
 
+                <ul class="pagination">
+                    <li class="page-item disabled" ><a class="page-link">1</a></li>
+                    <li class="page-item disabled" ><a class="page-link" >2</a></li>
+                    <li class="page-item disabled" ><a class="page-link" >3</a></li>
+                    <li class="page-item active" aria-current="page"><a class="page-link" >4</a></li>
+
+                  </ul>
+    </div>
+    
+</div>
 <!--fields para llenar en js-->
 <input class = "fields" id = "one_ask" name = "one_ask" hidden>
 <input class = "fields" id = "hidden_order" name = "hidden_order" hidden>
@@ -87,8 +120,7 @@
         one_ask,
         hidden_order,
         ]
-        console.log(one_ask)
-        console.log(questions)
+
         for (j = 0; j < questions.length ; j++)
         {
             var parent = $(questions[j]);
@@ -100,6 +132,7 @@
 
         $("#enviar").click(function(){
             var score = 0
+            var pass = 0
             // para cada pregunta
             
             for (j = 0; j < questions.length ; j++)
@@ -126,10 +159,11 @@
                             }
 
                         }else{
+                            ++pass
 
                             $(verifiers[j]).css("color","red");
                             if (intentos >= 2){
-                                $(verifiers[j]).html("Correct answer: " + right_answers[j])
+                                $(verifiers[j]).html("<b>Wrong</b>. The correct answer is: " + right_answers[j])
                             }else{
                                 $(verifiers[j]).html("<b>Wrong Answer</b>") //mostrar la respuesta en html
                             }
@@ -148,17 +182,21 @@
                 inputs.each(function( index ) {
                 $( this ).prop( "disabled", true );
                 }); 
-                }        
-
+                }    
+            
             if (intentos == 2 && score == questions.length ){
-                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
-                $('#enviar').removeAttr("type").attr("type", "submit");   
+                var inputs = $(`input[type=radio]`)
+                inputs.each(function( index ) {
+                $( this ).prop( "disabled", true );
+                });
+            }
+            if (intentos == 3 && pass == 0 ){
+                $('#enviar').removeAttr("type").attr("type", "submit")
             }
 
             if (intentos == 4){
                 $('#enviar').removeAttr("type").attr("type", "submit")
-            }    
-                   
+            }
         })
             
     </script>

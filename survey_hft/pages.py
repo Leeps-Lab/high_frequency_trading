@@ -1,8 +1,11 @@
+from tkinter import N
 from otree.api import Currency as c, currency_range
 from ._builtin import Page, WaitPage
 from .models import Constants, get_correct_answers
 
 
+class Comprehension_questions(Page):
+    pass
 
 class General(Page):
     form_model = 'player'
@@ -23,6 +26,7 @@ class Inventory(Page):
                   Constants.q_and_a_sections["inventory"].keys()] 
     def vars_for_template(self):
         return get_correct_answers(Constants.q_and_a_sections, "inventory")
+    
 
 
 class ExternalMarket(Page):
@@ -34,6 +38,7 @@ class ExternalMarket(Page):
 
     def vars_for_template(self):
         return get_correct_answers(Constants.q_and_a_sections, "external_market")
+    
 
 
 class Speed(Page):
@@ -45,6 +50,7 @@ class Speed(Page):
 
     def vars_for_template(self):
         return get_correct_answers(Constants.q_and_a_sections, "speed")
+
 
 
 class MarketSpecific(Page):
@@ -73,9 +79,11 @@ class MarketSpecific(Page):
         
         output = {**correct_answers, **{"auction": auction_format}} # adding auction format to output
         return output
+    
 
 page_sequence = [
     General,
+    Comprehension_questions,
     Inventory,
     ExternalMarket,
     Speed,

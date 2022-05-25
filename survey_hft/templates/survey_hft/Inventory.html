@@ -6,6 +6,22 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    .row{
+    text-align: left;
+    width: 100%;
+    display: block;
+    }
+    .half-row{
+    display: inline-block;
+    width: 50%;
+    padding: 1%;
+    float: left;
+    }
+    .clear{
+    clear: both;
+    }
+</style>
 
 <body>
 <br>
@@ -21,6 +37,7 @@
     <div><label><input name = "form1" type = "radio" value = "0"> Nothing will happen.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.trader_inv_right_count.errors }}
 <br>
 <p>
     <b>2. {{ form.implicit_cost.label }} </b>
@@ -33,6 +50,7 @@
     <div><label><input name = "form2" type = "radio" value = "0"> There are no disadvantages associated with increasing the inventory sensitivity slider.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.implicit_cost_right_count.errors }}
 <br>
 <p>
     <b>3. {{ form.end_trading_pos.label }} </b>
@@ -44,6 +62,7 @@
     <div><label><input name = "form3" type = "radio" value = "0"> The deduction is equal to the inventory value, which amounts to 10 x 100 = 1000 ECU. The inventory value needs to be subtracted from the PBD in the amount of 100 ECU, such that the payoff is equal to -900 ECU.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.end_trading_pos_right_count.errors }}
 <br>
 <p>
     <b>4. {{ form.end_trading_neg.label }} </b>
@@ -55,9 +74,26 @@
     <div><label><input name = "form4" type = "radio" value = "0"> The deduction is equal to the inventory value, which amounts to -10 x 100 = -1000 ECU. The deduction needs to be subtracted from the PBD in the amount of 100 ECU, such that the payoff is equal to 1100 ECU.</label></div>
 </div>
 <label class = "verifiers"></label>
+{{ form.end_trading_neg_right_count.errors }}
 <br>
-<button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
-<button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
+
+<div class="row">
+    <div class="half-row">
+    <button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
+    <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Next</button>
+    </div>
+    <div class ="half-row">
+
+                <ul class="pagination">
+                    <li class="page-item active" aria-current="page"><a class="page-link">1</a></li>
+                    <li class="page-item disabled"><a class="page-link" >2</a></li>
+                    <li class="page-item disabled"><a class="page-link" >3</a></li>
+                    <li class="page-item disabled"><a class="page-link" >4</a></li>
+
+                </ul>
+    </div>
+</div>
+
 
 <input class = "fields" id = "trader_inv" name = "trader_inv" hidden>
 <input class = "fields" id = "implicit_cost" name = "implicit_cost" hidden>
@@ -68,6 +104,7 @@
 <input class = "boolean" id = "implicit_cost_right_count" name = "implicit_cost_right_count" hidden>
 <input class = "boolean" id = "end_trading_pos_right_count" name = "end_trading_pos_right_count" hidden>
 <input class = "boolean" id = "end_trading_neg_right_count" name = "end_trading_neg_right_count" hidden>
+
 
     <script>
 
@@ -98,12 +135,11 @@
 
         $("#enviar").click(function(){
             var score = 0
-
+            var pass = 0
             // para cada pregunta
             
             for (j = 0; j < questions.length ; j++)
-            {   
-                
+            {
                 var inputs = $(`input[name=form${j+1}]`)
 
                 // para cada choice
@@ -115,7 +151,7 @@
                         // si el valor de ese input es 1 eso quiere decir que es la respuesta correcta
                         if ($(inputs[i]).val() == "1") {
                             ++score
-        
+                            
                             $(verifiers[j]).css("color","green");
                             $(verifiers[j]).html("<b>Right Answer</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field 
@@ -126,10 +162,11 @@
                             }
 
                         }else{
+                            ++pass
 
                             $(verifiers[j]).css("color","red");
                             if (intentos >= 2){
-                                $(verifiers[j]).html("Correct answer: " + right_answers[j])
+                                $(verifiers[j]).html("<b>Wrong</b>. The correct answer is: " + right_answers[j])
                             }else{
                                 $(verifiers[j]).html("<b>Wrong Answer</b>") //mostrar la respuesta en html
                             }
@@ -139,7 +176,7 @@
                         }
                     }
                 }
-                
+
             }
             ++intentos
 
@@ -149,10 +186,15 @@
                 $( this ).prop( "disabled", true );
                 }); 
                 }    
-                
+            
             if (intentos == 2 && score == questions.length ){
-                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
-                $('#enviar').removeAttr("type").attr("type", "submit");   
+                var inputs = $(`input[type=radio]`)
+                inputs.each(function( index ) {
+                $( this ).prop( "disabled", true );
+                });
+            }
+            if (intentos == 3 && pass == 0 ){
+                $('#enviar').removeAttr("type").attr("type", "submit")
             }
 
             if (intentos == 4){
