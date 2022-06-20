@@ -325,6 +325,10 @@ w: %s, speed unit cost: %s' % (
         self.executed_price = execution_price
         self.buy_sell_indicator = buy_sell_indicator
 
+        # Check to make sure reference_price isn't 0 for the first order in the market
+        if self.market_facts['reference_price'] == 0:
+            self.market_facts['reference_price'] = price
+
         order_token = event.message.order_token
         adjust_inventory(buy_sell_indicator)
         event.broadcast_msgs(

@@ -48,6 +48,7 @@ class ReferencePrice(MarketFact):
     def update(self, *args, **kwargs):
         super().update(*args, **kwargs)
         new_price = kwargs['execution_price']
+
         n_transaction = next(self.transaction_counter)
         if n_transaction == 1:
             # recursive formula holds for n > 1
