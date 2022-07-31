@@ -32,7 +32,7 @@ class Constants(BaseConstants):
     num_rounds = 30
 
     # reading questions and answers
-    q_and_a_path = "hft/q_and_a.json"
+    q_and_a_path = "hft/q_and_a_german.json"
     with open(q_and_a_path) as json_file:
         q_and_a = json.load(json_file)
         q_and_a_sections = q_and_a["sections"]
