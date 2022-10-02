@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    image: otree
+    environment:
+      - "REDIS_URL=redis://redis:6379/1"
+      - "OTREE_PRODUCTION=1"
+      - "DATABASE_URL=postgres://otree:mydbpassword@postgres/otree"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    command: redis-server
+
+  postgres:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=otree
+      - POSTGRES_PASSWORD=mydbpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U otree"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  huey:
+    image: otree
+    entrypoint: otree run_huey
+    environment:
+      - "REDIS_URL=redis://redis:6379/2"

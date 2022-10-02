@@ -2,3 +2,4 @@
 # Locally, you should install requirements_base.txt
 -r requirements_base.txt
 psycopg2>=2.5.1
+git+https://github.com/Leeps-Lab/exchange_server.git@AD7JJ21
