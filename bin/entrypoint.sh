@@ -3,6 +3,6 @@
 set -ex
 
 yes | otree resetdb
-yes | otree collectstatic
+echo 'yes' | otree collectstatic
 
 otree runhftserver 0.0.0.0:8000

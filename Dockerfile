@@ -12,6 +12,8 @@ RUN apt-get update -y && apt-get install -y \
 
 RUN pip install -r requirements.txt
 
+ENV PYTHONUNBUFFERED=1
+
 RUN chmod +x /hft/bin/entrypoint.sh
 
 ENTRYPOINT [ "/hft/bin/entrypoint.sh" ]
