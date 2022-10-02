@@ -10,6 +10,7 @@ RUN apt-get update -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && python -m pip install --upgrade pip setuptools wheel
 
+RUN pip install -r requirements_base.txt
 RUN pip install -r requirements.txt
 
 ENV PYTHONUNBUFFERED=1
