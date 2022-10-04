@@ -7,7 +7,7 @@ from collections import namedtuple
 from .equations import latent_bid_and_offer
 from .market_elements.subscription import Subscription
 from .orderstore import OrderStore
-from .trader_state import TraderStateFactory
+from .trader_state import TraderStateFactory, ELOOutState
 import time
 
 import logging
@@ -266,8 +266,12 @@ w: %s, speed unit cost: %s' % (
     def order_accepted(self, event):
         if not event.message.midpoint_peg:
             event_as_kws = event.to_kwargs()
-            self.orderstore.confirm('enter', **event_as_kws)
+            order_info = self.orderstore.confirm('enter', **event_as_kws)
             event.broadcast_msgs('confirmed', model=self, **event_as_kws)
+
+            # if we're currently out, then this order is invalid and should be immediately canceled
+            if isinstance(self.trader_role, ELOOutState):
+                event.exchange_msgs('cancel', model=self, **order_info)
         
         self.executed_price = None
         self.buy_sell_indicator = None
