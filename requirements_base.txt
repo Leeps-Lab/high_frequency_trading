@@ -25,7 +25,7 @@ otree-core==0.0.0b1
 otree-save-the-change==1.1.3
 pbr==1.10.0
 pipenv==11.3.2
-py==1.4.31
+py==1.10.0
 pytest==2.9.2
 pytest-django==3.0.0
 python-redis-lock==3.3.1
