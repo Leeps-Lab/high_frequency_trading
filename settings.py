@@ -53,7 +53,7 @@ DATABASES = {
     )
 }
 
-redis_at = os.environ.get('REDIS_INS', "redis://127.0.0.1:6379/1")
+redis_at = os.environ.get('REDIS_URL', "redis://127.0.0.1:6379/1")
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -149,8 +149,8 @@ mturk_hit_settings = {
     'frame_height': 500,
     'preview_template': 'global/MTurkPreview.html',
     'minutes_allotted_per_assignment': 60,
-    'expiration_hours': 7*24, # 7 days
-    #'grant_qualification_id': 'YOUR_QUALIFICATION_ID_HERE',# to prevent retakes
+    'expiration_hours': 7*24,  # 7 days
+    # 'grant_qualification_id': 'YOUR_QUALIFICATION_ID_HERE',# to prevent retakes
     'qualification_requirements': [
         # qualification.LocaleRequirement("EqualTo", "US"),
         # qualification.PercentAssignmentsApprovedRequirement("GreaterThanOrEqualTo", 50),
@@ -181,7 +181,7 @@ LOGGING = {
 
     },
     'loggers': {
-        'django.channels':{
+        'django.channels': {
             'handlers': ['console'],
             'propagate': False,
             'level': 'DEBUG',
@@ -191,10 +191,15 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         }
-    }    
+    }
 }
 
 
+matching_engine_hosts = {i: environ.get(
+    '_'.join(
+        (i, 'HOST')
+    )) for i in ('CDA', 'FBA', 'IEX')
+}
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
 # in SESSION_CONFIGS, except those that explicitly override it.
 # the session config can be accessed from methods in your apps as self.session.config,
@@ -205,17 +210,20 @@ SESSION_CONFIG_DEFAULTS = {
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
     'app_sequence': ['hft'],
-    'session_length': 240, 
+    'session_length': 240,
     'doc': ''
 }
 
-exogenous_event_configs_directory = os.path.join(os.getcwd(), 'session_config/exogenous_events')
+exogenous_event_configs_directory = os.path.join(
+    os.getcwd(), 'session_config/exogenous_events')
 test_inputs_dir = '/static/hft/test_input_files/{}'
 SESSION_CONFIGS = []
 
 # read configurations
-custom_configs_directory = os.path.join(os.getcwd(), 'session_config/session_configs')
-custom_configs = CustomOtreeConfig.initialize_many_from_folder(custom_configs_directory)
+custom_configs_directory = os.path.join(
+    os.getcwd(), 'session_config/session_configs')
+custom_configs = CustomOtreeConfig.initialize_many_from_folder(
+    custom_configs_directory)
 otree_configs = []
 for config in custom_configs:
     try:
@@ -225,5 +233,5 @@ for config in custom_configs:
     else:
         otree_configs.append(otree_config)
 
-SESSION_CONFIGS.extend(otree_configs) 
+SESSION_CONFIGS.extend(otree_configs)
 otree.settings.augment_settings(globals())
