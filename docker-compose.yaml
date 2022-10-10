@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    image: otree
+    environment:
+      - "REDIS_URL=redis://redis:6379/1"
+      - "OTREE_PRODUCTION=0"
+      - "DATABASE_URL=postgres://otree:mydbpassword@postgres/otree"
+      - "CDA_HOST=continuous_double_auction"
+      - "FBA_HOST=frequent_batch_auction"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./session_config:/hft/session_config
+      - ./hft:/hft/hft
+
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    command: redis-server
+
+  postgres:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=otree
+      - POSTGRES_PASSWORD=mydbpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U otree"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  huey:
+    image: otree
+    entrypoint: otree run_huey
+    environment:
+      - "REDIS_URL=redis://redis:6379/2"
+      - "DATABASE_URL=postgres://otree:mydbpassword@postgres/otree"
+
+  continuous_double_auction:
+    image: klopezva/exchange_server:latest
+    ports:
+      - '9001:9001'
+
+  frequent_batch_auction:
+    image: klopezva/exchange_server:latest
+    ports:
+      - '9002:9101'
+    environment:
+      - MECHANISM=fba
+      - INTERVAL=10
+      - EXCHANGE_PORT=9101
+
+volumes:
+  postgres:
+    driver: local

@@ -4,7 +4,7 @@
 import logging
 from jsonfield import JSONField
 from otree.db.models import Model, ForeignKey
-from otree.api import ( 
+from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
 from otree.models import Session
@@ -22,8 +22,10 @@ from . import market_environments
 from django.utils import timezone
 
 from .dispatcher import DispatcherFactory
+import settings
 
 log = logging.getLogger(__name__)
+
 
 class Constants(BaseConstants):
     name_in_url = 'hft'
@@ -49,7 +51,7 @@ class Subsession(BaseSubsession):
                 trade_session.register_exogenous_event(
                     event_type, event_filename)
             return trade_session
-        session_format = self.session.config['environment']    
+        session_format = self.session.config['environment']
         if self.round_number == 1:
             self.session.config = utility.process_configs(
                 session_format, self.session.config)
@@ -60,14 +62,15 @@ class Subsession(BaseSubsession):
         session_format = session_configs['environment']
         trade_session = create_trade_session(session_format)
         self.auction_format = session_configs['auction_format']
-        exchange_host = session_configs['matching_engine_host']
+        exchange_host = (settings.matching_engine_hosts.get(self.auction_format)
+                         or session_configs['matching_engine_host'])
         all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         market_id_map = {}
         for group in self.get_groups():
             group_id = group.id
             exchange_port = all_exchange_ports[self.auction_format].pop()
             market = trade_session.create_market(
-                group_id, exchange_host, exchange_port, **session_configs)                                 
+                group_id, exchange_host, exchange_port, **session_configs)
             for player in group.get_players():
                 market.register_player(player)
                 player.configure_for_trade_session(market, session_format)
@@ -85,10 +88,9 @@ class Subsession(BaseSubsession):
         initialize_model_cache(trade_session)
         self.save()
 
-
     def configure_for_trade_session(self, session_format: str):
         utility.configure_model_for_market('subsession', self, session_format,
-            self.session.config)
+                                           self.session.config)
         self.save()
 
     def do_groups(self):
@@ -99,7 +101,7 @@ class Subsession(BaseSubsession):
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
-            
+
     def save(self, *args, **kwargs):
         """
         JAMES
@@ -116,7 +118,8 @@ class Subsession(BaseSubsession):
             for field in self._meta.get_fields():
                 if isinstance(field, JSONField):
                     json_fields[field.attname] = getattr(self, field.attname)
-            self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
+            self.__class__._default_manager.filter(
+                pk=self.pk).update(**json_fields)
 
 
 class Group(BaseGroup):
@@ -167,14 +170,15 @@ class Player(BasePlayer):
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):
             setattr(self, field, getattr(market, field))
-        utility.configure_model_for_market('player', self, session_format, 
+        utility.configure_model_for_market('player', self, session_format,
                                            self.session.config)
         self.save()
-    
+
     def update_from_state_record(self, state_record):
         for field in state_record._meta.fields:
             if hasattr(self, field.name):
                 attr = getattr(self, field.name)
                 if attr is None:
-                    setattr(self, field.name, getattr(state_record, field.name))
+                    setattr(self, field.name, getattr(
+                        state_record, field.name))
         self.save()

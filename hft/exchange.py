@@ -4,9 +4,10 @@ from twisted.internet.protocol import Protocol, ClientFactory
 from twisted.internet import reactor
 from collections import deque
 from .decorators import timer
-from exchange_server.OuchServer import ouch_messages
+from OuchServer import ouch_messages
 
 log = logging.getLogger(__name__)
+
 
 class OUCH(Protocol):
     bytes_needed = {
@@ -22,7 +23,7 @@ class OUCH(Protocol):
     }
 
     message_cls = ouch_messages.OuchServerMessages
-    
+
     def __init__(self):
         super()
         self.buffer = deque()
@@ -35,8 +36,8 @@ class OUCH(Protocol):
         try:
             bytes_needed = self.bytes_needed[header]
         except KeyError:
-             log.exception('unknown header %s, ignoring..' % header)
-             return
+            log.exception('unknown header %s, ignoring..' % header)
+            return
         if len(data) >= bytes_needed:
             remainder = bytes_needed
             self.buffer.extend(data[:remainder])
@@ -54,11 +55,11 @@ class OUCH(Protocol):
     def handle_incoming_data(self, header):
         market_id = self.factory.market
         try:
-            self.factory.dispatcher.dispatch('exchange', bytes(self.buffer), 
-                subsession_id=self.factory.subsession_id, market_id=market_id)
+            self.factory.dispatcher.dispatch('exchange', bytes(self.buffer),
+                                             subsession_id=self.factory.subsession_id, market_id=market_id)
         except Exception:
-            log.exception('error processing exchange message (market:%s), ignoring..', 
-                market_id)
+            log.exception('error processing exchange message (market:%s), ignoring..',
+                          market_id)
 
     def sendMessage(self, msg, delay):
         if not isinstance(msg, bytes):
@@ -89,20 +90,25 @@ class OUCHConnectionFactory(ClientFactory):
         log.info('lost connection to exchange at %s: %s' % (self.addr, reason))
 
     def clientConnectionFailed(self, connector, reason):
-        log.debug('failed to connect to exchange at %s: %s' % (self.addr, reason))
+        log.debug('failed to connect to exchange at %s: %s' %
+                  (self.addr, reason))
+
 
 exchanges = {}
 
+
 def connect(subsession_id, market_id, host, port, dispatcher, wait_for_connection=False,
-        retries=10):
+            retries=10):
     addr = '{}:{}'.format(host, port)
     if addr not in exchanges:
-        factory = OUCHConnectionFactory(subsession_id, market_id, addr, dispatcher)
+        factory = OUCHConnectionFactory(
+            subsession_id, market_id, addr, dispatcher)
         exchanges[addr] = factory
         reactor.connectTCP(host, port, factory)
     else:
         if exchanges[addr].market != market_id:
-            log.warning('exchange at {} already has a group: {}'.format(addr, exchanges))
+            log.warning(
+                'exchange at {} already has a group: {}'.format(addr, exchanges))
         exchanges[addr].market = market_id
     retry_count = 0
     while not exchanges[addr].connection and wait_for_connection:
@@ -110,7 +116,8 @@ def connect(subsession_id, market_id, host, port, dispatcher, wait_for_connectio
         time.sleep(0.5)
         retry_count += 1
         if retry_count > retries:
-            raise Exception('failed to connect exchange at %s:%s.' % (host, port))
+            raise Exception(
+                'failed to connect exchange at %s:%s.' % (host, port))
     return exchanges[addr]
 
 
@@ -123,6 +130,7 @@ def disconnect(market_id, host, port):
     else:
         conn.transport.loseConnection()
         del exchanges[addr]
+
 
 def send_exchange(host, port, message, delay, subsession_id=None):
     addr = '{}:{}'.format(host, port)
