@@ -16,6 +16,8 @@ from django.views.generic.list import ListView
 from .exogenous_event import (
     handle_exogenous_event_file, ExogenousEventFile, ExogenousOrderRecord, ExternalFeedRecord)
 from .output import IN_SESSION_RECORD_CLASSES
+from multiprocessing import Process
+import json
 
 class HFTOutputView(vanilla.TemplateView):
 	
@@ -53,9 +55,40 @@ class ExportHFTCSV(vanilla.View):
                     record_type,
                     datetime.date.today().isoformat()))
             fieldnames = record_class.csv_meta
+
+            if 'net_worth' in fieldnames:
+                new_fieldnames = dict()
+                for i in fieldnames:
+                    if i == 'net_worth':
+                        new_fieldnames[i] = 'payoff'
+                    elif i == 'tax_paid':
+                        new_fieldnames[i] = 'deduction_paid'
+                    else:
+                        new_fieldnames[i] = str(i)
+                fieldnames = new_fieldnames
+            
             writer = csv.DictWriter(response, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
+            
+            if 'net_worth' in fieldnames:
+                writer.writerow(fieldnames)
+            else:
+                writer.writeheader()
+
             for row in subsession_events:
+                if 'net_worth' in fieldnames:
+                    if row.__dict__['delay'] == 0.1:
+                        row.__dict__['speed'] = 'ON'
+                    elif row.__dict__['delay'] == 0.5:
+                        row.__dict__['speed'] = 'OFF'
+                    else:
+                        row.__dict__['speed'] = 'N/A'
+                
+                # If event isn't automated, make sensitivites empty
+                if 'trader_model_name' in row.__dict__ and  row.__dict__['trader_model_name'] != 'automated':
+                    row.__dict__['slider_a_x'] = None
+                    row.__dict__['slider_a_y'] = None
+                    row.__dict__['slider_a_z'] = None
+
                 writer.writerow(row.__dict__)
         return response
 
@@ -68,12 +101,15 @@ class UploadView:
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST, request.FILES)
-        the_file = request.FILES['files']
-        if form.is_valid():
-            self.base_handle_file(the_file)           
-            return HttpResponseRedirect('/success/')
-        else:
-            return HttpResponseRedirect('/failed/')
+        for the_file in request.FILES.getlist('files'):
+            print(the_file)
+            
+            if form.is_valid():
+                process = Process(target = self.base_handle_file, args = (the_file, ))
+                process.start()
+            else:
+                return HttpResponseRedirect('/failed/')
+        return HttpResponseRedirect('/success/')   
 
     def base_handle_file(self, file, *args, **kwargs):
         path = '{}/{}'.format(self.save_directory, file)
@@ -130,6 +166,7 @@ class CustomConfigUploadView(vanilla.View, UploadView):
         config_obj = SessionConfig(settings.SESSION_CONFIG_DEFAULTS)
         config_obj.update(new_conf)
         config_obj.clean()
+
         SESSION_CONFIGS_DICT[new_conf['name']] = config_obj
 
 
@@ -179,9 +216,15 @@ class HFTExternalFeedListView(vanilla.ListView):
         file_record = ExogenousEventFile.objects.get(
             code=self.kwargs['file_code'], record_type='external_feed')
         return self.model.objects.filter(submitted_file=file_record).order_by('arrival_time')
-
+        
 def success_view(request):
     return render(request, 'hft_extensions/Success.html')
 
 def failed_view(request):
     return render(request, 'hft_extensions/Failed.html')
+
+# Endpoint to ping server for latency testing
+def ping(request):
+    if request.method == 'GET':
+        response = json.dumps(['Pong'])
+    return HttpResponse(response, content_type='text/json')

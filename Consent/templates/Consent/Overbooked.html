@@ -1,0 +1,20 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+{% block title %}
+    Ende des Experiments
+{% endblock %}
+
+{% block content %}
+
+    <p>Since more people consented than we anticipated, you will be unable to participate in the experiment. You will now be redirected to the payout page where you will receive your show-up fee.</p>
+
+    {% next_button %}
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
+{% endblock %}
+

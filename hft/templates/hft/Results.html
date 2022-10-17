@@ -1,43 +1,89 @@
 {% extends "global/Page.html" %}
 {% load staticfiles otree %}
-{% load staticfiles %}
 
 {% block title %}
     Trade Session Results
 {% endblock %}
 
-{% block body_main %}
-<style>
-    .otree-body {
-        max-width: 100vw;
-        max-height: 100vh;
-    }
-</style>
-<results-page
-    nets="{{nets}}"
-    taxes="{{taxes}}"
-    speed-costs="{{speed_costs}}"
-    names="{{names}}"
-    strategies="{{strategies}}"
-    inv-sensitivities="{{inv_sens}}"
-    signed-volumes="{{sig_sens}}"
-    external-feeds="{{ext_sens}}"
-    style = "width:100%; "> </results-page>
+{% block content %}
+    <style>
+        body > div > div.page-header {
+            display: none;
+        }
+
+        body > div > div.card {
+            display: none;
+        }
+        
+        .otree-body {
+            max-width: 100vw;
+            max-height: 100vh;
+        }
+        .centering {
+            text-align: right;
+            margin-top: 30px;
+            margin-right: 30px;
+        }
+    </style>
+
+    <form method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
+        <div class="centering" id="next" style="display:none;">
+            {% next_button %}
+        </div>
+    </form>
+
+    <script>
+        const myForm = document.getElementById('next');
+        setTimeout(() => {
+        myForm.style.display = 'block';
+        }, "{{next_button_timeout}}" * 1000);
+    </script>
+    <results-page
+        nets="{{nets}}"
+        taxes="{{taxes}}"
+        speed-costs="{{speed_costs}}"
+        names="{{names}}"
+        strategies="{{strategies}}"
+        inv-sensitivities="{{inv_sens}}"
+        signed-volumes="{{sig_sens}}"
+        external-feeds="{{ext_sens}}"
+        reference-price="{{player.reference_price}}"
+        inventory="{{player.inventory}}"
+        initial-endowment= "{{player.cash}}"
+        total-bids= "{{ totalBids }}"
+        total-asks= "{{ totalAsks }}"
+        sum-bid-price= "{{ sumBidPrice }}"
+        sum-ask-price= "{{ sumAskPrice }}"
+        speed-usage = "{{ speedUsage }}"
+        style = "width:100%;"
+        tax-rate="{{ session.config.tax_rate }}"
+        > 
+    </results-page>
+
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
+
+{{orderstore}}
+
 {% endblock %}
 
 {% block scripts %}
     <script>
         let OTREE_CONSTANTS = {
-                playerId: "{{player.id}}",
-                subsessionId: "{{player.subsession.id}}",
-                marketId: "{{player.market_id}}",
-                initialEndowment: "{{player.cash}}",
-                speedCost: "{{player.speed_unit_cost}}",
-                idInGroup: "{{player.id_in_group}}",
-                manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-                svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-                sessionLength: "{{subsession.session_duration}}",
-                auctionFormat: "{{subsession.auction_format}}",
+            playerId: "{{player.id}}",
+            subsessionId: "{{player.subsession.id}}",
+            marketId: "{{player.market_id}}",
+            speedCost: "{{player.speed_unit_cost}}",
+            idInGroup: "{{player.id_in_group}}",
+            manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+            svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+            sessionLength: "{{subsession.session_duration}}",
+            auctionFormat: "{{subsession.auction_format}}",
+            roundNumber: "{{player.round_number}}"
         };
     </script>
     <link rel="manifest" href="{% static 'hft/manifest.json' %}">

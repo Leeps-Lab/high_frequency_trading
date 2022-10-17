@@ -17,3 +17,4 @@ __pycache__/
 *.vscode
 reset*
 !session_config/**
+!AnonPay/payments/**

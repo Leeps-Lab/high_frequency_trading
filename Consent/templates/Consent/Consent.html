@@ -1,0 +1,38 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+    Informationen zur Teilnahme
+{% endblock %}
+
+{% block content %}
+    <p><b>Experimenttitel</b>: Eine Studie über Entscheidungen auf Finanzmärkten</p>
+
+    <p><b>Experimentleiter/innen</b>: Mark Marner-Hausen</p>
+
+    <p><b>Experimentbeschreibung</b>: Sie nehmen an einem wissenschaftlichen Entscheidungsexperiment teil. Sie werden während des Experiments Instruktionen lesen, Fragen beantworten und verschiedene Entscheidungen treffen, die Ihre Auszahlung und die Auszahlung anderer Teilnehmer/innen beeinflussen können. Für die Durchführung dieses Experiments ist es wichtig, dass Sie bitte nur teilnehmen, wenn Sie aufmerksam bis zum Ende des Experiments teilnehmen können. Dies ist für unsere Studie von elementarer Bedeutung. Außerdem kann Unaufmerksamkeit zu geringeren Auszahlungen nicht nur für Sie, sondern auch für die anderen Experimentteilnehmer und zu einer geringeren Qualität der wissenschaftlichen Studie führen.</p>
+
+    <p><b>Teilnehmerrechte</b>: Ihre Teilnahme an diesem Experiment ist freiwillig. Damit wir Ihre Daten zu Forschungszwecken verwenden können, ist es nötig, dass Sie alle Teile des Experiments bearbeiten. Sie können jederzeit ohne Angabe von Gründen von der Teilnahme am Experiment zurücktreten. Wenn Sie sich entschließen, das Experiment abzubrechen, erhalten Sie 4 Euro für die Teilnahme, jedoch nicht den zusätzlichen Betrag, den Sie während des Experiments verdient hätten.</p>
+
+    <p><b>Datenschutz</b>: Alle Entscheidungen in diesem Experiment treffen (Verhaltensdaten) sind anonym und ermöglichen keine Rückschlüsse auf einzelne Teilnehmer/innen. Es besteht keine Verbindung zwischen Ihren anonymen Angaben im Experiment und den personenbezogenen Daten, die über Sie im Teilnehmerportal des Kölner Laboratoriums für Wirtschaftsforschung (CLER) zum Zwecke der Experimenteinladung hinterlegt sind. Die im Rahmen dieses Experiments erhobenen Verhaltensdaten werden ausschließlich für Forschungszwecke genutzt und nur für die wissenschaftliche Auswertung gespeichert. Zur Gewährleistung der Transparenz in der Wissenschaft und im Rahmen von wissenschaftlichen Kooperationsprojekten werden die erhobenen, anonymisierten Daten ggf. für eine Nachnutzung durch Dritte zur Verfügung gestellt. Am Ende dieses Experiments werden Sie nach Ihren Zahlungsdaten gefragt, d.h. nach der E-Mail-Adresse, die Sie bei PayPal verwenden. Ihre Zahlungsdaten werden getrennt von den Verhaltensdaten gespeichert. Genau wie Ihre Verhaltensdaten, werden auch Ihre Zahlungsdaten nicht an das CLER übermittelt. Sollten Sie einen Auszahlungsbetrag haben, den kein anderer Teilnehmer erzielt hat, könnte der Versuchsleiter theoretisch Ihre Zahlungsdaten mit Ihren Verhaltensdaten verknüpfen. Dies geschieht zwar nie, aber wir müssen Sie über diese theoretische Möglichkeit informieren. Um diese Verknüpfung schnellstmöglich zu eliminieren, werden die Zahlungsdaten sofort nach Abschluss der Zahlung vernichtet. Der Zahlungsanbieter PayPal speichert Ihre Zahlungsdaten möglicherweise unter Beachtung verschiedener Finanzvorschriften und kann auf diese Daten von den Vereinigten Staaten aus zugreifen, in denen ein niedrigerer Datenschutzstandard gilt als in Deutschland.</p>
+
+    <p>Ich bin mir bewusst, dass ich den/die Experimentleiter/in kontaktieren kann, wenn ich weitere Informationen zum Experiment erhalten möchte, und dass ich den/die Experimentleiter/in oder die zuständige Ethikkommission kontaktieren kann, wenn ich Beschwerde bzgl. meiner Teilnahme einlegen möchte.
+</p>
+
+    <p>Ich bin mit diesen Bedingungen einverstanden.</p>
+    {% formfield player.consent %}
+
+    {% next_button %}
+
+    <b>Kontaktinformationen</b>
+    <p>Experimentleiter/in: Mark Marner-Hausen, marner-hausen@wiso.uni-koeln.de</p>
+    <p>Ethikkommission: Michael Otten, otten@wiso.uni-koeln.de</p>
+
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
+{% endblock %}
+
