@@ -22,11 +22,9 @@ class TraderRecord(TimeAwareInSessionRecord):
     'timestamp', 'subsession_id', 'market_id', 'player_id', 'participant_code', 'trigger_event_type',
     'event_no',  'trader_model_name', 'inventory', 'bid', 'offer', 
     'best_bid_except_me', 'best_offer_except_me',
-    'delay', 'speed', 'staged_bid', 'staged_offer', 'implied_bid', 
+    'delay', 'staged_bid', 'staged_offer', 'implied_bid', 
     'implied_offer', 'slider_a_x','slider_a_y', 'slider_a_z',
-    'net_worth', 'cash', 'tax_paid', 'speed_cost', 'midpoint_peg', 'peg_price', 'peg_state',
-    'avgLatency', 'maxLatency', 'reference_price', 'executed_price', 'buy_sell_indicator',
-    'percentTraderActive')
+    'net_worth', 'cash', 'tax_paid', 'speed_cost', 'midpoint_peg', 'peg_price', 'peg_state')
 
     # timestamp = models.DateTimeField(default=timezone.now)
     # trigger_event_type = models.CharField()
@@ -68,22 +66,7 @@ class TraderRecord(TimeAwareInSessionRecord):
     midpoint_peg = models.BooleanField()
     peg_price = models.IntegerField()
     peg_state = models.IntegerField()
-    
-    total_bids = models.IntegerField()
-    total_asks = models.IntegerField()
-    sum_bid_price = models.IntegerField()
-    sum_ask_price = models.IntegerField()
-
-    executed_price = models.IntegerField()
-    buy_sell_indicator = models.CharField()
-
-    # Used to measure latency
-    avgLatency = models.FloatField()
-    maxLatency = models.FloatField()
-
-    # Used to store how long a trader spent actively looking at the screen
-    percentTraderActive = models.FloatField()
-
+ 
 
 class MarketRecord(TimeAwareInSessionRecord):
 

@@ -25,7 +25,6 @@ class ELOExperiment extends PolymerElement {
           slider-defaults=[[environment.sliderProperties]]
           
         </elo-market-session>
-        
         `;
       }
     }

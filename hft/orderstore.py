@@ -29,12 +29,6 @@ class OrderStore:
         self.inventory = default_inventory
         self.bid = None
         self.offer = None
-        
-        self.total_bids = 0
-        self.total_asks = 0
-        self.sum_bid_price = 0
-        self.sum_ask_price = 0
-        
 
     @property
     def orders(self):
@@ -184,16 +178,7 @@ Spread: {self.bid} - {self.offer}
         self.inventory += shares if direction == 'B' else - shares
         price = order_info['price']
         log.debug('trader %s: confirm execution: token %s.' % (self.player_id, token))
-        self.update_spread(price, direction, clear=True)      
-
-        '''
-        if direction == 'B':
-            self.totalBids += shares
-            self.sumBidPrice += price  
-        else:
-            self.totalAsks += shares
-            self.sumAskPrice += price  
-        '''
+        self.update_spread(price, direction, clear=True)            
         return order_info
 
     def update_spread(self, price, direction, clear=False):

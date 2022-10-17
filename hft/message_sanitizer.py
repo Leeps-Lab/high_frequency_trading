@@ -36,8 +36,6 @@ class ELOWSMessageSanitizer(MessageSanitizer):
         if clean_message['type'] == 'slider':
             for s in ('a_x', 'a_y', 'a_z'):
                 clean_message[s] = float(clean_message[s])
-  
-
         return clean_message
     
 

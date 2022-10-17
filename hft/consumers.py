@@ -3,8 +3,6 @@ from channels.generic.websockets import JsonWebsocketConsumer
 from .decorators import timer
 from .dispatcher import ELODispatcher
 from .models import Player
-from .output import TraderRecord
-import json
 import logging
 
 log = logging.getLogger(__name__)
@@ -24,18 +22,9 @@ class SubjectConsumer(JsonWebsocketConsumer):
         player.save()
 
     def raw_receive(self, message, subsession_id, group_id, player_id):
-        
         try:
-            content = json.loads(message.content['text'])
-            if 'avgLatency' in content:
-                TraderRecord.objects.filter(subsession_id=subsession_id,
-                    market_id=group_id, player_id=player_id).update(avgLatency = content['avgLatency'], maxLatency = content['maxLatency'])
-            elif 'percentTraderActive' in content:
-                TraderRecord.objects.filter(subsession_id=subsession_id,
-                    market_id=group_id, player_id=player_id).update(percentTraderActive = content['percentTraderActive'])
-            else:
-                ELODispatcher.dispatch('websocket', message, subsession_id=subsession_id,
-                    market_id=group_id, player_id=player_id)
+            ELODispatcher.dispatch('websocket', message, subsession_id=subsession_id,
+                market_id=group_id, player_id=player_id)
         except Exception as e:
             log.exception('player %s: error processing message, ignoring. %s:%s', 
                 player_id, message.content, e)

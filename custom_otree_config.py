@@ -2,10 +2,10 @@ import os
 import logging
 import sys
 import yaml
-import random
+
 
 class CustomOtreeConfig:
-    otree_default_required = {'app_sequence': ['Consent', 'hft', 'AnonPay']}
+    otree_default_required = {'app_sequence': ['hft']}
 
     def __init__(self, configs:dict, filename:str):
         self.base_configs = configs
@@ -27,15 +27,12 @@ class CustomOtreeConfig:
         for otree_config_key, yaml_key in yaml_to_otree_map.items():
             parent_key, child_key = yaml_key
             try:
-                value = self.base_configs[parent_key][child_key]
-                otree_configs[otree_config_key] = value
-
+                otree_configs[otree_config_key] = self.base_configs[parent_key][child_key]
             except KeyError:
                 otree_configs[otree_config_key] = None
                 sys.stdout.write('%s:%s is missing in %s, set to none.\n' % (
                     parent_key, child_key, self.filename))
         otree_configs.update(self.otree_default_required)
-        
         return otree_configs
 
     @classmethod
@@ -67,8 +64,8 @@ config_maps = {
         'num_rounds': ('session', 'num-rounds'),
         'exchange_host': ('market', 'matching-engine-host'),
         'num_markets': ('market', 'number-of-markets'),
-        'number_of_traders': ('traders', 'number-of-traders'),
-        'allow_underbooking': ('traders', 'allow-underbooking'),
+        'number_of_groups': ('group', 'number-of-groups'),
+        'players_per_group': ('group', 'players-per-group'),
         'technology_unit_cost': ('parameters', 'technology-unit-cost'),
         'fundamental_price': ('parameters', 'fundamental-price'),
         'initial_spread': ('parameters', 'initial-spread'),
@@ -82,14 +79,7 @@ config_maps = {
         'exogenous_event_directory': ('session', 'exogenous-event-directory'),
         'investor_arrivals': ('exogenous-events', 'investor-arrivals'),
         'fundamental_value_jumps': ('exogenous-events', 'fundamental-value-jumps'),
-        'auto_advance': ('session', 'auto-advance'),
-        'next_button_timeout': ('session', 'next-button-timeout'),
-        'random_payoff': ('session', 'random-payoff'),
-        'max_payment': ('session', 'max-payment'),
-        'instructions_next_button_timeout': ('session', 'instructions-next-button-timeout'),
-        'feedback_next_button_timeout': ('session', 'feedback-next-button-timeout'),
-        'trial_rounds': ('session', 'trial-rounds'),
-    },
+        },
     'elo': { 
         'name': ('session', 'session-name'),
         'display_name': ('session', 'display-name'),
@@ -100,11 +90,11 @@ config_maps = {
         'environment': ('session', 'environment'),
         'num_rounds': ('session', 'num-rounds'),
         'matching_engine_host': ('market', 'matching-engine-host'),
-        'number_of_traders': ('traders', 'number-of-traders'),
-        'allow_underbooking': ('traders', 'allow-underbooking'),
+        'number_of_groups': ('group', 'number-of-groups'),
+        'players_per_group': ('group', 'players-per-group'),
         'k_reference_price': ('parameters', 'k-reference-price'),
         'k_signed_volume': ('parameters', 'k-signed-volume'),
-        'tax_rate': ('parameters', 'deduction-rate'),
+        'tax_rate': ('parameters', 'tax-rate'),
         'include_signed_volume_widgets': ('parameters', 'include-signed-volume-widgets'),
         'include_manual_role': ('parameters', 'include-manual-role'),
         'speed_unit_cost': ('parameters', 'technology-unit-cost'),
@@ -117,13 +107,6 @@ config_maps = {
         'test_input_file': ('tests', 'test_input_file'),
         'peg_proportion': ('parameters', 'peg-proportion'),
         'post_session_delay': ('session', 'post-session-delay'),
-        'auto_advance': ('session', 'auto-advance'),
-        'next_button_timeout': ('session', 'next-button-timeout'),
-        'random_payoff': ('session', 'random-payoff'),
-        'max_payment': ('session', 'max-payment'),
-        'instructions_next_button_timeout': ('session', 'instructions-next-button-timeout'),
-        'feedback_next_button_timeout': ('session', 'feedback-next-button-timeout'),
-        'trial_rounds': ('session', 'trial-rounds'),
     }
 }
 

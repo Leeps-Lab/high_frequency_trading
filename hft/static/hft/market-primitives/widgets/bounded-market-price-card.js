@@ -18,33 +18,17 @@ class MarketPriceCard extends PolymerElement {
     }
   }
 
-  ready() {
-    super.ready();
+  constructor(){
+    super();
+    //Set currency within the markup where it is initialized
     this.currency = 'ECU';
   }
 
-  animate(aggressive = false) {
-    const flashTime = 500;
-    d3.select(this.$.cardPrice)
-      .transition()
-        .duration(flashTime/2)
-        .ease(d3.easeLinear)
-        .style('background-color', 'rgba(255,210,10,0.4)')
-      .transition()
-        .duration(flashTime/2)
-        .ease(d3.easeLinear)
-        .style('background-color', 'var(--background-color-white)');
-
-    d3.select(this.$.triangle)
-      .style('color', aggressive ? 'red' : 'gray')
-      .transition()
-        .duration(flashTime/2)
-        .ease(d3.easeLinear)
-        .style('opacity', '1')
-      .transition()
-        .duration(flashTime/2)
-        .ease(d3.easeLinear)
-        .style('opacity', '0');
+  animate() {
+    let priceHolder = this.shadowRoot.querySelector('.cardPrice')
+    this.animated = this.animated == 'animate_one' ? 'animate_two' : 'animate_one' 
+      // interestingly polymer data binding did not reflect to dom somehow
+      priceHolder.setAttribute("animate", this.animated)
   }
 
   _displayPrice(price) {
@@ -81,26 +65,43 @@ class MarketPriceCard extends PolymerElement {
         width:100%;
         height:100%;
       }
-      #cardPrice {
+      .cardPrice {
         display: flex;
         flex-direction: row;
         justify-content: center;
         border-top: 1px solid #000;
         font-size: 1.6em;
-        position: relative;
       }
 
       .title-text {
         text-align: center;
         font-size: 1.6em;
       }
-      #triangle {
-        font-size: 40px;
-        opacity: 0;
-        position: absolute;
-        right: 10%;
-        top : 50%;
-        transform: translate(0, -50%);
+
+      [animate=animate_one]{
+        animation-name: shine;
+        animation-duration: 0.2s;
+        animation-timing-function: ease-out;
+
+      }
+
+      [animate=animate_two]{
+        animation-name: shine-more;
+        animation-duration: 0.2s;
+        animation-timing-function: ease-out;
+
+      }
+
+      @keyframes shine{
+        100% {
+        background-color: rgba(255,215,10,0.4)
+        };
+      }
+
+      @keyframes shine-more{
+        100% {
+        background-color: rgba(255,210,10,0.4)
+        };
       }
       </style>
 
@@ -111,13 +112,11 @@ class MarketPriceCard extends PolymerElement {
                   {{title}}
                 </span>
               </div>
-              <div id="cardPrice">
+              <div class="cardPrice" animate={{animated}}>
                 <p id="the-price">
                   {{_displayPrice(price)}}
                 </p>
-                <span id="triangle">&#9679;</span>
               </div>
-              
             </div>
         </div>    
         `;

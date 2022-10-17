@@ -16,7 +16,6 @@ POINTS_DECIMAL_PLACES = 2
 
 # the environment variable OTREE_PRODUCTION controls whether Django runs in
 # DEBUG mode. If OTREE_PRODUCTION==1, then DEBUG=False
-
 if environ.get('OTREE_PRODUCTION') not in {None, '', '0'}:
     DEBUG = False
 # elif 'OTREE_PRODUCTION' not in os.environ:
@@ -100,7 +99,7 @@ LANGUAGE_CODE = 'en'
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
 INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
-EXTENSION_APPS = ['Consent', 'hft', 'AnonPay']
+EXTENSION_APPS = ['hft']
 
 # SENTRY_DSN = ''
 
@@ -210,8 +209,8 @@ SESSION_CONFIG_DEFAULTS = {
     'real_world_currency_per_point': 1,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
-    'app_sequence': ['Consent', 'hft', 'AnonPay'],
-    'session_length': 240, 
+    'app_sequence': ['hft'],
+    'session_length': 240,
     'doc': ''
 }
 

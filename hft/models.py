@@ -20,7 +20,7 @@ from .cache import initialize_model_cache, set_market_id_table, get_market_id_ta
 from .exogenous_event import ExogenousEventModelFactory
 from . import market_environments
 from django.utils import timezone
-import json
+
 from .dispatcher import DispatcherFactory
 import settings
 
@@ -30,13 +30,7 @@ log = logging.getLogger(__name__)
 class Constants(BaseConstants):
     name_in_url = 'hft'
     players_per_group = None
-    num_rounds = 30
-
-    # reading questions and answers
-    q_and_a_path = "hft/q_and_a.json"
-    with open(q_and_a_path) as json_file:
-        q_and_a = json.load(json_file)
-        q_and_a_sections = q_and_a["sections"]
+    num_rounds = 3
 
 
 class Subsession(BaseSubsession):
@@ -47,21 +41,6 @@ class Subsession(BaseSubsession):
     code = models.CharField(default=random_chars_8)
 
     def creating_session(self):
-        #cache.clear()
-        if (self.round_number > self.session.config['num_rounds']):
-            return
-
-        session_format = self.session.config['environment']  
-
-        if self.round_number == 1:
-            self.session.config = utility.process_configs(
-                session_format, self.session.config)
-            self.do_groups()
-        else:
-            self.group_like_round(1)
-
-    def register(self):
-
         def create_trade_session(session_format):
             trade_session_cls = TradeSessionFactory.get_session(session_format)
             dispatcher = DispatcherFactory.get_dispatcher(session_format)
@@ -87,29 +66,23 @@ class Subsession(BaseSubsession):
                          or session_configs['matching_engine_host'])
         all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         market_id_map = {}
-
         for group in self.get_groups():
             group_id = group.id
             exchange_port = all_exchange_ports[self.auction_format].pop()
             market = trade_session.create_market(
                 group_id, exchange_host, exchange_port, **session_configs)
             for player in group.get_players():
-                # If player consented, register them as a trader
-                if player.participant.vars['consent'] == True and player.participant.vars['overbooked'] == False and player.participant.vars['underbooked'] == False:
-                    market.register_player(player)
-                    player.configure_for_trade_session(market, session_format)
-                    trader = TraderFactory.get_trader(session_format, player)
-                    initialize_model_cache(trader)
-
+                market.register_player(player)
+                player.configure_for_trade_session(market, session_format)
+                trader = TraderFactory.get_trader(session_format, player)
+                initialize_model_cache(trader)
             initialize_model_cache(market)
             market_id_map[market.id_in_subsession] = market.market_id
-
             for event_type_name in trade_session.exogenous_events.keys():
                 exogenous_event_manager_model = ExogenousEventModelFactory.get_model(
                     event_type_name, market)
                 if exogenous_event_manager_model:
                     initialize_model_cache(exogenous_event_manager_model)
-
         set_market_id_table(trade_session.subsession_id, market_id_map)
         self.configure_for_trade_session(session_format)
         initialize_model_cache(trade_session)
@@ -124,9 +97,7 @@ class Subsession(BaseSubsession):
         # set groups as suggested in oTree docs.
         group_matrix = []
         players = self.get_players()
-        
-        #ppg = self.session.config['players_per_group']
-        ppg = self.session.config['num_demo_participants']
+        ppg = self.session.config['players_per_group']
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
@@ -188,11 +159,6 @@ class Player(BasePlayer):
     signed_volume = models.FloatField()
     e_signed_volume = models.FloatField()
 
-    total_bids = models.IntegerField()
-    total_asks = models.IntegerField()
-    sum_bid_price = models.IntegerField()
-    sum_ask_price = models.IntegerField()
-
     # fields for this player's initial strategy decisions
     # these are set from the InitialDecisionSelection form
     initial_slider_a_x = models.FloatField()
@@ -200,8 +166,6 @@ class Player(BasePlayer):
     initial_slider_a_z = models.FloatField()
     initial_role = models.CharField()
     initial_speed_on = models.BooleanField()
-
-    cummulative_payoff = models.FloatField()
 
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):
@@ -218,78 +182,3 @@ class Player(BasePlayer):
                     setattr(self, field.name, getattr(
                         state_record, field.name))
         self.save()
-
-    # adding survey hft questions
-    # general questions
-    for subject, q_and_a_subject in Constants.q_and_a_sections["general"].items():
-        if q_and_a_subject["answers"][0] == "None":
-            locals()[subject] = models.StringField( # generating field from dict
-                label = q_and_a_subject["question"],
-            )  
-        else: 
-            locals()[subject] = models.StringField( # generating field from dict
-                label = q_and_a_subject["question"],
-                choices = q_and_a_subject["answers"]
-            )
-
-
-        locals()[subject + "_right_first"] = models.StringField() # creating "player chose right answer from the beginning" field
-
-    del subject
-    del q_and_a_subject
-
-    # rest of sections
-    lista=list(Constants.q_and_a_sections.keys())
-    lista.remove("general")
-    remaining_sections = lista
-    
-    for section in remaining_sections:
-        for subject, q_and_a_subject in Constants.q_and_a_sections[f"{section}"].items():        
-            locals()[subject] = models.StringField( # generating field from dict
-                label = q_and_a_subject["question"],
-                choices = q_and_a_subject["answers"]
-            )
-
-            locals()[subject + "_right_count"] = models.StringField() 
-        
-    del subject
-    del q_and_a_subject
-    del remaining_sections
-    del section
-    del lista    
-
-
-class Ping(models.Model):
-    response = models.CharField()
-
-
-def get_correct_answers(q_and_a_dict, section_name):
-    """
-    Obtains the right answer for the questions of a specific
-    section from the survey
-
-    Input: dict with questions and answers, section name (str)
-    Output: dict with question and right answer pairs
-    """
-
-    question_fields = q_and_a_dict[section_name].keys() # getting question field names
-    output = {}
-
-    for question in question_fields:
-        output[question] = q_and_a_dict[section_name][question]["correct_answ"]
-
-    return output
-
-def survey_round(round_number, excluded_rounds):
-    """
-    Determines whether the current round is a practice round
-
-    Input: current round (int), rounds considered for practice (list)
-    Output: current round is practice round (boolean)
-    """
-    # TODO: ask Mark/Kristian how we should exclude rounds (length of excluded or max)
-    first_real_round = len(excluded_rounds) + 1 #
-    if round_number == first_real_round:
-        return True
-    else:
-        return False

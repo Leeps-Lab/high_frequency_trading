@@ -6,7 +6,6 @@ from otree.db.models import Model, ForeignKey
 from .cache import get_cache_key
 from django.core.cache import cache
 from .output import TraderRecord
-from .market_elements.subscription import Subscription
 import logging
 
 log = logging.getLogger(__name__)
@@ -26,47 +25,22 @@ class HFTPlayerSessionSummary(Model):
     tax_paid = models.IntegerField(initial=0)
     speed_cost = models.IntegerField(initial=0)
 
-    total_bids = models.IntegerField(initial=0)
-    total_asks = models.IntegerField(initial=0)
-    sum_bid_price = models.IntegerField(initial=0)
-    sum_ask_price = models.IntegerField(initial=0)
-
-    #subscriptionTime = models.IntegerField(initial=0)
-
-def state_for_results_template(player, session_duration, speed_unit_cost):
+def state_for_results_template(player):
     summary_objects = HFTPlayerSessionSummary.objects.filter(subsession_id=player.subsession.id, 
         market_id=player.market_id)
     nets = {str(o.player_id): o.net_worth * 0.0001 for o in summary_objects}
     taxes = {str(o.player_id): o.tax_paid * 0.0001 for o in summary_objects}
+    print([o.speed_cost for o in summary_objects])
     speed_costs = {str(o.player_id): o.speed_cost * 0.0001 for o in summary_objects}
     names = {str(o.player_id): 'You' if o.player_id == player.id else 'Anonymous Trader' 
         for o in summary_objects}
     strategies = {str(o.player_id): {'automated': o.time_as_automated, 
         'manual': o.time_as_manual, 'out': o.time_as_out} for o in summary_objects}
-    
-    speedUsage = {str(o.player_id): {'Speed On': (o.speed_cost * 0.0001 / speed_unit_cost)  / session_duration, 
-        'Speed Off': (session_duration - (o.speed_cost * 0.0001 / speed_unit_cost))  / session_duration} for o in summary_objects}
     inv_sens = {str(o.player_id): o.inventory_sensitivity for o in summary_objects}
     signed_vol_sens = {str(o.player_id): o.signed_vol_sensitivity for o in summary_objects}
     ext_sensitivies = {str(o.player_id): o.external_feed_sensitivity for o in summary_objects}
-
-    totalBids = {str(o.player_id): o.total_bids for o in summary_objects}
-    totalAsks = {str(o.player_id): o.total_asks for o in summary_objects}
-    sumBidPrice = {str(o.player_id): o.sum_bid_price for o in summary_objects}
-    sumAskPrice = {str(o.player_id): o.sum_ask_price for o in summary_objects}
-
-    '''
-    mySummary = summary_objects.get(player_id=player.id)
-
-    totalBids = mySummary.totalBids
-    totalAsks = mySummary.totalAsks
-    avgBidPrice = mySummary.avgBidPrice
-    avgAskPrice = mySummary.avgAskPrice
-    '''
-
     return {'nets': nets, 'taxes': taxes, 'speed_costs': speed_costs, 'names': names, 'strategies': strategies, 
-        'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies, 'totalBids': totalBids, 
-        'totalAsks': totalAsks, 'sumBidPrice': sumBidPrice, 'sumAskPrice': sumAskPrice, 'speedUsage': speedUsage}
+        'inv_sens': inv_sens, 'sig_sens': signed_vol_sens, 'ext_sens': ext_sensitivies}
 
 def elo_player_summary(player):
     market = cache.get(get_cache_key('from_kws', model_name='market',
@@ -77,32 +51,11 @@ def elo_player_summary(player):
         'slider_a_y': player.initial_slider_a_y,
         'slider_a_z': player.initial_slider_a_z,
     }
-    initial_role = player.initial_role
     average_sens = _get_average_sensitivies(player.subsession.id, player.market_id, player.id,
-        market.time_session_start, market.time_session_end, initial_sliders, initial_role)
+        market.time_session_start, market.time_session_end, initial_sliders)
     session_length_seconds = session_length.seconds
     percent_per_role = _calculate_role_time_percentage(market.role_group, player.id,
         session_length_seconds)
-
-    cache_key = get_cache_key('from_kws',
-                model_id=player.id,
-                model_name='trader',
-                subsession_id=player.subsession.id
-            )
-    trader = cache.get(cache_key)
-
-    technology_subscription = Subscription(
-            'speed_tech', player.id, .022)
-
-    if(trader.total_bids != 0):
-        avgBidPrice = trader.sum_bid_price / trader.total_bids
-    else:
-        avgBidPrice = 0
-    
-    if(trader.total_asks != 0):
-        avgAskPrice = trader.sum_ask_price / trader.total_asks
-    else:
-        avgAskPrice = 0
     summary_object = HFTPlayerSessionSummary.objects.create(subsession_id=player.subsession.id, 
         market_id=player.market_id,
         player_id=player.id, 
@@ -114,42 +67,23 @@ def elo_player_summary(player):
         time_as_manual=percent_per_role['manual'], 
         net_worth=player.net_worth,
         tax_paid=player.tax_paid,
-        speed_cost=player.speed_cost,
-        sum_bid_price=trader.sum_bid_price,
-        sum_ask_price=trader.sum_ask_price,
-        total_bids=trader.total_bids,
-        total_asks=trader.total_asks,
-    )
+        speed_cost=player.speed_cost)
 
-
-
-def _get_average_sensitivies(subsession_id, market_id, player_id, session_start, session_end, initial_sliders, initial_role):
+def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
+    session_end, initial_sliders):
     session_duration = (session_end - session_start).total_seconds()
     player_state_records = TraderRecord.objects.filter(subsession_id=subsession_id,
-        market_id=market_id, player_id=player_id).order_by('timestamp')
+        market_id=market_id, player_id=player_id, trigger_event_type='slider').order_by('timestamp')
     slider_averages = {}
     for slider_name in ('slider_a_x', 'slider_a_y', 'slider_a_z'):
         slider_averages[slider_name] = 0
         current_slider_value = initial_sliders[slider_name]
-
         prev_change_time = session_start
-
-        prev_role = initial_role
-
         for record in player_state_records:
-            if prev_role == 'automated':
-                duration = (record.timestamp - prev_change_time).total_seconds()
-                slider_averages[slider_name] += current_slider_value * duration
-                current_slider_value = getattr(record, slider_name)
-            
+            slider_averages[slider_name] += current_slider_value * (record.timestamp - prev_change_time).total_seconds()
+            current_slider_value = getattr(record, slider_name)
             prev_change_time = record.timestamp
-            prev_role = record.trader_model_name
-            
-        if prev_role == 'automated':
-            duration = (session_end - prev_change_time).total_seconds()
-            slider_averages[slider_name] += current_slider_value * duration
-                    
-
+        slider_averages[slider_name] += current_slider_value * (session_end - prev_change_time).total_seconds()
         slider_averages[slider_name] /= session_duration
         slider_averages[slider_name] = round(slider_averages[slider_name], 2)
     return slider_averages 
