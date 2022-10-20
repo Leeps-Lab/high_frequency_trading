@@ -1,0 +1,47 @@
+demo:
+  number-of-participants: 2
+
+traders:
+  number-of-traders: 2 # Number of participants that will play the experiment
+  allow-underbooking: false # Continue/cancel experiment if the number of people who consented is less than the number above
+
+exogenous-events:
+  investor-arrivals:
+    - investor_focal_T1_Aug2021_Trial.csv
+  external-feed:
+    - external_feed_T1_Aug2021_Trial.csv
+
+market:
+  auction-format: 'CDA'
+  matching-engine-host: '127.0.0.1'
+
+parameters:
+  default-role: out
+  include-manual-role: true
+  include-signed-volume-widgets: false
+  initial-endowment: 100
+  k-reference-price: 0.7
+  k-signed-volume: 0.5
+  session-duration: 30
+  deduction-rate: 0.1
+  technology-unit-cost: 0.01
+
+session:
+  currency: EUR
+  session-name: CDA_Test
+  display-name: CDA - Test - No Survey
+  environment: elo
+  exchange-rate: 0.02
+  num-rounds: 1
+  participation-fee: 2.5
+  post-session-delay: 5
+  auto-advance: 0 # (In how many seconds do you want to auto-advance results and consent page) Set to 0 if you don't want it to advance
+  next-button-timeout: 0 # Set it to 0 if you want the next button on the results page to show immediately
+  instructions-next-button-timeout: 0 # In seconds
+  feedback-next-button-timeout: 0 # In seconds
+  random-payoff: false # This will pick a random payoff to display at the end of the experiment
+  max-payment: 50 
+  trial-rounds: [] # Rounds used for practicing that aren't used for payoff calculation
+  run-survey: false # Set to true or false to run survey
+
+  

@@ -22,6 +22,7 @@ from . import market_environments
 from django.utils import timezone
 import json
 from .dispatcher import DispatcherFactory
+import settings
 
 log = logging.getLogger(__name__)
 
@@ -76,7 +77,8 @@ class Subsession(BaseSubsession):
         session_format = session_configs['environment']
         trade_session = create_trade_session(session_format)
         self.auction_format = session_configs['auction_format']
-        exchange_host = session_configs['matching_engine_host']
+        exchange_host = (settings.matching_engine_hosts.get(self.auction_format)
+                         or session_configs['matching_engine_host'])
         all_exchange_ports = copy.deepcopy(utility.available_exchange_ports)
         market_id_map = {}
 
@@ -107,7 +109,6 @@ class Subsession(BaseSubsession):
         self.configure_for_trade_session(session_format)
         initialize_model_cache(trade_session)
         self.save()
-
 
     def configure_for_trade_session(self, session_format: str):
         utility.configure_model_for_market('subsession', self, session_format,
@@ -141,7 +142,8 @@ class Subsession(BaseSubsession):
             for field in self._meta.get_fields():
                 if isinstance(field, JSONField):
                     json_fields[field.attname] = getattr(self, field.attname)
-            self.__class__._default_manager.filter(pk=self.pk).update(**json_fields)
+            self.__class__._default_manager.filter(
+                pk=self.pk).update(**json_fields)
 
 
 class Group(BaseGroup):
@@ -208,7 +210,8 @@ class Player(BasePlayer):
             if hasattr(self, field.name):
                 attr = getattr(self, field.name)
                 if attr is None:
-                    setattr(self, field.name, getattr(state_record, field.name))
+                    setattr(self, field.name, getattr(
+                        state_record, field.name))
         self.save()
 
     # adding survey hft questions

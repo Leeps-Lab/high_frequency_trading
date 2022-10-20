@@ -89,6 +89,7 @@ config_maps = {
         'instructions_next_button_timeout': ('session', 'instructions-next-button-timeout'),
         'feedback_next_button_timeout': ('session', 'feedback-next-button-timeout'),
         'trial_rounds': ('session', 'trial-rounds'),
+        'run_survey': ('session', 'run-survey'),
     },
     'elo': { 
         'name': ('session', 'session-name'),
@@ -124,6 +125,7 @@ config_maps = {
         'instructions_next_button_timeout': ('session', 'instructions-next-button-timeout'),
         'feedback_next_button_timeout': ('session', 'feedback-next-button-timeout'),
         'trial_rounds': ('session', 'trial-rounds'),
+        'run_survey': ('session', 'run-survey'),
     }
 }
 

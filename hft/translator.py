@@ -1,4 +1,4 @@
-from exchange_server.OuchServer.ouch_messages import (
+from OuchServer.ouch_messages import (
     OuchClientMessages, OuchServerMessages)
 import time
 import datetime
@@ -8,6 +8,7 @@ import struct
 import logging
 
 log = logging.getLogger(__name__)
+
 
 class Translator(object):
     defaults = {}
@@ -28,7 +29,8 @@ class Translator(object):
     @classmethod
     def encode(cls, type_spec, **kwargs):
         # temporarily putting this here 
-        assert type_spec in cls.message_type_map.keys(), '%s unknown message type' % type_spec
+        assert type_spec in cls.message_type_map.keys(
+        ), '%s unknown message type' % type_spec
         message_spec = cls.message_type_map[type_spec]
         for slot in message_spec.PayloadCls.__slots__:
             value = kwargs.get(slot, None)
@@ -40,6 +42,7 @@ class Translator(object):
             kwargs[slot] = value
         message = message_spec(**kwargs)
         return bytes(message)
+
 
 class LeepsOuchTranslator(Translator):
 
@@ -63,6 +66,7 @@ class LeepsOuchTranslator(Translator):
         'external_feed': OuchClientMessages.ExternalFeedChange,
     }
 
+
 if __name__ == '__main__':
     translator = LeepsOuchTranslator()
     kwargs = {
@@ -70,7 +74,7 @@ if __name__ == '__main__':
                     'price': 10, 'time_in_force': 1},
         'replace': {'existing_order_token': b'SUB00000000000', 
                         'replacement_order_token': b'SUB00000000001', 'price': 11, 
-                        'time_in_force': 1 },
+                        'time_in_force': 1},
         'cancel': {'order_token': b'SUB00000000000'}
     }
     for k, v in kwargs.items():

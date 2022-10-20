@@ -48,3 +48,4 @@ session:
   random-payoff: false # This will pick a random payoff to display at the end of the experiment
   max-payment: 50 
   trial-rounds: [1] # Rounds used for practicing that aren't used for payoff calculation
+  run-survey: true # Set to true or false to run survey

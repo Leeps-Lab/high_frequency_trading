@@ -139,7 +139,8 @@ def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
         for record in player_state_records:
             if prev_role == 'automated':
                 duration = (record.timestamp - prev_change_time).total_seconds()
-                slider_averages[slider_name] += current_slider_value * duration
+                if current_slider_value:
+                    slider_averages[slider_name] += current_slider_value * duration
                 current_slider_value = getattr(record, slider_name)
             
             prev_change_time = record.timestamp
@@ -147,8 +148,8 @@ def _get_average_sensitivies(subsession_id, market_id, player_id, session_start,
             
         if prev_role == 'automated':
             duration = (session_end - prev_change_time).total_seconds()
-            slider_averages[slider_name] += current_slider_value * duration
-                    
+            if current_slider_value:
+                slider_averages[slider_name] += current_slider_value * duration
 
         slider_averages[slider_name] /= session_duration
         slider_averages[slider_name] = round(slider_averages[slider_name], 2)

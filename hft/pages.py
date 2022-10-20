@@ -61,7 +61,7 @@ class General(Page):
         return get_correct_answers(Constants.q_and_a_sections, "general")
 
     def is_displayed(self):
-        return self.round_number == Constants.num_rounds
+        return self.session.config['run_survey'] and self.round_number == Constants.num_rounds
 
 
 class Inventory(Page):
@@ -76,7 +76,7 @@ class Inventory(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return survey_round(self.round_number, practice_rounds)
+        return self.session.config['run_survey'] and survey_round(self.round_number, practice_rounds)
 
 
 class ExternalMarket(Page):
@@ -91,7 +91,7 @@ class ExternalMarket(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return survey_round(self.round_number, practice_rounds)
+        return self.session.config['run_survey'] and survey_round(self.round_number, practice_rounds)
 
 
 class Speed(Page):
@@ -106,7 +106,7 @@ class Speed(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return survey_round(self.round_number, practice_rounds)
+        return self.session.config['run_survey'] and survey_round(self.round_number, practice_rounds)
 
 
 # final survey hft page class
@@ -139,7 +139,7 @@ class MarketSpecific(Page):
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
-        return survey_round(self.round_number, practice_rounds)
+        return self.session.config['run_survey'] and survey_round(self.round_number, practice_rounds)
 
 
 class InitialDecisionSelection(Page):
