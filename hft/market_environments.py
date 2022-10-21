@@ -12,7 +12,9 @@ elo = market_environment(
     config_field_type={
         'initial_endowment': int,
         'speed_cost': float,
-        'technology_unit_cost': float
+        'technology_unit_cost': float,
+        'short_delay': float,
+        'long_delay': float,
     },
     fields_to_scale={
         'initial_endowment': 10000,
@@ -27,7 +29,9 @@ elo = market_environment(
         'player': {
             'initial_endowment': 'cash',
             'speed_unit_cost': 'speed_unit_cost',
-            'default_role': 'default_role'
+            'default_role': 'default_role',
+            'short_delay': 'short_delay',
+            'long_delay': 'long_delay',
         }
     },
     checkpoint={

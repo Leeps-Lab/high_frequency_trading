@@ -55,8 +55,7 @@ MAX_ASK = 2147483647
 
 class ELOTraderState(TraderState):
 
-    short_delay = 0.1
-    long_delay = 0.5
+    default_delay = 0.5
     event_dispatch = { 
         'speed_change': 'speed_technology_change',
         'role_change': 'state_change', 
@@ -76,19 +75,19 @@ class ELOTraderState(TraderState):
             trader.disable_offer = False        
             log.debug('trader %s: offers enabled.' % trader.tag)
 
-    def speed_technology_change(self, trader, event, short_delay=short_delay, 
-                                long_delay=long_delay, **kwargs):
+    def speed_technology_change(self, trader, event, short_delay=default_delay, 
+                                long_delay=default_delay, **kwargs):
         try:
             new_state = event.message.value
         except AttributeError:
             new_state = kwargs['value']
         trader.delayed = new_state
         if new_state is True:
-            trader.delay = short_delay
+            trader.delay = trader.short_delay
             trader.technology_subscription.activate()
             log.debug('player %s subscribes to technology.' % trader.player_id)
         else:
-            trader.delay = long_delay
+            trader.delay = trader.long_delay
             trader.technology_subscription.deactivate()
             speed_cost = trader.technology_subscription.invoice()
             trader.speed_cost += speed_cost
