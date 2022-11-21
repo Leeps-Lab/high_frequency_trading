@@ -13,7 +13,7 @@ Django==1.11.2
 django-idmap==1.0.3
 django-redis==4.9.0
 django-vanilla-views==1.0.4
-djangorestframework==3.4.6
+djangorestframework==3.11.2
 honcho==0.7.1
 huey==1.2.0
 IPy==0.83
