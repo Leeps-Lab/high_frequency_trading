@@ -1,6 +1,6 @@
 asgi-redis==0.14.1
 asgiref==0.14.0
-autobahn==0.16.0
+autobahn==20.12.3
 certifi==2018.11.29
 channels==0.17.3
 colorama==0.3.7
