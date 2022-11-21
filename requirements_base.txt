@@ -33,7 +33,7 @@ pytz==2017.3
 PyYAML==3.12
 raven==5.25.0
 redis==2.10.5
-requests==2.11.1
+requests==2.20.0
 schema==0.6.2
 six==1.10.0
 termcolor==1.1.0
