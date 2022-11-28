@@ -270,13 +270,23 @@ class ELOAutomatedTraderState(ELOTraderState):
                     trader.tag, trader.implied_bid, trader.implied_offer))   
         bid, offer = self.validate_market_position(trader)
         
-        old_bid = trader.staged_bid 
-        old_offer = trader.staged_offer
+        
         start_from = 'B'
-        if bid > old_offer:
-            start_from = 'S'
-        elif offer < old_bid:
-            start_from = 'B'
+        if bid and offer:
+            # start from the direction towards
+            # the less aggressive price
+            # in replaces.
+            sell_is_aggressive = False
+            existing_offer = trader.staged_offer
+            if existing_offer is not None and existing_offer > offer:
+                sell_is_aggressive = True
+            buy_is_aggressive = False
+            existing_bid = trader.staged_bid
+            if existing_bid is not None and existing_bid < bid:
+                buy_is_aggressive = True
+            
+            if buy_is_aggressive and not sell_is_aggressive:
+                start_from = 'S'
 
         if bid or offer:
             self.adjust_market_position(
@@ -289,12 +299,14 @@ class ELOAutomatedTraderState(ELOTraderState):
         log.debug('trader %s: adjust market position, suggested bid: %s, \
                 suggested offer: %s' % (trader.tag, target_bid, target_offer))
         
+        old_bid = trader.staged_bid 
+        old_offer = trader.staged_offer
 
         if target_offer is not None and trader.disable_offer is False:
             current_sell_orders = trader.orderstore.all_orders('S')
             if current_sell_orders:
                 for order in current_sell_orders:
-                    if ( target_offer != (order.get('replace_price', None) or order['price'] )):
+                    if ( target_offer != (order['price'] or order.get('replace_price', None)) ):
                         order_info = trader.orderstore.register_replace(
                             order['order_token'], target_offer)
                         sells.append(order_info)
@@ -309,7 +321,7 @@ class ELOAutomatedTraderState(ELOTraderState):
             current_buy_orders = trader.orderstore.all_orders('B')
             if current_buy_orders:
                 for order in current_buy_orders:
-                    if ( target_bid != (order.get('replace_price', None) or order['price'] )  ):
+                    if ( target_bid != (order['price'] or order.get('replace_price', None)) ):
                         order_info = trader.orderstore.register_replace(
                             order['order_token'], target_bid)
                         buys.append(order_info)
@@ -318,6 +330,11 @@ class ELOAutomatedTraderState(ELOTraderState):
                     trader.tag, target_bid))
             else:
                 self.enter_order(trader, event, 'B', price=target_bid)
+
+        if len(buys) > 0 and target_bid > old_offer:
+            start_from = 'S'
+        elif len(sells) >0 and target_offer < old_bid:
+            start_from = 'B'
 
         if start_from == 'B':
             all_orders = buys + sells
