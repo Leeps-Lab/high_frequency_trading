@@ -294,7 +294,7 @@ class ELOAutomatedTraderState(ELOTraderState):
             current_sell_orders = trader.orderstore.all_orders('S')
             if current_sell_orders:
                 for order in current_sell_orders:
-                    if ( target_offer != (order.get('replace_price', None)) or order['price'] ):
+                    if ( target_offer != (order.get('replace_price', None) or order['price'] )):
                         order_info = trader.orderstore.register_replace(
                             order['order_token'], target_offer)
                         sells.append(order_info)

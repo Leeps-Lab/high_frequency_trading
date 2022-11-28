@@ -58,6 +58,7 @@ services:
       - MECHANISM=fba
       - INTERVAL=10
       - EXCHANGE_PORT=9101
+      - logfile=log.txt
 
 volumes:
   postgres:
