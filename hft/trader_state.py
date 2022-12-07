@@ -129,6 +129,9 @@ class ELOManualTrader(ELOTraderState):
     event_dispatch = dict(**ELOTraderState.event_dispatch)
     event_dispatch.update(
         {'E': 'order_executed', 'order_entered': 'user_order'})
+    
+    def state_change(self, trader, event):
+        super().state_change(trader, event)
 
     def user_order(self, trader, event):
         buy_sell_indicator = event.message.buy_sell_indicator
