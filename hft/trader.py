@@ -119,8 +119,6 @@ class BaseTrader(object):
         self.trader_role.state_change(self,event)
         trader_state = self.trader_state_factory.get_trader_state(new_state)
         self.trader_role = trader_state
-        self.trader_role.state_change(self,event)
-        
         log.debug('trader %s: change trader role: %s' % (self.tag, trader_state))
         event.broadcast_msgs('role_confirm', role_name=new_state, model=self)
 
