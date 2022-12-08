@@ -1,7 +1,7 @@
 asgi-redis==0.14.1
 asgiref==0.14.0
 autobahn==0.16.0
-certifi==2018.11.29
+certifi==2022.12.7
 channels==0.17.3
 colorama==0.3.7
 ConfigArgParse==0.13.0
