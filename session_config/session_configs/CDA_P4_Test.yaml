@@ -8,8 +8,10 @@ traders:
 exogenous-events:
   investor-arrivals:
     - investor_focal_T1_Aug2021_Trial.csv
+    - investor_focal_T2_Aug2021_Trial.csv
   external-feed:
     - external_feed_T1_Aug2021_Trial.csv
+    - external_feed_T2_Aug2021_Trial.csv
 
 market:
   auction-format: 'CDA'
@@ -22,7 +24,7 @@ parameters:
   initial-endowment: 100
   k-reference-price: 0.7
   k-signed-volume: 0.5
-  session-duration: 30
+  session-duration: 120
   deduction-rate: 0.1
   technology-unit-cost: 0.01
 
@@ -34,7 +36,7 @@ session:
   exchange-rate: 0.02
   num-rounds: 1
   participation-fee: 2.5
-  post-session-delay: 5
+  post-session-delay: 2
   auto-advance: 0 # (In how many seconds do you want to auto-advance results and consent page) Set to 0 if you don't want it to advance
   next-button-timeout: 0 # Set it to 0 if you want the next button on the results page to show immediately
   instructions-next-button-timeout: 0 # In seconds

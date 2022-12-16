@@ -122,6 +122,8 @@ class ELOTraderState(TraderState):
     
 class ELOOutState(ELOTraderState):
     trader_model_name = 'out'
+    def state_change(self, trader, event):
+        super().state_change(trader, event)
 
 
 class ELOManualTrader(ELOTraderState):
@@ -353,11 +355,13 @@ class ELOAutomatedTraderState(ELOTraderState):
         buy_sell_indicator = order_info['buy_sell_indicator']
 
         if  buy_sell_indicator == 'B':
-            trader.staged_bid = None      
+            trader.staged_bid = None
+            self.recalculate_market_position(trader, event)      
             log.debug('trader %s: set staged bid to none from: %s ' % (
                     trader.tag, price)) 
         if  buy_sell_indicator == 'S':
             trader.staged_offer = None
+            self.recalculate_market_position(trader, event)
             log.debug('trader %s: set staged offer to none from: %s ' % (
                     trader.tag, price)) 
 
