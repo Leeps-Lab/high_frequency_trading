@@ -1,0 +1,219 @@
+{
+    "sections":
+        {
+            "general": 
+            {
+                "degree": 
+                {
+                    "question": "In welchem Studium befinden Sie sich?",
+                    "answers": 
+                    [
+                        "B.Sc.",
+                        "M.Sc.",
+                        "Ph.D."
+                    ],
+                    "correct_answ": "None"
+                },
+                "degree_backg":
+                {
+                    "question": "Hat Ihr Abschluss einen wirtschaftswissenschaftlichen Hintergrund?",
+                    "answers": 
+                    [
+                        "Ja",
+                        "Nein"
+                    ],
+                    "correct_answ": "None"
+                },
+                "video_clarity":
+                {
+                    "question": "Wie beurteilen Sie die Verständlichkeit der Videoanleitung?",
+                    "answers": 
+                    [
+                        "1","2","3","4","5"
+                    ],
+                    "correct_answ": "None"
+                },
+                "video_confusing":
+                {
+                    "question": "Fanden Sie Teile der Instruktionen verwirrend? Falls ja, welche?",
+                    "answers": 
+                    [
+                        "None"
+                    ],
+                    "correct_answ": "None"
+                },
+                "interface_clarity":
+                {
+                    "question": "Wie beurteilen Sie die Verständlichkeit der Benutzeroberfläche?",
+                    "answers": 
+                    [
+                        "1","2","3","4","5"
+                    ],
+                    "correct_answ": "None"
+                },
+                "interface_confusing":
+                {
+                    "question": "Fanden Sie Teile der Benutzeroberfläche verwirrend? Falls ja, welche?",
+                    "answers": 
+                    [
+                        "None"
+                    ],
+                    "correct_answ": "None"
+                },
+                "suggestions":
+                {
+                    "question": "Haben Sie Verbesserungsvorschläge, sind Sie auf Fehler gestoßen oder haben Sie das Gefühl, dass das Experiment nicht richtig funktioniert hat? Wir freuen uns über jedes Feedback, das uns hilft, die Benutzererfahrung zu verbessern.",
+                    "answers": 
+                    [
+                        "None"
+                    ],
+                    "correct_answ": "None"
+                }
+            },
+            "inventory": 
+            {
+                "trader_inv":
+                {
+                    "question": "Angenommen, Sie haben zu einem bestimmten Zeitpunkt während der Handelsperiode einen Aktienbestand von 10 Einheiten und erhöhen die Inventory Sensitivity erheblich. Was wird voraussichtlich in den folgenden Sekunden passieren?",
+                    "answers": 
+                    [
+                        "Der Aktienbestand wird voraussichtlich sinken und gegen 0 gehen.",
+                        "Der Aktienbestand wird voraussichtlich schnell ansteigen.",
+                        "Der Aktienbestand wird bei genau 10 Einheiten verbleiben.",
+                        "Der Aktienbestand wird kurz darauf auf minus 10 Einheiten sinken.",
+                        "Es wird nichts passieren."
+                    ],
+                    "correct_answ": "Der Aktienbestand wird voraussichtlich sinken und gegen 0 gehen."
+                },
+                "implicit_cost":
+                {
+                    "question": "Was ist ein Nachteil einer Erhöhung der Inventory Sensitivity?",
+                    "answers": 
+                    [
+                        "Ihr Bot wird sich weniger auf profitablen Handel und mehr auf den Ausgleich Ihres Aktienbestandes konzentrieren, was voraussichtlich schlechtere Preise für Sie zur Folge haben wird.",
+                        "Ihr Bot wird sich ausschließlich auf profitablen Handel konzentrieren, was voraussichtlich zu hohen positiven oder hohen negativen Aktienbeständen und damit zu hohen Abzügen am Ende der Handelsperiode führen wird.",
+                        "Ihr Bot konzentriert sich ausschließlich auf die Preise des externen Marktes, was dazu führen kann, dass Sie die Momente verpassen, in denen Ihr eigener Markt schneller agiert.",
+                        "Ihr Bot konzentriert sich ausschließlich auf die Preise auf Ihrem eigenen Markt, was dazu führen kann, dass Sie die Momente verpassen, in denen der externe Markt schneller agiert.",
+                        "Es gibt keine Nachteile, wenn Sie den Schieberegler für die Bestandsempfindlichkeit erhöhen."
+                    ],
+                    "correct_answ": "Ihr Bot wird sich weniger auf profitablen Handel und mehr auf den Ausgleich Ihres Aktienbestandes konzentrieren, was voraussichtlich schlechtere Preise für Sie zur Folge haben wird."
+                },
+                "end_trading_pos":
+                {
+                    "question": "Angenommen, Sie beenden die Handelsperiode mit einem PBD (Payoff Before Deduction) von 100 ECU und einem positiven Aktienbestand von 10 Einheiten. Es werden Abzüge in Höhe von 10 % fällig und der Referenzpreis beträgt ebenfalls 100 ECU. Wie hoch ist Ihr auszahlungsrelevanter Payoff?",
+                    "answers": 
+                    [
+                        "Der Abzug beläuft sich auf 10 x 100 x 0,1 = 100 ECU. Der Abzug muss vom PBD in Höhe von 100 ECU abgezogen werden, so dass Ihr Payoff 0 ECU beträgt.",
+                        "Der Abzug beläuft sich auf 10 x 100 x 0,1 = 100 ECU. Der Abzug muss zum PBD in Höhe von 100 ECU addiert werden, so dass Ihr Payoff 200 ECU beträgt.",
+                        "Der Inventarwert in Höhe von 10 x 100 = 1000 ECU muss zum PBD in Höhe von 100 ECU hinzuaddiert werden, so dass Ihr Payoff 1100 ECU beträgt.",
+                        "Der Inventarwert in Höhe von 10 x 100 = 1000 ECU muss vom PBD in Höhe von 100 ECU abgezogen werden, so dass Ihr Payoff -900 ECU beträgt."
+                    ],
+                    "correct_answ": "Der Abzug beläuft sich auf 10 x 100 x 0,1 = 100 ECU. Der Abzug muss vom PBD in Höhe von 100 ECU abgezogen werden, so dass Ihr Payoff 0 ECU beträgt."
+                },
+                "end_trading_neg":
+                {
+                    "question": "Angenommen, Sie beenden die Handelsperiode mit einem PBD (Payoff Before Deduction) von 100 ECU und einem negativen Aktienbestand von -10 Einheiten. Es werden Abzüge in Höhe von 10 % fällig und der Referenzpreis beträgt ebenfalls 100 ECU. Wie hoch ist Ihr auszahlungsrelevanter Payoff?",
+                    "answers": 
+                    [
+                        "Der Abzug beläuft sich auf |-10 x 100 x 0,1| = 100 ECU. Der Abzug muss vom PBD in Höhe von 100 ECU abgezogen werden, so dass Ihr Payoff 0 ECU beträgt.",
+                        "Der Abzug beläuft sich auf |-10 x 100 x 0,1| = 100 ECU. Der Abzug muss zum PBD in Höhe von 100 ECU addiert werden, so dass Ihr Payoff 200 ECU beträgt.",
+                        "Der Inventarwert in Höhe von 10 x 100 = 1000 ECU muss zum PBD in Höhe von 100 ECU hinzuaddiert werden, so dass Ihr Payoff 1100 ECU beträgt.",
+                        "Der Inventarwert in Höhe von 10 x 100 = 1000 ECU muss vom PBD in Höhe von 100 ECU abgezogen werden, so dass Ihr Payoff -900 ECU beträgt."
+                    ],
+                    "correct_answ": "Der Abzug beläuft sich auf |-10 x 100 x 0,1| = 100 ECU. Der Abzug muss vom PBD in Höhe von 100 ECU abgezogen werden, so dass Ihr Payoff 0 ECU beträgt."
+                }
+            },
+            "external_market": 
+            {
+                "increase_ext":
+                {
+                    "question": "Angenommen, Sie erhöhen die External Feed Sensitivity zu einem bestimmten Zeitpunkt in der Handelsperiode erheblich. Was wird voraussichtlich passieren, falls kurz darauf das beste Bid und das beste Ask auf dem externen Markt deutlich ansteigen?",
+                    "answers": 
+                    [
+                        "Sowohl Ihr Bid als auch Ihr Ask steigen infolge des Preisanstiegs auf dem externen Markt.",
+                        "Sowohl Ihr Bid als auch Ihr Ask sinken im Gegensatz zum Preisanstieg auf dem externen Markt.",
+                        "Sowohl Ihr Bid als auch Ihr Ask werden sich voraussichtlich nicht ändern.",
+                        "Ihr Bid wird voraussichtlich steigen, während Ihr Ask sinkt.",
+                        "Ihr Bid wird voraussichtlich sinken, während Ihr Ask steigt."
+                    ],
+                    "correct_answ": "Sowohl Ihr Bid als auch Ihr Ask steigen infolge des Preisanstiegs auf dem externen Markt."
+                },
+                "implicit_cost_1":
+                {
+                    "question": "Welchen Nachteil hat es, den Schieberegler der External Feed Sensitivity auf 1 zu setzen?",
+                    "answers": 
+                    [
+                        "Ihr Bot konzentriert sich ausschließlich auf die Preise des externen Marktes, was dazu führen kann, dass Sie die Momente verpassen, in denen Ihr eigener Markt schneller agiert.",
+                        "Ihr Bot konzentriert sich ausschließlich auf die Preise des eigenen Marktes, was dazu führen kann, dass Sie die Momente verpassen, in denen der externe Markt schneller agiert.",
+                        "Ihr Bot konzentriert sich weniger auf den profitablen Handel und mehr auf den Ausgleich Ihres Aktienbestandes.",
+                        "Ihr Bot konzentriert sich ausschließlich auf den profitablen Handel, was zu hohen Abzugszahlungen führen kann.",
+                        "Es gibt keinen Nachteil."
+                    ],
+                    "correct_answ": "Ihr Bot konzentriert sich ausschließlich auf die Preise des externen Marktes, was dazu führen kann, dass Sie die Momente verpassen, in denen Ihr eigener Markt schneller agiert."
+                }
+            },    
+            "speed": 
+            {
+                "two_players":
+                {
+                    "question": "Angenommen, zwei Spieler (Anna und Tim) sind auf demselben Markt tätig und haben die gleiche, hohe Empfindlichkeit gegenüber dem externen Markt. Angenommen, sie haben auch die gleiche, niedrige Bestandsempfindlichkeit. Der einzige Unterschied besteht darin, dass Anna die Geschwindigkeit eingeschaltet hat, während Tim die Geschwindigkeit ausgeschaltet hat. Wessen Bid und Ask werden sich schneller ändern, sobald sich die Preise auf dem eigenen Markt oder auf dem externen Markt verändern?",
+                    "answers": 
+                    [
+                        "Annas Bid und Ask werden sich schneller ändern, unabhängig davon auf welchem Markt eine Preisänderung stattfindet.",
+                        "Tims Bid und Ask werden sich schneller ändern, unabhängig davon auf welchem Mark die Preisänderung stattfindet.",
+                        "Annas Bid und Ask werden sich schneller ändern, falls sich die Preise auf dem externen Markt verändern, während sich Tims Bid und Ask schneller ändern, falls sich die Preise auf dem eigenen Markt verändern.",
+                        "Tims Bid und Ask werden sich schneller ändern, falls sich die Preise auf dem externen Markt verändern, während sich Annas Bid und Ask schneller ändern, falls sich die Preise auf dem eigenen Markt verändern.",
+                        "Das Bid und Ask von Anna und Tim ändern sich gleich schnell, unabhängig davon auf welchem Markt die Preisänderung stattfindet."
+                    ],
+                    "correct_answ": "Annas Bid und Ask werden sich schneller ändern, unabhängig davon auf welchem Markt eine Preisänderung stattfindet."
+                },
+                "three_min":
+                {
+                    "question": "Angenommen, Sie schalten die schnellere Geschwindigkeit für 3 Minuten ein, wie hoch sind Ihre Kosten?",
+                    "answers": 
+                    [
+                        "180 * 0.01 = 1.8 ECU",
+                        "180 * 0.1 = 18 ECU",
+                        "180 * 1 = 180 ECU",
+                        "180 * 10 = 1800 ECU",
+                        "Die Geschwindigkeitsoption verursacht keine Kosten."
+                    ],
+                    "correct_answ": "180 * 0.01 = 1.8 ECU"
+                }
+            },
+            "market_specific_design": 
+            {
+                "one_ask": 
+                {
+                    "question": "Angenommen, es gibt genau ein Ask auf dem Markt und es beträgt 99 ECU. Anna gibt gleich zu Beginn der Handelsperiode ein Bid zu 100 ECU ab. Eine Sekunde später gibt Tim ebenfalls ein Bid zu 100 ECU ab. Was geschieht infolgedessen?",
+                    "answers": 
+                    [
+                        "Die Gebote werden nacheinander verarbeitet, d.h. Annas Bid wird gegen das ausstehende Ask ausgeführt, während Tims Bid in das Orderbuch aufgenommen wird.",
+                        "Beide Gebote werden gleichzeitig verarbeitet, es wird zufällig bestimmt, welches Bid gegen das ausstehende Ask ausgeführt wird und welches Bid in das Orderbuch aufgenommen wird.",
+                        "Beide Gebote werden zu 100 ECU in das Orderbuch eingetragen.",
+                        "Annas Bid wird am Ende der Handelsperiode gegen das ausstehende Ask ausgeführt.",
+                        "Tims Bid wird am Ende der Handelsperiode gegen das ausstehende Ask ausgeführt."
+                    ],
+                    "correct_answ": 
+                    {
+                        "cda": "Die Gebote werden nacheinander verarbeitet, d.h. Annas Bid wird gegen das ausstehende Ask ausgeführt, während Tims Bid in das Orderbuch aufgenommen wird.",
+                        "iex": "Die Gebote werden nacheinander verarbeitet, d.h. Annas Bid wird gegen das ausstehende Ask ausgeführt, während Tims Bid in das Orderbuch aufgenommen wird.",
+                        "fba": "Beide Gebote werden gleichzeitig verarbeitet, es wird zufällig bestimmt, welches Bid gegen das ausstehende Ask ausgeführt wird und welches Bid in das Orderbuch aufgenommen wird."
+                    }
+                },
+                "hidden_order":
+                {
+                    "question": "Was sind die beiden besonderen Merkmale eines unsichtbaren Gebots?",
+                    "answers": 
+                    [
+                        "Die Börse passt den Preis dieser Gebote automatisch an, gekennzeichnet durch den schwarzen vertikalen Balken. Menschliche Teilnehmer können nicht beobachten, ob unsichtbare Gebote zum Preis des schwarzen Balkens existieren oder nicht.",
+                        "Die Börse passt den Preis dieser Gebote automatisch an, gekennzeichnet durch den schwarzen vertikalen Balken. Menschliche Teilnehmer können beobachten, ob unsichtbare Gebote zum Preis des schwarzen Balkens existieren oder nicht.",
+                        "Die automatisierten Investoren passen den Preis der unsichtbaren Gebote in Abhängigkeit von Ihrem Verhalten und dem der anderen menschlichen Marktteilnehmer an. Kein Marktteilnehmer kann beobachten, ob unsichtbare Gebote existieren oder nicht.",
+                        "Unsichtbare Gebote unterscheiden sich nicht von gewöhnlichen Limit- oder Market Orders."
+                    ],
+                    "correct_answ": "Die Börse passt den Preis dieser Gebote automatisch an, gekennzeichnet durch den schwarzen vertikalen Balken. Menschliche Teilnehmer können nicht beobachten, ob unsichtbare Gebote zum Preis des schwarzen Balkens existieren oder nicht."
+                }
+            }
+        }
+}
+
