@@ -336,9 +336,9 @@ class ELOAutomatedTraderState(ELOTraderState):
             else:
                 self.enter_order(trader, event, 'B', price=target_bid)
 
-        if len(buys) > 0 and target_bid > old_offer:
+        if len(buys) > 0 and old_offer is not None and target_bid > old_offer:
             start_from = 'S'
-        elif len(sells) >0 and target_offer < old_bid:
+        elif len(sells) >0 and old_bid is not None and target_offer < old_bid:
             start_from = 'B'
 
         if start_from == 'B':
