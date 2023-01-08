@@ -195,9 +195,9 @@ Spread: {self.bid} - {self.offer}
 
     def _confirm_cancel(self, **kwargs):
         token = kwargs['order_token']
-        order_info = self._orders.get(token)
+        order_info = copy.deepcopy(self._orders.get(token))
         if order_info is not None:
-            order_info = self._orders.pop(token)
+            self._orders.pop(token)
             direction = order_info['buy_sell_indicator']
             price = order_info['price']
             self.update_spread(price, direction, clear=True)   
