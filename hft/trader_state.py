@@ -38,7 +38,7 @@ class TraderState(object):
         pass
     
     def cancel_all_orders(self, trader, event):
-        all_orders = trader.orderstore.all_orders()
+        all_orders = trader.orderstore.all_orders() + trader.orderstore.all_pre_orders()
         if all_orders:
             for order in all_orders:
                 event.exchange_msgs('cancel', model=trader, **order)
@@ -180,7 +180,7 @@ class ELOAutomatedTraderState(ELOTraderState):
     def state_change(self, trader, event):
         super().state_change(trader, event)
         new_state = event.message.state
-        
+
         if new_state == self.trader_model_name :
             if trader.market_facts['best_bid'] > MIN_BID:
                 log.debug('trader %s: market valid, enter buy..' % trader.tag)

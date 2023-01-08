@@ -91,6 +91,15 @@ Spread: {self.bid} - {self.offer}
         else:
             out = list(filter(lambda x: x['buy_sell_indicator'] == direction, out))
             return out
+    
+    def all_pre_orders(self, direction=None):
+        out = [o for o in self._pre_orders.values() if o['status'] 
+            in (b'active', b'pending')]
+        if direction is None:
+            return out
+        else:
+            out = list(filter(lambda x: x['buy_sell_indicator'] == direction, out))
+            return out
 
     def register_replace(self, token, new_price):
         try:
