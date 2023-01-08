@@ -180,6 +180,7 @@ class ELOAutomatedTraderState(ELOTraderState):
     def state_change(self, trader, event):
         super().state_change(trader, event)
         new_state = event.message.state
+        
         if new_state == self.trader_model_name :
             if trader.market_facts['best_bid'] > MIN_BID:
                 log.debug('trader %s: market valid, enter buy..' % trader.tag)

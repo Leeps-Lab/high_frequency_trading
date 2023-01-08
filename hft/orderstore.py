@@ -26,6 +26,7 @@ class OrderStore:
         self.default_shares = default_shares
         self.firm = firm or chr(in_group_id + 64) * 4
         self._orders = {}
+        self._pre_orders = {}
         self.inventory = default_inventory
         self.bid = None
         self.offer = None
