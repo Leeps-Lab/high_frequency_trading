@@ -122,8 +122,6 @@ Spread: {self.bid} - {self.offer}
         old_price = int(pre_order_info['price'])    
         pre_order_info['price'] = new_price
         pre_order_info['old_price'] = old_price
-        del order_info['replacement_order_token']
-        del order_info['replace_price']
         self._pre_orders[replacement_token] = pre_order_info
 
         log.debug('trader %s: register replace for token %s with %s at price %s.' % (
@@ -177,8 +175,11 @@ Spread: {self.bid} - {self.offer}
             old_price = int(order_info['old_price'])
             replacement_order['price'] = new_price
             replacement_order['old_price'] = old_price
-
             self._orders.pop(existing_token)
+
+            if replacement_order['replacement_order_token'] == replacement_token:
+                del order_info['replacement_order_token']
+                del order_info['replace_price']
             self._orders[replacement_token] = replacement_order
             self._pre_orders.pop(replacement_token)
             direction = replacement_order['buy_sell_indicator']
