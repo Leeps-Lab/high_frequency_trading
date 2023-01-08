@@ -195,11 +195,13 @@ Spread: {self.bid} - {self.offer}
 
     def _confirm_cancel(self, **kwargs):
         token = kwargs['order_token']
-        order_info = self._orders.pop(token)
-        direction = order_info['buy_sell_indicator']
-        price = order_info['price']
-        self.update_spread(price, direction, clear=True)   
-        log.debug('trader %s: confirm cancel: token %s.' % (self.player_id, token))
+        order_info = self._orders.get(token)
+        if order_info is not None:
+            order_info = self._orders.pop(token)
+            direction = order_info['buy_sell_indicator']
+            price = order_info['price']
+            self.update_spread(price, direction, clear=True)   
+            log.debug('trader %s: confirm cancel: token %s.' % (self.player_id, token))
         return order_info
     
     def _confirm_execution(self, **kwargs):
