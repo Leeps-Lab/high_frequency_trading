@@ -79,8 +79,11 @@ class OrderStore:
 
             
 Spread: {self.bid} - {self.offer}
+------------------------------------------
+                Full orderstore:
+{order_store}
      """.format(self=self, active_orders=active_orders, pending_orders=
-            pending_orders, ioc_orders=ioc)
+            pending_orders, ioc_orders=ioc, order_store = self._orders)
         return out
 
     def all_orders(self, direction=None):
