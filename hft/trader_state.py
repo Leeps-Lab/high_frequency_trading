@@ -178,6 +178,11 @@ class ELOAutomatedTraderState(ELOTraderState):
         })
 
     def state_change(self, trader, event):
+        
+        if new_state != self.trader_model_name :
+            trader.disable_bid = True
+            trader.disable_offer = True
+        
         super().state_change(trader, event)
         new_state = event.message.state
 
@@ -188,9 +193,6 @@ class ELOAutomatedTraderState(ELOTraderState):
             if trader.market_facts['best_offer'] < MAX_ASK:
                 log.debug('trader %s: market valid, enter offer..' % trader.tag)
                 self.enter_order(trader, event, 'S')
-        else:
-            trader.disable_bid = True
-            trader.disable_offer = True
     
     def enter_order(self, trader, event, buy_sell_indicator, price=None,
             price_producer=latent_bid_and_offer, time_in_force=99999):

@@ -293,15 +293,16 @@ w: %s, speed unit cost: %s' % (
     def order_canceled(self, event):
         event_as_kws = event.to_kwargs()
         order_info = self.orderstore.confirm('canceled', **event_as_kws)
-        order_token = event.message.order_token
-        price = order_info['price']
-        buy_sell_indicator = order_info['buy_sell_indicator']
-        event.broadcast_msgs('canceled', order_token=order_token,
-            price=price, buy_sell_indicator=buy_sell_indicator, 
-            model=self)
+        if order_info is not None:
+            order_token = event.message.order_token
+            price = order_info['price']
+            buy_sell_indicator = order_info['buy_sell_indicator']
+            event.broadcast_msgs('canceled', order_token=order_token,
+                price=price, buy_sell_indicator=buy_sell_indicator, 
+                model=self)
 
-        self.executed_price = None
-        self.buy_sell_indicator = None
+            self.executed_price = None
+            self.buy_sell_indicator = None
 
     def order_executed(self, event):
         def adjust_inventory(buy_sell_indicator):
