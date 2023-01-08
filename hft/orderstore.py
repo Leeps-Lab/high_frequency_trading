@@ -175,7 +175,7 @@ Spread: {self.bid} - {self.offer}
 
         if order_info is not None:
             new_price = kwargs['price']
-            old_price = int(order_info['old_price'])
+            old_price = int(order_info['price'])
             replacement_order['price'] = new_price
             replacement_order['old_price'] = old_price
             self._orders.pop(existing_token)
