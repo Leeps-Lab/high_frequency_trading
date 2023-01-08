@@ -1,6 +1,7 @@
 import logging
 import time
 import itertools
+import copy
 
 log = logging.getLogger(__name__)
 
@@ -119,8 +120,7 @@ Spread: {self.bid} - {self.offer}
         order_info['replacement_order_token'] = replacement_token
         order_info['replace_price'] = new_price
         self._orders[token] = order_info
-
-        pre_order_info = order_info
+        pre_order_info = copy.deepcopy(order_info)
         pre_order_info['order_token'] = replacement_token
         old_price = int(pre_order_info['price'])    
         pre_order_info['price'] = new_price
