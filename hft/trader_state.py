@@ -232,11 +232,13 @@ class ELOAutomatedTraderState(ELOTraderState):
     def bbo_change(self, trader, event):
         super().bbo_change(trader, event)
         if trader.disable_bid:
-            trader.disable_bid = False
-            log.debug('trader %s: bids enabled.' % trader.tag)
+            #trader.disable_bid = False
+            #log.debug('trader %s: bids enabled.' % trader.tag)
+            pass
         if trader.disable_offer:
-            trader.disable_offer = False        
-            log.debug('trader %s: offers enabled.' % trader.tag)
+            #trader.disable_offer = False        
+            #log.debug('trader %s: offers enabled.' % trader.tag)
+            pass
         self.recalculate_market_position(trader, event)
     
     def external_feed_change(self, trader, event):
