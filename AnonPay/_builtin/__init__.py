@@ -1,21 +1,25 @@
-# Don't change anything in this file.
-from .. import models
+# This file is auto-generated.
+# It's used to aid autocompletion in code editors.
+
 import otree.api
+from .. import models
 
 
 class Page(otree.api.Page):
-    subsession: models.Subsession
-    group: models.Group
-    player: models.Player
+    def z_autocomplete(self):
+        self.subsession = models.Subsession()
+        self.group = models.Group()
+        self.player = models.Player()
 
 
 class WaitPage(otree.api.WaitPage):
-    subsession: models.Subsession
-    group: models.Group
-    player: models.Player
+    def z_autocomplete(self):
+        self.subsession = models.Subsession()
+        self.group = models.Group()
 
 
 class Bot(otree.api.Bot):
-    subsession: models.Subsession
-    group: models.Group
-    player: models.Player
+    def z_autocomplete(self):
+        self.subsession = models.Subsession()
+        self.group = models.Group()
+        self.player = models.Player()

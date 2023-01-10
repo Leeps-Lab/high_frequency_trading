@@ -1,0 +1,15 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+
+{% block title %}
+    Ihre Auszahlung
+{% endblock %}
+
+{% block content %}
+
+    <p>Bitte geben Sie unten den Auszahlungscode <big>{{ player.code }}</big> ein sowie Ihre Auszahlungsdaten. Vielen Dank!</p>
+
+    <iframe src="https://experiment.lab.uni-koeln.de/index.php/397594" width="100%" height="500">
+    </iframe>
+
+{% endblock %}
