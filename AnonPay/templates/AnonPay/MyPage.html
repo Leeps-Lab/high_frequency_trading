@@ -7,7 +7,33 @@
 
 {% block content %}
 
-    <p>Bitte geben Sie unten den Auszahlungscode <big>{{ player.code }}</big> ein sowie Ihre Auszahlungsdaten. Vielen Dank!</p>
+    <p>Willkommen beim Auszahlungsformular des Kölner Laboratoriums für Wirtschaftsforschung.</p>
+    
+    
+    {% if negative_payoff %}
+        <p>Leider ist die Summe ihrer Gewinne aller Handelsperioden negativ, so dass ihre Auszahlung der Show-Up Fee von <b>{{ participation_fee }}</b> entspricht.</p>
+    {% elif overbooked %}
+        <p>Vielen Dank für Ihr Erscheinen und Interesse an unserem Experiment.  Typischerweise laden wir mehr Teilnehmer als nötig ein, für den Fall, dass einige nicht erscheinen oder nicht mit den Bedingungen einverstanden sind. Falls jedoch alle erscheinen und einverstanden sind, wählen wir die Personen, die an dem Experiment teilnehmen nach dem Zufallsprinzip aus. Sie wurden leider nicht für die Teilnahme an der heutigen Sitzung ausgewählt, aber da Sie pünktlich zur Sitzung erschienen sind, erhalten Sie im nächsten Schritt Ihre Show-Up Fee. Vielen Danken für Ihr Verständnis.</p>
+    {% elif underbooked %}
+        <p>Vielen Dank für Ihr Erscheinen und Interesse an unserem Experiment.  Leider sind nicht genügend Teilnehmer erschienen und mit den Bedingungen einverstanden, sodass das Experiment nicht zustande kommen kann. Da Sie aber rechtzeitig zu dieser Sitzung erschienen sind, erhalten Sie im nächsten Schritt Ihre Show-Up Fee. Vielen Dank für Ihr Verständnis.</p>
+    {% elif consent %}
+        {% if earned_more_than_max %}
+            <p>Die Summe ihrer Gewinne aller Handelsperioden ist außerordentlich hoch, so dass ihre Auszahlung dem maximalen Wert von {{max_payment}} zuzüglich Show-Up Fee von {{ participation_fee }} entspricht.</p>
+        {% else %}
+            {% if random_payoff %}
+                <p>Runde {{ random_round_num }} wurde zufällig ausgewählt. In dieser Runde haben Sie einen Gewinn von <b>{{ total_cash_payment_before_exchange_rate }} ECU</b> erzielt. Zusammen mit der Show-Up Fee ergibt dies einen Auszahlungsbetrag in der Höhe von: €{{ nicePayment }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate}} (Wechselkurs) + {{ participation_fee }} (Show-Up Fee).</p>
+            {% else %}
+                <p>Sie haben insgesamt einen Gewinn von <b>{{ total_cash_payment_before_exchange_rate }} ECU</b> erzielt. Zusammen mit der Show-Up Fee summiert sich dies auf: €{{ nicePayment }} = {{ total_cash_payment_before_exchange_rate }} ECU x {{ exchange_rate }} (Wechselkurs) + {{ participation_fee }} (Show-Up Fee).</p>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <p>Da Sie mit den Bedingungen des Experiments nicht einverstanden sind, endet das Experiment für Sie an dieser Stelle mit einer Auszahlung in Höhe der Show-Up Fee.</p>
+    {% endif %}
+
+<!-- player.transaction_code needs to be added -->
+    <p>Ihr Auszahlungsbetrag beträgt <b>€{{ nicePayment }}</b>. Damit wir die Auszahlung vornehmen können, geben Sie bitte unten den Auszahlungscode <big>{{ player.transaction_code }}</big> ein sowie Ihre Auszahlungsdaten. Vielen Dank!
+
+    <p></p>
 
     <iframe src="https://experiment.lab.uni-koeln.de/index.php/397594" width="100%" height="500">
     </iframe>
