@@ -42,6 +42,7 @@ class TraderState(object):
         if all_orders:
             for order in all_orders:
                 event.exchange_msgs('cancel', model=trader, **order)
+                log.debug('trader %s: cancel order: %s' % (trader.tag, order['order_token']))   
                 if order['buy_sell_indicator'] == 'B':
                     trader.staged_bid = None
                     log.debug('trader %s: staged bid set none.' % trader.tag)
