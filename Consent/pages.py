@@ -4,7 +4,6 @@ from .models import Constants
 import math
 import time
 import random
-from AnonPay.pages import formatNicely
 
 
 class Consent(Page):
