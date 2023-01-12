@@ -29,4 +29,4 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    code = models.IntegerField()
+    transaction_code = models.IntegerField()
