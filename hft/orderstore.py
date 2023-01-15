@@ -187,6 +187,8 @@ Spread: {self.bid} - {self.offer}
                 del order_info['replace_price']
             self._orders[replacement_token] = replacement_order
             self._pre_orders.pop(replacement_token)
+            if self._pre_orders.get(existing_token) is not None:
+                self._pre_orders.pop(existing_token)
             direction = replacement_order['buy_sell_indicator']
             self.update_spread(old_price, direction, clear=True)
             self.update_spread(new_price, direction)
