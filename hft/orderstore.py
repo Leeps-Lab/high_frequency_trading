@@ -160,6 +160,8 @@ Spread: {self.bid} - {self.offer}
             order_info['created_at'], 4)
         order_info['travel_time'] = travel_time
         self._orders[token] = order_info
+        if self._pre_orders.get(token) is not None:
+            self._pre_orders.pop(token)
         price = order_info['price']
         direction = order_info['buy_sell_indicator']
         log.debug('trader %s: confirm enter: token %s.' % (self.player_id, token))
