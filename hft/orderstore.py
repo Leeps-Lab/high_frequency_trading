@@ -173,25 +173,28 @@ Spread: {self.bid} - {self.offer}
         existing_token = kwargs['previous_order_token']
         replacement_token = kwargs['replacement_order_token']
         order_info = self._orders.get(existing_token)
-        replacement_order = self._pre_orders[replacement_token]
+        replacement_order = copy.deepcopy(self._pre_orders[replacement_token])
 
         if order_info is not None:
             new_price = kwargs['price']
             old_price = int(order_info['price'])
             replacement_order['price'] = new_price
             replacement_order['old_price'] = old_price
+            replacement_order['order_token'] = replacement_token
             self._orders.pop(existing_token)
 
             if replacement_order['replacement_order_token'] == replacement_token:
-                del order_info['replacement_order_token']
-                del order_info['replace_price']
+                del replacement_order['replacement_order_token']
+                del replacement_order['replace_price']
             self._orders[replacement_token] = replacement_order
-            self._pre_orders.pop(replacement_token)
+            
             if self._pre_orders.get(existing_token) is not None:
                 self._pre_orders.pop(existing_token)
             direction = replacement_order['buy_sell_indicator']
             self.update_spread(old_price, direction, clear=True)
             self.update_spread(new_price, direction)
+
+        self._pre_orders.pop(replacement_token)
         
         log.debug('trader %s: confirm replace: token %s --> %s.' % (self.player_id, 
             existing_token, replacement_token))
