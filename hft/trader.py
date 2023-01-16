@@ -116,8 +116,10 @@ class BaseTrader(object):
     
     def state_change(self, event):
         new_state = event.message.state
+        self.trader_role.state_change(self,event)
         trader_state = self.trader_state_factory.get_trader_state(new_state)
         self.trader_role = trader_state
+        self.trader_role.state_change(self,event)
         log.debug('trader %s: change trader role: %s' % (self.tag, trader_state))
         event.broadcast_msgs('role_confirm', role_name=new_state, model=self)
 
@@ -291,15 +293,16 @@ w: %s, speed unit cost: %s' % (
     def order_canceled(self, event):
         event_as_kws = event.to_kwargs()
         order_info = self.orderstore.confirm('canceled', **event_as_kws)
-        order_token = event.message.order_token
-        price = order_info['price']
-        buy_sell_indicator = order_info['buy_sell_indicator']
-        event.broadcast_msgs('canceled', order_token=order_token,
-            price=price, buy_sell_indicator=buy_sell_indicator, 
-            model=self)
+        if order_info is not None:
+            order_token = event.message.order_token
+            price = order_info['price']
+            buy_sell_indicator = order_info['buy_sell_indicator']
+            event.broadcast_msgs('canceled', order_token=order_token,
+                price=price, buy_sell_indicator=buy_sell_indicator, 
+                model=self)
 
-        self.executed_price = None
-        self.buy_sell_indicator = None
+            self.executed_price = None
+            self.buy_sell_indicator = None
 
     def order_executed(self, event):
         def adjust_inventory(buy_sell_indicator):

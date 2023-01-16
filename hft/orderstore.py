@@ -1,6 +1,7 @@
 import logging
 import time
 import itertools
+import copy
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class OrderStore:
         self.default_shares = default_shares
         self.firm = firm or chr(in_group_id + 64) * 4
         self._orders = {}
+        self._pre_orders = {}
         self.inventory = default_inventory
         self.bid = None
         self.offer = None
@@ -78,12 +80,24 @@ class OrderStore:
 
             
 Spread: {self.bid} - {self.offer}
+------------------------------------------
+                Full orderstore:
+{order_store}
      """.format(self=self, active_orders=active_orders, pending_orders=
-            pending_orders, ioc_orders=ioc)
+            pending_orders, ioc_orders=ioc, order_store = self._orders)
         return out
 
     def all_orders(self, direction=None):
         out = [o for o in self._orders.values() if o['status'] 
+            in (b'active', b'pending')]
+        if direction is None:
+            return out
+        else:
+            out = list(filter(lambda x: x['buy_sell_indicator'] == direction, out))
+            return out
+    
+    def all_pre_orders(self, direction=None):
+        out = [o for o in self._pre_orders.values() if o['status'] 
             in (b'active', b'pending')]
         if direction is None:
             return out
@@ -106,6 +120,17 @@ Spread: {self.bid} - {self.offer}
         order_info['replacement_order_token'] = replacement_token
         order_info['replace_price'] = new_price
         self._orders[token] = order_info
+        pre_order_info = copy.deepcopy(order_info)
+        pre_order_info['order_token'] = replacement_token
+        old_price = int(pre_order_info['price'])    
+        pre_order_info['price'] = new_price
+        pre_order_info['old_price'] = old_price
+        self._pre_orders[replacement_token] = pre_order_info
+        if self._pre_orders.get(existing_token) is not None:
+            self._pre_orders[existing_token]['existing_order_token'] = existing_token
+            self._pre_orders[existing_token]['replacement_order_token'] = replacement_token
+            self._pre_orders[existing_token]['replace_price'] = new_price
+
         log.debug('trader %s: register replace for token %s with %s at price %s.' % (
             self.player_id, existing_token, replacement_token, new_price))
         return order_info
@@ -139,6 +164,8 @@ Spread: {self.bid} - {self.offer}
             order_info['created_at'], 4)
         order_info['travel_time'] = travel_time
         self._orders[token] = order_info
+        if self._pre_orders.get(token) is not None:
+            self._pre_orders.pop(token)
         price = order_info['price']
         direction = order_info['buy_sell_indicator']
         log.debug('trader %s: confirm enter: token %s.' % (self.player_id, token))
@@ -149,31 +176,42 @@ Spread: {self.bid} - {self.offer}
     def _confirm_replace(self, **kwargs):
         existing_token = kwargs['previous_order_token']
         replacement_token = kwargs['replacement_order_token']
-        order_info = self._orders.pop(existing_token)
-        order_info['order_token'] = replacement_token
-        new_price = kwargs['price']
-        old_price = int(order_info['price'])
-        direction = order_info['buy_sell_indicator']
-        self.update_spread(old_price, direction, clear=True)
-        self.update_spread(new_price, direction)
+        order_info = self._orders.get(existing_token)
+        replacement_order = copy.deepcopy(self._pre_orders[replacement_token])
+
+        if order_info is not None:
+            new_price = kwargs['price']
+            old_price = int(order_info['price'])
+            replacement_order['price'] = new_price
+            replacement_order['old_price'] = old_price
+            self._orders.pop(existing_token)
+
+            if replacement_order['replacement_order_token'] == replacement_token:
+                del replacement_order['replacement_order_token']
+                del replacement_order['replace_price']
+            self._orders[replacement_token] = replacement_order
+            
+            if self._pre_orders.get(existing_token) is not None:
+                self._pre_orders.pop(existing_token)
+            direction = replacement_order['buy_sell_indicator']
+            self.update_spread(old_price, direction, clear=True)
+            self.update_spread(new_price, direction)
+
+        self._pre_orders.pop(replacement_token)
         
-        if order_info['replacement_order_token'] == replacement_token:
-            del order_info['replacement_order_token']
-            del order_info['replace_price']
-        order_info['price'] = new_price
-        self._orders[replacement_token] = order_info
-        order_info['old_price'] = old_price
         log.debug('trader %s: confirm replace: token %s --> %s.' % (self.player_id, 
             existing_token, replacement_token))
-        return order_info   
+        return replacement_order   
 
     def _confirm_cancel(self, **kwargs):
         token = kwargs['order_token']
-        order_info = self._orders.pop(token)
-        direction = order_info['buy_sell_indicator']
-        price = order_info['price']
-        self.update_spread(price, direction, clear=True)   
-        log.debug('trader %s: confirm cancel: token %s.' % (self.player_id, token))
+        order_info = copy.deepcopy(self._orders.get(token))
+        if order_info is not None:
+            self._orders.pop(token)
+            direction = order_info['buy_sell_indicator']
+            price = order_info['price']
+            self.update_spread(price, direction, clear=True)   
+            log.debug('trader %s: confirm cancel: token %s.' % (self.player_id, token))
         return order_info
     
     def _confirm_execution(self, **kwargs):
