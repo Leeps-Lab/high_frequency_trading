@@ -127,9 +127,9 @@ Spread: {self.bid} - {self.offer}
         pre_order_info['old_price'] = old_price
         self._pre_orders[replacement_token] = pre_order_info
         if self._pre_orders.get(existing_token) is not None:
-            self._pre_orders['existing_order_token'] = existing_token
-            self._pre_orders['replacement_order_token'] = replacement_token
-            self._pre_orders['replace_price'] = new_price
+            self._pre_orders[existing_token]['existing_order_token'] = existing_token
+            self._pre_orders[existing_token]['replacement_order_token'] = replacement_token
+            self._pre_orders[existing_token]['replace_price'] = new_price
 
         log.debug('trader %s: register replace for token %s with %s at price %s.' % (
             self.player_id, existing_token, replacement_token, new_price))
