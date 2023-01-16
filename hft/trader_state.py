@@ -41,6 +41,7 @@ class TraderState(object):
         all_orders = trader.orderstore.all_orders() + trader.orderstore.all_pre_orders()
         if all_orders:
             for order in all_orders:
+                order['shares'] = 0
                 event.exchange_msgs('cancel', model=trader, **order)
                 log.debug('trader %s: cancel order: %s' % (trader.tag, order['order_token']))   
                 if order['buy_sell_indicator'] == 'B':
