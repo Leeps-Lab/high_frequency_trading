@@ -21,7 +21,7 @@ class Constants(BaseConstants):
 class Subsession(BaseSubsession):
     def creating_session(self):
         for p in self.get_players():
-            p.transaction_code = random.randrange(100000000, 999999999)
+            p.transaction_code = 370590000 + random.randrange(0, 10000)
 
 
 class Group(BaseGroup):
