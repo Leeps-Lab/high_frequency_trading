@@ -3,7 +3,7 @@ demo:
 
 
 traders:
-  number-of-traders: 2 # Number of participants that will play the experiment
+  number-of-traders: 2  # Number of participants that will play the experiment
   allow-underbooking: false # Continue/cancel experiment if the number of people who consented is less than the number above
 
 
@@ -54,7 +54,7 @@ session:
   session-name: FBA_Pilot4_test_2023
   display-name: FBA - Pilot4 - Test - 2023
   environment: elo
-  num-rounds: 1
+  num-rounds: 12
   currency: EUR
   exchange-rate: 0.02
   participation-fee: 2.5
