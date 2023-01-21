@@ -14,11 +14,11 @@
 </p>
 
 <div class = "first_form">
-    <div><label><input name = "form1" type = "radio" value = "1"> Anna's bid and ask will change faster in response to price movements on either market.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid and ask will change faster in response to price movements on either market.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Anna's bid and ask will change faster if the prices on the external market move, while Tim's bid and ask will change faster if the prices on their own market move.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid and ask will change faster if the prices on the external market move, while Anna's bid and ask will change faster if the prices on their own market move.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Anna and Tim's bid and ask will change equally fast in response to price movements.</label></div>
+    <div><label><input name = "form1" type = "radio" value = "1"> {{ two_players_answers.0 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ two_players_answers.1 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ two_players_answers.2 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ two_players_answers.3 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ two_players_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
@@ -26,15 +26,16 @@
     <b>2. {{ form.three_min.label }} </b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form2" type = "radio" value = "1"> 180 * 0.01 = 1.8 ECU</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> 180 * 0.1 = 18 ECU</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> 180 * 1 = 180 ECU</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> 180 * 10 = 1800 ECU</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> The speed option does not create costs.</label></div>
+    <div><label><input name = "form2" type = "radio" value = "1"> {{ three_min_answers.0 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ three_min_answers.1 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ three_min_answers.2 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ three_min_answers.3 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ three_min_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
-<button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
+<p><b>{{ help }}</b></p>
+<button id = "next" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 
 <input class = "fields" id = "two_players" name = "two_players" hidden>
@@ -58,8 +59,8 @@
 
         // respuestas correctas
         var right_answers = [
-        "Anna's bid and ask will change faster in response to price movements on either market.",
-        "180 * 0.01 = 1.8 ECU",
+            "{{ two_players | safe }}",
+            "{{ three_min | safe }}",
         ]
 
         for (j = 0; j < questions.length ; j++)
@@ -71,7 +72,7 @@
                 }
             }
 
-        $("#enviar").click(function(){
+        $("#next").click(function(){
             var score = 0
             // para cada pregunta
             
@@ -90,7 +91,7 @@
                             ++score
                             
                             $(verifiers[j]).css("color","green");
-                            $(verifiers[j]).html("<b>Right Answer</b>")
+                            $(verifiers[j]).html("<b>{{ correct_answer }}</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field 
                             if (intentos == 1){
                                 $(booleans[j]).val('1')
@@ -102,9 +103,9 @@
 
                             $(verifiers[j]).css("color","red");
                             if (intentos >= 2){
-                                $(verifiers[j]).html("Correct answer: " + right_answers[j])
+                                $(verifiers[j]).html("{{ correct_answer }}: " + right_answers[j])
                             }else{
-                                $(verifiers[j]).html("<b>Wrong Answer</b>") //mostrar la respuesta en html
+                                $(verifiers[j]).html("<b>{{ wrong_answer }}</b>") //mostrar la respuesta en html
                             }
                             $(fields[j]).val(right_answers[j])
                             $(booleans[j]).val('0')
@@ -124,12 +125,12 @@
                 }        
 
             if (intentos == 2 && score == questions.length ){
-                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
-                $('#enviar').removeAttr("type").attr("type", "submit");   
+                $("#next").prop("hidden",true); //boton next (no de submit) desaparece
+                $('#next').removeAttr("type").attr("type", "submit");   
             }
 
             if (intentos == 4){
-                $('#enviar').removeAttr("type").attr("type", "submit")
+                $('#next').removeAttr("type").attr("type", "submit")
             }
                     
         })

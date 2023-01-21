@@ -37,6 +37,19 @@ class RegisterPlayers(WaitPage):
             self.session.config['random_round_num'] = my_custom_random(exclude, num_rounds)
         self.subsession.register()
 
+# Stores translations used on survey pages
+translation_map = {
+    'english': {
+        'correct_answer': 'Correct Answer',
+        'wrong_answer': 'Wrong Answer',
+        'help': 'If you have any questions, please raise your hand and an experimenter will reach out to you and answer your questions.'
+    },
+    'german': {
+        'correct_answer': 'Richtige Antwort',
+        'wrong_answer': 'Falsche Antwort',
+        'help': 'Wenn Sie Fragen haben, heben Sie bitte die Hand und ein Versuchsleiter wird sich an Sie wenden und Ihre Fragen beantworten.'
+    }
+}
 
 class Instructions(Page):
     def is_displayed(self):
@@ -47,6 +60,7 @@ class Instructions(Page):
 
         out['auction_format'] = self.session.config['auction_format']
         out['next_button_timeout'] = self.session.config['instructions_next_button_timeout']
+
         return out
 
 
@@ -58,7 +72,15 @@ class General(Page):
     form_fields = lista
 
     def vars_for_template(self):
-        return get_correct_answers(Constants.q_and_a_sections, "general")
+        out = get_correct_answers(Constants.q_and_a_sections, "general")
+
+        # Determine whether to show German or English
+        if 'german' in Constants.q_and_a_path:
+            out.update(translation_map['german'])
+        else:
+            out.update(translation_map['english'])
+
+        return out
 
     def is_displayed(self):
         return self.session.config['run_survey'] and self.round_number == Constants.num_rounds
@@ -72,7 +94,15 @@ class Inventory(Page):
                   Constants.q_and_a_sections["inventory"].keys()]
 
     def vars_for_template(self):
-        return get_correct_answers(Constants.q_and_a_sections, "inventory")
+        out = get_correct_answers(Constants.q_and_a_sections, "inventory")
+
+        # Determine whether to show German or English
+        if 'german' in Constants.q_and_a_path:
+            out.update(translation_map['german'])
+        else:
+            out.update(translation_map['english'])
+
+        return out
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
@@ -87,7 +117,15 @@ class ExternalMarket(Page):
                   Constants.q_and_a_sections["external_market"].keys()]
 
     def vars_for_template(self):
-        return get_correct_answers(Constants.q_and_a_sections, "external_market")
+        out = get_correct_answers(Constants.q_and_a_sections, "external_market")
+
+        # Determine whether to show German or English
+        if 'german' in Constants.q_and_a_path:
+            out.update(translation_map['german'])
+        else:
+            out.update(translation_map['english'])
+
+        return out
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
@@ -102,7 +140,15 @@ class Speed(Page):
                   Constants.q_and_a_sections["speed"].keys()]
 
     def vars_for_template(self):
-        return get_correct_answers(Constants.q_and_a_sections, "speed")
+        out = get_correct_answers(Constants.q_and_a_sections, "speed")
+
+        # Determine whether to show German or English
+        if 'german' in Constants.q_and_a_path:
+            out.update(translation_map['german'])
+        else:
+            out.update(translation_map['english'])
+
+        return out
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']
@@ -134,8 +180,15 @@ class MarketSpecific(Page):
             else:
                 correct_answers[question] = correct_answers_dicts[question]
         
-        output = {**correct_answers, **{"auction": auction_format}} # adding auction format to output
-        return output
+        out = {**correct_answers, **{"auction": auction_format}} # adding auction format to output
+
+        # Determine whether to show German or English
+        if 'german' in Constants.q_and_a_path:
+            out.update(translation_map['german'])
+        else:
+            out.update(translation_map['english'])
+
+        return out
 
     def is_displayed(self):
         practice_rounds = self.session.config['trial_rounds']

@@ -19,9 +19,9 @@
     </p>
 
     <div class = "first_form">
-        <label><input name = "degree" type = "radio" value = "B.Sc."> B.Sc.</label><br>
-        <label><input name = "degree" type = "radio" value = "M.Sc."> M.Sc.</label><br>    
-        <label><input name = "degree" type = "radio" value = "Ph.D."> Ph.D.</label>
+        <label><input name = "degree" type = "radio" value = "{{ degree_answers.0 }}"> {{ degree_answers.0 }}</label><br>
+        <label><input name = "degree" type = "radio" value = "{{ degree_answers.1 }}"> {{ degree_answers.1 }}</label><br>    
+        <label><input name = "degree" type = "radio" value = "{{ degree_answers.2 }}"> {{ degree_answers.2 }}</label>
         <br>
     </div>
 
@@ -33,8 +33,8 @@
     </p>
 
     <div class = "first_form">
-        <label><input name = "degree_backg" type = "radio" value = "Yes"> Yes</label><br>
-        <label><input name = "degree_backg" type = "radio" value = "No"> No</label>
+        <label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.0 }}"> {{ degree_backg_answers.0 }}</label><br>
+        <label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.1 }}"> {{ degree_backg_answers.1 }}</label>
         <br>
     </div>
 
@@ -46,11 +46,11 @@
     </p>
 
     <div class = "first_form">
-        <label><input name = "video_clarity" type = "radio" value = "1"> 1</label><br>
-        <label><input name = "video_clarity" type = "radio" value = "2"> 2</label><br>
-        <label><input name = "video_clarity" type = "radio" value = "3"> 3</label><br>
-        <label><input name = "video_clarity" type = "radio" value = "4"> 4</label><br>
-        <label><input name = "video_clarity" type = "radio" value = "5"> 5</label>
+        <label><input name = "video_clarity" type = "radio" value = "{{ video_clarity_answers.0 }}"> {{ video_clarity_answers.0 }}</label><br>
+        <label><input name = "video_clarity" type = "radio" value = "{{ video_clarity_answers.1 }}"> {{ video_clarity_answers.1 }}</label><br>
+        <label><input name = "video_clarity" type = "radio" value = "{{ video_clarity_answers.2 }}"> {{ video_clarity_answers.2 }}</label><br>
+        <label><input name = "video_clarity" type = "radio" value = "{{ video_clarity_answers.3 }}"> {{ video_clarity_answers.3 }}</label><br>
+        <label><input name = "video_clarity" type = "radio" value = "{{ video_clarity_answers.4 }}"> {{ video_clarity_answers.4 }}</label>
         <br>
     </div>
 
@@ -75,11 +75,11 @@
     </p>
 
     <div class = "first_form">
-        <label><input name = "interface_clarity" type = "radio" value = "1"> 1</label><br>
-        <label><input name = "interface_clarity" type = "radio" value = "2"> 2</label><br>
-        <label><input name = "interface_clarity" type = "radio" value = "3"> 3</label><br>
-        <label><input name = "interface_clarity" type = "radio" value = "4"> 4</label><br>
-        <label><input name = "interface_clarity" type = "radio" value = "5"> 5</label>
+        <label><input name = "interface_clarity" type = "radio" value = "{{ interface_clarity_answers.0 }}"> {{ interface_clarity_answers.0 }}</label><br>
+        <label><input name = "interface_clarity" type = "radio" value = "{{ interface_clarity_answers.1 }}"> {{ interface_clarity_answers.1 }}</label><br>
+        <label><input name = "interface_clarity" type = "radio" value = "{{ interface_clarity_answers.2 }}"> {{ interface_clarity_answers.2 }}</label><br>
+        <label><input name = "interface_clarity" type = "radio" value = "{{ interface_clarity_answers.3 }}"> {{ interface_clarity_answers.3 }}</label><br>
+        <label><input name = "interface_clarity" type = "radio" value = "{{ interface_clarity_answers.4 }}"> {{ interface_clarity_answers.4 }}</label>
         <br>
     </div>
 
@@ -112,6 +112,7 @@
     {{ form.suggestions.errors }}
     
     <br>
+    <p><b>{{ help }}</b></p>
     {% next_button %}
 
 {% endblock %}

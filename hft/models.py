@@ -271,7 +271,11 @@ def get_correct_answers(q_and_a_dict, section_name):
     output = {}
 
     for question in question_fields:
+        # Correct answers
         output[question] = q_and_a_dict[section_name][question]["correct_answ"]
+
+        # Possible answers
+        output[question + '_answers'] = q_and_a_dict[section_name][question]["answers"]
 
     return output
 

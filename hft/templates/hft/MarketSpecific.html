@@ -15,11 +15,11 @@
     <b>1. {{ form.one_ask.label }}</b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form1" type = "radio" value = "0"> The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim's bid enters the orderbook.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "1"> Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook.</label><br></div>    
-    <div><label><input name = "form1" type = "radio" value = "0"> Both bids enter the orderbook at 100 ECU.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Anna's bid will be executed against the ask at the end of the trading period.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid will be executed against the ask at the end of the trading period.</label></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ one_ask_answers.0 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "1"> {{ one_ask_answers.1 }}</label><br></div>    
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ one_ask_answers.2 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ one_ask_answers.3 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ one_ask_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
@@ -28,11 +28,11 @@
     <b>1. {{ form.one_ask.label }}</b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form1" type = "radio" value = "1"> The bids are processed serially, which means Anna's bid will be executed against the ask, while Tim's bid enters the orderbook.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Both bids are processed simultaneously, it is randomly determined which bid will be executed against the ask, the other bid will enter the orderbook.</label><br></div>    
-    <div><label><input name = "form1" type = "radio" value = "0"> Both bids enter the orderbook at 100 ECU.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Anna's bid will be executed against the ask at the end of the trading period.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Tim's bid will be executed against the ask at the end of the trading period.</label></div>
+    <div><label><input name = "form1" type = "radio" value = "1"> {{ one_ask_answers.0 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ one_ask_answers.1 }}</label><br></div>    
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ one_ask_answers.2 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ one_ask_answers.3 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ one_ask_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
@@ -43,18 +43,18 @@
     <b>2. {{ form.hidden_order.label }} </b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form2" type = "radio" value = "1"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and the market participants cannot observe whether there exist hidden orders at  the black bar or not.</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and all market participants can observe whether hidden orders exist at the black bar or not.</label><br></div>    
-    <div><label><input name = "form2" type = "radio" value = "0"> The exchange automatically adjusts the price of these orders, which is indicated by the black vertical bar, and these orders can be placed only by you and the other human market participants.</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> The automated investors adjust the price of these orders according to your behavior and the behavior of the other human market participants, none of the market participants can observe whether there exist hidden orders at the black bar or not.</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> Hidden orders cannot be distinguished from ordinary limit or market orders.</label></div>
+    <div><label><input name = "form2" type = "radio" value = "1"> {{ hidden_order_answers.0 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ hidden_order_answers.1 }}</label><br></div>    
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ hidden_order_answers.2 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ hidden_order_answers.3 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ hidden_order_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
 {% endif %}
-<p><b>If you have any questions, please raise your hand and an experimenter will reach out to you and answer your questions.</b></p>
+<p><b>{{ help }}</b></p>
 <br>
-<button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
+<button id = "next" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 
 <!--fields para llenar en js-->
@@ -77,18 +77,14 @@
 
         var booleans = $(".boolean"); 
 
-        var one_ask = {{ one_ask| json }}
-        var hidden_order = {{ hidden_order| json }}
-
         var intentos = 1
         
         // respuestas correctas
         var right_answers = [
-        one_ask,
-        hidden_order,
+            "{{ one_ask | safe }}",
+            "{{ hidden_order | safe }}",
         ]
-        console.log(one_ask)
-        console.log(questions)
+
         for (j = 0; j < questions.length ; j++)
         {
             var parent = $(questions[j]);
@@ -98,7 +94,7 @@
                 }
             }
 
-        $("#enviar").click(function(){
+        $("#next").click(function(){
             var score = 0
             // para cada pregunta
             
@@ -117,7 +113,7 @@
                             ++score
                             
                             $(verifiers[j]).css("color","green");
-                            $(verifiers[j]).html("<b>Right Answer</b>")
+                            $(verifiers[j]).html("<b>{{ correct_answer }}</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field 
                             if (intentos == 1){
                                 $(booleans[j]).val('1')
@@ -129,9 +125,9 @@
 
                             $(verifiers[j]).css("color","red");
                             if (intentos >= 2){
-                                $(verifiers[j]).html("Correct answer: " + right_answers[j])
+                                $(verifiers[j]).html("{{ correct_answer }}: " + right_answers[j])
                             }else{
-                                $(verifiers[j]).html("<b>Wrong Answer</b>") //mostrar la respuesta en html
+                                $(verifiers[j]).html("<b>{{ wrong_answer }}</b>") //mostrar la respuesta en html
                             }
                             $(fields[j]).val(right_answers[j])
                             $(booleans[j]).val('0')
@@ -151,12 +147,12 @@
                 }        
 
             if (intentos == 2 && score == questions.length ){
-                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
-                $('#enviar').removeAttr("type").attr("type", "submit");   
+                $("#next").prop("hidden",true); //boton next (no de submit) desaparece
+                $('#next').removeAttr("type").attr("type", "submit");   
             }
 
             if (intentos == 4){
-                $('#enviar').removeAttr("type").attr("type", "submit")
+                $('#next').removeAttr("type").attr("type", "submit")
             }    
                    
         })

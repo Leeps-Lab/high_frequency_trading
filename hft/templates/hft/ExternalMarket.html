@@ -13,11 +13,11 @@
     <b>1. {{ form.increase_ext.label }}</b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form1" type = "radio" value = "1"> Both, your bid and ask increase following the external market.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> Both, your bid and ask decrease opposing the external market.</label><br></div>    
-    <div><label><input name = "form1" type = "radio" value = "0"> It is likely that neither your bid nor ask will change.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> It is likely that your bid increases, while your ask decreases.</label><br></div>
-    <div><label><input name = "form1" type = "radio" value = "0"> It is likely that your bid decreases, while your ask increases.</label></div>
+    <div><label><input name = "form1" type = "radio" value = "1"> {{ increase_ext_answers.0 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ increase_ext_answers.1 }}</label><br></div>    
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ increase_ext_answers.2 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ increase_ext_answers.3 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ increase_ext_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
@@ -25,11 +25,11 @@
     <b>2. {{ form.implicit_cost_1.label }} </b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form2" type = "radio" value = "1"> Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> Your bot focuses exclusively on the prices on your own market, which might cause you to miss the moments when the external market reacts faster.</label><br></div>    
-    <div><label><input name = "form2" type = "radio" value = "0"> Your bot will focus less on profitable trading and more on balancing the inventory, which will most likely result in you receiving poorer prices.</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> Your bot will focus solely on profitable trading, which will most likely result in high positive or negative inventories and thus higher deduction payment.</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> There are no disadvantages associated with increasing the external sensitivity slider up to 1.</label></div>
+    <div><label><input name = "form2" type = "radio" value = "1"> {{ implicit_cost_1_answers.0 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_1_answers.1 }}</label><br></div>    
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_1_answers.2 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_1_answers.3 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_1_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
@@ -37,15 +37,16 @@
     <b>3. {{ form.implicit_cost_0.label }} </b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form3" type = "radio" value = "0"> Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.</label><br></div>
-    <div><label><input name = "form3" type = "radio" value = "1"> Your bot focuses exclusively on the prices on your own market, which might cause you to miss the moments when the external market reacts faster.</label><br></div>    
-    <div><label><input name = "form3" type = "radio" value = "0"> Your bot will focus less on profitable trading and more on balancing the inventory, which will most likely result in you receiving poorer prices.</label><br></div>
-    <div><label><input name = "form3" type = "radio" value = "0"> Your bot will focus solely on profitable trading, which will most likely result in high positive or negative inventories and thus higher deduction payment.</label></div>
-    <div><label><input name = "form3" type = "radio" value = "0"> There are no disadvantages associated with increasing the external sensitivity slider.</label></div>
+    <div><label><input name = "form3" type = "radio" value = "0"> {{ implicit_cost_0_answers.0 }}</label><br></div>
+    <div><label><input name = "form3" type = "radio" value = "1"> {{ implicit_cost_0_answers.1 }}</label><br></div>    
+    <div><label><input name = "form3" type = "radio" value = "0"> {{ implicit_cost_0_answers.2 }}</label><br></div>
+    <div><label><input name = "form3" type = "radio" value = "0"> {{ implicit_cost_0_answers.3 }}</label></div>
+    <div><label><input name = "form3" type = "radio" value = "0"> {{ implicit_cost_0_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
-<button id = "enviar" class="otree-btn-next btn btn-primary" type = "button" >Enviar</button>
+<p><b>{{ help }}</b></p>
+<button id = "next" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 
 <input class = "fields" id = "increase_ext" name = "increase_ext" hidden>
@@ -69,9 +70,9 @@
         var intentos = 1
         // respuestas correctas
         var right_answers = [
-        "Both, your bid and ask increase following the external market.",
-        "Your bot focuses exclusively on the prices of the external market, which might cause you to miss the moments when your own market reacts faster.",
-        "Your bot focuses exclusively on the prices on your own market, which might cause you to miss the moments when the external market reacts faster.",
+            "{{ increase_ext | safe }}",
+            "{{ implicit_cost_1 | safe }}",
+            "{{ implicit_cost_0 | safe }}",
         ]
 
         for (j = 0; j < questions.length ; j++)
@@ -83,7 +84,7 @@
                 }
         }
 
-        $("#enviar").click(function(){   
+        $("#next").click(function(){   
             var score = 0
 
             // para cada pregunta
@@ -103,7 +104,7 @@
                             ++score
 
                             $(verifiers[j]).css("color","green");
-                            $(verifiers[j]).html("<b>Right Answer</b>")
+                            $(verifiers[j]).html("<b>{{ correct_answer }}</b>")
                             $(fields[j]).val(right_answers[j]) //asignando respuesta al field 
                             if (intentos == 1){
                                 $(booleans[j]).val('1')
@@ -115,9 +116,9 @@
 
                             $(verifiers[j]).css("color","red");
                             if (intentos >= 2){
-                                $(verifiers[j]).html("Correct answer: " + right_answers[j])
+                                $(verifiers[j]).html("{{ correct_answer }}: " + right_answers[j])
                             }else{
-                                $(verifiers[j]).html("<b>Wrong Answer</b>") //mostrar la respuesta en html
+                                $(verifiers[j]).html("<b>{{ wrong_answer }}</b>") //mostrar la respuesta en html
                             }
                             $(fields[j]).val(right_answers[j])
                             $(booleans[j]).val('0')
@@ -138,12 +139,12 @@
                 }        
 
             if (intentos == 2 && score == questions.length ){
-                $("#enviar").prop("hidden",true); //boton enviar (no de submit) desaparece
-                $('#enviar').removeAttr("type").attr("type", "submit");   
+                $("#next").prop("hidden",true); //boton next (no de submit) desaparece
+                $('#next').removeAttr("type").attr("type", "submit");   
             }
 
             if (intentos == 4){
-                $('#enviar').removeAttr("type").attr("type", "submit")
+                $('#next').removeAttr("type").attr("type", "submit")
             }
         })
 
