@@ -3,7 +3,7 @@
 
 
 {% block title %}
-    General
+    Allgemeine Informationen
 {% endblock %}
 
 {% block content %}
@@ -20,8 +20,9 @@
 
     <div class = "first_form">
         <label><input name = "degree" type = "radio" value = "{{ degree_answers.0 }}"> {{ degree_answers.0 }}</label><br>
-        <label><input name = "degree" type = "radio" value = "{{ degree_answers.1 }}"> {{ degree_answers.1 }}</label><br>    
-        <label><input name = "degree" type = "radio" value = "{{ degree_answers.2 }}"> {{ degree_answers.2 }}</label>
+        <label><input name = "degree" type = "radio" value = "{{ degree_answers.1 }}"> {{ degree_answers.1 }}</label><br>  
+	<label><input name = "degree" type = "radio" value = "{{ degree_answers.2 }}"> {{ degree_answers.2 }}</label><br>   
+        <label><input name = "degree" type = "radio" value = "{{ degree_answers.3 }}"> {{ degree_answers.3 }}</label>
         <br>
     </div>
 
@@ -56,7 +57,7 @@
 
     {{ form.video_clarity.errors }}
 
-    <br>
+    <!-- <br>
     <p>
         <b>4. {{ form.video_confusing.label }}</b>
     </p>
@@ -96,11 +97,11 @@
         <br>
     </div>
 
-    {{ form.interface_confusing.errors }}
+    {{ form.interface_confusing.errors }} -->
 
     <br>
     <p>
-        <b>7. {{ form.suggestions.label }}</b>
+        <b>4. {{ form.suggestions.label }}</b>
     </p>
 
     <div class = "first_form">

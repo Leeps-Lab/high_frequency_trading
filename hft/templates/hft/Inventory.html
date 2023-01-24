@@ -2,12 +2,16 @@
 {% load otree %}
 
 {% block title %}
-    Inventory
+    Fragen zum Aktienbestand (Inventory)
 {% endblock %}
 
 {% block content %}
 
 <body>
+<br>
+<p>
+    <b> {{ info }} </b>
+</p>
 <br>
 <p>
     <b>1. {{ form.trader_inv.label }}</b>
@@ -34,7 +38,7 @@
 </div>
 <label class = "verifiers"></label>
 <br>
-<p>
+<!-- <p>
     <b>3. {{ form.end_trading_pos.label }} </b>
 </p>
 <div class = "first_form">
@@ -55,7 +59,7 @@
     <div><label><input name = "form4" type = "radio" value = "0"> {{ end_trading_neg_answers.3 }}</label></div>
 </div>
 <label class = "verifiers"></label>
-<br>
+<br> -->
 <p><b>{{ help }}</b></p>
 <button id = "next" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>

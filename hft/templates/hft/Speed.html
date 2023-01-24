@@ -2,12 +2,13 @@
 {% load otree %}
 
 {% block title %}
-    Speed
+    Fragen zur Speed-Option
 {% endblock %}
 
 {% block content %}
 
 <body>
+<p><b>{{ info }}</b></p>
 <br>
 <p>
     <b>1. {{ form.two_players.label }}</b>
@@ -21,7 +22,7 @@
     <div><label><input name = "form1" type = "radio" value = "0"> {{ two_players_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
-<br>
+<!-- <br>
 <p>
     <b>2. {{ form.three_min.label }} </b>
 </p>
@@ -32,8 +33,8 @@
     <div><label><input name = "form2" type = "radio" value = "0"> {{ three_min_answers.3 }}</label><br></div>
     <div><label><input name = "form2" type = "radio" value = "0"> {{ three_min_answers.4 }}</label></div>
 </div>
-<label class = "verifiers"></label>
-<br>
+<label class = "verifiers"></label>-->
+<br> 
 <p><b>{{ help }}</b></p>
 <button id = "next" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>

@@ -2,12 +2,13 @@
 {% load otree %}
 
 {% block title %}
-    Market Specific
+    Fragen zum Marktdesign
 {% endblock %}
 
 {% block content %}
 <!-- Los inputs que toman el valor de 1 es porque son la respuesta correcta -->
 <body>
+<p><b>{{ info }}</b></p>
 <br>
 
 {% if auction == "fba" %}

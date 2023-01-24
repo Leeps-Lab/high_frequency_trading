@@ -42,12 +42,14 @@ translation_map = {
     'english': {
         'correct_answer': 'Correct Answer',
         'wrong_answer': 'Wrong Answer',
-        'help': 'If you have any questions, please raise your hand and an experimenter will reach out to you and answer your questions.'
+        'help': 'If you have any questions, please raise your hand and an experimenter will reach out to you and answer your questions.',
+	'info': 'Please try to answer the following question correctly and select the Next-Button afterwards. In case you answered a question wrong, you will have an additional chance.'
     },
     'german': {
         'correct_answer': 'Richtige Antwort',
         'wrong_answer': 'Falsche Antwort',
-        'help': 'Wenn Sie Fragen haben, heben Sie bitte die Hand und ein Versuchsleiter wird sich an Sie wenden und Ihre Fragen beantworten.'
+        'help': 'Wenn Sie Fragen haben, heben Sie bitte die Hand und ein Versuchsleiter wird sich an Sie wenden und Ihre Fragen beantworten.',
+	'info': 'Bitte versuchen Sie die folgenden Fragen richtig zu beantworten und betätigen Sie im Anschluss die "Next"-Taste. Sollten Sie eine Frage falsch beantworten, bekommen Sie eine weitere Chance.'
     }
 }
 

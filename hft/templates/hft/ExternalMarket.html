@@ -2,13 +2,14 @@
 {% load otree %}
 
 {% block title %}
-    External Market
+    Fragen zum Externen Markt
 {% endblock %}
 
 {% block content %}
 
 <body>
-<br>
+<p><b>{{ info }}</b></p>
+<!-- <br>
 <p>
     <b>1. {{ form.increase_ext.label }}</b>
 </p>
@@ -19,29 +20,29 @@
     <div><label><input name = "form1" type = "radio" value = "0"> {{ increase_ext_answers.3 }}</label><br></div>
     <div><label><input name = "form1" type = "radio" value = "0"> {{ increase_ext_answers.4 }}</label></div>
 </div>
-<label class = "verifiers"></label>
+<label class = "verifiers"></label> -->
 <br>
 <p>
-    <b>2. {{ form.implicit_cost_1.label }} </b>
+    <b>1. {{ form.implicit_cost_1.label }} </b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form2" type = "radio" value = "1"> {{ implicit_cost_1_answers.0 }}</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_1_answers.1 }}</label><br></div>    
-    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_1_answers.2 }}</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_1_answers.3 }}</label><br></div>
-    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_1_answers.4 }}</label></div>
+    <div><label><input name = "form1" type = "radio" value = "1"> {{ implicit_cost_1_answers.0 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ implicit_cost_1_answers.1 }}</label><br></div>    
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ implicit_cost_1_answers.2 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ implicit_cost_1_answers.3 }}</label><br></div>
+    <div><label><input name = "form1" type = "radio" value = "0"> {{ implicit_cost_1_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
 <p>
-    <b>3. {{ form.implicit_cost_0.label }} </b>
+    <b>2. {{ form.implicit_cost_0.label }} </b>
 </p>
 <div class = "first_form">
-    <div><label><input name = "form3" type = "radio" value = "0"> {{ implicit_cost_0_answers.0 }}</label><br></div>
-    <div><label><input name = "form3" type = "radio" value = "1"> {{ implicit_cost_0_answers.1 }}</label><br></div>    
-    <div><label><input name = "form3" type = "radio" value = "0"> {{ implicit_cost_0_answers.2 }}</label><br></div>
-    <div><label><input name = "form3" type = "radio" value = "0"> {{ implicit_cost_0_answers.3 }}</label></div>
-    <div><label><input name = "form3" type = "radio" value = "0"> {{ implicit_cost_0_answers.4 }}</label></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_0_answers.0 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "1"> {{ implicit_cost_0_answers.1 }}</label><br></div>    
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_0_answers.2 }}</label><br></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_0_answers.3 }}</label></div>
+    <div><label><input name = "form2" type = "radio" value = "0"> {{ implicit_cost_0_answers.4 }}</label></div>
 </div>
 <label class = "verifiers"></label>
 <br>
@@ -49,11 +50,11 @@
 <button id = "next" class="otree-btn-next btn btn-primary" type = "button" >Next</button>
 <button id = "submit" class="otree-btn-next btn btn-primary" hidden>Siguiente</button>
 
-<input class = "fields" id = "increase_ext" name = "increase_ext" hidden>
+<!-- <input class = "fields" id = "increase_ext" name = "increase_ext" hidden> -->
 <input class = "fields" id = "implicit_cost_1" name = "implicit_cost_1" hidden>
 <input class = "fields" id = "implicit_cost_0" name = "implicit_cost_0" hidden>
 
-<input class = "boolean" id = "increase_ext_right_count" name = "increase_ext_right_count" hidden>
+<!-- <input class = "boolean" id = "increase_ext_right_count" name = "increase_ext_right_count" hidden> -->
 <input class = "boolean" id = "implicit_cost_1_right_count" name = "implicit_cost_1_right_count" hidden>
 <input class = "boolean" id = "implicit_cost_0_right_count" name = "implicit_cost_0_right_count" hidden>
 
@@ -70,7 +71,7 @@
         var intentos = 1
         // respuestas correctas
         var right_answers = [
-            "{{ increase_ext | safe }}",
+            // "{{ increase_ext | safe }}",
             "{{ implicit_cost_1 | safe }}",
             "{{ implicit_cost_0 | safe }}",
         ]
