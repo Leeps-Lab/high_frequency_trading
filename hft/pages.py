@@ -49,7 +49,7 @@ translation_map = {
         'correct_answer': 'Richtige Antwort',
         'wrong_answer': 'Falsche Antwort',
         'help': 'Wenn Sie Fragen haben, heben Sie bitte die Hand und ein Versuchsleiter wird sich an Sie wenden und Ihre Fragen beantworten.',
-	'info': 'Bitte versuchen Sie die folgenden Fragen richtig zu beantworten und betätigen Sie im Anschluss die "Next"-Taste. Sollten Sie eine Frage falsch beantworten, bekommen Sie eine weitere Chance.'
+	'info': 'Die folgenden Seiten beinhalten Verständnisfragen. Bitte versuchen Sie diese Fragen richtig zu beantworten, bevor Sie mit den auszahlungsrelevanten Handelsperioden beginnen. Wählen Sie die richtige Antwort aus und betätigen Sie die "Next"-Taste.'
     }
 }
 

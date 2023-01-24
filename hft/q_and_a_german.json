@@ -8,17 +8,17 @@
                     "question": "In welchem Studium befinden Sie sich?",
                     "answers": 
                     [
-                        "B.Sc.",
-                        "M.Sc.",
-                        "Ph.D.",
-			"Sonstige"
+                        "Bachelor",
+                        "Master",
+                        "Promotion",
+			"In keinem Studium"
                     ],
                     "correct_answ": "None"
                 },
 
                 "degree_backg":
                 {
-                    "question": "Hat Ihr Abschluss einen wirtschaftswissenschaftlichen Hintergrund?",
+                    "question": "Befinden Sie sich in einem wirtschaftswissenschaftlichen Studium, oder haben Sie einen Abschluss mit einem wirtschaftswissenschaftlichen Hintergrund?",
                     "answers": 
                     [
                         "Ja",
@@ -93,7 +93,6 @@
                     ],
                     "correct_answ": "Ihr Bot konzentriert sich ausschließlich auf die Preise des externen Marktes, was dazu führen kann, dass Sie die Momente verpassen, in denen Ihr eigener Markt schneller agiert."
                 },
-
                 "implicit_cost_0":
                 {
                     "question": "Welchen Nachteil hat es, den Schieberegler der External Feed Sensitivity auf 0 zu setzen?",
