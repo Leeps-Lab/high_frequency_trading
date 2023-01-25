@@ -3,19 +3,7 @@
         {
             "general": 
             {
-                "degree": 
-                {
-                    "question": "In welchem Studium befinden Sie sich?",
-                    "answers": 
-                    [
-                        "Bachelor",
-                        "Master",
-                        "Promotion",
-			"In keinem Studium"
-                    ],
-                    "correct_answ": "None"
-                },
-
+ 
                 "degree_backg":
                 {
                     "question": "Befinden Sie sich in einem wirtschaftswissenschaftlichen Studium, oder haben Sie einen Abschluss mit einem wirtschaftswissenschaftlichen Hintergrund?",
@@ -28,7 +16,7 @@
                 },
                 "video_clarity":
                 {
-                    "question": "Wie beurteilen Sie die Verständlichkeit der Videoanleitung?",
+                    "question": "Wie bewerten Sie Ihr Verständnis des Experiments?",
                     "answers": 
                     [
                         "Sehr Gut","Gut","Befriedigend","Ausreichend","Mangelhaft"
