@@ -51,6 +51,25 @@
 
     {{ form.video_clarity.errors }}
 
+
+
+    <br>
+    <p>
+        <b>3. {{ form.comp_others.label }}</b>
+    </p>
+
+    <div class = "first_form">
+        <label><input name = "comp_others" type = "radio" value = "{{ comp_others_answers.0 }}"> {{ comp_others_answers.0 }}</label><br>
+        <label><input name = "comp_others" type = "radio" value = "{{ comp_others_answers.1 }}"> {{ comp_others_answers.1 }}</label><br>
+        <label><input name = "comp_others" type = "radio" value = "{{ comp_others_answers.2 }}"> {{ comp_others_answers.2 }}</label><br>
+        <label><input name = "comp_others" type = "radio" value = "{{ comp_others_answers.3 }}"> {{ comp_others_answers.3 }}</label><br>
+        <label><input name = "comp_others" type = "radio" value = "{{ comp_others_answers.4 }}"> {{ comp_others_answers.4 }}</label>
+        <br>
+    </div>
+
+    {{ form.comp_others.errors }}
+
+
     <!-- <br>
     <p>
         <b>4. {{ form.video_confusing.label }}</b>
@@ -95,7 +114,7 @@
 
     <br>
     <p>
-        <b>3. {{ form.suggestions.label }}</b>
+        <b>4. {{ form.suggestions.label }}</b>
     </p>
 
     <div class = "first_form">

@@ -23,6 +23,15 @@
                     ],
                     "correct_answ": "None"
                 },
+                "comp_others":
+                {
+                    "question": "Wie bewerten Sie das durchschnittliche Verständnis des Experiments der anderen Experimentteilnehmer?",
+                    "answers": 
+                    [
+                        "Sehr Gut","Gut","Befriedigend","Ausreichend","Mangelhaft"
+                    ],
+                    "correct_answ": "None"
+                },
                 
                 "suggestions":
                 {
