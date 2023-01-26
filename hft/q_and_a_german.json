@@ -151,6 +151,7 @@
                         "Die Börse passt den Preis dieser Gebote automatisch an, gekennzeichnet durch den schwarzen vertikalen Balken. Menschliche Teilnehmer können nicht beobachten, ob unsichtbare Gebote zum Preis des schwarzen Balkens existieren oder nicht.",
                         "Diese Gebote können nur von Ihnen und den anderen menschlichen Marktteilnehmern abgegeben werden.",
                         "Die automatisierten Investoren passen den Preis der unsichtbaren Gebote in Abhängigkeit von Ihrem Verhalten und dem der anderen menschlichen Marktteilnehmer an.",
+			"Diese Gebote können sowohl von Ihnen und den anderen menschlichen Marktteilnehmern abgegeben werden, als auch von den automatisierten Investoren.",
                         "Unsichtbare Gebote unterscheiden sich nicht von gewöhnlichen Limit- oder Market Orders."
                     ],
                     "correct_answ": "Die Börse passt den Preis dieser Gebote automatisch an, gekennzeichnet durch den schwarzen vertikalen Balken. Menschliche Teilnehmer können nicht beobachten, ob unsichtbare Gebote zum Preis des schwarzen Balkens existieren oder nicht."
