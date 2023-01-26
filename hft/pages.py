@@ -379,7 +379,7 @@ class CumulativePayoff(Page):
         out['random_round_num'] = self.session.config['random_round_num']
 
         for i in range(num_rounds):
-            if i in self.session.config['trial_rounds']:
+            if (i+1) in self.session.config['trial_rounds']:
                 # Trial round isn't included in payoff
                 out['all_payoffs'].append(0)
             else:
