@@ -29,15 +29,34 @@
 
     <div class = "first_form">
         <label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.0 }}"> {{ degree_backg_answers.0 }}</label><br>
-        <label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.1 }}"> {{ degree_backg_answers.1 }}</label>
-        <br>
+        <label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.1 }}"> {{ degree_backg_answers.1 }}</label><br>
+	<label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.2 }}"> {{ degree_backg_answers.2 }}</label><br>
+	<label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.3 }}"> {{ degree_backg_answers.3 }}</label><br>
+	<label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.4 }}"> {{ degree_backg_answers.4 }}</label><br>
+	<label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.5 }}"> {{ degree_backg_answers.5 }}</label><br>
+	<label><input name = "degree_backg" type = "radio" value = "{{ degree_backg_answers.6 }}"> {{ degree_backg_answers.6 }}</label><br>
     </div>
 
     {{ form.degree_backg.errors }}
 
     <br>
     <p>
-        <b>2. {{ form.video_clarity.label }}</b>
+        <b>2. {{ form.gender.label }}</b>
+    </p>
+
+    <div class = "first_form">
+        <label><input name = "gender" type = "radio" value = "{{ gender_answers.0 }}"> {{ gender_answers.0 }}</label><br>
+	<label><input name = "gender" type = "radio" value = "{{ gender_answers.1 }}"> {{ gender_answers.1 }}</label><br>
+	<label><input name = "gender" type = "radio" value = "{{ gender_answers.2 }}"> {{ gender_answers.2 }}</label><br>
+	<label><input name = "gender" type = "radio" value = "{{ gender_answers.3 }}"> {{ gender_answers.3 }}</label><br>
+	<label><input name = "gender" type = "radio" value = "{{ gender_answers.4 }}"> {{ gender_answers.4 }}</label><br>
+    </div>
+
+    {{ form.gender.errors }}
+
+    <br>
+    <p>
+        <b>3. {{ form.video_clarity.label }}</b>
     </p>
 
     <div class = "first_form">
@@ -55,7 +74,7 @@
 
     <br>
     <p>
-        <b>3. {{ form.comp_others.label }}</b>
+        <b>4. {{ form.comp_others.label }}</b>
     </p>
 
     <div class = "first_form">
@@ -114,7 +133,7 @@
 
     <br>
     <p>
-        <b>4. {{ form.suggestions.label }}</b>
+        <b>5. {{ form.suggestions.label }}</b>
     </p>
 
     <div class = "first_form">

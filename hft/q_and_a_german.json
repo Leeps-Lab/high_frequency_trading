@@ -6,15 +6,29 @@
  
                 "degree_backg":
                 {
-                    "question": "Befinden Sie sich in einem wirtschaftswissenschaftlichen Studium, oder haben Sie einen Abschluss mit einem wirtschaftswissenschaftlichen Hintergrund?",
+                    "question": "Befinden Sie sich in einem Studiengang an einer der folgenden Fakultäten, oder haben Sie bereits einen Abschluss? Dann markieren Sie bitte die Fakultät, an der Sie momentan studieren, oder die, an der Sie ihren höchsten akademischen Abschluss erzielt haben.",
                     "answers": 
                     [
-                        "Ja",
-                        "Nein"
+                        "Wirtschafts- und Sozialwissenschaftliche Fakultät",
+                        "Rechtswissenschaftliche Fakultät",
+			"Medizinische Fakultät", 
+			"Philosophische Fakultät",
+			"Mathematisch-Naturwissenschaftliche Fakultät",
+			"Humanwissenschaftliche Fakultät",
+			"Trifft nicht zu"
                     ],
                     "correct_answ": "None"
                 },
-                "video_clarity":
+		"gender":
+                {
+                    "question": "Welchem Geschlecht ordnen Sie sich zu?",
+                    "answers": 
+                    [
+                        "männlich","weiblich","nicht-binär", "kein Geschlecht", "keine Angabe"
+                    ],
+                    "correct_answ": "None"
+                },                
+		"video_clarity":
                 {
                     "question": "Wie bewerten Sie Ihr Verständnis des Experiments?",
                     "answers": 
@@ -35,7 +49,7 @@
                 
                 "suggestions":
                 {
-                    "question": "Haben Sie Anmerkungen? Wir freuen uns über jedes Feedback.",
+                    "question": "Haben Sie Anmerkungen? Wir freuen uns über jedes Feedback. [Falls Sie kein Feedback haben, schreiben Sie bitte: Kein Feedback]",
                     "answers": 
                     [
                         "None"
