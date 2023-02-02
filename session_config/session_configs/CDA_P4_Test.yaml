@@ -1,5 +1,5 @@
 demo:
-  number-of-participants: 2
+  number-of-participants: 4
 
 traders:
   number-of-traders: 2 # Number of participants that will play the experiment
