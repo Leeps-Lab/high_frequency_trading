@@ -1,9 +1,9 @@
 demo:
-  number-of-participants: 8
+  number-of-participants: 2
 
 
 traders:
-  number-of-traders: 6 # Number of participants that will play the experiment
+  number-of-traders: 2 # Number of participants that will play the experiment
   allow-underbooking: false # Continue/cancel experiment if the number of people who consented is less than the number above
 
 
