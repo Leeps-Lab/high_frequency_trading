@@ -51,7 +51,7 @@ parameters:
   deduction-rate: 0.1
 
 session:
-  session-name: FBA_Pilot4_2022
+  session-name: FBA_Pilot4_test
   display-name: FBA - Pilot4 - Test
   environment: elo
   num-rounds: 1
