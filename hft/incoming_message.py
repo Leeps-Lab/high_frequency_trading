@@ -5,7 +5,7 @@ import logging
 from .cache import get_market_id_table
 from .message_sanitizer import (
     ELOWSMessageSanitizer, ELOOuchMessageSanitizer, ELOInternalEventMessageSanitizer)
-from OuchServer.ouch_messages import OuchServerMessages
+from exchange_server.OuchServer.ouch_messages import OuchServerMessages
 
 log = logging.getLogger(__name__)
 
