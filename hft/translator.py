@@ -1,11 +1,12 @@
 try:
-    # Attempt to import from requirements
-    from OuchServer.ouch_messages import (
-    OuchClientMessages, OuchServerMessages)
-except:
     # Fallback import directly from exchange server
     from exchange_server.OuchServer.ouch_messages import (
         OuchClientMessages, OuchServerMessages)
+except:
+    # Attempt to import from requirements
+    from OuchServer.ouch_messages import (
+    OuchClientMessages, OuchServerMessages)
+    
 import time
 import datetime
 import pytz

@@ -6,11 +6,12 @@ from .cache import get_market_id_table
 from .message_sanitizer import (
     ELOWSMessageSanitizer, ELOOuchMessageSanitizer, ELOInternalEventMessageSanitizer)
 try:
-    # Attempt to import from requirements
-    from OuchServer.ouch_messages import OuchServerMessages
-except:
     # Fallback import directly from exchange server
     from exchange_server.OuchServer.ouch_messages import OuchServerMessages
+    
+except:
+    # Attempt to import from requirements
+    from OuchServer.ouch_messages import OuchServerMessages
 
 log = logging.getLogger(__name__)
 

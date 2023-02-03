@@ -5,11 +5,12 @@ from twisted.internet import reactor
 from collections import deque
 from .decorators import timer
 try:
-    # Attempt to import from requirements
-    from OuchServer import ouch_messages
-except:
     # Fallback import directly from exchange server
     from exchange_server.OuchServer import ouch_messages
+    
+except:
+    # Attempt to import from requirements
+    from OuchServer import ouch_messages
 
 log = logging.getLogger(__name__)
 
