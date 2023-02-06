@@ -7,31 +7,29 @@ traders:
 
 exogenous-events:
   investor-arrivals:
-    - investor_focal_T1_Aug2021_Trial.csv
-    - investor_focal_T2_Aug2021_Trial.csv
-    - investor_focal_T1_May2021.csv
-    - investor_focal_T2_May2021.csv
-    - investor_focal_T3_May2021.csv
-    - investor_focal_T4_May2021.csv
-    - investor_focal_T5_May2021.csv
-    - investor_focal_T6_May2021_stress3.csv
-    - investor_focal_T7_May2021_stress4.csv
-    - investor_focal_T8_May2021.csv
-    - investor_focal_T9_May2021.csv
-    - investor_focal_T10_May2021.csv
+    - investor_focal_T1_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T2_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T3_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T4_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T5_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T6_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T7_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T8_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T9_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - investor_focal_T10_02-06-2023_14-49-22_Thin_pos_offset.csv
   external-feed:
-    - external_feed_T1_Aug2021_Trial.csv
-    - external_feed_T2_Aug2021_Trial.csv
-    - external_feed_T1_May2021.csv
-    - external_feed_T2_May2021.csv
-    - external_feed_T3_May2021.csv
-    - external_feed_T4_May2021.csv
-    - external_feed_T5_May2021.csv
-    - external_feed_T6_May2021_stress3.csv
-    - external_feed_T7_May2021_stress4.csv
-    - external_feed_T8_May2021.csv
-    - external_feed_T9_May2021.csv
-    - external_feed_T10_May2021.csv
+    - external_feed_T1_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T2_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T3_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T4_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T5_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T6_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T7_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T8_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T9_02-06-2023_14-49-22_Thin_pos_offset.csv
+    - external_feed_T10_02-06-2023_14-49-22_Thin_pos_offset.csv
+ 
+
 
 market:
   auction-format: 'CDA'
