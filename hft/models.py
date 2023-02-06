@@ -197,7 +197,6 @@ class Player(BasePlayer):
     initial_speed_on = models.BooleanField()
 
     cummulative_payoff = models.FloatField()
-    gender = models.CharField()
 
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):
