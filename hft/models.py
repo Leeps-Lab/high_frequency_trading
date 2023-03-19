@@ -4,7 +4,7 @@
 import logging
 from jsonfield import JSONField
 from otree.db.models import Model, ForeignKey
-from otree.api import ( 
+from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
 from otree.models import Session
@@ -51,7 +51,7 @@ class Subsession(BaseSubsession):
         if (self.round_number > self.session.config['num_rounds']):
             return
 
-        session_format = self.session.config['environment']  
+        session_format = self.session.config['environment']
 
         if self.round_number == 1:
             self.session.config = utility.process_configs(
@@ -86,7 +86,7 @@ class Subsession(BaseSubsession):
             group_id = group.id
             exchange_port = all_exchange_ports[self.auction_format].pop()
             market = trade_session.create_market(
-                group_id, exchange_host, exchange_port, **session_configs)     
+                group_id, exchange_host, exchange_port, **session_configs)
 
             for player in group.get_players():
                 # If player consented, register them as a trader
@@ -119,13 +119,13 @@ class Subsession(BaseSubsession):
         # set groups as suggested in oTree docs.
         group_matrix = []
         players = self.get_players()
-        
+
         #ppg = self.session.config['players_per_group']
         ppg = self.session.config['num_demo_participants']
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
-            
+
     def save(self, *args, **kwargs):
         """
         JAMES
@@ -197,14 +197,15 @@ class Player(BasePlayer):
     initial_speed_on = models.BooleanField()
 
     cummulative_payoff = models.FloatField()
+    gender = models.CharField()
 
     def configure_for_trade_session(self, market, session_format: str):
         for field in ('exchange_host', 'exchange_port', 'market_id', 'subsession_id'):
             setattr(self, field, getattr(market, field))
-        utility.configure_model_for_market('player', self, session_format, 
+        utility.configure_model_for_market('player', self, session_format,
                                            self.session.config)
         self.save()
-    
+
     def update_from_state_record(self, state_record):
         for field in state_record._meta.fields:
             if hasattr(self, field.name):
@@ -220,8 +221,8 @@ class Player(BasePlayer):
         if q_and_a_subject["answers"][0] == "None":
             locals()[subject] = models.StringField( # generating field from dict
                 label = q_and_a_subject["question"],
-            )  
-        else: 
+            )
+        else:
             locals()[subject] = models.StringField( # generating field from dict
                 label = q_and_a_subject["question"],
                 choices = q_and_a_subject["answers"]
@@ -237,21 +238,21 @@ class Player(BasePlayer):
     lista=list(Constants.q_and_a_sections.keys())
     lista.remove("general")
     remaining_sections = lista
-    
+
     for section in remaining_sections:
-        for subject, q_and_a_subject in Constants.q_and_a_sections[f"{section}"].items():        
+        for subject, q_and_a_subject in Constants.q_and_a_sections[f"{section}"].items():
             locals()[subject] = models.StringField( # generating field from dict
                 label = q_and_a_subject["question"],
                 choices = q_and_a_subject["answers"]
             )
 
-            locals()[subject + "_right_count"] = models.StringField() 
-        
+            locals()[subject + "_right_count"] = models.StringField()
+
     del subject
     del q_and_a_subject
     del remaining_sections
     del section
-    del lista    
+    del lista
 
 
 class Ping(models.Model):
