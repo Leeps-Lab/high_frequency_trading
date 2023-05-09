@@ -46,7 +46,7 @@ services:
       - "DATABASE_URL=postgres://otree:mydbpassword@postgres/otree"
 
   continuous_double_auction:
-    image: /hft/exchange_server
+    image: ./exchange_server
     ports:
       - '9001:9001'
 
