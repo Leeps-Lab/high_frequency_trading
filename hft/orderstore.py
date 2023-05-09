@@ -31,12 +31,12 @@ class OrderStore:
         self.inventory = default_inventory
         self.bid = None
         self.offer = None
-        
+
         self.total_bids = 0
         self.total_asks = 0
         self.sum_bid_price = 0
         self.sum_ask_price = 0
-        
+
 
     @property
     def orders(self):
@@ -50,12 +50,12 @@ class OrderStore:
             kwargs['shares'] = self.default_shares
         kwargs['stock'] = self.ticker
         token = self.tokengen(**kwargs)
-        kwargs['order_token'] = token 
+        kwargs['order_token'] = token
         self._orders[token] = kwargs
         log.debug('trader %s: register enter: token: %s, price: %s.' % (
             self.player_id, token, kwargs['price']))
         return kwargs
-    
+
     def tokengen(self, **kwargs):
         count = next(self.order_counter)
         return self.token_format.format(self=self, count=count, **kwargs)
@@ -67,18 +67,18 @@ class OrderStore:
     def __str__(self):
         active_orders = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'active')
         pending_orders = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'pending')
-        ioc = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'ioc')       
+        ioc = '\n'.join(str(v) for v in self._orders.values() if v['status'] == b'ioc')
         out = """Player {self.player_id} Orders:
                 Active:
 {active_orders}
 
-                IOC: 
+                IOC:
 {ioc_orders}
 
                 Pending:
-{pending_orders}          
+{pending_orders}
 
-            
+
 Spread: {self.bid} - {self.offer}
 ------------------------------------------
                 Full orderstore:
@@ -88,16 +88,16 @@ Spread: {self.bid} - {self.offer}
         return out
 
     def all_orders(self, direction=None):
-        out = [o for o in self._orders.values() if o['status'] 
+        out = [o for o in self._orders.values() if o['status']
             in (b'active', b'pending')]
         if direction is None:
             return out
         else:
             out = list(filter(lambda x: x['buy_sell_indicator'] == direction, out))
             return out
-    
+
     def all_pre_orders(self, direction=None):
-        out = [o for o in self._pre_orders.values() if o['status'] 
+        out = [o for o in self._pre_orders.values() if o['status']
             in (b'active', b'pending')]
         if direction is None:
             return out
@@ -122,7 +122,7 @@ Spread: {self.bid} - {self.offer}
         self._orders[token] = order_info
         pre_order_info = copy.deepcopy(order_info)
         pre_order_info['order_token'] = replacement_token
-        old_price = int(pre_order_info['price'])    
+        old_price = int(pre_order_info['price'])
         pre_order_info['price'] = new_price
         pre_order_info['old_price'] = old_price
         self._pre_orders[replacement_token] = pre_order_info
@@ -134,7 +134,7 @@ Spread: {self.bid} - {self.offer}
         log.debug('trader %s: register replace for token %s with %s at price %s.' % (
             self.player_id, existing_token, replacement_token, new_price))
         return order_info
-    
+
     def confirm(self, event_type, **kwargs):
         handler_name = self.confirm_message_dispatch[event_type]
         handler = getattr(self, handler_name)
@@ -142,8 +142,8 @@ Spread: {self.bid} - {self.offer}
             order_info = handler(**kwargs)
         except:
             log.exception("""
-            error during orderstore confirm operation: "%s" 
-            message: %s 
+            error during orderstore confirm operation: "%s"
+            message: %s
             orderstore: %s
 """ % (handler_name, kwargs, self))
             raise
@@ -160,18 +160,21 @@ Spread: {self.bid} - {self.offer}
             order_info['status'] = b'ioc'
         order_info['timestamp'] = kwargs['timestamp']
         order_info['confirmed_at'] = time.time()
-        travel_time =  round(order_info['confirmed_at'] - 
+        travel_time =  round(order_info['confirmed_at'] -
             order_info['created_at'], 4)
         order_info['travel_time'] = travel_time
         self._orders[token] = order_info
-        if self._pre_orders.get(token) is not None:
-            self._pre_orders.pop(token)
+
         price = order_info['price']
         direction = order_info['buy_sell_indicator']
         log.debug('trader %s: confirm enter: token %s.' % (self.player_id, token))
         log.debug('order %s travel time %s' % (token, travel_time))
         self.update_spread(price, direction)
-        return order_info    
+
+        if self._pre_orders.get(token) is not None:
+            self._pre_orders.pop(token)
+
+        return order_info
 
     def _confirm_replace(self, **kwargs):
         existing_token = kwargs['previous_order_token']
@@ -189,19 +192,21 @@ Spread: {self.bid} - {self.offer}
             if replacement_order['replacement_order_token'] == replacement_token:
                 del replacement_order['replacement_order_token']
                 del replacement_order['replace_price']
+            if replacement_order.get("cancellation_count") is not None:
+                del replacement_order['cancellation_count']
+
             self._orders[replacement_token] = replacement_order
-            
-            if self._pre_orders.get(existing_token) is not None:
-                self._pre_orders.pop(existing_token)
+
             direction = replacement_order['buy_sell_indicator']
             self.update_spread(old_price, direction, clear=True)
             self.update_spread(new_price, direction)
 
-        self._pre_orders.pop(replacement_token)
-        
-        log.debug('trader %s: confirm replace: token %s --> %s.' % (self.player_id, 
+        if self._pre_orders.get(existing_token) is not None:
+            self._pre_orders.pop(existing_token)
+
+        log.debug('trader %s: confirm replace: token %s --> %s.' % (self.player_id,
             existing_token, replacement_token))
-        return replacement_order   
+        return replacement_order
 
     def _confirm_cancel(self, **kwargs):
         token = kwargs['order_token']
@@ -210,10 +215,14 @@ Spread: {self.bid} - {self.offer}
             self._orders.pop(token)
             direction = order_info['buy_sell_indicator']
             price = order_info['price']
-            self.update_spread(price, direction, clear=True)   
+            self.update_spread(price, direction, clear=True)
             log.debug('trader %s: confirm cancel: token %s.' % (self.player_id, token))
+
+        if self._pre_orders.get(token) is not None:
+            self._pre_orders.pop(token)
+
         return order_info
-    
+
     def _confirm_execution(self, **kwargs):
         token = kwargs['order_token']
         order_info = self._orders.pop(token)
@@ -222,16 +231,19 @@ Spread: {self.bid} - {self.offer}
         self.inventory += shares if direction == 'B' else - shares
         price = order_info['price']
         log.debug('trader %s: confirm execution: token %s.' % (self.player_id, token))
-        self.update_spread(price, direction, clear=True)      
+        self.update_spread(price, direction, clear=True)
 
         '''
         if direction == 'B':
             self.totalBids += shares
-            self.sumBidPrice += price  
+            self.sumBidPrice += price
         else:
             self.totalAsks += shares
-            self.sumAskPrice += price  
+            self.sumAskPrice += price
         '''
+        if self._pre_orders.get(token) is not None:
+            self._pre_orders.pop(token)
+
         return order_info
 
     def update_spread(self, price, direction, clear=False):
