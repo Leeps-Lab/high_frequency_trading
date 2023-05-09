@@ -46,7 +46,7 @@ services:
       - "DATABASE_URL=postgres://otree:mydbpassword@postgres/otree"
 
   continuous_double_auction:
-    image: Leeps-Lab/exchange_server:latest
+    image: leeps-lab/exchange_server:latest
     ports:
       - '9001:9001'
 
