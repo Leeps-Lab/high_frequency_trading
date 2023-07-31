@@ -4,7 +4,8 @@ import logging
 import dj_database_url
 #from boto.mturk import qualification
 from datetime import datetime
-import otree.settings
+#import otree.settings
+from django.conf import settings as DJANGO_DEFAULT_SETTINGS
 import yaml
 from custom_otree_config import CustomOtreeConfig
 import sys
@@ -235,4 +236,4 @@ for config in custom_configs:
         otree_configs.append(otree_config)
 
 SESSION_CONFIGS.extend(otree_configs)
-otree.settings.augment_settings(globals())
+DJANGO_DEFAULT_SETTINGS.augment_settings(globals())
