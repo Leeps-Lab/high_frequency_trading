@@ -11,7 +11,8 @@ from otree.models import Session
 
 from django.core.cache import cache
 import copy
-from otree.common_internal import random_chars_8
+#from otree.common_internal import random_chars_8
+import secrets
 from . import utility
 from .trader import TraderFactory
 from .trade_session import TradeSessionFactory
@@ -24,7 +25,6 @@ import json
 from .dispatcher import DispatcherFactory
 # Replace the import for otree.settings with Django settings
 from django.conf import settings
-
 log = logging.getLogger(__name__)
 
 
@@ -45,7 +45,7 @@ class Subsession(BaseSubsession):
     auction_format = models.StringField()
     session_duration = models.IntegerField()
     batch_length = models.IntegerField(initial=0)
-    code = models.CharField(default=random_chars_8)
+    code = models.CharField(default=secrets.token_hex(4), max_length=8)
 
     def creating_session(self):
         #cache.clear()
