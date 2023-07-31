@@ -22,7 +22,8 @@ from . import market_environments
 from django.utils import timezone
 import json
 from .dispatcher import DispatcherFactory
-import settings
+# Replace the import for otree.settings with Django settings
+from django.conf import settings
 
 log = logging.getLogger(__name__)
 
