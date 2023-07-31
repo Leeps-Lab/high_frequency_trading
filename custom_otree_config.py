@@ -16,7 +16,7 @@ class CustomOtreeConfig:
     def from_yaml(cls, path_to_file) -> dict:
         with open(path_to_file, 'r') as f:
             try:
-                configs = yaml.load(f)
+                configs = yaml.load(f,Loader=yaml.FullLoader)
             except yaml.YAMLError as e:
                 raise e
         return cls(configs, path_to_file)
