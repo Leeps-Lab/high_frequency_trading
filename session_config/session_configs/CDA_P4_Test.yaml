@@ -27,6 +27,8 @@ parameters:
   session-duration: 120
   deduction-rate: 0.1
   technology-unit-cost: 0.01
+  batch-length: none
+  peg-proportion: none
 
 session:
   currency: EUR
@@ -46,4 +48,5 @@ session:
   trial-rounds: [] # Rounds used for practicing that aren't used for payoff calculation
   run-survey: false # Set to true or false to run survey
 
-  
+  tests:
+  test_input_file: none

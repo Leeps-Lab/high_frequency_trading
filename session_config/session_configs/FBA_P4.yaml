@@ -49,6 +49,8 @@ parameters:
   k-reference-price: 0.2
   k-signed-volume: 0.5
   deduction-rate: 0.1
+  batch-length: none
+  peg-proportion: none
 
 session:
   session-name: FBA_Pilot4_2022
@@ -67,3 +69,6 @@ session:
   max-payment: 50 
   trial-rounds: [1, 2] # Rounds used for practicing that aren't used for payoff calculation
   run-survey: true # Set to true or false to run survey
+
+tests:
+  test_input_file: none
