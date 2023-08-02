@@ -1,8 +1,8 @@
 
-from otree.db.models import Model, ForeignKey
+from django.db.models import Model, ForeignKey
 from otree.api import models
 import csv
-from otree.common_internal import random_chars_8
+#from otree.common_internal import random_chars_8
 from .trader import InvestorFactory
 import logging
 
@@ -23,8 +23,8 @@ class ExogenousEventFile(Model):
 
     upload_time = models.DateTimeField(auto_now_add=True)
     upload_name = models.StringField()
-    code = models.CharField(primary_key=True, default=random_chars_8, editable=False, 
-        null=False)
+    code = models.CharField(primary_key=True, editable=False, 
+        null=False) #delete default=random_chars_8
     record_type = models.StringField()
 
 
