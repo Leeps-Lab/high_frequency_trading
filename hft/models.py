@@ -15,7 +15,7 @@ import copy
 import secrets
 from . import utility
 from .trader import TraderFactory
-from .trade_session import TradeSessionFactory
+from trade_session import TradeSessionFactory
 from .market import MarketFactory
 from .cache import initialize_model_cache, set_market_id_table, get_market_id_table
 from .exogenous_event import ExogenousEventModelFactory
@@ -45,6 +45,7 @@ class Subsession(BaseSubsession):
     auction_format = models.StringField()
     session_duration = models.IntegerField()
     batch_length = models.IntegerField(initial=0)
+    """Revisar la siguiente linea de codigo, en vez de 4 no es 8?"""
     code = models.CharField(default=secrets.token_hex(4), max_length=8)
 
     def creating_session(self):

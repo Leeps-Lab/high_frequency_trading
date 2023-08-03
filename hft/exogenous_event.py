@@ -23,9 +23,11 @@ class ExogenousEventModelFactory:
 
 class ExogenousEventFile(Model):
     #upload_time = models.DateTimeField(auto_now_add=True)   COMMENT
-    upload_name = models.StringField()
+    # upload_name = models.StringField()
+    upload_name = models.CharField(max_length=255)
     code = models.CharField(primary_key=True, editable=False, null=False,default=secrets.token_hex(8)) #delete default=random_chars_8
-    record_type = models.StringField()
+    # record_type = models.StringField()
+    record_type = models.CharField(max_length=255)
     def __str__(self):
         return self.upload_name
 
