@@ -1,6 +1,7 @@
 
 from django.db.models import Model, ForeignKey
-from otree.api import models
+from django.db import models
+# from otree.api import models
 import csv
 #from otree.common_internal import random_chars_8
 from .trader import InvestorFactory
@@ -25,6 +26,8 @@ class ExogenousEventFile(Model):
     upload_name = models.StringField()
     code = models.CharField(primary_key=True, editable=False, null=False,default=secrets.token_hex(8)) #delete default=random_chars_8
     record_type = models.StringField()
+    def __str__(self):
+        return self.upload_name
 
 
 class CSVRowMixIn:
