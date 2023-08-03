@@ -15,7 +15,7 @@ import copy
 import secrets
 from . import utility
 from .trader import TraderFactory
-from trade_session import TradeSessionFactory
+from .trade_session import TradeSessionFactory
 from .market import MarketFactory
 from .cache import initialize_model_cache, set_market_id_table, get_market_id_table
 from .exogenous_event import ExogenousEventModelFactory
