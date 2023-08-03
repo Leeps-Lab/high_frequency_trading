@@ -99,7 +99,7 @@ LANGUAGE_CODE = 'en'
 
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
-INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
+INSTALLED_APPS = ['otree', 'huey.contrib.djhuey','django']
 EXTENSION_APPS = ['Consent', 'hft', 'AnonPay']
 
 # SENTRY_DSN = ''

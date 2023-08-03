@@ -27,6 +27,7 @@ from .dispatcher import DispatcherFactory
 from django.conf import settings
 log = logging.getLogger(__name__)
 
+# settings.configure()
 
 class Constants(BaseConstants):
     name_in_url = 'hft'
