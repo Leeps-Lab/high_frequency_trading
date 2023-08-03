@@ -1,6 +1,6 @@
 
-from django.db.models import Model, ForeignKey
-from django.db import models
+from django.db.models import Model, ForeignKey, CharField, CASCADE, FloatField, IntegerField
+# from django.db import models
 # from otree.api import models
 import csv
 #from otree.common_internal import random_chars_8
@@ -20,14 +20,13 @@ class ExogenousEventModelFactory:
         else:
             log.warning('no in-memory model for event type %s' % event_type_name)
 
-
 class ExogenousEventFile(Model):
     #upload_time = models.DateTimeField(auto_now_add=True)   COMMENT
     # upload_name = models.StringField()
-    upload_name = models.CharField(max_length=255)
-    code = models.CharField(primary_key=True, editable=False, null=False,default=secrets.token_hex(8)) #delete default=random_chars_8
+    upload_name = CharField(max_length=255)
+    code = CharField(primary_key=True, editable=False, null=False,default=secrets.token_hex(8)) #delete default=random_chars_8
     # record_type = models.StringField()
-    record_type = models.CharField(max_length=255)
+    record_type = CharField(max_length=255)
     def __str__(self):
         return self.upload_name
 
@@ -45,25 +44,44 @@ class CSVRowMixIn:
 
            
         return instance
-
+    
 class ExogenousOrderRecord(Model, CSVRowMixIn):
 
-    submitted_file = ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
-    arrival_time = models.FloatField()
-    market_id_in_subsession = models.StringField()
-    price = models.IntegerField()
-    time_in_force = models.IntegerField()
-    buy_sell_indicator = models.StringField()
+    submitted_file = ForeignKey(ExogenousEventFile, on_delete= CASCADE)
+    arrival_time = FloatField()
+    market_id_in_subsession = CharField(max_length=255)
+    price = IntegerField()
+    time_in_force = IntegerField()
+    buy_sell_indicator = CharField(max_length=255)
+
+# class ExogenousOrderRecord(Model, CSVRowMixIn):
+
+#     submitted_file = ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
+#     arrival_time = models.FloatField()
+#     market_id_in_subsession = models.StringField()
+#     price = models.IntegerField()
+#     time_in_force = models.IntegerField()
+#     buy_sell_indicator = models.StringField()
 
 
 class ExternalFeedRecord(Model, CSVRowMixIn):
 
-    submitted_file = ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
-    arrival_time = models.FloatField()
-    market_id_in_subsession = models.StringField()
-    e_best_bid = models.IntegerField()
-    e_best_offer = models.IntegerField()
-    e_signed_volume = models.FloatField()
+    submitted_file = ForeignKey(ExogenousEventFile, on_delete=CASCADE)
+    arrival_time = FloatField()
+    market_id_in_subsession = CharField(max_length=255)
+    e_best_bid = IntegerField()
+    e_best_offer = IntegerField()
+    e_signed_volume = FloatField()
+
+
+# class ExternalFeedRecord(Model, CSVRowMixIn):
+
+#     submitted_file = ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
+#     arrival_time = models.FloatField()
+#     market_id_in_subsession = models.StringField()
+#     e_best_bid = models.IntegerField()
+#     e_best_offer = models.IntegerField()
+#     e_signed_volume = models.FloatField()
 
 
 def handle_exogenous_event_file(filename, filelike, record_cls, record_type):
