@@ -5,6 +5,7 @@ import csv
 #from otree.common_internal import random_chars_8
 from .trader import InvestorFactory
 import logging
+import secrets
 
 log = logging.getLogger(__name__)
 
@@ -20,11 +21,9 @@ class ExogenousEventModelFactory:
 
 
 class ExogenousEventFile(Model):
-
     #upload_time = models.DateTimeField(auto_now_add=True)   COMMENT
     upload_name = models.StringField()
-    code = models.CharField(primary_key=True, editable=False, 
-        null=False) #delete default=random_chars_8
+    code = models.CharField(primary_key=True, editable=False, null=False,default=secrets.token_hex(8)) #delete default=random_chars_8
     record_type = models.StringField()
 
 

@@ -7,7 +7,7 @@ from django.db.models import Model, ForeignKey
 from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
-from otree.models import Session
+# from otree.models import Session
 
 from django.core.cache import cache
 import copy
