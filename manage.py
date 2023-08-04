@@ -8,4 +8,5 @@ if __name__ == "__main__":
 
     # from otree.management.cli import execute_from_command_line
     from django.core.management import execute_from_command_line
-    execute_from_command_line(sys.argv, script_file=__file__)
+    # execute_from_command_line(sys.argv, script_file=__file__)
+    execute_from_command_line(sys.argv)
