@@ -1,15 +1,21 @@
 
-from django.db.models import Model, ForeignKey, CharField, CASCADE, FloatField, IntegerField
-# from django.db import models
-# from otree.api import models
 import csv
-#from otree.common_internal import random_chars_8
-from .trader import InvestorFactory
 import logging
 import secrets
 
-log = logging.getLogger(__name__)
+from django.db.models import Model, ForeignKey, CharField, CASCADE, FloatField, IntegerField
 
+# Si utilizas estas importaciones, manten solo una forma de importación
+# from django.db import models
+# from otree.api import models
+
+# Si no usas esta importación, puedes eliminarla
+# from otree.common_internal import random_chars_8
+
+# Importar otros módulos locales
+from .trader import InvestorFactory
+
+log = logging.getLogger(__name__)
 
 class ExogenousEventModelFactory:
 
