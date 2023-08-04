@@ -9,6 +9,9 @@ import yaml
 from custom_otree_config import CustomOtreeConfig
 import sys
 
+# modificaciones asociadas a django
+from django.conf import settings
+
 CHANNEL_ROUTING = 'hft.routing.channel_routing'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
