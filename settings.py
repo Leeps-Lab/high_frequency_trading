@@ -102,8 +102,8 @@ LANGUAGE_CODE = 'en'
 
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
-INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
-EXTENSION_APPS = ['Consent', 'hft', 'AnonPay'] 
+INSTALLED_APPS = ['hft','otree', 'huey.contrib.djhuey']
+EXTENSION_APPS = ['Consent', 'AnonPay'] 
 
 # SENTRY_DSN = ''
 
@@ -231,9 +231,7 @@ test_inputs_dir = './hft/static/hft/test_input_files/{}'
 
 # settings.py
 
-SESSION_CONFIGS = [
-    "hft"
-]
+SESSION_CONFIGS = []
 
 
 
