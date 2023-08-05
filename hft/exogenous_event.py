@@ -3,7 +3,19 @@ import csv
 import logging
 import secrets
 
-from django.db.models import Model, ForeignKey, CharField, CASCADE, FloatField, IntegerField
+from django.apps import apps
+
+Model = apps.get_model('hft', 'models')
+
+if Model:
+    # You can now use the 'model' variable to work with the model class
+    print("modelo cargado")
+else:
+    print("Model 'MyModel' not found.")
+
+from django.db.models import ForeignKey, CharField, CASCADE, FloatField, IntegerField
+
+
 
 # Si utilizas estas importaciones, manten solo una forma de importación
 # from django.db import models
