@@ -214,11 +214,12 @@ SESSION_CONFIG_DEFAULTS = {
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
     'session_length': 240,
-    'doc': ''
+    'doc': '',
+    'app_sequence': ['Consent', 'hft', 'AnonPay']
 }
 """
     
-    'app_sequence': ['Consent', 'hft', 'AnonPay'],
+    
     
     
 }
@@ -231,12 +232,7 @@ test_inputs_dir = './hft/static/hft/test_input_files/{}'
 # settings.py
 
 SESSION_CONFIGS = [
-    {
-        'name': 'hft',
-        'display_name': 'High Frequency Trading',
-        'num_demo_participants': 2,  # Number of participants in the demo
-        'app_sequence': ['Consent','hft','AnonPay']  # List of app(s) to include in this session
-    }
+    "hft"
 ]
 
 
