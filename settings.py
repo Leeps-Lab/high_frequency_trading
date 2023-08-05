@@ -103,7 +103,7 @@ LANGUAGE_CODE = 'en'
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
 INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
-EXTENSION_APPS = ['Consent', 'AnonPay','hft'] #
+EXTENSION_APPS = ['Consent', 'AnonPay'] # 'hft'
 
 # SENTRY_DSN = ''
 
@@ -221,9 +221,19 @@ SESSION_CONFIG_DEFAULTS = {
 exogenous_event_configs_directory = os.path.join(
     os.getcwd(), 'session_config/exogenous_events')
 test_inputs_dir = './hft/static/hft/test_input_files/{}'
+
+# settings.py
+
 SESSION_CONFIGS = [
-    {"app_sequence":['hft']}
-    ]
+    {
+        'name': 'hft',
+        'display_name': 'High Frequency Trading',
+        'num_demo_participants': 2,  # Number of participants in the demo
+        'app_sequence': ['hft'],  # List of app(s) to include in this session
+    }
+]
+
+
 
 # read configurations
 custom_configs_directory = os.path.join(
