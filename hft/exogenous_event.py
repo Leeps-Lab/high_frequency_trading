@@ -3,7 +3,13 @@ import csv
 import logging
 import secrets
 
-from otree.db.models import Model , ForeignKey #, CharField, CASCADE, FloatField, IntegerField
+from otree.api import (
+    models
+)
+Model = models.Model
+
+from django.db.models import ForeignKey #, CharField, CASCADE, FloatField, IntegerField
+
 
 
 # Si utilizas estas importaciones, manten solo una forma de importación
