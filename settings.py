@@ -103,7 +103,7 @@ LANGUAGE_CODE = 'en'
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
 INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
-EXTENSION_APPS = ['Consent', 'AnonPay'] #'hft'
+EXTENSION_APPS = ['Consent', 'AnonPay','hft'] #
 
 # SENTRY_DSN = ''
 
@@ -221,7 +221,9 @@ SESSION_CONFIG_DEFAULTS = {
 exogenous_event_configs_directory = os.path.join(
     os.getcwd(), 'session_config/exogenous_events')
 test_inputs_dir = './hft/static/hft/test_input_files/{}'
-SESSION_CONFIGS = ['hft']
+SESSION_CONFIGS = [
+    {"app_sequence":['hft']}
+    ]
 
 # read configurations
 custom_configs_directory = os.path.join(
