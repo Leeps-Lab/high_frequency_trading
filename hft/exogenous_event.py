@@ -3,7 +3,7 @@ import csv
 import logging
 import secrets
 from .models import Model,ForeignKey #,CharField, CASCADE, FloatField, IntegerField
-from django.db.models import  CharField, CASCADE, FloatField, IntegerField
+#from django.db.models import  CharField, CASCADE, FloatField, IntegerField
 
 
 
