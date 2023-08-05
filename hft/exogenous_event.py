@@ -6,9 +6,9 @@ import secrets
 from otree.api import (
     models
 )
-Model = models.Model
 
-from django.db.models import ForeignKey #, CharField, CASCADE, FloatField, IntegerField
+from .models import Model
+#from django.db.models import Model,ForeignKey #, CharField, CASCADE, FloatField, IntegerField
 
 
 
