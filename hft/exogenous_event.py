@@ -3,8 +3,9 @@ import csv
 import logging
 import secrets
 
-from otree.db.models import Models , ForeignKey #, CharField, CASCADE, FloatField, IntegerField
+#from otree.db.models import Model , ForeignKey #, CharField, CASCADE, FloatField, IntegerField
 
+Model = apps.get_app_config('hft').get_model('model')
 
 
 # Si utilizas estas importaciones, manten solo una forma de importación
