@@ -103,7 +103,7 @@ LANGUAGE_CODE = 'en'
 # if an app is included in SESSION_CONFIGS, you don't need to list it here
 # INSTALLED_APPS = ['otree', 'django_extensions']
 INSTALLED_APPS = ['otree', 'huey.contrib.djhuey']
-EXTENSION_APPS = ['Consent', 'AnonPay','hft'] 
+EXTENSION_APPS = [] 
 
 # SENTRY_DSN = ''
 
@@ -229,7 +229,7 @@ SESSION_CONFIGS = [
         'name': 'hft',
         'display_name': 'High Frequency Trading',
         'num_demo_participants': 2,  # Number of participants in the demo
-        'app_sequence': ['hft'],  # List of app(s) to include in this session
+        'app_sequence': ['Consent','hft','AnonPay']  # List of app(s) to include in this session
     }
 ]
 
