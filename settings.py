@@ -210,6 +210,8 @@ matching_engine_hosts = {i: environ.get(
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = {
+}
+"""
     'real_world_currency_per_point': 1,
     'participation_fee': 0.00,
     'mturk_hit_settings': mturk_hit_settings,
@@ -217,6 +219,7 @@ SESSION_CONFIG_DEFAULTS = {
     'session_length': 240, 
     'doc': ''
 }
+"""
 
 exogenous_event_configs_directory = os.path.join(
     os.getcwd(), 'session_config/exogenous_events')
