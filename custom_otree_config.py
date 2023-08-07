@@ -51,7 +51,7 @@ class CustomOtreeConfig:
             try:
                config  = cls.from_yaml(f)
             except Exception as e:
-                sys.stdout.write('failed to read file %s:%s\n', f, e)
+                sys.stdout.write(f'failed to read file {f}:{e}\n')
             else:
                 custom_configs.append(config)
         return custom_configs
