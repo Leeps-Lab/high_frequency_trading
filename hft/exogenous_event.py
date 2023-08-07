@@ -50,7 +50,7 @@ class CSVRowMixIn:
 
 class ExogenousOrderRecord(CSVRowMixIn):
 
-    submitted_file = models.ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
+    submitted_file = models.ForeignKey(ExogenousEventFile, on_delete=models_Django.CASCADE)
     arrival_time = models.FloatField()
     market_id_in_subsession = models.StringField()
     price = models.IntegerField()
@@ -60,7 +60,7 @@ class ExogenousOrderRecord(CSVRowMixIn):
 
 class ExternalFeedRecord(CSVRowMixIn):
 
-    submitted_file = models.ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
+    submitted_file = models.ForeignKey(ExogenousEventFile, on_delete=models_Django.CASCADE)
     arrival_time = models.FloatField()
     market_id_in_subsession = models.StringField()
     e_best_bid = models.IntegerField()
