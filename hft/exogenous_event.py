@@ -1,5 +1,5 @@
 
-#from otree.db.models import Model, ForeignKey
+from .models import Model, ForeignKey
 from otree.api import models
 import csv
 #from otree.common_internal import random_chars_8
@@ -24,7 +24,7 @@ class ExogenousEventModelFactory:
             log.warning('no in-memory model for event type %s' % event_type_name)
 
 
-class ExogenousEventFile(models.Model):
+class ExogenousEventFile(Model):
 
     upload_time = models.DateTimeField(auto_now_add=True)
     upload_name = models.StringField()
