@@ -11,7 +11,8 @@ from otree.models import Session
 
 from django.core.cache import cache
 import copy
-from otree.common_internal import random_chars_8
+#from otree.common_internal import random_chars_8
+import random,string
 from . import utility
 from .trader import TraderFactory
 from .trade_session import TradeSessionFactory
@@ -25,6 +26,9 @@ from .dispatcher import DispatcherFactory
 import settings
 
 log = logging.getLogger(__name__)
+
+def random_chars_8():
+    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(8))
 
 
 class Constants(BaseConstants):
