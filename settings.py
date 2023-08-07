@@ -212,14 +212,11 @@ matching_engine_hosts = {i: environ.get(
 SESSION_CONFIG_DEFAULTS = {
 }
 
-
 exogenous_event_configs_directory = os.path.join(
     os.getcwd(), 'session_config/exogenous_events')
 test_inputs_dir = './hft/static/hft/test_input_files/{}'
 
 # settings.py
-
-SESSION_CONFIGS = []
 
 
 
