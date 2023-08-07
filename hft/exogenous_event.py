@@ -25,7 +25,7 @@ class ExogenousEventModelFactory:
             log.warning('no in-memory model for event type %s' % event_type_name)
 
 
-class ExogenousEventFile():
+class ExogenousEventFile(models_Django.Model):
 
     upload_time = models_Django.DateTimeField(auto_now_add=True)
     upload_name = models.StringField()
