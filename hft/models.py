@@ -3,7 +3,7 @@
 
 import logging
 from jsonfield import JSONField
-from .models import Model, ForeignKey
+#from .models import Model, ForeignKey
 from otree.api import (
     models, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
