@@ -48,9 +48,9 @@ class CSVRowMixIn:
            
         return instance
 
-class ExogenousOrderRecord(Model, CSVRowMixIn):
+class ExogenousOrderRecord(CSVRowMixIn):
 
-    submitted_file = ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
+    submitted_file = models.ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
     arrival_time = models.FloatField()
     market_id_in_subsession = models.StringField()
     price = models.IntegerField()
@@ -58,9 +58,9 @@ class ExogenousOrderRecord(Model, CSVRowMixIn):
     buy_sell_indicator = models.StringField()
 
 
-class ExternalFeedRecord(Model, CSVRowMixIn):
+class ExternalFeedRecord(CSVRowMixIn):
 
-    submitted_file = ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
+    submitted_file = models.ForeignKey(ExogenousEventFile, on_delete=models.CASCADE)
     arrival_time = models.FloatField()
     market_id_in_subsession = models.StringField()
     e_best_bid = models.IntegerField()
