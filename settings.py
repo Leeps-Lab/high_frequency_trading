@@ -218,6 +218,7 @@ test_inputs_dir = './hft/static/hft/test_input_files/{}'
 
 # settings.py
 
+SESSION_CONFIGS = []
 
 
 # read configurations
