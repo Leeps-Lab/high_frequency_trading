@@ -2,9 +2,14 @@
 #from otree.db.models import Model, ForeignKey
 from otree.api import models
 import csv
-from otree.common_internal import random_chars_8
+#from otree.common_internal import random_chars_8
 from .trader import InvestorFactory
 import logging
+
+def random_chars_8():
+    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(8))
+
+
 
 log = logging.getLogger(__name__)
 
