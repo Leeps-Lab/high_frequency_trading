@@ -235,4 +235,4 @@ for config in custom_configs:
         otree_configs.append(otree_config)
 
 SESSION_CONFIGS.extend(otree_configs)
-otree.settings.augment_settings(globals())
+#otree.settings.augment_settings(globals())
