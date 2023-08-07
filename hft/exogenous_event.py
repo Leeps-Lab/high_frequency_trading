@@ -27,7 +27,7 @@ class ExogenousEventModelFactory:
 
 class ExogenousEventFile(models_Django.Model):
 
-    upload_time = models.DateTimeField(auto_now_add=True)
+    upload_time = models_Django.DateTimeField(auto_now_add=True)
     upload_name = models.StringField()
     code = models.CharField(primary_key=True, default=random_chars_8, editable=False, 
         null=False)
