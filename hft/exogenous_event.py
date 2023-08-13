@@ -63,7 +63,7 @@ class ExternalFeedRecord(Model, CSVRowMixIn):
 
 
 def handle_exogenous_event_file(filename, filelike, record_cls, record_type):
-    
+
     log.debug("handling exogenous event file f{filename}:f{filelike}")
     if None in (filename, filelike):
         raise Exception('null input {}:{}'.format(filename, filelike))
@@ -120,5 +120,6 @@ def get_filecode_from_filename(event_type, filename):
     m = get_exg_query_set_meta(event_type)
     event_file_model_cls = m['event_file_model']
     log.debug(filename)
+    log.debug(event_file_model_cls)
     event_file_model = event_file_model_cls.objects.get(upload_name=filename)
     return event_file_model.code
