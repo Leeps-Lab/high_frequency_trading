@@ -63,16 +63,20 @@ class Subsession(BaseSubsession):
     def register(self):
 
         def create_trade_session(session_format):
+            log.debug(f"Creating trade session for {session_format}")
             trade_session_cls = TradeSessionFactory.get_session(session_format)
             dispatcher = DispatcherFactory.get_dispatcher(session_format)
             trade_session = trade_session_cls(self, session_format, dispatcher)
             environment = market_environments.environments[session_format]
             for event_type in environment.exogenous_events:
+                log.debug(f"Registering exogenous event {event_type}")
                 event_filename = self.session.config[event_type].pop(0)
                 trade_session.register_exogenous_event(
                     event_type, event_filename)
+                log.debug(f"Exogenous event information: {event_type}, {event_filename}")
+                log.debug(f"Registered exogenous event {event_type}")
             return trade_session
-
+    
         session_configs = self.session.config
         session_format = session_configs['environment']
         trade_session = create_trade_session(session_format)

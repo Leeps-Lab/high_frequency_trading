@@ -74,6 +74,7 @@ class TradeSession:
     def start_exogenous_events(self):
         if self.exogenous_events:
             for event_type, filename in self.exogenous_events.items():
+                log.debug(f"starting exogenous events for {event_type}, {filename}")
                 ssid =  self.subsession_id
                 url = utility.exogenous_event_endpoint.format(subsession_id=ssid)
                 filecode = get_filecode_from_filename(event_type, filename)
