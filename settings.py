@@ -55,14 +55,14 @@ SECRET_KEY = '7n786ty33t%4n-91z!*(n^y928_@4%o-vbw@ads29^-*t+2txj'
 #}
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'otree',
-        'USER': 'otree',
-        'PASSWORD': 'mydbpassword',
-        'HOST': 'localhost', #127.0.0.1
-        'PORT': '5432',
-    }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'otree',
+        'USER': 'otree',
+        'PASSWORD': 'mydbpassword',
+        'HOST': 'localhost', #127.0.0.1
+        'PORT': '5432',
+        }
 }
 
 redis_at = os.environ.get('REDIS_URL', "redis://127.0.0.1:6379/1")
