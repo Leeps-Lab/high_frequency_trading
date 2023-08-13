@@ -24,7 +24,8 @@ class SubjectConsumer(JsonWebsocketConsumer):
         player.save()
 
     def raw_receive(self, message, subsession_id, group_id, player_id):
-        
+
+        log.debug(f"raw message: {message.content}")
         try:
             content = json.loads(message.content['text'])
             if 'avgLatency' in content:
