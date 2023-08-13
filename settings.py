@@ -39,8 +39,8 @@ ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD')
 # don't share this with anybody.
 SECRET_KEY = '7n786ty33t%4n-91z!*(n^y928_@4%o-vbw@ads29^-*t+2txj'
 
-DATABASES = {
-    'default': dj_database_url.config(
+#DATABASES = {
+ #   'default': dj_database_url.config(
         # Rather than hardcoding the DB parameters here,
         # it's recommended to set the DATABASE_URL environment variable.
         # This will allow you to use SQLite locally, and postgres/mysql
@@ -50,8 +50,19 @@ DATABASES = {
         # export DATABASE_URL=mysql://USER:PASSWORD@HOST:PORT/NAME
 
         # fall back to SQLite if the DATABASE_URL env var is missing
-        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
-    )
+  #      default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
+   # )
+#}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'otree',
+        'USER': 'otree',
+        'PASSWORD': 'mydbpassword',
+        'HOST': 'localhost', #127.0.0.1
+        'PORT': '5432',
+    }
 }
 
 redis_at = os.environ.get('REDIS_URL', "redis://127.0.0.1:6379/1")
