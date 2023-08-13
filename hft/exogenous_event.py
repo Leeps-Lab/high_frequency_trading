@@ -63,6 +63,8 @@ class ExternalFeedRecord(Model, CSVRowMixIn):
 
 
 def handle_exogenous_event_file(filename, filelike, record_cls, record_type):
+    
+    log.debug("handling exogenous event file f{filename}:f{filelike}")
     if None in (filename, filelike):
         raise Exception('null input {}:{}'.format(filename, filelike))
     if not isinstance(filename, str):
