@@ -21,7 +21,7 @@ exogenous_event_meta = [(INVESTORS_DIR, 'investor_arrivals', ExogenousOrderUploa
 
 class Command(BaseCommand):
     help = 'read/store external feed/order flow configuration from filesystem.'
-
+    log.debug(help)
     def handle(self, *args, **kwargs):
         # assume all files under dir are of the same type.
         for source_dir, event_type, record_cls in exogenous_event_meta:
