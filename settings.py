@@ -60,7 +60,7 @@ DATABASES = {
         'NAME': 'otree',
         'USER': 'otree',
         'PASSWORD': 'mydbpassword',
-        'HOST': 'localhost', #127.0.0.1
+        'HOST': '127.0.0.1', #127.0.0.1
         'PORT': '5432',
         }
 }
