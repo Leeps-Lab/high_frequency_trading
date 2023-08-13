@@ -57,10 +57,10 @@ SECRET_KEY = '7n786ty33t%4n-91z!*(n^y928_@4%o-vbw@ads29^-*t+2txj'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'otree',
+        'NAME': 'django_db',
         'USER': 'otree',
         'PASSWORD': 'mydbpassword',
-        'HOST': '127.0.0.1', #127.0.0.1
+        'HOST': '127.0.0.1', #localhost
         'PORT': '5432',
         }
 }
