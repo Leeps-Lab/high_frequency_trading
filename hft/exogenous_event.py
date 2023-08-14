@@ -114,9 +114,7 @@ def get_exg_query_set_meta(event_type, source=exg_event_query_meta):
         raise Exception('invalid event type %s' % event_type)
 
 def get_filecode_from_filename(event_type, filename):
-    log.debug(f"getting {filename} file for event {event_type}")
     m = get_exg_query_set_meta(event_type)
     event_file_model_cls = m['event_file_model']
-    print(filename)
     event_file_model = event_file_model_cls.objects.get(upload_name=filename)
     return event_file_model.code
