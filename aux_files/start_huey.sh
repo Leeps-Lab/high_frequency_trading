@@ -6,7 +6,6 @@ if [[ ":$PATH:" != *":$PYENV_ROOT/bin:"* ]]; then
     export PATH="$PYENV_ROOT/bin:$PATH"
 fi
 
-#export PATH="$PYENV_ROOT/shims:$PATH
 
 eval "$(pyenv init -)"
 
