@@ -1,0 +1,13 @@
+[Unit]
+Description=High Frequency Trading Service
+After=network.target
+
+[Service]
+ExecStart=/etc/systemd/system/start_hft.sh
+WorkingDirectory=/home/hft_dev
+User=hft_dev
+Group=hft_dev
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

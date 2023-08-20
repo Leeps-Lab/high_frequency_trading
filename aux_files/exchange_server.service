@@ -1,0 +1,13 @@
+[Unit]
+Description=Exchange server service
+After=network.target
+
+[Service]
+ExecStart=/etc/systemd/system/start_exchange_server.sh
+WorkingDirectory=/home/hft_dev
+User=hft_dev
+Group=hft_dev
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
