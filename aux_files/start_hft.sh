@@ -15,6 +15,10 @@ fi
 # Initialize pyenv
 eval "$(pyenv init -)"
 
+#set local python
+cd /home/hft_dev/high_frequency_trading
+pyenv local 3.6.15/envs/pyenv_exchange_server
+
 # Activate the desired pyenv environment
 pyenv activate 3.6.15/envs/pyenv_exchange_server
 
