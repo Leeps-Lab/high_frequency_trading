@@ -33,5 +33,5 @@ def latent_bid_and_offer(
     inventory_offer_comp = halftick * a_y * inventory_position
     latent_offer = price_grid(
         external_sig_vol_offer_comp + focal_sig_vol_offer_comp - inventory_offer_comp)
-    latend_bid = latent_offer - 1 if latend_bid == latent_offer else latent_bid
+    latent_bid = latent_offer - 1 if latent_bid == latent_offer else latent_bid
     return (latent_bid, latent_offer)
