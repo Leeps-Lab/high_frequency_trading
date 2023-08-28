@@ -111,7 +111,7 @@ Spread: {self.bid} - {self.offer}
         except KeyError:
             log.error('error register replace for token: %s, orderstore: %s' % (token, self))
             raise
-        pre_existing_token = order_info.get('existing_order_token')
+        
         existing_token = order_info.get('replacement_order_token')
         if existing_token is None:
             existing_token = order_info['order_token']
@@ -123,19 +123,16 @@ Spread: {self.bid} - {self.offer}
         self._orders[token] = order_info
         pre_order_info = copy.deepcopy(order_info)
         pre_order_info['order_token'] = replacement_token
-        old_price = int(pre_order_info['price'])
-        pre_order_info['price'] = new_price
-        pre_order_info['old_price'] = old_price
+        pre_order_info['price'] = int(pre_order_info['replace_price'])
+        pre_order_info['old_price'] = int(pre_order_info['price'])
         self._pre_orders[replacement_token] = pre_order_info
-        if self._pre_orders.get(existing_token) is not None:
-            self._pre_orders[existing_token]['existing_order_token'] = existing_token
-            self._pre_orders[existing_token]['replacement_order_token'] = replacement_token
+        while self._pre_orders.get(existing_token) is not None:
+            pre_existing_token = self._pre_orders[existing_token].get('existing_order_token')
+            self._pre_orders[existing_token]['existing_order_token'] = order_info['existing_order_token']
+            self._pre_orders[existing_token]['replacement_order_token'] = order_info['replacement_order_token']
             self._pre_orders[existing_token]['replace_price'] = new_price
-        if self._pre_orders.get(pre_existing_token) is not None:
-            self._pre_orders[pre_existing_token]['existing_order_token'] = existing_token
-            self._pre_orders[pre_existing_token]['replacement_order_token'] = replacement_token
-            self._pre_orders[pre_existing_token]['replace_price'] = new_price
-
+            existing_token = None if pre_existing_token is None or pre_existing_token == existing_token else pre_existing_token
+        
         log.debug('trader %s: register replace for token %s with %s at price %s.' % (
             self.player_id, existing_token, replacement_token, new_price))
         return order_info
