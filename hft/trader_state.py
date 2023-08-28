@@ -322,12 +322,12 @@ class ELOAutomatedTraderState(ELOTraderState):
             current_sell_orders = trader.orderstore.all_orders('S')
             if current_sell_orders:
                 for order in current_sell_orders:
-                    if ( target_offer != (order.get('replace_price', None) or order['price']) ):
+                    if ( target_offer != order.get('replace_price', order['price']) ):
                         order_info = trader.orderstore.register_replace(
                             order['order_token'], target_offer)
                         sells.append(order_info)
-                trader.staged_offer = target_offer
-                log.debug('trader %s: adjust by replace, set staged offer: %s' % (
+                        trader.staged_offer = target_offer
+                        log.debug('trader %s: adjust by replace, set staged offer: %s' % (
                             trader.tag, target_offer)) 
             else:
                 self.enter_order(trader, event, 'S', price=target_offer)
@@ -337,13 +337,13 @@ class ELOAutomatedTraderState(ELOTraderState):
             current_buy_orders = trader.orderstore.all_orders('B')
             if current_buy_orders:
                 for order in current_buy_orders:
-                    if ( target_bid != (order.get('replace_price', None) or order['price']) ):
+                    if ( target_bid != (order.get('replace_price', order['price']) ) ):
                         order_info = trader.orderstore.register_replace(
                             order['order_token'], target_bid)
                         buys.append(order_info)
-                trader.staged_bid = target_bid
-                log.debug('trader %s: adjust by replace, set staged bid: %s' % (
-                    trader.tag, target_bid))
+                        trader.staged_bid = target_bid
+                        log.debug('trader %s: adjust by replace, set staged bid: %s' % (
+                        trader.tag, target_bid))
             else:
                 self.enter_order(trader, event, 'B', price=target_bid)
 
