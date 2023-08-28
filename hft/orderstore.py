@@ -134,7 +134,7 @@ Spread: {self.bid} - {self.offer}
             existing_token = None if pre_existing_token is None or pre_existing_token == existing_token else pre_existing_token
         
         log.debug('trader %s: register replace for token %s with %s at price %s.' % (
-            self.player_id, existing_token, replacement_token, new_price))
+            self.player_id, order_info['existing_order_token'], order_info['replacement_order_token'], new_price))
         return order_info
 
     def confirm(self, event_type, **kwargs):
