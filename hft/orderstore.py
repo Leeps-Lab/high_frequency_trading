@@ -131,7 +131,6 @@ Spread: {self.bid} - {self.offer}
             self._pre_orders[existing_token]['existing_order_token'] = existing_token
             self._pre_orders[existing_token]['replacement_order_token'] = replacement_token
             self._pre_orders[existing_token]['replace_price'] = new_price
-        self._pre_orders.pop(pre_existing_token, None)
         log.debug('trader %s: register replace for token %s with %s at price %s.' % (
             self.player_id, existing_token, replacement_token, new_price))
         return order_info
