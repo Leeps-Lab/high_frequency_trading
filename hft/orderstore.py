@@ -186,9 +186,6 @@ Spread: {self.bid} - {self.offer}
         replacement_token = kwargs['replacement_order_token'] 
         order_info = self._orders.pop(existing_token) 
         replacement_order =self._pre_orders.pop(replacement_token) 
-        while replacement_token == replacement_order["existing_order_token"]: 
-            replacement_token = replacement_order["replacement_order_token"] 
-            replacement_order = self._pre_orders.pop(replacement_token) 
  
         if order_info is not None: 
             new_price = kwargs['price'] 
