@@ -159,7 +159,7 @@ def elo_otree_player_converter(otree_player):
 
 
 def validate_bbo(bb, bo):
-    if bb < MIN_BID or bo > MAX_ASK or None in (bb, bo):
+    if bb == MIN_BID or bo == MAX_ASK or None in (bb, bo):
         return False
     else: return True
 
