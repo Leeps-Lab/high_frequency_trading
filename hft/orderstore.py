@@ -111,6 +111,7 @@ Spread: {self.bid} - {self.offer}
         except KeyError:
             log.error('error register replace for token: %s, orderstore: %s' % (token, self))
             raise
+        pre_existing_token = order_info.get('existing_order_token')
         existing_token = order_info.get('replacement_order_token')
         if existing_token is None:
             existing_token = order_info['order_token']
@@ -130,7 +131,7 @@ Spread: {self.bid} - {self.offer}
             self._pre_orders[existing_token]['existing_order_token'] = existing_token
             self._pre_orders[existing_token]['replacement_order_token'] = replacement_token
             self._pre_orders[existing_token]['replace_price'] = new_price
-
+        self._pre_orders.pop(pre_existing_token, None)
         log.debug('trader %s: register replace for token %s with %s at price %s.' % (
             self.player_id, existing_token, replacement_token, new_price))
         return order_info
@@ -180,35 +181,25 @@ Spread: {self.bid} - {self.offer}
         existing_token = kwargs['previous_order_token']
         replacement_token = kwargs['replacement_order_token']
         order_info = self._orders.pop(existing_token)
-        replacement_order =self._pre_orders.pop(replacement_token)
-        while replacement_token == replacement_order["existing_order_token"]:
-            replacement_token = replacement_order["replacement_order_token"]
-            replacement_order = self._pre_orders.pop(replacement_token)
 
         if order_info is not None:
             new_price = kwargs['price']
             old_price = int(order_info['price'])
-            replacement_order['price'] = new_price
-            replacement_order['old_price'] = old_price
+            order_info['price'] = new_price
+            order_info['old_price'] = old_price
 
-            if replacement_order['replacement_order_token'] == replacement_token:
-                del replacement_order['replacement_order_token']
-                del replacement_order['replace_price']
-            if replacement_order.get("cancellation_count") is not None:
-                del replacement_order['cancellation_count']
+            self._orders[replacement_token] = order_info
 
-            self._orders[replacement_token] = replacement_order
-
-            direction = replacement_order['buy_sell_indicator']
+            direction = order_info['buy_sell_indicator']
             self.update_spread(old_price, direction, clear=True)
             self.update_spread(new_price, direction)
-
-        if self._pre_orders.get(existing_token) is not None:
-            self._pre_orders.pop(existing_token)
+            
+        self._pre_orders.pop(existing_token,None)
+        self._pre_orders.pop(replacement_token,None)
 
         log.debug('trader %s: confirm replace: token %s --> %s.' % (self.player_id,
             existing_token, replacement_token))
-        return replacement_order
+        return order_info
 
     def _confirm_cancel(self, **kwargs):
         token = kwargs['order_token']
