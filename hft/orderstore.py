@@ -179,15 +179,17 @@ Spread: {self.bid} - {self.offer}
     def _confirm_replace(self, **kwargs):
         existing_token = kwargs['previous_order_token']
         replacement_token = kwargs['replacement_order_token']
-        order_info = self._orders.get(existing_token)
-        replacement_order = copy.deepcopy(self._pre_orders[replacement_token])
+        order_info = self._orders.pop(existing_token)
+        replacement_order =self._pre_orders.pop(replacement_token)
+        while replacement_token == replacement_order["existing_order_token"]:
+            replacement_token = replacement_order["replacement_order_token"]
+            replacement_order = self._pre_orders.pop(replacement_token)
 
         if order_info is not None:
             new_price = kwargs['price']
             old_price = int(order_info['price'])
             replacement_order['price'] = new_price
             replacement_order['old_price'] = old_price
-            self._orders.pop(existing_token)
 
             if replacement_order['replacement_order_token'] == replacement_token:
                 del replacement_order['replacement_order_token']

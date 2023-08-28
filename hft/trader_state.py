@@ -284,9 +284,7 @@ class ELOAutomatedTraderState(ELOTraderState):
                 a_z=trader.sliders['slider_a_z'])
         log.debug('trader %s: calculate price, implied bid: %s, implied offer: %s' % ( 
                     trader.tag, trader.implied_bid, trader.implied_offer))   
-        bid, offer = self.validate_market_position(trader)
-        
-        
+        bid, offer = self.validate_market_position(trader)      
         start_from = 'B'
         if bid and offer:
             # start from the direction towards
@@ -366,15 +364,15 @@ class ELOAutomatedTraderState(ELOTraderState):
         buy_sell_indicator = order_info['buy_sell_indicator']
 
         if  buy_sell_indicator == 'B':
-            trader.staged_bid = None
-            self.recalculate_market_position(trader, event)      
+            trader.staged_bid = None      
             log.debug('trader %s: set staged bid to none from: %s ' % (
                     trader.tag, price)) 
+            self.recalculate_market_position(trader, event)
         if  buy_sell_indicator == 'S':
             trader.staged_offer = None
-            self.recalculate_market_position(trader, event)
             log.debug('trader %s: set staged offer to none from: %s ' % (
                     trader.tag, price)) 
+            self.recalculate_market_position(trader, event)
 
         # given conditions below
         # bbo is stale
