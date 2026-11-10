@@ -144,6 +144,7 @@ class ELOMarket(BaseMarket):
     def reference_price_change(self, **kwargs):
         self.reference_price.update(**kwargs)
         if self.reference_price.has_changed:
+            print('REFERENCE PRICE CHANGED: ', self.reference_price.to_kwargs())
             self.event.broadcast_msgs(
                 'reference_price', market_id=self.market_id, 
                 **self.reference_price.to_kwargs())

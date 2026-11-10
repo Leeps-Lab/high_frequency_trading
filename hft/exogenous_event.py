@@ -33,9 +33,13 @@ class CSVRowMixIn:
     @classmethod
     def from_csv_row(cls, csv_row:list, csv_headers:list, **kwargs):
         instance = cls.objects.create(**kwargs)
+
         for ix, fieldname in enumerate(csv_headers):
+
             fieldvalue = csv_row[ix]
             setattr(instance, fieldname, fieldvalue)
+
+           
         return instance
 
 class ExogenousOrderRecord(Model, CSVRowMixIn):
@@ -81,9 +85,11 @@ def handle_exogenous_event_file(filename, filelike, record_cls, record_type):
     file_record = ExogenousEventFile.objects.create(
         upload_name=filename, record_type=record_type)
     for row in rows[1:]:
-        ex_order = record_cls.from_csv_row(row, 
-            headers, submitted_file=file_record)
-        ex_order.save()
+        # Edge case to handle if csv reader is trying to read an empty row
+        if len(row) > 0:
+            ex_order = record_cls.from_csv_row(row, 
+                headers, submitted_file=file_record)
+            ex_order.save()
 
 def get_exogenous_event_queryset(event_type, filename):
     queryset_info = get_exg_query_set_meta(event_type)
@@ -110,5 +116,6 @@ def get_exg_query_set_meta(event_type, source=exg_event_query_meta):
 def get_filecode_from_filename(event_type, filename):
     m = get_exg_query_set_meta(event_type)
     event_file_model_cls = m['event_file_model']
+    print(filename)
     event_file_model = event_file_model_cls.objects.get(upload_name=filename)
     return event_file_model.code

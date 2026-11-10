@@ -19,7 +19,28 @@ Demo
 ================
 There is a simple demo available for the most recent implementation called 'Exogenous Limit Orders' environment, which can be accessed through `this link`_. To run a session in this environment, select one of the configurations presented on the landing page and follow the instructions. You will participate in a trading session, equipped with a tunable trading bot. 
 
-Setting Up
+Docker
+==============
+
+clone this repository.
+
+::  
+
+    git clone https://github.com/Leeps-Lab/high_frequency_trading.git
+    cd high_frequency_trading
+
+
+run a multicontainer docker application that includes an otree, continuous double auction and frequent batch auction servers along with other components.
+
+::
+
+    docker-compose up
+
+
+it will take a while until all services start, then go to `localhost`_ on your browser.
+
+
+Server Setup
 =============
 
 Redis is used as the primary data storage during a trade session for quick read/writes,
@@ -72,7 +93,6 @@ Then run
 
 ::
 
-    mkdir otree_hft_env
     virtualenv -p python3.6 otree_hft_env
 
 
@@ -100,22 +120,7 @@ For windows
     pip3 install -r requirements.txt
 
 
-4. In Terminal #2, navigate into the folder of the repository you cloned in the previous step. 
-Then, using the commands below, cd into the 'exchange_server' folder and download the up-to-date files of the exchange server.
-
-::
-
-    cd exchange_server
-    git submodule init 
-    git submodule update 
-
-Note: the exchange server has its own repository and, for convenience, this repository 
-includes the exchange server libraries as a subrepo. This is because some modules are used
-by both the exchange server and this application 
-(e.g., both applications decode/encode `OUCH`_ messages o talk with each other).
-
-
-5. Still in Terminal #2, follow the `exchange server instructions`_ and run a CDA exchange 
+4. In Terminal #2, follow the `exchange server instructions`_ and run a CDA exchange 
 instance. 
 Expect to see three timestamped lines that look like this
 
@@ -126,7 +131,7 @@ Expect to see three timestamped lines that look like this
     [14:45:00.803] INFO [root.register_listener:112] added listener 0
 
 
-6. Go back to Terminal #1, reset the database and copy static files by running these commands.
+5. Go back to Terminal #1, reset the database and copy static files by running these commands.
 
 ::
 
@@ -134,7 +139,7 @@ Expect to see three timestamped lines that look like this
     otree collectstatic
 
 
-7. Then, in the same Terminal #1, run oTree server.
+6. Then, in the same Terminal #1, run oTree server.
 
 ::
 
@@ -143,7 +148,7 @@ Expect to see three timestamped lines that look like this
 Note: this step requires Redis to be running either in the background or in a separate Terminal (run 'redis-server' in Terminal #4)
 
 
-8. In Terminal #3, go to the folder that contains 'otree_hft_env' and do Step 2 (activate the virtual environment). 
+7. In Terminal #3, go to the folder that contains 'otree_hft_env' and do Step 2 (activate the virtual environment). 
 Then, cd into the 'high_frequency_trading' folder and start the following background process.
 
 ::
@@ -152,7 +157,7 @@ Then, cd into the 'high_frequency_trading' folder and start the following backgr
      otree run_huey
 
 
-9. Open your Chrome browser and go to `localhost`_. Click on the 'demo session' and follow the screen 
+8. Open your Chrome browser and go to `localhost`_. Click on the 'demo session' and follow the screen 
 instructions to launch clients' (traders') screens as tabs in the same browser. 
 
 

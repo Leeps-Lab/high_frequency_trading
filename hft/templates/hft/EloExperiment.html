@@ -1,15 +1,21 @@
 {% extends "global/Page.html" %}
 {% load staticfiles otree %}
-{% load staticfiles %}
 
 {% block body_main %}
-<style>
-    .otree-body {
-        max-width: 100vw;
-        max-height: 100vh;
-    }
-</style>
-<elo-experiment style = "width:100%; "> </elo-experiment>
+    <style>
+        .otree-body {
+            max-width: 100vw;
+            max-height: 100vh;
+        }
+    </style>
+    <elo-experiment style = "width:100%; "> </elo-experiment>
+
+    <audio id="my_audio" src="{% static "notification-trading-screen.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
 {% endblock %}
 
 {% block scripts %}
@@ -18,26 +24,27 @@
     <link rel="manifest" href="{% static 'hft/manifest.json' %}">
     <script src="{% static 'hft/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js' %}"></script>
     <script type="module" src="{% static 'hft/elo-experiment.js' %}"></script>
-<script>
-   const OTREE_CONSTANTS = {
-        playerId: "{{player.id}}",
-        subsessionId: "{{player.subsession.id}}",
-        marketId: "{{player.market_id}}",
-        initialEndowment: "{{player.cash}}",
-        speedCost: "{{player.speed_unit_cost}}",
-        idInGroup: "{{player.id_in_group}}",
-        manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-        svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
-        sessionLength: "{{subsession.session_duration}}",
-        auctionFormat: "{{subsession.auction_format}}",
-        initialStrategy: JSON.parse('{{initial_strategy | json}}'),
-   };
+    <script>
+        const OTREE_CONSTANTS = {
+            playerId: "{{player.id}}",
+            subsessionId: "{{player.subsession.id}}",
+            marketId: "{{player.market_id}}",
+            initialEndowment: "{{player.cash}}",
+            speedCost: "{{player.speed_unit_cost}}",
+            idInGroup: "{{player.id_in_group}}",
+            manualButtonDisplayed: ("{{subsession.session.config.include_manual_role|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+            svSliderDisplayed: ("{{subsession.session.config.include_signed_volume_widgets|yesno:'true,false'}}" === "true"), //https://docs.djangoproject.com/en/dev/ref/templates/builtins/#yesno
+            sessionLength: "{{subsession.session_duration}}",
+            auctionFormat: "{{subsession.auction_format}}",
+            initialStrategy: JSON.parse('{{initial_strategy | json}}'),
+            roundNumber: "{{player.round_number}}"
+        };
 
-   let TEST_INPUTS_ADDRESS =  "";
-   {% if inputs_addr %}
-   TEST_INPUTS_ADDRESS = "{{inputs_addr}}";
-   {% endif %}
-</script>
+        let TEST_INPUTS_ADDRESS =  "";
+        {% if inputs_addr %}
+        TEST_INPUTS_ADDRESS = "{{inputs_addr}}";
+        {% endif %}
+    </script>
 
 
 {% endblock %}

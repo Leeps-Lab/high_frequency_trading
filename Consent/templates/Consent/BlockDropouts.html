@@ -1,0 +1,20 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+
+{% block title %}
+    Ende des Experiments
+{% endblock %}
+
+{% block content %}
+
+    <p>Da Sie die Bedingungen abgelehnt haben, ist das Experiment für Sie beendet. Sie werden nun auf die Auszahlungsseite weitergeleitet, auf der Sie Ihre Show-up fee erhalten.</p>
+
+    {% next_button %}
+    <audio id="my_audio" src="{% static "notification.mp3" %}"></audio>
+    <script>
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
+{% endblock %}
+

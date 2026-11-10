@@ -66,7 +66,8 @@ class IncomingMessage:
         if attr_name in self.data:
             return self.data[attr_name]
         else:
-            raise AttributeError('key %s is not in message %s' % (attr_name, self))
+            raise AttributeError(
+                'key %s is not in message %s' % (attr_name, self))
 
     def __str__(self):
         class_name = '%s:  ' % self.__class__.__name__ 
@@ -87,8 +88,8 @@ class IncomingWSMessage(IncomingMessage):
 class IncomingOuchMessage(IncomingMessage):
 
     def translate(self, message, message_cls=None):
-        translated_message = LeepsOuchTranslator.decode(message, message_cls=
-            message_cls if message_cls is not None else OuchServerMessages)
+        translated_message = LeepsOuchTranslator.decode(
+            message, message_cls=message_cls if message_cls is not None else OuchServerMessages)
         return translated_message
 
 

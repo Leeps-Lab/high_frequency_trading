@@ -48,7 +48,6 @@ class WSConnection extends PolymerElement {
 
         let playerReady = new CustomEvent('user-input', {bubbles: true, composed: true, 
             detail: playerReadyMessage });
-        
         this.dispatchEvent(playerReady);
     }
 

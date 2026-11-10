@@ -41,6 +41,10 @@ class InitialDecisionSelection extends PolymerElement {
           type: Number,
           reflectToAttribute: true,
         },
+        roundNumber: {
+          type: Number,
+          value: OTREE_CONSTANTS.roundNumber
+        }
       }
     }
 
@@ -84,6 +88,7 @@ class InitialDecisionSelection extends PolymerElement {
           role="[[role]]"
           on-user-input="_handleInput"
           speed-on="[[speedOn]]"
+          round-number="[[roundNumber]]"
         ></elo-state-selection>
       `;
     }

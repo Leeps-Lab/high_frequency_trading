@@ -28,19 +28,36 @@ class InfoTable extends PolymerElement {
     ready() {
       super.ready();
       this.addEventListener('transaction', this._handleExecution);
-     }
+      this.addEventListener('post_batch', this._clearingInfoAnimate)
+    }
 
-     _handleExecution(event) {
-      if (event.detail.bid) {
-        let theCard = this.$.my_bid
-        theCard.animate()
+    _handleExecution(event) {
+      for(let transaction of event.detail) {
+        let theCard;
+        if(transaction.side == 'bid') {
+          theCard = this.$.my_bid
+        }
+        else {
+          theCard = this.$.my_ask
+        }
+        theCard.animate(transaction.aggressive)
+
       }
-      if (event.detail.ask) {
-        let theCard = this.$.my_ask
-        theCard.animate()
-      }
-     }
-  
+    }
+
+  _clearingInfoAnimate() {
+    const flashTime = 500;
+    d3.select(this.$.clearingInfo)
+      .transition()
+        .duration(flashTime/2)
+        .ease(d3.easeLinear)
+        .style('background-color', 'rgba(255,210,10,0.4)')
+      .transition()
+        .duration(flashTime/2)
+        .ease(d3.easeLinear)
+        .style('background-color', 'var(--background-color-white)');
+  }
+
 
     static get template() { 
         return html`
@@ -111,7 +128,7 @@ class InfoTable extends PolymerElement {
                 </bounded-market-price-card>
               </div>
               <div class="clearing-info" style$="{{_showClearingPrice()}}">
-                <span>Clearing price: $\{{clearingPrice.price}} volume: {{clearingPrice.volume}}</span>
+                <span id="clearingInfo">Clearing price: $\{{clearingPrice.price}} volume: {{clearingPrice.volume}}</span>
               </div>
             </div>
             <div id="small-row">

@@ -3,7 +3,7 @@ from hft.views import (
     HFTOutputView, ExportHFTCSV, ExogenousOrderUploadView,
     CustomConfigUploadView, success_view, failed_view, HFTExternalFeedFilesListView, 
     HFTOrderFlowFilesListView, HFTOrderFlowListView, ExternalFeedUploadView, 
-    HFTExternalFeedListView)
+    HFTExternalFeedListView, ping)
 
 urlpatterns = [
     url(HFTOutputView.url_pattern, HFTOutputView.as_view(), name=HFTOutputView.url_name),
@@ -16,5 +16,6 @@ urlpatterns = [
     url(HFTExternalFeedFilesListView.url_pattern, HFTExternalFeedFilesListView.as_view(), name=HFTExternalFeedFilesListView.url_name),
     url(HFTExternalFeedListView.url_pattern, HFTExternalFeedListView.as_view(), name=HFTExternalFeedListView.url_name),
     url(HFTOrderFlowFilesListView.url_pattern, HFTOrderFlowFilesListView.as_view(), name=HFTOrderFlowFilesListView.url_name),
-    url(HFTOrderFlowListView.url_pattern, HFTOrderFlowListView.as_view(), name=HFTOrderFlowListView.url_name)
+    url(HFTOrderFlowListView.url_pattern, HFTOrderFlowListView.as_view(), name=HFTOrderFlowListView.url_name),
+    url('^ping/$', ping, name="ping"),
 ]

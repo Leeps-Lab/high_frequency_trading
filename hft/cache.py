@@ -24,7 +24,7 @@ def get_cache_key(type_code, model=None, model_name=None, model_id=None,
                 model_id=model_id, subsession_id=subsession_id)
 
 lock_key_format_str = '{cache_key}_lock'
-cache_timeout = 30 * 60
+cache_timeout = 60 * 60 * 2 #Cache times out after 2 hours
 
 
 def initialize_model_cache(model, timeout=cache_timeout, **kwargs):
