@@ -22,7 +22,7 @@ class  Broadcaster:
             self.append(message)
         else:
             self.broadcast_to_market(message)
-    
+
     @staticmethod
     def broadcast_to_market(message, market_id=None):
         if market_id is None:
@@ -31,7 +31,7 @@ class  Broadcaster:
         json_msg = message
         if not isinstance(json_msg, str):
             json_msg = message.to_json()
-        channel_group.send({"text": json_msg}) 
+        channel_group.send({"text": json_msg})
 
     def append(self, message):
         market_id = message.market_id
